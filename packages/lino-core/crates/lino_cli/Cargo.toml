@@ -1,0 +1,19 @@
+[package]
+name = "lino_cli"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[[bin]]
+name = "lino"
+path = "src/main.rs"
+
+[dependencies]
+lino_core = { path = "../lino_core" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+anyhow = { workspace = true }

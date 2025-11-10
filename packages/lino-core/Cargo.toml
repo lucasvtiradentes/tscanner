@@ -1,0 +1,37 @@
+[workspace]
+resolver = "2"
+members = [
+  "crates/lino_core",
+  "crates/lino_cli",
+  "crates/lino_server",
+]
+
+[workspace.package]
+version = "1.0.0"
+edition = "2021"
+authors = ["Lucas Vieira <lucasvtiradentes@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/lucasvtiradentes/lino"
+
+[workspace.dependencies]
+swc_ecma_parser = "27"
+swc_ecma_ast = "18"
+swc_common = "17"
+rayon = "1.11"
+dashmap = "6.1"
+walkdir = "2.5"
+ignore = "0.4"
+globset = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+notify = "8"
+tracing = "0.1"
+tracing-subscriber = "0.3"
+anyhow = "1.0"
+thiserror = "2.0"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1
+strip = true

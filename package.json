@@ -1,158 +1,17 @@
 {
   "name": "lino",
-  "displayName": "Lino",
-  "description": "Code linting and quality checker for TypeScript projects",
-  "version": "0.0.1",
-  "publisher": "lucasvtiradentes",
-  "engines": {
-    "vscode": "^1.100.0"
-  },
-  "categories": [
-    "Linters"
-  ],
-  "main": "./out/extension.js",
-  "activationEvents": [
-    "onStartupFinished"
-  ],
-  "contributes": {
-    "viewsContainers": {
-      "activitybar": [
-        {
-          "id": "lino",
-          "title": "Lino",
-          "icon": "resources/icon.svg"
-        }
-      ]
-    },
-    "views": {
-      "lino": [
-        {
-          "id": "linoExplorer",
-          "name": "Issues"
-        }
-      ]
-    },
-    "viewsWelcome": [
-      {
-        "view": "linoExplorer",
-        "contents": "No TypeScript any type issues found.\n[Find Any Types](command:lino.findAny)",
-        "when": "workbenchState != empty"
-      },
-      {
-        "view": "linoExplorer",
-        "contents": "Open a folder to start finding TypeScript any type issues.\n[Open Folder](command:vscode.openFolder)",
-        "when": "workbenchState == empty"
-      }
-    ],
-    "commands": [
-      {
-        "command": "lino.findAny",
-        "title": "Find Any Types",
-        "icon": "$(search)"
-      },
-      {
-        "command": "lino.refresh",
-        "title": "Refresh",
-        "icon": "$(refresh)"
-      },
-      {
-        "command": "lino.setListView",
-        "title": "View as List",
-        "icon": "$(list-flat)",
-        "enablement": "linoViewMode == tree"
-      },
-      {
-        "command": "lino.setTreeView",
-        "title": "View as Tree",
-        "icon": "$(list-tree)",
-        "enablement": "linoViewMode == list"
-      },
-      {
-        "command": "lino.openFile",
-        "title": "Open File"
-      },
-      {
-        "command": "lino.copyPath",
-        "title": "Copy Path",
-        "icon": "$(files)"
-      },
-      {
-        "command": "lino.copyRelativePath",
-        "title": "Copy Relative Path"
-      }
-    ],
-    "menus": {
-      "view/title": [
-        {
-          "command": "lino.findAny",
-          "when": "view == linoExplorer && !linoSearching",
-          "group": "navigation@10"
-        },
-        {
-          "command": "lino.refresh",
-          "when": "view == linoExplorer",
-          "group": "navigation@20"
-        },
-        {
-          "command": "lino.setListView",
-          "when": "view == linoExplorer && linoViewMode == tree",
-          "group": "navigation@30"
-        },
-        {
-          "command": "lino.setTreeView",
-          "when": "view == linoExplorer && linoViewMode == list",
-          "group": "navigation@30"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "lino.copyPath",
-          "when": "view == linoExplorer && viewItem == LinoNodeFile",
-          "group": "navigation"
-        },
-        {
-          "command": "lino.copyPath",
-          "when": "view == linoExplorer && viewItem == LinoNodeFile",
-          "group": "inline"
-        },
-        {
-          "command": "lino.copyRelativePath",
-          "when": "view == linoExplorer && viewItem == LinoNodeFile",
-          "group": "9_cutcopypaste"
-        }
-      ],
-      "commandPalette": [
-        {
-          "command": "lino.openFile",
-          "when": "false"
-        },
-        {
-          "command": "lino.copyPath",
-          "when": "false"
-        },
-        {
-          "command": "lino.copyRelativePath",
-          "when": "false"
-        },
-        {
-          "command": "lino.refresh",
-          "when": "false"
-        }
-      ]
-    }
-  },
+  "private": true,
+  "version": "1.0.0",
+  "description": "High-performance TypeScript linting platform with custom rule support",
   "scripts": {
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "bundle": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node",
-    "build": "pnpm run bundle",
-    "postbuild": "tsx scripts/install-local.ts"
+    "dev": "pnpm --filter lino-vscode dev",
+    "build": "pnpm --filter lino-vscode build",
+    "build:rust": "./scripts/build-binaries.sh",
+    "build:all": "pnpm build:rust && pnpm build",
+    "test": "pnpm --recursive test",
+    "clean": "pnpm --recursive clean && rm -rf packages/*/node_modules node_modules"
   },
   "devDependencies": {
-    "@types/node": "^22.0.0",
-    "@types/vscode": "^1.100.0",
-    "esbuild": "^0.24.0",
-    "tsx": "^4.20.6",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.3"
   }
 }

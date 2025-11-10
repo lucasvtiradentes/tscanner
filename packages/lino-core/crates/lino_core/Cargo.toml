@@ -1,0 +1,23 @@
+[package]
+name = "lino_core"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+swc_ecma_parser = { workspace = true }
+swc_ecma_ast = { workspace = true }
+swc_common = { workspace = true }
+rayon = { workspace = true }
+dashmap = { workspace = true }
+walkdir = { workspace = true }
+ignore = { workspace = true }
+globset = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+notify = { workspace = true }
+tracing = { workspace = true }
+anyhow = { workspace = true }
+thiserror = { workspace = true }
