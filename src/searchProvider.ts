@@ -100,7 +100,7 @@ class FolderResultItem extends vscode.TreeItem {
     const count = getFolderIssueCount(node);
     this.description = `${count} ${count === 1 ? 'issue' : 'issues'}`;
     this.iconPath = new vscode.ThemeIcon('folder');
-    this.contextValue = 'folder';
+    this.contextValue = 'LinoNodeFolder';
   }
 }
 
@@ -116,6 +116,8 @@ class FileResultItem extends vscode.TreeItem {
 
     this.description = `${results.length} ${results.length === 1 ? 'issue' : 'issues'}`;
     this.iconPath = new vscode.ThemeIcon('file');
+    this.contextValue = 'LinoNodeFile';
+    this.resourceUri = vscode.Uri.file(filePath);
   }
 }
 
@@ -135,6 +137,7 @@ class LineResultItem extends vscode.TreeItem {
     this.iconPath = new vscode.ThemeIcon(
       result.type === 'colonAny' ? 'symbol-variable' : 'symbol-keyword'
     );
+    this.contextValue = 'LinoNodeIssue';
   }
 }
 

@@ -120,7 +120,35 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.commands.executeCommand('setContext', 'linoViewMode', 'tree');
   });
 
-  context.subscriptions.push(findAnyCommand, openFileCommand, setListViewCommand, setTreeViewCommand);
+  const refreshCommand = vscode.commands.registerCommand('lino.refresh', () => {
+    searchProvider.setResults(searchProvider['results']);
+    logger.info('Tree view refreshed');
+  });
+
+  const copyPathCommand = vscode.commands.registerCommand('lino.copyPath', (item: any) => {
+    if (item && item.resourceUri) {
+      vscode.env.clipboard.writeText(item.resourceUri.fsPath);
+      vscode.window.showInformationMessage(`Copied: ${item.resourceUri.fsPath}`);
+    }
+  });
+
+  const copyRelativePathCommand = vscode.commands.registerCommand('lino.copyRelativePath', (item: any) => {
+    if (item && item.resourceUri) {
+      const relativePath = vscode.workspace.asRelativePath(item.resourceUri);
+      vscode.env.clipboard.writeText(relativePath);
+      vscode.window.showInformationMessage(`Copied: ${relativePath}`);
+    }
+  });
+
+  context.subscriptions.push(
+    findAnyCommand,
+    openFileCommand,
+    setListViewCommand,
+    setTreeViewCommand,
+    refreshCommand,
+    copyPathCommand,
+    copyRelativePathCommand
+  );
 }
 
 export function deactivate() {}

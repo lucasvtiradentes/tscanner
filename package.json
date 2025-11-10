@@ -32,6 +32,18 @@
         }
       ]
     },
+    "viewsWelcome": [
+      {
+        "view": "linoExplorer",
+        "contents": "No TypeScript any type issues found.\n[Find Any Types](command:lino.findAny)",
+        "when": "workbenchState != empty"
+      },
+      {
+        "view": "linoExplorer",
+        "contents": "Open a folder to start finding TypeScript any type issues.\n[Open Folder](command:vscode.openFolder)",
+        "when": "workbenchState == empty"
+      }
+    ],
     "commands": [
       {
         "command": "lino.findAny",
@@ -39,32 +51,105 @@
         "icon": "$(search)"
       },
       {
+        "command": "lino.refresh",
+        "title": "Refresh",
+        "icon": "$(refresh)"
+      },
+      {
         "command": "lino.setListView",
         "title": "View as List",
-        "icon": "$(list-tree)"
+        "icon": "$(list-flat)",
+        "enablement": "linoViewMode == tree"
       },
       {
         "command": "lino.setTreeView",
         "title": "View as Tree",
-        "icon": "$(list-flat)"
+        "icon": "$(list-tree)",
+        "enablement": "linoViewMode == list"
+      },
+      {
+        "command": "lino.openFile",
+        "title": "Open File"
+      },
+      {
+        "command": "lino.copyPath",
+        "title": "Copy Path",
+        "icon": "$(files)"
+      },
+      {
+        "command": "lino.copyRelativePath",
+        "title": "Copy Relative Path"
+      }
+    ],
+    "submenus": [
+      {
+        "id": "lino.viewMenu",
+        "label": "View & Sort"
       }
     ],
     "menus": {
       "view/title": [
         {
           "command": "lino.findAny",
-          "when": "view == linoExplorer",
-          "group": "navigation"
+          "when": "view == linoExplorer && !linoSearching",
+          "group": "navigation@10"
         },
         {
+          "command": "lino.refresh",
+          "when": "view == linoExplorer",
+          "group": "navigation@20"
+        },
+        {
+          "submenu": "lino.viewMenu",
+          "when": "view == linoExplorer",
+          "group": "1_lino"
+        }
+      ],
+      "lino.viewMenu": [
+        {
           "command": "lino.setListView",
-          "when": "view == linoExplorer && linoViewMode == tree",
-          "group": "navigation"
+          "when": "linoViewMode == tree",
+          "group": "view@1"
         },
         {
           "command": "lino.setTreeView",
-          "when": "view == linoExplorer && linoViewMode == list",
+          "when": "linoViewMode == list",
+          "group": "view@2"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "lino.copyPath",
+          "when": "view == linoExplorer && viewItem == LinoNodeFile",
           "group": "navigation"
+        },
+        {
+          "command": "lino.copyPath",
+          "when": "view == linoExplorer && viewItem == LinoNodeFile",
+          "group": "inline"
+        },
+        {
+          "command": "lino.copyRelativePath",
+          "when": "view == linoExplorer && viewItem == LinoNodeFile",
+          "group": "9_cutcopypaste"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "lino.openFile",
+          "when": "false"
+        },
+        {
+          "command": "lino.copyPath",
+          "when": "false"
+        },
+        {
+          "command": "lino.copyRelativePath",
+          "when": "false"
+        },
+        {
+          "command": "lino.refresh",
+          "when": "false"
         }
       ]
     }
