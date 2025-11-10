@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { SearchResultProvider } from './searchProvider';
-import { findAnyTypes } from './anyFinder';
+import { findAnyTypes, dispose as disposeAnyFinder } from './anyFinder';
 import { logger } from './logger';
 
 export function activate(context: vscode.ExtensionContext) {
@@ -151,4 +151,6 @@ export function activate(context: vscode.ExtensionContext) {
   );
 }
 
-export function deactivate() {}
+export function deactivate() {
+  disposeAnyFinder();
+}

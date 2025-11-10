@@ -16,6 +16,7 @@ repository = "https://github.com/lucasvtiradentes/lino"
 [workspace.dependencies]
 swc_ecma_parser = "27"
 swc_ecma_ast = "18"
+swc_ecma_visit = "18"
 swc_common = "17"
 rayon = "1.11"
 dashmap = "6.1"
