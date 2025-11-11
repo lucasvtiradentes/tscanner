@@ -210,6 +210,16 @@ fn handle_request(request: Request, state: &mut ServerState) -> Response {
                 },
             }
         }
+        "getRulesMetadata" => {
+            use lino_core::get_all_rule_metadata;
+
+            let metadata = get_all_rule_metadata();
+            Response {
+                id: request.id,
+                result: Some(serde_json::to_value(&metadata).unwrap()),
+                error: None,
+            }
+        }
         _ => Response {
             id: request.id,
             result: None,

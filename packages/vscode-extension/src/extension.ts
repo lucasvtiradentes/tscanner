@@ -38,12 +38,32 @@ export function activate(context: vscode.ExtensionContext) {
   const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
   logger.info(`Status bar item created: ${statusBarItem ? 'YES' : 'NO'}`);
 
-  const updateStatusBar = () => {
+  const updateStatusBar = async () => {
     logger.debug('updateStatusBar called');
+
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    let hasConfig = false;
+
+    if (workspaceFolder) {
+      const configPath = vscode.Uri.joinPath(workspaceFolder.uri, '.lino', 'rules.json');
+      try {
+        await vscode.workspace.fs.stat(configPath);
+        hasConfig = true;
+      } catch {
+        hasConfig = false;
+      }
+    }
+
+    const icon = hasConfig ? '$(gear)' : '$(warning)';
     const modeText = currentScanMode === 'workspace' ? 'Codebase' : 'Branch';
     const branchText = currentScanMode === 'branch' ? ` (${currentCompareBranch})` : '';
-    statusBarItem.text = `$(gear) Lino: ${modeText}${branchText}`;
-    statusBarItem.tooltip = 'Click to change scan settings';
+    const configWarning = hasConfig ? '' : ' [No rules configured]';
+
+    statusBarItem.text = `${icon} Lino: ${modeText}${branchText}${configWarning}`;
+    statusBarItem.tooltip = hasConfig
+      ? 'Click to change scan settings'
+      : 'No rules configured. Click to set up rules.';
+
     logger.debug(`Status bar text set to: ${statusBarItem.text}`);
     statusBarItem.show();
     logger.info('Status bar item show() called');
@@ -51,6 +71,36 @@ export function activate(context: vscode.ExtensionContext) {
 
   const openSettingsMenuCommand = vscode.commands.registerCommand('lino.openSettingsMenu', async () => {
     logger.info('openSettingsMenu command called');
+    const mainMenuItems: vscode.QuickPickItem[] = [
+      {
+        label: '$(checklist) Manage Default Rules',
+        detail: 'Enable/disable built-in rules and generate configuration'
+      },
+      {
+        label: '$(gear) Manage Scan Settings',
+        detail: 'Choose between Codebase or Branch scan mode'
+      }
+    ];
+
+    const selected = await vscode.window.showQuickPick(mainMenuItems, {
+      placeHolder: 'Lino Settings',
+      ignoreFocusOut: false
+    });
+
+    if (!selected) return;
+
+    if (selected.label.includes('Manage Default Rules')) {
+      await vscode.commands.executeCommand('lino.manageRules');
+      return;
+    }
+
+    if (selected.label.includes('Manage Scan Settings')) {
+      await showScanSettingsMenu();
+      return;
+    }
+  });
+
+  async function showScanSettingsMenu() {
     const scanModeItems: vscode.QuickPickItem[] = [
       {
         label: '$(file-directory) Codebase',
@@ -166,6 +216,121 @@ export function activate(context: vscode.ExtensionContext) {
       invalidateCache();
       updateStatusBar();
       vscode.commands.executeCommand('lino.findIssue');
+    }
+  }
+
+  const manageRulesCommand = vscode.commands.registerCommand('lino.manageRules', async () => {
+    const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+    if (!workspaceFolder) {
+      vscode.window.showErrorMessage('No workspace folder open');
+      return;
+    }
+
+    const { RustClient } = await import('./rustClient');
+    const { getRustBinaryPath } = await import('./issueScanner');
+
+    const binaryPath = getRustBinaryPath();
+    if (!binaryPath) {
+      vscode.window.showErrorMessage('Lino: Rust binary not found. Please build the Rust core first.');
+      return;
+    }
+
+    const client = new RustClient(binaryPath);
+    await client.start();
+
+    try {
+      const rules = await client.getRulesMetadata();
+
+      const configDir = vscode.Uri.joinPath(workspaceFolder.uri, '.lino');
+      const configPath = vscode.Uri.joinPath(configDir, 'rules.json');
+      let existingConfig: any = null;
+
+      try {
+        const configData = await vscode.workspace.fs.readFile(configPath);
+        existingConfig = JSON.parse(Buffer.from(configData).toString('utf8'));
+      } catch {
+        existingConfig = null;
+      }
+
+      interface RuleQuickPickItem extends vscode.QuickPickItem {
+        ruleName: string;
+        picked: boolean;
+      }
+
+      const items: RuleQuickPickItem[] = rules.map(rule => {
+        let isEnabled = rule.defaultEnabled;
+
+        if (existingConfig && existingConfig.rules && existingConfig.rules[rule.name]) {
+          isEnabled = existingConfig.rules[rule.name].enabled !== false;
+        }
+
+        return {
+          label: `$(${rule.category === 'typesafety' ? 'shield' : rule.category === 'codequality' ? 'beaker' : 'symbol-color'}) ${rule.displayName}`,
+          description: `[${rule.ruleType.toUpperCase()}] ${rule.defaultSeverity}`,
+          detail: rule.description,
+          ruleName: rule.name,
+          picked: isEnabled
+        };
+      });
+
+      const selected = await vscode.window.showQuickPick(items, {
+        placeHolder: 'Select rules to enable (Space to toggle, Enter to confirm)',
+        canPickMany: true,
+        ignoreFocusOut: true
+      });
+
+      if (!selected) {
+        await client.stop();
+        return;
+      }
+
+      const enabledRules = new Set(selected.map(item => item.ruleName));
+
+      const config: any = existingConfig || {
+        rules: {},
+        include: ['**/*.ts', '**/*.tsx'],
+        exclude: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.git/**']
+      };
+
+      if (!config.rules) {
+        config.rules = {};
+      }
+
+      for (const rule of rules) {
+        const existingRule = config.rules[rule.name];
+
+        if (enabledRules.has(rule.name)) {
+          config.rules[rule.name] = existingRule || {
+            enabled: true,
+            type: rule.ruleType,
+            severity: rule.defaultSeverity,
+            message: null,
+            include: [],
+            exclude: []
+          };
+          config.rules[rule.name].enabled = true;
+        } else {
+          if (existingRule) {
+            existingRule.enabled = false;
+          }
+        }
+      }
+
+      await vscode.workspace.fs.createDirectory(configDir);
+      await vscode.workspace.fs.writeFile(
+        configPath,
+        Buffer.from(JSON.stringify(config, null, 2))
+      );
+
+      await client.stop();
+
+      await updateStatusBar();
+
+      await vscode.commands.executeCommand('lino.findIssue');
+    } catch (error) {
+      logger.error(`Failed to manage rules: ${error}`);
+      await client.stop();
+      vscode.window.showErrorMessage(`Failed to load rules: ${error}`);
     }
   });
 
@@ -437,6 +602,7 @@ export function activate(context: vscode.ExtensionContext) {
     copyPathCommand,
     copyRelativePathCommand,
     openSettingsMenuCommand,
+    manageRulesCommand,
     fileWatcher,
     statusBarItem
   );

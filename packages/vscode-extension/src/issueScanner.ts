@@ -16,7 +16,7 @@ export interface IssueResult {
 
 let rustClient: RustClient | null = null;
 
-function getRustBinaryPath(): string | null {
+export function getRustBinaryPath(): string | null {
   const extensionPath = vscode.extensions.getExtension('lucasvtiradentes.lino-vscode')?.extensionPath;
   if (!extensionPath) {
     logger.error('Extension path not found');

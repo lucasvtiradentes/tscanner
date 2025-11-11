@@ -1,5 +1,6 @@
 use crate::types::{Issue, Severity};
-use crate::rules::{Rule, RuleRegistration};
+use crate::rules::{Rule, RuleRegistration, RuleMetadata, RuleMetadataRegistration, RuleCategory};
+use crate::config::RuleType;
 use swc_common::Spanned;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
@@ -11,6 +12,18 @@ pub struct NoAnyTypeRule;
 inventory::submit!(RuleRegistration {
     name: "no-any-type",
     factory: || Arc::new(NoAnyTypeRule),
+});
+
+inventory::submit!(RuleMetadataRegistration {
+    metadata: RuleMetadata {
+        name: "no-any-type",
+        display_name: "No Any Type",
+        description: "Detects usage of TypeScript 'any' type (`: any` and `as any`). Using 'any' defeats the purpose of TypeScript's type system.",
+        rule_type: RuleType::Ast,
+        default_severity: Severity::Error,
+        default_enabled: true,
+        category: RuleCategory::TypeSafety,
+    }
 });
 
 impl Rule for NoAnyTypeRule {

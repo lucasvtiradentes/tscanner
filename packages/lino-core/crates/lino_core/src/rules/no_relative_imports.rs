@@ -1,5 +1,6 @@
 use crate::types::{Issue, Severity};
-use crate::rules::{Rule, RuleRegistration};
+use crate::rules::{Rule, RuleRegistration, RuleMetadata, RuleMetadataRegistration, RuleCategory};
+use crate::config::RuleType;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
 use std::path::Path;
@@ -10,6 +11,18 @@ pub struct NoRelativeImportsRule;
 inventory::submit!(RuleRegistration {
     name: "no-relative-imports",
     factory: || Arc::new(NoRelativeImportsRule),
+});
+
+inventory::submit!(RuleMetadataRegistration {
+    metadata: RuleMetadata {
+        name: "no-relative-imports",
+        display_name: "No Relative Imports",
+        description: "Detects relative imports (starting with './' or '../'). Prefer absolute imports with @ prefix for better maintainability.",
+        rule_type: RuleType::Ast,
+        default_severity: Severity::Warning,
+        default_enabled: false,
+        category: RuleCategory::Style,
+    }
 });
 
 impl Rule for NoRelativeImportsRule {

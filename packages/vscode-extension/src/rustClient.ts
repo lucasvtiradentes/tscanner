@@ -45,6 +45,16 @@ export interface IssueResult {
   severity: 'error' | 'warning';
 }
 
+export interface RuleMetadata {
+  name: string;
+  displayName: string;
+  description: string;
+  ruleType: 'ast' | 'regex';
+  defaultSeverity: 'error' | 'warning';
+  defaultEnabled: boolean;
+  category: 'typesafety' | 'codequality' | 'style' | 'performance';
+}
+
 export class RustClient {
   private process: ChildProcess | null = null;
   private requestId = 0;
@@ -196,5 +206,10 @@ export class RustClient {
     logger.debug(`Post-processing ${result.total_issues} issues from ${filesToLoad.length} files took ${processTime}ms total`);
 
     return results;
+  }
+
+  async getRulesMetadata(): Promise<RuleMetadata[]> {
+    const result = await this.sendRequest('getRulesMetadata', {});
+    return result;
   }
 }

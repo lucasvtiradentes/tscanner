@@ -1,5 +1,6 @@
 use crate::types::{Issue, Severity};
-use crate::rules::{Rule, RuleRegistration};
+use crate::rules::{Rule, RuleRegistration, RuleMetadata, RuleMetadataRegistration, RuleCategory};
+use crate::config::RuleType;
 use swc_ecma_ast::Program;
 use std::path::Path;
 use std::sync::Arc;
@@ -10,6 +11,18 @@ pub struct NoConsoleLogRule;
 inventory::submit!(RuleRegistration {
     name: "no-console-log",
     factory: || Arc::new(NoConsoleLogRule),
+});
+
+inventory::submit!(RuleMetadataRegistration {
+    metadata: RuleMetadata {
+        name: "no-console-log",
+        display_name: "No Console Log",
+        description: "Finds console.log() statements in code. Console statements should be removed before committing to production.",
+        rule_type: RuleType::Regex,
+        default_severity: Severity::Warning,
+        default_enabled: true,
+        category: RuleCategory::CodeQuality,
+    }
 });
 
 impl Rule for NoConsoleLogRule {
