@@ -35,7 +35,7 @@
     "viewsWelcome": [
       {
         "view": "linoExplorer",
-        "contents": "No issues found.\n[Scan Workspace](command:lino.findAny)",
+        "contents": "No issues found.\n[Scan Workspace](command:lino.findIssue)",
         "when": "workbenchState != empty"
       },
       {
@@ -46,7 +46,7 @@
     ],
     "commands": [
       {
-        "command": "lino.findAny",
+        "command": "lino.findIssue",
         "title": "Scan Workspace",
         "icon": "$(search)"
       },

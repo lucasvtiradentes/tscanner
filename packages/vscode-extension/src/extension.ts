@@ -77,7 +77,7 @@ export function activate(context: vscode.ExtensionContext) {
       vscode.commands.executeCommand('setContext', 'linoScanMode', 'workspace');
       invalidateCache();
       updateStatusBar();
-      vscode.commands.executeCommand('lino.findAny');
+      vscode.commands.executeCommand('lino.findIssue');
     } else if (selected.label.includes('Branch')) {
       const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
       if (!workspaceFolder) {
@@ -165,7 +165,7 @@ export function activate(context: vscode.ExtensionContext) {
       vscode.commands.executeCommand('setContext', 'linoScanMode', 'branch');
       invalidateCache();
       updateStatusBar();
-      vscode.commands.executeCommand('lino.findAny');
+      vscode.commands.executeCommand('lino.findIssue');
     }
   });
 
@@ -182,7 +182,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   updateBadge();
 
-  const findAnyCommand = vscode.commands.registerCommand('lino.findAny', async () => {
+  const findIssueCommand = vscode.commands.registerCommand('lino.findIssue', async () => {
     if (isSearching) {
       vscode.window.showWarningMessage('Search already in progress');
       return;
@@ -314,7 +314,7 @@ export function activate(context: vscode.ExtensionContext) {
   });
 
   const refreshCommand = vscode.commands.registerCommand('lino.refresh', async () => {
-    await vscode.commands.executeCommand('lino.findAny');
+    await vscode.commands.executeCommand('lino.findIssue');
   });
 
   const setGroupByDefaultCommand = vscode.commands.registerCommand('lino.setGroupByDefault', () => {
@@ -427,7 +427,7 @@ export function activate(context: vscode.ExtensionContext) {
 
 
   context.subscriptions.push(
-    findAnyCommand,
+    findIssueCommand,
     openFileCommand,
     setListViewCommand,
     setTreeViewCommand,
