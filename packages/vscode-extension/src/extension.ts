@@ -1,10 +1,17 @@
 import * as vscode from 'vscode';
 import { SearchResultProvider } from './searchProvider';
-import { scanWorkspace, dispose as disposeScanner } from './issueScanner';
+import { scanWorkspace, scanFile, dispose as disposeScanner } from './issueScanner';
 import { logger } from './logger';
 import { getAllBranches, getChangedFiles, getCurrentBranch, invalidateCache } from './gitHelper';
 
+let isActivated = false;
+
 export function activate(context: vscode.ExtensionContext) {
+  if (isActivated) {
+    logger.warn('Extension already activated, skipping duplicate activation');
+    return;
+  }
+  isActivated = true;
   logger.info('Lino extension activated');
   const searchProvider = new SearchResultProvider();
   const viewModeKey = context.workspaceState.get<'list' | 'tree'>('lino.viewMode', 'list');
@@ -560,7 +567,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     try {
       logger.debug(`Scanning single file: ${relativePath}`);
-      const newResults = await rustClient.scanFile(workspaceFolder.uri.fsPath, uri.fsPath);
+      const newResults = await scanFile(uri.fsPath);
 
       const currentResults = searchProvider.getResults();
       const filteredResults = currentResults.filter(r => {

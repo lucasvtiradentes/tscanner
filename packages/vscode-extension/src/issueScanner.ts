@@ -105,6 +105,32 @@ export async function scanWorkspace(fileFilter?: Set<string>): Promise<IssueResu
   }
 }
 
+export async function scanFile(filePath: string): Promise<IssueResult[]> {
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+  if (!workspaceFolder) {
+    return [];
+  }
+
+  const binaryPath = getRustBinaryPath();
+  if (!binaryPath) {
+    throw new Error('Rust binary not found');
+  }
+
+  try {
+    if (!rustClient) {
+      rustClient = new RustClient(binaryPath);
+      await rustClient.start();
+    }
+
+    const results = await rustClient.scanFile(workspaceFolder.uri.fsPath, filePath);
+    logger.debug(`scanFile() returned ${results.length} results for ${filePath}`);
+    return results;
+  } catch (error) {
+    logger.error(`Failed to scan file ${filePath}: ${error}`);
+    throw error;
+  }
+}
+
 export function dispose() {
   if (rustClient) {
     rustClient.stop();
