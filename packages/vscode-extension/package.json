@@ -66,21 +66,6 @@
         "icon": "$(list-filter)"
       },
       {
-        "command": "lino.setScanModeWorkspace",
-        "title": "Scan Mode: Workspace",
-        "icon": "$(file-directory)"
-      },
-      {
-        "command": "lino.setScanModeBranch",
-        "title": "Scan Mode: Branch Diff",
-        "icon": "$(git-branch)"
-      },
-      {
-        "command": "lino.selectCompareBranch",
-        "title": "Select Compare Branch",
-        "icon": "$(gear)"
-      },
-      {
         "command": "lino.setListView",
         "title": "View as List",
         "icon": "$(list-flat)",
@@ -104,6 +89,10 @@
       {
         "command": "lino.copyRelativePath",
         "title": "Copy Relative Path"
+      },
+      {
+        "command": "lino.openSettingsMenu",
+        "title": "Lino: Open Settings"
       }
     ],
     "menus": {
@@ -122,21 +111,6 @@
           "command": "lino.setGroupByRule",
           "when": "view == linoExplorer && linoGroupMode == default",
           "group": "navigation@20"
-        },
-        {
-          "command": "lino.setScanModeWorkspace",
-          "when": "view == linoExplorer && linoScanMode == branch",
-          "group": "navigation@25"
-        },
-        {
-          "command": "lino.setScanModeBranch",
-          "when": "view == linoExplorer && linoScanMode == workspace",
-          "group": "navigation@25"
-        },
-        {
-          "command": "lino.selectCompareBranch",
-          "when": "view == linoExplorer && linoScanMode == branch",
-          "group": "navigation@26"
         },
         {
           "command": "lino.setListView",
@@ -181,6 +155,10 @@
         },
         {
           "command": "lino.refresh",
+          "when": "false"
+        },
+        {
+          "command": "lino.openSettingsMenu",
           "when": "false"
         }
       ]

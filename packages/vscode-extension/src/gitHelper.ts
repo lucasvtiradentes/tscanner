@@ -59,15 +59,32 @@ export async function getCurrentBranch(workspaceRoot: string): Promise<string | 
 }
 
 export async function getAllBranches(workspaceRoot: string): Promise<string[]> {
-  const repo = getRepository(workspaceRoot);
-  if (!repo) {
-    logger.error('Git repository not found');
+  try {
+    const { execSync } = require('child_process');
+    const output = execSync('git branch -a', {
+      cwd: workspaceRoot,
+      encoding: 'utf-8',
+      stdio: ['pipe', 'pipe', 'ignore']
+    });
+
+    const branches = output
+      .split('\n')
+      .map(line => line.trim())
+      .filter(line => line && !line.includes('HEAD'))
+      .map(line => line.replace(/^\*\s+/, ''))
+      .map(line => {
+        if (line.startsWith('remotes/origin/')) {
+          return 'origin/' + line.replace('remotes/origin/', '');
+        }
+        return line;
+      });
+
+    logger.debug(`Found ${branches.length} branches: ${branches.join(', ')}`);
+    return branches;
+  } catch (error) {
+    logger.error(`Failed to get branches: ${error}`);
     return [];
   }
-
-  return repo.state.refs
-    .map(ref => ref.name)
-    .filter(name => name && !name.includes('HEAD'));
 }
 
 export async function getChangedFiles(workspaceRoot: string, compareBranch: string): Promise<Set<string>> {
