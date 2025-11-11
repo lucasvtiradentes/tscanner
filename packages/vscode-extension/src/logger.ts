@@ -11,7 +11,9 @@ class Logger {
   }
 
   private write(level: string, message: string) {
-    const timestamp = new Date().toISOString();
+    const now = new Date();
+    const utcMinus3 = new Date(now.getTime() - 3 * 60 * 60 * 1000);
+    const timestamp = utcMinus3.toISOString().replace('Z', '-03:00');
     const logMessage = `[${timestamp}] [${level}] ${message}\n`;
 
     try {

@@ -1,0 +1,47 @@
+{
+  "rules": {
+    "no-any-type": {
+      "enabled": true,
+      "type": "ast",
+      "severity": "error",
+      "message": "Avoid using 'any' type - use specific types instead",
+      "include": ["packages/**/*.ts", "packages/**/*.tsx"],
+      "exclude": ["**/*.test.ts", "**/*.spec.ts"]
+    },
+    "no-console-log": {
+      "enabled": true,
+      "type": "regex",
+      "severity": "warning",
+      "message": "Remove console.log statements before committing",
+      "pattern": "console\\.log\\(",
+      "include": ["packages/**/*.ts", "packages/**/*.tsx"],
+      "exclude": ["**/debug/**", "**/scripts/**"]
+    },
+    "no-relative-imports": {
+      "enabled": false,
+      "type": "ast",
+      "severity": "warning",
+      "message": "Use absolute imports with @ prefix instead of relative imports",
+      "include": ["packages/**/*.ts", "packages/**/*.tsx"],
+      "exclude": ["**/*.test.ts"]
+    },
+    "prefer-type-over-interface": {
+      "enabled": false,
+      "type": "ast",
+      "severity": "warning",
+      "message": "Prefer 'type' keyword over 'interface' for consistency",
+      "include": ["packages/**/*.ts", "packages/**/*.tsx"],
+      "exclude": []
+    }
+  },
+  "include": [
+    "packages/**/*.ts",
+    "packages/**/*.tsx"
+  ],
+  "exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/.git/**"
+  ]
+}

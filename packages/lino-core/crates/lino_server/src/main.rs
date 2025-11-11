@@ -1,10 +1,8 @@
-use lino_core::{FileCache, FileWatcher, NoAnyTypeRule, Scanner};
+use lino_core::{FileCache, FileWatcher, Scanner, LinoConfig};
 use serde::{Deserialize, Serialize};
 use std::io::{self, BufRead, Write};
 use std::path::PathBuf;
 use std::sync::Arc;
-use std::thread;
-use std::time::Duration;
 use tracing::{error, info};
 use tracing_subscriber;
 
@@ -55,9 +53,16 @@ impl ServerState {
 }
 
 fn main() {
+    use tracing_subscriber::fmt::time::OffsetTime;
+    use time::UtcOffset;
+
+    let offset = UtcOffset::from_hms(-3, 0, 0).unwrap();
+    let timer = OffsetTime::new(offset, time::format_description::well_known::Rfc3339);
+
     tracing_subscriber::fmt()
         .with_writer(io::stderr)
         .with_max_level(tracing::Level::INFO)
+        .with_timer(timer)
         .init();
 
     info!("Lino server started");
@@ -143,10 +148,28 @@ fn handle_request(request: Request, state: &mut ServerState) -> Response {
 
             info!("Scanning workspace: {:?}", params.root);
 
-            let scanner = Scanner::with_cache(
-                vec![Box::new(NoAnyTypeRule)],
-                state.cache.clone(),
-            );
+            let config = match LinoConfig::load_from_workspace(&params.root) {
+                Ok(c) => {
+                    info!("Loaded configuration from workspace");
+                    c
+                }
+                Err(e) => {
+                    info!("Using default configuration: {}", e);
+                    LinoConfig::default()
+                }
+            };
+
+            let scanner = match Scanner::with_cache(config, state.cache.clone()) {
+                Ok(s) => s,
+                Err(e) => {
+                    return Response {
+                        id: request.id,
+                        result: None,
+                        error: Some(format!("Failed to create scanner: {}", e)),
+                    }
+                }
+            };
+
             let result = scanner.scan(&params.root);
 
             state.scanner = Some(scanner);

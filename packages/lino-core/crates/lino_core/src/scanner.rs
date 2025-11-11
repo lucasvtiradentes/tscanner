@@ -1,6 +1,7 @@
 use crate::cache::FileCache;
+use crate::config::LinoConfig;
 use crate::parser::parse_file;
-use crate::rules::Rule;
+use crate::registry::RuleRegistry;
 use crate::types::{FileResult, ScanResult};
 use ignore::WalkBuilder;
 use rayon::prelude::*;
@@ -11,20 +12,24 @@ use std::time::Instant;
 use tracing::{debug, info};
 
 pub struct Scanner {
-    rules: Vec<Box<dyn Rule>>,
+    registry: RuleRegistry,
+    config: LinoConfig,
     cache: Arc<FileCache>,
 }
 
 impl Scanner {
-    pub fn new(rules: Vec<Box<dyn Rule>>) -> Self {
-        Self {
-            rules,
+    pub fn new(config: LinoConfig) -> Result<Self, Box<dyn std::error::Error>> {
+        let registry = RuleRegistry::with_config(&config)?;
+        Ok(Self {
+            registry,
+            config,
             cache: Arc::new(FileCache::new()),
-        }
+        })
     }
 
-    pub fn with_cache(rules: Vec<Box<dyn Rule>>, cache: Arc<FileCache>) -> Self {
-        Self { rules, cache }
+    pub fn with_cache(config: LinoConfig, cache: Arc<FileCache>) -> Result<Self, Box<dyn std::error::Error>> {
+        let registry = RuleRegistry::with_config(&config)?;
+        Ok(Self { registry, config, cache })
     }
 
     pub fn scan(&self, root: &Path) -> ScanResult {
@@ -118,10 +123,17 @@ impl Scanner {
             }
         };
 
-        let issues: Vec<_> = self
-            .rules
-            .par_iter()
-            .flat_map(|rule| rule.check(&program, path, &source))
+        let enabled_rules = self.registry.get_enabled_rules(path, &self.config);
+
+        let issues: Vec<_> = enabled_rules
+            .iter()
+            .flat_map(|(rule, severity)| {
+                let mut rule_issues = rule.check(&program, path, &source);
+                for issue in &mut rule_issues {
+                    issue.severity = *severity;
+                }
+                rule_issues
+            })
             .collect();
 
         self.cache.insert(path.to_path_buf(), issues.clone());
