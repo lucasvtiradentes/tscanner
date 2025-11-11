@@ -57,13 +57,13 @@
       },
       {
         "command": "lino.setGroupByDefault",
-        "title": "Group by Folder",
-        "icon": "$(folder)"
+        "title": "No Grouping",
+        "icon": "$(close-all)"
       },
       {
         "command": "lino.setGroupByRule",
         "title": "Group by Rule",
-        "icon": "$(list-filter)"
+        "icon": "$(group-by-ref-type)"
       },
       {
         "command": "lino.setListView",
