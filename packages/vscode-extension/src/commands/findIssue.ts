@@ -15,15 +15,19 @@ export function createFindIssueCommand(
   currentScanModeRef: { current: 'workspace' | 'branch' },
   currentCompareBranchRef: { current: string }
 ) {
-  return vscode.commands.registerCommand('lino.findIssue', async () => {
+  return vscode.commands.registerCommand('lino.findIssue', async (options?: { silent?: boolean }) => {
     if (isSearchingRef.current) {
-      vscode.window.showWarningMessage('Search already in progress');
+      if (!options?.silent) {
+        vscode.window.showWarningMessage('Search already in progress');
+      }
       return;
     }
 
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
     if (!workspaceFolder) {
-      vscode.window.showErrorMessage('No workspace folder open');
+      if (!options?.silent) {
+        vscode.window.showErrorMessage('No workspace folder open');
+      }
       return;
     }
 

@@ -199,7 +199,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   setTimeout(() => {
     logger.info('Running initial scan after 2s delay...');
-    vscode.commands.executeCommand('lino.findIssue');
+    vscode.commands.executeCommand('lino.findIssue', { silent: true });
   }, 2000);
 }
 
