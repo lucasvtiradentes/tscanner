@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { SearchResultProvider } from '../ui/searchProvider';
+import { SearchResultProvider } from '../ui/search-provider';
 
 export function createSetListViewCommand(
   searchProvider: SearchResultProvider,

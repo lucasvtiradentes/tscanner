@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { clearCache } from '../lib/scanner';
-import { invalidateCache } from '../utils/gitHelper';
+import { invalidateCache } from '../utils/git-helper';
 import { logger } from '../utils/logger';
 
 export function createRefreshCommand() {

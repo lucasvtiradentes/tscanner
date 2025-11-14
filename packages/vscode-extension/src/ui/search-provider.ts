@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { GroupMode, IssueResult, ViewMode } from '../types';
-import { buildFolderTree } from './treeBuilder';
-import { FileResultItem, FolderResultItem, LineResultItem, RuleGroupItem } from './treeItems';
+import { buildFolderTree } from './tree-builder';
+import { FileResultItem, FolderResultItem, LineResultItem, RuleGroupItem } from './tree-items';
 
 export class SearchResultProvider implements vscode.TreeDataProvider<SearchResultItem> {
   private results: IssueResult[] = [];

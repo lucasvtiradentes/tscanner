@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { RustClient } from './rustClient';
+import { RustClient } from './rust-client';
 import { LOG_FILE_PATH, logger } from '../utils/logger';
 import { IssueResult } from '../types';
 import { join } from 'node:path';

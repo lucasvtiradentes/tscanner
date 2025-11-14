@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getAllBranches, getCurrentBranch, invalidateCache } from '../utils/gitHelper';
+import { getAllBranches, getCurrentBranch, invalidateCache } from '../utils/git-helper';
 import { logger } from '../utils/logger';
 
 export function createOpenSettingsMenuCommand(

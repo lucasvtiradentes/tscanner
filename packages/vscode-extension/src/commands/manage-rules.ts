@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { RustClient } from '../lib/rustClient';
+import { RustClient } from '../lib/rust-client';
 import { getRustBinaryPath } from '../lib/scanner';
 import { logger } from '../utils/logger';
 

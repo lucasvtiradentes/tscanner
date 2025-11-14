@@ -1,14 +1,14 @@
 import * as vscode from 'vscode';
-import { SearchResultProvider } from '../ui/searchProvider';
-import { createFindIssueCommand } from './findIssue';
-import { createManageRulesCommand } from './manageRules';
+import { SearchResultProvider } from '../ui/search-provider';
+import { createFindIssueCommand } from './find-issue';
+import { createManageRulesCommand } from './manage-rules';
 import { createOpenSettingsMenuCommand } from './settings';
 import {
   createSetListViewCommand,
   createSetTreeViewCommand,
   createSetGroupByDefaultCommand,
   createSetGroupByRuleCommand
-} from './viewMode';
+} from './view-mode';
 import {
   createOpenFileCommand,
   createCopyPathCommand,
@@ -22,7 +22,7 @@ import {
   createGoToNextIssueCommand,
   createGoToPreviousIssueCommand,
   resetIssueIndex
-} from './issueNavigation';
+} from './issue-navigation';
 
 export interface CommandContext {
   searchProvider: SearchResultProvider;

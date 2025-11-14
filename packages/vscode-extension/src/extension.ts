@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import { SearchResultProvider } from './ui/searchProvider';
+import { SearchResultProvider } from './ui/search-provider';
 import { scanFile, dispose as disposeScanner } from './lib/scanner';
 import { logger } from './utils/logger';
-import { getChangedFiles, invalidateCache, getModifiedLineRanges } from './utils/gitHelper';
-import { getNewIssues } from './utils/issueComparator';
+import { getChangedFiles, invalidateCache, getModifiedLineRanges } from './utils/git-helper';
+import { getNewIssues } from './utils/issue-comparator';
 import { registerAllCommands } from './commands';
 
 let isActivated = false;

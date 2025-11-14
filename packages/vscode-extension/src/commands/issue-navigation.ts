@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { SearchResultProvider } from '../ui/searchProvider';
+import { SearchResultProvider } from '../ui/search-provider';
 import { logger } from '../utils/logger';
 
 let currentIssueIndex = -1;
