@@ -217,11 +217,12 @@ export class RustClient {
     return result;
   }
 
-  async scanContent(workspaceRoot: string, filePath: string, content: string): Promise<IssueResult[]> {
+  async scanContent(workspaceRoot: string, filePath: string, content: string, config?: any): Promise<IssueResult[]> {
     const result: FileResult = await this.sendRequest('scanContent', {
       root: workspaceRoot,
       file: filePath,
-      content
+      content,
+      config
     });
 
     logger.debug(`Rust scan completed for content: ${result.issues.length} issues`);

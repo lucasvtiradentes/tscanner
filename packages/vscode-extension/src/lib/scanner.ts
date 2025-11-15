@@ -122,7 +122,7 @@ export async function scanFile(filePath: string): Promise<IssueResult[]> {
   }
 }
 
-export async function scanContent(filePath: string, content: string): Promise<IssueResult[]> {
+export async function scanContent(filePath: string, content: string, config?: any): Promise<IssueResult[]> {
   const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
   if (!workspaceFolder) {
     return [];
@@ -139,7 +139,7 @@ export async function scanContent(filePath: string, content: string): Promise<Is
       await rustClient.start();
     }
 
-    const results = await rustClient.scanContent(workspaceFolder.uri.fsPath, filePath, content);
+    const results = await rustClient.scanContent(workspaceFolder.uri.fsPath, filePath, content, config);
     logger.debug(`scanContent() returned ${results.length} results for ${filePath}`);
     return results;
   } catch (error) {

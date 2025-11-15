@@ -50,6 +50,7 @@ struct ScanContentParams {
     root: PathBuf,
     file: PathBuf,
     content: String,
+    config: Option<LinoConfig>,
 }
 
 struct ServerState {
@@ -361,7 +362,21 @@ fn handle_request(request: Request, state: &mut ServerState) -> Response {
 
             info!("Scanning content for file: {:?}", params.file);
 
-            let config = LinoConfig::load_from_workspace(&params.root).unwrap_or_default();
+            let config = if let Some(cfg) = params.config {
+                info!("Using config from request params (global storage)");
+                cfg
+            } else {
+                match LinoConfig::load_from_workspace(&params.root) {
+                    Ok(c) => {
+                        info!("Loaded configuration from workspace (.lino/rules.json)");
+                        c
+                    }
+                    Err(e) => {
+                        info!("Using default configuration: {}", e);
+                        LinoConfig::default()
+                    }
+                }
+            };
 
             let scanner = match Scanner::with_cache(config, state.cache.clone()) {
                 Ok(s) => s,

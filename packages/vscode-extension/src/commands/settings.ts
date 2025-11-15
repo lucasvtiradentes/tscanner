@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { getAllBranches, getCurrentBranch, invalidateCache } from '../utils/git-helper';
 import { logger } from '../utils/logger';
 import { SearchResultProvider } from '../ui/search-provider';
+import { getGlobalConfigPath, getLocalConfigPath } from '../lib/config-manager';
 
 export function createOpenSettingsMenuCommand(
   updateStatusBar: () => Promise<void>,
@@ -20,6 +21,10 @@ export function createOpenSettingsMenuCommand(
       {
         label: '$(gear) Manage Scan Settings',
         detail: 'Choose between Codebase or Branch scan mode'
+      },
+      {
+        label: '$(edit) Open Project Lino Configs',
+        detail: 'Edit .lino/rules.json or global extension config'
       }
     ];
 
@@ -45,7 +50,43 @@ export function createOpenSettingsMenuCommand(
       );
       return;
     }
+
+    if (selected.label.includes('Open Project Lino Configs')) {
+      await openProjectLinoConfigs(context);
+      return;
+    }
   });
+}
+
+async function openProjectLinoConfigs(context: vscode.ExtensionContext) {
+  const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
+
+  if (!workspaceFolder) {
+    vscode.window.showErrorMessage('No workspace folder open');
+    return;
+  }
+
+  const localConfigPath = getLocalConfigPath(workspaceFolder.uri.fsPath);
+  try {
+    await vscode.workspace.fs.stat(localConfigPath);
+    const doc = await vscode.workspace.openTextDocument(localConfigPath);
+    await vscode.window.showTextDocument(doc);
+    return;
+  } catch {
+    logger.debug('Local config not found, trying global config');
+  }
+
+  const globalConfigPath = getGlobalConfigPath(context, workspaceFolder.uri.fsPath);
+  try {
+    await vscode.workspace.fs.stat(globalConfigPath);
+    const doc = await vscode.workspace.openTextDocument(globalConfigPath);
+    await vscode.window.showTextDocument(doc);
+    return;
+  } catch {
+    logger.debug('Global config not found');
+  }
+
+  vscode.window.showErrorMessage('No Lino configuration found. Create one via "Manage Rules" first.');
 }
 
 async function showScanSettingsMenu(
