@@ -101,7 +101,7 @@ export class RustClient {
     });
 
     this.process.on('exit', (code) => {
-      logger.info(`Rust process exited with code: ${code}`);
+      logger.info(`Rust process exited with code: ${code}\n\n\n`);
       this.process = null;
     });
   }
@@ -129,9 +129,10 @@ export class RustClient {
     });
   }
 
-  async scan(workspaceRoot: string, fileFilter?: Set<string>): Promise<IssueResult[]> {
+  async scan(workspaceRoot: string, fileFilter?: Set<string>, config?: any): Promise<IssueResult[]> {
     const result: ScanResult = await this.sendRequest('scan', {
-      root: workspaceRoot
+      root: workspaceRoot,
+      config
     });
 
     logger.info(`Rust scan completed: ${result.total_issues} issues in ${result.duration_ms}ms`);

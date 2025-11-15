@@ -43,7 +43,7 @@ export function getRustBinaryPath(): string | null {
   return null;
 }
 
-export async function scanWorkspace(fileFilter?: Set<string>): Promise<IssueResult[]> {
+export async function scanWorkspace(fileFilter?: Set<string>, config?: any): Promise<IssueResult[]> {
   const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
   if (!workspaceFolder) {
     return [];
@@ -76,7 +76,7 @@ export async function scanWorkspace(fileFilter?: Set<string>): Promise<IssueResu
     }
 
     const scanStart = Date.now();
-    const results = await rustClient.scan(workspaceFolder.uri.fsPath, fileFilter);
+    const results = await rustClient.scan(workspaceFolder.uri.fsPath, fileFilter, config);
     const scanTime = Date.now() - scanStart;
     logger.debug(`scanWorkspace() took ${scanTime}ms to return ${results.length} results`);
     return results;

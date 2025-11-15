@@ -53,12 +53,15 @@ export function activate(context: vscode.ExtensionContext) {
     logger.debug('updateStatusBar called');
 
     const workspaceFolder = vscode.workspace.workspaceFolders?.[0];
-    let hasConfig = false;
 
-    if (workspaceFolder) {
-      const config = await loadEffectiveConfig(context, workspaceFolder.uri.fsPath);
-      hasConfig = config !== null && Object.keys(config.rules).length > 0;
+    if (!workspaceFolder) {
+      statusBarItem.hide();
+      return;
     }
+
+    let hasConfig = false;
+    const config = await loadEffectiveConfig(context, workspaceFolder.uri.fsPath);
+    hasConfig = config !== null && Object.keys(config.rules).length > 0;
 
     const icon = hasConfig ? '$(gear)' : '$(warning)';
     const modeText = currentScanModeRef.current === 'workspace' ? 'Codebase' : 'Branch';

@@ -31,6 +31,7 @@ struct Notification {
 #[derive(Debug, Deserialize)]
 struct ScanParams {
     root: PathBuf,
+    config: Option<LinoConfig>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -217,14 +218,19 @@ fn handle_request(request: Request, state: &mut ServerState) -> Response {
 
             info!("Scanning workspace: {:?}", params.root);
 
-            let config = match LinoConfig::load_from_workspace(&params.root) {
-                Ok(c) => {
-                    info!("Loaded configuration from workspace");
-                    c
-                }
-                Err(e) => {
-                    info!("Using default configuration: {}", e);
-                    LinoConfig::default()
+            let config = if let Some(cfg) = params.config {
+                info!("Using config from request params (global storage)");
+                cfg
+            } else {
+                match LinoConfig::load_from_workspace(&params.root) {
+                    Ok(c) => {
+                        info!("Loaded configuration from workspace (.lino/rules.json)");
+                        c
+                    }
+                    Err(e) => {
+                        info!("Using default configuration: {}", e);
+                        LinoConfig::default()
+                    }
                 }
             };
 

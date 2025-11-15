@@ -143,6 +143,8 @@ export function createManageRulesCommand(
           .map(item => item.ruleName)
       );
 
+      logger.info(`User selected ${enabledRules.size} rules: ${Array.from(enabledRules).join(', ')}`);
+
       const config: LinoConfig = existingConfig;
 
       if (!config.rules) {

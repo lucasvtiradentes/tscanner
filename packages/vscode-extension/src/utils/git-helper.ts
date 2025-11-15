@@ -233,7 +233,6 @@ export async function getModifiedLineRanges(
       ranges.push({ startLine: rangeStart, lineCount: rangeCount });
     }
 
-    logger.debug(`Added line ranges for ${filePath}: ${JSON.stringify(ranges)}`);
     return ranges;
   } catch (error) {
     logger.debug(`Failed to get modified lines for ${filePath}: ${error}`);

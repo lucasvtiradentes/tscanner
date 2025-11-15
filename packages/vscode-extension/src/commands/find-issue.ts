@@ -5,7 +5,7 @@ import { getChangedFiles, getModifiedLineRanges, branchExists } from '../utils/g
 import { getNewIssues } from '../utils/issue-comparator';
 import { logger } from '../utils/logger';
 import { resetIssueIndex } from './issue-navigation';
-import { ensureLocalConfigForScan } from '../lib/config-manager';
+import { loadEffectiveConfig, hasLocalConfig } from '../lib/config-manager';
 
 export function createFindIssueCommand(
   searchProvider: SearchResultProvider,
@@ -33,8 +33,10 @@ export function createFindIssueCommand(
       return;
     }
 
-    const hasConfig = await ensureLocalConfigForScan(context, workspaceFolder.uri.fsPath);
-    if (!hasConfig) {
+    const effectiveConfig = await loadEffectiveConfig(context, workspaceFolder.uri.fsPath);
+    const hasLocal = await hasLocalConfig(workspaceFolder.uri.fsPath);
+
+    if (!effectiveConfig || Object.keys(effectiveConfig.rules).length === 0) {
       if (!options?.silent) {
         const action = await vscode.window.showWarningMessage(
           'No rules configured for this workspace',
@@ -45,6 +47,13 @@ export function createFindIssueCommand(
         }
       }
       return;
+    }
+
+    const configToPass = hasLocal ? undefined : effectiveConfig;
+    if (hasLocal) {
+      logger.info('Using local config from .lino/rules.json');
+    } else {
+      logger.info('Using global config from extension storage');
     }
 
     if (currentScanModeRef.current === 'branch') {
@@ -98,7 +107,7 @@ export function createFindIssueCommand(
           logger.debug(`Git diff completed in ${gitDiffTime}ms: ${changedFiles.size} files`);
 
           const scanCurrentStart = Date.now();
-          const currentResults = await scanWorkspace(changedFiles);
+          const currentResults = await scanWorkspace(changedFiles, configToPass);
           const scanCurrentTime = Date.now() - scanCurrentStart;
           logger.debug(`Current branch scan completed in ${scanCurrentTime}ms`);
 
@@ -138,7 +147,7 @@ export function createFindIssueCommand(
 
           logger.info(`Branch comparison: ${currentFiltered.length} issues → ${results.length} in modified lines (${compareTime}ms)`);
         } else {
-          results = await scanWorkspace();
+          results = await scanWorkspace(undefined, configToPass);
         }
 
         const elapsed = Date.now() - startTime;

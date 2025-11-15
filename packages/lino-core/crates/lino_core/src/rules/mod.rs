@@ -17,17 +17,22 @@ inventory::collect!(RuleRegistration);
 
 mod consistent_return;
 mod metadata;
+mod no_absolute_imports;
+mod no_alias_imports;
 mod no_any_type;
 mod no_console_log;
 mod no_constant_condition;
 mod no_duplicate_imports;
+mod no_empty_class;
 mod no_empty_function;
 mod no_implicit_any;
 mod no_magic_numbers;
 mod no_relative_imports;
+mod no_todo_comments;
 mod no_unreachable_code;
 mod no_var;
 mod prefer_const;
+mod prefer_interface_over_type;
 mod prefer_type_over_interface;
 mod regex_rule;
 
