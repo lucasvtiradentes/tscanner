@@ -78,11 +78,11 @@ jobs:
       - name: Organize binaries for extension
         if: needs.push_to_main_ci.outputs.should_release == 'true'
         run: |
-          mkdir -p packages/vscode-extension/binaries
-          find artifacts -type f -name 'cscan-server-*' -exec cp {} packages/vscode-extension/binaries/ \;
-          chmod +x packages/vscode-extension/binaries/cscan-server-* 2>/dev/null || true
+          mkdir -p packages/vscode-extension/out/binaries
+          find artifacts -type f -name 'cscan-server-*' -exec mv {} packages/vscode-extension/out/binaries/ \;
+          chmod +x packages/vscode-extension/out/binaries/cscan-server-* 2>/dev/null || true
           echo "📦 Binaries ready for extension:"
-          ls -lah packages/vscode-extension/binaries/
+          ls -lah packages/vscode-extension/out/binaries/
 
       - name: Create Release Pull Request or Publish
         id: changesets
