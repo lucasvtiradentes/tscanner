@@ -55,7 +55,11 @@ jobs:
   release:
     name: 'Release'
     needs: [push_to_main_ci, build_rust_binaries]
-    if: always() && needs.push_to_main_ci.result == 'success'
+    if: |
+      always() &&
+      needs.push_to_main_ci.result == 'success' &&
+      !contains(needs.*.result, 'failure') &&
+      !contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-latest
     env:
       HUSKY: 0
