@@ -39,3 +39,28 @@ done
 
 echo "✅ Binary builds completed!"
 echo "📦 Binaries are in: packages/cscan-core/target/{target}/release/"
+
+echo ""
+echo "📦 Copying binaries to root binaries folder..."
+cd ../..
+mkdir -p binaries
+
+for TARGET in "${TARGETS[@]}"; do
+  if [[ "$TARGET" == *"windows"* ]]; then
+    BINARY_PATH="packages/cscan-core/target/$TARGET/release/cscan-server.exe"
+    if [ -f "$BINARY_PATH" ]; then
+      cp "$BINARY_PATH" "binaries/cscan-server-$TARGET.exe"
+      echo "✅ Copied cscan-server-$TARGET.exe"
+    fi
+  else
+    BINARY_PATH="packages/cscan-core/target/$TARGET/release/cscan-server"
+    if [ -f "$BINARY_PATH" ]; then
+      cp "$BINARY_PATH" "binaries/cscan-server-$TARGET"
+      echo "✅ Copied cscan-server-$TARGET"
+    fi
+  fi
+done
+
+echo ""
+echo "🎉 All done! Binaries in binaries/"
+ls -lh binaries/ 2>/dev/null || true

@@ -4,6 +4,17 @@ set -e
 echo "🚀 Starting release process..."
 echo "============================================"
 
+echo ""
+echo "🔨 Building Rust binaries for all platforms..."
+pnpm build:rust:all
+
+echo ""
+echo "📦 Copying binaries to extension folder..."
+mkdir -p packages/vscode-extension/binaries
+find binaries -type f -name 'cscan-server-*' -exec cp {} packages/vscode-extension/binaries/ \; 2>/dev/null || true
+chmod +x packages/vscode-extension/binaries/cscan-server-* 2>/dev/null || true
+echo "✅ Binaries copied: $(ls -1 packages/vscode-extension/binaries/ | wc -l) files"
+
 VSCODE_PKG="packages/vscode-extension/package.json"
 echo ""
 echo "🔍 Checking VS Code extension state..."

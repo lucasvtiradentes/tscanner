@@ -14,10 +14,10 @@ on:
     secrets:
       TURBO_TOKEN:
         description: Turbo token for cache
-        required: false
+        required: true
       TURBO_TEAM:
         description: Turbo team for cache
-        required: false
+        required: true
 
 env:
   CARGO_TERM_COLOR: always

@@ -27,36 +27,9 @@ jobs:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
-  build_rust_binaries:
-    name: 'Build Rust Binaries'
-    needs: [push_to_main_ci]
-    strategy:
-      matrix:
-        include:
-          - os: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
-          - os: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
-          - os: macos-latest
-            target: x86_64-apple-darwin
-          - os: macos-latest
-            target: aarch64-apple-darwin
-          - os: windows-latest
-            target: x86_64-pc-windows-msvc
-
-    runs-on: ${{ matrix.os }}
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: ./.github/actions/build-rust-binary
-        with:
-          target: ${{ matrix.target }}
-          os: ${{ matrix.os }}
-
   release:
     name: 'Release'
-    needs: [push_to_main_ci, build_rust_binaries]
+    needs: [push_to_main_ci]
     runs-on: ubuntu-latest
     env:
       HUSKY: 0
@@ -69,7 +42,6 @@ jobs:
           fetch-depth: 2
 
       - uses: ./.github/actions/setup-and-install
-      - uses: ./.github/actions/prepare-binaries-for-extension
 
       - name: Create Release Pull Request or Publish
         id: changesets
