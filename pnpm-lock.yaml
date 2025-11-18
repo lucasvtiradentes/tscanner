@@ -24,7 +24,7 @@ importers:
         specifier: ^2.6.1
         version: 2.6.1
 
-  packages/lino-core: {}
+  packages/cscan-core: {}
 
   packages/vscode-extension:
     devDependencies:

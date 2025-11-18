@@ -15,7 +15,8 @@
       "**/target/**",
       "**/.git/**",
       "**/.turbo/**",
-      "**/binaries/**"
+      "**/binaries/**",
+      "**/pnpm-lock.yaml"
     ]
   },
   "formatter": {
