@@ -12,10 +12,7 @@
   "bin": {
     "cscanner": "./dist/src/cscanner.js"
   },
-  "files": [
-    "dist",
-    "npm"
-  ],
+  "files": ["dist", "npm", "postinstall.cjs"],
   "optionalDependencies": {
     "cscanner-linux-x64": "workspace:*",
     "cscanner-linux-arm64": "workspace:*",
@@ -24,7 +21,7 @@
     "cscanner-win32-x64": "workspace:*"
   },
   "scripts": {
-    "postinstall": "node ./dist/scripts/safe-postinstall.js",
+    "postinstall": "node postinstall.cjs",
     "build": "tsc && ./scripts/copy-binaries.sh",
     "start": "node ./dist/src/cscanner.js",
     "typecheck": "tsc --noEmit",
