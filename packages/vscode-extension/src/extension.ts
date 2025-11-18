@@ -40,9 +40,9 @@ export function activate(context: vscode.ExtensionContext) {
   }));
   searchProvider.setResults(deserializedResults);
 
-  vscode.commands.executeCommand('setContext', getContextKey('linoViewMode'), viewModeKey);
-  vscode.commands.executeCommand('setContext', getContextKey('linoGroupMode'), groupModeKey);
-  vscode.commands.executeCommand('setContext', getContextKey('linoScanMode'), scanModeKey);
+  vscode.commands.executeCommand('setContext', getContextKey('cscanViewMode'), viewModeKey);
+  vscode.commands.executeCommand('setContext', getContextKey('cscanGroupMode'), groupModeKey);
+  vscode.commands.executeCommand('setContext', getContextKey('cscanScanMode'), scanModeKey);
 
   const viewId = getViewId();
   logger.info(`Registering tree view with ID: ${viewId}`);

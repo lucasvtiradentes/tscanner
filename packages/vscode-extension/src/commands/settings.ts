@@ -115,7 +115,7 @@ async function showScanSettingsMenu(
     searchProvider.setResults([]);
     currentScanModeRef.current = 'workspace';
     context.workspaceState.update('cscan.scanMode', 'workspace');
-    vscode.commands.executeCommand('setContext', getContextKey('linoScanMode'), 'workspace');
+    vscode.commands.executeCommand('setContext', getContextKey('cscanScanMode'), 'workspace');
     invalidateCache();
     updateStatusBar();
     vscode.commands.executeCommand(getCommandId('findIssue'));
@@ -204,7 +204,7 @@ async function showScanSettingsMenu(
     searchProvider.setResults([]);
     currentScanModeRef.current = 'branch';
     context.workspaceState.update('cscan.scanMode', 'branch');
-    vscode.commands.executeCommand('setContext', getContextKey('linoScanMode'), 'branch');
+    vscode.commands.executeCommand('setContext', getContextKey('cscanScanMode'), 'branch');
     invalidateCache();
     updateStatusBar();
     vscode.commands.executeCommand(getCommandId('findIssue'));

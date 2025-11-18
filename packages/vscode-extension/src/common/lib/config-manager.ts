@@ -22,7 +22,7 @@ export function getGlobalConfigPath(context: vscode.ExtensionContext, workspaceP
 }
 
 export function getLocalConfigPath(workspacePath: string): vscode.Uri {
-  return vscode.Uri.joinPath(vscode.Uri.file(workspacePath), '.lino', 'rules.json');
+  return vscode.Uri.joinPath(vscode.Uri.file(workspacePath), '.cscan', 'rules.json');
 }
 
 export async function hasLocalConfig(workspacePath: string): Promise<boolean> {
@@ -82,7 +82,7 @@ export async function saveGlobalConfig(
 }
 
 export async function saveLocalConfig(workspacePath: string, config: CscanConfig): Promise<void> {
-  const localConfigDir = vscode.Uri.joinPath(vscode.Uri.file(workspacePath), '.lino');
+  const localConfigDir = vscode.Uri.joinPath(vscode.Uri.file(workspacePath), '.cscan');
   const localConfigPath = getLocalConfigPath(workspacePath);
 
   await vscode.workspace.fs.createDirectory(localConfigDir);
@@ -131,7 +131,7 @@ export async function syncGlobalToLocal(context: vscode.ExtensionContext, worksp
     return;
   }
 
-  const localConfigDir = vscode.Uri.joinPath(vscode.Uri.file(workspacePath), '.lino');
+  const localConfigDir = vscode.Uri.joinPath(vscode.Uri.file(workspacePath), '.cscan');
   await vscode.workspace.fs.createDirectory(localConfigDir);
 
   const configWithMarker = addAutoManagedMarker(globalConfig);

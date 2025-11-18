@@ -12,7 +12,7 @@ export function getExtensionPath(): string | undefined {
 }
 
 export function getViewId(): string {
-  const packageJson = vscode.extensions.all.find((ext) => ext.id.includes('lino-vscode'))?.packageJSON;
+  const packageJson = vscode.extensions.all.find((ext) => ext.id.includes('cscan-vscode'))?.packageJSON;
 
   if (!packageJson) return VIEW_ID;
 

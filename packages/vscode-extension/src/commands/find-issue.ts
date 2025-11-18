@@ -71,7 +71,7 @@ export function createFindIssueCommand(
         } else if (action === 'Switch to Workspace Mode') {
           currentScanModeRef.current = 'workspace';
           context.workspaceState.update('cscan.scanMode', 'workspace');
-          vscode.commands.executeCommand('setContext', getContextKey('linoScanMode'), 'workspace');
+          vscode.commands.executeCommand('setContext', getContextKey('cscanScanMode'), 'workspace');
           await updateStatusBar();
           await vscode.commands.executeCommand(getCommandId('findIssue'), { silent: true });
         }
@@ -80,7 +80,7 @@ export function createFindIssueCommand(
     }
 
     isSearchingRef.current = true;
-    vscode.commands.executeCommand('setContext', getContextKey('linoSearching'), true);
+    vscode.commands.executeCommand('setContext', getContextKey('cscanSearching'), true);
     treeView.badge = { value: 0, tooltip: 'Searching...' };
 
     const scanTitle =
@@ -197,7 +197,7 @@ export function createFindIssueCommand(
       );
     } finally {
       isSearchingRef.current = false;
-      vscode.commands.executeCommand('setContext', getContextKey('linoSearching'), false);
+      vscode.commands.executeCommand('setContext', getContextKey('cscanSearching'), false);
     }
   });
 }

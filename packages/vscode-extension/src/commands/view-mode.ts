@@ -6,7 +6,7 @@ export function createSetListViewCommand(searchProvider: SearchResultProvider, c
   return vscode.commands.registerCommand(getCommandId('setListView'), () => {
     searchProvider.viewMode = 'list';
     context.workspaceState.update('cscan.viewMode', 'list');
-    vscode.commands.executeCommand('setContext', getContextKey('linoViewMode'), 'list');
+    vscode.commands.executeCommand('setContext', getContextKey('cscanViewMode'), 'list');
   });
 }
 
@@ -14,7 +14,7 @@ export function createSetTreeViewCommand(searchProvider: SearchResultProvider, c
   return vscode.commands.registerCommand(getCommandId('setTreeView'), () => {
     searchProvider.viewMode = 'tree';
     context.workspaceState.update('cscan.viewMode', 'tree');
-    vscode.commands.executeCommand('setContext', getContextKey('linoViewMode'), 'tree');
+    vscode.commands.executeCommand('setContext', getContextKey('cscanViewMode'), 'tree');
   });
 }
 
@@ -22,7 +22,7 @@ export function createSetGroupByDefaultCommand(searchProvider: SearchResultProvi
   return vscode.commands.registerCommand(getCommandId('setGroupByDefault'), () => {
     searchProvider.groupMode = 'default';
     context.workspaceState.update('cscan.groupMode', 'default');
-    vscode.commands.executeCommand('setContext', getContextKey('linoGroupMode'), 'default');
+    vscode.commands.executeCommand('setContext', getContextKey('cscanGroupMode'), 'default');
   });
 }
 
@@ -30,6 +30,6 @@ export function createSetGroupByRuleCommand(searchProvider: SearchResultProvider
   return vscode.commands.registerCommand(getCommandId('setGroupByRule'), () => {
     searchProvider.groupMode = 'rule';
     context.workspaceState.update('cscan.groupMode', 'rule');
-    vscode.commands.executeCommand('setContext', getContextKey('linoGroupMode'), 'rule');
+    vscode.commands.executeCommand('setContext', getContextKey('cscanGroupMode'), 'rule');
   });
 }

@@ -196,17 +196,17 @@
       "view/item/context": [
         {
           "command": "cscan.copyPath",
-          "when": "view == cscanExplorer && viewItem == LinoNodeFile",
+          "when": "view == cscanExplorer && viewItem == cscanNodeFile",
           "group": "navigation"
         },
         {
           "command": "cscan.copyPath",
-          "when": "view == cscanExplorer && viewItem == LinoNodeFile",
+          "when": "view == cscanExplorer && viewItem == cscanNodeFile",
           "group": "inline"
         },
         {
           "command": "cscan.copyRelativePath",
-          "when": "view == cscanExplorer && viewItem == LinoNodeFile",
+          "when": "view == cscanExplorer && viewItem == cscanNodeFile",
           "group": "9_cutcopypaste"
         }
       ],

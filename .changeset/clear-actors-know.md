@@ -1,5 +1,5 @@
 ---
-"lino-vscode": patch
+"cscan-vscode": patch
 ---
 
 initial release

@@ -37,7 +37,7 @@ export function getRustBinaryPath(): string | null {
     return devBinaryRelease;
   }
 
-  const devBinaryDebug = join(extensionPath, '..', '..', 'cscan--core', 'target', 'debug', binaryName);
+  const devBinaryDebug = join(extensionPath, '..', '..', 'cscan-core', 'target', 'debug', binaryName);
   logger.debug(`Checking dev debug binary: ${devBinaryDebug}`);
   if (existsSync(devBinaryDebug)) {
     logger.info(`Found dev debug binary: ${devBinaryDebug}`);
@@ -60,7 +60,7 @@ export async function scanWorkspace(fileFilter?: Set<string>, config?: any): Pro
     vscode.window
       .showErrorMessage(
         'Cscan: Rust binary not found. Please build the Rust core:\n\n' +
-          'cd packages/cscan--core && cargo build --release\n\n' +
+          'cd packages/cscan-core && cargo build --release\n\n' +
           `Check logs at ${LOG_FILE_PATH} for details.`,
         'Open Logs',
       )

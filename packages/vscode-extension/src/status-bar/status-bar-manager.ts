@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { getCommandId } from '../common/constants';
 import { loadEffectiveConfig } from '../common/lib/config-manager';
 
 export class StatusBarManager {
@@ -10,7 +11,7 @@ export class StatusBarManager {
     private currentCompareBranchRef: { current: string },
   ) {
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-    this.statusBarItem.command = 'cscan.openSettingsMenu';
+    this.statusBarItem.command = getCommandId('openSettingsMenu');
   }
 
   async update(): Promise<void> {
