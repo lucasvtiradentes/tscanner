@@ -33,17 +33,28 @@ jobs:
           path: packages/lino-core/target
           key: ${{ runner.os }}-cargo-build-${{ hashFiles('**/Cargo.lock') }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
       - name: Run tests
-        working-directory: packages/lino-core
-        run: cargo test --verbose
+        run: pnpm turbo run test --filter=lino-core
 
       - name: Run clippy
-        working-directory: packages/lino-core
-        run: cargo clippy -- -D warnings
+        run: pnpm turbo run clippy --filter=lino-core
 
       - name: Check formatting
-        working-directory: packages/lino-core
-        run: cargo fmt -- --check
+        run: pnpm turbo run format:check --filter=lino-core
 
   build:
     runs-on: ubuntu-latest
@@ -59,6 +70,19 @@ jobs:
           path: packages/lino-core/target
           key: ${{ runner.os }}-cargo-build-release-${{ hashFiles('**/Cargo.lock') }}
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install
+
       - name: Build release
-        working-directory: packages/lino-core
-        run: cargo build --release --verbose
+        run: pnpm turbo run build:rust --filter=lino-core

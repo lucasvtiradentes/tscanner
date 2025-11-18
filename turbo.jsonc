@@ -1,0 +1,89 @@
+{
+  "$schema": "https://turbo.build/schema.json",
+  "remoteCache": {
+    "enabled": true
+  },
+  "tasks": {
+    "typecheck": {
+      "outputLogs": "new-only",
+      "inputs": [
+        "./src/**",
+        "./*.config.*",
+        "./tsconfig.json",
+        "./package.json"
+      ]
+    },
+    "build": {
+      "outputLogs": "new-only",
+      "dependsOn": [
+        "^build"
+      ],
+      "outputs": [
+        "dist/**",
+        "out/**",
+        "target/release/**"
+      ]
+    },
+    "build:rust": {
+      "outputLogs": "new-only",
+      "outputs": [
+        "target/release/**"
+      ],
+      "inputs": [
+        "src/**",
+        "crates/**",
+        "Cargo.toml",
+        "Cargo.lock"
+      ]
+    },
+    "lino-core#build": {
+      "outputLogs": "new-only",
+      "outputs": [
+        "target/release/**"
+      ]
+    },
+    "lino-vscode#build": {
+      "outputLogs": "new-only",
+      "dependsOn": [
+        "lino-core#build"
+      ],
+      "outputs": [
+        "out/**"
+      ]
+    },
+    "test": {
+      "outputLogs": "new-only",
+      "inputs": [
+        "./src/**",
+        "./crates/**",
+        "./Cargo.toml",
+        "./Cargo.lock"
+      ]
+    },
+    "clippy": {
+      "outputLogs": "new-only",
+      "cache": false,
+      "inputs": [
+        "./src/**",
+        "./crates/**",
+        "./Cargo.toml"
+      ]
+    },
+    "format": {
+      "outputLogs": "new-only",
+      "cache": false
+    },
+    "format:ts": {
+      "outputLogs": "new-only",
+      "cache": false
+    },
+    "format:rust": {
+      "outputLogs": "new-only",
+      "cache": false
+    },
+    "format:check": {
+      "outputLogs": "new-only",
+      "cache": false
+    }
+  }
+}

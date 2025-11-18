@@ -24,7 +24,7 @@ jobs:
         run: pnpm install
 
       - name: Build extension
-        run: pnpm --filter lino-vscode bundle:ci
+        run: pnpm turbo run build --filter=lino-vscode
 
       - name: Run tests
         run: pnpm --filter lino-vscode test
@@ -50,7 +50,7 @@ jobs:
         run: pnpm install
 
       - name: Build extension
-        run: pnpm --filter lino-vscode bundle:ci
+        run: pnpm turbo run build --filter=lino-vscode
 
       - name: Verify build output
         run: |

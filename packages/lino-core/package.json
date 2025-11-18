@@ -1,0 +1,14 @@
+{
+  "name": "lino-core",
+  "version": "1.0.0",
+  "description": "Rust core library for Lino linter",
+  "scripts": {
+    "build": "cargo build --release",
+    "build:rust": "cargo build --release",
+    "test": "cargo test --verbose",
+    "clippy": "cargo clippy -- -D warnings",
+    "format": "cargo fmt",
+    "format:rust": "cargo fmt",
+    "format:check": "cargo fmt -- --check"
+  }
+}
