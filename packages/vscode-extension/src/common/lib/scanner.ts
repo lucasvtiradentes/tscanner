@@ -16,16 +16,39 @@ export function getRustBinaryPath(): string | null {
 
   logger.debug(`Extension path: ${extensionPath}`);
 
-  const binaryName = process.platform === 'win32' ? 'lino-server.exe' : 'lino-server';
+  const platform = process.platform;
+  const arch = process.arch;
+  const targetMap: Record<string, string> = {
+    'linux-x64': 'x86_64-unknown-linux-gnu',
+    'linux-arm64': 'aarch64-unknown-linux-gnu',
+    'darwin-x64': 'x86_64-apple-darwin',
+    'darwin-arm64': 'aarch64-apple-darwin',
+    'win32-x64': 'x86_64-pc-windows-msvc',
+  };
 
-  const bundledBinary = join(extensionPath, 'binaries', binaryName);
+  const target = targetMap[`${platform}-${arch}`];
+  const binaryName = target
+    ? `lino-server-${target}${platform === 'win32' ? '.exe' : ''}`
+    : process.platform === 'win32'
+      ? 'lino-server.exe'
+      : 'lino-server';
+
+  const bundledBinary = join(extensionPath, 'out', 'binaries', binaryName);
   logger.debug(`Checking bundled binary: ${bundledBinary}`);
   if (existsSync(bundledBinary)) {
     logger.info(`Found bundled binary: ${bundledBinary}`);
     return bundledBinary;
   }
 
-  const devBinaryRelease = join(extensionPath, '..', '..', 'lino-core', 'target', 'release', binaryName);
+  const devBinaryRelease = join(
+    extensionPath,
+    '..',
+    '..',
+    'lino-core',
+    'target',
+    'release',
+    process.platform === 'win32' ? 'lino-server.exe' : 'lino-server',
+  );
   logger.debug(`Checking dev release binary: ${devBinaryRelease}`);
   if (existsSync(devBinaryRelease)) {
     logger.info(`Found dev release binary: ${devBinaryRelease}`);

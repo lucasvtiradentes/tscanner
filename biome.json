@@ -7,7 +7,16 @@
   },
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.json"],
-    "ignore": ["**/node_modules/**", "**/dist/**", "**/out/**", "**/build/**", "**/.git/**"]
+    "ignore": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/out/**",
+      "**/build/**",
+      "**/target/**",
+      "**/.git/**",
+      "**/.turbo/**",
+      "**/binaries/**"
+    ]
   },
   "formatter": {
     "enabled": true,

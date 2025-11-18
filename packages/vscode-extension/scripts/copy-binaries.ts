@@ -1,56 +1,50 @@
 import { copyFileSync, existsSync, mkdirSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 
-class PostBuild {
-  private readonly extensionRoot: string;
-  private readonly outDir: string;
-  private readonly binariesDir: string;
+const extensionRoot = resolve(__dirname, '..');
+const outBinariesDir = join(extensionRoot, 'out', 'binaries');
+const rustCoreDir = join(extensionRoot, '..', 'lino-core');
 
-  constructor() {
-    this.extensionRoot = resolve(__dirname, '..');
-    this.outDir = join(this.extensionRoot, 'out');
-    this.binariesDir = join(this.extensionRoot, 'binaries');
+console.log('Copying Rust binaries to out/binaries...');
+
+const binaryName = process.platform === 'win32' ? 'lino-server.exe' : 'lino-server';
+const releaseBinary = join(rustCoreDir, 'target', 'release', binaryName);
+const debugBinary = join(rustCoreDir, 'target', 'debug', binaryName);
+
+const sourceBinary = existsSync(releaseBinary) ? releaseBinary : existsSync(debugBinary) ? debugBinary : null;
+
+if (!sourceBinary) {
+  console.warn('⚠️  Rust binary not found');
+  console.log('Run: cd packages/lino-core && cargo build --release');
+} else {
+  if (!existsSync(outBinariesDir)) {
+    mkdirSync(outBinariesDir, { recursive: true });
   }
 
-  async execute() {
-    console.log('Running vscode-extension postbuild...');
-    this.copyBinaries();
-    console.log('✅ Postbuild complete!');
-  }
+  const platform = process.platform;
+  const arch = process.arch;
+  const targetMap: Record<string, string> = {
+    'linux-x64': 'x86_64-unknown-linux-gnu',
+    'linux-arm64': 'aarch64-unknown-linux-gnu',
+    'darwin-x64': 'x86_64-apple-darwin',
+    'darwin-arm64': 'aarch64-apple-darwin',
+    'win32-x64': 'x86_64-pc-windows-msvc',
+  };
 
-  private copyBinaries() {
-    console.log('Copying Rust binaries...');
+  const target = targetMap[`${platform}-${arch}`];
+  const destBinaryName = target ? `lino-server-${target}${platform === 'win32' ? '.exe' : ''}` : binaryName;
+  const destBinary = join(outBinariesDir, destBinaryName);
 
-    if (!existsSync(this.binariesDir)) {
-      console.warn('⚠️  Binaries folder not found at:', this.binariesDir);
-      console.log('This is expected during development. Binaries will be downloaded on extension install.');
-      return;
-    }
-
-    const binariesDest = join(this.outDir, 'binaries');
-    if (!existsSync(binariesDest)) {
-      mkdirSync(binariesDest, { recursive: true });
-    }
-
-    const files = readdirSync(this.binariesDir);
-    if (files.length === 0) {
-      console.warn('⚠️  No binaries found in binaries folder');
-      console.log('This is expected during development. Binaries will be downloaded on extension install.');
-      return;
-    }
-
-    for (const file of files) {
-      if (file.startsWith('lino-server-')) {
-        const src = join(this.binariesDir, file);
-        const dest = join(binariesDest, file);
-        copyFileSync(src, dest);
-        console.log(`✅ Copied ${file}`);
-      }
-    }
-  }
+  copyFileSync(sourceBinary, destBinary);
+  console.log(`✅ Copied ${sourceBinary.includes('release') ? 'release' : 'debug'} binary to out/binaries/`);
 }
 
-const postBuild = new PostBuild();
-postBuild.execute().catch((err) => {
-  throw new Error(err);
-});
+const existingBinaries = existsSync(outBinariesDir)
+  ? readdirSync(outBinariesDir).filter((f) => f.startsWith('lino-server'))
+  : [];
+if (existingBinaries.length > 0) {
+  console.log(`\n📦 Binaries in out/binaries/ (${existingBinaries.length}):`);
+  existingBinaries.forEach((f) => console.log(`   - ${f}`));
+}
+
+console.log('\n✅ Copy binaries complete!');

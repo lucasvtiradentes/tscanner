@@ -15,14 +15,8 @@
     },
     "build": {
       "outputLogs": "new-only",
-      "dependsOn": [
-        "^build"
-      ],
-      "outputs": [
-        "dist/**",
-        "out/**",
-        "target/release/**"
-      ]
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", "out/**", "target/release/**", "binaries/**"]
     },
     "build:rust": {
       "outputLogs": "new-only",
@@ -44,12 +38,9 @@
     },
     "lino-vscode#build": {
       "outputLogs": "new-only",
-      "dependsOn": [
-        "lino-core#build"
-      ],
-      "outputs": [
-        "out/**"
-      ]
+      "dependsOn": ["lino-core#build"],
+      "outputs": ["out/**", "binaries/**"],
+      "inputs": ["./src/**", "./esbuild.config.ts", "./package.json", "../lino-core/target/release/**"]
     },
     "test": {
       "outputLogs": "new-only",
@@ -88,13 +79,7 @@
     "lint": {
       "outputLogs": "new-only",
       "cache": false,
-      "inputs": [
-        "./src/**",
-        "./crates/**",
-        "./Cargo.toml",
-        "./biome.json",
-        "./.eslintrc*"
-      ]
+      "inputs": ["./src/**", "./crates/**", "./Cargo.toml"]
     }
   }
 }

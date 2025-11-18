@@ -2,11 +2,15 @@
 .vscode-test/**
 src/**
 tsconfig.json
+esbuild.config.ts
 node_modules/**
 .gitignore
 *.vsix
 scripts/**
 **/*.map
-**/*.ts
-!out/**/*.js
 .DS_Store
+.turbo/**
+out/**/*.ts
+out/**/*.js
+!out/extension.js
+!out/binaries/**
