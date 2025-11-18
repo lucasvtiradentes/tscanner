@@ -54,7 +54,8 @@ jobs:
 
   release:
     name: 'Release'
-    needs: [push_to_main_ci]
+    needs: [push_to_main_ci, build_rust_binaries]
+    if: always()
     runs-on: ubuntu-latest
     env:
       HUSKY: 0

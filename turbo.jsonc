@@ -62,24 +62,23 @@
     },
     "format": {
       "outputLogs": "new-only",
-      "cache": false
+      "inputs": ["./src/**", "./crates/**", "./biome.json", "./rustfmt.toml"]
     },
     "format:ts": {
       "outputLogs": "new-only",
-      "cache": false
+      "inputs": ["./src/**", "./biome.json"]
     },
     "format:rust": {
       "outputLogs": "new-only",
-      "cache": false
+      "inputs": ["./crates/**", "./src/**", "./rustfmt.toml"]
     },
     "format:check": {
       "outputLogs": "new-only",
-      "cache": false
+      "inputs": ["./src/**", "./crates/**", "./biome.json", "./rustfmt.toml"]
     },
     "lint": {
       "outputLogs": "new-only",
-      "cache": false,
-      "inputs": ["./src/**", "./crates/**", "./Cargo.toml"]
+      "inputs": ["./src/**", "./crates/**", "./Cargo.toml", "./biome.json"]
     }
   }
 }
