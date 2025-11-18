@@ -132,6 +132,13 @@ jobs:
           echo "📦 CLI binaries ready:"
           find packages/cli/npm -type f \( -name "cscanner" -o -name "cscanner.exe" \) -exec ls -lh {} \;
 
+      - name: Rebuild extension with binaries
+        if: needs.push_to_main_ci.outputs.should_release == 'true'
+        run: |
+          echo "🔨 Rebuilding VSCode extension with organized binaries..."
+          pnpm turbo run build --filter=cscanner-vscode --force
+          echo "✅ Extension rebuild complete with binaries included"
+
       - name: Create Release Pull Request or Publish
         id: changesets
         uses: changesets/action@v1
