@@ -4,7 +4,13 @@ node_modules/
 out/
 .claude
 .ignore/
+.fingerprint/
+target/
+binaries/
 
 # FILES ========================================================================
 
 CLAUDE.md
+*.vsix
+pnpm-lock.yaml
+Cargo.lock
