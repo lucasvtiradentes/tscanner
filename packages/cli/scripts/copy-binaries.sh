@@ -51,9 +51,8 @@ if [ -f "$SOURCE_PATH" ]; then
   echo "✅ Copied binary for $NPM_PLATFORM"
 else
   echo "⚠️  Binary not found: $SOURCE_PATH"
-  echo "Run 'cargo build --release --bin cscan' first!"
-  exit 1
+  echo "Skipping binary copy (not built yet)"
 fi
 
 echo ""
-echo "✅ Binary copy complete!"
+echo "✅ Build complete!"

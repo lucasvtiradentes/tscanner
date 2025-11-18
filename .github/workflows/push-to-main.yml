@@ -55,7 +55,7 @@ jobs:
   release:
     name: 'Release'
     needs: [push_to_main_ci, build_rust_binaries]
-    if: always()
+    if: needs.push_to_main_ci.result == 'success' && (needs.build_rust_binaries.result == 'success' || needs.build_rust_binaries.result == 'skipped')
     runs-on: ubuntu-latest
     env:
       HUSKY: 0
