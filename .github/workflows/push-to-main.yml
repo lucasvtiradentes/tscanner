@@ -95,11 +95,11 @@ jobs:
           echo "📦 Organizing binaries for CLI packages..."
 
           declare -A PLATFORM_MAP=(
-            ["x86_64-unknown-linux-gnu"]="linux-x64"
-            ["aarch64-unknown-linux-gnu"]="linux-arm64"
-            ["x86_64-apple-darwin"]="darwin-x64"
-            ["aarch64-apple-darwin"]="darwin-arm64"
-            ["x86_64-pc-windows-msvc"]="win32-x64"
+            ["x86_64-unknown-linux-gnu"]="cli-linux-x64"
+            ["aarch64-unknown-linux-gnu"]="cli-linux-arm64"
+            ["x86_64-apple-darwin"]="cli-darwin-x64"
+            ["aarch64-apple-darwin"]="cli-darwin-arm64"
+            ["x86_64-pc-windows-msvc"]="cli-win32-x64"
           )
 
           found_count=0
@@ -144,6 +144,13 @@ jobs:
           echo "🔨 Rebuilding VSCode extension with organized binaries..."
           pnpm turbo run build --filter=cscanner-vscode --force
           echo "✅ Extension rebuild complete with binaries included"
+
+      - name: Generate scoped npm packages
+        if: needs.push_to_main_ci.outputs.should_release == 'true'
+        run: |
+          echo "📦 Generating scoped @cscanner packages..."
+          node packages/cli/scripts/generate-packages.mjs
+          echo "✅ Scoped packages generated"
 
       - name: Create Release Pull Request or Publish
         id: changesets

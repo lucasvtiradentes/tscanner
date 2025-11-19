@@ -1,18 +1,17 @@
 {
-  "name": "cscanner-bin-linux-arm64",
+  "name": "@cscanner/cli-linux-x64",
   "version": "2.0.3",
-  "description": "cscanner binary for Linux ARM64",
   "license": "MIT",
   "repository": {
     "type": "git",
     "url": "https://github.com/lucasvtiradentes/cscanner.git",
-    "directory": "packages/cli/npm/linux-arm64"
+    "directory": "packages/cli/npm/cli-linux-x64"
   },
   "os": [
     "linux"
   ],
   "cpu": [
-    "arm64"
+    "x64"
   ],
   "files": [
     "cscanner"

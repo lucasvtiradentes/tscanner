@@ -12,16 +12,13 @@
   "bin": {
     "cscanner": "./dist/cscanner.js"
   },
-  "files": [
-    "dist",
-    "postinstall.cjs"
-  ],
+  "files": ["dist", "postinstall.cjs"],
   "optionalDependencies": {
-    "cscanner-bin-linux-x64": "workspace:*",
-    "cscanner-bin-linux-arm64": "workspace:*",
-    "cscanner-bin-darwin-x64": "workspace:*",
-    "cscanner-bin-darwin-arm64": "workspace:*",
-    "cscanner-bin-win32-x64": "workspace:*"
+    "@cscanner/cli-linux-x64": "2.0.3",
+    "@cscanner/cli-linux-arm64": "2.0.3",
+    "@cscanner/cli-darwin-x64": "2.0.3",
+    "@cscanner/cli-darwin-arm64": "2.0.3",
+    "@cscanner/cli-win32-x64": "2.0.3"
   },
   "scripts": {
     "postinstall": "node postinstall.cjs",
