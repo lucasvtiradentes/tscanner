@@ -1,5 +1,11 @@
 # cscanner
 
+## 2.0.10
+
+### Patch Changes
+
+- fece098: fix cli
+
 ## 2.0.9
 
 ### Patch Changes
