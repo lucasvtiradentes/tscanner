@@ -17,15 +17,18 @@ function copyBinaryToNativePackage(platform, arch) {
 
   const { version, license, repository } = rootManifest;
 
+  const binaryName = os === "win32" ? "cscanner.exe" : "cscanner";
+
   const manifest = JSON.stringify(
     {
       name: packageName,
       version,
       license,
       repository: repository.url,
+      main: binaryName,
       os: [os],
       cpu: [arch],
-      files: [os === "win32" ? "cscanner.exe" : "cscanner"]
+      files: [binaryName]
     },
     null,
     2
