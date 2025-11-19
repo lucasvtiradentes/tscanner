@@ -1,5 +1,8 @@
 #!/usr/bin/env node
 
+const { chmodSync } = require('fs');
+const { join } = require('path');
+
 const PLATFORM_MAP = {
   'linux-x64': 'cscanner-linux-x64',
   'linux-arm64': 'cscanner-linux-arm64',
@@ -48,7 +51,18 @@ if (!platformKey) {
 const packageName = PLATFORM_MAP[platformKey];
 
 try {
-  require.resolve(packageName);
+  const packagePath = require.resolve(packageName);
+  const binaryName = process.platform === 'win32' ? 'cscanner.exe' : 'cscanner';
+  const binaryPath = join(packagePath, '..', binaryName);
+
+  if (process.platform !== 'win32') {
+    try {
+      chmodSync(binaryPath, 0o755);
+    } catch (e) {
+      // Ignore chmod errors in case file doesn't exist or already has correct permissions
+    }
+  }
+
   if (!isWorkspace) {
     console.log(`✅ cscanner binary installed successfully (${platformKey})`);
   }
