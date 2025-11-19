@@ -1,4 +1,4 @@
-# cscanner-bin-win32-x64
+# @cscanner/cli-win32-x64
 
 ## 2.0.8
 

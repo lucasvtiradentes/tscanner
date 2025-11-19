@@ -1,4 +1,4 @@
-# cscanner-bin-linux-x64
+# @cscanner/cli-linux-x64
 
 ## 2.0.8
 

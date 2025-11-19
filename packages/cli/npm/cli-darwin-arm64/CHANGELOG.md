@@ -1,4 +1,4 @@
-# cscanner-bin-darwin-arm64
+# @cscanner/cli-darwin-arm64
 
 ## 2.0.8
 

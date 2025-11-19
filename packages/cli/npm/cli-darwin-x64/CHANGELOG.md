@@ -1,4 +1,4 @@
-# cscanner-bin-darwin-x64
+# @cscanner/cli-darwin-x64
 
 ## 2.0.8
 
