@@ -41,17 +41,37 @@ jobs:
       - name: Check if version was bumped
         id: check
         run: |
-          VSCODE_PKG="packages/vscode-extension/package.json"
-          CURRENT_VERSION=$(node -p "require('./$VSCODE_PKG').version")
-          PREVIOUS_VERSION=$(git show HEAD^:./$VSCODE_PKG 2>/dev/null | node -p "try { JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf-8')).version } catch(e) { '' }" || echo "")
-
-          echo "🔍 Current version: $CURRENT_VERSION"
-          echo "🔍 Previous version: $PREVIOUS_VERSION"
           echo "🔍 Changed files:"
           git diff --name-only HEAD^ HEAD || echo "  (none - initial commit)"
+          echo ""
 
-          if [ -n "$PREVIOUS_VERSION" ] && [ "$PREVIOUS_VERSION" != "$CURRENT_VERSION" ]; then
-            echo "✅ Version bumped: $PREVIOUS_VERSION → $CURRENT_VERSION"
+          VERSION_BUMPED="false"
+
+          # Check VSCode extension
+          VSCODE_PKG="packages/vscode-extension/package.json"
+          VSCODE_CURRENT=$(node -p "require('./$VSCODE_PKG').version")
+          VSCODE_PREVIOUS=$(git show HEAD^:./$VSCODE_PKG 2>/dev/null | node -p "try { JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf-8')).version } catch(e) { '' }" || echo "")
+
+          echo "🔍 VSCode Extension: $VSCODE_PREVIOUS → $VSCODE_CURRENT"
+          if [ -n "$VSCODE_PREVIOUS" ] && [ "$VSCODE_PREVIOUS" != "$VSCODE_CURRENT" ]; then
+            echo "✅ VSCode extension version bumped"
+            VERSION_BUMPED="true"
+          fi
+
+          # Check CLI package
+          CLI_PKG="packages/cli/package.json"
+          CLI_CURRENT=$(node -p "require('./$CLI_PKG').version")
+          CLI_PREVIOUS=$(git show HEAD^:./$CLI_PKG 2>/dev/null | node -p "try { JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf-8')).version } catch(e) { '' }" || echo "")
+
+          echo "🔍 CLI: $CLI_PREVIOUS → $CLI_CURRENT"
+          if [ -n "$CLI_PREVIOUS" ] && [ "$CLI_PREVIOUS" != "$CLI_CURRENT" ]; then
+            echo "✅ CLI version bumped"
+            VERSION_BUMPED="true"
+          fi
+
+          echo ""
+          if [ "$VERSION_BUMPED" = "true" ]; then
+            echo "✅ Building binaries (version bumped)"
             echo "should_build=true" >> $GITHUB_OUTPUT
           else
             echo "⏭️  No version bump, skipping binary build"
