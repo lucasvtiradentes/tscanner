@@ -1,5 +1,11 @@
 # cscanner-bin-darwin-x64
 
+## 2.0.4
+
+### Patch Changes
+
+- 231a7f0: update packages
+
 ## 2.0.3
 
 ### Patch Changes
