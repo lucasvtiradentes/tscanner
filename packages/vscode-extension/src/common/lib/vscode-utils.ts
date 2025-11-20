@@ -77,6 +77,13 @@ export enum Command {
   ShowLogs = 'showLogs',
 }
 
+export enum TreeItemContextValue {
+  RuleGroup = 'CscannerNodeRuleGroup',
+  Folder = 'CscannerNodeFolder',
+  File = 'CscannerNodeFile',
+  Issue = 'CscannerNodeIssue',
+}
+
 const contextKeyMapping: Partial<Record<WorkspaceStateKeyType, ContextKey>> = {
   viewMode: ContextKey.ViewMode,
   groupMode: ContextKey.GroupMode,

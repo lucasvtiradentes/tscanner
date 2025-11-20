@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { GroupMode, ViewMode, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
-import { IssueResult } from '../common/types';
+import { IssueResult, NodeKind } from '../common/types';
 import { buildFolderTree } from './tree-builder';
 import { FileResultItem, FolderResultItem, LineResultItem, RuleGroupItem } from './tree-items';
 
@@ -68,7 +68,7 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
 
     const collectFolders = (map: Map<string, any>) => {
       for (const node of map.values()) {
-        if (node.type === 'folder') {
+        if (node.type === NodeKind.Folder) {
           folders.push(new FolderResultItem(node));
           collectFolders(node.children);
         }
@@ -111,7 +111,7 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
 
         const items: SearchResultItem[] = [];
         for (const [name, node] of tree) {
-          if (node.type === 'folder') {
+          if (node.type === NodeKind.Folder) {
             items.push(new FolderResultItem(node));
           } else {
             items.push(new FileResultItem(node.path, node.results));
@@ -128,7 +128,7 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
 
         const items: SearchResultItem[] = [];
         for (const [name, node] of tree) {
-          if (node.type === 'folder') {
+          if (node.type === NodeKind.Folder) {
             items.push(new FolderResultItem(node));
           } else {
             items.push(new FileResultItem(node.path, node.results));
@@ -139,7 +139,7 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
     } else if (element instanceof FolderResultItem) {
       const items: SearchResultItem[] = [];
       for (const [name, node] of element.node.children) {
-        if (node.type === 'folder') {
+        if (node.type === NodeKind.Folder) {
           items.push(new FolderResultItem(node));
         } else {
           items.push(new FileResultItem(node.path, node.results));

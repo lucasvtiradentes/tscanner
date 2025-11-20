@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { getCommandId } from '../common/constants';
-import { ViewMode } from '../common/lib/vscode-utils';
-import { FolderNode, IssueResult } from '../common/types';
+import { TreeItemContextValue, ViewMode } from '../common/lib/vscode-utils';
+import { FolderNode, IssueResult, NodeKind } from '../common/types';
 import { getFolderIssueCount } from './tree-builder';
 
 export class RuleGroupItem extends vscode.TreeItem {
@@ -14,7 +14,7 @@ export class RuleGroupItem extends vscode.TreeItem {
 
     this.description = `${results.length} ${results.length === 1 ? 'issue' : 'issues'}`;
     this.iconPath = new vscode.ThemeIcon('list-filter');
-    this.contextValue = 'CscannerNodeRuleGroup';
+    this.contextValue = TreeItemContextValue.RuleGroup;
   }
 }
 
@@ -24,8 +24,8 @@ export class FolderResultItem extends vscode.TreeItem {
 
     const count = getFolderIssueCount(node);
     this.description = `${count} ${count === 1 ? 'issue' : 'issues'}`;
-    this.iconPath = new vscode.ThemeIcon('folder');
-    this.contextValue = 'CscannerNodeFolder';
+    this.iconPath = new vscode.ThemeIcon(NodeKind.Folder);
+    this.contextValue = TreeItemContextValue.Folder;
   }
 }
 
@@ -40,8 +40,8 @@ export class FileResultItem extends vscode.TreeItem {
     );
 
     this.description = `${results.length} ${results.length === 1 ? 'issue' : 'issues'}`;
-    this.iconPath = new vscode.ThemeIcon('file');
-    this.contextValue = 'CscannerNodeFile';
+    this.iconPath = new vscode.ThemeIcon(NodeKind.File);
+    this.contextValue = TreeItemContextValue.File;
     this.resourceUri = vscode.Uri.file(filePath);
   }
 }
@@ -60,6 +60,6 @@ export class LineResultItem extends vscode.TreeItem {
     };
 
     this.iconPath = new vscode.ThemeIcon(result.type === 'colonAny' ? 'symbol-variable' : 'symbol-keyword');
-    this.contextValue = 'CscannerNodeIssue';
+    this.contextValue = TreeItemContextValue.Issue;
   }
 }
