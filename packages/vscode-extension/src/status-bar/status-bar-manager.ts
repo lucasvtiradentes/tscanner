@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
-import { getCommandId } from '../common/constants';
+import { getCommandId, getStatusBarName } from '../common/constants';
 import { loadEffectiveConfig } from '../common/lib/config-manager';
-import { IS_DEV } from '../common/utils/is-dev';
 
 export class StatusBarManager {
   private statusBarItem: vscode.StatusBarItem;
@@ -31,9 +30,8 @@ export class StatusBarManager {
     const modeText = this.currentScanModeRef.current === 'workspace' ? 'Codebase' : 'Branch';
     const branchText = this.currentScanModeRef.current === 'branch' ? ` (${this.currentCompareBranchRef.current})` : '';
     const configWarning = hasConfig ? '' : ' [No rules configured]';
-    const devLabel = IS_DEV ? ' (Dev)' : '';
 
-    this.statusBarItem.text = `${icon} Cscan${devLabel}: ${modeText}${branchText}${configWarning}`;
+    this.statusBarItem.text = `${icon} ${getStatusBarName()}: ${modeText}${branchText}${configWarning}`;
     this.statusBarItem.tooltip = hasConfig
       ? 'Click to change scan settings'
       : 'No rules configured. Click to set up rules.';

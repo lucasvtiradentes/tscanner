@@ -10,7 +10,16 @@ import {
 } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import { CONTEXT_PREFIX, DEV_SUFFIX, EXTENSION_ID_DEV } from '../src/common/constants';
+import { EXTENSION_ID_DEV } from '../src/common/constants';
+import {
+  addDevLabel,
+  addDevSuffix,
+  buildLogFilename,
+  CONTEXT_PREFIX,
+  DEV_SUFFIX,
+  EXTENSION_DISPLAY_NAME,
+  VIEW_ID,
+} from '../src/common/scripts-constants';
 
 if (process.env.CI || process.env.GITHUB_ACTIONS) {
   console.log('Skipping local installation in CI environment');
@@ -45,12 +54,30 @@ function copyRecursive(src: string, dest: string): void {
   }
 }
 
-function addDevSuffix(str: string): string {
-  return `${str}${DEV_SUFFIX}`;
+function transformContextKey(text: string): string {
+  return text
+    .replace(new RegExp(`view\\s*==\\s*${VIEW_ID}\\b`, 'g'), `view == ${addDevSuffix(VIEW_ID)}`)
+    .replace(/(\w+)(?=\s|$|==)/g, (match) => {
+      if (match.startsWith(CONTEXT_PREFIX) && !match.endsWith(DEV_SUFFIX) && match !== VIEW_ID) {
+        return addDevSuffix(match);
+      }
+      return match;
+    });
 }
 
-function addDevLabel(str: string): string {
-  return `${str} (Dev)`;
+function transformCommand(cmd: string): string {
+  if (!cmd.startsWith(`${CONTEXT_PREFIX}.`)) return cmd;
+  return cmd.replace(`${CONTEXT_PREFIX}.`, `${addDevSuffix(CONTEXT_PREFIX)}.`);
+}
+
+function transformTitle(title: string): string {
+  if (title.startsWith(`${EXTENSION_DISPLAY_NAME}:`)) {
+    return title.replace(`${EXTENSION_DISPLAY_NAME}:`, `${EXTENSION_DISPLAY_NAME} (Dev):`);
+  }
+  if (title.startsWith(`${CONTEXT_PREFIX}:`)) {
+    return title.replace(`${CONTEXT_PREFIX}:`, `${CONTEXT_PREFIX} (Dev):`);
+  }
+  return title;
 }
 
 function applyDevTransformations(pkg: Record<string, unknown>): Record<string, unknown> {
@@ -92,10 +119,7 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
   if (contributes.viewsWelcome) {
     const viewsWelcome = contributes.viewsWelcome as Array<{ view: string; contents: string; when?: string }>;
     for (const welcome of viewsWelcome) {
-      if (welcome.view.startsWith(CONTEXT_PREFIX)) {
-        welcome.view = welcome.view.replace(CONTEXT_PREFIX, addDevSuffix(CONTEXT_PREFIX));
-      }
-      welcome.view = welcome.view.replace(/Explorer$/, 'ExplorerDev');
+      welcome.view = addDevSuffix(welcome.view);
     }
   }
 
@@ -105,15 +129,10 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
     for (const menuList of Object.values(menus)) {
       for (const menu of menuList) {
         if (menu.when) {
-          menu.when = menu.when.replace(/(\w+)(?=\s|$|==)/g, (match) => {
-            if (match.startsWith(CONTEXT_PREFIX) && !match.endsWith(DEV_SUFFIX)) {
-              return addDevSuffix(match);
-            }
-            return match;
-          });
+          menu.when = transformContextKey(menu.when);
         }
-        if (menu.command && menu.command.startsWith(`${CONTEXT_PREFIX}.`)) {
-          menu.command = menu.command.replace(`${CONTEXT_PREFIX}.`, `${addDevSuffix(CONTEXT_PREFIX)}.`);
+        if (menu.command) {
+          menu.command = transformCommand(menu.command);
         }
       }
     }
@@ -122,23 +141,12 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
   if (contributes.commands) {
     const commands = contributes.commands as Array<{ command: string; title?: string; enablement?: string }>;
     for (const cmd of commands) {
-      if (cmd.command.startsWith(`${CONTEXT_PREFIX}.`)) {
-        cmd.command = cmd.command.replace(`${CONTEXT_PREFIX}.`, `${addDevSuffix(CONTEXT_PREFIX)}.`);
-      }
+      cmd.command = transformCommand(cmd.command);
       if (cmd.title) {
-        if (cmd.title.startsWith('Cscanner:')) {
-          cmd.title = cmd.title.replace('Cscanner:', 'Cscanner (Dev):');
-        } else if (cmd.title.startsWith('cscanner:')) {
-          cmd.title = cmd.title.replace('cscanner:', 'cscanner (Dev):');
-        }
+        cmd.title = transformTitle(cmd.title);
       }
       if (cmd.enablement) {
-        cmd.enablement = cmd.enablement.replace(/(\w+)(?=\s|$|==)/g, (match) => {
-          if (match.startsWith(CONTEXT_PREFIX) && !match.endsWith(DEV_SUFFIX)) {
-            return addDevSuffix(match);
-          }
-          return match;
-        });
+        cmd.enablement = transformContextKey(cmd.enablement);
       }
     }
   }
@@ -147,15 +155,10 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
     const keybindings = contributes.keybindings as Array<{ when?: string; command?: string }>;
     for (const binding of keybindings) {
       if (binding.when) {
-        binding.when = binding.when.replace(/(\w+)(?=\s|$|==)/g, (match) => {
-          if (match.startsWith(CONTEXT_PREFIX) && !match.endsWith(DEV_SUFFIX)) {
-            return addDevSuffix(match);
-          }
-          return match;
-        });
+        binding.when = transformContextKey(binding.when);
       }
-      if (binding.command && binding.command.startsWith(`${CONTEXT_PREFIX}.`)) {
-        binding.command = binding.command.replace(`${CONTEXT_PREFIX}.`, `${addDevSuffix(CONTEXT_PREFIX)}.`);
+      if (binding.command) {
+        binding.command = transformCommand(binding.command);
       }
     }
   }
@@ -168,15 +171,17 @@ copyRecursive('resources', join(targetDir, 'resources'));
 
 const extensionJs = readFileSync(join(targetDir, 'out', 'extension.js'), 'utf8');
 const isDevUnminified = /var IS_DEV = false;/;
-const logFilePattern = /cscannerlogs\.txt/g;
-const statusBarPattern = /Cscanner:/g;
+const logFileProd = buildLogFilename(false);
+const logFileDev = buildLogFilename(true);
+const logFilePattern = new RegExp(logFileProd.replace('.', '\\.'), 'g');
+const statusBarPattern = new RegExp(`${EXTENSION_DISPLAY_NAME}:`, 'g');
 let patchedExtensionJs = extensionJs;
 
 if (isDevUnminified.test(patchedExtensionJs)) {
   patchedExtensionJs = patchedExtensionJs.replace(isDevUnminified, 'var IS_DEV = true;');
 } else {
-  patchedExtensionJs = patchedExtensionJs.replace(logFilePattern, 'cscannerlogs-dev.txt');
-  patchedExtensionJs = patchedExtensionJs.replace(statusBarPattern, 'Cscanner (Dev):');
+  patchedExtensionJs = patchedExtensionJs.replace(logFilePattern, logFileDev);
+  patchedExtensionJs = patchedExtensionJs.replace(statusBarPattern, `${addDevLabel(EXTENSION_DISPLAY_NAME)}:`);
 }
 
 writeFileSync(join(targetDir, 'out', 'extension.js'), patchedExtensionJs);

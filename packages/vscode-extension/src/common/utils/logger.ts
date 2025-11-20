@@ -1,9 +1,9 @@
 import { appendFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { IS_DEV } from './is-dev';
+import { getLogFilename } from '../constants';
 
-export const LOG_FILE_PATH = join(tmpdir(), IS_DEV ? 'cscannerlogs-dev.txt' : 'cscannerlogs.txt');
+export const LOG_FILE_PATH = join(tmpdir(), getLogFilename());
 
 class Logger {
   constructor() {}
