@@ -185,7 +185,6 @@ export class RustClient {
           line: issue.line - 1,
           column: issue.column - 1,
           text: lineText.trim(),
-          type: issue.message.includes('as any') ? 'asAny' : 'colonAny',
           rule: issue.rule,
           severity: issue.severity.toLowerCase() as 'error' | 'warning',
         });
@@ -217,7 +216,6 @@ export class RustClient {
         line: issue.line - 1,
         column: issue.column - 1,
         text: (issue.line_text || '').trim(),
-        type: issue.message.includes('as any') ? 'asAny' : 'colonAny',
         rule: issue.rule,
         severity: issue.severity.toLowerCase() as 'error' | 'warning',
       });
@@ -250,7 +248,6 @@ export class RustClient {
         line: issue.line - 1,
         column: issue.column - 1,
         text: (issue.line_text || '').trim(),
-        type: issue.message.includes('as any') ? 'asAny' : 'colonAny',
         rule: issue.rule,
         severity: issue.severity.toLowerCase() as 'error' | 'warning',
       });

@@ -5,7 +5,6 @@ export interface IssueResult {
   line: number;
   column: number;
   text: string;
-  type: 'colonAny' | 'asAny';
   rule: string;
   severity: 'error' | 'warning';
 }

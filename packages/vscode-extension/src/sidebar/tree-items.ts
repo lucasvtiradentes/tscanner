@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { getCommandId } from '../common/constants';
-import { TreeItemContextValue, ViewMode } from '../common/lib/vscode-utils';
+import { Command, TreeItemContextValue, ViewMode } from '../common/lib/vscode-utils';
 import { FolderNode, IssueResult, NodeKind } from '../common/types';
 import { getFolderIssueCount } from './tree-builder';
 
@@ -54,12 +54,12 @@ export class LineResultItem extends vscode.TreeItem {
     this.tooltip = result.text;
 
     this.command = {
-      command: getCommandId('openFile'),
+      command: getCommandId(Command.OpenFile),
       title: 'Open File',
       arguments: [result.uri, result.line, result.column],
     };
 
-    this.iconPath = new vscode.ThemeIcon(result.type === 'colonAny' ? 'symbol-variable' : 'symbol-keyword');
+    this.iconPath = new vscode.ThemeIcon('symbol-variable');
     this.contextValue = TreeItemContextValue.Issue;
   }
 }

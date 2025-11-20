@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { getCommandId, getStatusBarName } from '../common/constants';
 import { loadEffectiveConfig } from '../common/lib/config-manager';
-import { ScanMode, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
+import { Command, ScanMode, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 
 export class StatusBarManager {
   private statusBarItem: vscode.StatusBarItem;
@@ -12,7 +12,7 @@ export class StatusBarManager {
     private currentCompareBranchRef: { current: string },
   ) {
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
-    this.statusBarItem.command = getCommandId('openSettingsMenu');
+    this.statusBarItem.command = getCommandId(Command.OpenSettingsMenu);
   }
 
   async update(): Promise<void> {
