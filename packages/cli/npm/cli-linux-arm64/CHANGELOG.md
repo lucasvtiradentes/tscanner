@@ -1,5 +1,11 @@
 # @cscanner/cli-linux-arm64
 
+## 2.0.11
+
+### Patch Changes
+
+- 181b142: refactor code
+
 ## 2.0.10
 
 ### Patch Changes
