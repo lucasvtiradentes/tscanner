@@ -47,10 +47,10 @@ impl RuleRegistry {
                                 .insert(rule_name.clone(), Arc::new(regex_rule));
                         }
                         Err(e) => {
-                            crate::log_error(
-                                "rust_core",
-                                &format!("Failed to compile regex rule '{}': {}", rule_name, e),
-                            );
+                            crate::log_error(&format!(
+                                "Failed to compile regex rule '{}': {}",
+                                rule_name, e
+                            ));
                             continue;
                         }
                     }
@@ -69,14 +69,11 @@ impl RuleRegistry {
             .values()
             .filter(|c| c.enabled)
             .count();
-        crate::log_info(
-            "rust_core",
-            &format!(
-                "Loaded {} rules ({} enabled)",
-                registry.rules.len(),
-                enabled_count
-            ),
-        );
+        crate::log_info(&format!(
+            "Loaded {} rules ({} enabled)",
+            registry.rules.len(),
+            enabled_count
+        ));
 
         Ok(registry)
     }

@@ -94,11 +94,11 @@ impl FileCache {
                             loaded += 1;
                         }
                     }
-                    crate::log_debug("rust_core", &format!("Loaded {} cache entries", loaded));
+                    crate::log_debug(&format!("Loaded {} cache entries", loaded));
                 }
-                Err(e) => crate::log_debug("rust_core", &format!("Failed to parse cache: {}", e)),
+                Err(e) => crate::log_debug(&format!("Failed to parse cache: {}", e)),
             },
-            Err(e) => crate::log_debug("rust_core", &format!("Failed to read cache: {}", e)),
+            Err(e) => crate::log_debug(&format!("Failed to read cache: {}", e)),
         }
     }
 
@@ -114,12 +114,9 @@ impl FileCache {
 
             if let Ok(content) = serde_json::to_string(&entries) {
                 if let Err(e) = fs::write(&cache_file, &content) {
-                    crate::log_debug("rust_core", &format!("Failed to save cache: {}", e));
+                    crate::log_debug(&format!("Failed to save cache: {}", e));
                 } else {
-                    crate::log_debug(
-                        "rust_core",
-                        &format!("Saved {} cache entries", entries.len()),
-                    );
+                    crate::log_debug(&format!("Saved {} cache entries", entries.len()));
                 }
             }
         }

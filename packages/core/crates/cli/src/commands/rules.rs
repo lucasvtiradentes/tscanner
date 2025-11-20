@@ -5,14 +5,20 @@ use std::fs;
 use std::path::Path;
 
 use crate::config_loader::load_config_with_path;
-use core::{APP_DISPLAY_NAME, APP_NAME};
+use core::{log_error, log_info, APP_DISPLAY_NAME, APP_NAME};
 
 pub fn cmd_rules(path: &Path) -> Result<()> {
+    log_info(&format!("cmd_rules: Listing rules at: {}", path.display()));
+
     let root = fs::canonicalize(path).context("Failed to resolve path")?;
 
     let (config, config_path) = match load_config_with_path(&root)? {
-        Some((cfg, path)) => (cfg, path),
+        Some((cfg, path)) => {
+            log_info(&format!("cmd_rules: Config loaded from: {}", path));
+            (cfg, path)
+        }
         None => {
+            log_error("cmd_rules: No config found");
             eprintln!(
                 "{}",
                 format!("Error: No {} configuration found!", APP_NAME)
@@ -40,10 +46,12 @@ pub fn cmd_rules(path: &Path) -> Result<()> {
     enabled_rules.sort_by_key(|(name, _)| *name);
 
     if enabled_rules.is_empty() {
+        log_info("cmd_rules: No rules enabled");
         println!("{}", "No rules enabled.".yellow());
         return Ok(());
     }
 
+    log_info(&format!("cmd_rules: {} enabled rules", enabled_rules.len()));
     println!("{} enabled rules:\n", enabled_rules.len());
 
     for (name, rule_config) in enabled_rules {

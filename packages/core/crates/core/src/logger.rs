@@ -9,15 +9,16 @@ static LOGGER: Mutex<Option<Logger>> = Mutex::new(None);
 
 pub struct Logger {
     file_path: PathBuf,
+    context: String,
 }
 
 impl Logger {
-    fn new() -> Self {
+    fn new(context: String) -> Self {
         let file_path = std::env::temp_dir().join(get_log_filename());
-        Self { file_path }
+        Self { file_path, context }
     }
 
-    fn write(&self, prefix: &str, level: &str, message: &str) {
+    fn write(&self, level: &str, message: &str) {
         use time::OffsetDateTime;
 
         let now = OffsetDateTime::now_utc();
@@ -36,7 +37,10 @@ impl Logger {
             0
         );
 
-        let log_message = format!("[{}] [{}] [{}] {}\n", timestamp, prefix, level, message);
+        let log_message = format!(
+            "[{}] [{}] [{}] {}\n",
+            timestamp, self.context, level, message
+        );
 
         if let Ok(mut file) = OpenOptions::new()
             .create(true)
@@ -47,20 +51,20 @@ impl Logger {
         }
     }
 
-    pub fn info(&self, prefix: &str, message: &str) {
-        self.write(prefix, "INFO", message);
+    pub fn info(&self, message: &str) {
+        self.write("INFO", message);
     }
 
-    pub fn error(&self, prefix: &str, message: &str) {
-        self.write(prefix, "ERROR", message);
+    pub fn error(&self, message: &str) {
+        self.write("ERROR", message);
     }
 
-    pub fn warn(&self, prefix: &str, message: &str) {
-        self.write(prefix, "WARN", message);
+    pub fn warn(&self, message: &str) {
+        self.write("WARN", message);
     }
 
-    pub fn debug(&self, prefix: &str, message: &str) {
-        self.write(prefix, "DEBUG", message);
+    pub fn debug(&self, message: &str) {
+        self.write("DEBUG", message);
     }
 }
 
@@ -68,45 +72,41 @@ pub fn get_logger() -> &'static Mutex<Option<Logger>> {
     &LOGGER
 }
 
-pub fn init_logger() {
+pub fn init_logger(context: &str) {
     let mut logger = LOGGER.lock().unwrap();
     if logger.is_none() {
-        *logger = Some(Logger::new());
+        *logger = Some(Logger::new(context.to_string()));
     }
 }
 
-pub fn log_info(prefix: &str, message: &str) {
-    init_logger();
+pub fn log_info(message: &str) {
     if let Ok(logger) = LOGGER.lock() {
         if let Some(l) = logger.as_ref() {
-            l.info(prefix, message);
+            l.info(message);
         }
     }
 }
 
-pub fn log_error(prefix: &str, message: &str) {
-    init_logger();
+pub fn log_error(message: &str) {
     if let Ok(logger) = LOGGER.lock() {
         if let Some(l) = logger.as_ref() {
-            l.error(prefix, message);
+            l.error(message);
         }
     }
 }
 
-pub fn log_warn(prefix: &str, message: &str) {
-    init_logger();
+pub fn log_warn(message: &str) {
     if let Ok(logger) = LOGGER.lock() {
         if let Some(l) = logger.as_ref() {
-            l.warn(prefix, message);
+            l.warn(message);
         }
     }
 }
 
-pub fn log_debug(prefix: &str, message: &str) {
-    init_logger();
+pub fn log_debug(message: &str) {
     if let Ok(logger) = LOGGER.lock() {
         if let Some(l) = logger.as_ref() {
-            l.debug(prefix, message);
+            l.debug(message);
         }
     }
 }

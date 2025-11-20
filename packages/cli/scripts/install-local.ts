@@ -1,10 +1,6 @@
-import { chmodSync, copyFileSync, existsSync, mkdirSync } from 'fs';
-import { arch, platform } from 'os';
-import { dirname, join } from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { chmodSync, copyFileSync, existsSync, mkdirSync } from 'node:fs';
+import { arch, platform } from 'node:os';
+import { join } from 'node:path';
 
 const SCRIPT_DIR = __dirname;
 const CLI_DIR = join(SCRIPT_DIR, '..');

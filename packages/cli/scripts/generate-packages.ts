@@ -1,9 +1,8 @@
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join, resolve } from 'node:path';
 
-const CLI_ROOT = resolve(fileURLToPath(import.meta.url), '../..');
-const MANIFEST_PATH = resolve(CLI_ROOT, 'package.json');
+const CLI_ROOT = resolve(__dirname, '..');
+const MANIFEST_PATH = join(CLI_ROOT, 'package.json');
 
 const PLATFORMS = [
   { platform: 'win32', arch: 'x64' },

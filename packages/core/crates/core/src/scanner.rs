@@ -42,7 +42,7 @@ impl Scanner {
 
     pub fn scan(&self, root: &Path) -> ScanResult {
         let start = Instant::now();
-        crate::log_info("rust_core", &format!("Starting scan of {:?}", root));
+        crate::log_info(&format!("Starting scan of {:?}", root));
 
         let files: Vec<PathBuf> = WalkBuilder::new(root)
             .hidden(false)
@@ -66,10 +66,7 @@ impl Scanner {
             .collect();
 
         let file_count = files.len();
-        crate::log_debug(
-            "rust_core",
-            &format!("Found {} TypeScript files", file_count),
-        );
+        crate::log_debug(&format!("Found {} TypeScript files", file_count));
 
         let processed = AtomicUsize::new(0);
         let cache_hits = AtomicUsize::new(0);
@@ -122,7 +119,7 @@ impl Scanner {
         let program = match parse_file(path, content) {
             Ok(p) => p,
             Err(e) => {
-                crate::log_debug("rust_core", &format!("Failed to parse {:?}: {}", path, e));
+                crate::log_debug(&format!("Failed to parse {:?}: {}", path, e));
                 return None;
             }
         };
@@ -168,7 +165,7 @@ impl Scanner {
         let program = match parse_file(path, &source) {
             Ok(p) => p,
             Err(e) => {
-                crate::log_debug("rust_core", &format!("Failed to parse {:?}: {}", path, e));
+                crate::log_debug(&format!("Failed to parse {:?}: {}", path, e));
                 return None;
             }
         };

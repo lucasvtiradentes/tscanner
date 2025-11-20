@@ -4,38 +4,26 @@ use core::{FileCache, Scanner, TscannerConfig};
 use std::sync::Arc;
 
 pub fn handle_scan(request_id: u64, params: ScanParams, state: &mut ServerState) -> Response {
-    core::log_info(
-        "rust_server",
-        &format!("Scanning workspace: {:?}", params.root),
-    );
+    core::log_info(&format!("Scanning workspace: {:?}", params.root));
 
     let config = if let Some(cfg) = params.config {
-        core::log_info(
-            "rust_server",
-            "Using config from request params (global storage)",
-        );
+        core::log_info("Using config from request params (global storage)");
         cfg
     } else {
         match TscannerConfig::load_from_workspace(&params.root) {
             Ok(c) => {
-                core::log_info(
-                    "rust_server",
-                    "Loaded configuration from workspace (.tscanner/rules.json)",
-                );
+                core::log_info("Loaded configuration from workspace (.tscanner/rules.json)");
                 c
             }
             Err(e) => {
-                core::log_info(
-                    "rust_server",
-                    &format!("Using default configuration: {}", e),
-                );
+                core::log_info(&format!("Using default configuration: {}", e));
                 TscannerConfig::default()
             }
         }
     };
 
     let config_hash = config.compute_hash();
-    core::log_debug("rust_server", &format!("Config hash: {}", config_hash));
+    core::log_debug(&format!("Config hash: {}", config_hash));
 
     let cache = Arc::new(FileCache::with_config_hash(config_hash));
     state.cache = cache.clone();

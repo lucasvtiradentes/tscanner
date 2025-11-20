@@ -8,14 +8,24 @@ use std::path::Path;
 use std::sync::Arc;
 
 use crate::config_loader::{get_vscode_global_config_path, load_config};
-use core::{APP_NAME, CONFIG_DIR_NAME, CONFIG_FILE_NAME};
+use core::{log_error, log_info, APP_NAME, CONFIG_DIR_NAME, CONFIG_FILE_NAME};
 
 pub fn cmd_check(path: &Path, no_cache: bool) -> Result<()> {
+    log_info(&format!(
+        "cmd_check: Starting at: {} (no_cache: {})",
+        path.display(),
+        no_cache
+    ));
+
     let root = fs::canonicalize(path).context("Failed to resolve path")?;
 
     let config = match load_config(&root)? {
-        Some(cfg) => cfg,
+        Some(cfg) => {
+            log_info("cmd_check: Config loaded successfully");
+            cfg
+        }
         None => {
+            log_error("cmd_check: No config found");
             eprintln!(
                 "{}",
                 format!("Error: No {} configuration found!", APP_NAME)
@@ -60,6 +70,12 @@ pub fn cmd_check(path: &Path, no_cache: bool) -> Result<()> {
 
     println!("{}", "Scanning...".cyan().bold());
     let result = scanner.scan(&root);
+
+    log_info(&format!(
+        "cmd_check: Scan completed: {} files, {}ms",
+        result.files.len(),
+        result.duration_ms
+    ));
 
     if result.files.is_empty() {
         println!("{}", "✓ No issues found!".green().bold());
@@ -123,6 +139,11 @@ pub fn cmd_check(path: &Path, no_cache: bool) -> Result<()> {
         result.files.len(),
         result.duration_ms
     );
+
+    log_info(&format!(
+        "cmd_check: Found {} errors, {} warnings",
+        error_count, warning_count
+    ));
 
     if error_count > 0 {
         std::process::exit(1);

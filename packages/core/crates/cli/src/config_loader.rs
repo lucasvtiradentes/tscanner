@@ -2,7 +2,7 @@ use anyhow::Result;
 use core::config::TscannerConfig;
 use std::path::{Path, PathBuf};
 
-use core::{get_vscode_extension_id, CONFIG_DIR_NAME, CONFIG_FILE_NAME};
+use core::{get_vscode_extension_id, log_info, CONFIG_DIR_NAME, CONFIG_FILE_NAME};
 
 pub fn load_config(root: &Path) -> Result<Option<TscannerConfig>> {
     load_config_with_path(root).map(|opt| opt.map(|(cfg, _)| cfg))
@@ -11,6 +11,10 @@ pub fn load_config(root: &Path) -> Result<Option<TscannerConfig>> {
 pub fn load_config_with_path(root: &Path) -> Result<Option<(TscannerConfig, String)>> {
     let local_path = root.join(CONFIG_DIR_NAME).join(CONFIG_FILE_NAME);
     if local_path.exists() {
+        log_info(&format!(
+            "config_loader: Loading local config: {}",
+            local_path.display()
+        ));
         let config =
             TscannerConfig::load_from_file(&local_path).map_err(|e| anyhow::anyhow!("{}", e))?;
         return Ok(Some((config, local_path.display().to_string())));
@@ -18,12 +22,17 @@ pub fn load_config_with_path(root: &Path) -> Result<Option<(TscannerConfig, Stri
 
     if let Some(global_path) = get_vscode_global_config_path(root) {
         if global_path.exists() {
+            log_info(&format!(
+                "config_loader: Loading global config: {}",
+                global_path.display()
+            ));
             let config = TscannerConfig::load_from_file(&global_path)
                 .map_err(|e| anyhow::anyhow!("{}", e))?;
             return Ok(Some((config, global_path.display().to_string())));
         }
     }
 
+    log_info("config_loader: No config found");
     Ok(None)
 }
 

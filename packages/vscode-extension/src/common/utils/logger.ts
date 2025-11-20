@@ -6,13 +6,17 @@ import { getLogFilename } from '../constants';
 export const LOG_FILE_PATH = join(tmpdir(), getLogFilename());
 
 class Logger {
-  constructor() {}
+  private context: string;
+
+  constructor(context: string) {
+    this.context = context;
+  }
 
   private write(level: string, message: string) {
     const now = new Date();
     const utcMinus3 = new Date(now.getTime() - 3 * 60 * 60 * 1000);
     const timestamp = utcMinus3.toISOString().replace('Z', '-03:00');
-    const logMessage = `[${timestamp}] [${level}] ${message}\n`;
+    const logMessage = `[${timestamp}] [${this.context}] [${level}] ${message}\n`;
 
     try {
       appendFileSync(LOG_FILE_PATH, logMessage);
@@ -38,4 +42,4 @@ class Logger {
   }
 }
 
-export const logger = new Logger();
+export const logger = new Logger('vscode_extension');
