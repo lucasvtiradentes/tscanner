@@ -175,12 +175,12 @@
         },
         {
           "command": "cscanner.setGroupByDefault",
-          "when": "view == cscannerExplorer && cscanGroupMode == rule",
+          "when": "view == cscannerExplorer && cscannerGroupMode == rule",
           "group": "navigation@20"
         },
         {
           "command": "cscanner.setGroupByRule",
-          "when": "view == cscannerExplorer && cscanGroupMode == default",
+          "when": "view == cscannerExplorer && cscannerGroupMode == default",
           "group": "navigation@20"
         },
         {

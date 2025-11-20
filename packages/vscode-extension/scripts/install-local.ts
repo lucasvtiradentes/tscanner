@@ -57,8 +57,8 @@ function copyRecursive(src: string, dest: string): void {
 function transformContextKey(text: string): string {
   return text
     .replace(new RegExp(`view\\s*==\\s*${VIEW_ID}\\b`, 'g'), `view == ${addDevSuffix(VIEW_ID)}`)
-    .replace(/(\w+)(?=\s|$|==)/g, (match) => {
-      if (match.startsWith(CONTEXT_PREFIX) && !match.endsWith(DEV_SUFFIX) && match !== VIEW_ID) {
+    .replace(/\b(\w+)(?=\s*==|\s*!=|\s|$)/g, (match) => {
+      if (match.startsWith(CONTEXT_PREFIX) && !match.endsWith(DEV_SUFFIX)) {
         return addDevSuffix(match);
       }
       return match;

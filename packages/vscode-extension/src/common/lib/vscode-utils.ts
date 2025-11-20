@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { z } from 'zod';
 import { getCommandId, getContextKey } from '../constants';
+import { CONTEXT_PREFIX } from '../scripts-constants';
 
 export enum ViewMode {
   List = 'list',
@@ -44,17 +45,13 @@ const defaultValues: WorkspaceStateSchema = {
   [WorkspaceStateKey.CachedResults]: [],
 };
 
-const keyMapping: Record<WorkspaceStateKeyType, string> = {
-  [WorkspaceStateKey.ViewMode]: 'cscanner.viewMode',
-  [WorkspaceStateKey.GroupMode]: 'cscanner.groupMode',
-  [WorkspaceStateKey.ScanMode]: 'cscanner.scanMode',
-  [WorkspaceStateKey.CompareBranch]: 'cscanner.compareBranch',
-  [WorkspaceStateKey.CachedResults]: 'cscanner.cachedResults',
-};
+const keyMapping: Record<WorkspaceStateKeyType, string> = Object.fromEntries(
+  Object.values(WorkspaceStateKey).map((key) => [key, `${CONTEXT_PREFIX}.${key}`]),
+) as Record<WorkspaceStateKeyType, string>;
 
 export enum ContextKey {
   ViewMode = 'cscannerViewMode',
-  GroupMode = 'cscanGroupMode',
+  GroupMode = 'cscannerGroupMode',
   ScanMode = 'cscannerScanMode',
   Searching = 'cscannerSearching',
 }
