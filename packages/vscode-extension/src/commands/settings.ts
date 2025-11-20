@@ -3,6 +3,7 @@ import { getGlobalConfigPath, getLocalConfigPath } from '../common/lib/config-ma
 import {
   Command,
   ToastKind,
+  WorkspaceStateKey,
   executeCommand,
   getCurrentWorkspaceFolder,
   openTextDocument,
@@ -123,7 +124,7 @@ async function showScanSettingsMenu(
   if (selected.label.includes('Codebase')) {
     searchProvider.setResults([]);
     currentScanModeRef.current = 'workspace';
-    updateState(context, 'scanMode', 'workspace');
+    updateState(context, WorkspaceStateKey.ScanMode, 'workspace');
     invalidateCache();
     updateStatusBar();
     executeCommand(Command.FindIssue);
@@ -206,12 +207,12 @@ async function showScanSettingsMenu(
       if (!selectedBranch || !selectedBranch.detail) return;
 
       currentCompareBranchRef.current = selectedBranch.detail;
-      updateState(context, 'compareBranch', currentCompareBranchRef.current);
+      updateState(context, WorkspaceStateKey.CompareBranch, currentCompareBranchRef.current);
     }
 
     searchProvider.setResults([]);
     currentScanModeRef.current = 'branch';
-    updateState(context, 'scanMode', 'branch');
+    updateState(context, WorkspaceStateKey.ScanMode, 'branch');
     invalidateCache();
     updateStatusBar();
     executeCommand(Command.FindIssue);

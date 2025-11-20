@@ -5,6 +5,7 @@ import {
   Command,
   ContextKey,
   ToastKind,
+  WorkspaceStateKey,
   executeCommand,
   getCurrentWorkspaceFolder,
   registerCommand,
@@ -83,7 +84,7 @@ export function createFindIssueCommand(
           await executeCommand(Command.OpenSettingsMenu);
         } else if (action === 'Switch to Workspace Mode') {
           currentScanModeRef.current = 'workspace';
-          updateState(context, 'scanMode', 'workspace');
+          updateState(context, WorkspaceStateKey.ScanMode, 'workspace');
           await updateStatusBar();
           await executeCommand(Command.FindIssue, { silent: true });
         }
@@ -188,7 +189,7 @@ export function createFindIssueCommand(
               uriString: uri.toString(),
             };
           });
-          setWorkspaceState(context, 'cachedResults', serializedResults);
+          setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializedResults);
           updateBadge();
 
           if (searchProvider.viewMode === 'tree') {

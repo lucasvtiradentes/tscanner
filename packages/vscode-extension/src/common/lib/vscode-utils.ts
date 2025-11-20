@@ -2,31 +2,39 @@ import * as vscode from 'vscode';
 import { z } from 'zod';
 import { getCommandId, getContextKey } from '../constants';
 
+export enum WorkspaceStateKey {
+  ViewMode = 'viewMode',
+  GroupMode = 'groupMode',
+  ScanMode = 'scanMode',
+  CompareBranch = 'compareBranch',
+  CachedResults = 'cachedResults',
+}
+
 const workspaceStateSchema = z.object({
-  viewMode: z.enum(['list', 'tree']),
-  groupMode: z.enum(['default', 'rule']),
-  scanMode: z.enum(['workspace', 'branch']),
-  compareBranch: z.string(),
-  cachedResults: z.array(z.any()),
+  [WorkspaceStateKey.ViewMode]: z.enum(['list', 'tree']),
+  [WorkspaceStateKey.GroupMode]: z.enum(['default', 'rule']),
+  [WorkspaceStateKey.ScanMode]: z.enum(['workspace', 'branch']),
+  [WorkspaceStateKey.CompareBranch]: z.string(),
+  [WorkspaceStateKey.CachedResults]: z.array(z.any()),
 });
 
 type WorkspaceStateSchema = z.infer<typeof workspaceStateSchema>;
-type WorkspaceStateKey = keyof WorkspaceStateSchema;
+type WorkspaceStateKeyType = keyof WorkspaceStateSchema;
 
 const defaultValues: WorkspaceStateSchema = {
-  viewMode: 'list',
-  groupMode: 'default',
-  scanMode: 'workspace',
-  compareBranch: 'main',
-  cachedResults: [],
+  [WorkspaceStateKey.ViewMode]: 'list',
+  [WorkspaceStateKey.GroupMode]: 'default',
+  [WorkspaceStateKey.ScanMode]: 'workspace',
+  [WorkspaceStateKey.CompareBranch]: 'main',
+  [WorkspaceStateKey.CachedResults]: [],
 };
 
-const keyMapping: Record<WorkspaceStateKey, string> = {
-  viewMode: 'cscanner.viewMode',
-  groupMode: 'cscanner.groupMode',
-  scanMode: 'cscanner.scanMode',
-  compareBranch: 'cscanner.compareBranch',
-  cachedResults: 'cscanner.cachedResults',
+const keyMapping: Record<WorkspaceStateKeyType, string> = {
+  [WorkspaceStateKey.ViewMode]: 'cscanner.viewMode',
+  [WorkspaceStateKey.GroupMode]: 'cscanner.groupMode',
+  [WorkspaceStateKey.ScanMode]: 'cscanner.scanMode',
+  [WorkspaceStateKey.CompareBranch]: 'cscanner.compareBranch',
+  [WorkspaceStateKey.CachedResults]: 'cscanner.cachedResults',
 };
 
 export enum ContextKey {
@@ -54,13 +62,13 @@ export enum Command {
   ShowLogs = 'showLogs',
 }
 
-const contextKeyMapping: Partial<Record<WorkspaceStateKey, ContextKey>> = {
+const contextKeyMapping: Partial<Record<WorkspaceStateKeyType, ContextKey>> = {
   viewMode: ContextKey.ViewMode,
   groupMode: ContextKey.GroupMode,
   scanMode: ContextKey.ScanMode,
 };
 
-export function getWorkspaceState<K extends WorkspaceStateKey>(
+export function getWorkspaceState<K extends WorkspaceStateKeyType>(
   context: vscode.ExtensionContext,
   key: K,
 ): WorkspaceStateSchema[K] {
@@ -78,7 +86,7 @@ export function getWorkspaceState<K extends WorkspaceStateKey>(
   return (result.success ? result.data : defaultValue) as WorkspaceStateSchema[K];
 }
 
-export function setWorkspaceState<K extends WorkspaceStateKey>(
+export function setWorkspaceState<K extends WorkspaceStateKeyType>(
   context: vscode.ExtensionContext,
   key: K,
   value: WorkspaceStateSchema[K],
@@ -91,7 +99,7 @@ export function setContextKey(key: ContextKey, value: unknown): Thenable<unknown
   return vscode.commands.executeCommand('setContext', getContextKey(key), value);
 }
 
-export function updateState<K extends WorkspaceStateKey>(
+export function updateState<K extends WorkspaceStateKeyType>(
   context: vscode.ExtensionContext,
   key: K,
   value: WorkspaceStateSchema[K],

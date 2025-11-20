@@ -6,6 +6,7 @@ import { dispose as disposeScanner, scanContent } from './common/lib/scanner';
 import {
   Command,
   ContextKey,
+  WorkspaceStateKey,
   executeCommand,
   getCurrentWorkspaceFolder,
   getWorkspaceState,
@@ -34,15 +35,15 @@ export function activate(context: vscode.ExtensionContext) {
   logger.info('Cscanner extension activated');
 
   const searchProvider = new SearchResultProvider();
-  const viewModeKey = getWorkspaceState(context, 'viewMode');
-  const groupModeKey = getWorkspaceState(context, 'groupMode');
-  const scanModeKey = getWorkspaceState(context, 'scanMode');
-  const compareBranch = getWorkspaceState(context, 'compareBranch');
+  const viewModeKey = getWorkspaceState(context, WorkspaceStateKey.ViewMode);
+  const groupModeKey = getWorkspaceState(context, WorkspaceStateKey.GroupMode);
+  const scanModeKey = getWorkspaceState(context, WorkspaceStateKey.ScanMode);
+  const compareBranch = getWorkspaceState(context, WorkspaceStateKey.CompareBranch);
 
   searchProvider.viewMode = viewModeKey;
   searchProvider.groupMode = groupModeKey;
 
-  const cachedResults = getWorkspaceState(context, 'cachedResults');
+  const cachedResults = getWorkspaceState(context, WorkspaceStateKey.CachedResults);
   const deserializedResults = cachedResults.map((r) => ({
     ...r,
     uri: vscode.Uri.parse(r.uriString),
@@ -148,7 +149,7 @@ export function activate(context: vscode.ExtensionContext) {
           uriString: uri.toString(),
         };
       });
-      setWorkspaceState(context, 'cachedResults', serializedResults);
+      setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializedResults);
       updateBadge();
     } catch (error) {
       logger.error(`Failed to update single file: ${error}`);
@@ -183,7 +184,7 @@ export function activate(context: vscode.ExtensionContext) {
           uriString: uri.toString(),
         };
       });
-      setWorkspaceState(context, 'cachedResults', serializedResults);
+      setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializedResults);
       updateBadge();
     }
   });
