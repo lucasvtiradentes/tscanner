@@ -56,7 +56,7 @@ async function copyBinary() {
     SOURCE_PATH += '.exe';
   }
 
-  const DEST_DIR = join(CLI_DIR, 'npm', NPM_PLATFORM);
+  const DEST_DIR = join(CLI_DIR, 'npm', `cli-${NPM_PLATFORM}`);
   let DEST_PATH = join(DEST_DIR, 'tscanner');
   if (NPM_PLATFORM.startsWith('win32')) {
     DEST_PATH += '.exe';

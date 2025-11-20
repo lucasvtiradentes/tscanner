@@ -11,15 +11,13 @@
   "bin": {
     "tscanner": "./dist/main.js"
   },
-  "files": [
-    "dist",
-    "postinstall.cjs"
-  ],
+  "files": ["dist", "postinstall.cjs"],
   "scripts": {
     "postinstall": "node postinstall.cjs",
     "build": "tsup",
     "postbuild": "npm run script:install-local",
     "start": "node ./dist/main.js",
+    "dev": "tsx ./src/main.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome check src",
     "lint:fix": "biome check --fix --unsafe src",

@@ -7,19 +7,31 @@ pub fn handle_scan_content(
     params: ScanContentParams,
     state: &mut ServerState,
 ) -> Response {
-    core::log_debug(&format!("Scanning content for file: {:?}", params.file));
+    core::log_debug(
+        "rust_server",
+        &format!("Scanning content for file: {:?}", params.file),
+    );
 
     let config = if let Some(cfg) = params.config {
-        core::log_debug("Using config from request params (global storage)");
+        core::log_debug(
+            "rust_server",
+            "Using config from request params (global storage)",
+        );
         cfg
     } else {
         match TscannerConfig::load_from_workspace(&params.root) {
             Ok(c) => {
-                core::log_debug("Loaded configuration from workspace (.tscanner/rules.json)");
+                core::log_debug(
+                    "rust_server",
+                    "Loaded configuration from workspace (.tscanner/rules.json)",
+                );
                 c
             }
             Err(e) => {
-                core::log_debug(&format!("Using default configuration: {}", e));
+                core::log_debug(
+                    "rust_server",
+                    &format!("Using default configuration: {}", e),
+                );
                 TscannerConfig::default()
             }
         }

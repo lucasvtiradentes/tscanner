@@ -17,17 +17,26 @@ impl Logger {
         Self { file_path }
     }
 
-    fn write(&self, level: &str, message: &str) {
+    fn write(&self, prefix: &str, level: &str, message: &str) {
         use time::OffsetDateTime;
 
         let now = OffsetDateTime::now_utc();
         let utc_minus_3 = now.to_offset(time::UtcOffset::from_hms(-3, 0, 0).unwrap());
 
-        let timestamp = utc_minus_3
-            .format(&time::format_description::well_known::Rfc3339)
-            .unwrap_or_else(|_| String::from("INVALID_TIMESTAMP"));
+        let timestamp = format!(
+            "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}{:+03}:{:02}",
+            utc_minus_3.year(),
+            utc_minus_3.month() as u8,
+            utc_minus_3.day(),
+            utc_minus_3.hour(),
+            utc_minus_3.minute(),
+            utc_minus_3.second(),
+            utc_minus_3.millisecond(),
+            -3,
+            0
+        );
 
-        let log_message = format!("[{}] [{}] {}\n", timestamp, level, message);
+        let log_message = format!("[{}] [{}] [{}] {}\n", timestamp, prefix, level, message);
 
         if let Ok(mut file) = OpenOptions::new()
             .create(true)
@@ -38,20 +47,20 @@ impl Logger {
         }
     }
 
-    pub fn info(&self, message: &str) {
-        self.write("INFO", message);
+    pub fn info(&self, prefix: &str, message: &str) {
+        self.write(prefix, "INFO", message);
     }
 
-    pub fn error(&self, message: &str) {
-        self.write("ERROR", message);
+    pub fn error(&self, prefix: &str, message: &str) {
+        self.write(prefix, "ERROR", message);
     }
 
-    pub fn warn(&self, message: &str) {
-        self.write("WARN", message);
+    pub fn warn(&self, prefix: &str, message: &str) {
+        self.write(prefix, "WARN", message);
     }
 
-    pub fn debug(&self, message: &str) {
-        self.write("DEBUG", message);
+    pub fn debug(&self, prefix: &str, message: &str) {
+        self.write(prefix, "DEBUG", message);
     }
 }
 
@@ -66,38 +75,38 @@ pub fn init_logger() {
     }
 }
 
-pub fn log_info(message: &str) {
+pub fn log_info(prefix: &str, message: &str) {
     init_logger();
     if let Ok(logger) = LOGGER.lock() {
         if let Some(l) = logger.as_ref() {
-            l.info(message);
+            l.info(prefix, message);
         }
     }
 }
 
-pub fn log_error(message: &str) {
+pub fn log_error(prefix: &str, message: &str) {
     init_logger();
     if let Ok(logger) = LOGGER.lock() {
         if let Some(l) = logger.as_ref() {
-            l.error(message);
+            l.error(prefix, message);
         }
     }
 }
 
-pub fn log_warn(message: &str) {
+pub fn log_warn(prefix: &str, message: &str) {
     init_logger();
     if let Ok(logger) = LOGGER.lock() {
         if let Some(l) = logger.as_ref() {
-            l.warn(message);
+            l.warn(prefix, message);
         }
     }
 }
 
-pub fn log_debug(message: &str) {
+pub fn log_debug(prefix: &str, message: &str) {
     init_logger();
     if let Ok(logger) = LOGGER.lock() {
         if let Some(l) = logger.as_ref() {
-            l.debug(message);
+            l.debug(prefix, message);
         }
     }
 }

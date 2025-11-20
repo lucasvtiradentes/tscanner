@@ -8,6 +8,12 @@
       "exclude": [],
       "message": "Found 'any' type annotation",
       "pattern": null
+    },
+    "no-var": {
+      "enabled": true,
+      "type": "ast",
+      "severity": "warning",
+      "message": null
     }
   },
   "include": ["**/*.{ts,tsx}"],

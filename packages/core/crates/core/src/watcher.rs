@@ -23,10 +23,10 @@ impl FileWatcher {
             notify::recommended_watcher(move |res: Result<Event, notify::Error>| match res {
                 Ok(event) => {
                     if let Err(e) = Self::handle_event(event, &tx) {
-                        crate::log_error(&format!("Error handling file event: {}", e));
+                        crate::log_error("rust_core", &format!("Error handling file event: {}", e));
                     }
                 }
-                Err(e) => crate::log_error(&format!("Watch error: {:?}", e)),
+                Err(e) => crate::log_error("rust_core", &format!("Watch error: {:?}", e)),
             })?;
 
         watcher.watch(root, RecursiveMode::Recursive)?;
@@ -53,7 +53,7 @@ impl FileWatcher {
                 _ => continue,
             };
 
-            crate::log_debug(&format!("File event: {:?}", file_event));
+            crate::log_debug("rust_core", &format!("File event: {:?}", file_event));
             tx.send(file_event)?;
         }
 

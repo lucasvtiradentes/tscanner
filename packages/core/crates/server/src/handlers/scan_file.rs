@@ -7,7 +7,10 @@ pub fn handle_scan_file(
     params: ScanFileParams,
     state: &mut ServerState,
 ) -> Response {
-    core::log_debug(&format!("Scanning single file: {:?}", params.file));
+    core::log_debug(
+        "rust_server",
+        &format!("Scanning single file: {:?}", params.file),
+    );
 
     let config = TscannerConfig::load_from_workspace(&params.root).unwrap_or_default();
 
