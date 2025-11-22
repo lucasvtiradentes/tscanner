@@ -2,7 +2,7 @@
   "$schema": "../packages/cli/schema.json",
   "builtinRules": {
     "no-var": {},
-    "prefer-type-over-interface": { "enabled": false },
+    "prefer-type-over-interface": {},
     "prefer-interface-over-type": {},
     "no-constant-condition": {},
     "no-duplicate-imports": {},

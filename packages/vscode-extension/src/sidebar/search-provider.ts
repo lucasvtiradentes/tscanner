@@ -97,7 +97,7 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
 
   getChildren(element?: SearchResultItem): Thenable<SearchResultItem[]> {
     if (!element) {
-      if (this._groupMode === 'rule') {
+      if (this._groupMode === GroupMode.Rule) {
         const grouped = this.groupByRule();
         const allRules = new Set(grouped.keys());
         return Promise.resolve(
@@ -108,7 +108,7 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
         );
       }
 
-      if (this._viewMode === 'list') {
+      if (this._viewMode === ViewMode.List) {
         const grouped = new Map<string, IssueResult[]>();
         for (const result of this.results) {
           const filePath = result.uri.fsPath;
@@ -136,7 +136,7 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
         return Promise.resolve(items);
       }
     } else if (element instanceof RuleGroupItem) {
-      if (element.viewMode === 'list') {
+      if (element.viewMode === ViewMode.List) {
         return Promise.resolve(element.results.map((r) => new LineResultItem(r)));
       } else {
         const workspaceRoot = getCurrentWorkspaceFolder()?.uri.fsPath || '';

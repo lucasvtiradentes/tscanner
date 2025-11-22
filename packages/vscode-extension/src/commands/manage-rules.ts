@@ -164,11 +164,18 @@ export function createManageRulesCommand(updateStatusBar: () => Promise<void>, c
 
       for (const rule of rules) {
         if (enabledRules.has(rule.name)) {
-          config.builtinRules[rule.name] = config.builtinRules[rule.name] || {};
-          config.builtinRules[rule.name].enabled = true;
+          const existingRuleConfig = config.builtinRules[rule.name];
+          if (!existingRuleConfig) {
+            config.builtinRules[rule.name] = {};
+          } else {
+            delete existingRuleConfig.enabled;
+          }
         } else {
-          if (config.builtinRules[rule.name]) {
-            config.builtinRules[rule.name].enabled = false;
+          const existingRuleConfig = config.builtinRules[rule.name];
+          if (existingRuleConfig && Object.keys(existingRuleConfig).length > 0) {
+            existingRuleConfig.enabled = false;
+          } else {
+            delete config.builtinRules[rule.name];
           }
         }
       }
@@ -176,7 +183,11 @@ export function createManageRulesCommand(updateStatusBar: () => Promise<void>, c
       for (const customRule of customRules) {
         const existingCustom = existingConfig?.customRules?.[customRule.ruleName];
         if (existingCustom) {
-          existingCustom.enabled = enabledRules.has(customRule.ruleName);
+          if (enabledRules.has(customRule.ruleName)) {
+            delete existingCustom.enabled;
+          } else {
+            existingCustom.enabled = false;
+          }
           config.customRules[customRule.ruleName] = existingCustom;
         }
       }
