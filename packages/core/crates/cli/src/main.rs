@@ -61,6 +61,9 @@ enum Commands {
             help = "Filter results to specific rule (e.g., 'no-console-log')"
         )]
         rule: Option<String>,
+
+        #[arg(long, help = "Always exit with code 0, never fail on errors")]
+        exit_zero: bool,
     },
 
     #[command(about = "List all available rules and their metadata")]
@@ -91,6 +94,7 @@ fn main() -> Result<()> {
             branch,
             file,
             rule,
+            exit_zero,
         }) => {
             let group_mode = if by_rule {
                 GroupMode::Rule
@@ -98,7 +102,7 @@ fn main() -> Result<()> {
                 GroupMode::File
             };
             cmd_check(
-                &path, no_cache, group_mode, json, pretty, branch, file, rule,
+                &path, no_cache, group_mode, json, pretty, branch, file, rule, exit_zero,
             )
         }
         Some(Commands::Rules { path }) => cmd_rules(&path),

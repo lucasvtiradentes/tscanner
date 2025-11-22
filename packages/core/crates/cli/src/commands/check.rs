@@ -164,6 +164,7 @@ pub fn cmd_check(
     branch: Option<String>,
     file_filter: Option<String>,
     rule_filter: Option<String>,
+    exit_zero: bool,
 ) -> Result<()> {
     log_info(&format!(
         "cmd_check: Starting at: {} (no_cache: {}, group_mode: {:?}, pretty: {})",
@@ -481,7 +482,7 @@ pub fn cmd_check(
         let json = serde_json::to_string_pretty(&output)?;
         println!("{}", json);
 
-        if error_count > 0 {
+        if error_count > 0 && !exit_zero {
             std::process::exit(1);
         }
 
@@ -615,7 +616,7 @@ pub fn cmd_check(
         error_count, warning_count
     ));
 
-    if error_count > 0 {
+    if error_count > 0 && !exit_zero {
         std::process::exit(1);
     }
 
