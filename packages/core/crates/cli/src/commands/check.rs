@@ -154,20 +154,23 @@ fn get_modified_lines(root: &Path, branch: &str) -> Result<HashMap<PathBuf, Hash
     Ok(result)
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn cmd_check(
     path: &Path,
     no_cache: bool,
     group_mode: GroupMode,
     json_output: bool,
+    pretty_output: bool,
     branch: Option<String>,
     file_filter: Option<String>,
     rule_filter: Option<String>,
 ) -> Result<()> {
     log_info(&format!(
-        "cmd_check: Starting at: {} (no_cache: {}, group_mode: {:?})",
+        "cmd_check: Starting at: {} (no_cache: {}, group_mode: {:?}, pretty: {})",
         path.display(),
         no_cache,
-        group_mode
+        group_mode,
+        pretty_output
     ));
 
     let root = fs::canonicalize(path).context("Failed to resolve path")?;
@@ -541,6 +544,31 @@ pub fn cmd_check(
             }
         }
     } else {
+        if pretty_output {
+            use std::collections::HashMap;
+
+            let mut rules_map: HashMap<String, String> = HashMap::new();
+            for file_result in &result.files {
+                for issue in &file_result.issues {
+                    if !rules_map.contains_key(&issue.rule) {
+                        rules_map.insert(issue.rule.clone(), issue.message.clone());
+                    }
+                }
+            }
+
+            if !rules_map.is_empty() {
+                println!("\n{}", "Rules:".bold());
+                println!();
+                let mut sorted_rules: Vec<_> = rules_map.iter().collect();
+                sorted_rules.sort_by_key(|(rule, _)| *rule);
+                for (rule, message) in sorted_rules {
+                    println!("  {}: {}", rule, message);
+                }
+                println!();
+                println!("{}", "Files:".bold());
+            }
+        }
+
         for file_result in &result.files {
             if file_result.issues.is_empty() {
                 continue;
@@ -549,30 +577,85 @@ pub fn cmd_check(
             let relative_path = pathdiff::diff_paths(&file_result.file, &root)
                 .unwrap_or_else(|| file_result.file.clone());
 
-            println!(
-                "\n{} ({} issues)",
-                relative_path.display().to_string().bold(),
-                file_result.issues.len()
-            );
+            if pretty_output {
+                use std::collections::HashMap;
 
-            for issue in &file_result.issues {
-                let severity_icon = match issue.severity {
-                    Severity::Error => "✖".red(),
-                    Severity::Warning => "⚠".yellow(),
-                };
-
-                let location = format!("{}:{}", issue.line, issue.column).dimmed();
-                let rule_name = format!("[{}]", issue.rule).cyan();
-
+                let unique_rules: std::collections::HashSet<_> =
+                    file_result.issues.iter().map(|i| &i.rule).collect();
                 println!(
-                    "  {} {} {} {}",
-                    severity_icon, location, issue.message, rule_name
+                    "\n{} - {} issues - {} rules",
+                    relative_path.display().to_string().bold(),
+                    file_result.issues.len(),
+                    unique_rules.len()
                 );
 
-                if let Some(line_text) = &issue.line_text {
-                    let trimmed = line_text.trim();
-                    if !trimmed.is_empty() {
-                        println!("    {}", trimmed.dimmed());
+                let mut issues_by_rule: HashMap<&str, Vec<&core::types::Issue>> = HashMap::new();
+                for issue in &file_result.issues {
+                    issues_by_rule
+                        .entry(issue.rule.as_str())
+                        .or_default()
+                        .push(issue);
+                }
+
+                let mut sorted_rules: Vec<_> = issues_by_rule.keys().collect();
+                sorted_rules.sort();
+
+                for rule_name in sorted_rules {
+                    let issues = &issues_by_rule[rule_name];
+                    println!();
+                    println!("  {} ({} issues)", rule_name.cyan(), issues.len());
+
+                    for issue in issues {
+                        let severity_icon = match issue.severity {
+                            Severity::Error => "✖".red(),
+                            Severity::Warning => "⚠".yellow(),
+                        };
+
+                        let location = format!("{}:{}", issue.line, issue.column);
+
+                        if let Some(line_text) = &issue.line_text {
+                            let trimmed = line_text.trim();
+                            if !trimmed.is_empty() {
+                                println!(
+                                    "    {} {} -> {}",
+                                    severity_icon,
+                                    location.dimmed(),
+                                    trimmed.dimmed()
+                                );
+                            } else {
+                                println!("    {} {}", severity_icon, location.dimmed());
+                            }
+                        } else {
+                            println!("    {} {}", severity_icon, location.dimmed());
+                        }
+                    }
+                }
+            } else {
+                println!(
+                    "\n{} ({} issues)",
+                    relative_path.display().to_string().bold(),
+                    file_result.issues.len()
+                );
+
+                for issue in &file_result.issues {
+                    let severity_icon = match issue.severity {
+                        Severity::Error => "✖".red(),
+                        Severity::Warning => "⚠".yellow(),
+                    };
+
+                    let location = format!("{}:{}", issue.line, issue.column).dimmed();
+                    let rule_name = format!("[{}]", issue.rule).cyan();
+
+                    println!(
+                        "  {} {} {} {}",
+                        severity_icon, location, issue.message, rule_name
+                    );
+
+                    if let Some(line_text) = &issue.line_text {
+                        let trimmed = line_text.trim();
+                        if !trimmed.is_empty() {
+                            println!("    {}", trimmed.dimmed());
+                        }
                     }
                 }
             }

@@ -38,6 +38,9 @@ enum Commands {
         #[arg(long, help = "Output results as JSON")]
         json: bool,
 
+        #[arg(long, help = "Pretty output with rule definitions at the top")]
+        pretty: bool,
+
         #[arg(
             long,
             value_name = "BRANCH",
@@ -84,6 +87,7 @@ fn main() -> Result<()> {
             no_cache,
             by_rule,
             json,
+            pretty,
             branch,
             file,
             rule,
@@ -93,7 +97,9 @@ fn main() -> Result<()> {
             } else {
                 GroupMode::File
             };
-            cmd_check(&path, no_cache, group_mode, json, branch, file, rule)
+            cmd_check(
+                &path, no_cache, group_mode, json, pretty, branch, file, rule,
+            )
         }
         Some(Commands::Rules { path }) => cmd_rules(&path),
         Some(Commands::Init { path }) => cmd_init(&path),
