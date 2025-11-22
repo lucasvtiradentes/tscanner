@@ -1,5 +1,5 @@
 use anyhow::Result;
-use clap::{Parser, Subcommand};
+use clap::{Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
 
 mod commands;
@@ -7,6 +7,12 @@ mod config_loader;
 
 use commands::{cmd_check, cmd_init, cmd_rules};
 use core::{init_logger, APP_DESCRIPTION, APP_NAME};
+
+#[derive(Debug, Clone, ValueEnum)]
+pub enum GroupMode {
+    File,
+    Rule,
+}
 
 #[derive(Parser)]
 #[command(name = APP_NAME)]
@@ -18,19 +24,25 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
+    #[command(about = "Scan code for issues and display results")]
     Check {
         #[arg(value_name = "PATH", default_value = ".")]
         path: PathBuf,
 
         #[arg(long, help = "Skip cache and force full scan")]
         no_cache: bool,
+
+        #[arg(long, help = "Group issues by rule (default: group by file)")]
+        by_rule: bool,
     },
 
+    #[command(about = "List all available rules and their metadata")]
     Rules {
         #[arg(value_name = "PATH", default_value = ".")]
         path: PathBuf,
     },
 
+    #[command(about = "Create a default configuration file")]
     Init {
         #[arg(value_name = "PATH", default_value = ".")]
         path: PathBuf,
@@ -43,7 +55,18 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     match cli.command {
-        Commands::Check { path, no_cache } => cmd_check(&path, no_cache),
+        Commands::Check {
+            path,
+            no_cache,
+            by_rule,
+        } => {
+            let group_mode = if by_rule {
+                GroupMode::Rule
+            } else {
+                GroupMode::File
+            };
+            cmd_check(&path, no_cache, group_mode)
+        }
         Commands::Rules { path } => cmd_rules(&path),
         Commands::Init { path } => cmd_init(&path),
     }

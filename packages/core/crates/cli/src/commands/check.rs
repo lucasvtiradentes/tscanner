@@ -8,13 +8,15 @@ use std::path::Path;
 use std::sync::Arc;
 
 use crate::config_loader::{get_vscode_global_config_path, load_config};
+use crate::GroupMode;
 use core::{log_error, log_info, APP_NAME, CONFIG_DIR_NAME, CONFIG_FILE_NAME};
 
-pub fn cmd_check(path: &Path, no_cache: bool) -> Result<()> {
+pub fn cmd_check(path: &Path, no_cache: bool, group_mode: GroupMode) -> Result<()> {
     log_info(&format!(
-        "cmd_check: Starting at: {} (no_cache: {})",
+        "cmd_check: Starting at: {} (no_cache: {}, group_mode: {:?})",
         path.display(),
-        no_cache
+        no_cache,
+        group_mode
     ));
 
     let root = fs::canonicalize(path).context("Failed to resolve path")?;
@@ -85,54 +87,106 @@ pub fn cmd_check(path: &Path, no_cache: bool) -> Result<()> {
     let mut error_count = 0;
     let mut warning_count = 0;
 
-    for file_result in &result.files {
-        if file_result.issues.is_empty() {
-            continue;
+    if matches!(group_mode, GroupMode::Rule) {
+        use std::collections::HashMap;
+
+        let mut issues_by_rule: HashMap<String, Vec<_>> = HashMap::new();
+
+        for file_result in &result.files {
+            let relative_path = pathdiff::diff_paths(&file_result.file, &root)
+                .unwrap_or_else(|| file_result.file.clone());
+
+            for issue in &file_result.issues {
+                match issue.severity {
+                    Severity::Error => error_count += 1,
+                    Severity::Warning => warning_count += 1,
+                }
+
+                issues_by_rule
+                    .entry(issue.rule.clone())
+                    .or_insert_with(Vec::new)
+                    .push((relative_path.clone(), issue));
+            }
         }
 
-        let relative_path = pathdiff::diff_paths(&file_result.file, &root)
-            .unwrap_or_else(|| file_result.file.clone());
+        let mut sorted_rules: Vec<_> = issues_by_rule.keys().cloned().collect();
+        sorted_rules.sort();
 
-        println!("\n{}", relative_path.display().to_string().bold());
+        for rule_name in sorted_rules {
+            let issues = &issues_by_rule[&rule_name];
+            println!("\n{} ({} issues)", rule_name.bold(), issues.len());
 
-        for issue in &file_result.issues {
-            match issue.severity {
-                Severity::Error => error_count += 1,
-                Severity::Warning => warning_count += 1,
+            for (file_path, issue) in issues {
+                let severity_icon = match issue.severity {
+                    Severity::Error => "✖".red(),
+                    Severity::Warning => "⚠".yellow(),
+                };
+
+                let location =
+                    format!("{}:{}:{}", file_path.display(), issue.line, issue.column).dimmed();
+
+                println!("  {} {} {}", severity_icon, location, issue.message);
+
+                if let Some(line_text) = &issue.line_text {
+                    let trimmed = line_text.trim();
+                    if !trimmed.is_empty() {
+                        println!("    {}", trimmed.dimmed());
+                    }
+                }
+            }
+        }
+    } else {
+        for file_result in &result.files {
+            if file_result.issues.is_empty() {
+                continue;
             }
 
-            let severity_icon = match issue.severity {
-                Severity::Error => "✖".red(),
-                Severity::Warning => "⚠".yellow(),
-            };
+            let relative_path = pathdiff::diff_paths(&file_result.file, &root)
+                .unwrap_or_else(|| file_result.file.clone());
 
-            let location = format!("{}:{}", issue.line, issue.column).dimmed();
-            let rule_name = format!("[{}]", issue.rule).cyan();
+            println!("\n{}", relative_path.display().to_string().bold());
 
-            println!(
-                "  {} {} {} {}",
-                severity_icon, location, issue.message, rule_name
-            );
+            for issue in &file_result.issues {
+                match issue.severity {
+                    Severity::Error => error_count += 1,
+                    Severity::Warning => warning_count += 1,
+                }
 
-            if let Some(line_text) = &issue.line_text {
-                let trimmed = line_text.trim();
-                if !trimmed.is_empty() {
-                    println!("    {}", trimmed.dimmed());
+                let severity_icon = match issue.severity {
+                    Severity::Error => "✖".red(),
+                    Severity::Warning => "⚠".yellow(),
+                };
+
+                let location = format!("{}:{}", issue.line, issue.column).dimmed();
+                let rule_name = format!("[{}]", issue.rule).cyan();
+
+                println!(
+                    "  {} {} {} {}",
+                    severity_icon, location, issue.message, rule_name
+                );
+
+                if let Some(line_text) = &issue.line_text {
+                    let trimmed = line_text.trim();
+                    if !trimmed.is_empty() {
+                        println!("    {}", trimmed.dimmed());
+                    }
                 }
             }
         }
     }
 
     println!();
+    let total_issues = error_count + warning_count;
     println!(
-        "{} {} errors, {} warnings",
+        "{} {} errors, {} warnings -> total {} issues",
         if error_count > 0 {
             "✖".red()
         } else {
             "✓".green()
         },
         error_count.to_string().red(),
-        warning_count.to_string().yellow()
+        warning_count.to_string().yellow(),
+        total_issues.to_string().cyan()
     );
     println!(
         "Scanned {} files in {}ms",
