@@ -1,9 +1,62 @@
 import { type ChildProcess, spawn } from 'node:child_process';
 import * as zlib from 'node:zlib';
 import * as vscode from 'vscode';
+import { z } from 'zod';
 import type { FileResult, IssueResult, RuleMetadata, ScanResult, TscannerConfig } from '../types';
 import { logger } from '../utils/logger';
 import { openTextDocument } from './vscode-utils';
+
+enum RpcMethod {
+  Scan = 'scan',
+  ScanFile = 'scanFile',
+  ScanContent = 'scanContent',
+  GetRulesMetadata = 'getRulesMetadata',
+  ClearCache = 'clearCache',
+}
+
+const scanParamsSchema = z.object({
+  root: z.string(),
+  config: z.any().optional(),
+  branch: z.string().optional(),
+});
+
+const scanFileParamsSchema = z.object({
+  root: z.string(),
+  file: z.string(),
+});
+
+const scanContentParamsSchema = z.object({
+  root: z.string(),
+  file: z.string(),
+  content: z.string(),
+  config: z.any().optional(),
+});
+
+const getRulesMetadataParamsSchema = z.object({});
+
+const clearCacheParamsSchema = z.object({});
+
+type ScanParams = z.infer<typeof scanParamsSchema>;
+type ScanFileParams = z.infer<typeof scanFileParamsSchema>;
+type ScanContentParams = z.infer<typeof scanContentParamsSchema>;
+type GetRulesMetadataParams = z.infer<typeof getRulesMetadataParamsSchema>;
+type ClearCacheParams = z.infer<typeof clearCacheParamsSchema>;
+
+type RpcRequestMap = {
+  [RpcMethod.Scan]: ScanParams;
+  [RpcMethod.ScanFile]: ScanFileParams;
+  [RpcMethod.ScanContent]: ScanContentParams;
+  [RpcMethod.GetRulesMetadata]: GetRulesMetadataParams;
+  [RpcMethod.ClearCache]: ClearCacheParams;
+};
+
+type RpcResponseMap = {
+  [RpcMethod.Scan]: ScanResult;
+  [RpcMethod.ScanFile]: FileResult;
+  [RpcMethod.ScanContent]: FileResult;
+  [RpcMethod.GetRulesMetadata]: RuleMetadata[];
+  [RpcMethod.ClearCache]: undefined;
+};
 
 interface RpcRequest {
   id: number;
@@ -131,7 +184,7 @@ export class RustClient {
     }
   }
 
-  private async sendRequest(method: string, params: any): Promise<any> {
+  private async sendRequest<M extends RpcMethod>(method: M, params: RpcRequestMap[M]): Promise<RpcResponseMap[M]> {
     if (!this.process) {
       logger.info(`Process not running, starting server for method: ${method}`);
       await this.start();
@@ -163,7 +216,7 @@ export class RustClient {
     config?: TscannerConfig,
     branch?: string,
   ): Promise<IssueResult[]> {
-    const result: ScanResult = await this.sendRequest('scan', {
+    const result = await this.sendRequest(RpcMethod.Scan, {
       root: workspaceRoot,
       config,
       branch,
@@ -224,7 +277,7 @@ export class RustClient {
   }
 
   async scanFile(workspaceRoot: string, filePath: string): Promise<IssueResult[]> {
-    const result: FileResult = await this.sendRequest('scanFile', {
+    const result = await this.sendRequest(RpcMethod.ScanFile, {
       root: workspaceRoot,
       file: filePath,
     });
@@ -249,8 +302,7 @@ export class RustClient {
   }
 
   async getRulesMetadata(): Promise<RuleMetadata[]> {
-    const result = await this.sendRequest('getRulesMetadata', {});
-    return result;
+    return this.sendRequest(RpcMethod.GetRulesMetadata, {});
   }
 
   async scanContent(
@@ -259,7 +311,7 @@ export class RustClient {
     content: string,
     config?: TscannerConfig,
   ): Promise<IssueResult[]> {
-    const result: FileResult = await this.sendRequest('scanContent', {
+    const result = await this.sendRequest(RpcMethod.ScanContent, {
       root: workspaceRoot,
       file: filePath,
       content,
@@ -286,7 +338,7 @@ export class RustClient {
   }
 
   async clearCache(): Promise<void> {
-    await this.sendRequest('clearCache', {});
+    await this.sendRequest(RpcMethod.ClearCache, {});
     logger.info('Rust cache cleared');
   }
 }

@@ -1,4 +1,41 @@
 import type * as vscode from 'vscode';
+import { z } from 'zod';
+
+const issueSchema = z.object({
+  rule: z.string(),
+  file: z.string(),
+  line: z.number(),
+  column: z.number(),
+  message: z.string(),
+  severity: z.enum(['Error', 'Warning']),
+  line_text: z.string().optional(),
+});
+
+const fileResultSchema = z.object({
+  file: z.string(),
+  issues: z.array(issueSchema),
+});
+
+const scanResultSchema = z.object({
+  files: z.array(fileResultSchema),
+  total_issues: z.number(),
+  duration_ms: z.number(),
+});
+
+const ruleMetadataSchema = z.object({
+  name: z.string(),
+  displayName: z.string(),
+  description: z.string(),
+  ruleType: z.enum(['ast', 'regex']),
+  defaultSeverity: z.enum(['error', 'warning']),
+  defaultEnabled: z.boolean(),
+  category: z.enum(['typesafety', 'codequality', 'style', 'performance']),
+});
+
+export type Issue = z.infer<typeof issueSchema>;
+export type FileResult = z.infer<typeof fileResultSchema>;
+export type ScanResult = z.infer<typeof scanResultSchema>;
+export type RuleMetadata = z.infer<typeof ruleMetadataSchema>;
 
 export interface IssueResult {
   uri: vscode.Uri;
@@ -7,37 +44,6 @@ export interface IssueResult {
   text: string;
   rule: string;
   severity: 'error' | 'warning';
-}
-
-export interface RuleMetadata {
-  name: string;
-  displayName: string;
-  description: string;
-  ruleType: 'ast' | 'regex';
-  defaultSeverity: 'error' | 'warning';
-  defaultEnabled: boolean;
-  category: 'typesafety' | 'codequality' | 'style' | 'performance';
-}
-
-export interface Issue {
-  rule: string;
-  file: string;
-  line: number;
-  column: number;
-  message: string;
-  severity: 'Error' | 'Warning';
-  line_text?: string;
-}
-
-export interface FileResult {
-  file: string;
-  issues: Issue[];
-}
-
-export interface ScanResult {
-  files: FileResult[];
-  total_issues: number;
-  duration_ms: number;
 }
 
 export interface ModifiedLineRange {
