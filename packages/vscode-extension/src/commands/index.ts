@@ -4,7 +4,7 @@ import type { SearchResultProvider } from '../sidebar/search-provider';
 import { createFindIssueCommand } from './find-issue';
 import { createGoToNextIssueCommand, createGoToPreviousIssueCommand, resetIssueIndex } from './issue-navigation';
 import { createManageRulesCommand } from './manage-rules';
-import { createCopyPathCommand, createCopyRelativePathCommand, createOpenFileCommand } from './navigation';
+import { createOpenFileCommand } from './navigation';
 import { createHardScanCommand, createRefreshCommand } from './scan';
 import { createOpenSettingsMenuCommand } from './settings';
 import { createShowLogsCommand } from './show-logs';
@@ -51,8 +51,6 @@ export function registerAllCommands(ctx: CommandContext): vscode.Disposable[] {
     createCycleViewModeRuleFlatViewCommand(ctx.searchProvider, ctx.context),
     createCycleViewModeRuleTreeViewCommand(ctx.searchProvider, ctx.context),
     createOpenFileCommand(),
-    createCopyPathCommand(),
-    createCopyRelativePathCommand(),
     createRefreshCommand(),
     createHardScanCommand(ctx.isSearchingRef),
     createGoToNextIssueCommand(ctx.searchProvider),
