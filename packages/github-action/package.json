@@ -1,0 +1,21 @@
+{
+  "name": "@tscanner/github-action",
+  "version": "1.0.0",
+  "private": true,
+  "description": "GitHub Action for tscanner PR validation",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "ncc build src/index.ts -o dist --minify",
+    "dev": "ncc build src/index.ts -o dist --watch"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/github": "^6.0.0",
+    "@actions/exec": "^1.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@vercel/ncc": "^0.38.3",
+    "typescript": "^5.7.2"
+  }
+}

@@ -22,3 +22,28 @@ jobs:
     secrets:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+  tscanner_pr_check:
+    name: 'tscanner PR Check'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'pnpm'
+
+      - run: pnpm install
+
+      - uses: ./packages/github-action
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          target-branch: 'origin/main'
+          timezone: 'America/Sao_Paulo'

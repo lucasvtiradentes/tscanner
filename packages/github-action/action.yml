@@ -1,0 +1,28 @@
+name: 'tscanner PR Validator'
+description: 'Scans PR changes for code quality issues and posts results as comments'
+author: 'lucasvtiradentes'
+
+branding:
+  icon: 'search'
+  color: 'blue'
+
+inputs:
+  github-token:
+    description: 'GitHub token for posting comments'
+    required: true
+  target-branch:
+    description: 'Target branch to compare against'
+    required: false
+    default: 'origin/main'
+  timezone:
+    description: 'Timezone for timestamps (e.g., America/Sao_Paulo)'
+    required: false
+    default: 'UTC'
+  config-path:
+    description: 'Path to tscanner config file'
+    required: false
+    default: '.tscanner/rules.json'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'
