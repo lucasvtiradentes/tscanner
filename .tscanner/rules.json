@@ -31,6 +31,11 @@
       "type": "regex",
       "pattern": "console\\.log\\(",
       "message": "console.log should not be used in production"
+    },
+    "no-logger-calls": {
+      "type": "regex",
+      "pattern": "logger\\.",
+      "message": "logger calls should be removed before production"
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],
