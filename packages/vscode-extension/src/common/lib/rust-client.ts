@@ -1,8 +1,18 @@
 import { type ChildProcess, spawn } from 'node:child_process';
 import * as zlib from 'node:zlib';
 import * as vscode from 'vscode';
-import { z } from 'zod';
-import type { FileResult, IssueResult, RuleMetadata, ScanResult, TscannerConfig } from '../types';
+import type {
+  ClearCacheParams,
+  FileResult,
+  GetRulesMetadataParams,
+  IssueResult,
+  RuleMetadata,
+  ScanContentParams,
+  ScanFileParams,
+  ScanParams,
+  ScanResult,
+  TscannerConfig,
+} from '../types';
 import { logger } from '../utils/logger';
 import { openTextDocument } from './vscode-utils';
 
@@ -13,34 +23,6 @@ enum RpcMethod {
   GetRulesMetadata = 'getRulesMetadata',
   ClearCache = 'clearCache',
 }
-
-const scanParamsSchema = z.object({
-  root: z.string(),
-  config: z.any().optional(),
-  branch: z.string().optional(),
-});
-
-const scanFileParamsSchema = z.object({
-  root: z.string(),
-  file: z.string(),
-});
-
-const scanContentParamsSchema = z.object({
-  root: z.string(),
-  file: z.string(),
-  content: z.string(),
-  config: z.any().optional(),
-});
-
-const getRulesMetadataParamsSchema = z.object({});
-
-const clearCacheParamsSchema = z.object({});
-
-type ScanParams = z.infer<typeof scanParamsSchema>;
-type ScanFileParams = z.infer<typeof scanFileParamsSchema>;
-type ScanContentParams = z.infer<typeof scanContentParamsSchema>;
-type GetRulesMetadataParams = z.infer<typeof getRulesMetadataParamsSchema>;
-type ClearCacheParams = z.infer<typeof clearCacheParamsSchema>;
 
 type RpcRequestMap = {
   [RpcMethod.Scan]: ScanParams;
@@ -58,17 +40,17 @@ type RpcResponseMap = {
   [RpcMethod.ClearCache]: undefined;
 };
 
-interface RpcRequest {
+type RpcRequest = {
   id: number;
   method: string;
-  params: any;
-}
+  params: unknown;
+};
 
-interface RpcResponse {
+type RpcResponse = {
   id: number;
-  result?: any;
+  result?: unknown;
   error?: string;
-}
+};
 
 export class RustClient {
   private process: ChildProcess | null = null;

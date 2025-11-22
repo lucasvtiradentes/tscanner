@@ -18,14 +18,21 @@
       }
     },
     "exclude": {
-      "default": ["node_modules/**", "dist/**", "build/**", ".git/**"],
+      "default": [
+        "node_modules/**",
+        "dist/**",
+        "build/**",
+        ".git/**"
+      ],
       "type": "array",
       "items": {
         "type": "string"
       }
     },
     "include": {
-      "default": ["**/*.{ts,tsx}"],
+      "default": [
+        "**/*.{ts,tsx}"
+      ],
       "type": "array",
       "items": {
         "type": "string"
@@ -33,7 +40,10 @@
     },
     "schema": {
       "description": "JSON schema URL for editor support",
-      "type": ["string", "null"]
+      "type": [
+        "string",
+        "null"
+      ]
     }
   },
   "definitions": {
@@ -42,7 +52,10 @@
       "properties": {
         "enabled": {
           "description": "Enable or disable this rule",
-          "type": ["boolean", "null"]
+          "type": [
+            "boolean",
+            "null"
+          ]
         },
         "exclude": {
           "description": "File patterns to exclude for this rule",
@@ -73,7 +86,10 @@
     },
     "CustomRuleConfig": {
       "type": "object",
-      "required": ["message", "type"],
+      "required": [
+        "message",
+        "type"
+      ],
       "properties": {
         "enabled": {
           "description": "Enable or disable this rule (default: true)",
@@ -100,15 +116,24 @@
         },
         "pattern": {
           "description": "Regex pattern (required for type: regex)",
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "prompt": {
           "description": "Path to AI prompt markdown file (required for type: ai)",
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "script": {
           "description": "Path to script file (required for type: script)",
-          "type": ["string", "null"]
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "severity": {
           "description": "Severity level (default: error)",
@@ -131,11 +156,18 @@
     },
     "CustomRuleType": {
       "type": "string",
-      "enum": ["regex", "script", "ai"]
+      "enum": [
+        "regex",
+        "script",
+        "ai"
+      ]
     },
     "Severity": {
       "type": "string",
-      "enum": ["error", "warning"]
+      "enum": [
+        "error",
+        "warning"
+      ]
     }
   }
 }
