@@ -22,7 +22,25 @@ enum RpcMethod {
   ScanContent = 'scanContent',
   GetRulesMetadata = 'getRulesMetadata',
   ClearCache = 'clearCache',
+  FormatResults = 'formatResults',
 }
+
+type FormatPrettyResult = {
+  output: string;
+  summary: {
+    total_issues: number;
+    error_count: number;
+    warning_count: number;
+    file_count: number;
+    rule_count: number;
+  };
+};
+
+type FormatResultsParams = {
+  root: string;
+  results: ScanResult;
+  group_mode: string;
+};
 
 type RpcRequestMap = {
   [RpcMethod.Scan]: ScanParams;
@@ -30,6 +48,7 @@ type RpcRequestMap = {
   [RpcMethod.ScanContent]: ScanContentParams;
   [RpcMethod.GetRulesMetadata]: GetRulesMetadataParams;
   [RpcMethod.ClearCache]: ClearCacheParams;
+  [RpcMethod.FormatResults]: FormatResultsParams;
 };
 
 type RpcResponseMap = {
@@ -38,6 +57,7 @@ type RpcResponseMap = {
   [RpcMethod.ScanContent]: FileResult;
   [RpcMethod.GetRulesMetadata]: RuleMetadata[];
   [RpcMethod.ClearCache]: undefined;
+  [RpcMethod.FormatResults]: FormatPrettyResult;
 };
 
 type RpcRequest = {
@@ -325,5 +345,20 @@ export class RustClient {
   async clearCache(): Promise<void> {
     await this.sendRequest(RpcMethod.ClearCache, {});
     logger.info('Rust cache cleared');
+  }
+
+  async formatResults(
+    workspaceRoot: string,
+    results: ScanResult,
+    groupMode: 'file' | 'rule',
+  ): Promise<FormatPrettyResult> {
+    const result = await this.sendRequest(RpcMethod.FormatResults, {
+      root: workspaceRoot,
+      results,
+      group_mode: groupMode,
+    });
+
+    logger.info('Rust formatResults completed');
+    return result;
   }
 }

@@ -1,14 +1,52 @@
 import * as vscode from 'vscode';
+import type { RustClient } from '../common/lib/rust-client';
 import { Command, ScanMode, ToastKind, registerCommand, showToastMessage } from '../common/lib/vscode-utils';
-import { type FolderNode, type IssueResult, NodeKind } from '../common/types';
+import type { IssueResult, ScanResult } from '../common/types';
+import { type FolderNode, NodeKind } from '../common/types';
 import type { FileResultItem, FolderResultItem, RuleGroupItem } from '../sidebar/tree-items';
 
 let currentScanMode: ScanMode = ScanMode.Codebase;
 let currentCompareBranch = 'main';
+let getRustClientFn: (() => RustClient | null) | null = null;
+
+export function setCopyRustClient(getRustClient: () => RustClient | null) {
+  getRustClientFn = getRustClient;
+}
 
 export function setCopyScanContext(scanMode: ScanMode, compareBranch: string) {
   currentScanMode = scanMode;
   currentCompareBranch = compareBranch;
+}
+
+function convertToScanResult(results: IssueResult[]): ScanResult {
+  const fileMap = new Map<string, IssueResult[]>();
+
+  for (const result of results) {
+    const filePath = result.uri.fsPath;
+    if (!fileMap.has(filePath)) {
+      fileMap.set(filePath, []);
+    }
+    fileMap.get(filePath)!.push(result);
+  }
+
+  const files = Array.from(fileMap.entries()).map(([filePath, issues]) => ({
+    file: filePath,
+    issues: issues.map((issue) => ({
+      rule: issue.rule,
+      file: filePath,
+      message: issue.message,
+      line: issue.line,
+      column: issue.column,
+      severity: issue.severity as 'error' | 'warning',
+      line_text: issue.text,
+    })),
+  }));
+
+  return {
+    files,
+    total_issues: results.length,
+    duration_ms: 0,
+  };
 }
 
 export function createCopyRuleIssuesCommand() {
@@ -18,8 +56,34 @@ export function createCopyRuleIssuesCommand() {
       return;
     }
 
-    const formatted = formatRuleIssues(item.rule, item.results, currentScanMode, currentCompareBranch);
-    await vscode.env.clipboard.writeText(formatted);
+    const rustClient = getRustClientFn?.();
+    if (!rustClient) {
+      showToastMessage(ToastKind.Error, 'Scanner not initialized');
+      return;
+    }
+
+    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    if (!workspaceRoot) {
+      showToastMessage(ToastKind.Error, 'No workspace folder found');
+      return;
+    }
+
+    const scanResult = convertToScanResult(item.results);
+    const result = await rustClient.formatResults(workspaceRoot, scanResult, 'rule');
+
+    const scanModeText = currentScanMode === ScanMode.Branch ? 'branch mode' : 'workspace mode';
+    const branch = currentScanMode === ScanMode.Branch ? currentCompareBranch : undefined;
+    const cliCommand = branch
+      ? `tscanner check --rule "${item.rule}" --branch ${branch}`
+      : `tscanner check --rule "${item.rule}"`;
+
+    const header = `tscanner report searching for all the issues of the rule "${item.rule}" in the ${scanModeText}\n\ncli command: ${cliCommand}\nfound issues: ${result.summary.total_issues} issues\n`;
+
+    const summaryText = `\n\nIssues: ${result.summary.total_issues} (${result.summary.error_count} errors, ${result.summary.warning_count} warnings)\nFiles: ${result.summary.file_count}\nRules: ${result.summary.rule_count}`;
+
+    const finalText = header + result.output + summaryText;
+
+    await vscode.env.clipboard.writeText(finalText);
     showToastMessage(ToastKind.Info, `Copied ${item.results.length} issues from "${item.rule}"`);
   });
 }
@@ -31,9 +95,35 @@ export function createCopyFileIssuesCommand() {
       return;
     }
 
+    const rustClient = getRustClientFn?.();
+    if (!rustClient) {
+      showToastMessage(ToastKind.Error, 'Scanner not initialized');
+      return;
+    }
+
+    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    if (!workspaceRoot) {
+      showToastMessage(ToastKind.Error, 'No workspace folder found');
+      return;
+    }
+
+    const scanResult = convertToScanResult(item.results);
+    const result = await rustClient.formatResults(workspaceRoot, scanResult, 'file');
+
     const relativePath = vscode.workspace.asRelativePath(item.filePath);
-    const formatted = formatFileIssues(relativePath, item.results, currentScanMode, currentCompareBranch);
-    await vscode.env.clipboard.writeText(formatted);
+    const scanModeText = currentScanMode === ScanMode.Branch ? 'branch mode' : 'workspace mode';
+    const branch = currentScanMode === ScanMode.Branch ? currentCompareBranch : undefined;
+    const cliCommand = branch
+      ? `tscanner check --file "${relativePath}" --branch ${branch}`
+      : `tscanner check --file "${relativePath}"`;
+
+    const header = `tscanner report searching for all the issues in file "${relativePath}" in the ${scanModeText}\n\ncli command: ${cliCommand}\nfound issues: ${result.summary.total_issues} issues\n`;
+
+    const summaryText = `\n\nIssues: ${result.summary.total_issues} (${result.summary.error_count} errors, ${result.summary.warning_count} warnings)\nFiles: ${result.summary.file_count}\nRules: ${result.summary.rule_count}`;
+
+    const finalText = header + result.output + summaryText;
+
+    await vscode.env.clipboard.writeText(finalText);
     showToastMessage(ToastKind.Info, `Copied ${item.results.length} issues from "${relativePath}"`);
   });
 }
@@ -51,14 +141,35 @@ export function createCopyFolderIssuesCommand() {
       return;
     }
 
-    const formatted = formatFolderIssues(
-      item.node.name,
-      item.node.path,
-      allResults,
-      currentScanMode,
-      currentCompareBranch,
-    );
-    await vscode.env.clipboard.writeText(formatted);
+    const rustClient = getRustClientFn?.();
+    if (!rustClient) {
+      showToastMessage(ToastKind.Error, 'Scanner not initialized');
+      return;
+    }
+
+    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+    if (!workspaceRoot) {
+      showToastMessage(ToastKind.Error, 'No workspace folder found');
+      return;
+    }
+
+    const scanResult = convertToScanResult(allResults);
+    const result = await rustClient.formatResults(workspaceRoot, scanResult, 'file');
+
+    const relativeFolderPath = vscode.workspace.asRelativePath(item.node.path);
+    const scanModeText = currentScanMode === ScanMode.Branch ? 'branch mode' : 'workspace mode';
+    const branch = currentScanMode === ScanMode.Branch ? currentCompareBranch : undefined;
+    const cliCommand = branch
+      ? `tscanner check --file "${relativeFolderPath}/**/*" --branch ${branch}`
+      : `tscanner check --file "${relativeFolderPath}/**/*"`;
+
+    const header = `tscanner report searching for all the issues in folder "${item.node.name}" in the ${scanModeText}\n\ncli command: ${cliCommand}\nfound issues: ${result.summary.total_issues} issues\n`;
+
+    const summaryText = `\n\nIssues: ${result.summary.total_issues} (${result.summary.error_count} errors, ${result.summary.warning_count} warnings)\nFiles: ${result.summary.file_count}\nRules: ${result.summary.rule_count}`;
+
+    const finalText = header + result.output + summaryText;
+
+    await vscode.env.clipboard.writeText(finalText);
     showToastMessage(ToastKind.Info, `Copied ${allResults.length} issues from folder "${item.node.name}"`);
   });
 }
@@ -75,189 +186,4 @@ function collectFolderIssues(node: FolderNode): IssueResult[] {
   }
 
   return results;
-}
-
-function formatRuleIssues(ruleName: string, results: IssueResult[], scanMode: ScanMode, compareBranch: string): string {
-  const lines: string[] = [];
-  const issueCount = results.length;
-  const mode = scanMode === ScanMode.Branch ? 'branch' : 'codebase';
-
-  lines.push(`tscanner report searching for all the issues of the rule "${ruleName}" in the ${mode} mode`);
-  lines.push('');
-
-  const cliCommand =
-    scanMode === ScanMode.Branch
-      ? `tscanner check --rule "${ruleName}" --branch ${compareBranch}`
-      : `tscanner check --rule "${ruleName}"`;
-
-  lines.push(`cli command: ${cliCommand}`);
-  lines.push(`found issues: ${issueCount} ${issueCount === 1 ? 'issue' : 'issues'}`);
-  lines.push('');
-
-  const rulesMap = new Map<string, string>();
-  for (const result of results) {
-    if (!rulesMap.has(result.rule)) {
-      rulesMap.set(result.rule, result.message);
-    }
-  }
-
-  lines.push('found rules:');
-  lines.push('');
-  for (const [rule, message] of rulesMap) {
-    lines.push(`  ${rule}: ${message}`);
-  }
-
-  lines.push('');
-  lines.push('files:');
-  lines.push('');
-
-  const fileGroups = new Map<string, IssueResult[]>();
-  for (const result of results) {
-    const relativePath = vscode.workspace.asRelativePath(result.uri);
-    if (!fileGroups.has(relativePath)) {
-      fileGroups.set(relativePath, []);
-    }
-    fileGroups.get(relativePath)!.push(result);
-  }
-
-  for (const [filePath, fileResults] of fileGroups) {
-    lines.push(`${filePath} - ${fileResults.length} ${fileResults.length === 1 ? 'issue' : 'issues'}`);
-    lines.push('');
-
-    for (const result of fileResults) {
-      const icon = result.severity === 'error' ? '✖' : '⚠';
-      const line = result.line + 1;
-      const col = result.column + 1;
-      lines.push(`  ${icon} ${line}:${col}`);
-      lines.push(`    ${result.text.trim()}`);
-    }
-
-    lines.push('');
-  }
-
-  return lines.join('\n').trimEnd();
-}
-
-function formatFileIssues(fileName: string, results: IssueResult[], scanMode: ScanMode, compareBranch: string): string {
-  const lines: string[] = [];
-  const issueCount = results.length;
-  const mode = scanMode === ScanMode.Branch ? 'branch' : 'codebase';
-
-  lines.push(`tscanner report searching for all the issues in the file "${fileName}" in the ${mode} mode`);
-  lines.push('');
-
-  const cliCommand =
-    scanMode === ScanMode.Branch
-      ? `tscanner check --file "${fileName}" --branch ${compareBranch}`
-      : `tscanner check --file "${fileName}"`;
-
-  lines.push(`cli command: ${cliCommand}`);
-  lines.push(`found issues: ${issueCount} ${issueCount === 1 ? 'issue' : 'issues'}`);
-  lines.push('');
-
-  const rulesMap = new Map<string, string>();
-  for (const result of results) {
-    if (!rulesMap.has(result.rule)) {
-      rulesMap.set(result.rule, result.message);
-    }
-  }
-
-  lines.push('found rules:');
-  lines.push('');
-  for (const [rule, message] of rulesMap) {
-    lines.push(`  ${rule}: ${message}`);
-  }
-
-  lines.push('');
-  lines.push('files:');
-  lines.push('');
-
-  const uniqueRules = new Set(results.map((r) => r.rule)).size;
-  lines.push(
-    `${fileName} - ${issueCount} ${issueCount === 1 ? 'issue' : 'issues'} - ${uniqueRules} ${uniqueRules === 1 ? 'rule' : 'rules'}`,
-  );
-  lines.push('');
-
-  for (const result of results) {
-    const icon = result.severity === 'error' ? '✖' : '⚠';
-    const line = result.line + 1;
-    const col = result.column + 1;
-    lines.push(`  ${icon} ${line}:${col} - ${result.rule}`);
-    lines.push(`    ${result.text.trim()}`);
-  }
-
-  return lines.join('\n');
-}
-
-function formatFolderIssues(
-  folderName: string,
-  folderPath: string,
-  results: IssueResult[],
-  scanMode: ScanMode,
-  compareBranch: string,
-): string {
-  const lines: string[] = [];
-  const issueCount = results.length;
-  const mode = scanMode === ScanMode.Branch ? 'branch' : 'codebase';
-
-  lines.push(`tscanner report searching for all the issues in the folder "${folderName}" in the ${mode} mode`);
-  lines.push('');
-
-  const relativeFolderPath = vscode.workspace.asRelativePath(folderPath);
-  const folderPattern = `${relativeFolderPath}/**`;
-
-  const cliCommand =
-    scanMode === ScanMode.Branch
-      ? `tscanner check --file "${folderPattern}" --branch ${compareBranch}`
-      : `tscanner check --file "${folderPattern}"`;
-
-  lines.push(`cli command: ${cliCommand}`);
-  lines.push(`found issues: ${issueCount} ${issueCount === 1 ? 'issue' : 'issues'}`);
-  lines.push('');
-
-  const rulesMap = new Map<string, string>();
-  for (const result of results) {
-    if (!rulesMap.has(result.rule)) {
-      rulesMap.set(result.rule, result.message);
-    }
-  }
-
-  lines.push('found rules:');
-  lines.push('');
-  for (const [rule, message] of rulesMap) {
-    lines.push(`  ${rule}: ${message}`);
-  }
-
-  lines.push('');
-  lines.push('files:');
-  lines.push('');
-
-  const fileGroups = new Map<string, IssueResult[]>();
-  for (const result of results) {
-    const relativePath = vscode.workspace.asRelativePath(result.uri);
-    if (!fileGroups.has(relativePath)) {
-      fileGroups.set(relativePath, []);
-    }
-    fileGroups.get(relativePath)!.push(result);
-  }
-
-  for (const [filePath, fileResults] of fileGroups) {
-    const uniqueRules = new Set(fileResults.map((r) => r.rule)).size;
-    lines.push(
-      `${filePath} - ${fileResults.length} ${fileResults.length === 1 ? 'issue' : 'issues'} - ${uniqueRules} ${uniqueRules === 1 ? 'rule' : 'rules'}`,
-    );
-    lines.push('');
-
-    for (const result of fileResults) {
-      const icon = result.severity === 'error' ? '✖' : '⚠';
-      const line = result.line + 1;
-      const col = result.column + 1;
-      lines.push(`  ${icon} ${line}:${col} - ${result.rule}`);
-      lines.push(`    ${result.text.trim()}`);
-    }
-
-    lines.push('');
-  }
-
-  return lines.join('\n').trimEnd();
 }

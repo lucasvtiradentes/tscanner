@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { getViewId } from './common/constants';
 import { loadEffectiveConfig } from './common/lib/config-manager';
-import { dispose as disposeScanner, scanContent } from './common/lib/scanner';
+import { dispose as disposeScanner, getRustClient, scanContent } from './common/lib/scanner';
 import {
   Command,
   ContextKey,
@@ -84,6 +84,7 @@ export function activate(context: vscode.ExtensionContext) {
     isSearchingRef,
     currentScanModeRef,
     currentCompareBranchRef,
+    getRustClient,
   });
 
   const updateSingleFile = async (uri: vscode.Uri) => {

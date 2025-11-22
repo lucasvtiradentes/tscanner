@@ -1,10 +1,12 @@
 import type * as vscode from 'vscode';
+import type { RustClient } from '../common/lib/rust-client';
 import type { ScanMode } from '../common/lib/vscode-utils';
 import type { SearchResultProvider } from '../sidebar/search-provider';
 import {
   createCopyFileIssuesCommand,
   createCopyFolderIssuesCommand,
   createCopyRuleIssuesCommand,
+  setCopyRustClient,
   setCopyScanContext,
 } from './copy-issues';
 import { createFindIssueCommand } from './find-issue';
@@ -30,9 +32,11 @@ export interface CommandContext {
   isSearchingRef: { current: boolean };
   currentScanModeRef: { current: ScanMode };
   currentCompareBranchRef: { current: string };
+  getRustClient: () => RustClient | null;
 }
 
 export function registerAllCommands(ctx: CommandContext): vscode.Disposable[] {
+  setCopyRustClient(ctx.getRustClient);
   setCopyScanContext(ctx.currentScanModeRef.current, ctx.currentCompareBranchRef.current);
 
   return [

@@ -171,6 +171,10 @@ export async function clearCache(): Promise<void> {
   logger.info('Cache cleared via RPC');
 }
 
+export function getRustClient(): RustClient | null {
+  return rustClient;
+}
+
 export function dispose() {
   if (rustClient) {
     rustClient.stop();

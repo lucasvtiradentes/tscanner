@@ -494,103 +494,30 @@ pub fn cmd_check(
     }
 
     if matches!(group_mode, GroupMode::Rule) {
-        use std::collections::HashMap;
-        use std::collections::HashSet;
-
-        let mut issues_by_rule: HashMap<String, Vec<_>> = HashMap::new();
-
-        for file_result in &result.files {
-            let relative_path = pathdiff::diff_paths(&file_result.file, &root)
-                .unwrap_or_else(|| file_result.file.clone());
-
-            for issue in &file_result.issues {
-                issues_by_rule
-                    .entry(issue.rule.clone())
-                    .or_default()
-                    .push((relative_path.clone(), issue));
-            }
-        }
-
-        let mut sorted_rules: Vec<_> = issues_by_rule.keys().cloned().collect();
-        sorted_rules.sort();
-
         if pretty_output {
-            let mut rules_map: HashMap<String, String> = HashMap::new();
-            for (rule_name, issues) in &issues_by_rule {
-                if let Some((_, first_issue)) = issues.first() {
-                    rules_map.insert(rule_name.clone(), first_issue.message.clone());
-                }
-            }
-
-            if !rules_map.is_empty() {
-                println!("\n{}", "Rules:".bold());
-                println!();
-                let mut sorted_rule_names: Vec<_> = rules_map.iter().collect();
-                sorted_rule_names.sort_by_key(|(rule, _)| *rule);
-                for (rule, message) in sorted_rule_names {
-                    println!("  {}: {}", rule, message);
-                }
-                println!();
-                println!("{}", "Rules:".bold());
-            }
-
-            for rule_name in sorted_rules {
-                let issues = &issues_by_rule[&rule_name];
-                let unique_files: HashSet<_> = issues.iter().map(|(path, _)| path).collect();
-                println!(
-                    "\n{} ({} issues, {} files)",
-                    rule_name.bold(),
-                    issues.len(),
-                    unique_files.len()
-                );
-
-                let mut issues_by_file: HashMap<_, Vec<_>> = HashMap::new();
-                for (file_path, issue) in issues {
-                    issues_by_file
-                        .entry(file_path.clone())
-                        .or_default()
-                        .push(issue);
-                }
-
-                let mut sorted_files: Vec<_> = issues_by_file.keys().collect();
-                sorted_files.sort();
-
-                for file_path in sorted_files {
-                    let file_issues = &issues_by_file[file_path];
-                    println!();
-                    println!(
-                        "  {} ({} issues)",
-                        file_path.display().to_string().cyan(),
-                        file_issues.len()
-                    );
-
-                    for issue in file_issues {
-                        let severity_icon = match issue.severity {
-                            Severity::Error => "✖".red(),
-                            Severity::Warning => "⚠".yellow(),
-                        };
-
-                        let location = format!("{}:{}", issue.line, issue.column);
-
-                        if let Some(line_text) = &issue.line_text {
-                            let trimmed = line_text.trim();
-                            if !trimmed.is_empty() {
-                                println!(
-                                    "    {} {} -> {}",
-                                    severity_icon,
-                                    location.dimmed(),
-                                    trimmed.dimmed()
-                                );
-                            } else {
-                                println!("    {} {}", severity_icon, location.dimmed());
-                            }
-                        } else {
-                            println!("    {} {}", severity_icon, location.dimmed());
-                        }
-                    }
-                }
-            }
+            let formatted = core::PrettyFormatter::format_by_rule(&result, &root);
+            print!("{}", formatted);
         } else {
+            use std::collections::HashMap;
+            use std::collections::HashSet;
+
+            let mut issues_by_rule: HashMap<String, Vec<_>> = HashMap::new();
+
+            for file_result in &result.files {
+                let relative_path = pathdiff::diff_paths(&file_result.file, &root)
+                    .unwrap_or_else(|| file_result.file.clone());
+
+                for issue in &file_result.issues {
+                    issues_by_rule
+                        .entry(issue.rule.clone())
+                        .or_default()
+                        .push((relative_path.clone(), issue));
+                }
+            }
+
+            let mut sorted_rules: Vec<_> = issues_by_rule.keys().cloned().collect();
+            sorted_rules.sort();
+
             for rule_name in sorted_rules {
                 let issues = &issues_by_rule[&rule_name];
                 let unique_files: HashSet<_> = issues.iter().map(|(path, _)| path).collect();
@@ -621,32 +548,11 @@ pub fn cmd_check(
                 }
             }
         }
+    } else if pretty_output {
+        let formatted = core::PrettyFormatter::format_by_file(&result, &root);
+        print!("{}", formatted);
+        println!();
     } else {
-        if pretty_output {
-            use std::collections::HashMap;
-
-            let mut rules_map: HashMap<String, String> = HashMap::new();
-            for file_result in &result.files {
-                for issue in &file_result.issues {
-                    if !rules_map.contains_key(&issue.rule) {
-                        rules_map.insert(issue.rule.clone(), issue.message.clone());
-                    }
-                }
-            }
-
-            if !rules_map.is_empty() {
-                println!("\n{}", "Rules:".bold());
-                println!();
-                let mut sorted_rules: Vec<_> = rules_map.iter().collect();
-                sorted_rules.sort_by_key(|(rule, _)| *rule);
-                for (rule, message) in sorted_rules {
-                    println!("  {}: {}", rule, message);
-                }
-                println!();
-                println!("{}", "Files:".bold());
-            }
-        }
-
         for file_result in &result.files {
             if file_result.issues.is_empty() {
                 continue;
@@ -655,85 +561,30 @@ pub fn cmd_check(
             let relative_path = pathdiff::diff_paths(&file_result.file, &root)
                 .unwrap_or_else(|| file_result.file.clone());
 
-            if pretty_output {
-                use std::collections::HashMap;
+            println!(
+                "\n{} ({} issues)",
+                relative_path.display().to_string().bold(),
+                file_result.issues.len()
+            );
 
-                let unique_rules: std::collections::HashSet<_> =
-                    file_result.issues.iter().map(|i| &i.rule).collect();
+            for issue in &file_result.issues {
+                let severity_icon = match issue.severity {
+                    Severity::Error => "✖".red(),
+                    Severity::Warning => "⚠".yellow(),
+                };
+
+                let location = format!("{}:{}", issue.line, issue.column).dimmed();
+                let rule_name = format!("[{}]", issue.rule).cyan();
+
                 println!(
-                    "\n{} - {} issues - {} rules",
-                    relative_path.display().to_string().bold(),
-                    file_result.issues.len(),
-                    unique_rules.len()
+                    "  {} {} {} {}",
+                    severity_icon, location, issue.message, rule_name
                 );
 
-                let mut issues_by_rule: HashMap<&str, Vec<&core::types::Issue>> = HashMap::new();
-                for issue in &file_result.issues {
-                    issues_by_rule
-                        .entry(issue.rule.as_str())
-                        .or_default()
-                        .push(issue);
-                }
-
-                let mut sorted_rules: Vec<_> = issues_by_rule.keys().collect();
-                sorted_rules.sort();
-
-                for rule_name in sorted_rules {
-                    let issues = &issues_by_rule[rule_name];
-                    println!();
-                    println!("  {} ({} issues)", rule_name.cyan(), issues.len());
-
-                    for issue in issues {
-                        let severity_icon = match issue.severity {
-                            Severity::Error => "✖".red(),
-                            Severity::Warning => "⚠".yellow(),
-                        };
-
-                        let location = format!("{}:{}", issue.line, issue.column);
-
-                        if let Some(line_text) = &issue.line_text {
-                            let trimmed = line_text.trim();
-                            if !trimmed.is_empty() {
-                                println!(
-                                    "    {} {} -> {}",
-                                    severity_icon,
-                                    location.dimmed(),
-                                    trimmed.dimmed()
-                                );
-                            } else {
-                                println!("    {} {}", severity_icon, location.dimmed());
-                            }
-                        } else {
-                            println!("    {} {}", severity_icon, location.dimmed());
-                        }
-                    }
-                }
-            } else {
-                println!(
-                    "\n{} ({} issues)",
-                    relative_path.display().to_string().bold(),
-                    file_result.issues.len()
-                );
-
-                for issue in &file_result.issues {
-                    let severity_icon = match issue.severity {
-                        Severity::Error => "✖".red(),
-                        Severity::Warning => "⚠".yellow(),
-                    };
-
-                    let location = format!("{}:{}", issue.line, issue.column).dimmed();
-                    let rule_name = format!("[{}]", issue.rule).cyan();
-
-                    println!(
-                        "  {} {} {} {}",
-                        severity_icon, location, issue.message, rule_name
-                    );
-
-                    if let Some(line_text) = &issue.line_text {
-                        let trimmed = line_text.trim();
-                        if !trimmed.is_empty() {
-                            println!("    {}", trimmed.dimmed());
-                        }
+                if let Some(line_text) = &issue.line_text {
+                    let trimmed = line_text.trim();
+                    if !trimmed.is_empty() {
+                        println!("    {}", trimmed.dimmed());
                     }
                 }
             }
@@ -757,6 +608,7 @@ pub fn cmd_check(
     );
     println!("Files: {}", result.files.len());
     println!("Rules: {}", unique_rules.len());
+    println!();
 
     log_info(&format!(
         "cmd_check: Found {} errors, {} warnings",

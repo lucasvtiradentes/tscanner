@@ -47,3 +47,10 @@ pub struct ScanContentParams {
     pub content: String,
     pub config: Option<TscannerConfig>,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct FormatResultsParams {
+    pub root: PathBuf,
+    pub results: core::ScanResult,
+    pub group_mode: String,
+}

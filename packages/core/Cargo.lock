@@ -269,6 +269,7 @@ dependencies = [
  "ignore",
  "inventory",
  "notify",
+ "pathdiff",
  "rayon",
  "regex",
  "schemars",
@@ -1179,8 +1180,11 @@ dependencies = [
  "base64",
  "core",
  "flate2",
+ "glob",
+ "pathdiff",
  "serde",
  "serde_json",
+ "walkdir",
 ]
 
 [[package]]

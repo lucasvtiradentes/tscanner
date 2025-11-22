@@ -2,8 +2,8 @@ import type * as vscode from 'vscode';
 import { z } from 'zod';
 
 export enum RustSeverity {
-  Error = 'Error',
-  Warning = 'Warning',
+  Error = 'error',
+  Warning = 'warning',
 }
 
 export enum Severity {
@@ -57,7 +57,7 @@ const issueSchema = z.object({
   line: z.number(),
   column: z.number(),
   message: z.string(),
-  severity: z.enum(RustSeverity),
+  severity: z.enum(['error', 'warning']),
   line_text: z.string().optional(),
 });
 
@@ -76,10 +76,10 @@ const ruleMetadataSchema = z.object({
   name: z.string(),
   displayName: z.string(),
   description: z.string(),
-  ruleType: z.enum(RuleType),
-  defaultSeverity: z.enum(Severity),
+  ruleType: z.enum(['ast', 'regex']),
+  defaultSeverity: z.enum(['error', 'warning']),
   defaultEnabled: z.boolean(),
-  category: z.enum(RuleCategory),
+  category: z.enum(['typesafety', 'codequality', 'style', 'performance']),
 });
 
 const modifiedLineRangeSchema = z.object({
@@ -89,18 +89,18 @@ const modifiedLineRangeSchema = z.object({
 
 const builtinRuleConfigSchema = z.object({
   enabled: z.boolean().optional(),
-  severity: z.enum(Severity).optional(),
+  severity: z.enum(['error', 'warning']).optional(),
   include: z.array(z.string()).optional(),
   exclude: z.array(z.string()).optional(),
 });
 
 const customRuleConfigSchema = z.object({
-  type: z.enum(CustomRuleType),
+  type: z.enum(['regex', 'script', 'ai']),
   pattern: z.string().optional(),
   script: z.string().optional(),
   prompt: z.string().optional(),
   message: z.string(),
-  severity: z.enum(Severity).optional(),
+  severity: z.enum(['error', 'warning']).optional(),
   enabled: z.boolean().optional(),
   include: z.array(z.string()).optional(),
   exclude: z.array(z.string()).optional(),
