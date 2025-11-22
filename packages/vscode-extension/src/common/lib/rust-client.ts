@@ -1,7 +1,7 @@
 import { type ChildProcess, spawn } from 'node:child_process';
 import * as zlib from 'node:zlib';
 import * as vscode from 'vscode';
-import type { FileResult, IssueResult, RuleMetadata, ScanResult } from '../types';
+import type { FileResult, IssueResult, RuleMetadata, ScanResult, TscannerConfig } from '../types';
 import { logger } from '../utils/logger';
 import { openTextDocument } from './vscode-utils';
 
@@ -157,7 +157,12 @@ export class RustClient {
     });
   }
 
-  async scan(workspaceRoot: string, fileFilter?: Set<string>, config?: any, branch?: string): Promise<IssueResult[]> {
+  async scan(
+    workspaceRoot: string,
+    fileFilter?: Set<string>,
+    config?: TscannerConfig,
+    branch?: string,
+  ): Promise<IssueResult[]> {
     const result: ScanResult = await this.sendRequest('scan', {
       root: workspaceRoot,
       config,
@@ -248,7 +253,12 @@ export class RustClient {
     return result;
   }
 
-  async scanContent(workspaceRoot: string, filePath: string, content: string, config?: any): Promise<IssueResult[]> {
+  async scanContent(
+    workspaceRoot: string,
+    filePath: string,
+    content: string,
+    config?: TscannerConfig,
+  ): Promise<IssueResult[]> {
     const result: FileResult = await this.sendRequest('scanContent', {
       root: workspaceRoot,
       file: filePath,

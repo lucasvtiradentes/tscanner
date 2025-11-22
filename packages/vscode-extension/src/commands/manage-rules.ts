@@ -62,15 +62,21 @@ export function createManageRulesCommand(updateStatusBar: () => Promise<void>, c
 
       const existingConfig = (await loadEffectiveConfig(context, workspacePath)) || getDefaultConfig();
 
-      const _builtinRuleNames = new Set(rules.map((r) => r.name));
+      const customRuleTypeMap = {
+        regex: { icon: '$(regex)', detailKey: 'pattern' as const },
+        script: { icon: '$(file-code)', detailKey: 'script' as const },
+        ai: { icon: '$(sparkle)', detailKey: 'prompt' as const },
+      };
+
       const customRules: RuleQuickPickItem[] = [];
 
       if (existingConfig?.customRules) {
         for (const [ruleName, ruleConfig] of Object.entries(existingConfig.customRules)) {
+          const typeInfo = customRuleTypeMap[ruleConfig.type];
           customRules.push({
-            label: `$(regex) ${ruleName}`,
-            description: '[REGEX] custom',
-            detail: ruleConfig.message || (ruleConfig as any).pattern,
+            label: `${typeInfo.icon} ${ruleName}`,
+            description: `[${ruleConfig.type.toUpperCase()}] custom`,
+            detail: ruleConfig.message || ruleConfig[typeInfo.detailKey] || '',
             ruleName,
             picked: ruleConfig.enabled ?? true,
             isCustom: true,

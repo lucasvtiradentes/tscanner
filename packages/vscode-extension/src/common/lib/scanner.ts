@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import * as vscode from 'vscode';
 import { BINARY_BASE_NAME, PLATFORM_TARGET_MAP, getBinaryName } from '../constants';
-import type { IssueResult } from '../types';
+import type { IssueResult, TscannerConfig } from '../types';
 import { getExtensionPath } from '../utils/extension-helper';
 import { LOG_FILE_PATH, logger } from '../utils/logger';
 import { RustClient } from './rust-client';
@@ -49,7 +49,11 @@ export function getRustBinaryPath(): string | null {
   return null;
 }
 
-export async function scanWorkspace(fileFilter?: Set<string>, config?: any, branch?: string): Promise<IssueResult[]> {
+export async function scanWorkspace(
+  fileFilter?: Set<string>,
+  config?: TscannerConfig,
+  branch?: string,
+): Promise<IssueResult[]> {
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (!workspaceFolder) {
     return [];
@@ -127,7 +131,7 @@ export async function scanFile(filePath: string): Promise<IssueResult[]> {
   }
 }
 
-export async function scanContent(filePath: string, content: string, config?: any): Promise<IssueResult[]> {
+export async function scanContent(filePath: string, content: string, config?: TscannerConfig): Promise<IssueResult[]> {
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (!workspaceFolder) {
     return [];

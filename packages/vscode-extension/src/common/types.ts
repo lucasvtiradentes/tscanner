@@ -64,12 +64,28 @@ export interface FileNode {
   results: IssueResult[];
 }
 
+export type BuiltinRuleConfig = {
+  enabled?: boolean;
+  severity?: 'error' | 'warning';
+  include?: string[];
+  exclude?: string[];
+};
+
+export type CustomRuleConfig = {
+  type: 'regex' | 'script' | 'ai';
+  pattern?: string;
+  script?: string;
+  prompt?: string;
+  message: string;
+  severity?: 'error' | 'warning';
+  enabled?: boolean;
+  include?: string[];
+  exclude?: string[];
+};
+
 export interface TscannerConfig {
-  builtinRules?: Record<string, { enabled?: boolean; severity?: 'error' | 'warning' }>;
-  customRules?: Record<
-    string,
-    { type: string; pattern?: string; message: string; enabled?: boolean; severity?: 'error' | 'warning' }
-  >;
+  builtinRules?: Record<string, BuiltinRuleConfig>;
+  customRules?: Record<string, CustomRuleConfig>;
   include?: string[];
   exclude?: string[];
 }

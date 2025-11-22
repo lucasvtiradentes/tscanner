@@ -110,7 +110,7 @@ export function activate(context: vscode.ExtensionContext) {
       const document = await openTextDocument(uri);
       const content = document.getText();
       const config = await loadEffectiveConfig(context, workspaceFolder.uri.fsPath);
-      let newResults = await scanContent(uri.fsPath, content, config);
+      let newResults = await scanContent(uri.fsPath, content, config ?? undefined);
 
       if (currentScanModeRef.current === ScanMode.Branch) {
         const ranges = await getModifiedLineRanges(
