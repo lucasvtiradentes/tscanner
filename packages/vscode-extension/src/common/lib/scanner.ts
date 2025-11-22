@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import * as vscode from 'vscode';
 import { BINARY_BASE_NAME, PLATFORM_TARGET_MAP, getBinaryName } from '../constants';
-import { IssueResult } from '../types';
+import type { IssueResult } from '../types';
 import { getExtensionPath } from '../utils/extension-helper';
 import { LOG_FILE_PATH, logger } from '../utils/logger';
 import { RustClient } from './rust-client';
@@ -60,9 +60,7 @@ export async function scanWorkspace(fileFilter?: Set<string>, config?: any, bran
   if (!binaryPath) {
     vscode.window
       .showErrorMessage(
-        'Tscanner: Rust binary not found. Please build the Rust core:\n\n' +
-          'cd packages/core && cargo build --release\n\n' +
-          `Check logs at ${LOG_FILE_PATH} for details.`,
+        `Tscanner: Rust binary not found. Please build the Rust core:\n\ncd packages/core && cargo build --release\n\nCheck logs at ${LOG_FILE_PATH} for details.`,
         'Open Logs',
       )
       .then((selection) => {

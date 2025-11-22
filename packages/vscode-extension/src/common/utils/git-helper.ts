@@ -1,6 +1,6 @@
 import { execSync } from 'node:child_process';
 import * as vscode from 'vscode';
-import { ModifiedLineRange } from '../types';
+import type { ModifiedLineRange } from '../types';
 import { logger } from './logger';
 
 type GitExtension = {
@@ -26,8 +26,8 @@ type Change = {
 };
 
 let gitApi: GitAPI | null = null;
-let changedFilesCache: Map<string, Set<string>> = new Map();
-let lastCacheUpdate: Map<string, number> = new Map();
+const changedFilesCache: Map<string, Set<string>> = new Map();
+const lastCacheUpdate: Map<string, number> = new Map();
 const CACHE_TTL = 30000;
 
 function getGitAPI(): GitAPI | null {
@@ -92,7 +92,7 @@ export async function getAllBranches(workspaceRoot: string): Promise<string[]> {
       .map((line: string) => line.replace(/^\*\s+/, ''))
       .map((line: string) => {
         if (line.startsWith('remotes/origin/')) {
-          return 'origin/' + line.replace('remotes/origin/', '');
+          return `origin/${line.replace('remotes/origin/', '')}`;
         }
         return line;
       });
@@ -205,7 +205,7 @@ export async function getModifiedLineRanges(
     for (const line of lines) {
       const hunkMatch = line.match(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
       if (hunkMatch) {
-        currentLine = parseInt(hunkMatch[1], 10);
+        currentLine = Number.parseInt(hunkMatch[1], 10);
         continue;
       }
 

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { Command, ToastKind, openTextDocument, registerCommand, showToastMessage } from '../common/lib/vscode-utils';
 import { logger } from '../common/utils/logger';
-import { SearchResultProvider } from '../sidebar/search-provider';
+import type { SearchResultProvider } from '../sidebar/search-provider';
 
 let currentIssueIndex = -1;
 

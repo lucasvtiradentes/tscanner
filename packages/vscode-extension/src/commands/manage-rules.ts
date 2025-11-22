@@ -1,12 +1,11 @@
 import * as vscode from 'vscode';
 import {
-  TscannerConfig,
+  type TscannerConfig,
   getDefaultConfig,
   loadEffectiveConfig,
   saveGlobalConfig,
   saveLocalConfig,
   shouldSyncToLocal,
-  syncGlobalToLocal,
 } from '../common/lib/config-manager';
 import { RustClient } from '../common/lib/rust-client';
 import { getRustBinaryPath } from '../common/lib/scanner';
@@ -63,14 +62,14 @@ export function createManageRulesCommand(updateStatusBar: () => Promise<void>, c
 
       const existingConfig = (await loadEffectiveConfig(context, workspacePath)) || getDefaultConfig();
 
-      const builtinRuleNames = new Set(rules.map((r) => r.name));
+      const _builtinRuleNames = new Set(rules.map((r) => r.name));
       const customRules: RuleQuickPickItem[] = [];
 
       if (existingConfig?.customRules) {
         for (const [ruleName, ruleConfig] of Object.entries(existingConfig.customRules)) {
           customRules.push({
             label: `$(regex) ${ruleName}`,
-            description: `[REGEX] custom`,
+            description: '[REGEX] custom',
             detail: ruleConfig.message || (ruleConfig as any).pattern,
             ruleName,
             picked: ruleConfig.enabled ?? true,
@@ -83,7 +82,7 @@ export function createManageRulesCommand(updateStatusBar: () => Promise<void>, c
 
       for (const rule of rules) {
         const existingRule = existingConfig?.builtinRules?.[rule.name];
-        const isEnabled = existingRule?.enabled ?? (existingRule !== undefined ? true : false);
+        const isEnabled = existingRule?.enabled ?? existingRule !== undefined;
 
         const ruleItem: RuleQuickPickItem = {
           label: `$(${getCategoryIcon(rule.category)}) ${rule.displayName}`,
@@ -98,7 +97,7 @@ export function createManageRulesCommand(updateStatusBar: () => Promise<void>, c
         if (!rulesByCategory.has(category)) {
           rulesByCategory.set(category, []);
         }
-        rulesByCategory.get(category)!.push(ruleItem);
+        rulesByCategory.get(category)?.push(ruleItem);
       }
 
       const categoryOrder = [
@@ -168,7 +167,7 @@ export function createManageRulesCommand(updateStatusBar: () => Promise<void>, c
           if (!existingRuleConfig) {
             config.builtinRules[rule.name] = {};
           } else {
-            delete existingRuleConfig.enabled;
+            existingRuleConfig.enabled = undefined;
           }
         } else {
           const existingRuleConfig = config.builtinRules[rule.name];
@@ -184,7 +183,7 @@ export function createManageRulesCommand(updateStatusBar: () => Promise<void>, c
         const existingCustom = existingConfig?.customRules?.[customRule.ruleName];
         if (existingCustom) {
           if (enabledRules.has(customRule.ruleName)) {
-            delete existingCustom.enabled;
+            existingCustom.enabled = undefined;
           } else {
             existingCustom.enabled = false;
           }

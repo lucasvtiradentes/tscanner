@@ -113,7 +113,7 @@ export async function syncGlobalToLocal(context: vscode.ExtensionContext, worksp
   const localPath = getLocalConfigPath(workspacePath);
 
   try {
-    const stat = await vscode.workspace.fs.stat(localPath);
+    const _stat = await vscode.workspace.fs.stat(localPath);
     const existingContent = await vscode.workspace.fs.readFile(localPath);
     const contentStr = Buffer.from(existingContent).toString('utf8');
 

@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import type * as vscode from 'vscode';
 import {
   Command,
   GroupMode,
@@ -7,7 +7,7 @@ import {
   registerCommand,
   updateState,
 } from '../common/lib/vscode-utils';
-import { SearchResultProvider } from '../sidebar/search-provider';
+import type { SearchResultProvider } from '../sidebar/search-provider';
 
 type ViewState = {
   viewMode: ViewMode;

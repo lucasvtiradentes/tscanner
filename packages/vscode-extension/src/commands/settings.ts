@@ -14,7 +14,7 @@ import {
 } from '../common/lib/vscode-utils';
 import { getAllBranches, getCurrentBranch, invalidateCache } from '../common/utils/git-helper';
 import { logger } from '../common/utils/logger';
-import { SearchResultProvider } from '../sidebar/search-provider';
+import type { SearchResultProvider } from '../sidebar/search-provider';
 
 export function createOpenSettingsMenuCommand(
   updateStatusBar: () => Promise<void>,

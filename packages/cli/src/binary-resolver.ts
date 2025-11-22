@@ -23,9 +23,7 @@ export function getBinaryPath(): string {
   } catch (e) {
     const error = e as Error;
     throw new Error(
-      `Failed to find tscanner binary for ${platformKey}\n` +
-        `Please try reinstalling: npm install tscanner\n` +
-        `Error: ${error.message}`,
+      `Failed to find tscanner binary for ${platformKey}\nPlease try reinstalling: npm install tscanner\nError: ${error.message}`,
     );
   }
 }

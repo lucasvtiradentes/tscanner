@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import type * as vscode from 'vscode';
 import { hasLocalConfig, loadEffectiveConfig } from '../common/lib/config-manager';
 import { scanWorkspace } from '../common/lib/scanner';
 import {
@@ -16,10 +16,10 @@ import {
   showToastMessage,
   updateState,
 } from '../common/lib/vscode-utils';
-import { hasConfiguredRules } from '../common/types';
+import { type IssueResult, hasConfiguredRules } from '../common/types';
 import { branchExists } from '../common/utils/git-helper';
 import { logger } from '../common/utils/logger';
-import { SearchResultProvider } from '../sidebar/search-provider';
+import type { SearchResultProvider } from '../sidebar/search-provider';
 import { resetIssueIndex } from './issue-navigation';
 
 export function createFindIssueCommand(
@@ -101,7 +101,7 @@ export function createFindIssueCommand(
 
     try {
       const startTime = Date.now();
-      let results;
+      let results: IssueResult[];
 
       if (currentScanModeRef.current === ScanMode.Branch) {
         results = await scanWorkspace(undefined, configToPass, currentCompareBranchRef.current);
@@ -128,9 +128,9 @@ export function createFindIssueCommand(
       if (searchProvider.viewMode === ViewMode.Tree) {
         setTimeout(() => {
           const folders = searchProvider.getAllFolderItems();
-          folders.forEach((folder) => {
+          for (const folder of folders) {
             treeView.reveal(folder, { expand: true, select: false, focus: false });
-          });
+          }
         }, 100);
       }
     } finally {

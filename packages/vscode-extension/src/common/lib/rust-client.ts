@@ -1,7 +1,7 @@
-import { ChildProcess, spawn } from 'child_process';
-import * as zlib from 'zlib';
+import { type ChildProcess, spawn } from 'node:child_process';
+import * as zlib from 'node:zlib';
 import * as vscode from 'vscode';
-import { FileResult, IssueResult, RuleMetadata, ScanResult } from '../types';
+import type { FileResult, IssueResult, RuleMetadata, ScanResult } from '../types';
 import { logger } from '../utils/logger';
 import { openTextDocument } from './vscode-utils';
 
@@ -56,7 +56,7 @@ export class RustClient {
       throw error;
     }
 
-    this.process.stdout!.on('data', (data: Buffer) => {
+    this.process.stdout?.on('data', (data: Buffer) => {
       const chunkSize = data.length;
       this.buffer += data.toString();
 
@@ -107,7 +107,7 @@ export class RustClient {
       }
     });
 
-    this.process.stderr!.on('data', (data: Buffer) => {
+    this.process.stderr?.on('data', (data: Buffer) => {
       const text = data.toString().replace(/\x1b\[[0-9;]*m/g, '');
       if (text.trim()) {
         logger.info(`[Rust stderr] ${text}`);
@@ -153,7 +153,7 @@ export class RustClient {
 
       const json = JSON.stringify(request);
       logger.info(`Writing request to stdin: ${json.substring(0, 200)}...`);
-      this.process!.stdin!.write(json + '\n');
+      this.process?.stdin?.write(`${json}\n`);
     });
   }
 
@@ -193,7 +193,7 @@ export class RustClient {
           try {
             const document = await openTextDocument(uri);
             lineText = document.lineAt(issue.line - 1).text;
-          } catch (error) {
+          } catch (_error) {
             logger.error(`Failed to load line text for: ${fileResult.file}`);
             lineText = '';
           }

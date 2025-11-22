@@ -1,6 +1,6 @@
-import * as vscode from 'vscode';
-import { ScanMode } from '../common/lib/vscode-utils';
-import { SearchResultProvider } from '../sidebar/search-provider';
+import type * as vscode from 'vscode';
+import type { ScanMode } from '../common/lib/vscode-utils';
+import type { SearchResultProvider } from '../sidebar/search-provider';
 import { createFindIssueCommand } from './find-issue';
 import { createGoToNextIssueCommand, createGoToPreviousIssueCommand, resetIssueIndex } from './issue-navigation';
 import { createManageRulesCommand } from './manage-rules';

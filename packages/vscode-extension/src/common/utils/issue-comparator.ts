@@ -1,4 +1,4 @@
-import { IssueResult, ModifiedLineRange } from '../types';
+import type { IssueResult, ModifiedLineRange } from '../types';
 
 function isLineInRanges(line: number, ranges: ModifiedLineRange[]): boolean {
   return ranges.some((range) => {
