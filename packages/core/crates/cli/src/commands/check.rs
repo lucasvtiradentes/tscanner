@@ -492,6 +492,7 @@ pub fn cmd_check(
 
     if matches!(group_mode, GroupMode::Rule) {
         use std::collections::HashMap;
+        use std::collections::HashSet;
 
         let mut issues_by_rule: HashMap<String, Vec<_>> = HashMap::new();
 
@@ -512,7 +513,13 @@ pub fn cmd_check(
 
         for rule_name in sorted_rules {
             let issues = &issues_by_rule[&rule_name];
-            println!("\n{} ({} issues)", rule_name.bold(), issues.len());
+            let unique_files: HashSet<_> = issues.iter().map(|(path, _)| path).collect();
+            println!(
+                "\n{} ({} issues, {} files)",
+                rule_name.bold(),
+                issues.len(),
+                unique_files.len()
+            );
 
             for (file_path, issue) in issues {
                 let severity_icon = match issue.severity {
@@ -542,7 +549,11 @@ pub fn cmd_check(
             let relative_path = pathdiff::diff_paths(&file_result.file, &root)
                 .unwrap_or_else(|| file_result.file.clone());
 
-            println!("\n{}", relative_path.display().to_string().bold());
+            println!(
+                "\n{} ({} issues)",
+                relative_path.display().to_string().bold(),
+                file_result.issues.len()
+            );
 
             for issue in &file_result.issues {
                 let severity_icon = match issue.severity {
@@ -570,22 +581,21 @@ pub fn cmd_check(
 
     println!();
     let total_issues = error_count + warning_count;
+
+    let unique_rules: std::collections::HashSet<_> = result
+        .files
+        .iter()
+        .flat_map(|f| f.issues.iter().map(|i| &i.rule))
+        .collect();
+
     println!(
-        "{} {} errors, {} warnings -> total {} issues",
-        if error_count > 0 {
-            "✖".red()
-        } else {
-            "✓".green()
-        },
+        "Issues: {} ({} errors, {} warnings)",
+        total_issues.to_string().cyan(),
         error_count.to_string().red(),
-        warning_count.to_string().yellow(),
-        total_issues.to_string().cyan()
+        warning_count.to_string().yellow()
     );
-    println!(
-        "Scanned {} files in {}ms",
-        result.files.len(),
-        result.duration_ms
-    );
+    println!("Files: {}", result.files.len());
+    println!("Rules: {}", unique_rules.len());
 
     log_info(&format!(
         "cmd_check: Found {} errors, {} warnings",
