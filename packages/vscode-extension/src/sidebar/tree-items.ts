@@ -9,12 +9,17 @@ export class RuleGroupItem extends vscode.TreeItem {
     public readonly rule: string,
     public readonly results: IssueResult[],
     public readonly viewMode: ViewMode,
+    public readonly isConflicting: boolean = false,
   ) {
     super(rule, vscode.TreeItemCollapsibleState.Collapsed);
 
     this.description = `${results.length} ${results.length === 1 ? 'issue' : 'issues'}`;
-    this.iconPath = new vscode.ThemeIcon('list-filter');
+    this.iconPath = new vscode.ThemeIcon(isConflicting ? 'warning' : 'list-filter');
     this.contextValue = TreeItemContextValue.RuleGroup;
+
+    if (isConflicting) {
+      this.tooltip = `⚠️ ${rule} - This rule conflicts with another enabled rule`;
+    }
   }
 }
 

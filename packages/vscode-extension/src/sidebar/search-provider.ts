@@ -12,6 +12,13 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
   private _onDidChangeTreeData = new vscode.EventEmitter<SearchResultItem | undefined | void>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
+  private readonly conflictingRules = new Map<string, string>([
+    ['prefer-type-over-interface', 'prefer-interface-over-type'],
+    ['prefer-interface-over-type', 'prefer-type-over-interface'],
+    ['no-relative-imports', 'no-absolute-imports'],
+    ['no-absolute-imports', 'no-relative-imports'],
+  ]);
+
   get viewMode(): ViewMode {
     return this._viewMode;
   }
@@ -57,6 +64,11 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
     return grouped;
   }
 
+  private isRuleConflicting(ruleName: string, allRules: Set<string>): boolean {
+    const conflictingRule = this.conflictingRules.get(ruleName);
+    return conflictingRule !== undefined && allRules.has(conflictingRule);
+  }
+
   getAllFolderItems(): FolderResultItem[] {
     if (this._viewMode !== ViewMode.Tree) {
       return [];
@@ -87,8 +99,12 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
     if (!element) {
       if (this._groupMode === 'rule') {
         const grouped = this.groupByRule();
+        const allRules = new Set(grouped.keys());
         return Promise.resolve(
-          Array.from(grouped.entries()).map(([rule, results]) => new RuleGroupItem(rule, results, this._viewMode)),
+          Array.from(grouped.entries()).map(
+            ([rule, results]) =>
+              new RuleGroupItem(rule, results, this._viewMode, this.isRuleConflicting(rule, allRules)),
+          ),
         );
       }
 

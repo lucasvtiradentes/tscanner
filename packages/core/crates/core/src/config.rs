@@ -136,6 +136,7 @@ impl TscannerConfig {
 
     pub fn validate(&self) -> Result<(), Box<dyn std::error::Error>> {
         let mut errors = Vec::new();
+        let mut warnings = Vec::new();
 
         for (name, rule_config) in &self.custom_rules {
             match rule_config.rule_type {
@@ -189,11 +190,15 @@ impl TscannerConfig {
                 .unwrap_or(false);
 
             if rule1_enabled && rule2_enabled {
-                errors.push(format!(
-                    "Conflicting rules enabled: '{}' and '{}'. These rules contradict each other.",
+                warnings.push(format!(
+                    "Warning: Conflicting rules enabled: '{}' and '{}'. Both rules will run but contradict each other.",
                     rule1, rule2
                 ));
             }
+        }
+
+        if !warnings.is_empty() {
+            eprintln!("{}", warnings.join("\n"));
         }
 
         if !errors.is_empty() {

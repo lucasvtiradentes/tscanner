@@ -1,85 +1,39 @@
 {
   "$schema": "../packages/cli/schema.json",
   "builtinRules": {
-    "no-var": {
-      "enabled": true
-    },
-    "prefer-type-over-interface": {
-      "enabled": true
-    },
-    "prefer-interface-over-type": {
-      "enabled": true
-    },
-    "no-constant-condition": {
-      "enabled": true
-    },
-    "no-duplicate-imports": {
-      "enabled": true
-    },
-    "no-unreachable-code": {
-      "enabled": true
-    },
-    "no-relative-imports": {
-      "enabled": true
-    },
-    "max-function-length": {
-      "enabled": true
-    },
-    "no-nested-ternary": {
-      "enabled": true
-    },
-    "no-nested-require": {
-      "enabled": true
-    },
-    "no-empty-function": {
-      "enabled": true
-    },
-    "no-dynamic-import": {
-      "enabled": true
-    },
-    "consistent-return": {
-      "enabled": true
-    },
-    "no-magic-numbers": {
-      "enabled": true
-    },
-    "no-alias-imports": {
-      "enabled": true
-    },
-    "no-implicit-any": {
-      "enabled": true
-    },
-    "no-unused-vars": {
-      "enabled": true
-    },
-    "no-empty-class": {
-      "enabled": true
-    },
-    "prefer-const": {
-      "enabled": true
-    },
-    "no-any-type": {
-      "enabled": true
-    },
-    "no-todo-comments": {
-      "enabled": true
-    },
-    "no-console-log": {
-      "enabled": true
-    }
+    "no-var": {},
+    "prefer-type-over-interface": { "enabled": false },
+    "prefer-interface-over-type": {},
+    "no-constant-condition": {},
+    "no-duplicate-imports": {},
+    "no-unreachable-code": {},
+    "no-relative-imports": {},
+    "max-function-length": {},
+    "no-nested-ternary": {},
+    "no-nested-require": {},
+    "no-empty-function": {},
+    "no-dynamic-import": {},
+    "consistent-return": {},
+    "no-magic-numbers": {},
+    "no-alias-imports": {},
+    "no-implicit-any": {},
+    "no-unused-vars": {},
+    "no-empty-class": {},
+    "prefer-const": {},
+    "no-any-type": {},
+    "no-todo-comments": {},
+    "no-console-log": {}
   },
   "customRules": {
-    "no-todo-comments": {
+    "no-todo-comments2": {
       "type": "regex",
       "pattern": "TODO:",
-      "message": "TODO comments should be resolved",
-      "enabled": true
+      "message": "TODO comments should be resolved"
     },
     "no-console-log2": {
       "type": "regex",
       "pattern": "console\\.log\\(",
-      "message": "console.log should not be used in production",
-      "enabled": true
+      "message": "console.log should not be used in production"
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],
