@@ -15,6 +15,7 @@ import {
 import { getAllBranches, getCurrentBranch, invalidateCache } from '../common/utils/git-helper';
 import { logger } from '../common/utils/logger';
 import type { SearchResultProvider } from '../sidebar/search-provider';
+import { setCopyScanContext } from './copy-issues';
 
 enum SettingsMenuOption {
   ManageRules = 'manage-rules',
@@ -160,7 +161,7 @@ async function showScanSettingsMenu(
   }
 
   if (selected.id === ScanMode.Codebase) {
-    await handleCodebaseScan(updateStatusBar, currentScanModeRef, context, searchProvider);
+    await handleCodebaseScan(updateStatusBar, currentScanModeRef, currentCompareBranchRef, context, searchProvider);
   }
 
   if (selected.id === ScanMode.Branch) {
@@ -171,6 +172,7 @@ async function showScanSettingsMenu(
 async function handleCodebaseScan(
   updateStatusBar: () => Promise<void>,
   currentScanModeRef: { current: ScanMode },
+  currentCompareBranchRef: { current: string },
   context: vscode.ExtensionContext,
   searchProvider: SearchResultProvider,
 ) {
@@ -179,6 +181,7 @@ async function handleCodebaseScan(
   currentScanModeRef.current = ScanMode.Codebase;
   logger.debug(`Current scan mode updated to: ${currentScanModeRef.current}`);
   updateState(context, WorkspaceStateKey.ScanMode, ScanMode.Codebase);
+  setCopyScanContext(ScanMode.Codebase, currentCompareBranchRef.current);
   invalidateCache();
   logger.debug('Updating status bar');
   await updateStatusBar();
@@ -282,6 +285,7 @@ async function handleBranchScan(
   currentScanModeRef.current = ScanMode.Branch;
   logger.debug(`Current scan mode updated to: ${currentScanModeRef.current}`);
   updateState(context, WorkspaceStateKey.ScanMode, ScanMode.Branch);
+  setCopyScanContext(ScanMode.Branch, currentCompareBranchRef.current);
   invalidateCache();
   logger.debug('Updating status bar');
   await updateStatusBar();

@@ -44,6 +44,20 @@ enum Commands {
             help = "Only show issues in files changed compared to branch (e.g., origin/main)"
         )]
         branch: Option<String>,
+
+        #[arg(
+            long,
+            value_name = "FILE_PATTERN",
+            help = "Filter results to specific file(s) using glob pattern (e.g., 'src/**/*.ts')"
+        )]
+        file: Option<String>,
+
+        #[arg(
+            long,
+            value_name = "RULE_NAME",
+            help = "Filter results to specific rule (e.g., 'no-console-log')"
+        )]
+        rule: Option<String>,
     },
 
     #[command(about = "List all available rules and their metadata")]
@@ -71,13 +85,15 @@ fn main() -> Result<()> {
             by_rule,
             json,
             branch,
+            file,
+            rule,
         }) => {
             let group_mode = if by_rule {
                 GroupMode::Rule
             } else {
                 GroupMode::File
             };
-            cmd_check(&path, no_cache, group_mode, json, branch)
+            cmd_check(&path, no_cache, group_mode, json, branch, file, rule)
         }
         Some(Commands::Rules { path }) => cmd_rules(&path),
         Some(Commands::Init { path }) => cmd_init(&path),

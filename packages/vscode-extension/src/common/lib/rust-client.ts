@@ -246,6 +246,7 @@ export class RustClient {
           text: lineText.trim(),
           rule: issue.rule,
           severity: issue.severity.toLowerCase() as 'error' | 'warning',
+          message: issue.message,
         });
       }
     }
@@ -277,6 +278,7 @@ export class RustClient {
         text: (issue.line_text || '').trim(),
         rule: issue.rule,
         severity: issue.severity.toLowerCase() as 'error' | 'warning',
+        message: issue.message,
       });
     }
 
@@ -313,6 +315,7 @@ export class RustClient {
         text: (issue.line_text || '').trim(),
         rule: issue.rule,
         severity: issue.severity.toLowerCase() as 'error' | 'warning',
+        message: issue.message,
       });
     }
 

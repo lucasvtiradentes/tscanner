@@ -134,6 +134,7 @@ export interface IssueResult {
   text: string;
   rule: string;
   severity: 'error' | 'warning';
+  message: string;
 }
 
 export enum NodeKind {

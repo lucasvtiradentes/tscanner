@@ -72,6 +72,9 @@ export enum Command {
   GoToNextIssue = 'goToNextIssue',
   GoToPreviousIssue = 'goToPreviousIssue',
   ShowLogs = 'showLogs',
+  CopyRuleIssues = 'copyRuleIssues',
+  CopyFileIssues = 'copyFileIssues',
+  CopyFolderIssues = 'copyFolderIssues',
 }
 
 export enum TreeItemContextValue {

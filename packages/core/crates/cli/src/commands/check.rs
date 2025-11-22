@@ -160,6 +160,8 @@ pub fn cmd_check(
     group_mode: GroupMode,
     json_output: bool,
     branch: Option<String>,
+    file_filter: Option<String>,
+    rule_filter: Option<String>,
 ) -> Result<()> {
     log_info(&format!(
         "cmd_check: Starting at: {} (no_cache: {}, group_mode: {:?})",
@@ -253,7 +255,57 @@ pub fn cmd_check(
         (None, None)
     };
 
-    let mut result = scanner.scan(&root, changed_files.as_ref());
+    let files_to_scan = if let Some(ref file_pattern) = file_filter {
+        use glob::Pattern;
+        let pattern = Pattern::new(file_pattern)
+            .context(format!("Invalid file pattern: {}", file_pattern))?;
+
+        if let Some(mut files) = changed_files {
+            let original_count = files.len();
+            files.retain(|file_path| {
+                let relative_path =
+                    pathdiff::diff_paths(file_path, &root).unwrap_or_else(|| file_path.clone());
+                pattern.matches_path(&relative_path)
+            });
+            log_info(&format!(
+                "cmd_check: File filter {} → {} files (pattern: {})",
+                original_count,
+                files.len(),
+                file_pattern
+            ));
+            Some(files)
+        } else {
+            use walkdir::WalkDir;
+            let mut matching_files = HashSet::new();
+
+            for entry in WalkDir::new(&root)
+                .follow_links(false)
+                .into_iter()
+                .filter_map(|e| e.ok())
+            {
+                if entry.file_type().is_file() {
+                    let file_path = entry.path();
+                    let relative_path = pathdiff::diff_paths(file_path, &root)
+                        .unwrap_or_else(|| file_path.to_path_buf());
+
+                    if pattern.matches_path(&relative_path) {
+                        matching_files.insert(file_path.to_path_buf());
+                    }
+                }
+            }
+
+            log_info(&format!(
+                "cmd_check: File filter found {} matching files (pattern: {})",
+                matching_files.len(),
+                file_pattern
+            ));
+            Some(matching_files)
+        }
+    } else {
+        changed_files
+    };
+
+    let mut result = scanner.scan(&root, files_to_scan.as_ref());
 
     if let Some(ref line_filter) = modified_lines {
         let original_count = result.files.iter().map(|f| f.issues.len()).sum::<usize>();
@@ -283,6 +335,31 @@ pub fn cmd_check(
         log_info(&format!(
             "cmd_check: Filtered {} → {} issues (only modified lines)",
             original_count, filtered_count
+        ));
+    }
+
+    if let Some(ref rule_name) = rule_filter {
+        let original_count = result.files.iter().map(|f| f.issues.len()).sum::<usize>();
+
+        result.files = result
+            .files
+            .into_iter()
+            .filter_map(|mut file_result| {
+                file_result.issues.retain(|issue| issue.rule == *rule_name);
+                if !file_result.issues.is_empty() {
+                    Some(file_result)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        let filtered_count = result.files.iter().map(|f| f.issues.len()).sum::<usize>();
+        result.total_issues = filtered_count;
+
+        log_info(&format!(
+            "cmd_check: Rule filter {} → {} issues (rule: {})",
+            original_count, filtered_count, rule_name
         ));
     }
 

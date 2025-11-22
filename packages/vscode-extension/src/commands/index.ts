@@ -1,6 +1,12 @@
 import type * as vscode from 'vscode';
 import type { ScanMode } from '../common/lib/vscode-utils';
 import type { SearchResultProvider } from '../sidebar/search-provider';
+import {
+  createCopyFileIssuesCommand,
+  createCopyFolderIssuesCommand,
+  createCopyRuleIssuesCommand,
+  setCopyScanContext,
+} from './copy-issues';
 import { createFindIssueCommand } from './find-issue';
 import { createGoToNextIssueCommand, createGoToPreviousIssueCommand, resetIssueIndex } from './issue-navigation';
 import { createManageRulesCommand } from './manage-rules';
@@ -27,6 +33,8 @@ export interface CommandContext {
 }
 
 export function registerAllCommands(ctx: CommandContext): vscode.Disposable[] {
+  setCopyScanContext(ctx.currentScanModeRef.current, ctx.currentCompareBranchRef.current);
+
   return [
     createFindIssueCommand(
       ctx.searchProvider,
@@ -56,6 +64,9 @@ export function registerAllCommands(ctx: CommandContext): vscode.Disposable[] {
     createGoToNextIssueCommand(ctx.searchProvider),
     createGoToPreviousIssueCommand(ctx.searchProvider),
     createShowLogsCommand(),
+    createCopyRuleIssuesCommand(),
+    createCopyFileIssuesCommand(),
+    createCopyFolderIssuesCommand(),
   ];
 }
 

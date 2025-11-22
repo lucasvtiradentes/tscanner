@@ -149,6 +149,21 @@
         "command": "tscanner.showLogs",
         "title": "tscanner: Show Logs",
         "icon": "$(output)"
+      },
+      {
+        "command": "tscanner.copyRuleIssues",
+        "title": "Copy Rule Issues",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "tscanner.copyFileIssues",
+        "title": "Copy File Issues",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "tscanner.copyFolderIssues",
+        "title": "Copy Folder Issues",
+        "icon": "$(copy)"
       }
     ],
     "keybindings": [
@@ -206,6 +221,21 @@
           "command": "tscanner.copyRelativePath",
           "when": "view == tscannerExplorer && viewItem == tscannerNodeFile",
           "group": "9_cutcopypaste"
+        },
+        {
+          "command": "tscanner.copyRuleIssues",
+          "when": "view == tscannerExplorer && viewItem == TscannerNodeRuleGroup",
+          "group": "inline"
+        },
+        {
+          "command": "tscanner.copyFileIssues",
+          "when": "view == tscannerExplorer && viewItem == TscannerNodeFile && tscannerGroupMode == default",
+          "group": "inline"
+        },
+        {
+          "command": "tscanner.copyFolderIssues",
+          "when": "view == tscannerExplorer && viewItem == TscannerNodeFolder && tscannerGroupMode == default",
+          "group": "inline"
         }
       ],
       "commandPalette": [
@@ -227,6 +257,18 @@
         },
         {
           "command": "tscanner.openSettingsMenu",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.copyRuleIssues",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.copyFileIssues",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.copyFolderIssues",
           "when": "false"
         }
       ]
