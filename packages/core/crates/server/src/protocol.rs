@@ -26,6 +26,7 @@ pub struct Notification {
 pub struct ScanParams {
     pub root: PathBuf,
     pub config: Option<TscannerConfig>,
+    pub branch: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]

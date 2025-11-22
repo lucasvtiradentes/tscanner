@@ -49,7 +49,7 @@ export function getRustBinaryPath(): string | null {
   return null;
 }
 
-export async function scanWorkspace(fileFilter?: Set<string>, config?: any): Promise<IssueResult[]> {
+export async function scanWorkspace(fileFilter?: Set<string>, config?: any, branch?: string): Promise<IssueResult[]> {
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (!workspaceFolder) {
     return [];
@@ -84,7 +84,7 @@ export async function scanWorkspace(fileFilter?: Set<string>, config?: any): Pro
     }
 
     const scanStart = Date.now();
-    const results = await rustClient.scan(workspaceFolder.uri.fsPath, fileFilter, config);
+    const results = await rustClient.scan(workspaceFolder.uri.fsPath, fileFilter, config, branch);
     const scanTime = Date.now() - scanStart;
     logger.debug(`scanWorkspace() took ${scanTime}ms to return ${results.length} results`);
     return results;

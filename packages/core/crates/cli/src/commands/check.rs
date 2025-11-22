@@ -4,8 +4,10 @@ use core::cache::FileCache;
 use core::scanner::Scanner;
 use core::types::Severity;
 use serde::Serialize;
+use std::collections::HashSet;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use std::process::Command;
 use std::sync::Arc;
 
 use crate::config_loader::{get_vscode_global_config_path, load_config};
@@ -69,11 +71,34 @@ enum JsonOutput {
     },
 }
 
+fn get_changed_files(root: &Path, branch: &str) -> Result<HashSet<PathBuf>> {
+    let output = Command::new("git")
+        .arg("diff")
+        .arg("--name-only")
+        .arg(branch)
+        .current_dir(root)
+        .output()
+        .context("Failed to execute git diff")?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        anyhow::bail!("git diff failed: {}", stderr);
+    }
+
+    let files = String::from_utf8_lossy(&output.stdout)
+        .lines()
+        .map(|line| root.join(line.trim()))
+        .collect();
+
+    Ok(files)
+}
+
 pub fn cmd_check(
     path: &Path,
     no_cache: bool,
     group_mode: GroupMode,
     json_output: bool,
+    branch: Option<String>,
 ) -> Result<()> {
     log_info(&format!(
         "cmd_check: Starting at: {} (no_cache: {}, group_mode: {:?})",
@@ -137,7 +162,34 @@ pub fn cmd_check(
         println!("{}", "Scanning...".cyan().bold());
     }
 
-    let result = scanner.scan(&root);
+    let changed_files = if let Some(ref branch_name) = branch {
+        match get_changed_files(&root, branch_name) {
+            Ok(files) => {
+                if !json_output {
+                    println!(
+                        "{}",
+                        format!("Comparing with branch: {}", branch_name)
+                            .cyan()
+                            .bold()
+                    );
+                }
+                log_info(&format!(
+                    "cmd_check: Found {} changed files vs {}",
+                    files.len(),
+                    branch_name
+                ));
+                Some(files)
+            }
+            Err(e) => {
+                eprintln!("{}", format!("Error getting changed files: {}", e).red());
+                std::process::exit(1);
+            }
+        }
+    } else {
+        None
+    };
+
+    let result = scanner.scan(&root, changed_files.as_ref());
 
     log_info(&format!(
         "cmd_check: Scan completed: {} files, {}ms",

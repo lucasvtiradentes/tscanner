@@ -157,10 +157,11 @@ export class RustClient {
     });
   }
 
-  async scan(workspaceRoot: string, fileFilter?: Set<string>, config?: any): Promise<IssueResult[]> {
+  async scan(workspaceRoot: string, fileFilter?: Set<string>, config?: any, branch?: string): Promise<IssueResult[]> {
     const result: ScanResult = await this.sendRequest('scan', {
       root: workspaceRoot,
       config,
+      branch,
     });
 
     logger.info(`Rust scan completed: ${result.total_issues} issues in ${result.duration_ms}ms`);

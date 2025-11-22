@@ -37,6 +37,13 @@ enum Commands {
 
         #[arg(long, help = "Output results as JSON")]
         json: bool,
+
+        #[arg(
+            long,
+            value_name = "BRANCH",
+            help = "Only show issues in files changed compared to branch (e.g., origin/main)"
+        )]
+        branch: Option<String>,
     },
 
     #[command(about = "List all available rules and their metadata")]
@@ -63,13 +70,14 @@ fn main() -> Result<()> {
             no_cache,
             by_rule,
             json,
+            branch,
         } => {
             let group_mode = if by_rule {
                 GroupMode::Rule
             } else {
                 GroupMode::File
             };
-            cmd_check(&path, no_cache, group_mode, json)
+            cmd_check(&path, no_cache, group_mode, json, branch)
         }
         Commands::Rules { path } => cmd_rules(&path),
         Commands::Init { path } => cmd_init(&path),
