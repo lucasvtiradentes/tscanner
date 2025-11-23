@@ -46,7 +46,7 @@ function buildGroupedByFileView(result: ScanResult, owner: string, repo: string,
   let output = '';
   for (const [filePath, issues] of fileMap) {
     const summary = `<strong>${filePath}</strong> - ${issues.length} ${pluralize(issues.length, 'issue')}`;
-    output += `<details>\n<summary>${summary}</summary>\n\n`;
+    output += `<details>\n<summary>${summary}</summary>\n\n<br />`;
 
     for (const issue of issues) {
       const fileUrl = `https://github.com/${owner}/${repo}/pull/${prNumber}/files#diff-${createFileHash(filePath)}R${issue.line}`;
@@ -92,7 +92,7 @@ function buildGroupedByRuleView(result: ScanResult, owner: string, repo: string,
     const icon = ruleData.severity === 'error' ? '✗' : '⚠';
     const summary = `${icon} <strong>${ruleName}</strong> - ${totalIssues} ${pluralize(totalIssues, 'issue')} - ${ruleData.files.size} ${pluralize(ruleData.files.size, 'file')}`;
 
-    output += `<details>\n<summary>${summary}</summary>\n\n`;
+    output += `<details>\n<summary>${summary}</summary>\n\n<br/>`;
 
     for (const [filePath, issues] of ruleData.files) {
       output += `\n**${filePath}**\n`;
