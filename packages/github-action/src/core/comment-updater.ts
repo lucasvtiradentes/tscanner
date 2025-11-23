@@ -14,6 +14,7 @@ export type CommentUpdateParams = {
   timezone: string;
   commitSha: string;
   commitMessage: string;
+  targetBranch?: string;
 };
 
 function escapeHtml(text: string): string {
@@ -109,15 +110,36 @@ function buildCommentBody(
   owner: string,
   repo: string,
   prNumber: number,
+  targetBranch: string | undefined,
 ): string {
   const timestamp = formatTimestamp(timezone);
   const { totalIssues, totalErrors, totalWarnings, totalFiles, totalRules, ruleGroupsByRule } = result;
+
+  const buildIssuesSummary = () => {
+    if (totalErrors > 0 && totalWarnings > 0) {
+      return `${totalIssues} (${totalErrors} ${pluralize(totalErrors, 'error')}, ${totalWarnings} ${pluralize(totalWarnings, 'warning')})`;
+    }
+    if (totalErrors > 0) {
+      return `${totalErrors} (${totalErrors} ${pluralize(totalErrors, 'error')})`;
+    }
+    if (totalWarnings > 0) {
+      return `${totalWarnings} (${totalWarnings} ${pluralize(totalWarnings, 'warning')})`;
+    }
+    return '0';
+  };
+
+  const buildModeLabel = () => {
+    return targetBranch ? `branch (${targetBranch})` : 'codebase';
+  };
 
   if (totalIssues === 0) {
     return `${COMMENT_MARKER}
 ## ✅ Tscanner - No Issues Found
 
-All changed files passed validation!
+**Issues:** 0
+**Mode:** ${buildModeLabel()}
+
+All files passed validation!
 
 ---
 **Last updated:** ${timestamp}
@@ -125,8 +147,13 @@ All changed files passed validation!
   }
 
   const icon = totalErrors > 0 ? '❌' : '⚠️';
+  const title = totalErrors > 0 ? 'Errors Found' : 'Warnings Found';
+
   let comment = `${COMMENT_MARKER}
-## ${icon} Tscanner - ${totalIssues} Issues Found (${totalErrors} ${pluralize(totalErrors, 'error')}, ${totalWarnings} ${pluralize(totalWarnings, 'warning')})
+## ${icon} Tscanner - ${title}
+
+**Issues:** ${buildIssuesSummary()}
+**Mode:** ${buildModeLabel()}
 
 ---
 
@@ -146,9 +173,9 @@ All changed files passed validation!
 }
 
 export async function updateOrCreateComment(params: CommentUpdateParams) {
-  const { octokit, owner, repo, prNumber, scanResult, timezone, commitSha, commitMessage } = params;
+  const { octokit, owner, repo, prNumber, scanResult, timezone, commitSha, commitMessage, targetBranch } = params;
 
-  const comment = buildCommentBody(scanResult, timezone, commitSha, commitMessage, owner, repo, prNumber);
+  const comment = buildCommentBody(scanResult, timezone, commitSha, commitMessage, owner, repo, prNumber, targetBranch);
 
   const existingComments = await octokit.rest.issues.listComments({
     owner,

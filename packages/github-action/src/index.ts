@@ -48,6 +48,7 @@ async function run() {
         timezone: inputs.timezone,
         commitSha: latestCommitSha,
         commitMessage,
+        targetBranch: inputs.mode === ScanMode.Branch ? inputs.targetBranch : undefined,
       });
     }
 
