@@ -14,7 +14,7 @@
   "scripts": {
     "postinstall": "node postinstall.js",
     "build": "tsup",
-    "postbuild": "npm run script:install-local",
+    "postbuild": "tsx scripts/install-local.ts",
     "start": "node ./dist/main.js",
     "dev": "tsx ./src/main.ts",
     "typecheck": "tsc --noEmit",
@@ -22,7 +22,6 @@
     "lint:fix": "biome check --fix --unsafe src",
     "format": "biome format --write src scripts/*.ts",
     "prepublishOnly": "pnpm run build",
-    "script:install-local": "tsx scripts/install-local.ts",
     "script:fix-packages": "tsx scripts/generate-packages.ts"
   },
   "optionalDependencies": {

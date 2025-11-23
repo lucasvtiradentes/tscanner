@@ -46,14 +46,26 @@
     "tscanner#build": {
       "outputLogs": "new-only",
       "dependsOn": ["core#build"],
-      "outputs": ["dist/**", "binaries/**"],
-      "inputs": ["./src/**", "./scripts/**", "./tsconfig.json", "./package.json", "../core/target/release/**"]
+      "outputs": ["dist/**", "npm/**"],
+      "inputs": [
+        "./src/**",
+        "./scripts/**",
+        "./tsconfig.json",
+        "./package.json",
+        "../core/target/release/**"
+      ]
     },
     "tscanner-vscode#build": {
       "outputLogs": "new-only",
       "dependsOn": ["core#build"],
-      "outputs": ["out/**", "binaries/**"],
-      "inputs": ["./src/**", "./esbuild.config.ts", "./package.json", "../core/target/release/**"]
+      "outputs": ["out/**", "dist-dev/**"],
+      "inputs": [
+        "./src/**",
+        "./esbuild.config.ts",
+        "./package.json",
+        "./scripts/install-local.ts",
+        "../core/target/release/**"
+      ]
     },
     "test": {
       "outputLogs": "new-only",

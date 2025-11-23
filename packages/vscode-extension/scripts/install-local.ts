@@ -29,20 +29,27 @@ async function main() {
     process.exit(0);
   }
 
-  await setupTargetDirectory();
+  await setupLocalDistDirectory();
   await copyExtensionFiles();
   await copyBinaries();
   await patchExtensionCode();
   await writePackageJson();
   await copyMetaFiles();
+
+  if (process.env.TURBO_HASH) {
+    logger.log('Skipping VSCode extensions copy (Turborepo cache hit)');
+    return;
+  }
+
+  await copyToVSCodeExtensions();
   await printSuccessMessage();
 }
 
 main();
 
-async function setupTargetDirectory() {
-  logger.log('Step 1/6 - Setting up target directory...');
-  const targetDir = getTargetDirectory();
+async function setupLocalDistDirectory() {
+  logger.log('Step 1/7 - Setting up local dist directory...');
+  const targetDir = getLocalDistDirectory();
 
   if (existsSync(targetDir)) {
     rmSync(targetDir, { recursive: true });
@@ -52,16 +59,16 @@ async function setupTargetDirectory() {
 }
 
 async function copyExtensionFiles() {
-  logger.log('Step 2/6 - Copying extension files...');
-  const targetDir = getTargetDirectory();
+  logger.log('Step 2/7 - Copying extension files...');
+  const targetDir = getLocalDistDirectory();
 
   copyRecursive('out', join(targetDir, 'out'));
   copyRecursive('resources', join(targetDir, 'resources'));
 }
 
 async function copyBinaries() {
-  logger.log('Step 3/6 - Copying Rust binary...');
-  const targetDir = getTargetDirectory();
+  logger.log('Step 3/7 - Copying Rust binary...');
+  const targetDir = getLocalDistDirectory();
   const extensionRoot = resolve(__dirname, '..');
   const coreTargetDir = join(extensionRoot, '..', 'core', 'target', 'release');
   const outBinariesDir = join(targetDir, 'out', 'binaries');
@@ -89,8 +96,8 @@ async function copyBinaries() {
 }
 
 async function patchExtensionCode() {
-  logger.log('Step 4/6 - Patching extension code...');
-  const targetDir = getTargetDirectory();
+  logger.log('Step 4/7 - Patching extension code...');
+  const targetDir = getLocalDistDirectory();
   const extensionJsPath = join(targetDir, 'out', 'extension.js');
 
   const extensionJs = readFileSync(extensionJsPath, 'utf8');
@@ -113,8 +120,8 @@ async function patchExtensionCode() {
 }
 
 async function writePackageJson() {
-  logger.log('Step 5/6 - Writing package.json...');
-  const targetDir = getTargetDirectory();
+  logger.log('Step 5/7 - Writing package.json...');
+  const targetDir = getLocalDistDirectory();
   const packageJson = JSON.parse(readFileSync('package.json', 'utf8'));
   const modifiedPackageJson = applyDevTransformations(packageJson);
 
@@ -122,8 +129,8 @@ async function writePackageJson() {
 }
 
 async function copyMetaFiles() {
-  logger.log('Step 6/6 - Copying meta files...');
-  const targetDir = getTargetDirectory();
+  logger.log('Step 6/7 - Copying meta files...');
+  const targetDir = getLocalDistDirectory();
 
   if (existsSync('LICENSE')) {
     copyFileSync('LICENSE', join(targetDir, 'LICENSE'));
@@ -134,8 +141,21 @@ async function copyMetaFiles() {
   }
 }
 
+async function copyToVSCodeExtensions() {
+  logger.log('Step 7/7 - Installing to VSCode extensions...');
+  const sourceDir = getLocalDistDirectory();
+  const targetDir = getVSCodeExtensionsDirectory();
+
+  if (existsSync(targetDir)) {
+    rmSync(targetDir, { recursive: true });
+  }
+
+  mkdirSync(targetDir, { recursive: true });
+  copyRecursive(sourceDir, targetDir);
+}
+
 async function printSuccessMessage() {
-  const targetDir = getTargetDirectory();
+  const targetDir = getVSCodeExtensionsDirectory();
 
   logger.log(`\n✅ Extension installed to: ${targetDir}`);
   logger.log(`   Extension ID: ${EXTENSION_ID_DEV}`);
@@ -144,7 +164,12 @@ async function printSuccessMessage() {
   logger.log(`   - Type "Reload Window" and press Enter\n`);
 }
 
-function getTargetDirectory(): string {
+function getLocalDistDirectory(): string {
+  const extensionRoot = resolve(__dirname, '..');
+  return join(extensionRoot, 'dist-dev');
+}
+
+function getVSCodeExtensionsDirectory(): string {
   return join(homedir(), '.vscode', 'extensions', EXTENSION_ID_DEV);
 }
 

@@ -11,6 +11,7 @@ artifacts/
 .vscode/
 **/dist
 !packages/github-action/dist
+**/dist-dev/
 .git/
 .turbo
 
