@@ -1,6 +1,8 @@
-import { createHash } from 'node:crypto';
 import * as core from '@actions/core';
 import type { GitHub } from '@actions/github/lib/utils';
+import { COMMENT_MARKER, Severity } from '../constants';
+import { formatTimestamp, pluralize } from '../utils/helpers';
+import { buildPrFileUrl } from '../utils/url-builder';
 import type { ScanResult } from './scanner';
 
 type Octokit = InstanceType<typeof GitHub>;
@@ -15,14 +17,6 @@ export type CommentUpdateParams = {
   commitSha: string;
   commitMessage: string;
 };
-
-function pluralize(count: number, singular: string): string {
-  return count === 1 ? singular : `${singular}s`;
-}
-
-function createFileHash(filePath: string): string {
-  return createHash('sha256').update(filePath).digest('hex');
-}
 
 function buildGroupedByFileView(result: ScanResult, owner: string, repo: string, prNumber: number): string {
   const fileMap = new Map<string, Array<{ line: number; column: number; lineText: string; ruleName: string }>>();
@@ -49,7 +43,7 @@ function buildGroupedByFileView(result: ScanResult, owner: string, repo: string,
     output += `<details>\n<summary>${summary}</summary><br />\n\n`;
 
     for (const issue of issues) {
-      const fileUrl = `https://github.com/${owner}/${repo}/pull/${prNumber}/files#diff-${createFileHash(filePath)}R${issue.line}`;
+      const fileUrl = buildPrFileUrl(owner, repo, prNumber, filePath, issue.line);
       output += `- [Line ${issue.line}:${issue.column}](${fileUrl}) - **${issue.ruleName}** - \`${issue.lineText.trim()}\`\n`;
     }
 
@@ -89,7 +83,7 @@ function buildGroupedByRuleView(result: ScanResult, owner: string, repo: string,
   let output = '';
   for (const [ruleName, ruleData] of ruleMap) {
     const totalIssues = Array.from(ruleData.files.values()).reduce((sum, issues) => sum + issues.length, 0);
-    const icon = ruleData.severity === 'error' ? '✗' : '⚠';
+    const icon = ruleData.severity === Severity.Error ? '✗' : '⚠';
     const summary = `${icon} <strong>${ruleName}</strong> - ${totalIssues} ${pluralize(totalIssues, 'issue')} - ${ruleData.files.size} ${pluralize(ruleData.files.size, 'file')}`;
 
     output += `<details>\n<summary>${summary}</summary>\n\n<br/>`;
@@ -97,7 +91,7 @@ function buildGroupedByRuleView(result: ScanResult, owner: string, repo: string,
     for (const [filePath, issues] of ruleData.files) {
       output += `\n**${filePath}**\n`;
       for (const issue of issues) {
-        const fileUrl = `https://github.com/${owner}/${repo}/pull/${prNumber}/files#diff-${createFileHash(filePath)}R${issue.line}`;
+        const fileUrl = buildPrFileUrl(owner, repo, prNumber, filePath, issue.line);
         output += `- [Line ${issue.line}:${issue.column}](${fileUrl}) - \`${issue.lineText.trim()}\`\n`;
       }
     }
@@ -106,45 +100,6 @@ function buildGroupedByRuleView(result: ScanResult, owner: string, repo: string,
   }
 
   return output;
-}
-
-function formatTimestamp(timezone: string): string {
-  const now = new Date();
-
-  try {
-    const formatted = now.toLocaleString('en-US', {
-      timeZone: timezone,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
-      hour12: false,
-    });
-
-    const offset = getTimezoneOffset(timezone);
-    return `${formatted} (UTC${offset})`;
-  } catch {
-    return `${now.toISOString()} (UTC)`;
-  }
-}
-
-function getTimezoneOffset(timezone: string): string {
-  if (timezone === 'UTC') return '';
-
-  try {
-    const now = new Date();
-    const utcDate = new Date(now.toLocaleString('en-US', { timeZone: 'UTC' }));
-    const tzDate = new Date(now.toLocaleString('en-US', { timeZone: timezone }));
-    const offset = (tzDate.getTime() - utcDate.getTime()) / (1000 * 60 * 60);
-
-    if (offset === 0) return '';
-    const sign = offset > 0 ? '+' : '';
-    return `${sign}${offset}`;
-  } catch {
-    return '';
-  }
 }
 
 function buildCommentBody(
@@ -160,7 +115,7 @@ function buildCommentBody(
   const { totalIssues, totalErrors, totalWarnings, totalFiles, totalRules } = result;
 
   if (totalIssues === 0) {
-    return `<!-- tscanner-pr-comment -->
+    return `${COMMENT_MARKER}
 ## ✅ Tscanner - No Issues Found
 
 All changed files passed validation!
@@ -170,7 +125,7 @@ All changed files passed validation!
 **Last commit analyzed:** \`${commitSha}\``;
   }
 
-  let comment = `<!-- tscanner-pr-comment -->
+  let comment = `${COMMENT_MARKER}
 ## Tscanner - ${totalIssues} Issues Found (${totalErrors} ${pluralize(totalErrors, 'error')}, ${totalWarnings} ${pluralize(totalWarnings, 'warning')})
 
 ---
@@ -201,9 +156,7 @@ export async function updateOrCreateComment(params: CommentUpdateParams): Promis
     issue_number: prNumber,
   });
 
-  const botComment = existingComments.data.find(
-    (c) => c.user?.type === 'Bot' && c.body?.includes('<!-- tscanner-pr-comment -->'),
-  );
+  const botComment = existingComments.data.find((c) => c.user?.type === 'Bot' && c.body?.includes(COMMENT_MARKER));
 
   if (botComment) {
     await octokit.rest.issues.updateComment({

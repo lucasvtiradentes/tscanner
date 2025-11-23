@@ -31,6 +31,11 @@
       "type": "regex",
       "pattern": "logger\\.debug",
       "message": "logger calls should be removed before production"
+    },
+    "no-promise-void-return": {
+      "type": "regex",
+      "pattern": ": Promise<void>",
+      "message": "there's no need to return promise void"
     }
   },
   "include": ["**/*.ts", "**/*.tsx"],

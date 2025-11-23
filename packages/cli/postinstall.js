@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-const { chmodSync } = require('fs');
-const { join } = require('path');
+const { chmodSync } = require('node:fs');
+const { join } = require('node:path');
 
 const PLATFORM_MAP = {
   'linux-x64': '@tscanner/cli-linux-x64',
@@ -38,11 +38,7 @@ const isWorkspace = process.env.PNPM_SCRIPT_SRC_DIR !== undefined;
 if (!platformKey) {
   if (!isWorkspace) {
     console.warn(
-      `\nWarning: tscanner does not have a prebuilt binary for ${process.platform}-${process.arch}\n` +
-        `Supported platforms:\n` +
-        `  - Linux (x64, arm64)\n` +
-        `  - macOS (x64, arm64)\n` +
-        `  - Windows (x64)\n`,
+      `\nWarning: tscanner does not have a prebuilt binary for ${process.platform}-${process.arch}\nSupported platforms:\n  - Linux (x64, arm64)\n  - macOS (x64, arm64)\n  - Windows (x64)\n`,
     );
   }
   process.exit(0);
@@ -58,7 +54,7 @@ try {
   if (process.platform !== 'win32') {
     try {
       chmodSync(binaryPath, 0o755);
-    } catch (e) {
+    } catch (_e) {
       // Ignore chmod errors in case file doesn't exist or already has correct permissions
     }
   }
@@ -66,12 +62,10 @@ try {
   if (!isWorkspace) {
     console.log(`✅ tscanner binary installed successfully (${platformKey})`);
   }
-} catch (e) {
+} catch (_e) {
   if (!isWorkspace) {
     console.warn(
-      `\nWarning: Failed to install tscanner binary for ${platformKey}\n` +
-        `Expected package: ${packageName}\n` +
-        `This might happen if optional dependencies were not installed.\n`,
+      `\nWarning: Failed to install tscanner binary for ${platformKey}\nExpected package: ${packageName}\nThis might happen if optional dependencies were not installed.\n`,
     );
   }
 }

@@ -12,13 +12,13 @@ import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { BINARY_BASE_NAME, EXTENSION_ID_DEV, PLATFORM_TARGET_MAP, getBinaryName } from '../src/common/constants';
 import {
-  addDevLabel,
-  addDevSuffix,
-  buildLogFilename,
   CONTEXT_PREFIX,
   DEV_SUFFIX,
   EXTENSION_DISPLAY_NAME,
   VIEW_ID,
+  addDevLabel,
+  addDevSuffix,
+  buildLogFilename,
 } from '../src/common/scripts-constants';
 
 async function main() {
@@ -137,8 +137,8 @@ async function printSuccessMessage() {
 
   console.log(`\n✅ Extension installed to: ${targetDir}`);
   console.log(`   Extension ID: ${EXTENSION_ID_DEV}`);
-  console.log(`\n🔄 Reload VSCode to activate the extension:`);
-  console.log(`   - Press Ctrl+Shift+P`);
+  console.log('\n🔄 Reload VSCode to activate the extension:');
+  console.log('   - Press Ctrl+Shift+P');
   console.log(`   - Type "Reload Window" and press Enter\n`);
 }
 

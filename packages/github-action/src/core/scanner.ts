@@ -1,5 +1,6 @@
-import * as exec from '@actions/exec';
 import * as core from '@actions/core';
+import { GroupMode, Severity } from '../constants';
+import { type CliExecutor, createDevModeExecutor, createProdModeExecutor } from './cli-executor';
 
 export type ScanResult = {
   totalIssues: number;
@@ -7,13 +8,13 @@ export type ScanResult = {
   totalWarnings: number;
   totalFiles: number;
   totalRules: number;
-  groupBy: 'rule' | 'file';
+  groupBy: GroupMode;
   ruleGroups: RuleGroup[];
 };
 
 export type RuleGroup = {
   ruleName: string;
-  severity: 'error' | 'warning';
+  severity: Severity;
   issueCount: number;
   fileCount: number;
   files: FileIssues[];
@@ -79,50 +80,18 @@ export async function scanChangedFiles(
   targetBranch: string,
   devMode: boolean,
   tscannerVersion: string,
-  groupBy: string,
+  groupBy: GroupMode,
 ): Promise<ScanResult> {
   core.info(`Scanning changed files vs ${targetBranch} (dev mode: ${devMode}, group by: ${groupBy})`);
 
-  let scanOutput = '';
-  let scanError = '';
+  const executor: CliExecutor = devMode ? createDevModeExecutor() : createProdModeExecutor(tscannerVersion);
 
-  let command: string;
-  let args: string[];
-
-  if (devMode) {
-    const workspaceRoot = process.env.GITHUB_WORKSPACE || process.cwd();
-    command = 'node';
-    args = [`${workspaceRoot}/packages/cli/dist/main.js`, 'check', '--json', '--branch', targetBranch, '--exit-zero'];
-    if (groupBy === 'rule') {
-      args.splice(3, 0, '--by-rule');
-    }
-    core.info(`Using local CLI: ${workspaceRoot}/packages/cli/dist/main.js`);
-  } else {
-    const packageSpec = `tscanner@${tscannerVersion}`;
-    command = 'npx';
-    args = [packageSpec, 'check', '--json', '--branch', targetBranch, '--exit-zero'];
-    if (groupBy === 'rule') {
-      args.splice(3, 0, '--by-rule');
-    }
-    core.info(`Using published tscanner from npm: ${packageSpec}`);
+  const args = ['check', '--json', '--branch', targetBranch, '--exit-zero'];
+  if (groupBy === GroupMode.Rule) {
+    args.splice(1, 0, '--by-rule');
   }
 
-  await exec.exec(command, args, {
-    silent: true,
-    listeners: {
-      stdout: (data: Buffer) => {
-        scanOutput += data.toString();
-      },
-      stderr: (data: Buffer) => {
-        scanError += data.toString();
-      },
-    },
-    ignoreReturnCode: true,
-  });
-
-  if (scanError && !scanError.includes('Scanning') && !scanError.includes('Comparing')) {
-    core.warning(`Scan stderr: ${scanError}`);
-  }
+  const scanOutput = await executor.execute(args);
 
   let scanData: CliJsonOutput;
   try {
@@ -146,7 +115,7 @@ export async function scanChangedFiles(
       totalWarnings: 0,
       totalFiles: 0,
       totalRules: 0,
-      groupBy: groupBy as 'rule' | 'file',
+      groupBy,
       ruleGroups: [],
     };
   }
@@ -154,13 +123,7 @@ export async function scanChangedFiles(
   core.info('');
   core.info('📊 Scan Results:');
   core.info('');
-  await exec.exec(
-    command,
-    args.map((arg) => (arg === '--json' ? '--pretty' : arg)),
-    {
-      ignoreReturnCode: true,
-    },
-  );
+  await executor.displayResults(args.map((arg) => (arg === '--json' ? '--pretty' : arg)));
 
   let ruleGroups: RuleGroup[];
 
@@ -185,7 +148,7 @@ export async function scanChangedFiles(
         issues,
       }));
 
-      const severity = ruleData.issues[0]?.severity === 'error' ? 'error' : 'warning';
+      const severity = ruleData.issues[0]?.severity === 'error' ? Severity.Error : Severity.Warning;
 
       return {
         ruleName: ruleData.rule,
@@ -203,23 +166,21 @@ export async function scanChangedFiles(
       return b.issueCount - a.issueCount;
     });
   } else {
-    const fileGroups: Array<{ file: string; issues: Issue[]; severity: 'error' | 'warning' }> = scanData.files.map(
-      (fileData) => ({
-        file: fileData.file,
-        issues: fileData.issues.map((issue) => ({
-          line: issue.line,
-          column: issue.column,
-          message: issue.message,
-          lineText: issue.line_text,
-          ruleName: issue.rule,
-        })),
-        severity: fileData.issues.some((i) => i.severity === 'error') ? 'error' : 'warning',
-      }),
-    );
+    const fileGroups: Array<{ file: string; issues: Issue[]; severity: Severity }> = scanData.files.map((fileData) => ({
+      file: fileData.file,
+      issues: fileData.issues.map((issue) => ({
+        line: issue.line,
+        column: issue.column,
+        message: issue.message,
+        lineText: issue.line_text,
+        ruleName: issue.rule,
+      })),
+      severity: fileData.issues.some((i) => i.severity === 'error') ? Severity.Error : Severity.Warning,
+    }));
 
     fileGroups.sort((a, b) => {
       if (a.severity !== b.severity) {
-        return a.severity === 'error' ? -1 : 1;
+        return a.severity === Severity.Error ? -1 : 1;
       }
       return b.issues.length - a.issues.length;
     });
@@ -244,7 +205,7 @@ export async function scanChangedFiles(
     totalWarnings: scanData.summary.warnings,
     totalFiles: scanData.summary.total_files,
     totalRules: ruleGroups.length,
-    groupBy: groupBy as 'rule' | 'file',
+    groupBy,
     ruleGroups,
   };
 }

@@ -7,7 +7,11 @@
   "main": "dist/index.js",
   "scripts": {
     "build": "ncc build src/index.ts -o dist --minify",
-    "dev": "ncc build src/index.ts -o dist --watch"
+    "dev": "ncc build src/index.ts -o dist --watch",
+    "lint": "biome check src",
+    "lint:fix": "biome check --fix --unsafe src",
+    "format": "biome format --write src",
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",

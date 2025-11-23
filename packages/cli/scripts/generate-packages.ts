@@ -90,7 +90,7 @@ async function updateCliPackageVersion(rootManifest: any) {
     }
   }
 
-  writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
   console.log('   ✅ Updated CLI package version');
 }
 

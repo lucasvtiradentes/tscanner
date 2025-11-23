@@ -1,26 +1,14 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
-import * as exec from '@actions/exec';
-import { scanChangedFiles } from './scanner';
-import { updateOrCreateComment } from './comment-updater';
+import { updateOrCreateComment } from './core/comment-updater';
+import { getActionInputs } from './core/input-validator';
+import { scanChangedFiles } from './core/scanner';
+import { fetchBranch, getCommitMessage } from './lib/git-helper';
 
 async function run(): Promise<void> {
   try {
-    const token = core.getInput('github-token', { required: true });
-    const targetBranch = core.getInput('target-branch') || 'origin/main';
-    const timezone = core.getInput('timezone') || 'UTC';
-    const configPath = core.getInput('config-path') || '.tscanner/rules.json';
-    const tscannerVersion = core.getInput('tscanner-version') || 'latest';
-    const devMode = core.getInput('dev-mode') === 'true';
-    const groupBy = core.getInput('group-by') || 'rule';
-
-    if (configPath !== '.tscanner/rules.json') {
-      core.warning(
-        'config-path is currently ignored. tscanner CLI always uses .tscanner/rules.json from project root.',
-      );
-    }
-
-    const octokit = github.getOctokit(token);
+    const inputs = getActionInputs();
+    const octokit = github.getOctokit(inputs.token);
     const context = github.context;
 
     if (!context.payload.pull_request) {
@@ -31,25 +19,19 @@ async function run(): Promise<void> {
     const prNumber = context.payload.pull_request.number;
     const { owner, repo } = context.repo;
 
-    core.info(`Scanning PR #${prNumber} against ${targetBranch}`);
+    core.info(`Scanning PR #${prNumber} against ${inputs.targetBranch}`);
 
-    await exec.exec('git', ['fetch', 'origin', targetBranch.replace('origin/', '')]);
+    await fetchBranch(inputs.targetBranch);
 
-    const scanResults = await scanChangedFiles(targetBranch, devMode, tscannerVersion, groupBy);
+    const scanResults = await scanChangedFiles(
+      inputs.targetBranch,
+      inputs.devMode,
+      inputs.tscannerVersion,
+      inputs.groupBy,
+    );
 
     const latestCommitSha = context.payload.pull_request.head.sha.substring(0, 7);
-    let commitMessage = '';
-
-    let gitLogOutput = '';
-    await exec.exec('git', ['log', '-1', '--pretty=%s', context.payload.pull_request.head.sha], {
-      silent: true,
-      listeners: {
-        stdout: (data: Buffer) => {
-          gitLogOutput += data.toString();
-        },
-      },
-    });
-    commitMessage = gitLogOutput.trim();
+    const commitMessage = await getCommitMessage(context.payload.pull_request.head.sha);
 
     await updateOrCreateComment({
       octokit,
@@ -57,7 +39,7 @@ async function run(): Promise<void> {
       repo,
       prNumber,
       scanResult: scanResults,
-      timezone,
+      timezone: inputs.timezone,
       commitSha: latestCommitSha,
       commitMessage,
     });
