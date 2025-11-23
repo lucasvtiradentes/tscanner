@@ -75,12 +75,15 @@ type CliJsonOutputByFile = {
   };
 };
 
-export async function scanChangedFiles(
-  targetBranch: string | undefined,
-  devMode: boolean,
-  tscannerVersion: string,
-  groupBy: GroupMode,
-): Promise<ScanResult> {
+export type ScanOptions = {
+  targetBranch?: string;
+  devMode: boolean;
+  tscannerVersion: string;
+  groupBy: GroupMode;
+};
+
+export async function scanChangedFiles(options: ScanOptions): Promise<ScanResult> {
+  const { targetBranch, devMode, tscannerVersion, groupBy } = options;
   const scanMode = targetBranch ? `changed files vs ${targetBranch}` : 'entire codebase';
   githubHelper.logInfo(`Scanning [${scanMode}] group by: [${groupBy}]`);
 

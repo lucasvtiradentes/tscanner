@@ -1,60 +1,88 @@
 import { ScanMode } from './constants';
 import { updateOrCreateComment } from './core/comment-updater';
-import { getActionInputs } from './core/input-validator';
-import { scanChangedFiles } from './core/scanner';
-import { githubHelper } from './lib/actions-helper';
+import { type ActionInputs, getActionInputs } from './core/input-validator';
+import { type ScanOptions, type ScanResult, scanChangedFiles } from './core/scanner';
+import { type Octokit, githubHelper } from './lib/actions-helper';
 import { gitHelper } from './lib/git-helper';
 
-async function run() {
-  try {
-    const inputs = getActionInputs();
-    const octokit = githubHelper.getOctokit(inputs.token);
-    const context = githubHelper.getContext();
-    const prInfo = context.payload.pull_request;
+class ActionRunner {
+  async run() {
+    try {
+      const inputs = getActionInputs();
 
-    let scanResults;
+      if (inputs.mode === ScanMode.Branch) {
+        const prInfo = githubHelper.getContext().payload.pull_request;
 
-    if (inputs.mode === ScanMode.Branch) {
-      if (!prInfo) {
-        githubHelper.setFailed('Branch mode requires pull_request events');
-        return;
+        if (!prInfo) {
+          githubHelper.setFailed('Branch mode requires pull_request events');
+          return;
+        }
       }
 
-      await gitHelper.fetchBranch(inputs.targetBranch);
+      const scanResults = await this.executeScan(inputs);
+      const octokit = githubHelper.getOctokit(inputs.token);
 
-      scanResults = await scanChangedFiles(inputs.targetBranch, inputs.devMode, inputs.tscannerVersion, inputs.groupBy);
-    } else {
-      scanResults = await scanChangedFiles(undefined, inputs.devMode, inputs.tscannerVersion, inputs.groupBy);
+      await this.handlePRComment(inputs, octokit, scanResults);
+      this.handleScanResults(scanResults, inputs);
+    } catch (error) {
+      githubHelper.setFailed(`Action failed: ${error instanceof Error ? error.message : String(error)}`);
     }
+  }
 
-    if (prInfo) {
-      const prNumber = prInfo.number;
-      const { owner, repo } = context.repo;
-      const latestCommitSha = prInfo.head.sha.substring(0, 7);
-      const commitMessage = await gitHelper.getCommitMessage(prInfo.head.sha);
+  private async executeScan(inputs: ActionInputs): Promise<ScanResult> {
+    const commonParams = {
+      devMode: inputs.devMode,
+      tscannerVersion: inputs.tscannerVersion,
+      groupBy: inputs.groupBy,
+    } satisfies ScanOptions;
 
-      await updateOrCreateComment({
-        octokit,
-        owner,
-        repo,
-        prNumber,
-        scanResult: scanResults,
-        timezone: inputs.timezone,
-        commitSha: latestCommitSha,
-        commitMessage,
-        targetBranch: inputs.mode === ScanMode.Branch ? inputs.targetBranch : undefined,
+    if (inputs.mode === ScanMode.Branch) {
+      await gitHelper.fetchBranch(inputs.targetBranch);
+      return scanChangedFiles({
+        ...commonParams,
+        targetBranch: inputs.targetBranch,
       });
     }
 
-    if (scanResults.totalErrors > 0) {
+    return scanChangedFiles({
+      ...commonParams,
+    });
+  }
+
+  private async handlePRComment(inputs: ActionInputs, octokit: Octokit, scanResult: ScanResult): Promise<void> {
+    const context = githubHelper.getContext();
+    const prInfo = context.payload.pull_request;
+
+    if (!prInfo) {
+      return;
+    }
+
+    const prNumber = prInfo.number;
+    const { owner, repo } = context.repo;
+    const latestCommitSha = prInfo.head.sha.substring(0, 7);
+    const commitMessage = await gitHelper.getCommitMessage(prInfo.head.sha);
+
+    await updateOrCreateComment({
+      octokit,
+      owner,
+      repo,
+      prNumber,
+      scanResult,
+      timezone: inputs.timezone,
+      commitSha: latestCommitSha,
+      commitMessage,
+      targetBranch: inputs.mode === ScanMode.Branch ? inputs.targetBranch : undefined,
+    });
+  }
+
+  private handleScanResults(scanResult: ScanResult, inputs: ActionInputs): void {
+    if (scanResult.totalErrors > 0) {
       const loggerMethod = inputs.continueOnError ? githubHelper.logInfo : githubHelper.setFailed;
-      loggerMethod(`Found ${scanResults.totalErrors} error(s)`);
+      loggerMethod(`Found ${scanResult.totalErrors} error(s)`);
     } else {
       githubHelper.logInfo('No errors found');
     }
-  } catch (error) {
-    githubHelper.setFailed(`Action failed: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 
-run();
+new ActionRunner().run();

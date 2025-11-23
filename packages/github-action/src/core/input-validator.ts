@@ -2,15 +2,18 @@ import { z } from 'zod';
 import { GroupMode, PACKAGE_NAME, ScanMode } from '../constants';
 import { githubHelper } from '../lib/actions-helper';
 
-const baseInputsSchema = z.object({
-  token: z.string(),
-  timezone: z.string(),
-  configPath: z.string(),
-  tscannerVersion: z.string(),
-  devMode: z.boolean(),
-  groupBy: z.enum(GroupMode),
-  continueOnError: z.boolean(),
-});
+const baseInputsSchema = z
+  .object({
+    token: z.string(),
+    timezone: z.string(),
+    configPath: z.string(),
+    tscannerVersion: z.string(),
+    groupBy: z.enum(GroupMode),
+    continueOnError: z.boolean(),
+  })
+  .extend({
+    devMode: z.boolean(),
+  });
 
 const branchScannerSchema = baseInputsSchema.extend({
   mode: z.literal(ScanMode.Branch),
