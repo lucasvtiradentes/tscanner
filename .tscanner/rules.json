@@ -1,21 +1,43 @@
 {
-  "rules": {
-    "no-any-type": {
-      "enabled": true,
-      "type": "ast",
-      "severity": "error",
-      "include": [],
-      "exclude": [],
-      "message": "Found 'any' type annotation",
-      "pattern": null
+  "$schema": "../packages/cli/schema.json",
+  "builtinRules": {
+    "no-var": {},
+    "prefer-type-over-interface": {},
+    "no-constant-condition": {},
+    "no-duplicate-imports": {},
+    "no-unreachable-code": {},
+    "max-function-length": {},
+    "no-nested-ternary": {},
+    "no-nested-require": {},
+    "no-empty-function": {},
+    "no-dynamic-import": {},
+    "consistent-return": {},
+    "no-alias-imports": {},
+    "no-implicit-any": {},
+    "no-unused-vars": {},
+    "no-empty-class": {},
+    "prefer-const": {},
+    "no-any-type": {},
+    "no-todo-comments": {},
+    "no-console-log": {}
+  },
+  "customRules": {
+    "no-todo-comments2": {
+      "type": "regex",
+      "pattern": "TODO:",
+      "message": "TODO comments should be resolved"
     },
-    "no-var": {
-      "enabled": true,
-      "type": "ast",
-      "severity": "warning",
-      "message": null
+    "no-console-log2": {
+      "type": "regex",
+      "pattern": "console\\.log\\(",
+      "message": "console.log should not be used in production"
+    },
+    "no-logger-calls": {
+      "type": "regex",
+      "pattern": "logger\\.",
+      "message": "logger calls should be removed before production"
     }
   },
-  "include": ["**/*.{ts,tsx}"],
-  "exclude": ["node_modules/**", "dist/**", "build/**", ".git/**"]
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
 }

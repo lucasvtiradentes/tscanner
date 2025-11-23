@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { GroupMode, ViewMode, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
-import { IssueResult, NodeKind } from '../common/types';
+import { type IssueResult, NodeKind } from '../common/types';
 import { buildFolderTree } from './tree-builder';
 import { FileResultItem, FolderResultItem, LineResultItem, RuleGroupItem } from './tree-items';
 
@@ -9,7 +9,7 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
   private _viewMode: ViewMode = ViewMode.List;
   private _groupMode: GroupMode = GroupMode.Default;
 
-  private _onDidChangeTreeData = new vscode.EventEmitter<SearchResultItem | undefined | void>();
+  private _onDidChangeTreeData = new vscode.EventEmitter<SearchResultItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   get viewMode(): ViewMode {
@@ -18,7 +18,7 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
 
   set viewMode(mode: ViewMode) {
     this._viewMode = mode;
-    this._onDidChangeTreeData.fire();
+    this._onDidChangeTreeData.fire(undefined);
   }
 
   get groupMode(): GroupMode {
@@ -27,12 +27,12 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
 
   set groupMode(mode: GroupMode) {
     this._groupMode = mode;
-    this._onDidChangeTreeData.fire();
+    this._onDidChangeTreeData.fire(undefined);
   }
 
   setResults(results: IssueResult[]) {
     this.results = results;
-    this._onDidChangeTreeData.fire();
+    this._onDidChangeTreeData.fire(undefined);
   }
 
   getResults(): IssueResult[] {
@@ -51,7 +51,7 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
       if (!grouped.has(rule)) {
         grouped.set(rule, []);
       }
-      grouped.get(rule)!.push(result);
+      grouped.get(rule)?.push(result);
     }
 
     return grouped;
@@ -85,60 +85,32 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
 
   getChildren(element?: SearchResultItem): Thenable<SearchResultItem[]> {
     if (!element) {
-      if (this._groupMode === 'rule') {
+      if (this._groupMode === GroupMode.Rule) {
         const grouped = this.groupByRule();
         return Promise.resolve(
           Array.from(grouped.entries()).map(([rule, results]) => new RuleGroupItem(rule, results, this._viewMode)),
         );
       }
 
-      if (this._viewMode === 'list') {
+      if (this._viewMode === ViewMode.List) {
         const grouped = new Map<string, IssueResult[]>();
         for (const result of this.results) {
           const filePath = result.uri.fsPath;
           if (!grouped.has(filePath)) {
             grouped.set(filePath, []);
           }
-          grouped.get(filePath)!.push(result);
+          grouped.get(filePath)?.push(result);
         }
 
         return Promise.resolve(
           Array.from(grouped.entries()).map(([path, results]) => new FileResultItem(path, results)),
         );
-      } else {
-        const workspaceRoot = getCurrentWorkspaceFolder()?.uri.fsPath || '';
-        const tree = buildFolderTree(this.results, workspaceRoot);
-
-        const items: SearchResultItem[] = [];
-        for (const [name, node] of tree) {
-          if (node.type === NodeKind.Folder) {
-            items.push(new FolderResultItem(node));
-          } else {
-            items.push(new FileResultItem(node.path, node.results));
-          }
-        }
-        return Promise.resolve(items);
       }
-    } else if (element instanceof RuleGroupItem) {
-      if (element.viewMode === 'list') {
-        return Promise.resolve(element.results.map((r) => new LineResultItem(r)));
-      } else {
-        const workspaceRoot = getCurrentWorkspaceFolder()?.uri.fsPath || '';
-        const tree = buildFolderTree(element.results, workspaceRoot);
+      const workspaceRoot = getCurrentWorkspaceFolder()?.uri.fsPath || '';
+      const tree = buildFolderTree(this.results, workspaceRoot);
 
-        const items: SearchResultItem[] = [];
-        for (const [name, node] of tree) {
-          if (node.type === NodeKind.Folder) {
-            items.push(new FolderResultItem(node));
-          } else {
-            items.push(new FileResultItem(node.path, node.results));
-          }
-        }
-        return Promise.resolve(items);
-      }
-    } else if (element instanceof FolderResultItem) {
       const items: SearchResultItem[] = [];
-      for (const [name, node] of element.node.children) {
+      for (const [, node] of tree) {
         if (node.type === NodeKind.Folder) {
           items.push(new FolderResultItem(node));
         } else {
@@ -146,7 +118,36 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
         }
       }
       return Promise.resolve(items);
-    } else if (element instanceof FileResultItem) {
+    }
+    if (element instanceof RuleGroupItem) {
+      if (element.viewMode === ViewMode.List) {
+        return Promise.resolve(element.results.map((r) => new LineResultItem(r)));
+      }
+      const workspaceRoot = getCurrentWorkspaceFolder()?.uri.fsPath || '';
+      const tree = buildFolderTree(element.results, workspaceRoot);
+
+      const items: SearchResultItem[] = [];
+      for (const [, node] of tree) {
+        if (node.type === NodeKind.Folder) {
+          items.push(new FolderResultItem(node));
+        } else {
+          items.push(new FileResultItem(node.path, node.results));
+        }
+      }
+      return Promise.resolve(items);
+    }
+    if (element instanceof FolderResultItem) {
+      const items: SearchResultItem[] = [];
+      for (const [, node] of element.node.children) {
+        if (node.type === NodeKind.Folder) {
+          items.push(new FolderResultItem(node));
+        } else {
+          items.push(new FileResultItem(node.path, node.results));
+        }
+      }
+      return Promise.resolve(items);
+    }
+    if (element instanceof FileResultItem) {
       return Promise.resolve(element.results.map((r) => new LineResultItem(r)));
     }
 

@@ -1,4 +1,5 @@
 pub mod clear_cache;
+pub mod format_results;
 pub mod get_rules_metadata;
 pub mod scan;
 pub mod scan_content;
@@ -6,6 +7,7 @@ pub mod scan_file;
 pub mod watch;
 
 pub use clear_cache::handle_clear_cache;
+pub use format_results::handle_format_results;
 pub use get_rules_metadata::handle_get_rules_metadata;
 pub use scan::handle_scan;
 pub use scan_content::handle_scan_content;

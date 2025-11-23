@@ -10,10 +10,7 @@
   "bin": {
     "tscanner": "./dist/main.js"
   },
-  "files": [
-    "dist",
-    "postinstall.js"
-  ],
+  "files": ["dist", "schema.json", "postinstall.js"],
   "scripts": {
     "postinstall": "node postinstall.js",
     "build": "tsup",
@@ -39,6 +36,8 @@
     "@types/node": "^22.0.0",
     "tsup": "^8.5.1",
     "tsx": "^4.19.2",
-    "typescript": "^5.7.0"
+    "typescript": "^5.7.0",
+    "zod": "^4.1.12",
+    "zod-to-json-schema": "^3.25.0"
   }
 }

@@ -1,18 +1,26 @@
-import * as vscode from 'vscode';
-import { ScanMode } from '../common/lib/vscode-utils';
-import { SearchResultProvider } from '../sidebar/search-provider';
+import type * as vscode from 'vscode';
+import type { RustClient } from '../common/lib/rust-client';
+import type { ScanMode } from '../common/lib/vscode-utils';
+import type { SearchResultProvider } from '../sidebar/search-provider';
+import {
+  createCopyFileIssuesCommand,
+  createCopyFolderIssuesCommand,
+  createCopyRuleIssuesCommand,
+  setCopyRustClient,
+  setCopyScanContext,
+} from './copy-issues';
 import { createFindIssueCommand } from './find-issue';
 import { createGoToNextIssueCommand, createGoToPreviousIssueCommand, resetIssueIndex } from './issue-navigation';
 import { createManageRulesCommand } from './manage-rules';
-import { createCopyPathCommand, createCopyRelativePathCommand, createOpenFileCommand } from './navigation';
+import { createOpenFileCommand } from './navigation';
 import { createHardScanCommand, createRefreshCommand } from './scan';
 import { createOpenSettingsMenuCommand } from './settings';
 import { createShowLogsCommand } from './show-logs';
 import {
-  createSetGroupByDefaultCommand,
-  createSetGroupByRuleCommand,
-  createSetListViewCommand,
-  createSetTreeViewCommand,
+  createCycleViewModeFileFlatViewCommand,
+  createCycleViewModeFileTreeViewCommand,
+  createCycleViewModeRuleFlatViewCommand,
+  createCycleViewModeRuleTreeViewCommand,
 } from './view-mode';
 
 export interface CommandContext {
@@ -24,9 +32,13 @@ export interface CommandContext {
   isSearchingRef: { current: boolean };
   currentScanModeRef: { current: ScanMode };
   currentCompareBranchRef: { current: string };
+  getRustClient: () => RustClient | null;
 }
 
 export function registerAllCommands(ctx: CommandContext): vscode.Disposable[] {
+  setCopyRustClient(ctx.getRustClient);
+  setCopyScanContext(ctx.currentScanModeRef.current, ctx.currentCompareBranchRef.current);
+
   return [
     createFindIssueCommand(
       ctx.searchProvider,
@@ -46,18 +58,19 @@ export function registerAllCommands(ctx: CommandContext): vscode.Disposable[] {
       ctx.context,
       ctx.searchProvider,
     ),
-    createSetListViewCommand(ctx.searchProvider, ctx.context),
-    createSetTreeViewCommand(ctx.searchProvider, ctx.context),
-    createSetGroupByDefaultCommand(ctx.searchProvider, ctx.context),
-    createSetGroupByRuleCommand(ctx.searchProvider, ctx.context),
+    createCycleViewModeFileFlatViewCommand(ctx.searchProvider, ctx.context),
+    createCycleViewModeFileTreeViewCommand(ctx.searchProvider, ctx.context),
+    createCycleViewModeRuleFlatViewCommand(ctx.searchProvider, ctx.context),
+    createCycleViewModeRuleTreeViewCommand(ctx.searchProvider, ctx.context),
     createOpenFileCommand(),
-    createCopyPathCommand(),
-    createCopyRelativePathCommand(),
     createRefreshCommand(),
     createHardScanCommand(ctx.isSearchingRef),
     createGoToNextIssueCommand(ctx.searchProvider),
     createGoToPreviousIssueCommand(ctx.searchProvider),
     createShowLogsCommand(),
+    createCopyRuleIssuesCommand(),
+    createCopyFileIssuesCommand(),
+    createCopyFolderIssuesCommand(),
   ];
 }
 

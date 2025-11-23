@@ -1,6 +1,6 @@
-import { appendFileSync } from 'fs';
-import { tmpdir } from 'os';
-import { join } from 'path';
+import { appendFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { getLogFilename } from '../constants';
 
 export const LOG_FILE_PATH = join(tmpdir(), getLogFilename());

@@ -1,4 +1,4 @@
-import * as vscode from 'vscode';
+import type * as vscode from 'vscode';
 import { hasLocalConfig, loadEffectiveConfig } from '../common/lib/config-manager';
 import { scanWorkspace } from '../common/lib/scanner';
 import {
@@ -16,10 +16,10 @@ import {
   showToastMessage,
   updateState,
 } from '../common/lib/vscode-utils';
-import { branchExists, getChangedFiles, getModifiedLineRanges } from '../common/utils/git-helper';
-import { getNewIssues } from '../common/utils/issue-comparator';
+import { type IssueResult, hasConfiguredRules } from '../common/types';
+import { branchExists } from '../common/utils/git-helper';
 import { logger } from '../common/utils/logger';
-import { SearchResultProvider } from '../sidebar/search-provider';
+import type { SearchResultProvider } from '../sidebar/search-provider';
 import { resetIssueIndex } from './issue-navigation';
 
 export function createFindIssueCommand(
@@ -51,7 +51,7 @@ export function createFindIssueCommand(
     const effectiveConfig = await loadEffectiveConfig(context, workspaceFolder.uri.fsPath);
     const hasLocal = await hasLocalConfig(workspaceFolder.uri.fsPath);
 
-    if (!effectiveConfig || Object.keys(effectiveConfig.rules).length === 0) {
+    if (!hasConfiguredRules(effectiveConfig)) {
       if (!options?.silent) {
         const action = await showToastMessage(
           ToastKind.Warning,
@@ -65,7 +65,7 @@ export function createFindIssueCommand(
       return;
     }
 
-    const configToPass = hasLocal ? undefined : effectiveConfig;
+    const configToPass = hasLocal ? undefined : (effectiveConfig ?? undefined);
     if (hasLocal) {
       logger.info('Using local config from .tscanner/rules.json');
     } else {
@@ -85,8 +85,8 @@ export function createFindIssueCommand(
         if (action === 'Change Branch') {
           await executeCommand(Command.OpenSettingsMenu);
         } else if (action === 'Switch to Workspace Mode') {
-          currentScanModeRef.current = ScanMode.Workspace;
-          updateState(context, WorkspaceStateKey.ScanMode, ScanMode.Workspace);
+          currentScanModeRef.current = ScanMode.Codebase;
+          updateState(context, WorkspaceStateKey.ScanMode, ScanMode.Codebase);
           await updateStatusBar();
           await executeCommand(Command.FindIssue, { silent: true });
         }
@@ -101,62 +101,10 @@ export function createFindIssueCommand(
 
     try {
       const startTime = Date.now();
-      let results;
+      let results: IssueResult[];
 
       if (currentScanModeRef.current === ScanMode.Branch) {
-        const gitDiffStart = Date.now();
-        const changedFiles = await getChangedFiles(workspaceFolder.uri.fsPath, currentCompareBranchRef.current);
-        const gitDiffTime = Date.now() - gitDiffStart;
-        logger.debug(`Git diff completed in ${gitDiffTime}ms: ${changedFiles.size} files`);
-
-        const scanCurrentStart = Date.now();
-        const currentResults = await scanWorkspace(changedFiles, configToPass);
-        const scanCurrentTime = Date.now() - scanCurrentStart;
-        logger.debug(`Current branch scan completed in ${scanCurrentTime}ms`);
-
-        const filterStart = Date.now();
-        const pathCache = new Map<string, string>();
-
-        const currentFiltered = currentResults.filter((result) => {
-          const uriStr = result.uri.toString();
-          let relativePath = pathCache.get(uriStr);
-
-          if (!relativePath) {
-            relativePath = vscode.workspace.asRelativePath(result.uri);
-            pathCache.set(uriStr, relativePath);
-          }
-
-          return changedFiles.has(relativePath);
-        });
-
-        const filterTime = Date.now() - filterStart;
-        logger.debug(
-          `Filtered ${currentResults.length} → ${currentFiltered.length} issues in ${changedFiles.size} changed files (${filterTime}ms)`,
-        );
-
-        const rangesStart = Date.now();
-        const modifiedRanges = new Map<string, any>();
-
-        for (const relPath of changedFiles) {
-          const fullPath = vscode.Uri.joinPath(workspaceFolder.uri, relPath).fsPath;
-          const ranges = await getModifiedLineRanges(
-            workspaceFolder.uri.fsPath,
-            relPath,
-            currentCompareBranchRef.current,
-          );
-          modifiedRanges.set(fullPath, ranges);
-        }
-
-        const rangesTime = Date.now() - rangesStart;
-        logger.debug(`Got modified line ranges in ${rangesTime}ms`);
-
-        const compareStart = Date.now();
-        results = getNewIssues(currentFiltered, modifiedRanges);
-        const compareTime = Date.now() - compareStart;
-
-        logger.info(
-          `Branch comparison: ${currentFiltered.length} issues → ${results.length} in modified lines (${compareTime}ms)`,
-        );
+        results = await scanWorkspace(undefined, configToPass, currentCompareBranchRef.current);
       } else {
         results = await scanWorkspace(undefined, configToPass);
       }
@@ -180,9 +128,9 @@ export function createFindIssueCommand(
       if (searchProvider.viewMode === ViewMode.Tree) {
         setTimeout(() => {
           const folders = searchProvider.getAllFolderItems();
-          folders.forEach((folder) => {
+          for (const folder of folders) {
             treeView.reveal(folder, { expand: true, select: false, focus: false });
-          });
+          }
         }, 100);
       }
     } finally {

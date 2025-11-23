@@ -25,14 +25,10 @@ export function getPlatformKey(): string {
   }
 
   throw new Error(
-    `Unsupported platform: ${platform}-${arch}\n` +
-      `tscanner is only available for:\n` +
-      `  - Linux (x64, arm64)\n` +
-      `  - macOS (x64, arm64)\n` +
-      `  - Windows (x64)`,
+    `Unsupported platform: ${platform}-${arch}\ntscanner is only available for:\n  - Linux (x64, arm64)\n  - macOS (x64, arm64)\n  - Windows (x64)`,
   );
 }
 
 export function getBinaryName(): string {
-  return 'tscanner' + (process.platform === 'win32' ? '.exe' : '');
+  return `tscanner${process.platform === 'win32' ? '.exe' : ''}`;
 }

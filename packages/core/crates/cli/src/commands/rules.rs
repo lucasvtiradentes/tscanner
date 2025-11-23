@@ -42,8 +42,31 @@ pub fn cmd_rules(path: &Path) -> Result<()> {
     );
     println!("Config: {}\n", config_path.dimmed());
 
-    let mut enabled_rules: Vec<_> = config.rules.iter().filter(|(_, cfg)| cfg.enabled).collect();
-    enabled_rules.sort_by_key(|(name, _)| *name);
+    let mut all_rules: Vec<(&String, bool, Severity, Option<&String>)> = Vec::new();
+
+    for (name, rule_config) in &config.builtin_rules {
+        all_rules.push((
+            name,
+            rule_config.enabled.unwrap_or(true),
+            rule_config.severity.unwrap_or(Severity::Warning),
+            None,
+        ));
+    }
+
+    for (name, rule_config) in &config.custom_rules {
+        all_rules.push((
+            name,
+            rule_config.enabled,
+            rule_config.severity,
+            rule_config.pattern.as_ref(),
+        ));
+    }
+
+    let mut enabled_rules: Vec<_> = all_rules
+        .iter()
+        .filter(|(_, enabled, _, _)| *enabled)
+        .collect();
+    enabled_rules.sort_by_key(|(name, _, _, _)| *name);
 
     if enabled_rules.is_empty() {
         log_info("cmd_rules: No rules enabled");
@@ -54,15 +77,16 @@ pub fn cmd_rules(path: &Path) -> Result<()> {
     log_info(&format!("cmd_rules: {} enabled rules", enabled_rules.len()));
     println!("{} enabled rules:\n", enabled_rules.len());
 
-    for (name, rule_config) in enabled_rules {
-        let severity_badge = match rule_config.severity {
+    for (name, _, severity, pattern) in enabled_rules {
+        let severity_badge = match severity {
             Severity::Error => "ERROR".red(),
             Severity::Warning => "WARN".yellow(),
         };
 
-        let rule_type = match rule_config.rule_type {
-            core::config::RuleType::Ast => "AST".cyan(),
-            core::config::RuleType::Regex => "REGEX".magenta(),
+        let rule_type = if pattern.is_some() {
+            "REGEX".magenta()
+        } else {
+            "AST".cyan()
         };
 
         print!("  {} ", "•".cyan());
@@ -70,16 +94,15 @@ pub fn cmd_rules(path: &Path) -> Result<()> {
         print!("[{}] ", rule_type);
         println!("{}", severity_badge);
 
-        if let Some(msg) = &rule_config.message {
-            println!("    {}", msg.dimmed());
-        }
-
-        if let Some(pattern) = &rule_config.pattern {
-            println!("    Pattern: {}", pattern.yellow());
+        if let Some(pattern_str) = pattern {
+            println!("    Pattern: {}", pattern_str.yellow());
         }
     }
 
-    let disabled_count = config.rules.iter().filter(|(_, cfg)| !cfg.enabled).count();
+    let disabled_count = all_rules
+        .iter()
+        .filter(|(_, enabled, _, _)| !*enabled)
+        .count();
     if disabled_count > 0 {
         println!("\n{} disabled rules", disabled_count.to_string().dimmed());
     }

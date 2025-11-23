@@ -2,10 +2,11 @@ import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { getViewId } from './common/constants';
 import { loadEffectiveConfig } from './common/lib/config-manager';
-import { dispose as disposeScanner, scanContent } from './common/lib/scanner';
+import { dispose as disposeScanner, getRustClient, scanContent } from './common/lib/scanner';
 import {
   Command,
   ContextKey,
+  ScanMode,
   WorkspaceStateKey,
   executeCommand,
   getCurrentWorkspaceFolder,
@@ -83,6 +84,7 @@ export function activate(context: vscode.ExtensionContext) {
     isSearchingRef,
     currentScanModeRef,
     currentCompareBranchRef,
+    getRustClient,
   });
 
   const updateSingleFile = async (uri: vscode.Uri) => {
@@ -94,7 +96,7 @@ export function activate(context: vscode.ExtensionContext) {
     const relativePath = vscode.workspace.asRelativePath(uri);
     logger.debug(`File changed: ${relativePath}`);
 
-    if (currentScanModeRef.current === 'branch') {
+    if (currentScanModeRef.current === ScanMode.Branch) {
       invalidateCache();
       const changedFiles = await getChangedFiles(workspaceFolder.uri.fsPath, currentCompareBranchRef.current);
       if (!changedFiles.has(relativePath)) {
@@ -109,9 +111,9 @@ export function activate(context: vscode.ExtensionContext) {
       const document = await openTextDocument(uri);
       const content = document.getText();
       const config = await loadEffectiveConfig(context, workspaceFolder.uri.fsPath);
-      let newResults = await scanContent(uri.fsPath, content, config);
+      let newResults = await scanContent(uri.fsPath, content, config ?? undefined);
 
-      if (currentScanModeRef.current === 'branch') {
+      if (currentScanModeRef.current === ScanMode.Branch) {
         const ranges = await getModifiedLineRanges(
           workspaceFolder.uri.fsPath,
           relativePath,
@@ -157,7 +159,7 @@ export function activate(context: vscode.ExtensionContext) {
     const relativePath = vscode.workspace.asRelativePath(uri);
     logger.debug(`File deleted: ${relativePath}`);
 
-    if (currentScanModeRef.current === 'branch') {
+    if (currentScanModeRef.current === ScanMode.Branch) {
       invalidateCache();
     }
 

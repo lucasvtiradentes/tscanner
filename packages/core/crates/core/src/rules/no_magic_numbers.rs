@@ -1,4 +1,4 @@
-use crate::config::RuleType;
+use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
 use crate::utils::get_line_col;

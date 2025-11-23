@@ -82,6 +82,14 @@ fn handle_request(request: Request, state: &mut ServerState) -> Response {
                 error: Some(format!("Invalid params: {}", e)),
             },
         },
+        "formatResults" => match serde_json::from_value(request.params) {
+            Ok(params) => handle_format_results(request.id, params),
+            Err(e) => Response {
+                id: request.id,
+                result: None,
+                error: Some(format!("Invalid params: {}", e)),
+            },
+        },
         "clearCache" => handle_clear_cache(request.id, state),
         _ => Response {
             id: request.id,

@@ -14,7 +14,7 @@ export enum GroupMode {
 }
 
 export enum ScanMode {
-  Workspace = 'workspace',
+  Codebase = 'codebase',
   Branch = 'branch',
 }
 
@@ -40,7 +40,7 @@ type WorkspaceStateKeyType = keyof WorkspaceStateSchema;
 const defaultValues: WorkspaceStateSchema = {
   [WorkspaceStateKey.ViewMode]: ViewMode.List,
   [WorkspaceStateKey.GroupMode]: GroupMode.Default,
-  [WorkspaceStateKey.ScanMode]: ScanMode.Workspace,
+  [WorkspaceStateKey.ScanMode]: ScanMode.Codebase,
   [WorkspaceStateKey.CompareBranch]: 'main',
   [WorkspaceStateKey.CachedResults]: [],
 };
@@ -60,10 +60,10 @@ export enum Command {
   FindIssue = 'findIssue',
   ManageRules = 'manageRules',
   OpenSettingsMenu = 'openSettingsMenu',
-  SetListView = 'setListView',
-  SetTreeView = 'setTreeView',
-  SetGroupByDefault = 'setGroupByDefault',
-  SetGroupByRule = 'setGroupByRule',
+  CycleViewModeFileFlatView = 'cycleViewModeFileFlatView',
+  CycleViewModeFileTreeView = 'cycleViewModeFileTreeView',
+  CycleViewModeRuleFlatView = 'cycleViewModeRuleFlatView',
+  CycleViewModeRuleTreeView = 'cycleViewModeRuleTreeView',
   OpenFile = 'openFile',
   CopyPath = 'copyPath',
   CopyRelativePath = 'copyRelativePath',
@@ -72,6 +72,9 @@ export enum Command {
   GoToNextIssue = 'goToNextIssue',
   GoToPreviousIssue = 'goToPreviousIssue',
   ShowLogs = 'showLogs',
+  CopyRuleIssues = 'copyRuleIssues',
+  CopyFileIssues = 'copyFileIssues',
+  CopyFolderIssues = 'copyFolderIssues',
 }
 
 export enum TreeItemContextValue {

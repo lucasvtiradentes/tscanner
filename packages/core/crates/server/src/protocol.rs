@@ -26,6 +26,7 @@ pub struct Notification {
 pub struct ScanParams {
     pub root: PathBuf,
     pub config: Option<TscannerConfig>,
+    pub branch: Option<String>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -45,4 +46,11 @@ pub struct ScanContentParams {
     pub file: PathBuf,
     pub content: String,
     pub config: Option<TscannerConfig>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct FormatResultsParams {
+    pub root: PathBuf,
+    pub results: core::ScanResult,
+    pub group_mode: String,
 }
