@@ -24,15 +24,27 @@ impl PrettyFormatter {
         }
 
         if !rules_map.is_empty() {
-            lines.push("\nRules:".to_string());
+            lines.push("\nRules triggered:".to_string());
             lines.push(String::new());
             let mut sorted_rules: Vec<_> = rules_map.iter().collect();
             sorted_rules.sort_by_key(|(rule, _)| *rule);
+
+            let max_rule_len = sorted_rules
+                .iter()
+                .map(|(rule, _)| rule.len())
+                .max()
+                .unwrap_or(0);
+
             for (rule, message) in sorted_rules {
-                lines.push(format!("  {}: {}", rule, message));
+                lines.push(format!(
+                    "  {:<width$}: {}",
+                    rule,
+                    message,
+                    width = max_rule_len
+                ));
             }
             lines.push(String::new());
-            lines.push("Files:".to_string());
+            lines.push("Issues grouped by file:".to_string());
         }
 
         for file_result in &scan_result.files {
@@ -111,15 +123,27 @@ impl PrettyFormatter {
         }
 
         if !issues_by_rule.is_empty() {
-            lines.push("\nRules:".to_string());
+            lines.push("\nRules triggered:".to_string());
             lines.push(String::new());
+
+            let max_rule_len = issues_by_rule
+                .keys()
+                .map(|rule| rule.len())
+                .max()
+                .unwrap_or(0);
+
             for (rule_name, issues) in &issues_by_rule {
                 if let Some((_, first_issue)) = issues.first() {
-                    lines.push(format!("  {}: {}", rule_name, first_issue.message));
+                    lines.push(format!(
+                        "  {:<width$}: {}",
+                        rule_name,
+                        first_issue.message,
+                        width = max_rule_len
+                    ));
                 }
             }
             lines.push(String::new());
-            lines.push("Rules:".to_string());
+            lines.push("Issues grouped by rule:".to_string());
         }
 
         for (rule_name, issues) in issues_by_rule {
