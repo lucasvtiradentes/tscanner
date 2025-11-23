@@ -10,6 +10,14 @@ async function run(): Promise<void> {
     const targetBranch = core.getInput('target-branch') || 'origin/main';
     const timezone = core.getInput('timezone') || 'UTC';
     const configPath = core.getInput('config-path') || '.tscanner/rules.json';
+    const tscannerVersion = core.getInput('tscanner-version') || 'latest';
+    const devMode = core.getInput('dev-mode') === 'true';
+
+    if (configPath !== '.tscanner/rules.json') {
+      core.warning(
+        'config-path is currently ignored. tscanner CLI always uses .tscanner/rules.json from project root.',
+      );
+    }
 
     const octokit = github.getOctokit(token);
     const context = github.context;
@@ -26,7 +34,7 @@ async function run(): Promise<void> {
 
     await exec.exec('git', ['fetch', 'origin', targetBranch.replace('origin/', '')]);
 
-    const scanResults = await scanChangedFiles(targetBranch, configPath);
+    const scanResults = await scanChangedFiles(targetBranch, devMode, tscannerVersion);
 
     const latestCommit = context.payload.pull_request.head.sha.substring(0, 7);
     const comment = formatComment(scanResults, timezone, latestCommit);

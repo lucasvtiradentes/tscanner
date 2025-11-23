@@ -47,13 +47,32 @@ type CliJsonOutput = {
   };
 };
 
-export async function scanChangedFiles(targetBranch: string, configPath: string): Promise<ScanResult> {
-  core.info(`Scanning changed files vs ${targetBranch}`);
+export async function scanChangedFiles(
+  targetBranch: string,
+  devMode: boolean,
+  tscannerVersion: string,
+): Promise<ScanResult> {
+  core.info(`Scanning changed files vs ${targetBranch} (dev mode: ${devMode})`);
 
   let scanOutput = '';
   let scanError = '';
 
-  await exec.exec('npx', ['tscanner', 'check', '--json', '--by-rule', '--branch', targetBranch], {
+  let command: string;
+  let args: string[];
+
+  if (devMode) {
+    const workspaceRoot = process.env.GITHUB_WORKSPACE || process.cwd();
+    command = 'node';
+    args = [`${workspaceRoot}/packages/cli/dist/main.js`, 'check', '--json', '--by-rule', '--branch', targetBranch];
+    core.info(`Using local CLI: ${workspaceRoot}/packages/cli/dist/main.js`);
+  } else {
+    const packageSpec = `tscanner@${tscannerVersion}`;
+    command = 'npx';
+    args = [packageSpec, 'check', '--json', '--by-rule', '--branch', targetBranch];
+    core.info(`Using published tscanner from npm: ${packageSpec}`);
+  }
+
+  await exec.exec(command, args, {
     listeners: {
       stdout: (data: Buffer) => {
         scanOutput += data.toString();
@@ -72,7 +91,7 @@ export async function scanChangedFiles(targetBranch: string, configPath: string)
   let scanData: CliJsonOutput;
   try {
     scanData = JSON.parse(scanOutput);
-  } catch (e) {
+  } catch {
     core.error(`Failed to parse scan output: ${scanOutput}`);
     throw new Error('Invalid scan output format');
   }

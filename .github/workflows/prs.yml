@@ -33,8 +33,12 @@ jobs:
 
       - uses: ./.github/actions/setup-and-install
 
+      - name: Build CLI wrapper
+        run: pnpm --filter tscanner run build
+
       - uses: ./packages/github-action
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           target-branch: 'origin/main'
           timezone: 'America/Sao_Paulo'
+          dev-mode: 'true'
