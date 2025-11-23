@@ -50,4 +50,5 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           timezone: 'America/Sao_Paulo'
           dev-mode: 'true'
+          continue-on-error: 'true'
           # target-branch: 'origin/main'
