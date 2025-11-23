@@ -20,16 +20,10 @@ async function run() {
         return;
       }
 
-      const prNumber = prInfo.number;
-
-      githubHelper.logInfo(`Scanning PR #${prNumber} against ${inputs.targetBranch}`);
-
       await gitHelper.fetchBranch(inputs.targetBranch);
 
       scanResults = await scanChangedFiles(inputs.targetBranch, inputs.devMode, inputs.tscannerVersion, inputs.groupBy);
     } else {
-      githubHelper.logInfo('Scanning entire codebase');
-
       scanResults = await scanChangedFiles(undefined, inputs.devMode, inputs.tscannerVersion, inputs.groupBy);
     }
 
