@@ -3,7 +3,7 @@ import { githubHelper } from '../lib/actions-helper';
 
 export type CliExecutor = {
   execute: (args: string[]) => Promise<string>;
-  displayResults: (args: string[]) => Promise<void>;
+  displayResults: (args: string[]) => Promise<unknown>;
 };
 
 export function createDevModeExecutor(): CliExecutor {
@@ -27,7 +27,7 @@ export function createDevModeExecutor(): CliExecutor {
       return output;
     },
 
-    async displayResults(args: string[]): Promise<void> {
+    async displayResults(args: string[]) {
       await githubHelper.execCommand('node', [cliPath, ...args], {
         ignoreReturnCode: true,
       });
@@ -55,7 +55,7 @@ export function createProdModeExecutor(tscannerVersion: string): CliExecutor {
       return output;
     },
 
-    async displayResults(args: string[]): Promise<void> {
+    async displayResults(args: string[]) {
       await githubHelper.execCommand('npx', [packageSpec, ...args], {
         ignoreReturnCode: true,
       });

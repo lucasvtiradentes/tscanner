@@ -145,7 +145,7 @@ All changed files passed validation!
   return comment;
 }
 
-export async function updateOrCreateComment(params: CommentUpdateParams): Promise<void> {
+export async function updateOrCreateComment(params: CommentUpdateParams) {
   const { octokit, owner, repo, prNumber, scanResult, timezone, commitSha, commitMessage } = params;
 
   const comment = buildCommentBody(scanResult, timezone, commitSha, commitMessage, owner, repo, prNumber);

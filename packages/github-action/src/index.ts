@@ -4,7 +4,7 @@ import { scanChangedFiles } from './core/scanner';
 import { githubHelper } from './lib/actions-helper';
 import { gitHelper } from './lib/git-helper';
 
-async function run(): Promise<void> {
+async function run() {
   try {
     const inputs = getActionInputs();
     const octokit = githubHelper.getOctokit(inputs.token);

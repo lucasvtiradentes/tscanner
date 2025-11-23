@@ -1,7 +1,7 @@
 import { githubHelper } from './actions-helper';
 
 class GitHelper {
-  async fetchBranch(targetBranch: string): Promise<void> {
+  async fetchBranch(targetBranch: string) {
     const branchName = targetBranch.replace('origin/', '');
     await githubHelper.execCommand('git', ['fetch', 'origin', branchName]);
   }

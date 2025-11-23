@@ -21,9 +21,11 @@ import {
   buildLogFilename,
 } from '../src/common/scripts-constants';
 
+const logger = console;
+
 async function main() {
   if (process.env.CI || process.env.GITHUB_ACTIONS) {
-    console.log('Skipping local installation in CI environment');
+    logger.log('Skipping local installation in CI environment');
     process.exit(0);
   }
 
@@ -39,7 +41,7 @@ async function main() {
 main();
 
 async function setupTargetDirectory() {
-  console.log('Step 1/6 - Setting up target directory...');
+  logger.log('Step 1/6 - Setting up target directory...');
   const targetDir = getTargetDirectory();
 
   if (existsSync(targetDir)) {
@@ -50,7 +52,7 @@ async function setupTargetDirectory() {
 }
 
 async function copyExtensionFiles() {
-  console.log('Step 2/6 - Copying extension files...');
+  logger.log('Step 2/6 - Copying extension files...');
   const targetDir = getTargetDirectory();
 
   copyRecursive('out', join(targetDir, 'out'));
@@ -58,7 +60,7 @@ async function copyExtensionFiles() {
 }
 
 async function copyBinaries() {
-  console.log('Step 3/6 - Copying Rust binary...');
+  logger.log('Step 3/6 - Copying Rust binary...');
   const targetDir = getTargetDirectory();
   const extensionRoot = resolve(__dirname, '..');
   const coreTargetDir = join(extensionRoot, '..', 'core', 'target', 'release');
@@ -66,7 +68,7 @@ async function copyBinaries() {
 
   const platformInfo = getPlatformInfo();
   if (!platformInfo) {
-    console.log('   ⚠️  Unsupported platform - skipping');
+    logger.log('   ⚠️  Unsupported platform - skipping');
     return;
   }
 
@@ -74,7 +76,7 @@ async function copyBinaries() {
   const sourcePath = join(coreTargetDir, getBinaryName());
 
   if (!existsSync(sourcePath)) {
-    console.log('   ⚠️  Binary not found - skipping (not built yet)');
+    logger.log('   ⚠️  Binary not found - skipping (not built yet)');
     return;
   }
 
@@ -83,11 +85,11 @@ async function copyBinaries() {
   const targetBinary = join(outBinariesDir, `${BINARY_BASE_NAME}-${npmPlatform}${platform === 'win32' ? '.exe' : ''}`);
 
   copyFileSync(sourcePath, targetBinary);
-  console.log(`   ✅ Copied binary for ${npmPlatform}`);
+  logger.log(`   ✅ Copied binary for ${npmPlatform}`);
 }
 
 async function patchExtensionCode() {
-  console.log('Step 4/6 - Patching extension code...');
+  logger.log('Step 4/6 - Patching extension code...');
   const targetDir = getTargetDirectory();
   const extensionJsPath = join(targetDir, 'out', 'extension.js');
 
@@ -111,7 +113,7 @@ async function patchExtensionCode() {
 }
 
 async function writePackageJson() {
-  console.log('Step 5/6 - Writing package.json...');
+  logger.log('Step 5/6 - Writing package.json...');
   const targetDir = getTargetDirectory();
   const packageJson = JSON.parse(readFileSync('package.json', 'utf8'));
   const modifiedPackageJson = applyDevTransformations(packageJson);
@@ -120,7 +122,7 @@ async function writePackageJson() {
 }
 
 async function copyMetaFiles() {
-  console.log('Step 6/6 - Copying meta files...');
+  logger.log('Step 6/6 - Copying meta files...');
   const targetDir = getTargetDirectory();
 
   if (existsSync('LICENSE')) {
@@ -135,11 +137,11 @@ async function copyMetaFiles() {
 async function printSuccessMessage() {
   const targetDir = getTargetDirectory();
 
-  console.log(`\n✅ Extension installed to: ${targetDir}`);
-  console.log(`   Extension ID: ${EXTENSION_ID_DEV}`);
-  console.log('\n🔄 Reload VSCode to activate the extension:');
-  console.log('   - Press Ctrl+Shift+P');
-  console.log(`   - Type "Reload Window" and press Enter\n`);
+  logger.log(`\n✅ Extension installed to: ${targetDir}`);
+  logger.log(`   Extension ID: ${EXTENSION_ID_DEV}`);
+  logger.log('\n🔄 Reload VSCode to activate the extension:');
+  logger.log('   - Press Ctrl+Shift+P');
+  logger.log(`   - Type "Reload Window" and press Enter\n`);
 }
 
 function getTargetDirectory(): string {
