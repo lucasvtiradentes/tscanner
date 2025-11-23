@@ -33,7 +33,7 @@ inputs:
   group-by:
     description: 'Group issues by "rule" or "file"'
     required: false
-    default: 'rule'
+    default: 'file'
 
 runs:
   using: 'node20'

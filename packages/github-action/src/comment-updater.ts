@@ -24,6 +24,90 @@ function createFileHash(filePath: string): string {
   return createHash('sha256').update(filePath).digest('hex');
 }
 
+function buildGroupedByFileView(result: ScanResult, owner: string, repo: string, prNumber: number): string {
+  const fileMap = new Map<string, Array<{ line: number; column: number; lineText: string; ruleName: string }>>();
+
+  for (const group of result.ruleGroups) {
+    for (const file of group.files) {
+      if (!fileMap.has(file.filePath)) {
+        fileMap.set(file.filePath, []);
+      }
+      for (const issue of file.issues) {
+        fileMap.get(file.filePath)!.push({
+          line: issue.line,
+          column: issue.column,
+          lineText: issue.lineText,
+          ruleName: issue.ruleName || group.ruleName,
+        });
+      }
+    }
+  }
+
+  let output = '';
+  for (const [filePath, issues] of fileMap) {
+    const summary = `<strong>${filePath}</strong> - ${issues.length} ${pluralize(issues.length, 'issue')}`;
+    output += `<details>\n<summary>${summary}</summary>\n\n`;
+
+    for (const issue of issues) {
+      const fileUrl = `https://github.com/${owner}/${repo}/pull/${prNumber}/files#diff-${createFileHash(filePath)}R${issue.line}`;
+      output += `- [Line ${issue.line}:${issue.column}](${fileUrl}) - **${issue.ruleName}** - \`${issue.lineText.trim()}\`\n`;
+    }
+
+    output += '\n</details>\n\n';
+  }
+
+  return output;
+}
+
+function buildGroupedByRuleView(result: ScanResult, owner: string, repo: string, prNumber: number): string {
+  const ruleMap = new Map<
+    string,
+    { severity: 'error' | 'warning'; files: Map<string, Array<{ line: number; column: number; lineText: string }>> }
+  >();
+
+  for (const group of result.ruleGroups) {
+    if (!ruleMap.has(group.ruleName)) {
+      ruleMap.set(group.ruleName, { severity: group.severity, files: new Map() });
+    }
+
+    const ruleData = ruleMap.get(group.ruleName)!;
+
+    for (const file of group.files) {
+      if (!ruleData.files.has(file.filePath)) {
+        ruleData.files.set(file.filePath, []);
+      }
+      for (const issue of file.issues) {
+        ruleData.files.get(file.filePath)!.push({
+          line: issue.line,
+          column: issue.column,
+          lineText: issue.lineText,
+        });
+      }
+    }
+  }
+
+  let output = '';
+  for (const [ruleName, ruleData] of ruleMap) {
+    const totalIssues = Array.from(ruleData.files.values()).reduce((sum, issues) => sum + issues.length, 0);
+    const icon = ruleData.severity === 'error' ? '✗' : '⚠';
+    const summary = `${icon} <strong>${ruleName}</strong> - ${totalIssues} ${pluralize(totalIssues, 'issue')} - ${ruleData.files.size} ${pluralize(ruleData.files.size, 'file')}`;
+
+    output += `<details>\n<summary>${summary}</summary>\n\n`;
+
+    for (const [filePath, issues] of ruleData.files) {
+      output += `\n**${filePath}**\n`;
+      for (const issue of issues) {
+        const fileUrl = `https://github.com/${owner}/${repo}/pull/${prNumber}/files#diff-${createFileHash(filePath)}R${issue.line}`;
+        output += `- [Line ${issue.line}:${issue.column}](${fileUrl}) - \`${issue.lineText.trim()}\`\n`;
+      }
+    }
+
+    output += '\n</details>\n\n';
+  }
+
+  return output;
+}
+
 function formatTimestamp(timezone: string): string {
   const now = new Date();
 
@@ -73,7 +157,7 @@ function buildCommentBody(
   prNumber: number,
 ): string {
   const timestamp = formatTimestamp(timezone);
-  const { totalIssues, totalErrors, totalWarnings, totalFiles, totalRules, ruleGroups } = result;
+  const { totalIssues, totalErrors, totalWarnings, totalFiles, totalRules } = result;
 
   if (totalIssues === 0) {
     return `<!-- tscanner-pr-comment -->
@@ -97,22 +181,11 @@ All changed files passed validation!
 
 `;
 
-  for (const group of ruleGroups) {
-    const icon = group.severity === 'error' ? '✗' : '⚠';
-    const summary = `${icon} <strong>${group.ruleName}</strong> - ${group.issueCount} ${pluralize(group.issueCount, 'issue')} - ${group.fileCount} ${pluralize(group.fileCount, 'file')}`;
+  const groupedByFile = buildGroupedByFileView(result, owner, repo, prNumber);
+  const groupedByRule = buildGroupedByRuleView(result, owner, repo, prNumber);
 
-    comment += `<details>\n<summary>${summary}</summary>\n\n`;
-
-    for (const file of group.files) {
-      comment += `\n**${file.filePath}**\n`;
-      for (const issue of file.issues) {
-        const fileUrl = `https://github.com/${owner}/${repo}/pull/${prNumber}/files#diff-${createFileHash(file.filePath)}R${issue.line}`;
-        comment += `- [Line ${issue.line}:${issue.column}](${fileUrl}) - \`${issue.lineText.trim()}\`\n`;
-      }
-    }
-
-    comment += '\n</details>\n\n';
-  }
+  comment += `<details>\n<summary><strong>📁 Issues grouped by file</strong></summary>\n\n${groupedByFile}\n</details>\n\n`;
+  comment += `<details>\n<summary><strong>📋 Issues grouped by rule</strong></summary>\n\n${groupedByRule}\n</details>\n\n`;
 
   const commitInfo = commitMessage ? `\`${commitSha}\` - ${commitMessage}` : `\`${commitSha}\``;
 

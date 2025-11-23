@@ -18,7 +18,8 @@
       "**/binaries/**",
       "**/npm/**",
       "pnpm-lock.yaml",
-      "packages/cli/schema.json"
+      "packages/cli/schema.json",
+      "packages/github-action/dist/**"
     ]
   },
   "formatter": {

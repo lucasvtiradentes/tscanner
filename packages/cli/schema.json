@@ -137,7 +137,7 @@
         },
         "severity": {
           "description": "Severity level (default: error)",
-          "default": "error",
+          "default": "warning",
           "allOf": [
             {
               "$ref": "#/definitions/Severity"
