@@ -1,26 +1,17 @@
-<a name="TOC"></a>
-
 <div align="center">
-<h4>tscanner</h4>
+<h3>tscanner CLI</h3>
 <p>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <br>
-  <a href="#-overview">Overview</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> • <a href="#-architecture">Architecture</a> • <a href="#-development">Development</a>
 </p>
-
 </div>
 
-<a href="#"><img src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/divider.png" /></a>
+---
 
 ## 🎺 Overview
 
-Standalone command-line interface for tscanner, the high-performance TypeScript/TSX code quality scanner powered by Rust.
+Command-line interface for tscanner. Scan TypeScript/TSX files from terminal with fast Rust-powered analysis.
 
-<a name="TOC"></a>
-
-## 📦 Installation<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
-
-### Global Installation
+## 📦 Installation
 
 ```bash
 npm install -g tscanner
@@ -28,34 +19,25 @@ pnpm add -g tscanner
 yarn global add tscanner
 ```
 
-### npx (No Installation)
-
+**No installation:**
 ```bash
 npx tscanner check
-npx tscanner rules
 ```
 
-### Supported Platforms
+**Platforms:** Linux (x64/arm64), macOS (Intel/Apple Silicon), Windows (x64)
 
-Pre-built binaries available for:
-- **Linux**: x64, ARM64
-- **macOS**: Intel (x64), Apple Silicon (ARM64)
-- **Windows**: x64
+## 💡 Usage
 
-## 💡 Usage<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
-
-### Initialize Configuration
-
-Create default `.tscanner/rules.json`:
+### Initialize Config
 
 ```bash
 tscanner init
 tscanner init /path/to/project
 ```
 
-### Check Code Quality
+Creates `.tscanner/rules.json` with default configuration.
 
-Scan files and report issues:
+### Scan Files
 
 ```bash
 tscanner check
@@ -63,334 +45,104 @@ tscanner check /path/to/project
 tscanner check --no-cache
 ```
 
-**Exit codes:**
-- `0` - No errors (warnings allowed)
-- `1` - Errors found or configuration missing
+**Exit codes:** 0 (no errors), 1 (errors found or config missing)
+
+**Example output:**
+```
+Scanning...
+
+src/index.ts
+  ✖ 5:10 Found ': any' type annotation [no-any-type]
+  ⚠ 10:7 'count' is never reassigned, use 'const' instead [prefer-const]
+
+✖ 2 errors, 1 warnings
+Scanned 2 files in 45ms
+```
 
 ### List Rules
-
-Display configured rules:
 
 ```bash
 tscanner rules
 tscanner rules /path/to/project
 ```
 
-### Example Output
+Shows enabled/disabled rules with descriptions.
 
-**Check Command:**
+## 📋 Commands
+
+| Command | Description |
+|---------|-------------|
+| `init [path]` | Create `.tscanner/rules.json` |
+| `check [path]` | Scan files and report issues |
+| `check --no-cache` | Skip cache, force rescan |
+| `rules [path]` | List configured rules |
+
+## 🏗️ Architecture
+
+**Multi-package distribution:**
+- Main package: `tscanner` (wrapper + platform detection)
+- Platform packages: `@tscanner/cli-linux-x64`, `@tscanner/cli-darwin-arm64`, etc.
+- npm auto-installs only the binary for your platform
+
+**Process flow:**
 ```
-Scanning...
-
-src/index.ts
-  ✖ 5:10 Found ': any' type annotation [no-any-type]
-    const x: any = 5;
-  ⚠ 10:7 'count' is never reassigned, use 'const' instead [prefer-const]
-    let count = 0;
-
-✖ 2 errors, 1 warnings
-Scanned 2 files in 45ms
-```
-
-**Rules Command:**
-```
-tscanner Rules Configuration
-Config: /home/user/project/.tscanner/rules.json
-
-23 enabled rules:
-
-  • no-any-type [AST] ERROR
-  • prefer-const [AST] WARN
-    Variables never reassigned should use 'const'
-  • no-console-log [REGEX] ERROR
-    Pattern: console\.log\(
-
-5 disabled rules
-```
-
-## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
-
-### Multi-Package Distribution
-
-This package uses a multi-package architecture for distributing pre-compiled binaries:
-
-**Main Package:**
-- `tscanner` - Wrapper scripts and platform detection
-
-**Platform Packages (optional dependencies):**
-- `@tscanner/linux-x64` - Linux x64 binary
-- `@tscanner/linux-arm64` - Linux ARM64 binary
-- `@tscanner/darwin-x64` - macOS Intel binary
-- `@tscanner/darwin-arm64` - macOS Apple Silicon binary
-- `@tscanner/win32-x64` - Windows x64 binary
-
-npm automatically installs only the binary for your platform.
-
-### Source Structure
-
-```
-packages/cli/
-├── src/
-│   ├── tscanner.ts             # Main wrapper script
-│   └── postinstall.ts       # Installation validation
-├── dist/                    # Compiled JavaScript (TypeScript output)
-│   ├── tscanner.js
-│   ├── tscanner.d.ts
-│   ├── postinstall.js
-│   └── postinstall.d.ts
-├── npm/                     # Platform binaries (copied by build)
-│   ├── linux-x64/
-│   │   ├── package.json
-│   │   └── tscanner
-│   ├── linux-arm64/
-│   ├── darwin-x64/
-│   ├── darwin-arm64/
-│   └── win32-x64/
-│       └── tscanner.exe
-├── scripts/
-│   └── copy-binaries.ts     # Copies Rust binaries to npm/
-├── package.json
-├── tsconfig.json
-└── biome.json
+Node.js wrapper (main.js)
+      ↓
+Platform detection
+      ↓
+Spawn Rust binary
+      ↓
+Forward args & I/O
+      ↓
+Return exit code
 ```
 
-### How It Works
+## 📊 Performance
 
-1. User installs `tscanner`
-2. npm installs appropriate platform package via `optionalDependencies`
-3. `dist/tscanner.js` detects platform and spawns correct binary
-4. Binary executes with args passed through
+- **Caching:** `~/.cache/tscanner/cache_{hash}.json`
+- **Parallel:** Multi-core file analysis via Rayon
+- **Typical:** 100-500 files in <1s
 
-## 🔧 Development<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
-
-### Build Commands
-
-```bash
-pnpm install                 # Install dependencies
-pnpm typecheck               # TypeScript type checking
-pnpm lint                    # Lint with Biome
-pnpm format                  # Format code with Biome
-pnpm run build               # Compile TS + copy Rust binaries
-pnpm run dev                 # Watch mode for TypeScript
-```
-
-### Development Workflow
-
-**1. Build Rust binaries:**
-```bash
-cd ../core
-cargo build --release --bin tscanner
-```
-
-**2. Compile TypeScript + copy binaries:**
-```bash
-cd packages/cli
-pnpm run build
-```
-
-**3. Test locally:**
-```bash
-npm link
-tscanner --version
-tscanner check
-```
-
-### Configuration Resolution
-
-tscanner searches for configuration in this priority order:
-
-1. **Local Project Config** (recommended)
-   - `.tscanner/rules.json` in project root
-   - User-managed, version-controlled
-
-2. **VSCode Global Config** (compatibility mode)
-   - `~/.vscode/extensions/.tscanner-config-{hash}.json`
-   - Auto-managed by VSCode extension
-   - Hash based on workspace path (MD5)
-
-If no configuration is found, tscanner exits with helpful error message.
-
-### Configuration File
-
-`.tscanner/rules.json` format:
-
-```json
-{
-  "rules": {
-    "no-any-type": {
-      "enabled": true,
-      "type": "ast",
-      "severity": "error",
-      "include": [],
-      "exclude": [],
-      "message": null
-    },
-    "custom-todo-pattern": {
-      "enabled": true,
-      "type": "regex",
-      "severity": "warning",
-      "pattern": "TODO:|FIXME:",
-      "message": "Found TODO comment",
-      "include": ["**/*.ts"],
-      "exclude": []
-    }
-  },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": [
-    "**/node_modules/**",
-    "**/dist/**",
-    "**/build/**",
-    "**/.git/**"
-  ]
-}
-```
-
-## 📦 Publishing with Changesets<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
-
-This monorepo uses `@changesets/cli` for version management.
-
-### Publishing Workflow
-
-**1. Create changeset:**
-```bash
-pnpm changeset
-```
-
-Select packages to version:
-- `tscanner` (main package)
-- Platform packages (all 5)
-
-**3. Copy binaries to npm packages:**
-```bash
-cd ../cli
-pnpm run build
-```
-
-**4. Version packages:**
-```bash
-pnpm changeset version
-```
-
-**5. Publish to npm:**
-```bash
-pnpm changeset publish
-```
-
-### CI/CD Integration
-
-Example GitHub Actions workflow:
-
-```yaml
-name: Release
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  release:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - uses: pnpm/action-setup@v2
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Build TypeScript + copy binaries
-        run: |
-          cd packages/cli
-          pnpm run build
-
-      - name: Publish packages
-        uses: changesets/action@v1
-        with:
-          publish: pnpm changeset publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-```
-
-## 🚀 Use Cases<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## 🚀 Use Cases
 
 ### CI/CD Pipeline
 
 ```bash
 #!/bin/bash
-set -e
-
-tscanner check || {
-  echo "Code quality issues found"
-  exit 1
-}
-
-echo "✅ Code quality checks passed"
+tscanner check || exit 1
 ```
 
 ### Pre-commit Hook
 
 ```bash
 #!/bin/sh
-
-if ! command -v tscanner &> /dev/null; then
-  echo "tscanner not installed, skipping"
-  exit 0
+if command -v tscanner &> /dev/null && [ -f .tscanner/rules.json ]; then
+  tscanner check --no-cache
 fi
-
-if [ ! -f .tscanner/rules.json ]; then
-  echo "No tscanner config, skipping"
-  exit 0
-fi
-
-tscanner check --no-cache
 ```
 
 ### VS Code Task
 
-`.vscode/tasks.json`:
-
 ```json
 {
   "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "tscanner: Check",
-      "type": "shell",
-      "command": "tscanner check",
-      "problemMatcher": []
-    }
-  ]
+  "tasks": [{
+    "label": "tscanner: Check",
+    "type": "shell",
+    "command": "tscanner check"
+  }]
 }
 ```
 
-## 📊 Performance<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## 🔧 Development
 
-**Caching:**
-- File-level cache: `~/.cache/tscanner/cache_{config_hash}.json`
-- Invalidated on file change or config update
-- Use `--no-cache` to bypass
+```bash
+pnpm install
+pnpm run build
+npm link
+tscanner --version
+```
 
-**Parallel Processing:**
-- Rayon-powered multi-core file analysis
-- Scales with available CPU cores
-- Typical: 100-500 files in <1s
+## 📜 License
 
-## 🔍 Comparison<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
-
-| Feature | CLI | VSCode Extension |
-|---------|-----|------------------|
-| Config Source | Project or VSCode global | Project or VSCode global |
-| Git Integration | ❌ No branch mode | ✅ Branch-based scanning |
-| File Watching | ❌ Manual scan only | ✅ Auto re-scan on change |
-| UI | Terminal output | Tree/List view sidebar |
-| Navigation | ❌ No jump-to-issue | ✅ Click to navigate |
-| Use Case | CI/CD, pre-commit | Interactive development |
-
-## 📜 License<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
-
-MIT License - see [LICENSE](../../LICENSE) file for details.
+MIT License - see [LICENSE](../../LICENSE)
