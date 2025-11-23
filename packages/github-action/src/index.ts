@@ -1,8 +1,8 @@
 import * as core from '@actions/core';
 import * as github from '@actions/github';
 import * as exec from '@actions/exec';
-import { formatComment } from './formatter';
 import { scanChangedFiles } from './scanner';
+import { updateOrCreateComment } from './comment-updater';
 
 async function run(): Promise<void> {
   try {
@@ -50,35 +50,16 @@ async function run(): Promise<void> {
     });
     commitMessage = gitLogOutput.trim();
 
-    const comment = formatComment(scanResults, timezone, latestCommitSha, commitMessage);
-
-    const existingComments = await octokit.rest.issues.listComments({
+    await updateOrCreateComment({
+      octokit,
       owner,
       repo,
-      issue_number: prNumber,
+      prNumber,
+      scanResult: scanResults,
+      timezone,
+      commitSha: latestCommitSha,
+      commitMessage,
     });
-
-    const botComment = existingComments.data.find(
-      (c) => c.user?.type === 'Bot' && c.body?.includes('<!-- tscanner-pr-comment -->'),
-    );
-
-    if (botComment) {
-      await octokit.rest.issues.updateComment({
-        owner,
-        repo,
-        comment_id: botComment.id,
-        body: comment,
-      });
-      core.info(`Updated existing comment #${botComment.id}`);
-    } else {
-      await octokit.rest.issues.createComment({
-        owner,
-        repo,
-        issue_number: prNumber,
-        body: comment,
-      });
-      core.info('Created new comment');
-    }
 
     if (scanResults.totalErrors > 0) {
       core.setFailed(`Found ${scanResults.totalErrors} error(s)`);
