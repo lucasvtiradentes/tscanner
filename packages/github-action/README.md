@@ -27,7 +27,7 @@
 - Use when no `target-branch` specified
 
 ```yaml
-- uses: lucasvtiradentes/tscanner/.github/action@main
+- uses: lucasvtiradentes/tscanner-action@v0.0.1
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -39,7 +39,7 @@
 - Requires pull_request event
 
 ```yaml
-- uses: lucasvtiradentes/tscanner/.github/action@main
+- uses: lucasvtiradentes/tscanner-action@v0.0.1
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     target-branch: 'origin/develop'
@@ -48,7 +48,7 @@
 ### Continue on Errors
 
 ```yaml
-- uses: lucasvtiradentes/tscanner/.github/action@main
+- uses: lucasvtiradentes/tscanner-action@v0.0.1
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     continue-on-error: 'true'
@@ -57,7 +57,7 @@
 ### Full Configuration
 
 ```yaml
-- uses: lucasvtiradentes/tscanner/.github/action@main
+- uses: lucasvtiradentes/tscanner-action@v0.0.1
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     target-branch: 'origin/develop'
@@ -73,9 +73,9 @@
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
 | `github-token` | Yes | - | GitHub token for posting comments |
-| `target-branch` | No | - | Target branch to compare (enables branch mode) |
-| `timezone` | No | `UTC` | Timezone for timestamps |
-| `config-path` | No | `.tscanner` | Path to tscanner config directory |
-| `tscanner-version` | No | `latest` | NPM version of tscanner CLI |
-| `group-by` | No | `file` | Grouping mode: `file` or `rule` |
-| `continue-on-error` | No | `false` | Continue workflow even if errors found |
+| `target-branch` | - | - | Target branch to compare (enables branch mode) |
+| `config-path` | - | `.tscanner` | Path to tscanner config directory |
+| `tscanner-version` | - | `latest` | NPM version of tscanner CLI |
+| `group-by` | - | `file` | Grouping mode: `file` or `rule` |
+| `continue-on-error` | - | `false` | Continue workflow even if errors found |
+| `timezone` | - | `UTC` | Timezone for timestamps on pr comment |
