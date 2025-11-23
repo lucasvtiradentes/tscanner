@@ -1,15 +1,15 @@
-<a name="TOC"></a>
-
 <div align="center">
 <h3>Tscanner GitHub Action</h3>
 <p>
-  🔍 Code quality scanner for the AI-generated code era
-  <br><br>
-  <a href="#-features">Features</a> • <a href="#-usage">Usage</a> • <a href="#-inputs">Inputs</a> • <a href="#-development">Development</a>
+  <a href="#-features">Features</a> • <a href="#-usage">Usage</a> • <a href="#-inputs">Inputs</a>
 </p>
 </div>
 
 ---
+
+## 🎺 Overview
+
+GitHub Action for [Tscanner](https://github.com/lucasvtiradentes/tscanner) - automatically scan your codebase for quality issues on every pull request. Scan your entire codebase or just the changed files, with smart PR comments that link directly to problematic lines.
 
 ## 🌟 Features
 
