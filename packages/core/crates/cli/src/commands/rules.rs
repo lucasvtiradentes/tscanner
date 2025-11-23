@@ -2,17 +2,17 @@ use anyhow::{Context, Result};
 use colored::*;
 use core::types::Severity;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
-use crate::config_loader::load_config_with_path;
+use crate::config_loader::load_config_with_custom;
 use core::{log_error, log_info, APP_DISPLAY_NAME, APP_NAME};
 
-pub fn cmd_rules(path: &Path) -> Result<()> {
+pub fn cmd_rules(path: &Path, config_path: Option<PathBuf>) -> Result<()> {
     log_info(&format!("cmd_rules: Listing rules at: {}", path.display()));
 
     let root = fs::canonicalize(path).context("Failed to resolve path")?;
 
-    let (config, config_path) = match load_config_with_path(&root)? {
+    let (config, config_file_path) = match load_config_with_custom(&root, config_path)? {
         Some((cfg, path)) => {
             log_info(&format!("cmd_rules: Config loaded from: {}", path));
             (cfg, path)
@@ -40,7 +40,7 @@ pub fn cmd_rules(path: &Path) -> Result<()> {
             .cyan()
             .bold()
     );
-    println!("Config: {}\n", config_path.dimmed());
+    println!("Config: {}\n", config_file_path.dimmed());
 
     let mut all_rules: Vec<(&String, bool, Severity, Option<&String>)> = Vec::new();
 

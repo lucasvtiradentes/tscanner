@@ -18,9 +18,9 @@ inputs:
     required: false
     default: 'UTC'
   config-path:
-    description: 'Path to tscanner config file'
+    description: 'Path to directory containing rules.json'
     required: false
-    default: '.tscanner/rules.json'
+    default: '.tscanner'
   tscanner-version:
     description: 'tscanner version to use (e.g., "1.0.0", "latest")'
     required: false

@@ -34,6 +34,7 @@ class ActionRunner {
       devMode: inputs.devMode,
       tscannerVersion: inputs.tscannerVersion,
       groupBy: inputs.groupBy,
+      configPath: inputs.configPath,
     } satisfies ScanOptions;
 
     if (inputs.mode === ScanMode.Branch) {

@@ -10,7 +10,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::Arc;
 
-use crate::config_loader::{get_vscode_global_config_path, load_config};
+use crate::config_loader::{get_vscode_global_config_path, load_config_with_custom};
 use crate::GroupMode;
 use core::{log_error, log_info, APP_NAME, CONFIG_DIR_NAME, CONFIG_FILE_NAME};
 
@@ -165,6 +165,7 @@ pub fn cmd_check(
     file_filter: Option<String>,
     rule_filter: Option<String>,
     continue_on_error: bool,
+    config_path: Option<PathBuf>,
 ) -> Result<()> {
     log_info(&format!(
         "cmd_check: Starting at: {} (no_cache: {}, group_mode: {:?}, pretty: {})",
@@ -176,9 +177,12 @@ pub fn cmd_check(
 
     let root = fs::canonicalize(path).context("Failed to resolve path")?;
 
-    let config = match load_config(&root)? {
-        Some(cfg) => {
-            log_info("cmd_check: Config loaded successfully");
+    let config = match load_config_with_custom(&root, config_path)? {
+        Some((cfg, config_file_path)) => {
+            log_info(&format!(
+                "cmd_check: Config loaded successfully from: {}",
+                config_file_path
+            ));
             cfg
         }
         None => {

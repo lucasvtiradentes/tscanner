@@ -64,12 +64,26 @@ enum Commands {
 
         #[arg(long, help = "Continue execution even when errors are found")]
         continue_on_error: bool,
+
+        #[arg(
+            long,
+            value_name = "CONFIG_DIR",
+            help = "Path to directory containing rules.json"
+        )]
+        config: Option<PathBuf>,
     },
 
     #[command(about = "List all available rules and their metadata")]
     Rules {
         #[arg(value_name = "PATH", default_value = ".")]
         path: PathBuf,
+
+        #[arg(
+            long,
+            value_name = "CONFIG_DIR",
+            help = "Path to directory containing rules.json"
+        )]
+        config: Option<PathBuf>,
     },
 
     #[command(about = "Create a default configuration file")]
@@ -95,6 +109,7 @@ fn main() -> Result<()> {
             file,
             rule,
             continue_on_error,
+            config,
         }) => {
             let group_mode = if by_rule {
                 GroupMode::Rule
@@ -111,9 +126,10 @@ fn main() -> Result<()> {
                 file,
                 rule,
                 continue_on_error,
+                config,
             )
         }
-        Some(Commands::Rules { path }) => cmd_rules(&path),
+        Some(Commands::Rules { path, config }) => cmd_rules(&path, config),
         Some(Commands::Init { path }) => cmd_init(&path),
         None => {
             Cli::parse_from(["tscanner", "--help"]);

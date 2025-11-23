@@ -80,16 +80,24 @@ export type ScanOptions = {
   devMode: boolean;
   tscannerVersion: string;
   groupBy: GroupMode;
+  configPath: string;
 };
 
 export async function scanChangedFiles(options: ScanOptions): Promise<ScanResult> {
-  const { targetBranch, devMode, tscannerVersion, groupBy } = options;
+  const { targetBranch, devMode, tscannerVersion, groupBy, configPath } = options;
   const scanMode = targetBranch ? `changed files vs ${targetBranch}` : 'entire codebase';
   githubHelper.logInfo(`Scanning [${scanMode}] group by: [${groupBy}]`);
 
   const executor: CliExecutor = devMode ? createDevModeExecutor() : createProdModeExecutor(tscannerVersion);
 
-  const argsFile = ['check', '--json', '--continue-on-error', ...(targetBranch ? ['--branch', targetBranch] : [])];
+  const argsFile = [
+    'check',
+    '--json',
+    '--continue-on-error',
+    '--config',
+    configPath,
+    ...(targetBranch ? ['--branch', targetBranch] : []),
+  ];
   const argsRule = [...argsFile, '--by-rule'];
 
   const [scanOutputFile, scanOutputRule] = await Promise.all([executor.execute(argsFile), executor.execute(argsRule)]);

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { GroupMode, PACKAGE_NAME, ScanMode } from '../constants';
+import { GroupMode, ScanMode } from '../constants';
 import { githubHelper } from '../lib/actions-helper';
 
 const baseInputsSchema = z
@@ -30,7 +30,7 @@ export type ActionInputs = z.infer<typeof actionInputsSchema>;
 
 const DEFAULT_INPUTS = {
   timezone: 'UTC',
-  configPath: '.tscanner/rules.json',
+  configPath: '.tscanner',
   tscannerVersion: 'latest',
   groupBy: GroupMode.File,
   targetBranch: 'origin/main',
@@ -47,12 +47,6 @@ export function getActionInputs(): ActionInputs {
   const continueOnError = githubHelper.getInput('continue-on-error') === 'true';
 
   const groupBy = groupByInput === GroupMode.Rule ? GroupMode.Rule : GroupMode.File;
-
-  if (configPath !== DEFAULT_INPUTS.configPath) {
-    githubHelper.logWarning(
-      `config-path is currently ignored. ${PACKAGE_NAME} CLI always uses ${DEFAULT_INPUTS.configPath} from project root.`,
-    );
-  }
 
   const mode = targetBranch ? ScanMode.Branch : ScanMode.Codebase;
 
