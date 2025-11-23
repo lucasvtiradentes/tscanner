@@ -82,7 +82,7 @@ export async function scanChangedFiles(
   groupBy: GroupMode,
 ): Promise<ScanResult> {
   const scanMode = targetBranch ? `changed files vs ${targetBranch}` : 'entire codebase';
-  githubHelper.logInfo(`Scanning ${scanMode} (dev mode: ${devMode}, group by: ${groupBy})`);
+  githubHelper.logInfo(`Scanning [${scanMode}] group by: [${groupBy}]`);
 
   const executor: CliExecutor = devMode ? createDevModeExecutor() : createProdModeExecutor(tscannerVersion);
 

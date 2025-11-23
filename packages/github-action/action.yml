@@ -11,9 +11,8 @@ inputs:
     description: 'GitHub token for posting comments'
     required: true
   target-branch:
-    description: 'Target branch to compare against'
+    description: 'Target branch to compare against (only for branch mode)'
     required: false
-    default: 'origin/main'
   timezone:
     description: 'Timezone for timestamps (e.g., America/Sao_Paulo)'
     required: false
