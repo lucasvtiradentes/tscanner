@@ -50,7 +50,7 @@ class ActionRunner {
     });
   }
 
-  private async handlePRComment(inputs: ActionInputs, octokit: Octokit, scanResult: ScanResult): Promise<void> {
+  private async handlePRComment(inputs: ActionInputs, octokit: Octokit, scanResult: ScanResult) {
     const context = githubHelper.getContext();
     const prInfo = context.payload.pull_request;
 
