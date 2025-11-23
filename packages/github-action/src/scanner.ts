@@ -25,6 +25,7 @@ export type Issue = {
   line: number;
   column: number;
   message: string;
+  lineText: string;
 };
 
 type CliJsonOutput = {
@@ -37,6 +38,7 @@ type CliJsonOutput = {
       column: number;
       message: string;
       severity: string;
+      line_text: string;
     }>;
   }>;
   summary: {
@@ -81,6 +83,7 @@ export async function scanChangedFiles(
   }
 
   await exec.exec(command, args, {
+    silent: true,
     listeners: {
       stdout: (data: Buffer) => {
         scanOutput += data.toString();
@@ -107,10 +110,20 @@ export async function scanChangedFiles(
 
   core.info(`Scan completed: ${scanData.summary?.total_issues || 0} issues found`);
 
-  if (!scanData.rules) {
+  if (!scanData.rules || scanData.rules.length === 0) {
     core.info('No issues found');
     return { totalIssues: 0, totalErrors: 0, totalWarnings: 0, ruleGroups: [] };
   }
+
+  core.startGroup('📊 Scan Results (pretty format)');
+  await exec.exec(
+    command,
+    args.map((arg) => (arg === '--json' ? '--pretty' : arg)),
+    {
+      ignoreReturnCode: true,
+    },
+  );
+  core.endGroup();
 
   const ruleGroups: RuleGroup[] = scanData.rules.map((ruleData) => {
     const fileMap = new Map<string, Issue[]>();
@@ -123,6 +136,7 @@ export async function scanChangedFiles(
         line: issue.line,
         column: issue.column,
         message: issue.message,
+        lineText: issue.line_text,
       });
     }
 

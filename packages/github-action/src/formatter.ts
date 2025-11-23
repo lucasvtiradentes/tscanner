@@ -1,4 +1,4 @@
-import { ScanResult } from './scanner';
+import type { ScanResult } from './scanner';
 
 export function formatComment(result: ScanResult, timezone: string, commitSha: string): string {
   const timestamp = formatTimestamp(timezone);
@@ -37,11 +37,11 @@ All changed files passed validation!
     for (const file of group.files) {
       comment += `\n**${file.filePath}**\n`;
       for (const issue of file.issues) {
-        comment += `- Line ${issue.line}:${issue.column} - ${issue.message}\n`;
+        comment += `- Line ${issue.line}:${issue.column} - \`${issue.lineText.trim()}\`\n`;
       }
     }
 
-    comment += `\n</details>\n\n`;
+    comment += '\n</details>\n\n';
   }
 
   comment += `---\n**Last updated:** ${timestamp}  \n**Last commit analyzed:** \`${commitSha}\``;
@@ -66,7 +66,7 @@ function formatTimestamp(timezone: string): string {
 
     const offset = getTimezoneOffset(timezone);
     return `${formatted} (UTC${offset})`;
-  } catch (e) {
+  } catch {
     return `${now.toISOString()} (UTC)`;
   }
 }
@@ -83,7 +83,7 @@ function getTimezoneOffset(timezone: string): string {
     if (offset === 0) return '';
     const sign = offset > 0 ? '+' : '';
     return `${sign}${offset}`;
-  } catch (e) {
+  } catch {
     return '';
   }
 }
