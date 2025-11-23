@@ -59,10 +59,21 @@ impl<'a> ConsistentReturnVisitor<'a> {
             return;
         }
 
-        let has_value = return_collector.returns.iter().any(|r| r.has_value);
-        let has_no_value = return_collector.returns.iter().any(|r| !r.has_value);
+        let value_returns: Vec<_> = return_collector
+            .returns
+            .iter()
+            .filter(|r| r.has_value)
+            .collect();
+        let no_value_returns: Vec<_> = return_collector
+            .returns
+            .iter()
+            .filter(|r| !r.has_value)
+            .collect();
 
-        if has_value && has_no_value {
+        if !value_returns.is_empty()
+            && !no_value_returns.is_empty()
+            && value_returns.len() > no_value_returns.len()
+        {
             let (line, column) = get_line_col(self.source, func_span.lo.0 as usize);
 
             self.issues.push(Issue {
