@@ -1,4 +1,4 @@
-import { GroupMode, Severity } from '../constants';
+import { type GroupMode, Severity } from '../constants';
 import { githubHelper } from '../lib/actions-helper';
 import { type CliExecutor, createDevModeExecutor, createProdModeExecutor } from './cli-executor';
 
@@ -10,6 +10,7 @@ export type ScanResult = {
   totalRules: number;
   groupBy: GroupMode;
   ruleGroups: RuleGroup[];
+  ruleGroupsByRule: RuleGroup[];
 };
 
 export type RuleGroup = {
@@ -74,8 +75,6 @@ type CliJsonOutputByFile = {
   };
 };
 
-type CliJsonOutput = CliJsonOutputByRule | CliJsonOutputByFile;
-
 export async function scanChangedFiles(
   targetBranch: string,
   devMode: boolean,
@@ -86,26 +85,26 @@ export async function scanChangedFiles(
 
   const executor: CliExecutor = devMode ? createDevModeExecutor() : createProdModeExecutor(tscannerVersion);
 
-  const args = ['check', '--json', '--branch', targetBranch, '--exit-zero'];
-  if (groupBy === GroupMode.Rule) {
-    args.splice(1, 0, '--by-rule');
-  }
+  const argsFile = ['check', '--json', '--branch', targetBranch, '--exit-zero'];
+  const argsRule = ['check', '--json', '--branch', targetBranch, '--by-rule', '--exit-zero'];
 
-  const scanOutput = await executor.execute(args);
+  const [scanOutputFile, scanOutputRule] = await Promise.all([executor.execute(argsFile), executor.execute(argsRule)]);
 
-  let scanData: CliJsonOutput;
+  let scanDataFile: CliJsonOutputByFile;
+  let scanDataRule: CliJsonOutputByRule;
+
   try {
-    scanData = JSON.parse(scanOutput);
+    scanDataFile = JSON.parse(scanOutputFile) as CliJsonOutputByFile;
+    scanDataRule = JSON.parse(scanOutputRule) as CliJsonOutputByRule;
   } catch {
     githubHelper.logError('Failed to parse scan output');
-    githubHelper.logDebug(`Raw output: ${scanOutput.substring(0, 500)}`);
+    githubHelper.logDebug(`Raw output: ${scanOutputFile.substring(0, 500)}`);
     throw new Error('Invalid scan output format');
   }
 
-  githubHelper.logInfo(`Scan completed: ${scanData.summary?.total_issues || 0} issues found`);
+  githubHelper.logInfo(`Scan completed: ${scanDataFile.summary?.total_issues || 0} issues found`);
 
-  const hasIssues =
-    ('rules' in scanData && scanData.rules.length > 0) || ('files' in scanData && scanData.files.length > 0);
+  const hasIssues = scanDataFile.files.length > 0;
 
   if (!hasIssues) {
     githubHelper.logInfo('No issues found');
@@ -117,56 +116,17 @@ export async function scanChangedFiles(
       totalRules: 0,
       groupBy,
       ruleGroups: [],
+      ruleGroupsByRule: [],
     };
   }
 
   githubHelper.logInfo('');
   githubHelper.logInfo('📊 Scan Results:');
   githubHelper.logInfo('');
-  await executor.displayResults(args.map((arg) => (arg === '--json' ? '--pretty' : arg)));
+  await executor.displayResults(argsFile.map((arg) => (arg === '--json' ? '--pretty' : arg)));
 
-  let ruleGroups: RuleGroup[];
-
-  if ('rules' in scanData) {
-    ruleGroups = scanData.rules.map((ruleData) => {
-      const fileMap = new Map<string, Issue[]>();
-
-      for (const issue of ruleData.issues) {
-        if (!fileMap.has(issue.file)) {
-          fileMap.set(issue.file, []);
-        }
-        fileMap.get(issue.file)!.push({
-          line: issue.line,
-          column: issue.column,
-          message: issue.message,
-          lineText: issue.line_text,
-        });
-      }
-
-      const files: FileIssues[] = Array.from(fileMap.entries()).map(([filePath, issues]) => ({
-        filePath,
-        issues,
-      }));
-
-      const severity = ruleData.issues[0]?.severity === 'error' ? Severity.Error : Severity.Warning;
-
-      return {
-        ruleName: ruleData.rule,
-        severity,
-        issueCount: ruleData.count,
-        fileCount: fileMap.size,
-        files,
-      };
-    });
-
-    ruleGroups.sort((a, b) => {
-      if (a.severity !== b.severity) {
-        return a.severity === 'error' ? -1 : 1;
-      }
-      return b.issueCount - a.issueCount;
-    });
-  } else {
-    const fileGroups: Array<{ file: string; issues: Issue[]; severity: Severity }> = scanData.files.map((fileData) => ({
+  const fileGroups: Array<{ file: string; issues: Issue[]; severity: Severity }> = scanDataFile.files.map(
+    (fileData) => ({
       file: fileData.file,
       issues: fileData.issues.map((issue) => ({
         line: issue.line,
@@ -176,36 +136,75 @@ export async function scanChangedFiles(
         ruleName: issue.rule,
       })),
       severity: fileData.issues.some((i) => i.severity === 'error') ? Severity.Error : Severity.Warning,
-    }));
+    }),
+  );
 
-    fileGroups.sort((a, b) => {
-      if (a.severity !== b.severity) {
-        return a.severity === Severity.Error ? -1 : 1;
+  fileGroups.sort((a, b) => {
+    if (a.severity !== b.severity) {
+      return a.severity === Severity.Error ? -1 : 1;
+    }
+    return b.issues.length - a.issues.length;
+  });
+
+  const ruleGroups: RuleGroup[] = fileGroups.map((fileGroup) => ({
+    ruleName: fileGroup.file,
+    severity: fileGroup.severity,
+    issueCount: fileGroup.issues.length,
+    fileCount: 1,
+    files: [
+      {
+        filePath: fileGroup.file,
+        issues: fileGroup.issues,
+      },
+    ],
+  }));
+
+  const ruleGroupsByRule: RuleGroup[] = scanDataRule.rules.map((ruleData) => {
+    const fileMap = new Map<string, Issue[]>();
+
+    for (const issue of ruleData.issues) {
+      if (!fileMap.has(issue.file)) {
+        fileMap.set(issue.file, []);
       }
-      return b.issues.length - a.issues.length;
-    });
+      fileMap.get(issue.file)!.push({
+        line: issue.line,
+        column: issue.column,
+        message: issue.message,
+        lineText: issue.line_text,
+      });
+    }
 
-    ruleGroups = fileGroups.map((fileGroup) => ({
-      ruleName: fileGroup.file,
-      severity: fileGroup.severity,
-      issueCount: fileGroup.issues.length,
-      fileCount: 1,
-      files: [
-        {
-          filePath: fileGroup.file,
-          issues: fileGroup.issues,
-        },
-      ],
+    const files: FileIssues[] = Array.from(fileMap.entries()).map(([filePath, issues]) => ({
+      filePath,
+      issues,
     }));
-  }
+
+    const severity = ruleData.issues[0]?.severity === 'error' ? Severity.Error : Severity.Warning;
+
+    return {
+      ruleName: ruleData.rule,
+      severity,
+      issueCount: ruleData.count,
+      fileCount: fileMap.size,
+      files,
+    };
+  });
+
+  ruleGroupsByRule.sort((a, b) => {
+    if (a.severity !== b.severity) {
+      return a.severity === 'error' ? -1 : 1;
+    }
+    return b.issueCount - a.issueCount;
+  });
 
   return {
-    totalIssues: scanData.summary.total_issues,
-    totalErrors: scanData.summary.errors,
-    totalWarnings: scanData.summary.warnings,
-    totalFiles: scanData.summary.total_files,
-    totalRules: ruleGroups.length,
+    totalIssues: scanDataFile.summary.total_issues,
+    totalErrors: scanDataFile.summary.errors,
+    totalWarnings: scanDataFile.summary.warnings,
+    totalFiles: scanDataFile.summary.total_files,
+    totalRules: scanDataRule.rules.length,
     groupBy,
     ruleGroups,
+    ruleGroupsByRule,
   };
 }

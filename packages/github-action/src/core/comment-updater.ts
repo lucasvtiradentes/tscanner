@@ -3,7 +3,7 @@ import { type Octokit, githubHelper } from '../lib/actions-helper';
 import { formatTimestamp } from '../utils/format-timestamp';
 import { pluralize } from '../utils/pluralize';
 import { buildPrFileUrl } from '../utils/url-builder';
-import type { ScanResult } from './scanner';
+import type { RuleGroup, ScanResult } from './scanner';
 
 export type CommentUpdateParams = {
   octokit: Octokit;
@@ -51,45 +51,19 @@ function buildGroupedByFileView(result: ScanResult, owner: string, repo: string,
   return output;
 }
 
-function buildGroupedByRuleView(result: ScanResult, owner: string, repo: string, prNumber: number): string {
-  const ruleMap = new Map<
-    string,
-    { severity: 'error' | 'warning'; files: Map<string, Array<{ line: number; column: number; lineText: string }>> }
-  >();
-
-  for (const group of result.ruleGroups) {
-    if (!ruleMap.has(group.ruleName)) {
-      ruleMap.set(group.ruleName, { severity: group.severity, files: new Map() });
-    }
-
-    const ruleData = ruleMap.get(group.ruleName)!;
-
-    for (const file of group.files) {
-      if (!ruleData.files.has(file.filePath)) {
-        ruleData.files.set(file.filePath, []);
-      }
-      for (const issue of file.issues) {
-        ruleData.files.get(file.filePath)!.push({
-          line: issue.line,
-          column: issue.column,
-          lineText: issue.lineText,
-        });
-      }
-    }
-  }
-
+function buildGroupedByRuleView(ruleGroups: RuleGroup[], owner: string, repo: string, prNumber: number): string {
   let output = '';
-  for (const [ruleName, ruleData] of ruleMap) {
-    const totalIssues = Array.from(ruleData.files.values()).reduce((sum, issues) => sum + issues.length, 0);
-    const icon = ruleData.severity === Severity.Error ? '✗' : '⚠';
-    const summary = `${icon} <strong>${ruleName}</strong> - ${totalIssues} ${pluralize(totalIssues, 'issue')} - ${ruleData.files.size} ${pluralize(ruleData.files.size, 'file')}`;
+
+  for (const group of ruleGroups) {
+    const icon = group.severity === Severity.Error ? '✗' : '⚠';
+    const summary = `${icon} <strong>${group.ruleName}</strong> - ${group.issueCount} ${pluralize(group.issueCount, 'issue')} - ${group.fileCount} ${pluralize(group.fileCount, 'file')}`;
 
     output += `<details>\n<summary>${summary}</summary>\n\n<br/>`;
 
-    for (const [filePath, issues] of ruleData.files) {
-      output += `\n<strong>${filePath}</strong>\n`;
-      for (const issue of issues) {
-        const fileUrl = buildPrFileUrl(owner, repo, prNumber, filePath, issue.line);
+    for (const file of group.files) {
+      output += `\n<strong>${file.filePath}</strong>\n`;
+      for (const issue of file.issues) {
+        const fileUrl = buildPrFileUrl(owner, repo, prNumber, file.filePath, issue.line);
         output += `- <a href="${fileUrl}">Line ${issue.line}:${issue.column}</a> - <code>${issue.lineText.trim()}</code>\n`;
       }
     }
@@ -110,7 +84,7 @@ function buildCommentBody(
   prNumber: number,
 ): string {
   const timestamp = formatTimestamp(timezone);
-  const { totalIssues, totalErrors, totalWarnings, totalFiles, totalRules } = result;
+  const { totalIssues, totalErrors, totalWarnings, totalFiles, totalRules, ruleGroupsByRule } = result;
 
   if (totalIssues === 0) {
     return `${COMMENT_MARKER}
@@ -131,7 +105,7 @@ All changed files passed validation!
 `;
 
   const groupedByFile = buildGroupedByFileView(result, owner, repo, prNumber);
-  const groupedByRule = buildGroupedByRuleView(result, owner, repo, prNumber);
+  const groupedByRule = buildGroupedByRuleView(ruleGroupsByRule, owner, repo, prNumber);
 
   comment += `<div align="center">\n\n<details>\n<summary><strong>📋 Issues grouped by rule (${totalRules})</strong></summary>\n<br />\n\n<div align="left">${groupedByRule}\n</div></details>\n\n</div>\n\n---\n\n`;
   comment += `<div align="center">\n\n<details>\n<summary><strong>📁 Issues grouped by file (${totalFiles})</strong></summary>\n<br />\n\n<div align="left">${groupedByFile}\n</div></details>\n\n</div>\n\n`;
