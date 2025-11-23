@@ -58,13 +58,12 @@ function buildGroupedByRuleView(ruleGroups: RuleGroup[], owner: string, repo: st
     const icon = group.severity === Severity.Error ? '✗' : '⚠';
     const summary = `${icon} <strong>${group.ruleName}</strong> - ${group.issueCount} ${pluralize(group.issueCount, 'issue')} - ${group.fileCount} ${pluralize(group.fileCount, 'file')}`;
 
-    output += `<details>\n<summary>${summary}</summary>\n\n<br/>`;
+    output += `<details>\n<summary>${summary}</summary>\n\n<br/>\n`;
 
     for (const file of group.files) {
-      output += `\n<strong>${file.filePath}</strong>\n`;
       for (const issue of file.issues) {
         const fileUrl = buildPrFileUrl(owner, repo, prNumber, file.filePath, issue.line);
-        output += `- <a href="${fileUrl}">Line ${issue.line}:${issue.column}</a> - <code>${issue.lineText.trim()}</code>\n`;
+        output += `- <a href="${fileUrl}">${file.filePath}:${issue.line}</a> - <code>${issue.lineText.trim()}</code>\n`;
       }
     }
 

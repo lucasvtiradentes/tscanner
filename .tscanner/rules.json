@@ -24,7 +24,7 @@
       "severity": "error"
     },
     "no-todo-comments": {},
-    "no-console-log": {}
+    "no-console-log": { "severity": "error" }
   },
   "customRules": {
     "no-debug-log-calls": {
