@@ -36,8 +36,21 @@ async function run(): Promise<void> {
 
     const scanResults = await scanChangedFiles(targetBranch, devMode, tscannerVersion);
 
-    const latestCommit = context.payload.pull_request.head.sha.substring(0, 7);
-    const comment = formatComment(scanResults, timezone, latestCommit);
+    const latestCommitSha = context.payload.pull_request.head.sha.substring(0, 7);
+    let commitMessage = '';
+
+    let gitLogOutput = '';
+    await exec.exec('git', ['log', '-1', '--pretty=%s', context.payload.pull_request.head.sha], {
+      silent: true,
+      listeners: {
+        stdout: (data: Buffer) => {
+          gitLogOutput += data.toString();
+        },
+      },
+    });
+    commitMessage = gitLogOutput.trim();
+
+    const comment = formatComment(scanResults, timezone, latestCommitSha, commitMessage);
 
     const existingComments = await octokit.rest.issues.listComments({
       owner,

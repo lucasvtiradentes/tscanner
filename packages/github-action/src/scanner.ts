@@ -115,7 +115,9 @@ export async function scanChangedFiles(
     return { totalIssues: 0, totalErrors: 0, totalWarnings: 0, ruleGroups: [] };
   }
 
-  core.startGroup('📊 Scan Results (pretty format)');
+  core.info('');
+  core.info('📊 Scan Results:');
+  core.info('');
   await exec.exec(
     command,
     args.map((arg) => (arg === '--json' ? '--pretty' : arg)),
@@ -123,7 +125,6 @@ export async function scanChangedFiles(
       ignoreReturnCode: true,
     },
   );
-  core.endGroup();
 
   const ruleGroups: RuleGroup[] = scanData.rules.map((ruleData) => {
     const fileMap = new Map<string, Issue[]>();

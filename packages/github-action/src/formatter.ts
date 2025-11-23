@@ -1,6 +1,10 @@
 import type { ScanResult } from './scanner';
 
-export function formatComment(result: ScanResult, timezone: string, commitSha: string): string {
+function pluralize(count: number, singular: string): string {
+  return count === 1 ? singular : `${singular}s`;
+}
+
+export function formatComment(result: ScanResult, timezone: string, commitSha: string, commitMessage: string): string {
   const timestamp = formatTimestamp(timezone);
   const { totalIssues, totalErrors, totalWarnings, ruleGroups } = result;
 
@@ -19,10 +23,14 @@ All changed files passed validation!
   const warningIcon = totalWarnings > 0 ? '⚠️' : '';
   const statusIcon = totalErrors > 0 ? '❌' : '⚠️';
 
+  const errorText = totalErrors > 0 ? `${errorIcon} ${totalErrors} ${pluralize(totalErrors, 'error')}` : '';
+  const warningText = totalWarnings > 0 ? `${warningIcon} ${totalWarnings} ${pluralize(totalWarnings, 'warning')}` : '';
+  const summaryParts = [errorText, warningText].filter((s) => s);
+
   let comment = `<!-- tscanner-pr-comment -->
 ## ${statusIcon} tscanner - Issues Found
 
-**Summary:** ${errorIcon} ${totalErrors} error(s) ${warningIcon} ${totalWarnings} warning(s)
+**Summary:** ${summaryParts.join(' ')}
 
 ---
 
@@ -30,7 +38,7 @@ All changed files passed validation!
 
   for (const group of ruleGroups) {
     const icon = group.severity === 'error' ? '❌' : '⚠️';
-    const summary = `${icon} **${group.ruleName}** - ${group.issueCount} issue(s) - ${group.fileCount} file(s)`;
+    const summary = `${icon} **${group.ruleName}** - ${group.issueCount} ${pluralize(group.issueCount, 'issue')} - ${group.fileCount} ${pluralize(group.fileCount, 'file')}`;
 
     comment += `<details>\n<summary>${summary}</summary>\n\n`;
 
@@ -44,7 +52,9 @@ All changed files passed validation!
     comment += '\n</details>\n\n';
   }
 
-  comment += `---\n**Last updated:** ${timestamp}  \n**Last commit analyzed:** \`${commitSha}\``;
+  const commitInfo = commitMessage ? `\`${commitSha}\` - ${commitMessage}` : `\`${commitSha}\``;
+
+  comment += `---\n**Last updated:** ${timestamp}  \n**Last commit analyzed:** ${commitInfo}`;
 
   return comment;
 }
