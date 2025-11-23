@@ -53,14 +53,17 @@ export async function scanChangedFiles(
   targetBranch: string,
   devMode: boolean,
   tscannerVersion: string,
+  groupBy: string,
 ): Promise<ScanResult> {
-  core.info(`Scanning changed files vs ${targetBranch} (dev mode: ${devMode})`);
+  core.info(`Scanning changed files vs ${targetBranch} (dev mode: ${devMode}, group by: ${groupBy})`);
 
   let scanOutput = '';
   let scanError = '';
 
   let command: string;
   let args: string[];
+
+  const groupFlag = groupBy === 'file' ? '--by-file' : '--by-rule';
 
   if (devMode) {
     const workspaceRoot = process.env.GITHUB_WORKSPACE || process.cwd();
@@ -69,7 +72,7 @@ export async function scanChangedFiles(
       `${workspaceRoot}/packages/cli/dist/main.js`,
       'check',
       '--json',
-      '--by-rule',
+      groupFlag,
       '--branch',
       targetBranch,
       '--exit-zero',
@@ -78,7 +81,7 @@ export async function scanChangedFiles(
   } else {
     const packageSpec = `tscanner@${tscannerVersion}`;
     command = 'npx';
-    args = [packageSpec, 'check', '--json', '--by-rule', '--branch', targetBranch, '--exit-zero'];
+    args = [packageSpec, 'check', '--json', groupFlag, '--branch', targetBranch, '--exit-zero'];
     core.info(`Using published tscanner from npm: ${packageSpec}`);
   }
 

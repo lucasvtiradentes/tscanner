@@ -56,8 +56,9 @@ impl PrettyFormatter {
                 .unwrap_or_else(|| file_result.file.clone());
 
             let unique_rules: HashSet<_> = file_result.issues.iter().map(|i| &i.rule).collect();
+            lines.push(String::new());
             lines.push(format!(
-                "\n{} - {} issues - {} rules",
+                "{} - {} issues - {} rules",
                 relative_path.display(),
                 file_result.issues.len(),
                 unique_rules.len()
@@ -148,8 +149,9 @@ impl PrettyFormatter {
 
         for (rule_name, issues) in issues_by_rule {
             let unique_files: HashSet<_> = issues.iter().map(|(path, _)| path).collect();
+            lines.push(String::new());
             lines.push(format!(
-                "\n{} ({} issues, {} files)",
+                "{} ({} issues, {} files)",
                 rule_name,
                 issues.len(),
                 unique_files.len()

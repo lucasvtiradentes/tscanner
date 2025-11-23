@@ -12,6 +12,7 @@ async function run(): Promise<void> {
     const configPath = core.getInput('config-path') || '.tscanner/rules.json';
     const tscannerVersion = core.getInput('tscanner-version') || 'latest';
     const devMode = core.getInput('dev-mode') === 'true';
+    const groupBy = core.getInput('group-by') || 'rule';
 
     if (configPath !== '.tscanner/rules.json') {
       core.warning(
@@ -34,7 +35,7 @@ async function run(): Promise<void> {
 
     await exec.exec('git', ['fetch', 'origin', targetBranch.replace('origin/', '')]);
 
-    const scanResults = await scanChangedFiles(targetBranch, devMode, tscannerVersion);
+    const scanResults = await scanChangedFiles(targetBranch, devMode, tscannerVersion, groupBy);
 
     const latestCommitSha = context.payload.pull_request.head.sha.substring(0, 7);
     let commitMessage = '';

@@ -30,6 +30,10 @@ inputs:
     description: 'Use local tscanner CLI from monorepo (internal development only)'
     required: false
     default: 'false'
+  group-by:
+    description: 'Group issues by "rule" or "file"'
+    required: false
+    default: 'rule'
 
 runs:
   using: 'node20'
