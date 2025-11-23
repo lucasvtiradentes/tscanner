@@ -1,21 +1,76 @@
-import { ChildProcess, spawn } from 'child_process';
-import * as zlib from 'zlib';
+import { type ChildProcess, spawn } from 'node:child_process';
+import * as zlib from 'node:zlib';
 import * as vscode from 'vscode';
-import { FileResult, IssueResult, RuleMetadata, ScanResult } from '../types';
+import type {
+  ClearCacheParams,
+  FileResult,
+  GetRulesMetadataParams,
+  IssueResult,
+  RuleMetadata,
+  ScanContentParams,
+  ScanFileParams,
+  ScanParams,
+  ScanResult,
+  TscannerConfig,
+} from '../types';
 import { logger } from '../utils/logger';
 import { openTextDocument } from './vscode-utils';
 
-interface RpcRequest {
-  id: number;
-  method: string;
-  params: any;
+enum RpcMethod {
+  Scan = 'scan',
+  ScanFile = 'scanFile',
+  ScanContent = 'scanContent',
+  GetRulesMetadata = 'getRulesMetadata',
+  ClearCache = 'clearCache',
+  FormatResults = 'formatResults',
 }
 
-interface RpcResponse {
+type FormatPrettyResult = {
+  output: string;
+  summary: {
+    total_issues: number;
+    error_count: number;
+    warning_count: number;
+    file_count: number;
+    rule_count: number;
+  };
+};
+
+type FormatResultsParams = {
+  root: string;
+  results: ScanResult;
+  group_mode: string;
+};
+
+type RpcRequestMap = {
+  [RpcMethod.Scan]: ScanParams;
+  [RpcMethod.ScanFile]: ScanFileParams;
+  [RpcMethod.ScanContent]: ScanContentParams;
+  [RpcMethod.GetRulesMetadata]: GetRulesMetadataParams;
+  [RpcMethod.ClearCache]: ClearCacheParams;
+  [RpcMethod.FormatResults]: FormatResultsParams;
+};
+
+type RpcResponseMap = {
+  [RpcMethod.Scan]: ScanResult;
+  [RpcMethod.ScanFile]: FileResult;
+  [RpcMethod.ScanContent]: FileResult;
+  [RpcMethod.GetRulesMetadata]: RuleMetadata[];
+  [RpcMethod.ClearCache]: undefined;
+  [RpcMethod.FormatResults]: FormatPrettyResult;
+};
+
+type RpcRequest = {
   id: number;
-  result?: any;
+  method: string;
+  params: unknown;
+};
+
+type RpcResponse = {
+  id: number;
+  result?: unknown;
   error?: string;
-}
+};
 
 export class RustClient {
   private process: ChildProcess | null = null;
@@ -33,22 +88,30 @@ export class RustClient {
 
   async start(): Promise<void> {
     if (this.process) {
+      logger.info('Rust server already running');
       return;
     }
 
     logger.info(`Starting Rust server: ${this.binaryPath}`);
 
-    this.process = spawn(this.binaryPath, [], {
-      stdio: ['pipe', 'pipe', 'pipe'],
-      env: {
-        ...process.env,
-        NO_COLOR: '1',
-        RUST_LOG_STYLE: 'never',
-        RUST_LOG: 'core=warn,server=info',
-      },
-    });
+    try {
+      this.process = spawn(this.binaryPath, [], {
+        stdio: ['pipe', 'pipe', 'pipe'],
+        env: {
+          ...process.env,
+          NO_COLOR: '1',
+          RUST_LOG_STYLE: 'never',
+          RUST_LOG: 'core=warn,server=info',
+        },
+      });
 
-    this.process.stdout!.on('data', (data: Buffer) => {
+      logger.info(`Rust server spawned with PID: ${this.process.pid}`);
+    } catch (error) {
+      logger.error(`Failed to spawn Rust server: ${error}`);
+      throw error;
+    }
+
+    this.process.stdout?.on('data', (data: Buffer) => {
       const chunkSize = data.length;
       this.buffer += data.toString();
 
@@ -99,7 +162,7 @@ export class RustClient {
       }
     });
 
-    this.process.stderr!.on('data', (data: Buffer) => {
+    this.process.stderr?.on('data', (data: Buffer) => {
       const text = data.toString().replace(/\x1b\[[0-9;]*m/g, '');
       if (text.trim()) {
         logger.info(`[Rust stderr] ${text}`);
@@ -123,26 +186,42 @@ export class RustClient {
     }
   }
 
-  private async sendRequest(method: string, params: any): Promise<any> {
+  private async sendRequest<M extends RpcMethod>(method: M, params: RpcRequestMap[M]): Promise<RpcResponseMap[M]> {
     if (!this.process) {
+      logger.info(`Process not running, starting server for method: ${method}`);
       await this.start();
+    }
+
+    if (!this.process || !this.process.stdin) {
+      const error = 'Rust server process or stdin not available';
+      logger.error(error);
+      throw new Error(error);
     }
 
     const id = ++this.requestId;
     const request: RpcRequest = { id, method, params };
 
+    logger.info(`Sending request ${id}: ${method}`);
+
     return new Promise((resolve, reject) => {
       this.pendingRequests.set(id, { resolve, reject });
 
       const json = JSON.stringify(request);
-      this.process!.stdin!.write(json + '\n');
+      logger.info(`Writing request to stdin: ${json.substring(0, 200)}...`);
+      this.process?.stdin?.write(`${json}\n`);
     });
   }
 
-  async scan(workspaceRoot: string, fileFilter?: Set<string>, config?: any): Promise<IssueResult[]> {
-    const result: ScanResult = await this.sendRequest('scan', {
+  async scan(
+    workspaceRoot: string,
+    fileFilter?: Set<string>,
+    config?: TscannerConfig,
+    branch?: string,
+  ): Promise<IssueResult[]> {
+    const result = await this.sendRequest(RpcMethod.Scan, {
       root: workspaceRoot,
       config,
+      branch,
     });
 
     logger.info(`Rust scan completed: ${result.total_issues} issues in ${result.duration_ms}ms`);
@@ -174,7 +253,7 @@ export class RustClient {
           try {
             const document = await openTextDocument(uri);
             lineText = document.lineAt(issue.line - 1).text;
-          } catch (error) {
+          } catch (_error) {
             logger.error(`Failed to load line text for: ${fileResult.file}`);
             lineText = '';
           }
@@ -187,6 +266,7 @@ export class RustClient {
           text: lineText.trim(),
           rule: issue.rule,
           severity: issue.severity.toLowerCase() as 'error' | 'warning',
+          message: issue.message,
         });
       }
     }
@@ -200,7 +280,7 @@ export class RustClient {
   }
 
   async scanFile(workspaceRoot: string, filePath: string): Promise<IssueResult[]> {
-    const result: FileResult = await this.sendRequest('scanFile', {
+    const result = await this.sendRequest(RpcMethod.ScanFile, {
       root: workspaceRoot,
       file: filePath,
     });
@@ -218,6 +298,7 @@ export class RustClient {
         text: (issue.line_text || '').trim(),
         rule: issue.rule,
         severity: issue.severity.toLowerCase() as 'error' | 'warning',
+        message: issue.message,
       });
     }
 
@@ -225,12 +306,16 @@ export class RustClient {
   }
 
   async getRulesMetadata(): Promise<RuleMetadata[]> {
-    const result = await this.sendRequest('getRulesMetadata', {});
-    return result;
+    return this.sendRequest(RpcMethod.GetRulesMetadata, {});
   }
 
-  async scanContent(workspaceRoot: string, filePath: string, content: string, config?: any): Promise<IssueResult[]> {
-    const result: FileResult = await this.sendRequest('scanContent', {
+  async scanContent(
+    workspaceRoot: string,
+    filePath: string,
+    content: string,
+    config?: TscannerConfig,
+  ): Promise<IssueResult[]> {
+    const result = await this.sendRequest(RpcMethod.ScanContent, {
       root: workspaceRoot,
       file: filePath,
       content,
@@ -250,6 +335,7 @@ export class RustClient {
         text: (issue.line_text || '').trim(),
         rule: issue.rule,
         severity: issue.severity.toLowerCase() as 'error' | 'warning',
+        message: issue.message,
       });
     }
 
@@ -257,7 +343,22 @@ export class RustClient {
   }
 
   async clearCache(): Promise<void> {
-    await this.sendRequest('clearCache', {});
+    await this.sendRequest(RpcMethod.ClearCache, {});
     logger.info('Rust cache cleared');
+  }
+
+  async formatResults(
+    workspaceRoot: string,
+    results: ScanResult,
+    groupMode: 'file' | 'rule',
+  ): Promise<FormatPrettyResult> {
+    const result = await this.sendRequest(RpcMethod.FormatResults, {
+      root: workspaceRoot,
+      results,
+      group_mode: groupMode,
+    });
+
+    logger.info('Rust formatResults completed');
+    return result;
   }
 }

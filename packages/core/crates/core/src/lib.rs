@@ -3,6 +3,7 @@ pub mod cache;
 pub mod config;
 pub mod constants;
 pub mod disable_comments;
+pub mod formatter;
 pub mod logger;
 pub mod parser;
 pub mod registry;
@@ -13,8 +14,11 @@ pub mod utils;
 pub mod watcher;
 
 pub use cache::FileCache;
-pub use config::{CompiledRuleConfig, RuleConfig, RuleType, TscannerConfig};
+pub use config::{
+    BuiltinRuleConfig, CompiledRuleConfig, CustomRuleConfig, CustomRuleType, TscannerConfig,
+};
 pub use constants::*;
+pub use formatter::PrettyFormatter;
 pub use logger::{get_logger, init_logger, log_debug, log_error, log_info, log_warn};
 pub use parser::parse_file;
 pub use registry::RuleRegistry;

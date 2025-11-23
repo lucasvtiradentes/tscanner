@@ -1,21 +1,43 @@
 {
-  "rules": {
-    "no-any-type": {
-      "enabled": true,
-      "type": "ast",
-      "severity": "error",
-      "include": [],
-      "exclude": [],
-      "message": "Found 'any' type annotation",
-      "pattern": null
+  "$schema": "../packages/cli/schema.json",
+  "builtinRules": {
+    "no-var": {},
+    "prefer-type-over-interface": {},
+    "no-constant-condition": {},
+    "no-duplicate-imports": {},
+    "no-unreachable-code": {},
+    "max-function-length": {},
+    "no-nested-ternary": {},
+    "no-nested-require": {
+      "severity": "error"
     },
-    "no-var": {
-      "enabled": true,
-      "type": "ast",
-      "severity": "warning",
-      "message": null
+    "no-empty-function": {},
+    "no-dynamic-import": {
+      "severity": "error"
+    },
+    "consistent-return": {},
+    "no-implicit-any": {},
+    "no-unused-vars": {},
+    "no-empty-class": {},
+    "prefer-const": {},
+    "no-any-type": {
+      "severity": "error"
+    },
+    "no-todo-comments": {},
+    "no-console-log": { "severity": "error" }
+  },
+  "customRules": {
+    "no-debug-log-calls": {
+      "type": "regex",
+      "pattern": "logger\\.debug",
+      "message": "logger calls should be removed before production"
+    },
+    "no-promise-void-return": {
+      "type": "regex",
+      "pattern": ": Promise<void>",
+      "message": "there's no need to return promise void"
     }
   },
-  "include": ["**/*.{ts,tsx}"],
-  "exclude": ["node_modules/**", "dist/**", "build/**", ".git/**"]
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
 }

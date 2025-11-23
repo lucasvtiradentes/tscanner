@@ -1,0 +1,26 @@
+{
+  "name": "tscanner-github-action",
+  "version": "0.0.1",
+  "private": true,
+  "description": "GitHub Action for tscanner PR validation",
+  "packageManager": "pnpm@10.22.0",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "ncc build src/index.ts -o dist --minify",
+    "lint": "biome check src",
+    "lint:fix": "biome check --fix --unsafe src",
+    "format": "biome format --write src",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@actions/core": "^1.11.1",
+    "@actions/exec": "^1.1.1",
+    "@actions/github": "^6.0.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@vercel/ncc": "^0.38.3",
+    "typescript": "^5.7.2"
+  }
+}

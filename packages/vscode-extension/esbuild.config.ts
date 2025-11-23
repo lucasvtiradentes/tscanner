@@ -1,9 +1,8 @@
-import type { BuildOptions } from 'esbuild';
-import esbuild from 'esbuild';
-
-const isWatch = process.argv.includes('--watch');
+import esbuild, { type BuildOptions } from 'esbuild';
 
 const isDev = !process.env.CI;
+
+const logger = console;
 
 const extensionBuildOptions: BuildOptions = {
   entryPoints: ['src/extension.ts'],
@@ -22,17 +21,11 @@ const extensionBuildOptions: BuildOptions = {
 };
 
 async function build() {
-  if (isWatch) {
-    const ctx = await esbuild.context(extensionBuildOptions);
-    await ctx.watch();
-    console.log('Watching for changes...');
-  } else {
-    await esbuild.build(extensionBuildOptions);
-    console.log('Build complete!');
-  }
+  await esbuild.build(extensionBuildOptions);
+  logger.log('Build complete!');
 }
 
 build().catch((err) => {
-  console.error(err);
+  logger.error(err);
   process.exit(1);
 });

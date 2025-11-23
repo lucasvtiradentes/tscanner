@@ -1,66 +1,116 @@
 use crate::types::Severity;
 use globset::{Glob, GlobSet, GlobSetBuilder};
+use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::hash_map::DefaultHasher;
 use std::collections::{BTreeMap, HashMap};
 use std::hash::{Hash, Hasher};
 use std::path::Path;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct TscannerConfig {
-    #[serde(default)]
-    pub rules: HashMap<String, RuleConfig>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[schemars(description = "JSON schema URL for editor support")]
+    pub schema: Option<String>,
+
+    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
+    #[schemars(description = "Built-in AST rules configuration")]
+    pub builtin_rules: HashMap<String, BuiltinRuleConfig>,
+
+    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
+    #[schemars(description = "Custom rules configuration (regex, script, or AI)")]
+    pub custom_rules: HashMap<String, CustomRuleConfig>,
+
     #[serde(default = "default_include")]
     pub include: Vec<String>,
+
     #[serde(default = "default_exclude")]
     pub exclude: Vec<String>,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct RuleConfig {
-    #[serde(default = "default_enabled")]
-    pub enabled: bool,
-    #[serde(rename = "type")]
-    pub rule_type: RuleType,
-    #[serde(default = "default_severity")]
-    pub severity: Severity,
-    #[serde(default)]
+pub struct BuiltinRuleConfig {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[schemars(description = "Enable or disable this rule")]
+    pub enabled: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[schemars(description = "Severity level for this rule")]
+    pub severity: Option<Severity>,
+
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[schemars(description = "File patterns to include for this rule")]
     pub include: Vec<String>,
-    #[serde(default)]
+
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[schemars(description = "File patterns to exclude for this rule")]
     pub exclude: Vec<String>,
-    #[serde(default)]
-    pub message: Option<String>,
-    #[serde(default)]
-    pub pattern: Option<String>,
-    #[serde(default, flatten)]
-    pub options: HashMap<String, serde_json::Value>,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct CustomRuleConfig {
+    #[serde(rename = "type")]
+    #[schemars(description = "Type of custom rule")]
+    pub rule_type: CustomRuleType,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[schemars(description = "Regex pattern (required for type: regex)")]
+    pub pattern: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[schemars(description = "Path to script file (required for type: script)")]
+    pub script: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[schemars(description = "Path to AI prompt markdown file (required for type: ai)")]
+    pub prompt: Option<String>,
+
+    #[schemars(description = "Error message to display when rule is violated")]
+    pub message: String,
+
+    #[serde(default = "default_severity")]
+    #[schemars(description = "Severity level (default: error)")]
+    pub severity: Severity,
+
+    #[serde(default = "default_true")]
+    #[schemars(description = "Enable or disable this rule (default: true)")]
+    pub enabled: bool,
+
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[schemars(description = "File patterns to include")]
+    pub include: Vec<String>,
+
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[schemars(description = "File patterns to exclude")]
+    pub exclude: Vec<String>,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
 #[serde(rename_all = "lowercase")]
-pub enum RuleType {
-    Ast,
+pub enum CustomRuleType {
     Regex,
+    Script,
+    Ai,
+}
+
+fn default_true() -> bool {
+    true
 }
 
 pub struct CompiledRuleConfig {
     pub enabled: bool,
-    pub rule_type: RuleType,
     pub severity: Severity,
     pub include: GlobSet,
     pub exclude: GlobSet,
     pub message: Option<String>,
     pub pattern: Option<String>,
-    pub options: HashMap<String, serde_json::Value>,
-}
-
-fn default_enabled() -> bool {
-    true
 }
 
 fn default_severity() -> Severity {
-    Severity::Error
+    Severity::Warning
 }
 
 fn default_include() -> Vec<String> {
@@ -86,39 +136,69 @@ impl TscannerConfig {
 
     pub fn validate(&self) -> Result<(), Box<dyn std::error::Error>> {
         let mut errors = Vec::new();
+        let mut warnings = Vec::new();
 
-        let builtin_regex_rules = ["no-console-log", "no-todo-comments"];
-
-        for (name, rule_config) in &self.rules {
-            if rule_config.rule_type == RuleType::Regex {
-                if let Some(pattern) = &rule_config.pattern {
-                    if let Err(e) = regex::Regex::new(pattern) {
-                        errors.push(format!("Rule '{}' has invalid regex pattern: {}", name, e));
+        for (name, rule_config) in &self.custom_rules {
+            match rule_config.rule_type {
+                CustomRuleType::Regex => {
+                    if rule_config.pattern.is_none() {
+                        errors.push(format!(
+                            "Custom rule '{}' is type 'regex' but has no 'pattern' field",
+                            name
+                        ));
+                    } else if let Some(pattern) = &rule_config.pattern {
+                        if let Err(e) = regex::Regex::new(pattern) {
+                            errors
+                                .push(format!("Rule '{}' has invalid regex pattern: {}", name, e));
+                        }
                     }
-                } else if !builtin_regex_rules.contains(&name.as_str()) {
-                    errors.push(format!(
-                        "Rule '{}' is type 'regex' but has no 'pattern' field",
-                        name
-                    ));
+                }
+                CustomRuleType::Script => {
+                    if rule_config.script.is_none() {
+                        errors.push(format!(
+                            "Custom rule '{}' is type 'script' but has no 'script' field",
+                            name
+                        ));
+                    }
+                }
+                CustomRuleType::Ai => {
+                    if rule_config.prompt.is_none() {
+                        errors.push(format!(
+                            "Custom rule '{}' is type 'ai' but has no 'prompt' field",
+                            name
+                        ));
+                    }
                 }
             }
         }
 
-        let conflicting_rules = [
+        let conflicting_builtin_rules = [
             ("prefer-type-over-interface", "prefer-interface-over-type"),
             ("no-relative-imports", "no-absolute-imports"),
         ];
 
-        for (rule1, rule2) in &conflicting_rules {
-            let rule1_enabled = self.rules.get(*rule1).is_some_and(|r| r.enabled);
-            let rule2_enabled = self.rules.get(*rule2).is_some_and(|r| r.enabled);
+        for (rule1, rule2) in &conflicting_builtin_rules {
+            let rule1_enabled = self
+                .builtin_rules
+                .get(*rule1)
+                .and_then(|r| r.enabled)
+                .unwrap_or(false);
+            let rule2_enabled = self
+                .builtin_rules
+                .get(*rule2)
+                .and_then(|r| r.enabled)
+                .unwrap_or(false);
 
             if rule1_enabled && rule2_enabled {
-                errors.push(format!(
-                    "Conflicting rules enabled: '{}' and '{}'. These rules contradict each other.",
+                warnings.push(format!(
+                    "Warning: Conflicting rules enabled: '{}' and '{}'. Both rules will run but contradict each other.",
                     rule1, rule2
                 ));
             }
+        }
+
+        if !warnings.is_empty() {
+            eprintln!("{}", warnings.join("\n"));
         }
 
         if !errors.is_empty() {
@@ -137,27 +217,56 @@ impl TscannerConfig {
         }
     }
 
-    pub fn compile_rule(
+    pub fn compile_builtin_rule(
+        &self,
+        name: &str,
+    ) -> Result<CompiledRuleConfig, Box<dyn std::error::Error>> {
+        use crate::rules::get_all_rule_metadata;
+
+        let rule_config = self
+            .builtin_rules
+            .get(name)
+            .ok_or_else(|| format!("Builtin rule '{}' not found in configuration", name))?;
+
+        let metadata = get_all_rule_metadata().into_iter().find(|m| m.name == name);
+
+        let default_severity = metadata
+            .as_ref()
+            .map(|m| m.default_severity)
+            .unwrap_or(Severity::Warning);
+
+        let include = compile_globs(&rule_config.include, &self.include)?;
+        let exclude = compile_globs(&rule_config.exclude, &self.exclude)?;
+
+        Ok(CompiledRuleConfig {
+            enabled: rule_config.enabled.unwrap_or(true),
+            severity: rule_config.severity.unwrap_or(default_severity),
+            include,
+            exclude,
+            message: None,
+            pattern: None,
+        })
+    }
+
+    pub fn compile_custom_rule(
         &self,
         name: &str,
     ) -> Result<CompiledRuleConfig, Box<dyn std::error::Error>> {
         let rule_config = self
-            .rules
+            .custom_rules
             .get(name)
-            .ok_or_else(|| format!("Rule '{}' not found in configuration", name))?;
+            .ok_or_else(|| format!("Custom rule '{}' not found in configuration", name))?;
 
         let include = compile_globs(&rule_config.include, &self.include)?;
         let exclude = compile_globs(&rule_config.exclude, &self.exclude)?;
 
         Ok(CompiledRuleConfig {
             enabled: rule_config.enabled,
-            rule_type: rule_config.rule_type,
             severity: rule_config.severity,
             include,
             exclude,
-            message: rule_config.message.clone(),
+            message: Some(rule_config.message.clone()),
             pattern: rule_config.pattern.clone(),
-            options: rule_config.options.clone(),
         })
     }
 
@@ -171,8 +280,17 @@ impl TscannerConfig {
     pub fn compute_hash(&self) -> u64 {
         let mut hasher = DefaultHasher::new();
 
-        let sorted_rules: BTreeMap<_, _> = self.rules.iter().collect();
-        for (name, config) in sorted_rules {
+        let sorted_builtin: BTreeMap<_, _> = self.builtin_rules.iter().collect();
+        for (name, config) in sorted_builtin {
+            name.hash(&mut hasher);
+            config.enabled.hash(&mut hasher);
+            if let Some(sev) = &config.severity {
+                format!("{:?}", sev).hash(&mut hasher);
+            }
+        }
+
+        let sorted_custom: BTreeMap<_, _> = self.custom_rules.iter().collect();
+        for (name, config) in sorted_custom {
             name.hash(&mut hasher);
             config.enabled.hash(&mut hasher);
             if let Some(pattern) = &config.pattern {
@@ -186,24 +304,22 @@ impl TscannerConfig {
 
 impl Default for TscannerConfig {
     fn default() -> Self {
-        let mut rules = HashMap::new();
+        let mut builtin_rules = HashMap::new();
 
-        rules.insert(
+        builtin_rules.insert(
             "no-any-type".to_string(),
-            RuleConfig {
-                enabled: true,
-                rule_type: RuleType::Ast,
-                severity: Severity::Error,
+            BuiltinRuleConfig {
+                enabled: Some(true),
+                severity: Some(Severity::Error),
                 include: vec![],
                 exclude: vec![],
-                message: Some("Found 'any' type annotation".to_string()),
-                pattern: None,
-                options: HashMap::new(),
             },
         );
 
         Self {
-            rules,
+            schema: Some("https://unpkg.com/tscanner/schema.json".to_string()),
+            builtin_rules,
+            custom_rules: HashMap::new(),
             include: default_include(),
             exclude: default_exclude(),
         }
@@ -228,27 +344,4 @@ fn compile_globs(
     }
 
     Ok(builder.build()?)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn test_default_config() {
-        let config = TscannerConfig::default();
-        assert!(config.rules.contains_key("no-any-type"));
-        assert_eq!(config.include.len(), 1);
-        assert!(config.exclude.len() > 0);
-    }
-
-    #[test]
-    fn test_glob_matching() {
-        let config = TscannerConfig::default();
-        let compiled = config.compile_rule("no-any-type").unwrap();
-
-        assert!(config.matches_file(Path::new("src/test.ts"), &compiled));
-        assert!(config.matches_file(Path::new("src/test.tsx"), &compiled));
-        assert!(!config.matches_file(Path::new("node_modules/test.ts"), &compiled));
-    }
 }

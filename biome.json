@@ -17,7 +17,9 @@
       "**/.turbo/**",
       "**/binaries/**",
       "**/npm/**",
-      "**/pnpm-lock.yaml"
+      "pnpm-lock.yaml",
+      "packages/cli/schema.json",
+      "packages/github-action/dist/**"
     ]
   },
   "formatter": {
@@ -28,7 +30,24 @@
     "lineWidth": 120
   },
   "linter": {
-    "enabled": false
+    "enabled": true,
+    "rules": {
+      "correctness": {
+        "noUnusedImports": "error",
+        "noUnusedVariables": "error"
+      },
+      "suspicious": {
+        "noExplicitAny": "off",
+        "noImplicitAnyLet": "off",
+        "noControlCharactersInRegex": "off"
+      },
+      "style": {
+        "noNonNullAssertion": "off"
+      },
+      "complexity": {
+        "noForEach": "off"
+      }
+    }
   },
   "javascript": {
     "formatter": {

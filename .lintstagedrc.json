@@ -1,5 +1,5 @@
 {
-  "*.{ts,tsx,js,jsx}": ["biome format --write"],
-  "*.json": ["biome format --write"],
+  "*.{ts,tsx,js,jsx}": ["biome format --write --no-errors-on-unmatched"],
+  "*.json": ["biome format --write --no-errors-on-unmatched"],
   "packages/core/**/*.rs": ["sh -c 'cd packages/core && cargo fmt'"]
 }

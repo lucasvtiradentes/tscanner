@@ -1,6 +1,6 @@
-import { appendFileSync } from 'fs';
-import { tmpdir } from 'os';
-import { join } from 'path';
+import { appendFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { getLogFilename } from '../constants';
 
 export const LOG_FILE_PATH = join(tmpdir(), getLogFilename());
@@ -18,11 +18,7 @@ class Logger {
     const timestamp = utcMinus3.toISOString().replace('Z', '-03:00');
     const logMessage = `[${timestamp}] [${this.context}] [${level}] ${message}\n`;
 
-    try {
-      appendFileSync(LOG_FILE_PATH, logMessage);
-    } catch (error) {
-      console.error('Failed to write log:', error);
-    }
+    appendFileSync(LOG_FILE_PATH, logMessage);
   }
 
   info(message: string) {

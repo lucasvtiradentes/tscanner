@@ -22,3 +22,33 @@ jobs:
     secrets:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
+  tscanner_pr_check:
+    name: 'tscanner PR Check'
+    runs-on: ubuntu-latest
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: ./.github/actions/setup-and-install
+
+      - name: Build project
+        run: pnpm run build
+
+      - name: Copy Rust binary for CLI
+        run: |
+          mkdir -p packages/cli/npm/cli-linux-x64
+          cp packages/core/target/release/tscanner packages/cli/npm/cli-linux-x64/tscanner
+          chmod +x packages/cli/npm/cli-linux-x64/tscanner
+
+      - uses: ./packages/github-action
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          timezone: 'America/Sao_Paulo'
+          dev-mode: 'true'
+          continue-on-error: 'true'
+          target-branch: 'origin/main'

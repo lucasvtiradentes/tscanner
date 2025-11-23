@@ -9,8 +9,11 @@ target/
 **/binaries/
 artifacts/
 .vscode/
-dist/
-.git/ 
+**/dist
+!packages/github-action/dist
+**/dist-dev/
+.git/
+.turbo
 
 # CLI binaries (generated during build)
 packages/cli/npm/*/tscanner
@@ -21,6 +24,3 @@ packages/cli/npm/*/tscanner.exe
 CLAUDE.md
 *.vsix
 pnpm-lock.yaml
-
-# Turborepo
-.turbo

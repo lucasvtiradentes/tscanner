@@ -25,6 +25,7 @@ ignore = "0.4"
 globset = "0.4"
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+schemars = "0.8"
 notify = "8"
 tracing = "0.1"
 tracing-subscriber = { version = "0.3", default-features = false, features = ["fmt", "ansi", "time", "registry"] }
@@ -32,6 +33,7 @@ anyhow = "1.0"
 thiserror = "2.0"
 regex = "1.11"
 time = { version = "0.3", features = ["formatting", "macros"] }
+pathdiff = "0.2"
 
 [profile.release]
 opt-level = 3

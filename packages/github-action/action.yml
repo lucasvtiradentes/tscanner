@@ -1,0 +1,43 @@
+name: 'tscanner PR Validator'
+description: 'Scans PR changes for code quality issues and posts results as comments'
+author: 'lucasvtiradentes'
+
+branding:
+  icon: 'search'
+  color: 'blue'
+
+inputs:
+  github-token:
+    description: 'GitHub token for posting comments'
+    required: true
+  target-branch:
+    description: 'Target branch to compare against (only for branch mode)'
+    required: false
+  timezone:
+    description: 'Timezone for timestamps (e.g., America/Sao_Paulo)'
+    required: false
+    default: 'UTC'
+  config-path:
+    description: 'Path to directory containing rules.json'
+    required: false
+    default: '.tscanner'
+  tscanner-version:
+    description: 'tscanner version to use (e.g., "1.0.0", "latest")'
+    required: false
+    default: 'latest'
+  dev-mode:
+    description: 'Use local tscanner CLI from monorepo (internal development only)'
+    required: false
+    default: 'false'
+  group-by:
+    description: 'Group issues by "rule" or "file"'
+    required: false
+    default: 'file'
+  continue-on-error:
+    description: 'Continue execution even when errors are found'
+    required: false
+    default: 'false'
+
+runs:
+  using: 'node20'
+  main: 'dist/index.js'

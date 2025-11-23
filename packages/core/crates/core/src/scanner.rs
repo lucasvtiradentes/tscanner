@@ -6,6 +6,7 @@ use crate::registry::RuleRegistry;
 use crate::types::{FileResult, ScanResult};
 use ignore::WalkBuilder;
 use rayon::prelude::*;
+use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
@@ -40,11 +41,11 @@ impl Scanner {
         })
     }
 
-    pub fn scan(&self, root: &Path) -> ScanResult {
+    pub fn scan(&self, root: &Path, file_filter: Option<&HashSet<PathBuf>>) -> ScanResult {
         let start = Instant::now();
         crate::log_info(&format!("Starting scan of {:?}", root));
 
-        let files: Vec<PathBuf> = WalkBuilder::new(root)
+        let mut files: Vec<PathBuf> = WalkBuilder::new(root)
             .hidden(false)
             .git_ignore(true)
             .filter_entry(|e| {
@@ -64,6 +65,15 @@ impl Scanner {
             .filter(|e| e.path().is_file())
             .map(|e| e.path().to_path_buf())
             .collect();
+
+        if let Some(filter) = file_filter {
+            files.retain(|f| filter.contains(f));
+            crate::log_info(&format!(
+                "Filtered to {} files (from {})",
+                files.len(),
+                filter.len()
+            ));
+        }
 
         let file_count = files.len();
         crate::log_debug(&format!("Found {} TypeScript files", file_count));

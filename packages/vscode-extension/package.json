@@ -18,10 +18,7 @@
   "engines": {
     "vscode": "^1.100.0"
   },
-  "categories": [
-    "Linters",
-    "Programming Languages"
-  ],
+  "categories": ["Linters", "Programming Languages"],
   "keywords": [
     "code-quality",
     "scanner",
@@ -53,9 +50,7 @@
     "tsx": "^4.20.6",
     "typescript": "^5.7.0"
   },
-  "activationEvents": [
-    "onStartupFinished"
-  ],
+  "activationEvents": ["onStartupFinished"],
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -104,26 +99,24 @@
         "icon": "$(debug-restart)"
       },
       {
-        "command": "tscanner.setGroupByDefault",
-        "title": "No Grouping",
-        "icon": "$(close-all)"
+        "command": "tscanner.cycleViewModeFileFlatView",
+        "title": "Group by file, flat view",
+        "icon": "$(list-flat)"
       },
       {
-        "command": "tscanner.setGroupByRule",
-        "title": "Group by Rule",
+        "command": "tscanner.cycleViewModeFileTreeView",
+        "title": "Group by file, tree view",
+        "icon": "$(list-tree)"
+      },
+      {
+        "command": "tscanner.cycleViewModeRuleFlatView",
+        "title": "Group by rule, flat view",
         "icon": "$(group-by-ref-type)"
       },
       {
-        "command": "tscanner.setListView",
-        "title": "View as List",
-        "icon": "$(list-flat)",
-        "enablement": "tscannerViewMode == tree"
-      },
-      {
-        "command": "tscanner.setTreeView",
-        "title": "View as Tree",
-        "icon": "$(list-tree)",
-        "enablement": "tscannerViewMode == list"
+        "command": "tscanner.cycleViewModeRuleTreeView",
+        "title": "Group by rule, tree view",
+        "icon": "$(type-hierarchy)"
       },
       {
         "command": "tscanner.openFile",
@@ -156,6 +149,21 @@
         "command": "tscanner.showLogs",
         "title": "tscanner: Show Logs",
         "icon": "$(output)"
+      },
+      {
+        "command": "tscanner.copyRuleIssues",
+        "title": "Copy Rule Issues",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "tscanner.copyFileIssues",
+        "title": "Copy File Issues",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "tscanner.copyFolderIssues",
+        "title": "Copy Folder Issues",
+        "icon": "$(copy)"
       }
     ],
     "keybindings": [
@@ -178,24 +186,24 @@
           "group": "navigation@10"
         },
         {
-          "command": "tscanner.setGroupByDefault",
-          "when": "view == tscannerExplorer && tscannerGroupMode == rule",
+          "command": "tscanner.cycleViewModeFileFlatView",
+          "when": "view == tscannerExplorer && tscannerViewMode == list && tscannerGroupMode == default",
           "group": "navigation@20"
         },
         {
-          "command": "tscanner.setGroupByRule",
-          "when": "view == tscannerExplorer && tscannerGroupMode == default",
+          "command": "tscanner.cycleViewModeFileTreeView",
+          "when": "view == tscannerExplorer && tscannerViewMode == tree && tscannerGroupMode == default",
           "group": "navigation@20"
         },
         {
-          "command": "tscanner.setListView",
-          "when": "view == tscannerExplorer && tscannerViewMode == tree",
-          "group": "navigation@30"
+          "command": "tscanner.cycleViewModeRuleFlatView",
+          "when": "view == tscannerExplorer && tscannerViewMode == list && tscannerGroupMode == rule",
+          "group": "navigation@20"
         },
         {
-          "command": "tscanner.setTreeView",
-          "when": "view == tscannerExplorer && tscannerViewMode == list",
-          "group": "navigation@30"
+          "command": "tscanner.cycleViewModeRuleTreeView",
+          "when": "view == tscannerExplorer && tscannerViewMode == tree && tscannerGroupMode == rule",
+          "group": "navigation@20"
         }
       ],
       "view/item/context": [
@@ -213,6 +221,21 @@
           "command": "tscanner.copyRelativePath",
           "when": "view == tscannerExplorer && viewItem == tscannerNodeFile",
           "group": "9_cutcopypaste"
+        },
+        {
+          "command": "tscanner.copyRuleIssues",
+          "when": "view == tscannerExplorer && viewItem == TscannerNodeRuleGroup",
+          "group": "inline"
+        },
+        {
+          "command": "tscanner.copyFileIssues",
+          "when": "view == tscannerExplorer && viewItem == TscannerNodeFile && tscannerGroupMode == default",
+          "group": "inline"
+        },
+        {
+          "command": "tscanner.copyFolderIssues",
+          "when": "view == tscannerExplorer && viewItem == TscannerNodeFolder && tscannerGroupMode == default",
+          "group": "inline"
         }
       ],
       "commandPalette": [
@@ -234,6 +257,18 @@
         },
         {
           "command": "tscanner.openSettingsMenu",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.copyRuleIssues",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.copyFileIssues",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.copyFolderIssues",
           "when": "false"
         }
       ]

@@ -1,4 +1,4 @@
-use crate::config::RuleType;
+use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
 use crate::utils::get_line_col;
@@ -22,7 +22,7 @@ inventory::submit!(RuleMetadataRegistration {
         description:
             "Detects function parameters without type annotations that implicitly have 'any' type.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Error,
+        default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::TypeSafety,
     }

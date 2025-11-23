@@ -1,12 +1,9 @@
 import { createHash } from 'node:crypto';
 import * as vscode from 'vscode';
+import { TscannerConfig } from '../types';
 import { logger } from '../utils/logger';
 
-export interface TscannerConfig {
-  rules: Record<string, any>;
-  include: string[];
-  exclude: string[];
-}
+export { TscannerConfig };
 
 function getWorkspaceHash(workspacePath: string): string {
   return createHash('md5').update(workspacePath).digest('hex').substring(0, 16);
@@ -93,7 +90,8 @@ export async function saveLocalConfig(workspacePath: string, config: TscannerCon
 
 export function getDefaultConfig(): TscannerConfig {
   return {
-    rules: {},
+    builtinRules: {},
+    customRules: {},
     include: ['**/*.ts', '**/*.tsx'],
     exclude: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.git/**'],
   };
@@ -115,7 +113,6 @@ export async function syncGlobalToLocal(context: vscode.ExtensionContext, worksp
   const localPath = getLocalConfigPath(workspacePath);
 
   try {
-    const stat = await vscode.workspace.fs.stat(localPath);
     const existingContent = await vscode.workspace.fs.readFile(localPath);
     const contentStr = Buffer.from(existingContent).toString('utf8');
 

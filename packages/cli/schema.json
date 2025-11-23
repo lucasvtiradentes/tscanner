@@ -1,0 +1,173 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TscannerConfig",
+  "type": "object",
+  "properties": {
+    "builtinRules": {
+      "description": "Built-in AST rules configuration",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/BuiltinRuleConfig"
+      }
+    },
+    "customRules": {
+      "description": "Custom rules configuration (regex, script, or AI)",
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/definitions/CustomRuleConfig"
+      }
+    },
+    "exclude": {
+      "default": [
+        "node_modules/**",
+        "dist/**",
+        "build/**",
+        ".git/**"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "include": {
+      "default": [
+        "**/*.{ts,tsx}"
+      ],
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "schema": {
+      "description": "JSON schema URL for editor support",
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "definitions": {
+    "BuiltinRuleConfig": {
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "severity": {
+          "description": "Severity level for this rule",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      }
+    },
+    "CustomRuleConfig": {
+      "type": "object",
+      "required": [
+        "message",
+        "type"
+      ],
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule (default: true)",
+          "default": true,
+          "type": "boolean"
+        },
+        "exclude": {
+          "description": "File patterns to exclude",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "include": {
+          "description": "File patterns to include",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "message": {
+          "description": "Error message to display when rule is violated",
+          "type": "string"
+        },
+        "pattern": {
+          "description": "Regex pattern (required for type: regex)",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "prompt": {
+          "description": "Path to AI prompt markdown file (required for type: ai)",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "script": {
+          "description": "Path to script file (required for type: script)",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "severity": {
+          "description": "Severity level (default: error)",
+          "default": "warning",
+          "allOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            }
+          ]
+        },
+        "type": {
+          "description": "Type of custom rule",
+          "allOf": [
+            {
+              "$ref": "#/definitions/CustomRuleType"
+            }
+          ]
+        }
+      }
+    },
+    "CustomRuleType": {
+      "type": "string",
+      "enum": [
+        "regex",
+        "script",
+        "ai"
+      ]
+    },
+    "Severity": {
+      "type": "string",
+      "enum": [
+        "error",
+        "warning"
+      ]
+    }
+  }
+}

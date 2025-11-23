@@ -1,4 +1,3 @@
-import * as vscode from 'vscode';
 import { clearCache } from '../common/lib/scanner';
 import {
   Command,

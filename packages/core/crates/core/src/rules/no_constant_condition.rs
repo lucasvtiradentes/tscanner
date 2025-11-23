@@ -1,4 +1,4 @@
-use crate::config::RuleType;
+use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
 use crate::utils::get_line_col;
@@ -21,7 +21,7 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Constant Condition",
         description: "Disallows constant expressions in conditions (if/while/for/ternary). Likely a programming error.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Error,
+        default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::BugPrevention,
     }
