@@ -60,8 +60,8 @@ export async function scanWorkspace(
   }
 
   const binaryPath = getRustBinaryPath();
-
   if (!binaryPath) {
+    logger.error('Rust binary not found');
     vscode.window
       .showErrorMessage(
         `Tscanner: Rust binary not found. Please build the Rust core:\n\ncd packages/core && cargo build --release\n\nCheck logs at ${LOG_FILE_PATH} for details.`,
@@ -88,7 +88,8 @@ export async function scanWorkspace(
     const scanStart = Date.now();
     const results = await rustClient.scan(workspaceFolder.uri.fsPath, fileFilter, config, branch);
     const scanTime = Date.now() - scanStart;
-    logger.debug(`scanWorkspace() took ${scanTime}ms to return ${results.length} results`);
+
+    logger.info(`scanWorkspace() took ${scanTime}ms to return ${results.length} results`);
     return results;
   } catch (error) {
     logger.error(`Rust backend failed: ${error}`);

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { GroupMode, ViewMode, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import { type IssueResult, NodeKind } from '../common/types';
+import { logger } from '../common/utils/logger';
 import { buildFolderTree } from './tree-builder';
 import { FileResultItem, FolderResultItem, LineResultItem, RuleGroupItem } from './tree-items';
 
@@ -63,10 +64,16 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
     }
 
     const workspaceRoot = getCurrentWorkspaceFolder()?.uri.fsPath || '';
+
     const tree = buildFolderTree(this.results, workspaceRoot);
     const folders: FolderResultItem[] = [];
 
     const collectFolders = (map: Map<string, any>) => {
+      if (!map || typeof map !== 'object') {
+        logger.error(`Invalid map passed to collectFolders: ${typeof map}`);
+        return;
+      }
+
       for (const node of map.values()) {
         if (node.type === NodeKind.Folder) {
           folders.push(new FolderResultItem(node));
@@ -106,6 +113,7 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
           Array.from(grouped.entries()).map(([path, results]) => new FileResultItem(path, results)),
         );
       }
+
       const workspaceRoot = getCurrentWorkspaceFolder()?.uri.fsPath || '';
       const tree = buildFolderTree(this.results, workspaceRoot);
 

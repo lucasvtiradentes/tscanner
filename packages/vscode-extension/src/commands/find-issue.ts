@@ -75,6 +75,7 @@ export function createFindIssueCommand(
     if (currentScanModeRef.current === ScanMode.Branch) {
       const branchExistsCheck = await branchExists(workspaceFolder.uri.fsPath, currentCompareBranchRef.current);
       if (!branchExistsCheck) {
+        logger.warn(`Branch does not exist: ${currentCompareBranchRef.current}`);
         const action = await showToastMessage(
           ToastKind.Error,
           `Branch '${currentCompareBranchRef.current}' does not exist in this repository`,
@@ -133,6 +134,9 @@ export function createFindIssueCommand(
           }
         }, 100);
       }
+    } catch (error) {
+      logger.error(`Error during scan: ${error}`);
+      throw error;
     } finally {
       isSearchingRef.current = false;
       setContextKey(ContextKey.Searching, false);

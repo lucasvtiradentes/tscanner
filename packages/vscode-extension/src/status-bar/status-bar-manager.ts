@@ -19,7 +19,6 @@ export class StatusBarManager {
 
   async update(): Promise<void> {
     const workspaceFolder = getCurrentWorkspaceFolder();
-
     if (!workspaceFolder) {
       this.statusBarItem.hide();
       return;

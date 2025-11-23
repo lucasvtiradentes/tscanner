@@ -21,8 +21,6 @@ export function getFolderIssueCount(node: FolderNode): number {
 export function buildFolderTree(results: IssueResult[], workspaceRoot: string): Map<string, FolderNode | FileNode> {
   const root = new Map<string, FolderNode | FileNode>();
 
-  logger.debug(`Building tree with ${results.length} results, workspace: ${workspaceRoot}`);
-
   for (const result of results) {
     let relativePath = relative(workspaceRoot, result.uri.fsPath);
 
@@ -75,6 +73,8 @@ export function buildFolderTree(results: IssueResult[], workspaceRoot: string): 
     const fileNode = current.get(fileName);
     if (fileNode && fileNode.type === NodeKind.File) {
       fileNode.results.push(result);
+    } else {
+      logger.warn(`File node not found or wrong type: ${fileName}`);
     }
   }
 
