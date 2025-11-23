@@ -21,7 +21,7 @@ function pluralize(count: number, singular: string): string {
 }
 
 function createFileHash(filePath: string): string {
-  return createHash('sha256').update(filePath).digest('hex').substring(0, 32);
+  return createHash('sha256').update(filePath).digest('hex');
 }
 
 function formatTimestamp(timezone: string): string {

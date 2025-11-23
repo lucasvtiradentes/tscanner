@@ -601,6 +601,7 @@ pub fn cmd_check(
         .flat_map(|f| f.issues.iter().map(|i| &i.rule))
         .collect();
 
+    println!();
     println!(
         "Issues: {} ({} errors, {} warnings)",
         total_issues.to_string().cyan(),
