@@ -38,7 +38,7 @@ function buildGroupedByFileView(result: ScanResult, owner: string, repo: string,
   let output = '';
   for (const [filePath, issues] of fileMap) {
     const summary = `<strong>${filePath}</strong> - ${issues.length} ${pluralize(issues.length, 'issue')}`;
-    output += `<details>\n<summary>${summary}</summary><br />\n\n`;
+    output += `<details>\n<summary>${summary}</summary>\n<br />\n\n`;
 
     for (const issue of issues) {
       const fileUrl = buildPrFileUrl(owner, repo, prNumber, filePath, issue.line);
@@ -87,10 +87,10 @@ function buildGroupedByRuleView(result: ScanResult, owner: string, repo: string,
     output += `<details>\n<summary>${summary}</summary>\n\n<br/>`;
 
     for (const [filePath, issues] of ruleData.files) {
-      output += `\n**${filePath}**\n`;
+      output += `\n<strong>${filePath}</strong>\n`;
       for (const issue of issues) {
         const fileUrl = buildPrFileUrl(owner, repo, prNumber, filePath, issue.line);
-        output += `- [Line ${issue.line}:${issue.column}](${fileUrl}) - \`${issue.lineText.trim()}\`\n`;
+        output += `- <a href="${fileUrl}">Line ${issue.line}:${issue.column}</a> - <code>${issue.lineText.trim()}</code>\n`;
       }
     }
 
@@ -133,8 +133,8 @@ All changed files passed validation!
   const groupedByFile = buildGroupedByFileView(result, owner, repo, prNumber);
   const groupedByRule = buildGroupedByRuleView(result, owner, repo, prNumber);
 
-  comment += `<div align="center">\n\n<details>\n<summary><strong>📁 Issues grouped by file (${totalFiles})</strong></summary><br />\n\n<div align="left">${groupedByFile}\n</div></details>\n\n</div>\n\n---\n\n`;
-  comment += `<div align="center">\n\n<details>\n<summary><strong>📋 Issues grouped by rule (${totalRules})</strong></summary><br />\n\n<div align="left">${groupedByRule}\n</div></details>\n\n</div>\n\n`;
+  comment += `<div align="center">\n\n<details>\n<summary><strong>📋 Issues grouped by rule (${totalRules})</strong></summary>\n<br />\n\n<div align="left">${groupedByRule}\n</div></details>\n\n</div>\n\n---\n\n`;
+  comment += `<div align="center">\n\n<details>\n<summary><strong>📁 Issues grouped by file (${totalFiles})</strong></summary>\n<br />\n\n<div align="left">${groupedByFile}\n</div></details>\n\n</div>\n\n`;
 
   const commitInfo = commitMessage ? `\`${commitSha}\` - ${commitMessage}` : `\`${commitSha}\``;
 
