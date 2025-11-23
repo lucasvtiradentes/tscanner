@@ -1,12 +1,5 @@
-import * as core from '@actions/core';
-import {
-  DEFAULT_CONFIG_PATH,
-  DEFAULT_GROUP_BY,
-  DEFAULT_TARGET_BRANCH,
-  DEFAULT_TIMEZONE,
-  DEFAULT_TSCANNER_VERSION,
-  GroupMode,
-} from '../constants';
+import { GroupMode } from '../constants';
+import { githubHelper } from '../lib/actions-helper';
 
 export type ActionInputs = {
   token: string;
@@ -18,20 +11,28 @@ export type ActionInputs = {
   groupBy: GroupMode;
 };
 
+const DEFAULT_INPUTS = {
+  targetBranch: 'origin/main',
+  timezone: 'UTC',
+  configPath: '.tscanner/rules.json',
+  tscannerVersion: 'latest',
+  groupBy: GroupMode.File,
+} as const satisfies Partial<ActionInputs>;
+
 export function getActionInputs(): ActionInputs {
-  const token = core.getInput('github-token', { required: true });
-  const targetBranch = core.getInput('target-branch') || DEFAULT_TARGET_BRANCH;
-  const timezone = core.getInput('timezone') || DEFAULT_TIMEZONE;
-  const configPath = core.getInput('config-path') || DEFAULT_CONFIG_PATH;
-  const tscannerVersion = core.getInput('tscanner-version') || DEFAULT_TSCANNER_VERSION;
-  const devMode = core.getInput('dev-mode') === 'true';
-  const groupByInput = core.getInput('group-by') || DEFAULT_GROUP_BY;
+  const token = githubHelper.getInput('github-token', { required: true });
+  const targetBranch = githubHelper.getInput('target-branch') || DEFAULT_INPUTS.targetBranch;
+  const timezone = githubHelper.getInput('timezone') || DEFAULT_INPUTS.timezone;
+  const configPath = githubHelper.getInput('config-path') || DEFAULT_INPUTS.configPath;
+  const tscannerVersion = githubHelper.getInput('tscanner-version') || DEFAULT_INPUTS.tscannerVersion;
+  const devMode = githubHelper.getInput('dev-mode') === 'true';
+  const groupByInput = githubHelper.getInput('group-by') || DEFAULT_INPUTS.groupBy;
 
   const groupBy = groupByInput === GroupMode.Rule ? GroupMode.Rule : GroupMode.File;
 
-  if (configPath !== DEFAULT_CONFIG_PATH) {
-    core.warning(
-      `config-path is currently ignored. tscanner CLI always uses ${DEFAULT_CONFIG_PATH} from project root.`,
+  if (configPath !== DEFAULT_INPUTS.configPath) {
+    githubHelper.logWarning(
+      `config-path is currently ignored. tscanner CLI always uses ${DEFAULT_INPUTS.configPath} from project root.`,
     );
   }
 

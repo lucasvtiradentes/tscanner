@@ -1,11 +1,9 @@
-import * as core from '@actions/core';
-import type { GitHub } from '@actions/github/lib/utils';
 import { COMMENT_MARKER, Severity } from '../constants';
-import { formatTimestamp, pluralize } from '../utils/helpers';
+import { type Octokit, githubHelper } from '../lib/actions-helper';
+import { formatTimestamp } from '../utils/format-timestamp';
+import { pluralize } from '../utils/pluralize';
 import { buildPrFileUrl } from '../utils/url-builder';
 import type { ScanResult } from './scanner';
-
-type Octokit = InstanceType<typeof GitHub>;
 
 export type CommentUpdateParams = {
   octokit: Octokit;
@@ -165,7 +163,7 @@ export async function updateOrCreateComment(params: CommentUpdateParams): Promis
       comment_id: botComment.id,
       body: comment,
     });
-    core.info(`Updated existing comment #${botComment.id}`);
+    githubHelper.logInfo(`Updated existing comment #${botComment.id}`);
   } else {
     await octokit.rest.issues.createComment({
       owner,
@@ -173,6 +171,6 @@ export async function updateOrCreateComment(params: CommentUpdateParams): Promis
       issue_number: prNumber,
       body: comment,
     });
-    core.info('Created new comment');
+    githubHelper.logInfo('Created new comment');
   }
 }

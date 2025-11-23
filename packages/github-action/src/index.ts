@@ -1,27 +1,26 @@
-import * as core from '@actions/core';
-import * as github from '@actions/github';
 import { updateOrCreateComment } from './core/comment-updater';
 import { getActionInputs } from './core/input-validator';
 import { scanChangedFiles } from './core/scanner';
-import { fetchBranch, getCommitMessage } from './lib/git-helper';
+import { githubHelper } from './lib/actions-helper';
+import { gitHelper } from './lib/git-helper';
 
 async function run(): Promise<void> {
   try {
     const inputs = getActionInputs();
-    const octokit = github.getOctokit(inputs.token);
-    const context = github.context;
+    const octokit = githubHelper.getOctokit(inputs.token);
+    const context = githubHelper.getContext();
 
     if (!context.payload.pull_request) {
-      core.setFailed('This action only works on pull_request events');
+      githubHelper.setFailed('This action only works on pull_request events');
       return;
     }
 
     const prNumber = context.payload.pull_request.number;
     const { owner, repo } = context.repo;
 
-    core.info(`Scanning PR #${prNumber} against ${inputs.targetBranch}`);
+    githubHelper.logInfo(`Scanning PR #${prNumber} against ${inputs.targetBranch}`);
 
-    await fetchBranch(inputs.targetBranch);
+    await gitHelper.fetchBranch(inputs.targetBranch);
 
     const scanResults = await scanChangedFiles(
       inputs.targetBranch,
@@ -31,7 +30,7 @@ async function run(): Promise<void> {
     );
 
     const latestCommitSha = context.payload.pull_request.head.sha.substring(0, 7);
-    const commitMessage = await getCommitMessage(context.payload.pull_request.head.sha);
+    const commitMessage = await gitHelper.getCommitMessage(context.payload.pull_request.head.sha);
 
     await updateOrCreateComment({
       octokit,
@@ -45,12 +44,12 @@ async function run(): Promise<void> {
     });
 
     if (scanResults.totalErrors > 0) {
-      core.setFailed(`Found ${scanResults.totalErrors} error(s)`);
+      githubHelper.setFailed(`Found ${scanResults.totalErrors} error(s)`);
     } else {
-      core.info('No errors found');
+      githubHelper.logInfo('No errors found');
     }
   } catch (error) {
-    core.setFailed(`Action failed: ${error instanceof Error ? error.message : String(error)}`);
+    githubHelper.setFailed(`Action failed: ${error instanceof Error ? error.message : String(error)}`);
   }
 }
 

@@ -1,5 +1,5 @@
-import * as core from '@actions/core';
 import { GroupMode, Severity } from '../constants';
+import { githubHelper } from '../lib/actions-helper';
 import { type CliExecutor, createDevModeExecutor, createProdModeExecutor } from './cli-executor';
 
 export type ScanResult = {
@@ -82,7 +82,7 @@ export async function scanChangedFiles(
   tscannerVersion: string,
   groupBy: GroupMode,
 ): Promise<ScanResult> {
-  core.info(`Scanning changed files vs ${targetBranch} (dev mode: ${devMode}, group by: ${groupBy})`);
+  githubHelper.logInfo(`Scanning changed files vs ${targetBranch} (dev mode: ${devMode}, group by: ${groupBy})`);
 
   const executor: CliExecutor = devMode ? createDevModeExecutor() : createProdModeExecutor(tscannerVersion);
 
@@ -97,18 +97,18 @@ export async function scanChangedFiles(
   try {
     scanData = JSON.parse(scanOutput);
   } catch {
-    core.error('Failed to parse scan output');
-    core.debug(`Raw output: ${scanOutput.substring(0, 500)}`);
+    githubHelper.logError('Failed to parse scan output');
+    githubHelper.logDebug(`Raw output: ${scanOutput.substring(0, 500)}`);
     throw new Error('Invalid scan output format');
   }
 
-  core.info(`Scan completed: ${scanData.summary?.total_issues || 0} issues found`);
+  githubHelper.logInfo(`Scan completed: ${scanData.summary?.total_issues || 0} issues found`);
 
   const hasIssues =
     ('rules' in scanData && scanData.rules.length > 0) || ('files' in scanData && scanData.files.length > 0);
 
   if (!hasIssues) {
-    core.info('No issues found');
+    githubHelper.logInfo('No issues found');
     return {
       totalIssues: 0,
       totalErrors: 0,
@@ -120,9 +120,9 @@ export async function scanChangedFiles(
     };
   }
 
-  core.info('');
-  core.info('📊 Scan Results:');
-  core.info('');
+  githubHelper.logInfo('');
+  githubHelper.logInfo('📊 Scan Results:');
+  githubHelper.logInfo('');
   await executor.displayResults(args.map((arg) => (arg === '--json' ? '--pretty' : arg)));
 
   let ruleGroups: RuleGroup[];

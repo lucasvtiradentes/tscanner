@@ -1,7 +1,3 @@
-export function pluralize(count: number, singular: string): string {
-  return count === 1 ? singular : `${singular}s`;
-}
-
 function getTimezoneOffset(timezone: string): string {
   if (timezone === 'UTC') return '';
 

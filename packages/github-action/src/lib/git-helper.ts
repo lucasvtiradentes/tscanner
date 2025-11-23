@@ -1,19 +1,14 @@
-import * as exec from '@actions/exec';
+import { githubHelper } from './actions-helper';
 
-export async function fetchBranch(targetBranch: string): Promise<void> {
-  const branchName = targetBranch.replace('origin/', '');
-  await exec.exec('git', ['fetch', 'origin', branchName]);
+class GitHelper {
+  async fetchBranch(targetBranch: string): Promise<void> {
+    const branchName = targetBranch.replace('origin/', '');
+    await githubHelper.execCommand('git', ['fetch', 'origin', branchName]);
+  }
+
+  async getCommitMessage(commitSha: string): Promise<string> {
+    return githubHelper.execCommandWithOutput('git', ['log', '-1', '--pretty=%s', commitSha]);
+  }
 }
 
-export async function getCommitMessage(commitSha: string): Promise<string> {
-  let output = '';
-  await exec.exec('git', ['log', '-1', '--pretty=%s', commitSha], {
-    silent: true,
-    listeners: {
-      stdout: (data: Buffer) => {
-        output += data.toString();
-      },
-    },
-  });
-  return output.trim();
-}
+export const gitHelper = new GitHelper();
