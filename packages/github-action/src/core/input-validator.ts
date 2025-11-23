@@ -1,4 +1,4 @@
-import { GroupMode } from '../constants';
+import { GroupMode, PACKAGE_NAME } from '../constants';
 import { githubHelper } from '../lib/actions-helper';
 
 export type ActionInputs = {
@@ -32,7 +32,7 @@ export function getActionInputs(): ActionInputs {
 
   if (configPath !== DEFAULT_INPUTS.configPath) {
     githubHelper.logWarning(
-      `config-path is currently ignored. tscanner CLI always uses ${DEFAULT_INPUTS.configPath} from project root.`,
+      `config-path is currently ignored. ${PACKAGE_NAME} CLI always uses ${DEFAULT_INPUTS.configPath} from project root.`,
     );
   }
 

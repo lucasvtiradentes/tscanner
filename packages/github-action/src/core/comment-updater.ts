@@ -16,6 +16,15 @@ export type CommentUpdateParams = {
   commitMessage: string;
 };
 
+function escapeHtml(text: string): string {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
 function buildGroupedByFileView(result: ScanResult, owner: string, repo: string, prNumber: number): string {
   const fileMap = new Map<string, Map<string, Array<{ line: number; column: number; lineText: string }>>>();
 
@@ -53,7 +62,7 @@ function buildGroupedByFileView(result: ScanResult, owner: string, repo: string,
 
       for (const issue of issues) {
         const fileUrl = buildPrFileUrl(owner, repo, prNumber, filePath, issue.line);
-        output += `- <a href="${fileUrl}">${issue.line}:${issue.column}</a> - <code>${issue.lineText.trim()}</code>\n`;
+        output += `- <a href="${fileUrl}">${issue.line}:${issue.column}</a> - <code>${escapeHtml(issue.lineText.trim())}</code>\n`;
       }
 
       output += '\n';
@@ -80,7 +89,7 @@ function buildGroupedByRuleView(ruleGroups: RuleGroup[], owner: string, repo: st
 
       for (const issue of file.issues) {
         const fileUrl = buildPrFileUrl(owner, repo, prNumber, file.filePath, issue.line);
-        output += `- <a href="${fileUrl}">${issue.line}:${issue.column}</a> - <code>${issue.lineText.trim()}</code>\n`;
+        output += `- <a href="${fileUrl}">${issue.line}:${issue.column}</a> - <code>${escapeHtml(issue.lineText.trim())}</code>\n`;
       }
 
       output += '\n';

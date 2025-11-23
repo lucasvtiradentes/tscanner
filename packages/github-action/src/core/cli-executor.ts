@@ -1,3 +1,4 @@
+import { PACKAGE_NAME } from '../constants';
 import { githubHelper } from '../lib/actions-helper';
 
 export type CliExecutor = {
@@ -35,9 +36,9 @@ export function createDevModeExecutor(): CliExecutor {
 }
 
 export function createProdModeExecutor(tscannerVersion: string): CliExecutor {
-  const packageSpec = `tscanner@${tscannerVersion}`;
+  const packageSpec = `${PACKAGE_NAME}@${tscannerVersion}`;
 
-  githubHelper.logInfo(`Using published tscanner from npm: ${packageSpec}`);
+  githubHelper.logInfo(`Using published ${PACKAGE_NAME} from npm: ${packageSpec}`);
 
   return {
     async execute(args: string[]): Promise<string> {

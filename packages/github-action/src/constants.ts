@@ -9,3 +9,5 @@ export enum Severity {
   Error = 'error',
   Warning = 'warning',
 }
+
+export const PACKAGE_NAME = 'tscanner';
