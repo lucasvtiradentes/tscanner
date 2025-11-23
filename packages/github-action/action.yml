@@ -1,4 +1,4 @@
-name: 'tscanner PR Validator'
+name: 'tscanner'
 description: 'Scans PR changes for code quality issues and posts results as comments'
 author: 'lucasvtiradentes'
 

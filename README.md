@@ -3,9 +3,7 @@
 <div align="center">
 <h4>Tscanner</h4>
 <p>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <br>
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-architecture">Architecture</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-development">Development</a>
+  <a href="#-overview">Overview</a> • <a href="#-ways-to-use">Ways to use</a> • <a href="#-features">Features</a> • <a href="#-use-cases">Use Cases</a> • <a href="#-architecture">Architecture</a> • <a href="#-quick-start">Quick Start</a>
 </p>
 </div>
 
@@ -15,12 +13,24 @@
 
 Tscanner is a fast, flexible code quality scanner for TypeScript codebases. Enforce project-specific patterns, detect anti-patterns, and validate architectural conventions with 23+ built-in rules or custom regex patterns.
 
-<img src="./.github/image/vscode-demo.png" />
+<table>
+<tr>
+<th>issues detected in real time in the code editor</th>
+<th>issues detected in the latest push in a PR</th>
+</tr>
+<tr>
+<td width="50%"><img src="./.github/image/vscode-demo.png" alt="VS Code Extension Screenshot" width="100%"></td>
+<td width="50%"><img src="./.github/image/pr-comment-errors-found.png" alt="VS Code Extension Screenshot" width="100%"></td>
+</tr>
+</table>
 
-**Three ways to use:**
-- **[VSCode Extension](packages/vscode-extension)** - Real-time sidebar integration with Git-aware branch scanning
-- **[GitHub Action](packages/github-action)** - CICD integration with analysis summary being attached to the same PR comment on every push
-- **[CLI](packages/cli)** - Terminal scanning, pre-commit hooks
+## 📦 Ways to use<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
+
+| Package | Description | Download |
+|---------|-------------|----------|
+| **[CLI](packages/cli)** | Terminal scanning, CI/CD integration, pre-commit hooks | [![npm](https://img.shields.io/npm/v/tscanner.svg)](https://www.npmjs.com/package/tscanner) |
+| **[VSCode Extension](packages/vscode-extension)** | Real-time sidebar integration with Git-aware branch scanning | [![VS Marketplace](https://img.shields.io/visual-studio-marketplace/v/lucasvtiradentes.tscanner-vscode.svg)](https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode) |
+| **[GitHub Action](packages/github-action)** | CICD integration with analysis summary attached to PR comments | [![GitHub Marketplace](https://img.shields.io/badge/GitHub-Marketplace-blue.svg)](https://github.com/marketplace/actions/tscanner-pr-validator) |
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
 
@@ -29,42 +39,9 @@ Tscanner is a fast, flexible code quality scanner for TypeScript codebases. Enfo
 - **Blazing fast** - Rust parallel processing with smart caching (100-500 files in <1s)
 - **Flexible severity** - Errors block CI, warnings report only
 - **Inline control** - Disable rules per line/file with `tscanner-disable` directives
+>
 
-<details>
-<summary>VSCode Extension</summary>
-<br />
-
-- Tree/list sidebar views with issue badges
-- Branch mode: scan only changed files vs target branch
-- Click-to-navigate to exact line/column
-- F8/Shift+F8 keyboard navigation
-- Live file watching with incremental updates
-
-</details>
-
-<details>
-<summary>CLI</summary>
-<br />
-
-- Terminal scanning with JSON output
-- CI/CD integration (exit codes 0/1)
-- Pre-commit hook support
-- Cross-platform binaries (Linux, macOS, Windows)
-
-</details>
-
-<details>
-<summary>GitHub Action</summary>
-<br />
-
-- Automated PR comments with direct file links
-- Codebase or branch scan modes
-- Smart single-comment updates (no spam)
-- Collapsible grouped views (by file or rule)
-
-</details>
-
-## 💡 Use Cases
+## 💡 Use Cases<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
 
 **Project Consistency**
 
