@@ -2,6 +2,8 @@ import esbuild, { type BuildOptions } from 'esbuild';
 
 const isDev = !process.env.CI;
 
+const logger = console;
+
 const extensionBuildOptions: BuildOptions = {
   entryPoints: ['src/extension.ts'],
   bundle: true,
@@ -20,10 +22,10 @@ const extensionBuildOptions: BuildOptions = {
 
 async function build() {
   await esbuild.build(extensionBuildOptions);
-  console.log('Build complete!');
+  logger.log('Build complete!');
 }
 
 build().catch((err) => {
-  console.error(err);
+  logger.error(err);
   process.exit(1);
 });

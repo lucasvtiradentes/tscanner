@@ -6,9 +6,11 @@ const SCRIPT_DIR = __dirname;
 const CLI_DIR = join(SCRIPT_DIR, '..');
 const TSCANNER_CORE_DIR = join(CLI_DIR, '..', 'core');
 
+const logger = console;
+
 async function main() {
   if (process.env.CI || process.env.GITHUB_ACTIONS) {
-    console.log('Skipping local installation in CI environment');
+    logger.log('Skipping local installation in CI environment');
     process.exit(0);
   }
 
@@ -19,7 +21,7 @@ async function main() {
 main();
 
 async function copyBinary() {
-  console.log('Step 1/1 - Copying Rust binary for current platform...');
+  logger.log('Step 1/1 - Copying Rust binary for current platform...');
 
   const OS = platform();
   const ARCH = arch();
@@ -43,7 +45,7 @@ async function copyBinary() {
   }
 
   if (!NPM_PLATFORM) {
-    console.log(`   ⚠️  Unsupported platform: ${OS}-${ARCH} - skipping`);
+    logger.log(`   ⚠️  Unsupported platform: ${OS}-${ARCH} - skipping`);
     return;
   }
 
@@ -59,7 +61,7 @@ async function copyBinary() {
   }
 
   if (!existsSync(SOURCE_PATH)) {
-    console.log('   ⚠️  Binary not found - skipping (not built yet)');
+    logger.log('   ⚠️  Binary not found - skipping (not built yet)');
     return;
   }
 
@@ -70,10 +72,10 @@ async function copyBinary() {
     chmodSync(DEST_PATH, 0o755);
   } catch {}
 
-  console.log(`   ✅ Copied binary for ${NPM_PLATFORM}`);
+  logger.log(`   ✅ Copied binary for ${NPM_PLATFORM}`);
 }
 
 async function printSuccessMessage() {
-  console.log('\n✅ Build complete!');
-  console.log('   Binary is ready to use\n');
+  logger.log('\n✅ Build complete!');
+  logger.log('   Binary is ready to use\n');
 }
