@@ -1,5 +1,11 @@
 # @tscanner/cli-darwin-x64
 
+## 0.0.5
+
+### Patch Changes
+
+- dd323bc: add github action
+
 ## 0.0.4
 
 ### Patch Changes
