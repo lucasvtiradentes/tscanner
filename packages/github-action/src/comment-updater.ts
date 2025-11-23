@@ -46,7 +46,7 @@ function buildGroupedByFileView(result: ScanResult, owner: string, repo: string,
   let output = '';
   for (const [filePath, issues] of fileMap) {
     const summary = `<strong>${filePath}</strong> - ${issues.length} ${pluralize(issues.length, 'issue')}`;
-    output += `<details>\n<summary>${summary}</summary>\n\n<br />`;
+    output += `<details>\n<summary>${summary}</summary><br />\n\n`;
 
     for (const issue of issues) {
       const fileUrl = `https://github.com/${owner}/${repo}/pull/${prNumber}/files#diff-${createFileHash(filePath)}R${issue.line}`;
@@ -161,7 +161,7 @@ function buildCommentBody(
 
   if (totalIssues === 0) {
     return `<!-- tscanner-pr-comment -->
-## ✅ tscanner - No Issues Found
+## ✅ Tscanner - No Issues Found
 
 All changed files passed validation!
 
@@ -171,11 +171,7 @@ All changed files passed validation!
   }
 
   let comment = `<!-- tscanner-pr-comment -->
-## tscanner - Issues Found
-
-**Issues:** ${totalIssues} (${totalErrors} ${pluralize(totalErrors, 'error')}, ${totalWarnings} ${pluralize(totalWarnings, 'warning')})
-**Files:** ${totalFiles}
-**Rules:** ${totalRules}
+## Tscanner - ${totalIssues} Issues Found (${totalErrors} ${pluralize(totalErrors, 'error')}, ${totalWarnings} ${pluralize(totalWarnings, 'warning')})
 
 ---
 
@@ -184,8 +180,8 @@ All changed files passed validation!
   const groupedByFile = buildGroupedByFileView(result, owner, repo, prNumber);
   const groupedByRule = buildGroupedByRuleView(result, owner, repo, prNumber);
 
-  comment += `<div align="center">\n\n<details>\n<summary><strong>📁 Issues grouped by file</strong></summary>\n\n<br /><div align="left">${groupedByFile}\n</div></details>\n\n</div>\n\n---\n\n`;
-  comment += `<div align="center">\n\n<details>\n<summary><strong>📋 Issues grouped by rule</strong></summary>\n\n<br /><div align="left">${groupedByRule}\n</div></details>\n\n</div>\n\n`;
+  comment += `<div align="center">\n\n<details>\n<summary><strong>📁 Issues grouped by file (${totalFiles})</strong></summary><br />\n\n<div align="left">${groupedByFile}\n</div></details>\n\n</div>\n\n---\n\n`;
+  comment += `<div align="center">\n\n<details>\n<summary><strong>📋 Issues grouped by rule (${totalRules})</strong></summary><br />\n\n<div align="left">${groupedByRule}\n</div></details>\n\n</div>\n\n`;
 
   const commitInfo = commitMessage ? `\`${commitSha}\` - ${commitMessage}` : `\`${commitSha}\``;
 

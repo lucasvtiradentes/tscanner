@@ -45,7 +45,6 @@ impl PrettyFormatter {
             }
             lines.push(String::new());
             lines.push("Issues grouped by file:".to_string());
-            lines.push(String::new());
         }
 
         for file_result in &scan_result.files {
@@ -146,7 +145,6 @@ impl PrettyFormatter {
             }
             lines.push(String::new());
             lines.push("Issues grouped by rule:".to_string());
-            lines.push(String::new());
         }
 
         for (rule_name, issues) in issues_by_rule {

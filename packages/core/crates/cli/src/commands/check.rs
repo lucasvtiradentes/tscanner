@@ -592,7 +592,6 @@ pub fn cmd_check(
         }
     }
 
-    println!();
     let total_issues = error_count + warning_count;
 
     let unique_rules: std::collections::HashSet<_> = result
