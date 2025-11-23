@@ -53,8 +53,7 @@ async function run() {
     }
 
     if (scanResults.totalErrors > 0) {
-      console.log(inputs.continueOnError);
-      const loggerMethod = inputs.continueOnError ? githubHelper.setFailed : githubHelper.logInfo;
+      const loggerMethod = inputs.continueOnError ? githubHelper.logInfo : githubHelper.setFailed;
       loggerMethod(`Found ${scanResults.totalErrors} error(s)`);
     } else {
       githubHelper.logInfo('No errors found');
