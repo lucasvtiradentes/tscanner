@@ -18,17 +18,12 @@ export class StatusBarManager {
   }
 
   async update(): Promise<void> {
-    logger.debug('StatusBarManager.update() called');
     const workspaceFolder = getCurrentWorkspaceFolder();
 
     if (!workspaceFolder) {
-      logger.debug('No workspace folder, hiding status bar');
       this.statusBarItem.hide();
       return;
     }
-
-    logger.debug(`Current scan mode ref: ${this.currentScanModeRef.current}`);
-    logger.debug(`Current compare branch ref: ${this.currentCompareBranchRef.current}`);
 
     const config = await loadEffectiveConfig(this.context, workspaceFolder.uri.fsPath);
     const hasConfig = hasConfiguredRules(config);
@@ -48,7 +43,6 @@ export class StatusBarManager {
       : 'No rules configured. Click to set up rules.';
 
     this.statusBarItem.show();
-    logger.debug('Status bar shown');
   }
 
   getDisposable(): vscode.Disposable {

@@ -127,7 +127,7 @@ export type BuiltinRuleConfig = z.infer<typeof builtinRuleConfigSchema>;
 export type CustomRuleConfig = z.infer<typeof customRuleConfigSchema>;
 export type TscannerConfig = z.infer<typeof tscannerConfigSchema>;
 
-export interface IssueResult {
+export type IssueResult = {
   uri: vscode.Uri;
   line: number;
   column: number;
@@ -135,7 +135,7 @@ export interface IssueResult {
   rule: string;
   severity: 'error' | 'warning';
   message: string;
-}
+};
 
 export enum NodeKind {
   Folder = 'folder',

@@ -28,9 +28,9 @@ enum BranchMenuOption {
   ChooseAnother = 'choose-another',
 }
 
-interface QuickPickItemWithId extends vscode.QuickPickItem {
+type QuickPickItemWithId = {
   id: string;
-}
+} & vscode.QuickPickItem;
 
 export function createOpenSettingsMenuCommand(
   updateStatusBar: () => Promise<void>,
@@ -64,10 +64,7 @@ export function createOpenSettingsMenuCommand(
       ignoreFocusOut: false,
     });
 
-    logger.debug(`Main menu selection: ${selected ? selected.id : 'none (cancelled)'}`);
-
     if (!selected) {
-      logger.debug('No selection made, returning');
       return;
     }
 
@@ -153,10 +150,7 @@ async function showScanSettingsMenu(
     ignoreFocusOut: false,
   });
 
-  logger.debug(`Scan mode selection: ${selected ? selected.id : 'none (cancelled)'}`);
-
   if (!selected) {
-    logger.debug('No scan mode selected, returning');
     return;
   }
 
@@ -179,13 +173,10 @@ async function handleCodebaseScan(
   logger.info('Switching to Codebase mode');
   searchProvider.setResults([]);
   currentScanModeRef.current = ScanMode.Codebase;
-  logger.debug(`Current scan mode updated to: ${currentScanModeRef.current}`);
   updateState(context, WorkspaceStateKey.ScanMode, ScanMode.Codebase);
   setCopyScanContext(ScanMode.Codebase, currentCompareBranchRef.current);
   invalidateCache();
-  logger.debug('Updating status bar');
   await updateStatusBar();
-  logger.debug('Status bar updated, triggering scan');
   executeCommand(Command.FindIssue);
 }
 
@@ -276,19 +267,15 @@ async function handleBranchScan(
     if (!selectedBranch || !selectedBranch.detail) return;
 
     currentCompareBranchRef.current = selectedBranch.detail;
-    logger.debug(`Compare branch updated to: ${currentCompareBranchRef.current}`);
     updateState(context, WorkspaceStateKey.CompareBranch, currentCompareBranchRef.current);
   }
 
   logger.info(`Switching to Branch mode (comparing against: ${currentCompareBranchRef.current})`);
   searchProvider.setResults([]);
   currentScanModeRef.current = ScanMode.Branch;
-  logger.debug(`Current scan mode updated to: ${currentScanModeRef.current}`);
   updateState(context, WorkspaceStateKey.ScanMode, ScanMode.Branch);
   setCopyScanContext(ScanMode.Branch, currentCompareBranchRef.current);
   invalidateCache();
-  logger.debug('Updating status bar');
   await updateStatusBar();
-  logger.debug('Status bar updated, triggering scan');
   executeCommand(Command.FindIssue);
 }

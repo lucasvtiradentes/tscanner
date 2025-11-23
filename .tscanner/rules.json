@@ -22,19 +22,9 @@
     "no-console-log": {}
   },
   "customRules": {
-    "no-todo-comments2": {
+    "no-debug-log-calls": {
       "type": "regex",
-      "pattern": "TODO:",
-      "message": "TODO comments should be resolved"
-    },
-    "no-console-log2": {
-      "type": "regex",
-      "pattern": "console\\.log\\(",
-      "message": "console.log should not be used in production"
-    },
-    "no-logger-calls": {
-      "type": "regex",
-      "pattern": "logger\\.",
+      "pattern": "logger\\.debug",
       "message": "logger calls should be removed before production"
     }
   },
