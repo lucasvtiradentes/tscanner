@@ -9,6 +9,7 @@ const baseInputsSchema = z.object({
   tscannerVersion: z.string(),
   devMode: z.boolean(),
   groupBy: z.enum(GroupMode),
+  continueOnError: z.boolean(),
 });
 
 const branchScannerSchema = baseInputsSchema.extend({
@@ -40,10 +41,9 @@ export function getActionInputs(): ActionInputs {
   const devMode = githubHelper.getInput('dev-mode') === 'true';
   const groupByInput = githubHelper.getInput('group-by') || DEFAULT_INPUTS.groupBy;
   const targetBranch = githubHelper.getInput('target-branch');
+  const continueOnError = githubHelper.getInput('continue-on-error') === 'true';
 
   const groupBy = groupByInput === GroupMode.Rule ? GroupMode.Rule : GroupMode.File;
-
-  console.log(groupBy);
 
   if (configPath !== DEFAULT_INPUTS.configPath) {
     githubHelper.logWarning(
@@ -60,6 +60,7 @@ export function getActionInputs(): ActionInputs {
     tscannerVersion,
     devMode,
     groupBy,
+    continueOnError,
     mode,
     ...(mode === ScanMode.Branch && { targetBranch: targetBranch || DEFAULT_INPUTS.targetBranch }),
   };

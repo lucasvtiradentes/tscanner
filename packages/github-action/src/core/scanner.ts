@@ -86,7 +86,7 @@ export async function scanChangedFiles(
 
   const executor: CliExecutor = devMode ? createDevModeExecutor() : createProdModeExecutor(tscannerVersion);
 
-  const argsFile = ['check', '--json', '--exit-zero', ...(targetBranch ? ['--branch', targetBranch] : [])];
+  const argsFile = ['check', '--json', '--continue-on-error', ...(targetBranch ? ['--branch', targetBranch] : [])];
   const argsRule = [...argsFile, '--by-rule'];
 
   const [scanOutputFile, scanOutputRule] = await Promise.all([executor.execute(argsFile), executor.execute(argsRule)]);

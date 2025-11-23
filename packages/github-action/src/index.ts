@@ -52,7 +52,7 @@ async function run() {
       });
     }
 
-    if (scanResults.totalErrors > 0) {
+    if (scanResults.totalErrors > 0 && !inputs.continueOnError) {
       githubHelper.setFailed(`Found ${scanResults.totalErrors} error(s)`);
     } else {
       githubHelper.logInfo('No errors found');

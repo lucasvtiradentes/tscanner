@@ -62,8 +62,8 @@ enum Commands {
         )]
         rule: Option<String>,
 
-        #[arg(long, help = "Always exit with code 0, never fail on errors")]
-        exit_zero: bool,
+        #[arg(long, help = "Continue execution even when errors are found")]
+        continue_on_error: bool,
     },
 
     #[command(about = "List all available rules and their metadata")]
@@ -94,7 +94,7 @@ fn main() -> Result<()> {
             branch,
             file,
             rule,
-            exit_zero,
+            continue_on_error,
         }) => {
             let group_mode = if by_rule {
                 GroupMode::Rule
@@ -102,7 +102,15 @@ fn main() -> Result<()> {
                 GroupMode::File
             };
             cmd_check(
-                &path, no_cache, group_mode, json, pretty, branch, file, rule, exit_zero,
+                &path,
+                no_cache,
+                group_mode,
+                json,
+                pretty,
+                branch,
+                file,
+                rule,
+                continue_on_error,
             )
         }
         Some(Commands::Rules { path }) => cmd_rules(&path),

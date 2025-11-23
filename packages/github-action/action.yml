@@ -33,6 +33,10 @@ inputs:
     description: 'Group issues by "rule" or "file"'
     required: false
     default: 'file'
+  continue-on-error:
+    description: 'Continue execution even when errors are found'
+    required: false
+    default: 'false'
 
 runs:
   using: 'node20'
