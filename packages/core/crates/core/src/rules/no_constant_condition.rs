@@ -21,7 +21,7 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Constant Condition",
         description: "Disallows constant expressions in conditions (if/while/for/ternary). Likely a programming error.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Error,
+        default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::BugPrevention,
     }

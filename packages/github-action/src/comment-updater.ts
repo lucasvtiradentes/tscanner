@@ -73,7 +73,7 @@ function buildCommentBody(
   prNumber: number,
 ): string {
   const timestamp = formatTimestamp(timezone);
-  const { totalIssues, totalErrors, totalWarnings, ruleGroups } = result;
+  const { totalIssues, totalErrors, totalWarnings, totalFiles, totalRules, ruleGroups } = result;
 
   if (totalIssues === 0) {
     return `<!-- tscanner-pr-comment -->
@@ -86,18 +86,12 @@ All changed files passed validation!
 **Last commit analyzed:** \`${commitSha}\``;
   }
 
-  const errorIcon = totalErrors > 0 ? '✗' : '';
-  const warningIcon = totalWarnings > 0 ? '⚠' : '';
-  const statusIcon = totalErrors > 0 ? '✗' : '⚠';
-
-  const errorText = totalErrors > 0 ? `${errorIcon} ${totalErrors} ${pluralize(totalErrors, 'error')}` : '';
-  const warningText = totalWarnings > 0 ? `${warningIcon} ${totalWarnings} ${pluralize(totalWarnings, 'warning')}` : '';
-  const summaryParts = [errorText, warningText].filter((s) => s);
-
   let comment = `<!-- tscanner-pr-comment -->
-## ${statusIcon} tscanner - ${totalIssues} ${pluralize(totalIssues, 'Issue')} Found
+## tscanner - Issues Found
 
-**Summary:** ${summaryParts.join(' ')}
+**Issues:** ${totalIssues} (${totalErrors} ${pluralize(totalErrors, 'error')}, ${totalWarnings} ${pluralize(totalWarnings, 'warning')})
+**Files:** ${totalFiles}
+**Rules:** ${totalRules}
 
 ---
 

@@ -22,7 +22,7 @@ inventory::submit!(RuleMetadataRegistration {
         description:
             "Detects function parameters without type annotations that implicitly have 'any' type.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Error,
+        default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::TypeSafety,
     }

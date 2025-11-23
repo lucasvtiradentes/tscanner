@@ -21,7 +21,7 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Any Type",
         description: "Detects usage of TypeScript 'any' type (`: any` and `as any`). Using 'any' defeats the purpose of TypeScript's type system.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Error,
+        default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::TypeSafety,
     }

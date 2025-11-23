@@ -21,7 +21,7 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Unreachable Code",
         description: "Detects code after return, throw, break, or continue statements. This code will never execute.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Error,
+        default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::BugPrevention,
     }

@@ -110,7 +110,7 @@ pub struct CompiledRuleConfig {
 }
 
 fn default_severity() -> Severity {
-    Severity::Error
+    Severity::Warning
 }
 
 fn default_include() -> Vec<String> {

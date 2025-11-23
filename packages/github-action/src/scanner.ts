@@ -5,6 +5,8 @@ export type ScanResult = {
   totalIssues: number;
   totalErrors: number;
   totalWarnings: number;
+  totalFiles: number;
+  totalRules: number;
   ruleGroups: RuleGroup[];
 };
 
@@ -115,7 +117,7 @@ export async function scanChangedFiles(
 
   if (!scanData.rules || scanData.rules.length === 0) {
     core.info('No issues found');
-    return { totalIssues: 0, totalErrors: 0, totalWarnings: 0, ruleGroups: [] };
+    return { totalIssues: 0, totalErrors: 0, totalWarnings: 0, totalFiles: 0, totalRules: 0, ruleGroups: [] };
   }
 
   core.info('');
@@ -171,6 +173,8 @@ export async function scanChangedFiles(
     totalIssues: scanData.summary.total_issues,
     totalErrors: scanData.summary.errors,
     totalWarnings: scanData.summary.warnings,
+    totalFiles: scanData.summary.total_files,
+    totalRules: ruleGroups.length,
     ruleGroups,
   };
 }
