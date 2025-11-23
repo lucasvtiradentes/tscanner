@@ -61,13 +61,18 @@ function buildGroupedByRuleView(ruleGroups: RuleGroup[], owner: string, repo: st
     output += `<details>\n<summary>${summary}</summary>\n<br />\n\n`;
 
     for (const file of group.files) {
+      const fileIssueCount = file.issues.length;
+      output += `<strong>${file.filePath}</strong> - ${fileIssueCount} ${pluralize(fileIssueCount, 'issue')}\n\n`;
+
       for (const issue of file.issues) {
         const fileUrl = buildPrFileUrl(owner, repo, prNumber, file.filePath, issue.line);
-        output += `- <a href="${fileUrl}">${file.filePath}:${issue.line}</a> - <code>${issue.lineText.trim()}</code>\n`;
+        output += `- <a href="${fileUrl}">${issue.line}:${issue.column}</a> - <code>${issue.lineText.trim()}</code>\n`;
       }
+
+      output += '\n';
     }
 
-    output += '\n</details>\n\n';
+    output += '</details>\n\n';
   }
 
   return output;
@@ -103,8 +108,8 @@ All changed files passed validation!
 
 `;
 
-  const groupedByFile = buildGroupedByFileView(result, owner, repo, prNumber);
   const groupedByRule = buildGroupedByRuleView(ruleGroupsByRule, owner, repo, prNumber);
+  const groupedByFile = buildGroupedByFileView(result, owner, repo, prNumber);
 
   comment += `<div align="center">\n\n<details>\n<summary><strong>📋 Issues grouped by rule (${totalRules})</strong></summary>\n<br />\n\n<div align="left">\n${groupedByRule}\n</div></details>\n\n</div>\n\n---\n\n`;
   comment += `<div align="center">\n\n<details>\n<summary><strong>📁 Issues grouped by file (${totalFiles})</strong></summary>\n<br />\n\n<div align="left">\n${groupedByFile}\n</div></details>\n\n</div>\n\n`;
