@@ -26,6 +26,9 @@ jobs:
   tscanner_pr_check:
     name: 'tscanner PR Check'
     runs-on: ubuntu-latest
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -33,8 +36,8 @@ jobs:
 
       - uses: ./.github/actions/setup-and-install
 
-      - name: Build CLI wrapper
-        run: pnpm --filter tscanner run build
+      - name: Build project
+        run: pnpm run build
 
       - uses: ./packages/github-action
         with:
