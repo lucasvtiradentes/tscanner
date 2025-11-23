@@ -63,12 +63,20 @@ export async function scanChangedFiles(
   if (devMode) {
     const workspaceRoot = process.env.GITHUB_WORKSPACE || process.cwd();
     command = 'node';
-    args = [`${workspaceRoot}/packages/cli/dist/main.js`, 'check', '--json', '--by-rule', '--branch', targetBranch];
+    args = [
+      `${workspaceRoot}/packages/cli/dist/main.js`,
+      'check',
+      '--json',
+      '--by-rule',
+      '--branch',
+      targetBranch,
+      '--exit-zero',
+    ];
     core.info(`Using local CLI: ${workspaceRoot}/packages/cli/dist/main.js`);
   } else {
     const packageSpec = `tscanner@${tscannerVersion}`;
     command = 'npx';
-    args = [packageSpec, 'check', '--json', '--by-rule', '--branch', targetBranch];
+    args = [packageSpec, 'check', '--json', '--by-rule', '--branch', targetBranch, '--exit-zero'];
     core.info(`Using published tscanner from npm: ${packageSpec}`);
   }
 
@@ -84,7 +92,7 @@ export async function scanChangedFiles(
     ignoreReturnCode: true,
   });
 
-  if (scanError && !scanError.includes('Scanning')) {
+  if (scanError && !scanError.includes('Scanning') && !scanError.includes('Comparing')) {
     core.warning(`Scan stderr: ${scanError}`);
   }
 
@@ -92,9 +100,12 @@ export async function scanChangedFiles(
   try {
     scanData = JSON.parse(scanOutput);
   } catch {
-    core.error(`Failed to parse scan output: ${scanOutput}`);
+    core.error('Failed to parse scan output');
+    core.debug(`Raw output: ${scanOutput.substring(0, 500)}`);
     throw new Error('Invalid scan output format');
   }
+
+  core.info(`Scan completed: ${scanData.summary?.total_issues || 0} issues found`);
 
   if (!scanData.rules) {
     core.info('No issues found');
