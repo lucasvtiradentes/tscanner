@@ -1,19 +1,30 @@
-# tscanner GitHub Action
+<a name="TOC"></a>
 
-GitHub Action that scans PR changes for code quality issues and posts results as PR comments.
+<div align="center">
+<h3>Tscanner GitHub Action</h3>
+<p>
+  🔍 Code quality scanner for the AI-generated code era
+  <br><br>
+  <a href="#-features">Features</a> • <a href="#-usage">Usage</a> • <a href="#-inputs">Inputs</a> • <a href="#-development">Development</a>
+</p>
+</div>
 
-## Features
+---
 
-- Scans only changed files in PRs
-- Groups issues by rule type
-- Collapsible details for each rule
-- Updates existing comments instead of creating duplicates
-- Timezone-aware timestamps
-- Fails workflow if errors are found
+## 🌟 Features
 
-## Usage
+- **Two scan modes:** codebase (all files) or branch (changed files only)
+- **Dual grouping:** Issues grouped by rule AND by file in collapsible sections
+- **Smart PR comments:** Creates/updates single comment instead of spam
+- **Direct file links:** Jump to exact line in PR files view
+- **Flexible workflow control:** Continue or fail on errors
 
-### Basic
+## 🚀 Usage
+
+### Codebase Mode
+
+- Scans entire workspace
+- Use when no `target-branch` specified
 
 ```yaml
 - uses: lucasvtiradentes/tscanner/.github/action@main
@@ -21,7 +32,29 @@ GitHub Action that scans PR changes for code quality issues and posts results as
     github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-### Advanced
+### Branch Mode (Changed Files Only)
+
+- Scans only changed files vs target branch
+- Enabled automatically when `target-branch` is provided
+- Requires pull_request event
+
+```yaml
+- uses: lucasvtiradentes/tscanner/.github/action@main
+  with:
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+    target-branch: 'origin/develop'
+```
+
+### Continue on Errors
+
+```yaml
+- uses: lucasvtiradentes/tscanner/.github/action@main
+  with:
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+    continue-on-error: 'true'
+```
+
+### Full Configuration
 
 ```yaml
 - uses: lucasvtiradentes/tscanner/.github/action@main
@@ -29,28 +62,20 @@ GitHub Action that scans PR changes for code quality issues and posts results as
     github-token: ${{ secrets.GITHUB_TOKEN }}
     target-branch: 'origin/develop'
     timezone: 'America/Sao_Paulo'
-    config-path: '.tscanner/rules.json'
+    config-path: '.tscanner'
+    tscanner-version: 'latest'
+    continue-on-error: 'false'
+    group-by: 'rule'
 ```
 
-## Inputs
+## 📋 Inputs
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
 | `github-token` | Yes | - | GitHub token for posting comments |
-| `target-branch` | No | `origin/main` | Target branch to compare against |
+| `target-branch` | No | - | Target branch to compare (enables branch mode) |
 | `timezone` | No | `UTC` | Timezone for timestamps |
-| `config-path` | No | `.tscanner/rules.json` | Path to tscanner config |
-
-## Development
-
-```bash
-cd packages/github-action
-pnpm install
-pnpm build
-```
-
-The action uses `@vercel/ncc` to compile everything into a single `dist/index.js` file.
-
-## Publishing
-
-The `dist/` folder must be committed for GitHub Actions to work. Run `pnpm build` before committing.
+| `config-path` | No | `.tscanner` | Path to tscanner config directory |
+| `tscanner-version` | No | `latest` | NPM version of tscanner CLI |
+| `group-by` | No | `file` | Grouping mode: `file` or `rule` |
+| `continue-on-error` | No | `false` | Continue workflow even if errors found |
