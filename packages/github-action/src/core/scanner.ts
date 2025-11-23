@@ -76,17 +76,18 @@ type CliJsonOutputByFile = {
 };
 
 export async function scanChangedFiles(
-  targetBranch: string,
+  targetBranch: string | undefined,
   devMode: boolean,
   tscannerVersion: string,
   groupBy: GroupMode,
 ): Promise<ScanResult> {
-  githubHelper.logInfo(`Scanning changed files vs ${targetBranch} (dev mode: ${devMode}, group by: ${groupBy})`);
+  const scanMode = targetBranch ? `changed files vs ${targetBranch}` : 'entire codebase';
+  githubHelper.logInfo(`Scanning ${scanMode} (dev mode: ${devMode}, group by: ${groupBy})`);
 
   const executor: CliExecutor = devMode ? createDevModeExecutor() : createProdModeExecutor(tscannerVersion);
 
-  const argsFile = ['check', '--json', '--branch', targetBranch, '--exit-zero'];
-  const argsRule = ['check', '--json', '--branch', targetBranch, '--by-rule', '--exit-zero'];
+  const argsFile = ['check', '--json', '--exit-zero', ...(targetBranch ? ['--branch', targetBranch] : [])];
+  const argsRule = [...argsFile, '--by-rule'];
 
   const [scanOutputFile, scanOutputRule] = await Promise.all([executor.execute(argsFile), executor.execute(argsRule)]);
 

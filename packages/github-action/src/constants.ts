@@ -5,6 +5,11 @@ export enum GroupMode {
   File = 'file',
 }
 
+export enum ScanMode {
+  Codebase = 'codebase',
+  Branch = 'branch',
+}
+
 export enum Severity {
   Error = 'error',
   Warning = 'warning',
