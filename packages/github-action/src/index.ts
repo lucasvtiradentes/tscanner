@@ -52,8 +52,9 @@ async function run() {
       });
     }
 
-    if (scanResults.totalErrors > 0 && !inputs.continueOnError) {
-      githubHelper.setFailed(`Found ${scanResults.totalErrors} error(s)`);
+    if (scanResults.totalErrors > 0) {
+      const loggerMethod = inputs.continueOnError ? githubHelper.setFailed : githubHelper.logInfo;
+      loggerMethod(`Found ${scanResults.totalErrors} error(s)`);
     } else {
       githubHelper.logInfo('No errors found');
     }
