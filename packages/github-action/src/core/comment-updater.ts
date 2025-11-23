@@ -17,35 +17,49 @@ export type CommentUpdateParams = {
 };
 
 function buildGroupedByFileView(result: ScanResult, owner: string, repo: string, prNumber: number): string {
-  const fileMap = new Map<string, Array<{ line: number; column: number; lineText: string; ruleName: string }>>();
+  const fileMap = new Map<string, Map<string, Array<{ line: number; column: number; lineText: string }>>>();
 
   for (const group of result.ruleGroups) {
     for (const file of group.files) {
       if (!fileMap.has(file.filePath)) {
-        fileMap.set(file.filePath, []);
+        fileMap.set(file.filePath, new Map());
       }
+      const ruleMap = fileMap.get(file.filePath)!;
+
+      const ruleName = file.issues[0]?.ruleName || group.ruleName;
+      if (!ruleMap.has(ruleName)) {
+        ruleMap.set(ruleName, []);
+      }
+
       for (const issue of file.issues) {
-        fileMap.get(file.filePath)!.push({
+        ruleMap.get(ruleName)!.push({
           line: issue.line,
           column: issue.column,
           lineText: issue.lineText,
-          ruleName: issue.ruleName || group.ruleName,
         });
       }
     }
   }
 
   let output = '';
-  for (const [filePath, issues] of fileMap) {
-    const summary = `<strong>${filePath}</strong> - ${issues.length} ${pluralize(issues.length, 'issue')}`;
+  for (const [filePath, ruleMap] of fileMap) {
+    const totalIssues = Array.from(ruleMap.values()).reduce((sum, issues) => sum + issues.length, 0);
+    const ruleCount = ruleMap.size;
+    const summary = `<strong>${filePath}</strong> - ${totalIssues} ${pluralize(totalIssues, 'issue')} - ${ruleCount} ${pluralize(ruleCount, 'rule')}`;
     output += `<details>\n<summary>${summary}</summary>\n<br />\n\n`;
 
-    for (const issue of issues) {
-      const fileUrl = buildPrFileUrl(owner, repo, prNumber, filePath, issue.line);
-      output += `- [Line ${issue.line}:${issue.column}](${fileUrl}) - **${issue.ruleName}** - \`${issue.lineText.trim()}\`\n`;
+    for (const [ruleName, issues] of ruleMap) {
+      output += `<strong>${ruleName}</strong> - ${issues.length} ${pluralize(issues.length, 'issue')}\n\n`;
+
+      for (const issue of issues) {
+        const fileUrl = buildPrFileUrl(owner, repo, prNumber, filePath, issue.line);
+        output += `- <a href="${fileUrl}">${issue.line}:${issue.column}</a> - <code>${issue.lineText.trim()}</code>\n`;
+      }
+
+      output += '\n';
     }
 
-    output += '\n</details>\n\n';
+    output += '</details>\n\n';
   }
 
   return output;
@@ -101,8 +115,9 @@ All changed files passed validation!
 **Last commit analyzed:** \`${commitSha}\``;
   }
 
+  const icon = totalErrors > 0 ? '❌' : '⚠️';
   let comment = `${COMMENT_MARKER}
-## Tscanner - ${totalIssues} Issues Found (${totalErrors} ${pluralize(totalErrors, 'error')}, ${totalWarnings} ${pluralize(totalWarnings, 'warning')})
+## ${icon} Tscanner - ${totalIssues} Issues Found (${totalErrors} ${pluralize(totalErrors, 'error')}, ${totalWarnings} ${pluralize(totalWarnings, 'warning')})
 
 ---
 
