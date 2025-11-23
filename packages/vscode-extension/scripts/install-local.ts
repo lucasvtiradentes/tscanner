@@ -35,12 +35,6 @@ async function main() {
   await patchExtensionCode();
   await writePackageJson();
   await copyMetaFiles();
-
-  if (process.env.TURBO_HASH) {
-    logger.log('Skipping VSCode extensions copy (Turborepo cache hit)');
-    return;
-  }
-
   await copyToVSCodeExtensions();
   await printSuccessMessage();
 }

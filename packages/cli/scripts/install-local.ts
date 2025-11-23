@@ -14,11 +14,6 @@ async function main() {
     process.exit(0);
   }
 
-  if (process.env.TURBO_HASH) {
-    logger.log('Skipping local installation (Turborepo cache hit)');
-    process.exit(0);
-  }
-
   await copyBinary();
   await printSuccessMessage();
 }
