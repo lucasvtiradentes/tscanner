@@ -1,5 +1,5 @@
-import * as core from '@actions/core';
 import { createHash } from 'node:crypto';
+import * as core from '@actions/core';
 import type { GitHub } from '@actions/github/lib/utils';
 import type { ScanResult } from './scanner';
 
@@ -184,8 +184,8 @@ All changed files passed validation!
   const groupedByFile = buildGroupedByFileView(result, owner, repo, prNumber);
   const groupedByRule = buildGroupedByRuleView(result, owner, repo, prNumber);
 
-  comment += `<details>\n<summary><strong>📁 Issues grouped by file</strong></summary>\n\n${groupedByFile}\n</details>\n\n`;
-  comment += `<details>\n<summary><strong>📋 Issues grouped by rule</strong></summary>\n\n${groupedByRule}\n</details>\n\n`;
+  comment += `<div align="center">\n\n<details>\n<summary><strong>📁 Issues grouped by file</strong></summary>\n\n<br /><div align="left">${groupedByFile}\n</div></details>\n\n</div>\n\n---\n\n`;
+  comment += `<div align="center">\n\n<details>\n<summary><strong>📋 Issues grouped by rule</strong></summary>\n\n<br /><div align="left">${groupedByRule}\n</div></details>\n\n</div>\n\n`;
 
   const commitInfo = commitMessage ? `\`${commitSha}\` - ${commitMessage}` : `\`${commitSha}\``;
 
