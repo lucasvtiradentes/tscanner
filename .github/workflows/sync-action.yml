@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+env:
+  TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+  TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+
 jobs:
   sync:
     name: Sync to tscanner-action
@@ -18,7 +22,7 @@ jobs:
       - uses: ./.github/actions/setup-and-install
 
       - name: Build project
-        run: pnpm run build
+        run: pnpm turbo run build --filter=tscanner-github-action
 
       - name: Clone standalone repository
         env:
