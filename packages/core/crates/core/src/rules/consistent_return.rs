@@ -112,11 +112,7 @@ impl Visit for ReturnCollector {
         n.visit_children_with(self);
     }
 
-    fn visit_function(&mut self, n: &Function) {
-        n.visit_children_with(self);
-    }
+    fn visit_function(&mut self, _n: &Function) {}
 
-    fn visit_arrow_expr(&mut self, n: &ArrowExpr) {
-        n.visit_children_with(self);
-    }
+    fn visit_arrow_expr(&mut self, _n: &ArrowExpr) {}
 }
