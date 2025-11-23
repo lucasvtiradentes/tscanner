@@ -58,7 +58,7 @@ function buildGroupedByRuleView(ruleGroups: RuleGroup[], owner: string, repo: st
     const icon = group.severity === Severity.Error ? '✗' : '⚠';
     const summary = `${icon} <strong>${group.ruleName}</strong> - ${group.issueCount} ${pluralize(group.issueCount, 'issue')} - ${group.fileCount} ${pluralize(group.fileCount, 'file')}`;
 
-    output += `<details>\n<summary>${summary}</summary>\n\n<br/>\n`;
+    output += `<details>\n<summary>${summary}</summary>\n<br />\n\n`;
 
     for (const file of group.files) {
       for (const issue of file.issues) {
@@ -106,8 +106,8 @@ All changed files passed validation!
   const groupedByFile = buildGroupedByFileView(result, owner, repo, prNumber);
   const groupedByRule = buildGroupedByRuleView(ruleGroupsByRule, owner, repo, prNumber);
 
-  comment += `<div align="center">\n\n<details>\n<summary><strong>📋 Issues grouped by rule (${totalRules})</strong></summary>\n<br />\n\n<div align="left">${groupedByRule}\n</div></details>\n\n</div>\n\n---\n\n`;
-  comment += `<div align="center">\n\n<details>\n<summary><strong>📁 Issues grouped by file (${totalFiles})</strong></summary>\n<br />\n\n<div align="left">${groupedByFile}\n</div></details>\n\n</div>\n\n`;
+  comment += `<div align="center">\n\n<details>\n<summary><strong>📋 Issues grouped by rule (${totalRules})</strong></summary>\n<br />\n\n<div align="left">\n${groupedByRule}\n</div></details>\n\n</div>\n\n---\n\n`;
+  comment += `<div align="center">\n\n<details>\n<summary><strong>📁 Issues grouped by file (${totalFiles})</strong></summary>\n<br />\n\n<div align="left">\n${groupedByFile}\n</div></details>\n\n</div>\n\n`;
 
   const commitInfo = commitMessage ? `\`${commitSha}\` - ${commitMessage}` : `\`${commitSha}\``;
 
