@@ -9,7 +9,7 @@ log "Starting CLI packages publish process..."
 log "============================================"
 
 log "Publishing npm packages via changesets..."
-changeset publish
+pnpm exec changeset publish
 
 log "npm packages published!"
 log "CLI publish process completed!"
