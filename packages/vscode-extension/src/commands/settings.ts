@@ -107,7 +107,7 @@ async function openProjectTscannerConfigs(context: vscode.ExtensionContext) {
     return;
   }
 
-  logger.debug('Local config not found, trying global config');
+  logger.info('Local config not found, trying global config');
 
   const globalConfigPath = getGlobalConfigPath(context, workspaceFolder.uri.fsPath);
   try {
