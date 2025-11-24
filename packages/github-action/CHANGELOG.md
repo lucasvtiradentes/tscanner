@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.5
+
+### Patch Changes
+
+- 3d460bf: fix gh action
+
 ## 0.0.4
 
 ### Patch Changes

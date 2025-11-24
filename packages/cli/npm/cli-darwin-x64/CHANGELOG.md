@@ -1,5 +1,11 @@
 # @tscanner/cli-darwin-x64
 
+## 0.0.8
+
+### Patch Changes
+
+- 3d460bf: fix gh action
+
 ## 0.0.7
 
 ### Patch Changes
