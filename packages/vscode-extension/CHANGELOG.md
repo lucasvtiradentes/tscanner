@@ -1,5 +1,11 @@
 # tscanner-vscode
 
+## 0.0.7
+
+### Patch Changes
+
+- 175858f: fix error
+
 ## 0.0.6
 
 ### Patch Changes
