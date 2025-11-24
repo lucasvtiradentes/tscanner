@@ -10,8 +10,7 @@
     "lint": "biome check src",
     "lint:fix": "biome check --fix --unsafe src",
     "format": "biome format --write src",
-    "typecheck": "tsc --noEmit",
-    "postversion": "tsx scripts/postversion.ts"
+    "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",

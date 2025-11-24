@@ -149,8 +149,15 @@ jobs:
         if: needs.push_to_main_ci.outputs.should_release == 'true'
         run: |
           echo "📦 Generating scoped @tscanner packages..."
-          pnpm --filter tscanner run script:fix-packages 
+          pnpm --filter tscanner run script:fix-packages
           echo "✅ Scoped packages generated"
+
+      - name: Update GitHub Action README before versioning
+        if: needs.push_to_main_ci.outputs.should_release == 'true'
+        run: |
+          echo "📝 Updating GitHub Action README with new version..."
+          tsx scripts/pre-changesets-github-action.ts
+          echo "✅ README updated"
 
       - name: Create Release Pull Request or Publish
         id: changesets
