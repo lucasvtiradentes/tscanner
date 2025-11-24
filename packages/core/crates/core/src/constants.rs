@@ -5,7 +5,7 @@ pub const APP_DISPLAY_NAME: &str = "T Scanner";
 pub const APP_DESCRIPTION: &str = "High-performance TypeScript/TSX code quality scanner";
 
 pub const CONFIG_DIR_NAME: &str = ".tscanner";
-pub const CONFIG_FILE_NAME: &str = "rules.json";
+pub const CONFIG_FILE_NAME: &str = "config.jsonc";
 
 pub const EXTENSION_PUBLISHER: &str = "lucasvtiradentes";
 pub const EXTENSION_NAME: &str = "tscanner-vscode";

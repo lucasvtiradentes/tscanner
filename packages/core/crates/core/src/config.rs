@@ -129,7 +129,8 @@ fn default_exclude() -> Vec<String> {
 impl TscannerConfig {
     pub fn load_from_file(path: &Path) -> Result<Self, Box<dyn std::error::Error>> {
         let content = std::fs::read_to_string(path)?;
-        let config: Self = serde_json::from_str(&content)?;
+        let json_without_comments = json_comments::StripComments::new(content.as_bytes());
+        let config: Self = serde_json::from_reader(json_without_comments)?;
         config.validate()?;
         Ok(config)
     }
@@ -209,7 +210,10 @@ impl TscannerConfig {
     }
 
     pub fn load_from_workspace(workspace: &Path) -> Result<Self, Box<dyn std::error::Error>> {
-        let config_path = workspace.join(".tscanner/rules.json");
+        use crate::constants::{CONFIG_DIR_NAME, CONFIG_FILE_NAME};
+
+        let config_path = workspace.join(CONFIG_DIR_NAME).join(CONFIG_FILE_NAME);
+
         if config_path.exists() {
             Self::load_from_file(&config_path)
         } else {

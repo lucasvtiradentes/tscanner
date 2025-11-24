@@ -1,13 +1,20 @@
 <svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="greenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#0D4D0D;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4CAF50;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
   <!-- Shield outline -->
   <path d="M 64 11 L 110 21 L 110 62 Q 110 95 64 117 Q 18 95 18 62 L 18 21 Z"
-        stroke="currentColor"
+        stroke="url(#greenGrad)"
         stroke-width="8"
         fill="none"/>
 
   <!-- Checkmark inside shield -->
   <path d="M 40 64 L 56 78 L 88 48"
-        stroke="currentColor"
+        stroke="url(#greenGrad)"
         stroke-width="6"
         stroke-linecap="round"
         stroke-linejoin="round"

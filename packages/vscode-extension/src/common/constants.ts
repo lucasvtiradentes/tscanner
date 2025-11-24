@@ -1,4 +1,6 @@
 import {
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
   CONTEXT_PREFIX,
   DEV_SUFFIX,
   EXTENSION_DISPLAY_NAME,
@@ -8,6 +10,8 @@ import {
   addDevLabel,
   buildLogFilename,
 } from './scripts-constants';
+
+export { CONFIG_DIR_NAME, CONFIG_FILE_NAME };
 
 declare const __IS_DEV_BUILD__: boolean;
 const IS_DEV = typeof __IS_DEV_BUILD__ !== 'undefined' && __IS_DEV_BUILD__;

@@ -4,11 +4,14 @@ import { type ActionInputs, getActionInputs } from './core/input-validator';
 import { type ScanOptions, type ScanResult, scanChangedFiles } from './core/scanner';
 import { type Octokit, githubHelper } from './lib/actions-helper';
 import { gitHelper } from './lib/git-helper';
+import { validateConfigFiles } from './utils/config-validator';
 
 class ActionRunner {
   async run() {
     try {
       const inputs = getActionInputs();
+
+      validateConfigFiles(inputs.configPath);
 
       if (inputs.mode === ScanMode.Branch) {
         const prInfo = githubHelper.getContext().payload.pull_request;

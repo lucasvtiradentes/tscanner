@@ -203,7 +203,7 @@ export function createManageRulesCommand(updateStatusBar: () => Promise<void>, c
 
       if (isUserManaged) {
         await saveLocalConfig(workspacePath, config);
-        logger.info('Updated user-managed local .tscanner/rules.json');
+        logger.info('Updated user-managed local .tscanner config');
       } else {
         const locationChoice = await vscode.window.showQuickPick(
           [
@@ -216,7 +216,7 @@ export function createManageRulesCommand(updateStatusBar: () => Promise<void>, c
             {
               label: '$(file) Project Folder',
               description: 'Local to this project only',
-              detail: 'Creates .tscanner/rules.json in project (can be committed to git)',
+              detail: 'Creates .tscanner/config.jsonc in project (can be committed to git)',
               value: 'local',
             },
           ],
@@ -239,8 +239,8 @@ export function createManageRulesCommand(updateStatusBar: () => Promise<void>, c
           showToastMessage(ToastKind.Info, 'Rules saved to extension storage');
         } else {
           await saveLocalConfig(workspacePath, config);
-          logger.info('Saved to local .tscanner/rules.json (user-managed)');
-          showToastMessage(ToastKind.Info, 'Rules saved to .tscanner/rules.json');
+          logger.info('Saved to local .tscanner config (user-managed)');
+          showToastMessage(ToastKind.Info, 'Rules saved to .tscanner config');
         }
       }
 

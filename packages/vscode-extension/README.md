@@ -1,12 +1,14 @@
 <a name="TOC"></a>
 
 <div align="center">
-<img width="128" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/packages/vscode-extension/resources/icon.png" alt="tscanner Extension logo">
-<h4>tscanner - VS Code Extension</h4>
+<img width="128" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/logo.png" alt="tscanner Extension logo">
+<h4>Tscanner - VS Code Extension</h4>
 <p>
+  <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/visual-studio-marketplace/v/lucasvtiradentes.tscanner-vscode.svg" alt="vscode version"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/visual-studio-marketplace/i/lucasvtiradentes.tscanner-vscode.svg" alt="installs"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
   <br>
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-usage">Usage</a> • <a href="#-architecture">Architecture</a> • <a href="#-development">Development</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> • <a href="#-architecture">Architecture</a> • <a href="#-license">License</a>
 </p>
 
 </div>
@@ -15,545 +17,179 @@
 
 ## 🎺 Overview
 
-VSCode extension for validating code patterns, detecting anti-patterns, and enforcing project conventions in TypeScript/TSX. Provides real-time feedback with tree/list views, Git-based incremental scanning, and customizable rule management for architectural validation.
+Real-time TypeScript code quality scanner with sidebar integration and Git-aware scanning. Catch issues as you type with instant visual feedback.
 
-<a name="TOC"></a>
+<img src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/vscode-demo.png" alt="VS Code Extension Screenshot" width="100%">
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
 
-**View Modes**
-- **Tree View** - Hierarchical folder structure with expandable nodes
-- **List View** - Flat file listing for quick navigation
-- **Group by Rule** - Organize issues by rule type instead of file
-- **Badge Count** - Activity bar shows total issue count
+- **Real-time Scanning** - File system watching detects changes instantly
+- **Multiple scanning modes** - Scan full codebase or only branch changes
+- **Flexible Views** - Tree/list layouts with file or rule grouping
+- **Quick Navigation** - F8/Shift+F8 keyboard shortcuts to jump between issues
+- **Settings Menu** - Interactive rule management and configuration
+- **Status Bar Integration** - See useful info at a glance
+- **23+ Built-in Rules** - AST-based validation for TypeScript/TSX
+- **Custom Rules** - Regex patterns, JavaScript scripts, or AI-powered validation
 
-**Scan Modes**
-- **Workspace Mode** - Scan all TypeScript/TSX files in workspace
-- **Branch Mode** - Scan only changed files vs target branch (git diff)
-  - Line-level filtering: Show only issues in modified lines
-  - Auto-refresh on file changes
-  - Configurable target branch (main, develop, etc.)
+## 🚀 Installation<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
 
-**Navigation**
-- **Click to Jump** - Click any issue to open file at exact location
-- **Keyboard Navigation** - F8/Shift+F8 to cycle through issues
-- **Context Menus** - Copy file paths (absolute/relative)
-- **Status Bar** - Shows current scan mode and target branch
+**From VS Code Marketplace:**
 
-**Pattern & Convention Management**
-- **Interactive UI** - Multi-select categorized rule picker
-- **23 Built-in Rules** - Pattern validators and anti-pattern detectors across 6 categories
-- **Custom Regex Patterns** - Define project-specific validation patterns
-- **Convention Enforcement** - Import styles, naming patterns, architectural rules
-- **Global vs Local Config** - Workspace-specific or global defaults
-- **Live Validation** - Config errors shown immediately
+1. Open VS Code
+2. Go to Extensions (Ctrl/Cmd + Shift + X)
+3. Search for "tscanner"
+4. Click Install
 
-**Performance**
-- **Incremental Updates** - File watcher re-scans only changed files
-- **Smart Caching** - Rust backend caches parsed ASTs
-- **Parallel Processing** - Multi-core file analysis
-- **GZIP Compression** - 80%+ response size reduction
+**From Command Line:**
+
+```bash
+code --install-extension lucasvtiradentes.tscanner-vscode
+```
 
 ## 💡 Usage<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
 
 ### Getting Started
 
-1. Open a TypeScript/TSX workspace in VSCode
-2. Click the tscanner icon in activity bar
-3. Configure rules via settings menu
-4. View issues in sidebar tree
-
-### Commands
-
-**Command Palette (Ctrl/Cmd + Shift + P):**
-- `tscanner: Scan Workspace` - Run full scan
-- `tscanner: Hard Scan` - Clear cache and rescan
-- `tscanner: Open Settings` - Configure scan mode and rules
-- `tscanner: Go to Next Issue` (F8) - Navigate to next issue
-- `tscanner: Go to Previous Issue` (Shift+F8) - Navigate to previous issue
-- `tscanner: Show Logs` - Open extension log file
-
-**Sidebar Toolbar:**
-- **Refresh** - Re-scan workspace
-- **Group by Rule** - Toggle grouping mode
-- **View as Tree/List** - Toggle view mode
-
-### Settings Menu
-
-Access via status bar click or `tscanner: Open Settings` command:
-
-**1. Manage Rules**
-- Multi-select interface with categorized rules
-- Enable/disable built-in rules
-- Add custom regex rules
-- Save to global or local config
-
-**2. Manage Scan Settings**
-- **Codebase** - Scan all files in workspace
-- **Branch** - Scan only changed files vs selected branch
-  - Choose current branch
-  - Select from local/remote branches
-
-**3. Open Project tscanner Configs**
-- Open local `.tscanner/rules.json`
-- Open global config file
-- Create config from template
-
-### View Modes
-
-**List View + Default Grouping:**
-```
-📄 src/index.ts (2 issues)
-  ├─ Line 5: Found ': any' type annotation
-  └─ Line 10: Prefer 'const' over 'let'
-📄 src/utils.ts (1 issue)
-  └─ Line 3: console.log() statement
-```
-
-**Tree View + Default Grouping:**
-```
-📁 src
-  ├─ 📄 index.ts (2 issues)
-  │   ├─ Line 5: Found ': any' type annotation
-  │   └─ Line 10: Prefer 'const' over 'let'
-  └─ 📄 utils.ts (1 issue)
-      └─ Line 3: console.log() statement
-```
-
-**List View + Group by Rule:**
-```
-no-any-type (2 issues)
-  ├─ 📄 src/index.ts:5 - Found ': any' type annotation
-  └─ 📄 src/utils.ts:10 - Found 'as any' type assertion
-prefer-const (1 issue)
-  └─ 📄 src/index.ts:10 - 'x' is never reassigned
-```
-
-**Tree View + Group by Rule:**
-```
-no-any-type (2 issues)
-  └─ 📁 src
-      ├─ 📄 index.ts
-      │   └─ Line 5: Found ': any' type annotation
-      └─ 📄 utils.ts
-          └─ Line 10: Found 'as any' type assertion
-```
+1. Open a TypeScript/TSX workspace in VS Code
+2. Click the tscanner icon in the activity bar
+3. Issues appear automatically in the sidebar
+4. Click any issue to jump to its location
 
 ### Scan Modes
 
-**Workspace Mode:**
-- Scans all `.ts`/`.tsx` files in workspace
-- Respects `.tscanner/rules.json` include/exclude patterns
-- Ideal for full codebase analysis
+Switch between scanning strategies:
 
-**Branch Mode:**
-- Runs `git diff` vs target branch to get changed files
-- Parses diff hunks to extract modified line ranges
-- Scans all files but filters issues to modified lines only
-- Ideal for PR review workflow and LLM code validation
+- **Codebase**: Analyze all files in the codebase
+- **Branch**: Scan only files changed compared to target branch (git diff)
 
-**Example: Branch Mode**
-```bash
-# Behind the scenes:
-git diff main --name-only          # Get changed files
-git diff main -- src/index.ts      # Get line ranges
+Change via Settings Menu or status bar click.
 
-# VSCode extension then:
-1. Scans all changed files
-2. Filters issues to modified lines only
-3. Updates tree view with filtered results
+### View Modes
+
+Organize results with 4 combinations:
+
+```
+List + Default    → Flat files with nested issues
+Tree + Default    → Folder hierarchy with issues
+List + By Rule    → Rules with nested file/issues
+Tree + By Rule    → Rules → folders → files → issues
 ```
 
-### Configuration File
+Toggle via toolbar icons or commands.
 
-Create `.tscanner/rules.json` in workspace root:
+### Commands
+
+Access via Command Palette (Ctrl/Cmd + Shift + P):
+
+| Command | Shortcut | Description |
+|---------|----------|-------------|
+| `tscanner: Scan Workspace` | - | Run the selected scanning mode scan (Codebase or Branch) |
+| `tscanner: Hard Scan` | - | Clear cache and rescan |
+| `tscanner: Refresh` | F5 | Reload current results |
+| `tscanner: Open Settings` | - | Configure rules and modes |
+| `tscanner: Next Issue` | F8 | Jump to next issue |
+| `tscanner: Previous Issue` | Shift+F8 | Jump to previous issue |
+| `tscanner: Show Logs` | - | View extension logs |
+
+
+### Other details 
+
+<details>
+<summary><b>Settings Menu</b></summary>
+
+Interactive configuration panel:
+
+- **Manage Rules**: Multi-select UI for 23+ built-in rules with enable/disable toggles
+- **Scan Settings**: Choose workspace or branch mode, select target branch
+- **Config Files**: Edit `.tscanner/config.jsonc` or create from template
+
+</details>
+
+<details>
+<summary><b>Issue Navigation</b></summary>
+
+Navigate efficiently:
+
+- **Click to Jump**: Click any issue to open file at exact line/column
+- **Keyboard**: F8 (next issue), Shift+F8 (previous issue)
+- **Context Menu**: Right-click for copy path options
+- **Badge Count**: Sidebar shows total issue count
+
+</details>
+
+<details>
+<summary><b>Configuration</b></summary>
+
+Create `.tscanner/config.jsonc` in your workspace root:
 
 ```json
 {
-  "rules": {
+  "builtinRules": {
     "no-any-type": {
       "enabled": true,
-      "type": "ast",
-      "severity": "error",
-      "include": [],
-      "exclude": [],
-      "message": null
+      "severity": "error"
     },
-    "custom-todo": {
+    "no-console-log": {
       "enabled": true,
-      "type": "regex",
-      "severity": "warning",
-      "pattern": "TODO:",
-      "message": "Found TODO comment",
-      "include": ["**/*.ts"],
-      "exclude": []
+      "severity": "warning"
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": [
-    "**/node_modules/**",
-    "**/dist/**",
-    "**/build/**",
-    "**/.git/**"
-  ]
+  "customRules": {
+    "no-todos": {
+      "type": "regex",
+      "pattern": "TODO:|FIXME:",
+      "message": "Remove TODO comments",
+      "severity": "warning"
+    }
+  },
+  "include": ["**/*.{ts,tsx}"],
+  "exclude": ["node_modules/**", "dist/**"]
 }
 ```
 
-**Config Locations:**
-- **Local:** `.tscanner/rules.json` in workspace root (takes precedence)
-- **Global:** `~/.vscode/extensions/.tscanner-config-{workspace-hash}.json`
+**Config locations:**
+- Local: `.tscanner/config.jsonc` (workspace-specific, recommended)
+- Global: Managed via Settings Menu for all workspaces
 
-### Disable Directives
+</details>
 
-Inline comments to disable rules:
+<details>
+<summary><b>Status Bar</b></summary>
 
-```typescript
-// tscanner-disable-file
-// Disables all rules for entire file
+Quick access info:
 
-// tscanner-disable rule1, rule2
-const x: any = 5;  // This line is ignored
+- **Scan Mode**: Shows "Codebase" or "Branch: {name}"
+- **Click**: Opens Settings Menu
+- **Config Status**: Green checkmark if `.tscanner/config.jsonc` exists
 
-// tscanner-disable-line rule1
-const y: any = 5;  // This line is ignored
+</details>
 
-// tscanner-disable-next-line rule1
-const z: any = 5;  // Next line is ignored
-```
+<details>
+<summary><b>Branch Mode</b></summary>
+
+When scanning branch changes:
+
+1. Extension runs `git diff {branch}...HEAD` to detect changed files
+2. Parses hunks to extract modified line ranges
+3. Scans all files but filters issues to modified lines only
+
+Perfect for PR validation - see only issues you introduced.
+
+</details>
 
 ## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
 
-### Source Structure
-
 ```
-src/
-├── extension.ts                          # Extension entry point
-├── commands/
-│   ├── index.ts                          # Command registration
-│   ├── find-issue.ts                     # Main scan logic
-│   ├── scan.ts                           # Refresh & hard scan
-│   ├── view-mode.ts                      # List/tree/group toggles
-│   ├── navigation.ts                     # File opening & path copying
-│   ├── manage-rules.ts                   # Rule configuration UI
-│   ├── settings.ts                       # Settings menu
-│   ├── issue-navigation.ts               # F8/Shift+F8 navigation
-│   └── show-logs.ts                      # Open log file
-├── sidebar/
-│   ├── search-provider.ts                # TreeDataProvider implementation
-│   ├── tree-builder.ts                   # Build folder hierarchy
-│   └── tree-items.ts                     # Tree item classes
-├── common/
-│   ├── types.ts                          # TypeScript interfaces
-│   ├── lib/
-│   │   ├── scanner.ts                    # Rust client orchestrator
-│   │   ├── rust-client.ts                # JSON-RPC client
-│   │   └── config-manager.ts             # Config loading/saving
-│   └── utils/
-│       ├── logger.ts                     # File-based logging
-│       ├── git-helper.ts                 # Git integration
-│       └── issue-comparator.ts           # Filter issues by modified lines
-└── status-bar/
-    └── status-bar-manager.ts             # Status bar display
+Extension (TypeScript)        Rust Server
+├─ JSON-RPC client      ←→    ├─ Scanner (Rayon)
+├─ Tree provider              ├─ Parser (SWC)
+├─ Git helper                 ├─ Rules (23+)
+├─ File watcher               ├─ Cache (DashMap)
+└─ Status bar                 └─ Config loader
 ```
 
-### Extension Lifecycle
-
-**Activation (onStartupFinished):**
-```typescript
-export function activate(context: vscode.ExtensionContext) {
-  // 1. Prevent duplicate activation
-  if (activationKey === currentWorkspace) return;
-
-  // 2. Restore workspace state
-  const viewMode = context.workspaceState.get('tscanner.viewMode', 'list');
-  const groupMode = context.workspaceState.get('tscanner.groupMode', 'default');
-  const scanMode = context.workspaceState.get('tscanner.scanMode', 'workspace');
-  const cachedResults = context.workspaceState.get('tscanner.cachedResults', []);
-
-  // 3. Initialize providers
-  const searchProvider = new SearchResultProvider();
-  searchProvider.setResults(deserializedResults);
-
-  const treeView = vscode.window.createTreeView('tscannerExplorer', {
-    treeDataProvider: searchProvider,
-  });
-
-  // 4. Register commands
-  registerAllCommands({ searchProvider, context, treeView, ... });
-
-  // 5. Setup file watcher
-  const fileWatcher = vscode.workspace.createFileSystemWatcher('**/*.{ts,tsx,js,jsx}');
-  fileWatcher.onDidChange(updateSingleFile);
-  fileWatcher.onDidCreate(updateSingleFile);
-  fileWatcher.onDidDelete(removeSingleFile);
-
-  // 6. Initial scan after 2s
-  setTimeout(() => {
-    vscode.commands.executeCommand('tscanner.findIssue');
-  }, 2000);
-}
-```
-
-**Deactivation:**
-```typescript
-export function deactivate() {
-  dispose(scannerInstance);  // Stop Rust server
-}
-```
-
-### JSON-RPC Client
-
-**RustClient Class:**
-```typescript
-export class RustClient {
-  private process: ChildProcess | null = null;
-  private requestId = 0;
-  private pendingRequests = new Map<number, { resolve, reject }>();
-  private buffer = '';
-
-  async start(): Promise<void> {
-    this.process = spawn(binaryPath, [], {
-      stdio: ['pipe', 'pipe', 'pipe'],
-      env: { RUST_LOG: 'core=warn,server=info' }
-    });
-
-    // Handle stdout (JSON-RPC responses)
-    this.process.stdout.on('data', (data: Buffer) => {
-      this.buffer += data.toString();
-      const lines = this.buffer.split('\n');
-      this.buffer = lines.pop() || '';
-
-      for (const line of lines) {
-        if (line.startsWith('GZIP:')) {
-          // Decompress GZIP + Base64
-          const compressed = Buffer.from(line.substring(5), 'base64');
-          const decompressed = zlib.gunzipSync(compressed);
-          jsonString = decompressed.toString('utf8');
-        }
-
-        const response: RpcResponse = JSON.parse(jsonString);
-        const pending = this.pendingRequests.get(response.id);
-        if (pending) {
-          pending.resolve(response.result);
-        }
-      }
-    });
-  }
-
-  async scan(root: string, fileFilter?: Set<string>, config?: any): Promise<IssueResult[]> {
-    const result: ScanResult = await this.sendRequest('scan', { root, config });
-
-    // Post-process: filter files, add line text
-    return result.files.flatMap(file =>
-      file.issues.map(issue => ({
-        uri: vscode.Uri.file(file.file),
-        rule: issue.rule,
-        line: issue.line,
-        column: issue.column,
-        message: issue.message,
-        severity: issue.severity,
-        lineText: issue.line_text || ''
-      }))
-    );
-  }
-}
-```
-
-### Git Integration
-
-**Changed Files Detection:**
-```typescript
-export async function getChangedFiles(
-  workspaceRoot: string,
-  compareBranch: string
-): Promise<Set<string>> {
-  const gitExtension = vscode.extensions.getExtension('vscode.git');
-  const git = gitExtension?.exports.getAPI(1);
-  const repo = git?.repositories[0];
-
-  // Get uncommitted changes
-  const uncommittedFiles = repo.state.workingTreeChanges
-    .concat(repo.state.indexChanges)
-    .map(change => change.uri.fsPath);
-
-  // Get committed changes vs branch
-  const committedFiles = await getCommittedChanges(workspaceRoot, compareBranch);
-
-  return new Set([...uncommittedFiles, ...committedFiles]);
-}
-
-async function getCommittedChanges(
-  workspaceRoot: string,
-  compareBranch: string
-): Promise<string[]> {
-  const { stdout } = await execAsync(
-    `git diff ${compareBranch}...HEAD --name-only`,
-    { cwd: workspaceRoot }
-  );
-
-  return stdout
-    .split('\n')
-    .filter(line => line.trim())
-    .map(file => path.join(workspaceRoot, file));
-}
-```
-
-**Modified Line Ranges:**
-```typescript
-export async function getModifiedLineRanges(
-  workspaceRoot: string,
-  filePath: string,
-  compareBranch: string
-): Promise<ModifiedLineRange[]> {
-  const { stdout } = await execAsync(
-    `git diff ${compareBranch}...HEAD -- ${filePath}`,
-    { cwd: workspaceRoot }
-  );
-
-  const ranges: ModifiedLineRange[] = [];
-  const hunkRegex = /@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@/g;
-
-  let match;
-  while ((match = hunkRegex.exec(stdout)) !== null) {
-    const startLine = parseInt(match[1], 10);
-    const lineCount = match[2] ? parseInt(match[2], 10) : 1;
-    const endLine = startLine + lineCount - 1;
-
-    ranges.push({ startLine, endLine });
-  }
-
-  return ranges;
-}
-```
-
-## 🔧 Development<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
-
-### Build Commands
-
-```bash
-pnpm install                     # Install dependencies
-pnpm run compile                 # TypeScript compilation
-pnpm run bundle                  # esbuild minified bundle
-pnpm run build                   # Bundle + install locally
-pnpm run dev                     # Watch mode for development
-```
-
-### Local Installation
-
-```bash
-pnpm run build
-```
-
-This bundles the extension and copies it to `~/.vscode/extensions/tscanner-vscode/`.
-
-**Extension locations:**
-- Development: `~/.vscode/extensions/tscanner-vscode/`
-- Production: Install from `.vsix` package
-
-### Development Workflow
-
-**Terminal 1 - Rust auto-rebuild:**
-```bash
-cd ../../packages/core
-cargo watch -x build
-```
-
-**Terminal 2 - Extension watch mode:**
-```bash
-pnpm run dev
-```
-
-**VSCode - Debug Extension:**
-1. Open `packages/vscode-extension` in VSCode
-2. Press `F5` to launch Extension Development Host
-3. Open a TypeScript workspace in new window
-4. Click tscanner icon in activity bar
-
-### Package Scripts
-
-```json
-{
-  "compile": "tsc -p ./",
-  "bundle": "npm run script:setup-rust-binary && npm run bundle:ci",
-  "bundle:ci": "esbuild ./src/extension.ts --bundle --outfile=out/extension.js --external:vscode --format=cjs --platform=node --minify",
-  "build": "pnpm run bundle",
-  "postbuild": "npm run script:install-locally",
-  "postinstall": "npm run script:setup-rust-binary",
-  "script:setup-rust-binary": "tsx extension-scripts/setup-rust-binary.ts",
-  "script:install-locally": "tsx extension-scripts/install-local.ts"
-}
-```
-
-### Setup Rust Binary
-
-The `setup-rust-binary.ts` script:
-1. Detects platform (linux-x64, darwin-arm64, etc.)
-2. Downloads pre-built binary from GitHub releases
-3. Fallback to local build if download fails
-4. Sets executable permissions
-
-**Platform Targets:**
-- `linux-x64` → `x86_64-unknown-linux-gnu`
-- `linux-arm64` → `aarch64-unknown-linux-gnu`
-- `darwin-x64` → `x86_64-apple-darwin`
-- `darwin-arm64` → `aarch64-apple-darwin`
-- `win32-x64` → `x86_64-pc-windows-msvc`
-
-### Dependencies
-
-**Runtime:**
-- `vscode` API (^1.100.0)
-
-**DevDependencies:**
-- `@types/node` (^22.0.0)
-- `@types/vscode` (^1.100.0)
-- `esbuild` (^0.24.0) - Fast bundling
-- `tsx` (^4.20.6) - TypeScript execution
-- `typescript` (^5.7.0)
-
-### Context Keys
-
-Extension sets VSCode context keys for conditional menu visibility:
-
-```typescript
-vscode.commands.executeCommand('setContext', 'tscannerViewMode', 'list' | 'tree');
-vscode.commands.executeCommand('setContext', 'tscannerGroupMode', 'default' | 'rule');
-vscode.commands.executeCommand('setContext', 'tscannerScanMode', 'workspace' | 'branch');
-vscode.commands.executeCommand('setContext', 'tscannerSearching', true | false);
-```
-
-**Usage in package.json:**
-```json
-{
-  "command": "tscanner.setTreeView",
-  "when": "view == tscannerExplorer && tscannerViewMode == list",
-  "group": "navigation@30"
-}
-```
-
-### Tree Item Context Values
-
-Tree items have `contextValue` for context menu filtering:
-
-- `tscannerNodeFolder` - Folder items
-- `tscannerNodeFile` - File items (copy path available)
-- `tscannerNodeIssue` - Issue items
-- `tscannerNodeRuleGroup` - Rule group items
-
-### Logging
-
-Extension logs to `$TMPDIR/tscannerlogs.txt`:
-
-```typescript
-import { logger } from './common/utils/logger';
-
-logger.info('Extension activated');
-logger.debug(`Scanning file: ${filePath}`);
-logger.error(`Failed to scan: ${error}`);
-```
-
-**Log levels:** INFO, DEBUG, WARN, ERROR
-**Format:** `[2025-01-17T10:30:45.123-03:00] [INFO] Extension activated`
+**Communication:** Line-delimited JSON-RPC over stdin/stdout with GZIP compression for large result sets.
 
 ## 📜 License<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
 
