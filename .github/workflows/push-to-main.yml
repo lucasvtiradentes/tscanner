@@ -155,7 +155,7 @@ jobs:
       - name: Update GitHub Action README before versioning
         run: |
           echo "📝 Checking for GitHub Action changesets..."
-          tsx scripts/pre-changesets-github-action.ts
+          pnpm exec tsx packages/github-action/scripts/pre-changesets.ts
           echo "✅ README check completed"
 
       - name: Create Release Pull Request or Publish
