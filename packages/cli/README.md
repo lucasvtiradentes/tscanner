@@ -15,9 +15,9 @@
 
 <a href="#"><img src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/divider.png" /></a>
 
-## 🎺 Overview
+## 🎺 Overview<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
 
-Terminal interface for Tscanner: catch code quality issues with built-in rules or define project-specific patterns using regex, scripts, or AI validation. Integrates seamlessly with CI/CD, git hooks, and development workflows.
+Terminal interface for [Tscanner](https://github.com/lucasvtiradentes/tscanner): catch code quality issues with built-in rules or define project-specific patterns using regex, scripts, or AI validation. Integrates seamlessly with CI/CD, git hooks, and development workflows.
 
 <div align="center">
   <img src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/cli-demo.png" alt="CLI Scan Screenshot">

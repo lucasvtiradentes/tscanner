@@ -37,7 +37,24 @@ jobs:
           cp -r $GITHUB_WORKSPACE/packages/github-action/action.yml .
           cp -r $GITHUB_WORKSPACE/packages/github-action/dist .
           cp $GITHUB_WORKSPACE/packages/github-action/README.md .
-          cp $GITHUB_WORKSPACE/LICENSE .
+          cp $GITHUB_WORKSPACE/packages/github-action/LICENSE .
+
+          # Extract version from tag
+          VERSION=${GITHUB_REF#refs/tags/action-}
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+
+          # Add Notes section before License in README
+          sed -i '/## 📜 License/i \
+## 📝 Notes\
+\
+- **Current version:** `'"${VERSION}"'`\
+- **Generated at:** `'"${TIMESTAMP}"'`\
+\
+This repository is automatically generated. If you want to contribute or see the source code, you can find it in the [tscanner monorepo](https://github.com/lucasvtiradentes/tscanner/tree/main/packages/github-action).\
+\
+---\
+\
+' README.md
 
       - name: Commit and push changes
         env:
