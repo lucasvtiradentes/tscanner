@@ -153,11 +153,10 @@ jobs:
           echo "✅ Scoped packages generated"
 
       - name: Update GitHub Action README before versioning
-        if: needs.push_to_main_ci.outputs.should_release == 'true'
         run: |
-          echo "📝 Updating GitHub Action README with new version..."
+          echo "📝 Checking for GitHub Action changesets..."
           tsx scripts/pre-changesets-github-action.ts
-          echo "✅ README updated"
+          echo "✅ README check completed"
 
       - name: Create Release Pull Request or Publish
         id: changesets
