@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.6
+
+### Patch Changes
+
+- ca188c1: fix gh action
+
 ## 0.0.5
 
 ### Patch Changes
