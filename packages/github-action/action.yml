@@ -1,5 +1,5 @@
 name: 'tscanner-action'
-description: 'Enforce project-specific patterns, detect anti-patterns, and validate architectural conventions with 23+ built-in rules or custom validation (regex, scripts, AI). Integrates into CI/CD workflows with smart PR comments and flexible scan modes.'
+description: 'Enforce code standards with 23+ rules or custom validation. Smart PR comments and flexible scan modes for CI/CD workflows.'
 author: 'lucasvtiradentes'
 
 branding:
