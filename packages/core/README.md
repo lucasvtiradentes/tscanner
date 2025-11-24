@@ -21,7 +21,7 @@ The core engine serves as the foundation for multiple tscanner packages: the CLI
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
 
-- **24+ Built-in Rules** - AST-based TypeScript/TSX validation
+- **23+ Built-in Rules** - AST-based TypeScript/TSX validation
 - **Custom Rules** - Regex pattern matching with custom messages
 - **Parallel Processing** - Rayon work-stealing thread pool for maximum throughput
 - **Smart Caching** - DashMap concurrent cache with disk persistence
@@ -158,13 +158,14 @@ Extension/CLI          JSON-RPC Protocol       Core Engine
 </details>
 
 <details>
-<summary><b>Advanced (3)</b></summary>
+<summary><b>Advanced (2)</b></summary>
 
 | Rule | Description |
 |------|-------------|
 | `no-unreachable-code` | Detect unreachable code after return/throw |
 | `no-dynamic-import` | Disallow dynamic `import()` expressions |
-| Custom Regex | User-defined regex patterns with custom messages |
+
+**Note:** Custom regex rules can be defined in configuration for additional validation.
 
 </details>
 

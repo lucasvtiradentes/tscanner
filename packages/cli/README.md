@@ -8,7 +8,7 @@
   <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/dm/tscanner.svg" alt="downloads"></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
   <br>
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> • <a href="#-development">Development</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> • <a href="#-architecture">Architecture</a> • <a href="#-license">License</a>
 </p>
 
 </div>
@@ -26,7 +26,7 @@ Terminal interface for [Tscanner](https://github.com/lucasvtiradentes/tscanner):
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
 
 
-- **13+ Built-in Rules** - Comprehensive TypeScript linting rules
+- **23+ Built-in Rules** - Comprehensive TypeScript linting rules
 - **Custom Rules** - Regex-based and AST-based custom rules support
 - **Multiple Output Formats** - JSON, pretty-print, or standard output
 - **Multiple Scanning modes** - full codebase or only files changed in your branch
@@ -307,6 +307,22 @@ fi
 ```
 
 </details>
+
+## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+
+```
+CLI (Node.js)              Rust Binary
+├─ Platform detector  →    ├─ Scanner
+├─ Binary resolver         ├─ Parser (SWC)
+├─ Process spawner    ←→   ├─ Rules (23+)
+└─ Args forwarder          ├─ Cache (DashMap)
+                           └─ Config loader
+```
+
+**Architecture:**
+- Node.js wrapper detects platform (Linux/macOS/Windows, x64/arm64)
+- Spawns platform-specific Rust binary with stdio inheritance
+- Binary packaged separately per platform via optional dependencies
 
 ## 📜 License<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
 

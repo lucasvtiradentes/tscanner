@@ -16,13 +16,13 @@
 
 ## 🎺 Overview<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
 
-GitHub Action for [Tscanner](https://github.com/lucasvtiradentes/tscanner): Enforce project-specific patterns, detect anti-patterns, and validate architectural conventions with 13+ built-in rules or custom validation (regex, scripts, AI). Integrates into CI/CD workflows with smart PR comments and flexible scan modes.
+GitHub Action for [Tscanner](https://github.com/lucasvtiradentes/tscanner): Enforce project-specific patterns, detect anti-patterns, and validate architectural conventions with 23+ built-in rules or custom validation (regex, scripts, AI). Integrates into CI/CD workflows with smart PR comments and flexible scan modes.
 
 <img src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/pr-comment-errors-found.png" alt="PR Comment Screenshot" width="100%">
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
 
-- **13+ Built-in Rules** - AST-based validation for TypeScript/TSX
+- **23+ Built-in Rules** - AST-based validation for TypeScript/TSX
 - **Custom Rules** - Regex patterns, JavaScript scripts, or AI-powered validation
 - **Two Scan Modes** - Full codebase or only changed files
 - **Smart PR Comments** - Automatic PR annotations with dual grouping (rule + file)

@@ -14,7 +14,7 @@
 
 ## 🎺 Overview<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
 
-Tscanner is a high-performance code quality scanner for TypeScript codebases. Catch code quality issues with 24+ built-in rules or define project-specific patterns using regex, scripts, or AI validation. Integrates seamlessly with CI/CD, git hooks, and development workflows.
+Tscanner is a high-performance code quality scanner for TypeScript codebases. Catch code quality issues with 23+ built-in rules or define project-specific patterns using regex, scripts, or AI validation. Integrates seamlessly with CI/CD, git hooks, and development workflows.
 
 <table>
 <tr>
@@ -37,7 +37,7 @@ Tscanner is a high-performance code quality scanner for TypeScript codebases. Ca
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
 
-- **24+ Built-in Rules** - AST-based TypeScript/TSX validation for type safety, imports, and code quality
+- **23+ Built-in Rules** - AST-based TypeScript/TSX validation for type safety, imports, and code quality
 - **Custom Rules** - Regex patterns, JavaScript scripts, or AI-powered validation
 - **Rust-Powered Performance** - Parallel processing with Rayon (100-500 files in <1s)
 - **Smart Caching** - DashMap concurrent cache with 80-95% hit rate
@@ -75,7 +75,7 @@ CLI/VSCode/GitHub Action (TypeScript)
     tscanner-core (Rust)
     ├─ Scanner (Rayon parallel processing)
     ├─ Parser (SWC AST)
-    ├─ Rule Registry (24+ built-in + custom)
+    ├─ Rule Registry (23+ built-in + custom)
     ├─ Cache (DashMap memory + disk persistence)
     ├─ File Watcher (notify)
     └─ Config (.tscanner/rules.json)

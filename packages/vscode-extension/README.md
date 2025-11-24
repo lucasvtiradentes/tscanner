@@ -29,7 +29,7 @@ Real-time TypeScript code quality scanner with sidebar integration and Git-aware
 - **Quick Navigation** - F8/Shift+F8 keyboard shortcuts to jump between issues
 - **Settings Menu** - Interactive rule management and configuration
 - **Status Bar Integration** - See useful info at a glance
-- **13+ Built-in Rules** - AST-based validation for TypeScript/TSX
+- **23+ Built-in Rules** - AST-based validation for TypeScript/TSX
 - **Custom Rules** - Regex patterns, JavaScript scripts, or AI-powered validation
 
 ## 🚀 Installation<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
@@ -100,7 +100,7 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 
 Interactive configuration panel:
 
-- **Manage Rules**: Multi-select UI for 13+ built-in rules with enable/disable toggles
+- **Manage Rules**: Multi-select UI for 23+ built-in rules with enable/disable toggles
 - **Scan Settings**: Choose workspace or branch mode, select target branch
 - **Config Files**: Edit `.tscanner/rules.json` or create from template
 
@@ -184,7 +184,7 @@ Perfect for PR validation - see only issues you introduced.
 Extension (TypeScript)        Rust Server
 ├─ JSON-RPC client      ←→    ├─ Scanner (Rayon)
 ├─ Tree provider              ├─ Parser (SWC)
-├─ Git helper                 ├─ Rules (13+)
+├─ Git helper                 ├─ Rules (23+)
 ├─ File watcher               ├─ Cache (DashMap)
 └─ Status bar                 └─ Config loader
 ```
