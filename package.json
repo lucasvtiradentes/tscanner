@@ -13,8 +13,7 @@
     "lint:fix": "turbo run lint:fix",
     "format": "turbo run format",
     "typecheck": "turbo run typecheck",
-    "changeset": "changeset",
-    "release": "./scripts/release.sh"
+    "changeset": "changeset"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

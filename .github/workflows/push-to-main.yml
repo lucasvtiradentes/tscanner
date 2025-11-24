@@ -156,8 +156,13 @@ jobs:
         id: changesets
         uses: changesets/action@v1
         with:
-          publish: pnpm release
+          publish: bash scripts/cli-publisher.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Publish VSCode Extension
+        if: steps.changesets.outputs.published == 'true'
+        run: bash scripts/vscode-publisher.sh
+        env:
           AZURE_VSCODE_PAT: ${{ secrets.AZURE_VSCODE_PAT }}
