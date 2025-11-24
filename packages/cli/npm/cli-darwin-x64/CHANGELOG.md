@@ -1,5 +1,11 @@
 # @tscanner/cli-darwin-x64
 
+## 0.0.9
+
+### Patch Changes
+
+- ca188c1: fix gh action
+
 ## 0.0.8
 
 ### Patch Changes
