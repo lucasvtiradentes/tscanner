@@ -51,4 +51,4 @@ jobs:
           timezone: 'America/Sao_Paulo'
           dev-mode: 'true'
           continue-on-error: 'true'
-          # target-branch: 'origin/main'
+          target-branch: 'origin/main'
