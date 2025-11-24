@@ -1,6 +1,6 @@
 {
   "name": "tscanner",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "High-performance TypeScript/TSX code quality scanner - CLI",
   "license": "MIT",
   "repository": {
@@ -29,11 +29,11 @@
     "script:fix-packages": "tsx scripts/generate-packages.ts"
   },
   "optionalDependencies": {
-    "@tscanner/cli-darwin-arm64": "0.0.5",
-    "@tscanner/cli-darwin-x64": "0.0.5",
-    "@tscanner/cli-linux-arm64": "0.0.5",
-    "@tscanner/cli-linux-x64": "0.0.5",
-    "@tscanner/cli-win32-x64": "0.0.5"
+    "@tscanner/cli-darwin-arm64": "0.0.6",
+    "@tscanner/cli-darwin-x64": "0.0.6",
+    "@tscanner/cli-linux-arm64": "0.0.6",
+    "@tscanner/cli-linux-x64": "0.0.6",
+    "@tscanner/cli-win32-x64": "0.0.6"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

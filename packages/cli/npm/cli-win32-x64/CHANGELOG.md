@@ -1,5 +1,11 @@
 # @tscanner/cli-win32-x64
 
+## 0.0.6
+
+### Patch Changes
+
+- 13dc04e: add github action to changeset
+
 ## 0.0.5
 
 ### Patch Changes
