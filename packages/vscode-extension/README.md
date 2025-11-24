@@ -21,8 +21,6 @@ Real-time TypeScript code quality scanner with sidebar integration and Git-aware
 
 <img src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/vscode-demo.png" alt="VS Code Extension Screenshot" width="100%">
 
-<a name="TOC"></a>
-
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
 
 - **Real-time Scanning** - File system watching detects changes instantly

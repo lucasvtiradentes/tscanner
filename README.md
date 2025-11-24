@@ -1,9 +1,12 @@
 <a name="TOC"></a>
 
 <div align="center">
-<h4>Tscanner</h4>
+<img width="128" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/logo.png" alt="tscanner logo">
+<h4>tscanner</h4>
 <p>
-  <a href="#-overview">Overview</a> • <a href="#-ways-to-use">Ways to use</a> • <a href="#-features">Features</a> • <a href="#-use-cases">Use Cases</a> • <a href="#-architecture">Architecture</a> • <a href="#-quick-start">Quick Start</a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
+  <br>
+  <a href="#-overview">Overview</a> • <a href="#-ways-to-use">Ways to use</a> • <a href="#-features">Features</a> • <a href="#-use-cases">Use Cases</a> • <a href="#-architecture">Architecture</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-license">License</a>
 </p>
 </div>
 
@@ -11,7 +14,7 @@
 
 ## 🎺 Overview<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
 
-Tscanner is a fast, flexible code quality scanner for TypeScript codebases. Enforce project-specific patterns, detect anti-patterns, and validate architectural conventions with 23+ built-in rules or custom regex patterns.
+Tscanner is a high-performance code quality scanner for TypeScript codebases. Catch code quality issues with 24+ built-in rules or define project-specific patterns using regex, scripts, or AI validation. Integrates seamlessly with CI/CD, git hooks, and development workflows.
 
 <table>
 <tr>
@@ -34,12 +37,15 @@ Tscanner is a fast, flexible code quality scanner for TypeScript codebases. Enfo
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
 
-- **23 AST-based rules** - Type safety, import conventions, best practices
-- **Custom rules** - Regex patterns, scripts, or AI-powered validation
-- **Blazing fast** - Rust parallel processing with smart caching (100-500 files in <1s)
-- **Flexible severity** - Errors block CI, warnings report only
-- **Inline control** - Disable rules per line/file with `tscanner-disable` directives
->
+- **24+ Built-in Rules** - AST-based TypeScript/TSX validation for type safety, imports, and code quality
+- **Custom Rules** - Regex patterns, JavaScript scripts, or AI-powered validation
+- **Rust-Powered Performance** - Parallel processing with Rayon (100-500 files in <1s)
+- **Smart Caching** - DashMap concurrent cache with 80-95% hit rate
+- **Multiple Output Formats** - JSON, pretty-print, or standard output
+- **Git-Aware Scanning** - Full codebase or only files changed in your branch
+- **Flexible Severity** - Errors block CI, warnings report only
+- **Inline Control** - Disable rules per line/file with `tscanner-disable` directives
+- **Zero Config** - Works out of the box with sensible defaults
 
 ## 💡 Use Cases<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
 
@@ -64,15 +70,21 @@ Built-in rules cover common cases, but unique project requirements can use custo
 ```
 CLI/VSCode/GitHub Action (TypeScript)
             ↓
-      JSON-RPC Protocol
+   JSON-RPC Protocol (GZIP compressed)
             ↓
     tscanner-core (Rust)
-    ├─ Scanner (Rayon parallel)
+    ├─ Scanner (Rayon parallel processing)
     ├─ Parser (SWC AST)
-    ├─ Rules (23 built-in + custom)
-    ├─ Cache (DashMap + disk)
+    ├─ Rule Registry (24+ built-in + custom)
+    ├─ Cache (DashMap memory + disk persistence)
+    ├─ File Watcher (notify)
     └─ Config (.tscanner/rules.json)
 ```
+
+**Communication:**
+- Line-delimited JSON-RPC over stdin/stdout
+- GZIP compression for large result sets (>10KB)
+- Real-time file watching for incremental updates
 
 ## 🚀 Quick Start<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
 
@@ -80,23 +92,52 @@ CLI/VSCode/GitHub Action (TypeScript)
 ### CLI
 
 ```bash
+# Install globally
 npm install -g tscanner
+pnpm add -g tscanner
+yarn global add tscanner
+
+# Initialize configuration
 tscanner init
+
+# Scan workspace
 tscanner check
+
+# Scan only changed files vs branch
+tscanner check --branch main
+
+# Output as JSON
+tscanner check --json
 ```
 
 ### VSCode Extension
 
-1. Install from VSCode marketplace
+1. Install from VSCode marketplace or run:
+   ```bash
+   code --install-extension lucasvtiradentes.tscanner-vscode
+   ```
 2. Click tscanner icon in activity bar
-3. Configure rules via settings menu
+3. Issues appear automatically in the sidebar
+4. Configure rules via settings menu
 
 ### GitHub Action
 
 ```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.1
-  with:
-    github-token: ${{ secrets.GITHUB_TOKEN }}
+name: Code Quality
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  tscanner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lucasvtiradentes/tscanner-action@v0.0.1
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          target-branch: 'origin/main'  # Optional: scan only changed files
 ```
 
 ### Configuration
@@ -106,20 +147,36 @@ Create `.tscanner/rules.json`:
 ```json
 {
   "builtinRules": {
-    "no-any-type": { "severity": "error" },
-    "prefer-const": { "enabled": true, "severity": "warning" }
+    "no-any-type": {
+      "enabled": true,
+      "severity": "error"
+    },
+    "no-console-log": {
+      "enabled": true,
+      "severity": "warning"
+    }
   },
   "customRules": {
     "no-todos": {
       "type": "regex",
       "pattern": "TODO:|FIXME:",
-      "message": "Remove TODO comments before committing",
+      "message": "Remove TODO comments",
       "severity": "warning"
     }
   },
   "include": ["**/*.{ts,tsx}"],
   "exclude": ["node_modules/**", "dist/**", "build/**", ".git/**"]
 }
+```
+
+**Inline Disables:**
+
+```typescript
+// tscanner-disable-next-line no-any-type
+const data: any = fetchData();
+
+// tscanner-disable-file
+// Entire file is skipped
 ```
 
 ## 📜 License<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
