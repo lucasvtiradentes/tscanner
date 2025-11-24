@@ -1,10 +1,10 @@
-name: 'tscanner'
-description: 'Scans PR changes for code quality issues and posts results as comments'
+name: 'tscanner-action'
+description: 'Enforce project-specific patterns, detect anti-patterns, and validate architectural conventions with 23+ built-in rules or custom validation (regex, scripts, AI). Integrates into CI/CD workflows with smart PR comments and flexible scan modes.'
 author: 'lucasvtiradentes'
 
 branding:
-  icon: 'search'
-  color: 'blue'
+  icon: 'shield'
+  color: 'green'
 
 inputs:
   github-token:
