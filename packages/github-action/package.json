@@ -10,7 +10,8 @@
     "lint": "biome check src",
     "lint:fix": "biome check --fix --unsafe src",
     "format": "biome format --write src",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postversion": "tsx scripts/postversion.ts"
   },
   "dependencies": {
     "@actions/core": "^1.11.1",
@@ -21,6 +22,7 @@
   "devDependencies": {
     "@types/node": "^22.10.2",
     "@vercel/ncc": "^0.38.3",
+    "tsx": "^4.20.6",
     "typescript": "^5.7.2"
   }
 }

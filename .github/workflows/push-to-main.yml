@@ -166,3 +166,9 @@ jobs:
         run: bash scripts/vscode-publisher.sh
         env:
           AZURE_VSCODE_PAT: ${{ secrets.AZURE_VSCODE_PAT }}
+
+      - name: Publish GitHub Action
+        if: steps.changesets.outputs.published == 'true'
+        run: bash scripts/publish-github-action.sh
+        env:
+          GH_PAT_SYNC_TSCANNER_GH_ACTION: ${{ secrets.GH_PAT_SYNC_TSCANNER_GH_ACTION }}
