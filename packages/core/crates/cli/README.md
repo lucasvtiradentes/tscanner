@@ -25,7 +25,7 @@ Available platforms:
 
 ### Initialize Configuration
 
-Create a default `.tscanner/rules.json` configuration file:
+Create a default `.tscanner/config.jsonc` configuration file:
 
 ```bash
 tscanner init
@@ -67,7 +67,7 @@ Shows:
 tscanner searches for configuration in this priority order:
 
 1. **Local Project Config** (recommended)
-   - `.tscanner/rules.json` in project root
+   - `.tscanner/config.jsonc` in project root
    - User-managed, version-controlled
 
 2. **VSCode Global Config** (compatibility mode)
@@ -79,7 +79,7 @@ If no configuration is found, tscanner exits with an error and helpful message.
 
 ## Configuration File
 
-`.tscanner/rules.json` format:
+`.tscanner/config.jsonc` format:
 
 ```json
 {
@@ -148,7 +148,7 @@ if ! command -v tscanner &> /dev/null; then
   exit 0
 fi
 
-if [ ! -f .tscanner/rules.json ]; then
+if [ ! -f .tscanner/config.jsonc ]; then
   echo "No tscanner config found, skipping checks"
   exit 0
 fi
@@ -181,7 +181,7 @@ Scanned 2 files in 45ms
 
 ```
 tscanner Rules Configuration
-Config: /home/user/project/.tscanner/rules.json
+Config: /home/user/project/.tscanner/config.jsonc
 
 23 enabled rules:
 

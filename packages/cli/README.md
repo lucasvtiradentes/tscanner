@@ -56,7 +56,7 @@ After installation, the `tscanner` command will be available globally.
 
 | Command | Description | Flags |
 |---------|-------------|-------|
-| `init [path]` | Create `.tscanner/rules.json` configuration | - |
+| `init [path]` | Create `.tscanner/config.jsonc` configuration | - |
 | `check [path]` | Scan files and report issues | `--no-cache`, `--json`, `--pretty`, `--by-rule`, `--branch`, `--file`, `--rule`, `--continue-on-error`, `--config` |
 | `rules [path]` | List all available rules with metadata | `--config` |
 | `--help` or `-h` | Show help information | - |
@@ -82,14 +82,14 @@ After installation, the `tscanner` command will be available globally.
 <summary><b>Initialize Configuration</b></summary>
 
 ```bash
-# Create .tscanner/rules.json in current directory
+# Create .tscanner/config.jsonc in current directory
 tscanner init
 
 # Create config in specific directory
 tscanner init /path/to/project
 ```
 
-Creates `.tscanner/rules.json` with default rule configuration:
+Creates `.tscanner/config.jsonc` with default rule configuration:
 ```json
 {
   "builtinRules": {
@@ -245,7 +245,7 @@ jobs:
 
 ```bash
 #!/bin/sh
-if command -v tscanner &> /dev/null && [ -f .tscanner/rules.json ]; then
+if command -v tscanner &> /dev/null && [ -f .tscanner/config.jsonc ]; then
   tscanner check --no-cache
 fi
 ```
@@ -257,7 +257,7 @@ fi
 
 ```bash
 #!/bin/sh
-if command -v tscanner &> /dev/null && [ -f .tscanner/rules.json ]; then
+if command -v tscanner &> /dev/null && [ -f .tscanner/config.jsonc ]; then
   tscanner check --branch origin/main --no-cache
 fi
 ```

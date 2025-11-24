@@ -102,7 +102,7 @@ Interactive configuration panel:
 
 - **Manage Rules**: Multi-select UI for 23+ built-in rules with enable/disable toggles
 - **Scan Settings**: Choose workspace or branch mode, select target branch
-- **Config Files**: Edit `.tscanner/rules.json` or create from template
+- **Config Files**: Edit `.tscanner/config.jsonc` or create from template
 
 </details>
 
@@ -121,7 +121,7 @@ Navigate efficiently:
 <details>
 <summary><b>Configuration</b></summary>
 
-Create `.tscanner/rules.json` in your workspace root:
+Create `.tscanner/config.jsonc` in your workspace root:
 
 ```json
 {
@@ -149,7 +149,7 @@ Create `.tscanner/rules.json` in your workspace root:
 ```
 
 **Config locations:**
-- Local: `.tscanner/rules.json` (workspace-specific, recommended)
+- Local: `.tscanner/config.jsonc` (workspace-specific, recommended)
 - Global: Managed via Settings Menu for all workspaces
 
 </details>
@@ -161,7 +161,7 @@ Quick access info:
 
 - **Scan Mode**: Shows "Codebase" or "Branch: {name}"
 - **Click**: Opens Settings Menu
-- **Config Status**: Green checkmark if `.tscanner/rules.json` exists
+- **Config Status**: Green checkmark if `.tscanner/config.jsonc` exists
 
 </details>
 

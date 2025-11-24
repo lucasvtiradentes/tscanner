@@ -78,7 +78,7 @@ CLI/VSCode/GitHub Action (TypeScript)
     ├─ Rule Registry (23+ built-in + custom)
     ├─ Cache (DashMap memory + disk persistence)
     ├─ File Watcher (notify)
-    └─ Config (.tscanner/rules.json)
+    └─ Config (.tscanner/config.jsonc)
 ```
 
 **Communication:**
@@ -142,7 +142,7 @@ jobs:
 
 ### Configuration
 
-Create `.tscanner/rules.json`:
+Create `.tscanner/config.jsonc`:
 
 ```json
 {

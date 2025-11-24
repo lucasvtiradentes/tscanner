@@ -1,5 +1,7 @@
 import { createHash } from 'node:crypto';
+import * as jsonc from 'jsonc-parser';
 import * as vscode from 'vscode';
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../constants';
 import { TscannerConfig } from '../types';
 import { logger } from '../utils/logger';
 
@@ -15,11 +17,11 @@ export function getGlobalConfigDir(context: vscode.ExtensionContext): vscode.Uri
 
 export function getGlobalConfigPath(context: vscode.ExtensionContext, workspacePath: string): vscode.Uri {
   const workspaceHash = getWorkspaceHash(workspacePath);
-  return vscode.Uri.joinPath(getGlobalConfigDir(context), workspaceHash, 'rules.json');
+  return vscode.Uri.joinPath(getGlobalConfigDir(context), workspaceHash, CONFIG_FILE_NAME);
 }
 
 export function getLocalConfigPath(workspacePath: string): vscode.Uri {
-  return vscode.Uri.joinPath(vscode.Uri.file(workspacePath), '.tscanner', 'rules.json');
+  return vscode.Uri.joinPath(vscode.Uri.file(workspacePath), CONFIG_DIR_NAME, CONFIG_FILE_NAME);
 }
 
 export async function hasLocalConfig(workspacePath: string): Promise<boolean> {
@@ -35,7 +37,16 @@ export async function hasLocalConfig(workspacePath: string): Promise<boolean> {
 export async function loadConfig(configPath: vscode.Uri): Promise<TscannerConfig | null> {
   try {
     const data = await vscode.workspace.fs.readFile(configPath);
-    return JSON.parse(Buffer.from(data).toString('utf8'));
+    const content = Buffer.from(data).toString('utf8');
+    const errors: jsonc.ParseError[] = [];
+    const config = jsonc.parse(content, errors);
+
+    if (errors.length > 0) {
+      logger.error(`JSONC parse errors in ${configPath.fsPath}: ${JSON.stringify(errors)}`);
+      return null;
+    }
+
+    return config as TscannerConfig;
   } catch (error) {
     logger.debug(`Failed to load config from ${configPath.fsPath}: ${error}`);
     return null;
@@ -79,7 +90,7 @@ export async function saveGlobalConfig(
 }
 
 export async function saveLocalConfig(workspacePath: string, config: TscannerConfig): Promise<void> {
-  const localConfigDir = vscode.Uri.joinPath(vscode.Uri.file(workspacePath), '.tscanner');
+  const localConfigDir = vscode.Uri.joinPath(vscode.Uri.file(workspacePath), CONFIG_DIR_NAME);
   const localConfigPath = getLocalConfigPath(workspacePath);
 
   await vscode.workspace.fs.createDirectory(localConfigDir);
@@ -128,13 +139,13 @@ export async function syncGlobalToLocal(context: vscode.ExtensionContext, worksp
     return;
   }
 
-  const localConfigDir = vscode.Uri.joinPath(vscode.Uri.file(workspacePath), '.tscanner');
+  const localConfigDir = vscode.Uri.joinPath(vscode.Uri.file(workspacePath), CONFIG_DIR_NAME);
   await vscode.workspace.fs.createDirectory(localConfigDir);
 
   const configWithMarker = addAutoManagedMarker(globalConfig);
   await vscode.workspace.fs.writeFile(localPath, Buffer.from(configWithMarker));
 
-  logger.info(`Synced global config to local .tscanner/rules.json for ${workspacePath}`);
+  logger.info(`Synced global config to local config for ${workspacePath}`);
 }
 
 export async function shouldSyncToLocal(workspacePath: string): Promise<boolean> {
@@ -153,21 +164,19 @@ export async function ensureLocalConfigForScan(
   context: vscode.ExtensionContext,
   workspacePath: string,
 ): Promise<boolean> {
-  const localPath = getLocalConfigPath(workspacePath);
-
-  try {
-    await vscode.workspace.fs.stat(localPath);
+  const hasLocal = await hasLocalConfig(workspacePath);
+  if (hasLocal) {
     logger.debug('Local config already exists, using it for scan');
     return true;
-  } catch {
-    const globalConfig = await loadConfig(getGlobalConfigPath(context, workspacePath));
-    if (!globalConfig) {
-      logger.info('No config found (neither local nor global)');
-      return false;
-    }
-
-    await syncGlobalToLocal(context, workspacePath);
-    logger.info('Synced global config to local .tscanner/rules.json for Rust scanner');
-    return true;
   }
+
+  const globalConfig = await loadConfig(getGlobalConfigPath(context, workspacePath));
+  if (!globalConfig) {
+    logger.info('No config found (neither local nor global)');
+    return false;
+  }
+
+  await syncGlobalToLocal(context, workspacePath);
+  logger.info('Synced global config to local config for Rust scanner');
+  return true;
 }

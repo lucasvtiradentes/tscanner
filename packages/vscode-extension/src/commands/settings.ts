@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getGlobalConfigPath, getLocalConfigPath } from '../common/lib/config-manager';
+import { getGlobalConfigPath, getLocalConfigPath, hasLocalConfig } from '../common/lib/config-manager';
 import {
   Command,
   ScanMode,
@@ -55,7 +55,7 @@ export function createOpenSettingsMenuCommand(
       {
         id: SettingsMenuOption.OpenConfigs,
         label: '$(edit) Open Project Tscanner Configs',
-        detail: 'Edit .tscanner/rules.json or global extension config',
+        detail: 'Edit .tscanner config or global extension config',
       },
     ];
 
@@ -99,15 +99,15 @@ async function openProjectTscannerConfigs(context: vscode.ExtensionContext) {
     return;
   }
 
-  const localConfigPath = getLocalConfigPath(workspaceFolder.uri.fsPath);
-  try {
-    await vscode.workspace.fs.stat(localConfigPath);
+  const hasLocal = await hasLocalConfig(workspaceFolder.uri.fsPath);
+  if (hasLocal) {
+    const localConfigPath = getLocalConfigPath(workspaceFolder.uri.fsPath);
     const doc = await openTextDocument(localConfigPath);
     await vscode.window.showTextDocument(doc);
     return;
-  } catch {
-    logger.debug('Local config not found, trying global config');
   }
+
+  logger.debug('Local config not found, trying global config');
 
   const globalConfigPath = getGlobalConfigPath(context, workspaceFolder.uri.fsPath);
   try {

@@ -72,7 +72,7 @@ packages/core/
 - Atomic cache updates during scans
 
 **Config (`config.rs`)**
-- `.tscanner/rules.json` loader
+- `.tscanner/config.jsonc` loader
 - Built-in and custom rule configuration
 - Glob pattern compilation with globset
 - Config hash generation for cache invalidation
@@ -365,7 +365,7 @@ cargo test -- --nocapture
 <details>
 <summary><b>Configuration Schema</b></summary>
 
-The `generate_schema` binary creates JSON Schema for `.tscanner/rules.json`:
+The `generate_schema` binary creates JSON Schema for `.tscanner/config.jsonc`:
 
 ```bash
 cargo run --bin generate_schema > schema.json

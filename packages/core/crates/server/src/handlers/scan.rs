@@ -101,7 +101,7 @@ pub fn handle_scan(request_id: u64, params: ScanParams, state: &mut ServerState)
     } else {
         match TscannerConfig::load_from_workspace(&params.root) {
             Ok(c) => {
-                core::log_info("Loaded configuration from workspace (.tscanner/rules.json)");
+                core::log_info("Loaded configuration from workspace (.tscanner)");
                 c
             }
             Err(e) => {

@@ -15,6 +15,7 @@ const extensionBuildOptions: BuildOptions = {
   sourcemap: false,
   minify: false,
   logLevel: 'info',
+  mainFields: ['module', 'main'],
   define: {
     __IS_DEV_BUILD__: isDev ? 'true' : 'false',
   },

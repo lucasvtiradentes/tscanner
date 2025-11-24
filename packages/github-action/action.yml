@@ -18,7 +18,7 @@ inputs:
     required: false
     default: 'UTC'
   config-path:
-    description: 'Path to directory containing rules.json'
+    description: 'Path to directory containing config.jsonc'
     required: false
     default: '.tscanner'
   tscanner-version:

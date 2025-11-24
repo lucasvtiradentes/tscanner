@@ -145,7 +145,7 @@ All options:
 |-------|----------|---------|-------------|
 | `github-token` | ✅ Yes | - | GitHub token for posting PR comments (`${{ secrets.GITHUB_TOKEN }}`) |
 | `target-branch` | No | - | Target branch to compare (enables branch mode). Example: `origin/main` |
-| `config-path` | No | `.tscanner` | Path to tscanner config directory containing `rules.json` |
+| `config-path` | No | `.tscanner` | Path to tscanner config directory containing `config.jsonc` |
 | `tscanner-version` | No | `latest` | NPM version of tscanner CLI to install |
 | `group-by` | No | `file` | Primary grouping mode: `file` or `rule` |
 | `continue-on-error` | No | `false` | Continue workflow even if errors found (`true`/`false`) |

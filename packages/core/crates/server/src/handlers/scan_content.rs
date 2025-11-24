@@ -15,7 +15,7 @@ pub fn handle_scan_content(
     } else {
         match TscannerConfig::load_from_workspace(&params.root) {
             Ok(c) => {
-                core::log_debug("Loaded configuration from workspace (.tscanner/rules.json)");
+                core::log_debug("Loaded configuration from workspace (.tscanner)");
                 c
             }
             Err(e) => {

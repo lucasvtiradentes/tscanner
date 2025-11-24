@@ -68,7 +68,7 @@ enum Commands {
         #[arg(
             long,
             value_name = "CONFIG_DIR",
-            help = "Path to directory containing rules.json"
+            help = "Path to directory containing config.jsonc"
         )]
         config: Option<PathBuf>,
     },
@@ -81,7 +81,7 @@ enum Commands {
         #[arg(
             long,
             value_name = "CONFIG_DIR",
-            help = "Path to directory containing rules.json"
+            help = "Path to directory containing config.jsonc"
         )]
         config: Option<PathBuf>,
     },

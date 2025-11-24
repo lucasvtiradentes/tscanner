@@ -16,3 +16,6 @@ export enum Severity {
 }
 
 export const PACKAGE_NAME = 'tscanner';
+
+export const CONFIG_DIR_NAME = '.tscanner';
+export const CONFIG_FILE_NAME = 'config.jsonc';

@@ -18,10 +18,7 @@
   "engines": {
     "vscode": "^1.100.0"
   },
-  "categories": [
-    "Linters",
-    "Programming Languages"
-  ],
+  "categories": ["Linters", "Programming Languages"],
   "keywords": [
     "code-quality",
     "scanner",
@@ -53,9 +50,7 @@
     "tsx": "^4.20.6",
     "typescript": "^5.7.0"
   },
-  "activationEvents": [
-    "onStartupFinished"
-  ],
+  "activationEvents": ["onStartupFinished"],
   "contributes": {
     "viewsContainers": {
       "activitybar": [
@@ -280,6 +275,7 @@
     }
   },
   "dependencies": {
+    "jsonc-parser": "^3.3.1",
     "zod": "^4.1.12"
   }
 }

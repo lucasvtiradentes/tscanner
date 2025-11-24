@@ -8,6 +8,9 @@ export const DEV_SUFFIX = 'Dev';
 
 export const LOG_BASENAME = 'tscannerlogs';
 
+export const CONFIG_DIR_NAME = '.tscanner';
+export const CONFIG_FILE_NAME = 'config.jsonc';
+
 export function addDevSuffix(str: string): string {
   return `${str}${DEV_SUFFIX}`;
 }
