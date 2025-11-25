@@ -24,22 +24,26 @@ function updateRustWorkspaceVersion(newVersion) {
   }
 }
 
-function updateSchemaVersionInReadmes(newVersion) {
-  const readmePaths = [join(process.cwd(), 'README.md'), join(process.cwd(), 'packages', 'cli', 'README.md')];
+function updateSchemaVersionInFiles(newVersion) {
+  const filePaths = [
+    join(process.cwd(), 'README.md'),
+    join(process.cwd(), 'packages', 'cli', 'README.md'),
+    join(process.cwd(), 'assets', 'default-config.json'),
+  ];
   const schemaPattern = /(unpkg\.com\/tscanner@)[\d.]+(\/)schema\.json/g;
 
   try {
-    for (const readmePath of readmePaths) {
-      let readme = readFileSync(readmePath, 'utf-8');
-      if (schemaPattern.test(readme)) {
+    for (const filePath of filePaths) {
+      let content = readFileSync(filePath, 'utf-8');
+      if (schemaPattern.test(content)) {
         schemaPattern.lastIndex = 0;
-        readme = readme.replace(schemaPattern, `$1${newVersion}$2schema.json`);
-        writeFileSync(readmePath, readme, 'utf-8');
-        log(`Updated schema version in ${readmePath} to ${newVersion}`);
+        content = content.replace(schemaPattern, `$1${newVersion}$2schema.json`);
+        writeFileSync(filePath, content, 'utf-8');
+        log(`Updated schema version in ${filePath} to ${newVersion}`);
       }
     }
   } catch (error) {
-    log(`Error updating schema version in READMEs: ${error.message}`);
+    log(`Error updating schema version in files: ${error.message}`);
   }
 }
 
@@ -53,7 +57,7 @@ function updateReadmeVersions() {
     const cliPackageJson = JSON.parse(readFileSync(cliPackageJsonPath, 'utf-8'));
     const cliVersion = cliPackageJson.version;
     updateRustWorkspaceVersion(cliVersion);
-    updateSchemaVersionInReadmes(cliVersion);
+    updateSchemaVersionInFiles(cliVersion);
 
     const packageJson = JSON.parse(readFileSync(githubActionPackageJsonPath, 'utf-8'));
     const newVersion = packageJson.version;

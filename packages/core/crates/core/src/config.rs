@@ -308,28 +308,10 @@ impl TscannerConfig {
 
 impl Default for TscannerConfig {
     fn default() -> Self {
-        let mut builtin_rules = HashMap::new();
+        const DEFAULT_CONFIG_JSON: &str = include_str!("../../../../../assets/default-config.json");
 
-        builtin_rules.insert(
-            "no-any-type".to_string(),
-            BuiltinRuleConfig {
-                enabled: Some(true),
-                severity: Some(Severity::Error),
-                include: vec![],
-                exclude: vec![],
-            },
-        );
-
-        let version = env!("CARGO_PKG_VERSION");
-        let schema_url = format!("https://unpkg.com/tscanner@{}/schema.json", version);
-
-        Self {
-            schema: Some(schema_url),
-            builtin_rules,
-            custom_rules: HashMap::new(),
-            include: default_include(),
-            exclude: default_exclude(),
-        }
+        serde_json::from_str(DEFAULT_CONFIG_JSON)
+            .expect("Failed to parse embedded default-config.json")
     }
 }
 

@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import * as jsonc from 'jsonc-parser';
 import * as vscode from 'vscode';
+import defaultConfig from '../../../../../assets/default-config.json';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../constants';
 import { TscannerConfig } from '../types';
 import { logger } from '../utils/logger';
@@ -142,12 +143,7 @@ export async function saveCustomConfig(
 }
 
 export function getDefaultConfig(): TscannerConfig {
-  return {
-    builtinRules: {},
-    customRules: {},
-    include: ['**/*.ts', '**/*.tsx'],
-    exclude: ['**/node_modules/**', '**/dist/**', '**/build/**', '**/.git/**'],
-  };
+  return structuredClone(defaultConfig) as TscannerConfig;
 }
 
 const AUTO_MANAGED_MARKER = '// AUTO-MANAGED BY TSCANNER EXTENSION - DO NOT EDIT THIS LINE';
