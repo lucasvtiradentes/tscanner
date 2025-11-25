@@ -1,0 +1,37 @@
+name: 'Release VSCode Extension'
+description: 'Downloads binaries, organizes them for extension, and publishes to VS Code Marketplace'
+
+inputs:
+  azure-pat:
+    description: 'Azure DevOps Personal Access Token for VS Code Marketplace'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Download all binaries
+      uses: actions/download-artifact@v4
+      with:
+        path: artifacts
+
+    - name: Organize binaries for extension
+      shell: bash
+      run: |
+        mkdir -p packages/vscode-extension/out/binaries
+        find artifacts -type f -name 'tscanner-server-*' -exec cp {} packages/vscode-extension/out/binaries/ \;
+        chmod +x packages/vscode-extension/out/binaries/tscanner-server-* 2>/dev/null || true
+        echo "📦 Binaries ready for extension:"
+        ls -lah packages/vscode-extension/out/binaries/
+
+    - name: Rebuild extension with binaries
+      shell: bash
+      run: |
+        echo "🔨 Rebuilding VSCode extension with organized binaries..."
+        pnpm turbo run build --filter=tscanner-vscode --force
+        echo "✅ Extension rebuild complete with binaries included"
+
+    - name: Publish VSCode Extension
+      shell: bash
+      run: bash scripts/vscode-publisher.sh
+      env:
+        AZURE_VSCODE_PAT: ${{ inputs.azure-pat }}
