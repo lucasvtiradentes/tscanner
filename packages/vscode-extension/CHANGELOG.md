@@ -1,5 +1,11 @@
 # tscanner-vscode
 
+## 0.0.12
+
+### Patch Changes
+
+- 1539592: fix ci error
+
 ## 0.0.11
 
 ### Patch Changes
