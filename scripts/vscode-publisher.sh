@@ -108,7 +108,6 @@ main() {
     log "VS Code extension v$CURRENT_VERSION published to Marketplace!"
 
     log "Creating release tag..."
-    cd ../..
     bash scripts/create-release-tag.sh "vscode-extension" "$CURRENT_VERSION"
   else
     print_debug_info
