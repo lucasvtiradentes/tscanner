@@ -89,6 +89,8 @@ jobs:
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - uses: ./.github/actions/setup-and-install
       - uses: ./.github/actions/release-npm
         with:
@@ -104,6 +106,8 @@ jobs:
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - uses: ./.github/actions/setup-and-install
       - uses: ./.github/actions/release-vscode
         with:
@@ -116,6 +120,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - uses: ./.github/actions/setup-and-install
       - uses: ./.github/actions/release-github-action
         with:
