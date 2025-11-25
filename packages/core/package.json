@@ -5,13 +5,9 @@
   "scripts": {
     "build": "cargo build --release",
     "postbuild": "cargo run --bin generate_schema",
-    "test": "cargo test --verbose || true",
-    "lint": "cargo clippy -- -D warnings",
+    "lint": "cargo clippy -- -D warnings && cargo fmt -- --check",
     "lint:fix": "cargo clippy --fix --allow-dirty --allow-staged -- -D warnings",
-    "clippy": "cargo clippy -- -D warnings",
     "format": "cargo fmt",
-    "format:rust": "cargo fmt",
-    "format:check": "cargo fmt -- --check",
     "typecheck": "cargo check"
   }
 }

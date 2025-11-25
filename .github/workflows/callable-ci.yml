@@ -113,6 +113,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-and-install
+        with:
+          install-rust: 'true'
 
       - name: Run lint
         run: pnpm run lint
@@ -123,54 +125,17 @@ jobs:
       - name: Check if any changes were made
         run: git diff --exit-code
 
-  rust-check:
-    if: inputs.run_lint || inputs.run_build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Setup Rust cache
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: packages/core
-          shared-key: rust-check
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.22.0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install turbo only
-        run: pnpm add -g turbo
-
-      - name: Run tests and lint (dev profile)
-        if: inputs.run_lint
-        run: |
-          turbo run test --filter=core
-          turbo run clippy --filter=core
-          turbo run format:check --filter=core
-
-      - name: Build release
-        if: inputs.run_build
-        run: turbo run build --filter=core
-
   build:
     if: inputs.run_build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-and-install
+        with:
+          install-rust: 'true'
 
       - name: Run typecheck
         run: pnpm run typecheck
 
-      - name: Build package
+      - name: Build all packages
         run: pnpm run build
