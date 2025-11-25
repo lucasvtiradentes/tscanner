@@ -3,10 +3,6 @@
 <div align="center">
   <img height="80" src="https://i.ibb.co/1tyQ1m40/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner - GitHub Action</strong></div>
-  <br />
-  <div>
-    <a href="https://github.com/marketplace/actions/tscanner-action"><img src="https://img.shields.io/badge/GitHub-Marketplace-blue.svg" alt="GitHub Marketplace"></a>
-  </div>
   <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-usage">Usage</a> • <a href="#-inputs">Inputs</a> • <a href="#-license">License</a>
 </div>
 
@@ -14,9 +10,18 @@
 
 ## 🎺 Overview<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
-GitHub Action for [Tscanner](https://github.com/lucasvtiradentes/tscanner): Enforce project-specific patterns, detect anti-patterns, and validate architectural conventions with 23+ built-in rules or custom validation (regex, scripts, AI). Integrates into CI/CD workflows with smart PR comments and flexible scan modes.
+GitHub Action for [TScanner](https://github.com/lucasvtiradentes/tscanner): Enforce project-specific patterns, detect anti-patterns, and validate architectural conventions with 23+ built-in rules or custom validation (regex, scripts, AI). Integrates into CI/CD workflows with smart PR comments and flexible scan modes.
 
-<img src="https://i.ibb.co/DPmC6YWc/tscanner-pr-comment-errors-found.png" alt="PR Comment Screenshot" width="100%">
+<table>
+  <tr>
+    <th>PR Comment - Issues Found</th>
+    <th>PR Comment - No Issues Found</th>
+  </tr>
+  <tr>
+    <td><img src="https://i.ibb.co/DPmC6YWc/tscanner-pr-comment-errors-found.png" alt="PR Comment - Issues Found"></td>
+    <td><img src="https://i.ibb.co/0V6d51HR/tscanner-pr-comment-no-issues.png" alt="PR Comment - No Issues"></td>
+  </tr>
+</table>
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
@@ -60,7 +65,7 @@ jobs:
     target-branch: 'origin/main'
 ```
 
-### Advanced Examples
+### Additional examples
 
 <details>
 <summary><b>Continue on Errors</b></summary>

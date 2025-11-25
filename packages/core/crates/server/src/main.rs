@@ -13,7 +13,7 @@ use state::ServerState;
 
 fn main() {
     core::init_logger("rust_server     ");
-    core::log_info("Tscanner server started");
+    core::log_info("TScanner server started");
 
     let mut state = ServerState::new();
     let stdin = io::stdin();

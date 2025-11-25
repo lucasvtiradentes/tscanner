@@ -50,7 +50,7 @@ export function createManageRulesCommand(updateStatusBar: () => Promise<void>, c
 
     const binaryPath = getRustBinaryPath();
     if (!binaryPath) {
-      showToastMessage(ToastKind.Error, 'Tscanner: Rust binary not found. Please build the Rust core first.');
+      showToastMessage(ToastKind.Error, 'TScanner: Rust binary not found. Please build the Rust core first.');
       return;
     }
 

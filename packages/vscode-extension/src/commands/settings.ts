@@ -54,13 +54,13 @@ export function createOpenSettingsMenuCommand(
       },
       {
         id: SettingsMenuOption.OpenConfigs,
-        label: '$(edit) Open Project Tscanner Configs',
+        label: '$(edit) Open Project TScanner Configs',
         detail: 'Edit .tscanner config or global extension config',
       },
     ];
 
     const selected = await vscode.window.showQuickPick(mainMenuItems, {
-      placeHolder: 'Tscanner Settings',
+      placeHolder: 'TScanner Settings',
       ignoreFocusOut: false,
     });
 
@@ -84,7 +84,7 @@ export function createOpenSettingsMenuCommand(
         );
         break;
       case SettingsMenuOption.OpenConfigs:
-        logger.info('User selected: Open Project Tscanner Configs');
+        logger.info('User selected: Open Project TScanner Configs');
         await openProjectTscannerConfigs(context);
         break;
     }
@@ -119,7 +119,7 @@ async function openProjectTscannerConfigs(context: vscode.ExtensionContext) {
     logger.debug('Global config not found');
   }
 
-  showToastMessage(ToastKind.Error, 'No Tscanner configuration found. Create one via "Manage Rules" first.');
+  showToastMessage(ToastKind.Error, 'No TScanner configuration found. Create one via "Manage Rules" first.');
 }
 
 async function showScanSettingsMenu(

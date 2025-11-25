@@ -134,7 +134,7 @@ function buildCommentBody(
 
   if (totalIssues === 0) {
     return `${COMMENT_MARKER}
-## ✅ Tscanner - No Issues Found
+## ✅ TScanner - No Issues Found
 
 **Issues:** 0
 **Mode:** ${buildModeLabel()}
@@ -150,7 +150,7 @@ All files passed validation!
   const title = totalErrors > 0 ? 'Errors Found' : 'Warnings Found';
 
   let comment = `${COMMENT_MARKER}
-## ${icon} Tscanner - ${title}
+## ${icon} TScanner - ${title}
 
 **Issues:** ${buildIssuesSummary()}
 **Mode:** ${buildModeLabel()}
