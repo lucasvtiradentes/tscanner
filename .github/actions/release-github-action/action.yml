@@ -1,0 +1,16 @@
+name: 'Release GitHub Action'
+description: 'Builds and publishes GitHub Action to standalone repository'
+
+inputs:
+  gh-pat:
+    description: 'GitHub Personal Access Token for syncing to standalone repository'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Publish GitHub Action
+      shell: bash
+      run: bash scripts/publish-github-action.sh
+      env:
+        GH_PAT_SYNC_TSCANNER_GH_ACTION: ${{ inputs.gh-pat }}

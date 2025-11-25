@@ -1,7 +1,7 @@
 {
   "name": "tscanner-vscode",
   "private": true,
-  "displayName": "tscanner",
+  "displayName": "TScanner",
   "description": "High-performance TypeScript code quality scanner with custom rules, Git integration, and instant LLM feedback",
   "version": "0.0.11",
   "publisher": "lucasvtiradentes",
@@ -18,10 +18,7 @@
   "engines": {
     "vscode": "^1.100.0"
   },
-  "categories": [
-    "Linters",
-    "Programming Languages"
-  ],
+  "categories": ["Linters", "Programming Languages"],
   "keywords": [
     "code-quality",
     "scanner",
@@ -53,9 +50,7 @@
     "tsx": "^4.20.6",
     "typescript": "^5.7.0"
   },
-  "activationEvents": [
-    "onStartupFinished"
-  ],
+  "activationEvents": ["onStartupFinished"],
   "contributes": {
     "viewsContainers": {
       "activitybar": [
