@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.7
+
+### Patch Changes
+
+- 4822d56: update docs
+
 ## 0.0.6
 
 ### Patch Changes
