@@ -1,18 +1,15 @@
 <a name="TOC"></a>
 
 <div align="center">
-<img width="128" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/logo.png" alt="tscanner logo">
-<h4>tscanner</h4>
-<p>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <br>
+  <img height="80" src="https://i.ibb.co/1tyQ1m40/tscanner-logo.png" alt="tscanner logo">
+  <div><strong>TScanner</strong></div>
+  <br />
   <a href="#-overview">Overview</a> • <a href="#-ways-to-use">Ways to use</a> • <a href="#-features">Features</a> • <a href="#-use-cases">Use Cases</a> • <a href="#-architecture">Architecture</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-license">License</a>
-</p>
 </div>
 
-<a href="#"><img src="./.github/image/divider.png" /></a>
+<a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
 
-## 🎺 Overview<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
+## 🎺 Overview<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 Tscanner is a high-performance code quality scanner for TypeScript codebases. Catch code quality issues with 23+ built-in rules or define project-specific patterns using regex, scripts, or AI validation. Integrates seamlessly with CI/CD, git hooks, and development workflows.
 
@@ -22,20 +19,37 @@ Tscanner is a high-performance code quality scanner for TypeScript codebases. Ca
 <th>issues detected in the latest push in a PR</th>
 </tr>
 <tr>
-<td width="50%"><img src="./.github/image/vscode-demo.png" alt="VS Code Extension Screenshot" width="100%"></td>
-<td width="50%"><img src="./.github/image/pr-comment-errors-found.png" alt="VS Code Extension Screenshot" width="100%"></td>
+<td width="50%"><img src="https://i.ibb.co/8DZqQqn6/tscanner-vscode-demo.png" alt="VS Code Extension Screenshot" width="100%"></td>
+<td width="50%"><img src="https://i.ibb.co/DPmC6YWc/tscanner-pr-comment-errors-found.png" alt="VS Code Extension Screenshot" width="100%"></td>
 </tr>
 </table>
 
-## 📦 Ways to use<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
+## 📦 Ways to use<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
-| Package | Description | Download |
-|---------|-------------|----------|
-| **[CLI](packages/cli)** | Terminal scanning, CI/CD integration, pre-commit hooks | [![npm](https://img.shields.io/npm/v/tscanner.svg)](https://www.npmjs.com/package/tscanner) |
-| **[VSCode Extension](packages/vscode-extension)** | Real-time sidebar integration with Git-aware branch scanning | [![VS Marketplace](https://img.shields.io/visual-studio-marketplace/v/lucasvtiradentes.tscanner-vscode.svg)](https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode) |
-| **[GitHub Action](packages/github-action)** | CICD integration with analysis summary attached to PR comments | [![GitHub Marketplace](https://img.shields.io/badge/GitHub-Marketplace-blue.svg)](https://github.com/marketplace/actions/tscanner-pr-validator) |
+<table>
+  <tr>
+    <th>Package</th>
+    <th>Description</th>
+    <th>Download</th>
+  </tr>
+  <tr>
+    <td><b><a href="packages/cli">CLI</a></b></td>
+    <td>Terminal scanning, CI/CD integration, pre-commit hooks</td>
+    <td><a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/badge/Npm-Package-red.svg" alt="npm"></a></td>
+  </tr>
+  <tr>
+    <td><b><a href="packages/vscode-extension">VSCode Extension</a></b></td>
+    <td>Real-time sidebar integration with Git-aware branch scanning</td>
+    <td><a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/badge/Vscode-Extension-blue.svg" alt="VS Marketplace"></a></td>
+  </tr>
+  <tr>
+    <td><b><a href="packages/github-action">GitHub Action</a></b></td>
+    <td>CICD integration with analysis summary attached to PR comments</td>
+    <td><a href="https://github.com/marketplace/actions/tscanner-pr-validator"><img src="https://img.shields.io/badge/GitHub-Marketplace-black.svg" alt="GitHub Marketplace"></a></td>
+  </tr>
+</table>
 
-## ⭐ Features<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
+## ⭐ Features<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 - **23+ Built-in Rules** - AST-based TypeScript/TSX validation for type safety, imports, and code quality
 - **Custom Rules** - Regex patterns, JavaScript scripts, or AI-powered validation
@@ -47,25 +61,28 @@ Tscanner is a high-performance code quality scanner for TypeScript codebases. Ca
 - **Inline Control** - Disable rules per line/file with `tscanner-disable` directives
 - **Zero Config** - Works out of the box with sensible defaults
 
-## 💡 Use Cases<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
+## 💡 Use Cases<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
-**Project Consistency**
+<table>
+  <tr>
+    <td><b>Project Consistency</b></td>
+    <td>Enforce architectural patterns across your codebase - import styles, type preferences, naming conventions, and code organization rules that matter to your project.</td>
+  </tr>
+  <tr>
+    <td><b>PR Quality Gates</b></td>
+    <td>Automated PR comments show exactly which patterns were violated before merge. Reviewers can focus on logic instead of style issues.</td>
+  </tr>
+  <tr>
+    <td><b>AI Code Validation</b></td>
+    <td>See real-time quality feedback on AI-generated code. Quickly identify violations and request targeted refactoring before accepting changes.</td>
+  </tr>
+  <tr>
+    <td><b>Flexible Customization</b></td>
+    <td>Built-in rules cover common cases, but unique project requirements can use custom script and AI rules for complex validation logic.</td>
+  </tr>
+</table> 
 
-Enforce architectural patterns across your codebase - import styles, type preferences, naming conventions, and code organization rules that matter to your project.
-
-**PR Quality Gates**
-
-Automated PR comments show exactly which patterns were violated before merge. Reviewers can focus on logic instead of style issues.
-
-**AI Code Validation**
-
-See real-time quality feedback on AI-generated code. Quickly identify violations and request targeted refactoring before accepting changes.
-
-**Flexible Customization**
-
-Built-in rules cover common cases, but unique project requirements can use custom script and AI rules for complex validation logic. 
-
-## 📦 Architecture<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
+## 📦 Architecture<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 ```
 CLI/VSCode/GitHub Action (TypeScript)
@@ -86,7 +103,7 @@ CLI/VSCode/GitHub Action (TypeScript)
 - GZIP compression for large result sets (>10KB)
 - Real-time file watching for incremental updates
 
-## 🚀 Quick Start<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
+## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 
 ### CLI
@@ -179,6 +196,22 @@ const data: any = fetchData();
 // Entire file is skipped
 ```
 
-## 📜 License<a href="#TOC"><img align="right" src="./.github/image/up_arrow.png" width="22"></a>
+## 🙏 Inspirations<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+
+- [Biome](https://github.com/biomejs/biome) - Rust-powered toolchain architecture
+- [VSCode Bookmarks](https://github.com/alefragnani/vscode-bookmarks) - Sidebar tree view patterns
+
+## 📜 License<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 MIT License - see [LICENSE](LICENSE) file for details.
+
+<a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
+
+<div align="center">
+  <div>
+    <a target="_blank" href="https://www.linkedin.com/in/lucasvtiradentes/"><img src="https://img.shields.io/badge/-linkedin-blue?logo=Linkedin&logoColor=white" alt="LinkedIn"></a>
+    <a target="_blank" href="mailto:lucasvtiradentes@gmail.com"><img src="https://img.shields.io/badge/gmail-red?logo=gmail&logoColor=white" alt="Gmail"></a>
+    <a target="_blank" href="https://x.com/lucasvtiradente"><img src="https://img.shields.io/badge/-X-black?logo=X&logoColor=white" alt="X"></a>
+    <a target="_blank" href="https://github.com/lucasvtiradentes"><img src="https://img.shields.io/badge/-github-gray?logo=Github&logoColor=white" alt="Github"></a>
+  </div>
+</div>

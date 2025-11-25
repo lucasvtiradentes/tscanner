@@ -1,27 +1,26 @@
 <a name="TOC"></a>
 
-<div align="center">
-<img width="128" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/logo.png" alt="tscanner Extension logo">
-<h4>Tscanner - VS Code Extension</h4>
-<p>
-  <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/visual-studio-marketplace/v/lucasvtiradentes.tscanner-vscode.svg" alt="vscode version"></a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/visual-studio-marketplace/i/lucasvtiradentes.tscanner-vscode.svg" alt="installs"></a>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <br>
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> • <a href="#-architecture">Architecture</a> • <a href="#-license">License</a>
-</p>
 
+<div align="center">
+  <img height="80" src="https://i.ibb.co/1tyQ1m40/tscanner-logo.png" alt="tscanner logo">
+  <div><strong>TScanner - VS Code Extension</strong></div>
+  <br />
+  <div>
+    <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/visual-studio-marketplace/v/lucasvtiradentes.tscanner-vscode.svg" alt="vscode version"></a>
+    <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/visual-studio-marketplace/i/lucasvtiradentes.tscanner-vscode.svg" alt="installs"></a>
+  </div>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> • <a href="#-architecture">Architecture</a> • <a href="#-license">License</a>
 </div>
 
-<a href="#"><img src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/divider.png" /></a>
+<a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
 
 ## 🎺 Overview
 
 Real-time TypeScript code quality scanner with sidebar integration and Git-aware scanning. Catch issues as you type with instant visual feedback.
 
-<img src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/vscode-demo.png" alt="VS Code Extension Screenshot" width="100%">
+<img src="https://i.ibb.co/8DZqQqn6/tscanner-vscode-demo.png" alt="VS Code Extension Screenshot" width="100%">
 
-## ⭐ Features<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## ⭐ Features<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 - **Real-time Scanning** - File system watching detects changes instantly
 - **Multiple scanning modes** - Scan full codebase or only branch changes
@@ -32,7 +31,7 @@ Real-time TypeScript code quality scanner with sidebar integration and Git-aware
 - **23+ Built-in Rules** - AST-based validation for TypeScript/TSX
 - **Custom Rules** - Regex patterns, JavaScript scripts, or AI-powered validation
 
-## 🚀 Installation<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## 🚀 Installation<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 **From VS Code Marketplace:**
 
@@ -47,7 +46,7 @@ Real-time TypeScript code quality scanner with sidebar integration and Git-aware
 code --install-extension lucasvtiradentes.tscanner-vscode
 ```
 
-## 💡 Usage<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## 💡 Usage<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 ### Getting Started
 
@@ -178,7 +177,7 @@ Perfect for PR validation - see only issues you introduced.
 
 </details>
 
-## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 ```
 Extension (TypeScript)        Rust Server
@@ -191,6 +190,17 @@ Extension (TypeScript)        Rust Server
 
 **Communication:** Line-delimited JSON-RPC over stdin/stdout with GZIP compression for large result sets.
 
-## 📜 License<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## 📜 License<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 MIT License - see [LICENSE](../../LICENSE) file for details.
+
+<a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
+
+<div align="center">
+  <div>
+    <a target="_blank" href="https://www.linkedin.com/in/lucasvtiradentes/"><img src="https://img.shields.io/badge/-linkedin-blue?logo=Linkedin&logoColor=white" alt="LinkedIn"></a>
+    <a target="_blank" href="mailto:lucasvtiradentes@gmail.com"><img src="https://img.shields.io/badge/gmail-red?logo=gmail&logoColor=white" alt="Gmail"></a>
+    <a target="_blank" href="https://x.com/lucasvtiradente"><img src="https://img.shields.io/badge/-X-black?logo=X&logoColor=white" alt="X"></a>
+    <a target="_blank" href="https://github.com/lucasvtiradentes"><img src="https://img.shields.io/badge/-github-gray?logo=Github&logoColor=white" alt="Github"></a>
+  </div>
+</div>

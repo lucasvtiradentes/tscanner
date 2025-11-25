@@ -1,26 +1,24 @@
 <a name="TOC"></a>
 
 <div align="center">
-<img width="128" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/logo.png" alt="tscanner GitHub Action logo">
-<h4>tscanner - GitHub Action</h4>
-<p>
-  <a href="https://github.com/marketplace/actions/tscanner-pr-validator"><img src="https://img.shields.io/badge/GitHub-Marketplace-blue.svg" alt="GitHub Marketplace"></a>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <br>
+  <img height="80" src="https://i.ibb.co/1tyQ1m40/tscanner-logo.png" alt="tscanner logo">
+  <div><strong>TScanner - GitHub Action</strong></div>
+  <br />
+  <div>
+    <a href="https://github.com/marketplace/actions/tscanner-action"><img src="https://img.shields.io/badge/GitHub-Marketplace-blue.svg" alt="GitHub Marketplace"></a>
+  </div>
   <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-usage">Usage</a> • <a href="#-inputs">Inputs</a> • <a href="#-license">License</a>
-</p>
-
 </div>
 
-<a href="#"><img src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/divider.png" /></a>
+<a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
 
-## 🎺 Overview<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## 🎺 Overview<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 GitHub Action for [Tscanner](https://github.com/lucasvtiradentes/tscanner): Enforce project-specific patterns, detect anti-patterns, and validate architectural conventions with 23+ built-in rules or custom validation (regex, scripts, AI). Integrates into CI/CD workflows with smart PR comments and flexible scan modes.
 
-<img src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/pr-comment-errors-found.png" alt="PR Comment Screenshot" width="100%">
+<img src="https://i.ibb.co/DPmC6YWc/tscanner-pr-comment-errors-found.png" alt="PR Comment Screenshot" width="100%">
 
-## ⭐ Features<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## ⭐ Features<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 - **23+ Built-in Rules** - AST-based validation for TypeScript/TSX
 - **Custom Rules** - Regex patterns, JavaScript scripts, or AI-powered validation
@@ -30,7 +28,7 @@ GitHub Action for [Tscanner](https://github.com/lucasvtiradentes/tscanner): Enfo
 - **Flexible Control** - Continue or fail workflow on errors
 - **CI/CD Integration** - Works with any GitHub Actions workflow
 
-## 🚀 Usage<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## 🚀 Usage<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 ### Quick Start
 
@@ -139,7 +137,7 @@ All options:
 
 </details>
 
-## 📋 Inputs<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## 📋 Inputs<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
@@ -151,6 +149,17 @@ All options:
 | `continue-on-error` | No | `false` | Continue workflow even if errors found (`true`/`false`) |
 | `timezone` | No | `UTC` | Timezone for timestamps in PR comments. Example: `America/New_York` |
 
-## 📜 License<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## 📜 License<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 MIT License - see [LICENSE](LICENSE) file for details.
+
+<a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
+
+<div align="center">
+  <div>
+    <a target="_blank" href="https://www.linkedin.com/in/lucasvtiradentes/"><img src="https://img.shields.io/badge/-linkedin-blue?logo=Linkedin&logoColor=white" alt="LinkedIn"></a>
+    <a target="_blank" href="mailto:lucasvtiradentes@gmail.com"><img src="https://img.shields.io/badge/gmail-red?logo=gmail&logoColor=white" alt="Gmail"></a>
+    <a target="_blank" href="https://x.com/lucasvtiradente"><img src="https://img.shields.io/badge/-X-black?logo=X&logoColor=white" alt="X"></a>
+    <a target="_blank" href="https://github.com/lucasvtiradentes"><img src="https://img.shields.io/badge/-github-gray?logo=Github&logoColor=white" alt="Github"></a>
+  </div>
+</div>
