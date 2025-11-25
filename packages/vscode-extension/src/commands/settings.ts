@@ -51,8 +51,25 @@ export function createOpenSettingsMenuCommand(
   return registerCommand(Command.OpenSettingsMenu, async () => {
     logger.info('openSettingsMenu command called');
 
+    const workspaceFolder = getCurrentWorkspaceFolder();
+    if (!workspaceFolder) {
+      showToastMessage(ToastKind.Error, 'No workspace folder open');
+      return;
+    }
+
     const customConfigDir = currentCustomConfigDirRef.current;
     const configFolderDetail = customConfigDir ? `Currently: ${customConfigDir}` : 'Use default config location';
+
+    const hasCustom = customConfigDir ? await hasCustomConfig(workspaceFolder.uri.fsPath, customConfigDir) : false;
+    const hasLocal = await hasLocalConfig(workspaceFolder.uri.fsPath);
+    const globalConfigPath = getGlobalConfigPath(context, workspaceFolder.uri.fsPath);
+    let hasGlobal = false;
+    try {
+      await vscode.workspace.fs.stat(globalConfigPath);
+      hasGlobal = true;
+    } catch {}
+
+    const hasAnyConfig = hasCustom || hasLocal || hasGlobal;
 
     const mainMenuItems: QuickPickItemWithId[] = [
       {
@@ -70,12 +87,15 @@ export function createOpenSettingsMenuCommand(
         label: '$(folder) Select Config Folder',
         detail: configFolderDetail,
       },
-      {
+    ];
+
+    if (hasAnyConfig) {
+      mainMenuItems.push({
         id: SettingsMenuOption.OpenConfigs,
         label: '$(edit) Open Project TScanner Configs',
         detail: 'Edit .tscanner config or global extension config',
-      },
-    ];
+      });
+    }
 
     const selected = await vscode.window.showQuickPick(mainMenuItems, {
       placeHolder: 'TScanner Settings',
