@@ -18,7 +18,7 @@ GitHub Action for [TScanner](https://github.com/lucasvtiradentes/tscanner): Enfo
     <th>PR Comment - No Issues Found</th>
   </tr>
   <tr>
-    <td><img src="https://i.ibb.co/DPmC6YWc/tscanner-pr-comment-errors-found.png" alt="PR Comment - Issues Found"></td>
+    <td><img src="https://i.ibb.co/m5DS0kY6/pr-comment-issues-found.png" alt="PR Comment - Issues Found"></td>
     <td><img src="https://i.ibb.co/0V6d51HR/tscanner-pr-comment-no-issues.png" alt="PR Comment - No Issues"></td>
   </tr>
 </table>

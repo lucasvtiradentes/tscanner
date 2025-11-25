@@ -20,7 +20,7 @@ TScanner is a high-performance code quality scanner for TypeScript codebases. Ca
 </tr>
 <tr>
 <td width="50%"><img src="https://i.ibb.co/8DZqQqn6/tscanner-vscode-demo.png" alt="VS Code Extension Screenshot" width="100%"></td>
-<td width="50%"><img src="https://i.ibb.co/DPmC6YWc/tscanner-pr-comment-errors-found.png" alt="VS Code Extension Screenshot" width="100%"></td>
+<td width="50%"><img src="https://i.ibb.co/m5DS0kY6/pr-comment-issues-found.png" alt="VS Code Extension Screenshot" width="100%"></td>
 </tr>
 </table>
 
