@@ -51,7 +51,7 @@ code --install-extension lucasvtiradentes.tscanner-vscode
 ### Getting Started
 
 1. Open a TypeScript/TSX workspace in VS Code
-2. Click the tscanner icon in the activity bar
+2. Click the TScanner icon in the activity bar
 3. Issues appear automatically in the sidebar
 4. Click any issue to jump to its location
 

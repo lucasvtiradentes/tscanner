@@ -1,6 +1,6 @@
-# tscanner CLI
+# TScanner CLI
 
-Standalone command-line interface for tscanner, the high-performance TypeScript/TSX code quality scanner.
+Standalone command-line interface for TScanner, the high-performance TypeScript/TSX code quality scanner.
 
 ## Installation
 
@@ -64,7 +64,7 @@ Shows:
 
 ## Configuration Resolution
 
-tscanner searches for configuration in this priority order:
+TScanner searches for configuration in this priority order:
 
 1. **Local Project Config** (recommended)
    - `.tscanner/config.jsonc` in project root
@@ -75,7 +75,7 @@ tscanner searches for configuration in this priority order:
    - Auto-managed by VSCode extension
    - Hash based on workspace path (MD5)
 
-If no configuration is found, tscanner exits with an error and helpful message.
+If no configuration is found, TScanner exits with an error and helpful message.
 
 ## Configuration File
 
@@ -131,7 +131,7 @@ tscanner check
 set -e
 
 tscanner check || {
-  echo "tscanner found code quality issues"
+  echo "TScanner found code quality issues"
   exit 1
 }
 

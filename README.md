@@ -133,7 +133,7 @@ tscanner check --json
    ```bash
    code --install-extension lucasvtiradentes.tscanner-vscode
    ```
-2. Click tscanner icon in activity bar
+2. Click TScanner icon in activity bar
 3. Issues appear automatically in the sidebar
 4. Configure rules via settings menu
 

@@ -214,7 +214,7 @@ tscanner rules --config /path/to/config/dir
 <details>
 <summary><b>CI/CD Pipeline</b></summary>
 
-It is recommended to use [tscanner gh action](https://github.com/lucasvtiradentes/tscanner/tree/main/packages/github-action), but you can also set up your own workflow:
+It is recommended to use [TScanner gh action](https://github.com/lucasvtiradentes/tscanner/tree/main/packages/github-action), but you can also set up your own workflow:
 
 ```yaml
 name: Code Quality
@@ -230,9 +230,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Install tscanner
+      - name: Install TScanner
         run: npm install -g tscanner
-      - name: Run tscanner validation
+      - name: Run TScanner validation
         run: tscanner check
 ```
 
