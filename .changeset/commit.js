@@ -6,13 +6,56 @@ function log(message) {
   console.log(`[changeset-commit] ${message}`);
 }
 
+function updateRustWorkspaceVersion(newVersion) {
+  const cargoTomlPath = join(process.cwd(), 'packages', 'core', 'Cargo.toml');
+
+  try {
+    let cargoToml = readFileSync(cargoTomlPath, 'utf-8');
+    const versionPattern = /^(version = ")[\d.]+(")/m;
+
+    if (versionPattern.test(cargoToml)) {
+      cargoToml = cargoToml.replace(versionPattern, `$1${newVersion}$2`);
+      writeFileSync(cargoTomlPath, cargoToml, 'utf-8');
+      execSync('git add packages/core/Cargo.toml', { stdio: 'inherit' });
+      log(`Updated Rust workspace version to ${newVersion}`);
+    }
+  } catch (error) {
+    log(`Error updating Rust workspace version: ${error.message}`);
+  }
+}
+
+function updateSchemaVersionInReadmes(newVersion) {
+  const readmePaths = [join(process.cwd(), 'README.md'), join(process.cwd(), 'packages', 'cli', 'README.md')];
+  const schemaPattern = /(unpkg\.com\/tscanner@)[\d.]+(\/)schema\.json/g;
+
+  try {
+    for (const readmePath of readmePaths) {
+      let readme = readFileSync(readmePath, 'utf-8');
+      if (schemaPattern.test(readme)) {
+        schemaPattern.lastIndex = 0;
+        readme = readme.replace(schemaPattern, `$1${newVersion}$2schema.json`);
+        writeFileSync(readmePath, readme, 'utf-8');
+        log(`Updated schema version in ${readmePath} to ${newVersion}`);
+      }
+    }
+  } catch (error) {
+    log(`Error updating schema version in READMEs: ${error.message}`);
+  }
+}
+
 function updateReadmeVersions() {
-  const packageJsonPath = join(process.cwd(), 'packages', 'github-action', 'package.json');
+  const cliPackageJsonPath = join(process.cwd(), 'packages', 'cli', 'package.json');
+  const githubActionPackageJsonPath = join(process.cwd(), 'packages', 'github-action', 'package.json');
   const githubActionReadmePath = join(process.cwd(), 'packages', 'github-action', 'README.md');
   const rootReadmePath = join(process.cwd(), 'README.md');
 
   try {
-    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+    const cliPackageJson = JSON.parse(readFileSync(cliPackageJsonPath, 'utf-8'));
+    const cliVersion = cliPackageJson.version;
+    updateRustWorkspaceVersion(cliVersion);
+    updateSchemaVersionInReadmes(cliVersion);
+
+    const packageJson = JSON.parse(readFileSync(githubActionPackageJsonPath, 'utf-8'));
     const newVersion = packageJson.version;
     const versionPattern = /@v\d+\.\d+\.\d+/g;
     const newVersionTag = `@v${newVersion}`;

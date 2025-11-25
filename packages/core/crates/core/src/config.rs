@@ -320,8 +320,11 @@ impl Default for TscannerConfig {
             },
         );
 
+        let version = env!("CARGO_PKG_VERSION");
+        let schema_url = format!("https://unpkg.com/tscanner@{}/schema.json", version);
+
         Self {
-            schema: Some("https://unpkg.com/tscanner/schema.json".to_string()),
+            schema: Some(schema_url),
             builtin_rules,
             custom_rules: HashMap::new(),
             include: default_include(),

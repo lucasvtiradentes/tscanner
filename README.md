@@ -163,6 +163,7 @@ Create `.tscanner/config.jsonc`:
 
 ```json
 {
+  "schema": "https://unpkg.com/tscanner@0.0.9/schema.json",
   "builtinRules": {
     "no-any-type": {
       "enabled": true,
