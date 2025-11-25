@@ -90,7 +90,7 @@ tscanner init /path/to/project
 Creates `.tscanner/config.jsonc` with default rule configuration:
 ```json
 {
-  "schema": "https://unpkg.com/tscanner@0.0.11/schema.json",
+  "schema": "https://unpkg.com/tscanner@0.0.12/schema.json",
   "builtinRules": {
     "no-any-type": {
       "enabled": true,
