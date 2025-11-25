@@ -1,5 +1,11 @@
 # @tscanner/cli-win32-x64
 
+## 0.0.13
+
+### Patch Changes
+
+- c9741db: fix publish error
+
 ## 0.0.12
 
 ### Patch Changes

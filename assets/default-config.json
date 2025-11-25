@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/tscanner@0.0.12/schema.json",
+  "$schema": "https://unpkg.com/tscanner@0.0.13/schema.json",
   "builtinRules": {
     "no-any-type": {}
   },
