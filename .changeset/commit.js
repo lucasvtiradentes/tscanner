@@ -16,8 +16,16 @@ function updateRustWorkspaceVersion(newVersion) {
     if (versionPattern.test(cargoToml)) {
       cargoToml = cargoToml.replace(versionPattern, `$1${newVersion}$2`);
       writeFileSync(cargoTomlPath, cargoToml, 'utf-8');
-      execSync('git add packages/core/Cargo.toml', { stdio: 'inherit' });
       log(`Updated Rust workspace version to ${newVersion}`);
+
+      log('Updating Cargo.lock...');
+      execSync('cargo update --workspace', {
+        cwd: join(process.cwd(), 'packages', 'core'),
+        stdio: 'inherit',
+      });
+
+      execSync('git add packages/core/Cargo.toml packages/core/Cargo.lock', { stdio: 'inherit' });
+      log('Added Cargo.toml and Cargo.lock to git staging');
     }
   } catch (error) {
     log(`Error updating Rust workspace version: ${error.message}`);
