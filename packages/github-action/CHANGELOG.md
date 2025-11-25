@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.8
+
+### Patch Changes
+
+- cbd4ec8: fix lint error
+
 ## 0.0.7
 
 ### Patch Changes
