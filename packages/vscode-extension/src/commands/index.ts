@@ -52,7 +52,7 @@ export function registerAllCommands(ctx: CommandContext): vscode.Disposable[] {
       ctx.currentCompareBranchRef,
       ctx.currentCustomConfigDirRef,
     ),
-    createManageRulesCommand(ctx.updateStatusBar, ctx.context),
+    createManageRulesCommand(ctx.updateStatusBar, ctx.context, ctx.currentCustomConfigDirRef),
     createOpenSettingsMenuCommand(
       ctx.updateStatusBar,
       ctx.updateBadge,

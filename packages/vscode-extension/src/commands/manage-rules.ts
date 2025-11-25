@@ -2,10 +2,13 @@ import * as vscode from 'vscode';
 import {
   type TscannerConfig,
   getDefaultConfig,
+  hasCustomConfig,
+  hasGlobalConfig,
+  hasLocalConfig,
   loadEffectiveConfig,
+  saveCustomConfig,
   saveGlobalConfig,
   saveLocalConfig,
-  shouldSyncToLocal,
 } from '../common/lib/config-manager';
 import { RustClient } from '../common/lib/rust-client';
 import { getRustBinaryPath } from '../common/lib/scanner';
@@ -18,6 +21,7 @@ import {
   showToastMessage,
 } from '../common/lib/vscode-utils';
 import { logger } from '../common/utils/logger';
+import { ConfigLocation, showConfigLocationMenuForFirstSetup } from './settings';
 
 interface RuleQuickPickItem extends vscode.QuickPickItem {
   ruleName: string;
@@ -38,7 +42,11 @@ function getCategoryIcon(category: string): string {
   return icons[category] || 'circle-outline';
 }
 
-export function createManageRulesCommand(updateStatusBar: () => Promise<void>, context: vscode.ExtensionContext) {
+export function createManageRulesCommand(
+  updateStatusBar: () => Promise<void>,
+  context: vscode.ExtensionContext,
+  currentCustomConfigDirRef: { current: string | null },
+) {
   return registerCommand(Command.ManageRules, async () => {
     const workspaceFolder = getCurrentWorkspaceFolder();
     if (!workspaceFolder) {
@@ -47,6 +55,7 @@ export function createManageRulesCommand(updateStatusBar: () => Promise<void>, c
     }
 
     const workspacePath = workspaceFolder.uri.fsPath;
+    const customConfigDir = currentCustomConfigDirRef.current;
 
     const binaryPath = getRustBinaryPath();
     if (!binaryPath) {
@@ -60,7 +69,9 @@ export function createManageRulesCommand(updateStatusBar: () => Promise<void>, c
     try {
       const rules = await client.getRulesMetadata();
 
-      const existingConfig = (await loadEffectiveConfig(context, workspacePath)) || getDefaultConfig();
+      logger.info(`Loading config for manage-rules, customConfigDir: ${customConfigDir ?? 'null'}`);
+      const existingConfig = (await loadEffectiveConfig(context, workspacePath, customConfigDir)) || getDefaultConfig();
+      logger.info(`Loaded config with ${Object.keys(existingConfig.builtinRules || {}).length} builtin rules`);
 
       const customRuleTypeMap = {
         regex: { icon: '$(regex)', detailKey: 'pattern' as const },
@@ -197,50 +208,51 @@ export function createManageRulesCommand(updateStatusBar: () => Promise<void>, c
         }
       }
 
-      const isUserManaged = !(await shouldSyncToLocal(workspacePath));
+      const hasCustom = customConfigDir ? await hasCustomConfig(workspacePath, customConfigDir) : false;
+      const hasLocal = await hasLocalConfig(workspacePath);
+      const hasGlobal = await hasGlobalConfig(context, workspacePath);
+      const hasAnyConfig = hasCustom || hasLocal || hasGlobal;
 
-      let saveLocation: 'global' | 'local' | undefined;
-
-      if (isUserManaged) {
-        await saveLocalConfig(workspacePath, config);
-        logger.info('Updated user-managed local .tscanner config');
+      if (hasAnyConfig) {
+        if (hasCustom && customConfigDir) {
+          await saveCustomConfig(workspacePath, customConfigDir, config);
+          logger.info(`Updated custom config at ${customConfigDir}`);
+          showToastMessage(ToastKind.Info, `Rules saved to ${customConfigDir}`);
+        } else if (hasLocal) {
+          await saveLocalConfig(workspacePath, config);
+          logger.info('Updated local .tscanner config');
+          showToastMessage(ToastKind.Info, 'Rules saved to .tscanner');
+        } else if (hasGlobal) {
+          await saveGlobalConfig(context, workspacePath, config);
+          logger.info('Updated global config (extension storage)');
+          showToastMessage(ToastKind.Info, 'Rules saved to extension storage');
+        }
       } else {
-        const locationChoice = await vscode.window.showQuickPick(
-          [
-            {
-              label: '$(cloud) Extension Storage (Recommended)',
-              description: 'Managed by extension, synced across projects',
-              detail: 'Config saved in extension folder',
-              value: 'global',
-            },
-            {
-              label: '$(file) Project Folder',
-              description: 'Local to this project only',
-              detail: 'Creates .tscanner/config.jsonc in project (can be committed to git)',
-              value: 'local',
-            },
-          ],
-          {
-            placeHolder: 'Where do you want to save the rules configuration?',
-            ignoreFocusOut: true,
-          },
-        );
+        const locationResult = await showConfigLocationMenuForFirstSetup(currentCustomConfigDirRef, context);
 
-        if (!locationChoice) {
+        if (!locationResult) {
           await client.stop();
           return;
         }
 
-        saveLocation = locationChoice.value as 'global' | 'local';
-
-        if (saveLocation === 'global') {
-          await saveGlobalConfig(context, workspacePath, config);
-          logger.info('Saved to global config (extension storage)');
-          showToastMessage(ToastKind.Info, 'Rules saved to extension storage');
-        } else {
-          await saveLocalConfig(workspacePath, config);
-          logger.info('Saved to local .tscanner config (user-managed)');
-          showToastMessage(ToastKind.Info, 'Rules saved to .tscanner config');
+        switch (locationResult.location) {
+          case ConfigLocation.ExtensionStorage:
+            await saveGlobalConfig(context, workspacePath, config);
+            logger.info('Saved to global config (extension storage)');
+            showToastMessage(ToastKind.Info, 'Rules saved to extension storage');
+            break;
+          case ConfigLocation.ProjectFolder:
+            await saveLocalConfig(workspacePath, config);
+            logger.info('Saved to local .tscanner config');
+            showToastMessage(ToastKind.Info, 'Rules saved to .tscanner');
+            break;
+          case ConfigLocation.CustomPath:
+            if (locationResult.customPath) {
+              await saveCustomConfig(workspacePath, locationResult.customPath, config);
+              logger.info(`Saved to custom config at ${locationResult.customPath}`);
+              showToastMessage(ToastKind.Info, `Rules saved to ${locationResult.customPath}`);
+            }
+            break;
         }
       }
 

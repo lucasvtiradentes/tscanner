@@ -1,10 +1,18 @@
 import * as vscode from 'vscode';
 import {
+  deleteCustomConfig,
+  deleteGlobalConfig,
+  deleteLocalConfig,
   getCustomConfigPath,
   getGlobalConfigPath,
   getLocalConfigPath,
   hasCustomConfig,
+  hasGlobalConfig,
   hasLocalConfig,
+  loadEffectiveConfig,
+  saveCustomConfig,
+  saveGlobalConfig,
+  saveLocalConfig,
 } from '../common/lib/config-manager';
 import {
   Command,
@@ -25,9 +33,15 @@ import { setCopyScanContext } from './copy-issues';
 
 enum SettingsMenuOption {
   ManageRules = 'manage-rules',
-  ManageScanSettings = 'manage-scan-settings',
-  SelectConfigFolder = 'select-config-folder',
-  OpenConfigs = 'open-configs',
+  ManageScanMode = 'manage-scan-mode',
+  ManageConfigLocation = 'manage-config-location',
+  OpenConfigFile = 'open-config-file',
+}
+
+enum ConfigLocation {
+  ExtensionStorage = 'extension-storage',
+  ProjectFolder = 'project-folder',
+  CustomPath = 'custom-path',
 }
 
 enum BranchMenuOption {
@@ -57,43 +71,43 @@ export function createOpenSettingsMenuCommand(
       return;
     }
 
+    const workspacePath = workspaceFolder.uri.fsPath;
     const customConfigDir = currentCustomConfigDirRef.current;
-    const configFolderDetail = customConfigDir ? `Currently: ${customConfigDir}` : 'Use default config location';
 
-    const hasCustom = customConfigDir ? await hasCustomConfig(workspaceFolder.uri.fsPath, customConfigDir) : false;
-    const hasLocal = await hasLocalConfig(workspaceFolder.uri.fsPath);
-    const globalConfigPath = getGlobalConfigPath(context, workspaceFolder.uri.fsPath);
-    let hasGlobal = false;
-    try {
-      await vscode.workspace.fs.stat(globalConfigPath);
-      hasGlobal = true;
-    } catch {}
-
+    const hasCustom = customConfigDir ? await hasCustomConfig(workspacePath, customConfigDir) : false;
+    const hasLocal = await hasLocalConfig(workspacePath);
+    const hasGlobal = await hasGlobalConfig(context, workspacePath);
     const hasAnyConfig = hasCustom || hasLocal || hasGlobal;
+
+    const currentLocationLabel = getCurrentLocationLabel(hasCustom, hasLocal, hasGlobal, customConfigDir);
 
     const mainMenuItems: QuickPickItemWithId[] = [
       {
         id: SettingsMenuOption.ManageRules,
         label: '$(checklist) Manage Rules',
-        detail: 'Enable/disable built-in rules and generate configuration',
-      },
-      {
-        id: SettingsMenuOption.ManageScanSettings,
-        label: '$(gear) Manage Scan Settings',
-        detail: 'Choose between Codebase or Branch scan mode',
-      },
-      {
-        id: SettingsMenuOption.SelectConfigFolder,
-        label: '$(folder) Select Config Folder',
-        detail: configFolderDetail,
+        detail: 'Enable/disable rules',
       },
     ];
 
     if (hasAnyConfig) {
       mainMenuItems.push({
-        id: SettingsMenuOption.OpenConfigs,
-        label: '$(edit) Open Project TScanner Configs',
-        detail: 'Edit .tscanner config or global extension config',
+        id: SettingsMenuOption.ManageScanMode,
+        label: '$(gear) Manage Scan Mode',
+        detail: 'Choose between Codebase or Branch scan mode',
+      });
+    }
+
+    mainMenuItems.push({
+      id: SettingsMenuOption.ManageConfigLocation,
+      label: '$(folder) Manage Config Location',
+      detail: currentLocationLabel,
+    });
+
+    if (hasAnyConfig) {
+      mainMenuItems.push({
+        id: SettingsMenuOption.OpenConfigFile,
+        label: '$(edit) Open Config File',
+        detail: 'Edit current config file',
       });
     }
 
@@ -111,35 +125,48 @@ export function createOpenSettingsMenuCommand(
         logger.info('User selected: Manage Rules');
         await executeCommand(Command.ManageRules);
         break;
-      case SettingsMenuOption.ManageScanSettings:
-        logger.info('User selected: Manage Scan Settings');
-        await showScanSettingsMenu(
-          updateStatusBar,
-          currentScanModeRef,
-          currentCompareBranchRef,
-          context,
-          searchProvider,
-        );
+      case SettingsMenuOption.ManageScanMode:
+        logger.info('User selected: Manage Scan Mode');
+        await showScanModeMenu(updateStatusBar, currentScanModeRef, currentCompareBranchRef, context, searchProvider);
         break;
-      case SettingsMenuOption.SelectConfigFolder:
-        logger.info('User selected: Select Config Folder');
-        await showSelectConfigFolderMenu(
-          updateStatusBar,
-          updateBadge,
-          currentCustomConfigDirRef,
-          context,
-          searchProvider,
-        );
+      case SettingsMenuOption.ManageConfigLocation:
+        logger.info('User selected: Manage Config Location');
+        await showConfigLocationMenu(updateStatusBar, updateBadge, currentCustomConfigDirRef, context, searchProvider);
         break;
-      case SettingsMenuOption.OpenConfigs:
-        logger.info('User selected: Open Project TScanner Configs');
-        await openProjectTscannerConfigs(context, currentCustomConfigDirRef.current);
+      case SettingsMenuOption.OpenConfigFile:
+        logger.info('User selected: Open Config File');
+        await openConfigFile(context, currentCustomConfigDirRef.current);
         break;
     }
   });
 }
 
-async function openProjectTscannerConfigs(context: vscode.ExtensionContext, customConfigDir: string | null) {
+function getCurrentLocationLabel(
+  hasCustom: boolean,
+  hasLocal: boolean,
+  hasGlobal: boolean,
+  customConfigDir: string | null,
+): string {
+  if (hasCustom && customConfigDir) {
+    return `Current: ${customConfigDir}`;
+  }
+  if (hasLocal) {
+    return 'Current: .tscanner (Project Folder)';
+  }
+  if (hasGlobal) {
+    return 'Current: Extension Storage';
+  }
+  return 'No config set';
+}
+
+function getCurrentConfigLocation(hasCustom: boolean, hasLocal: boolean, hasGlobal: boolean): ConfigLocation | null {
+  if (hasCustom) return ConfigLocation.CustomPath;
+  if (hasLocal) return ConfigLocation.ProjectFolder;
+  if (hasGlobal) return ConfigLocation.ExtensionStorage;
+  return null;
+}
+
+async function openConfigFile(context: vscode.ExtensionContext, customConfigDir: string | null) {
   const workspaceFolder = getCurrentWorkspaceFolder();
 
   if (!workspaceFolder) {
@@ -147,10 +174,12 @@ async function openProjectTscannerConfigs(context: vscode.ExtensionContext, cust
     return;
   }
 
+  const workspacePath = workspaceFolder.uri.fsPath;
+
   if (customConfigDir) {
-    const hasCustom = await hasCustomConfig(workspaceFolder.uri.fsPath, customConfigDir);
+    const hasCustom = await hasCustomConfig(workspacePath, customConfigDir);
     if (hasCustom) {
-      const customConfigPath = getCustomConfigPath(workspaceFolder.uri.fsPath, customConfigDir);
+      const customConfigPath = getCustomConfigPath(workspacePath, customConfigDir);
       const doc = await openTextDocument(customConfigPath);
       await vscode.window.showTextDocument(doc);
       return;
@@ -158,9 +187,9 @@ async function openProjectTscannerConfigs(context: vscode.ExtensionContext, cust
     logger.info('Custom config not found, falling back to local/global');
   }
 
-  const hasLocal = await hasLocalConfig(workspaceFolder.uri.fsPath);
+  const hasLocal = await hasLocalConfig(workspacePath);
   if (hasLocal) {
-    const localConfigPath = getLocalConfigPath(workspaceFolder.uri.fsPath);
+    const localConfigPath = getLocalConfigPath(workspacePath);
     const doc = await openTextDocument(localConfigPath);
     await vscode.window.showTextDocument(doc);
     return;
@@ -168,27 +197,25 @@ async function openProjectTscannerConfigs(context: vscode.ExtensionContext, cust
 
   logger.info('Local config not found, trying global config');
 
-  const globalConfigPath = getGlobalConfigPath(context, workspaceFolder.uri.fsPath);
-  try {
-    await vscode.workspace.fs.stat(globalConfigPath);
+  const hasGlobal = await hasGlobalConfig(context, workspacePath);
+  if (hasGlobal) {
+    const globalConfigPath = getGlobalConfigPath(context, workspacePath);
     const doc = await openTextDocument(globalConfigPath);
     await vscode.window.showTextDocument(doc);
     return;
-  } catch {
-    logger.debug('Global config not found');
   }
 
   showToastMessage(ToastKind.Error, 'No TScanner configuration found. Create one via "Manage Rules" first.');
 }
 
-async function showScanSettingsMenu(
+async function showScanModeMenu(
   updateStatusBar: () => Promise<void>,
   currentScanModeRef: { current: ScanMode },
   currentCompareBranchRef: { current: string },
   context: vscode.ExtensionContext,
   searchProvider: SearchResultProvider,
 ) {
-  logger.info('showScanSettingsMenu called');
+  logger.info('showScanModeMenu called');
   const scanModeItems: QuickPickItemWithId[] = [
     {
       id: ScanMode.Codebase,
@@ -339,9 +366,236 @@ async function handleBranchScan(
   executeCommand(Command.FindIssue);
 }
 
-enum ConfigFolderOption {
-  SelectFolder = 'select-folder',
-  ClearCustom = 'clear-custom',
+async function showConfigLocationMenu(
+  updateStatusBar: () => Promise<void>,
+  updateBadge: () => void,
+  currentCustomConfigDirRef: { current: string | null },
+  context: vscode.ExtensionContext,
+  searchProvider: SearchResultProvider,
+) {
+  const workspaceFolder = getCurrentWorkspaceFolder();
+  if (!workspaceFolder) {
+    showToastMessage(ToastKind.Error, 'No workspace folder open');
+    return;
+  }
+
+  const workspacePath = workspaceFolder.uri.fsPath;
+  const customConfigDir = currentCustomConfigDirRef.current;
+
+  const hasCustom = customConfigDir ? await hasCustomConfig(workspacePath, customConfigDir) : false;
+  const hasLocal = await hasLocalConfig(workspacePath);
+  const hasGlobal = await hasGlobalConfig(context, workspacePath);
+
+  const currentLocation = getCurrentConfigLocation(hasCustom, hasLocal, hasGlobal);
+
+  const menuItems: QuickPickItemWithId[] = [
+    {
+      id: ConfigLocation.ExtensionStorage,
+      label: '$(cloud) Extension Storage',
+      description: currentLocation === ConfigLocation.ExtensionStorage ? '✓ Active' : '',
+      detail: 'Lost on extension uninstall',
+    },
+    {
+      id: ConfigLocation.ProjectFolder,
+      label: '$(file) Project Folder',
+      description: currentLocation === ConfigLocation.ProjectFolder ? '✓ Active' : '',
+      detail: '.tscanner/config.jsonc (can commit to git)',
+    },
+    {
+      id: ConfigLocation.CustomPath,
+      label: '$(folder-opened) Custom Path',
+      description: currentLocation === ConfigLocation.CustomPath ? `✓ Active (${customConfigDir})` : '',
+      detail: 'Select a custom folder within workspace',
+    },
+  ];
+
+  const selected = await vscode.window.showQuickPick(menuItems, {
+    placeHolder: 'Select config location',
+    ignoreFocusOut: false,
+  });
+
+  if (!selected) return;
+
+  const targetLocation = selected.id as ConfigLocation;
+
+  if (targetLocation === currentLocation) {
+    if (targetLocation === ConfigLocation.CustomPath) {
+      await handleCustomPathSelection(
+        workspacePath,
+        currentCustomConfigDirRef,
+        context,
+        searchProvider,
+        updateStatusBar,
+        updateBadge,
+        currentLocation,
+        hasCustom,
+        hasLocal,
+        hasGlobal,
+      );
+    }
+    return;
+  }
+
+  if (targetLocation === ConfigLocation.CustomPath) {
+    await handleCustomPathSelection(
+      workspacePath,
+      currentCustomConfigDirRef,
+      context,
+      searchProvider,
+      updateStatusBar,
+      updateBadge,
+      currentLocation,
+      hasCustom,
+      hasLocal,
+      hasGlobal,
+    );
+    return;
+  }
+
+  if (currentLocation && (hasCustom || hasLocal || hasGlobal)) {
+    await moveConfigToLocation(
+      workspacePath,
+      currentCustomConfigDirRef,
+      context,
+      searchProvider,
+      updateStatusBar,
+      updateBadge,
+      currentLocation,
+      targetLocation,
+      null,
+    );
+  } else {
+    if (targetLocation === ConfigLocation.ProjectFolder) {
+      currentCustomConfigDirRef.current = null;
+      updateState(context, WorkspaceStateKey.CustomConfigDir, null);
+    }
+    await updateStatusBar();
+    showToastMessage(ToastKind.Info, 'Config location set. Use "Manage Rules" to create config.');
+  }
+}
+
+async function handleCustomPathSelection(
+  workspacePath: string,
+  currentCustomConfigDirRef: { current: string | null },
+  context: vscode.ExtensionContext,
+  searchProvider: SearchResultProvider,
+  updateStatusBar: () => Promise<void>,
+  updateBadge: () => void,
+  currentLocation: ConfigLocation | null,
+  hasCustom: boolean,
+  hasLocal: boolean,
+  hasGlobal: boolean,
+) {
+  const workspaceFolder = getCurrentWorkspaceFolder();
+  if (!workspaceFolder) return;
+
+  const startPath = currentCustomConfigDirRef.current || '.';
+  const result = await showFolderPickerQuickPick(workspaceFolder.uri, startPath);
+
+  if (result === 'cancelled' || result === null) return;
+
+  if (currentLocation && (hasCustom || hasLocal || hasGlobal)) {
+    await moveConfigToLocation(
+      workspacePath,
+      currentCustomConfigDirRef,
+      context,
+      searchProvider,
+      updateStatusBar,
+      updateBadge,
+      currentLocation,
+      ConfigLocation.CustomPath,
+      result,
+    );
+  } else {
+    currentCustomConfigDirRef.current = result;
+    updateState(context, WorkspaceStateKey.CustomConfigDir, result);
+    await updateStatusBar();
+    logger.info(`Custom config folder set to: ${result}`);
+    showToastMessage(ToastKind.Info, `Config location set to: ${result}. Use "Manage Rules" to create config.`);
+  }
+}
+
+async function moveConfigToLocation(
+  workspacePath: string,
+  currentCustomConfigDirRef: { current: string | null },
+  context: vscode.ExtensionContext,
+  searchProvider: SearchResultProvider,
+  updateStatusBar: () => Promise<void>,
+  updateBadge: () => void,
+  fromLocation: ConfigLocation,
+  toLocation: ConfigLocation,
+  customPath: string | null,
+) {
+  const fromLabel = getLocationLabel(fromLocation, currentCustomConfigDirRef.current);
+  const toLabel = getLocationLabel(toLocation, customPath);
+
+  const confirm = await vscode.window.showWarningMessage(
+    `Move config from "${fromLabel}" to "${toLabel}"?`,
+    { modal: true },
+    'Move',
+  );
+
+  if (confirm !== 'Move') return;
+
+  const config = await loadEffectiveConfig(context, workspacePath, currentCustomConfigDirRef.current);
+  if (!config) {
+    showToastMessage(ToastKind.Error, 'Failed to load current config');
+    return;
+  }
+
+  switch (fromLocation) {
+    case ConfigLocation.ExtensionStorage:
+      await deleteGlobalConfig(context, workspacePath);
+      break;
+    case ConfigLocation.ProjectFolder:
+      await deleteLocalConfig(workspacePath);
+      break;
+    case ConfigLocation.CustomPath:
+      if (currentCustomConfigDirRef.current) {
+        await deleteCustomConfig(workspacePath, currentCustomConfigDirRef.current);
+      }
+      break;
+  }
+
+  switch (toLocation) {
+    case ConfigLocation.ExtensionStorage:
+      await saveGlobalConfig(context, workspacePath, config);
+      currentCustomConfigDirRef.current = null;
+      updateState(context, WorkspaceStateKey.CustomConfigDir, null);
+      break;
+    case ConfigLocation.ProjectFolder:
+      await saveLocalConfig(workspacePath, config);
+      currentCustomConfigDirRef.current = null;
+      updateState(context, WorkspaceStateKey.CustomConfigDir, null);
+      break;
+    case ConfigLocation.CustomPath:
+      if (customPath) {
+        await saveCustomConfig(workspacePath, customPath, config);
+        currentCustomConfigDirRef.current = customPath;
+        updateState(context, WorkspaceStateKey.CustomConfigDir, customPath);
+      }
+      break;
+  }
+
+  searchProvider.setResults([]);
+  updateBadge();
+  invalidateCache();
+  await updateStatusBar();
+
+  logger.info(`Moved config from ${fromLabel} to ${toLabel}`);
+  showToastMessage(ToastKind.Info, `Config moved to ${toLabel}`);
+  executeCommand(Command.FindIssue);
+}
+
+function getLocationLabel(location: ConfigLocation, customPath: string | null): string {
+  switch (location) {
+    case ConfigLocation.ExtensionStorage:
+      return 'Extension Storage';
+    case ConfigLocation.ProjectFolder:
+      return '.tscanner';
+    case ConfigLocation.CustomPath:
+      return customPath || 'Custom Path';
+  }
 }
 
 async function getSubfolders(dirUri: vscode.Uri): Promise<string[]> {
@@ -412,72 +666,57 @@ async function showFolderPickerQuickPick(
   }
 }
 
-async function showSelectConfigFolderMenu(
-  updateStatusBar: () => Promise<void>,
-  updateBadge: () => void,
+export async function showConfigLocationMenuForFirstSetup(
   currentCustomConfigDirRef: { current: string | null },
   context: vscode.ExtensionContext,
-  searchProvider: SearchResultProvider,
-) {
+): Promise<{ location: ConfigLocation; customPath: string | null } | null> {
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (!workspaceFolder) {
     showToastMessage(ToastKind.Error, 'No workspace folder open');
-    return;
+    return null;
   }
-
-  const currentCustomDir = currentCustomConfigDirRef.current;
 
   const menuItems: QuickPickItemWithId[] = [
     {
-      id: ConfigFolderOption.SelectFolder,
-      label: '$(folder-opened) Select Folder',
-      detail: 'Browse and select a folder within workspace',
+      id: ConfigLocation.ExtensionStorage,
+      label: '$(cloud) Extension Storage',
+      detail: 'Lost on extension uninstall',
+    },
+    {
+      id: ConfigLocation.ProjectFolder,
+      label: '$(file) Project Folder',
+      detail: '.tscanner/config.jsonc (can commit to git)',
+    },
+    {
+      id: ConfigLocation.CustomPath,
+      label: '$(folder-opened) Custom Path',
+      detail: 'Select a custom folder within workspace',
     },
   ];
 
-  if (currentCustomDir) {
-    menuItems.push({
-      id: ConfigFolderOption.ClearCustom,
-      label: '$(close) Clear Custom Config Folder',
-      detail: `Currently using: ${currentCustomDir}`,
-    });
-  }
-
   const selected = await vscode.window.showQuickPick(menuItems, {
-    placeHolder: currentCustomDir ? `Config folder: ${currentCustomDir}` : 'Select config folder location',
-    ignoreFocusOut: false,
+    placeHolder: 'Where do you want to save the rules configuration?',
+    ignoreFocusOut: true,
   });
 
-  if (!selected) return;
+  if (!selected) return null;
 
-  if (selected.id === ConfigFolderOption.ClearCustom) {
-    currentCustomConfigDirRef.current = null;
-    updateState(context, WorkspaceStateKey.CustomConfigDir, null);
-    searchProvider.setResults([]);
-    updateBadge();
-    invalidateCache();
-    await updateStatusBar();
-    showToastMessage(ToastKind.Info, 'Custom config folder cleared. Using default location.');
-    executeCommand(Command.FindIssue);
-    return;
-  }
+  const targetLocation = selected.id as ConfigLocation;
 
-  if (selected.id === ConfigFolderOption.SelectFolder) {
-    const startPath = currentCustomDir || '.';
-    const result = await showFolderPickerQuickPick(workspaceFolder.uri, startPath);
-
-    if (result === 'cancelled' || result === null) return;
+  if (targetLocation === ConfigLocation.CustomPath) {
+    const result = await showFolderPickerQuickPick(workspaceFolder.uri, '.');
+    if (result === 'cancelled' || result === null) return null;
 
     currentCustomConfigDirRef.current = result;
     updateState(context, WorkspaceStateKey.CustomConfigDir, result);
 
-    searchProvider.setResults([]);
-    updateBadge();
-    invalidateCache();
-    await updateStatusBar();
-
-    logger.info(`Custom config folder set to: ${result}`);
-    showToastMessage(ToastKind.Info, `Config folder set to: ${result === '.' ? '/' : result}`);
-    executeCommand(Command.FindIssue);
+    return { location: targetLocation, customPath: result };
   }
+
+  currentCustomConfigDirRef.current = null;
+  updateState(context, WorkspaceStateKey.CustomConfigDir, null);
+
+  return { location: targetLocation, customPath: null };
 }
+
+export { ConfigLocation };

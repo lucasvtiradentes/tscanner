@@ -28,7 +28,7 @@ export function getCustomConfigPath(workspacePath: string, customConfigDir: stri
   const customDir = customConfigDir.startsWith('/')
     ? vscode.Uri.file(customConfigDir)
     : vscode.Uri.joinPath(vscode.Uri.file(workspacePath), customConfigDir);
-  return vscode.Uri.joinPath(customDir, CONFIG_FILE_NAME);
+  return vscode.Uri.joinPath(customDir, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
 }
 
 export async function hasLocalConfig(workspacePath: string): Promise<boolean> {
@@ -221,4 +221,46 @@ export async function ensureLocalConfigForScan(
   await syncGlobalToLocal(context, workspacePath);
   logger.info('Synced global config to local config for Rust scanner');
   return true;
+}
+
+export async function hasGlobalConfig(context: vscode.ExtensionContext, workspacePath: string): Promise<boolean> {
+  const globalPath = getGlobalConfigPath(context, workspacePath);
+  try {
+    await vscode.workspace.fs.stat(globalPath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function deleteGlobalConfig(context: vscode.ExtensionContext, workspacePath: string): Promise<void> {
+  const globalPath = getGlobalConfigPath(context, workspacePath);
+  try {
+    await vscode.workspace.fs.delete(globalPath);
+    logger.info(`Deleted global config at ${globalPath.fsPath}`);
+  } catch {
+    logger.debug('No global config to delete');
+  }
+}
+
+export async function deleteLocalConfig(workspacePath: string): Promise<void> {
+  const localDir = vscode.Uri.joinPath(vscode.Uri.file(workspacePath), CONFIG_DIR_NAME);
+  try {
+    await vscode.workspace.fs.delete(localDir, { recursive: true });
+    logger.info(`Deleted local config dir at ${localDir.fsPath}`);
+  } catch {
+    logger.debug('No local config to delete');
+  }
+}
+
+export async function deleteCustomConfig(workspacePath: string, customConfigDir: string): Promise<void> {
+  const customPath = getCustomConfigPath(workspacePath, customConfigDir);
+  const configDir = vscode.Uri.joinPath(customPath, '..');
+  logger.info(`Attempting to delete custom config dir at ${configDir.fsPath}`);
+  try {
+    await vscode.workspace.fs.delete(configDir, { recursive: true });
+    logger.info(`Deleted custom config dir at ${configDir.fsPath}`);
+  } catch (err) {
+    logger.debug(`No custom config to delete: ${err}`);
+  }
 }
