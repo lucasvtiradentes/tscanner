@@ -24,6 +24,7 @@ export enum WorkspaceStateKey {
   ScanMode = 'scanMode',
   CompareBranch = 'compareBranch',
   CachedResults = 'cachedResults',
+  CustomConfigDir = 'customConfigDir',
 }
 
 const workspaceStateSchema = z.object({
@@ -32,6 +33,7 @@ const workspaceStateSchema = z.object({
   [WorkspaceStateKey.ScanMode]: z.enum(ScanMode),
   [WorkspaceStateKey.CompareBranch]: z.string(),
   [WorkspaceStateKey.CachedResults]: z.array(z.any()),
+  [WorkspaceStateKey.CustomConfigDir]: z.string().nullable(),
 });
 
 type WorkspaceStateSchema = z.infer<typeof workspaceStateSchema>;
@@ -43,6 +45,7 @@ const defaultValues: WorkspaceStateSchema = {
   [WorkspaceStateKey.ScanMode]: ScanMode.Codebase,
   [WorkspaceStateKey.CompareBranch]: 'main',
   [WorkspaceStateKey.CachedResults]: [],
+  [WorkspaceStateKey.CustomConfigDir]: null,
 };
 
 const keyMapping: Record<WorkspaceStateKeyType, string> = Object.fromEntries(

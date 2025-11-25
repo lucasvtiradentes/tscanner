@@ -32,6 +32,7 @@ export interface CommandContext {
   isSearchingRef: { current: boolean };
   currentScanModeRef: { current: ScanMode };
   currentCompareBranchRef: { current: string };
+  currentCustomConfigDirRef: { current: string | null };
   getRustClient: () => RustClient | null;
 }
 
@@ -49,12 +50,15 @@ export function registerAllCommands(ctx: CommandContext): vscode.Disposable[] {
       ctx.isSearchingRef,
       ctx.currentScanModeRef,
       ctx.currentCompareBranchRef,
+      ctx.currentCustomConfigDirRef,
     ),
     createManageRulesCommand(ctx.updateStatusBar, ctx.context),
     createOpenSettingsMenuCommand(
       ctx.updateStatusBar,
+      ctx.updateBadge,
       ctx.currentScanModeRef,
       ctx.currentCompareBranchRef,
+      ctx.currentCustomConfigDirRef,
       ctx.context,
       ctx.searchProvider,
     ),

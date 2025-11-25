@@ -24,6 +24,13 @@ export function getLocalConfigPath(workspacePath: string): vscode.Uri {
   return vscode.Uri.joinPath(vscode.Uri.file(workspacePath), CONFIG_DIR_NAME, CONFIG_FILE_NAME);
 }
 
+export function getCustomConfigPath(workspacePath: string, customConfigDir: string): vscode.Uri {
+  const customDir = customConfigDir.startsWith('/')
+    ? vscode.Uri.file(customConfigDir)
+    : vscode.Uri.joinPath(vscode.Uri.file(workspacePath), customConfigDir);
+  return vscode.Uri.joinPath(customDir, CONFIG_FILE_NAME);
+}
+
 export async function hasLocalConfig(workspacePath: string): Promise<boolean> {
   const localPath = getLocalConfigPath(workspacePath);
   try {
@@ -53,10 +60,30 @@ export async function loadConfig(configPath: vscode.Uri): Promise<TscannerConfig
   }
 }
 
+export async function hasCustomConfig(workspacePath: string, customConfigDir: string): Promise<boolean> {
+  const customPath = getCustomConfigPath(workspacePath, customConfigDir);
+  try {
+    await vscode.workspace.fs.stat(customPath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 export async function getEffectiveConfigPath(
   context: vscode.ExtensionContext,
   workspacePath: string,
+  customConfigDir?: string | null,
 ): Promise<vscode.Uri> {
+  if (customConfigDir) {
+    const hasCustom = await hasCustomConfig(workspacePath, customConfigDir);
+    if (hasCustom) {
+      logger.info(`Using custom config for workspace: ${workspacePath} from ${customConfigDir}`);
+      return getCustomConfigPath(workspacePath, customConfigDir);
+    }
+    logger.info(`Custom config dir set but no config found: ${customConfigDir}`);
+  }
+
   const hasLocal = await hasLocalConfig(workspacePath);
   if (hasLocal) {
     logger.info(`Using local config for workspace: ${workspacePath}`);
@@ -70,8 +97,9 @@ export async function getEffectiveConfigPath(
 export async function loadEffectiveConfig(
   context: vscode.ExtensionContext,
   workspacePath: string,
+  customConfigDir?: string | null,
 ): Promise<TscannerConfig | null> {
-  const configPath = await getEffectiveConfigPath(context, workspacePath);
+  const configPath = await getEffectiveConfigPath(context, workspacePath, customConfigDir);
   return loadConfig(configPath);
 }
 
@@ -97,6 +125,20 @@ export async function saveLocalConfig(workspacePath: string, config: TscannerCon
   await vscode.workspace.fs.writeFile(localConfigPath, Buffer.from(JSON.stringify(config, null, 2)));
 
   logger.info(`Saved local config for workspace: ${workspacePath}`);
+}
+
+export async function saveCustomConfig(
+  workspacePath: string,
+  customConfigDir: string,
+  config: TscannerConfig,
+): Promise<void> {
+  const customPath = getCustomConfigPath(workspacePath, customConfigDir);
+  const customDir = vscode.Uri.joinPath(customPath, '..');
+
+  await vscode.workspace.fs.createDirectory(customDir);
+  await vscode.workspace.fs.writeFile(customPath, Buffer.from(JSON.stringify(config, null, 2)));
+
+  logger.info(`Saved custom config at: ${customPath.fsPath}`);
 }
 
 export function getDefaultConfig(): TscannerConfig {
