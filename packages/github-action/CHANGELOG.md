@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.11
+
+### Patch Changes
+
+- f48294b: fix vscode release error
+
 ## 0.0.10
 
 ### Patch Changes

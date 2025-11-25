@@ -1,5 +1,11 @@
 # @tscanner/cli-linux-arm64
 
+## 0.0.14
+
+### Patch Changes
+
+- f48294b: fix vscode release error
+
 ## 0.0.13
 
 ### Patch Changes
