@@ -132,6 +132,10 @@ main() {
     sync_files_to_standalone
     commit_and_push
     log "GitHub Action v$CURRENT_VERSION published to standalone repository!"
+
+    log "Creating release tag..."
+    cd $GITHUB_WORKSPACE
+    bash scripts/create-release-tag.sh "github-action" "$CURRENT_VERSION"
   else
     print_debug_info
   fi
