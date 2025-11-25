@@ -1,4 +1,4 @@
-import { ScanMode } from './constants';
+import { DEFAULT_PAGE_SIZE, ScanMode } from 'tscanner-common';
 import { updateOrCreateComment } from './core/comment-updater';
 import { type ActionInputs, getActionInputs } from './core/input-validator';
 import { type ScanOptions, type ScanResult, scanChangedFiles } from './core/scanner';
@@ -9,6 +9,7 @@ import { validateConfigFiles } from './utils/config-validator';
 class ActionRunner {
   async run() {
     try {
+      githubHelper.logInfo(`[tscanner-common] DEFAULT_PAGE_SIZE=${DEFAULT_PAGE_SIZE}`);
       const inputs = getActionInputs();
 
       validateConfigFiles(inputs.configPath);

@@ -13,7 +13,7 @@ importers:
         version: 1.9.4
       '@changesets/cli':
         specifier: ^2.29.7
-        version: 2.29.7(@types/node@22.19.0)
+        version: 2.29.7(@types/node@24.10.1)
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -32,6 +32,9 @@ importers:
       '@types/node':
         specifier: ^22.0.0
         version: 22.19.0
+      tscanner-common:
+        specifier: workspace:*
+        version: link:../../shared/tscanner-common
       tsup:
         specifier: ^8.5.1
         version: 8.5.1(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
@@ -81,6 +84,9 @@ importers:
       '@vercel/ncc':
         specifier: ^0.38.3
         version: 0.38.4
+      tscanner-common:
+        specifier: workspace:*
+        version: link:../../shared/tscanner-common
       tsx:
         specifier: ^4.20.6
         version: 4.20.6
@@ -106,11 +112,30 @@ importers:
       esbuild:
         specifier: ^0.24.0
         version: 0.24.2
+      tscanner-common:
+        specifier: workspace:*
+        version: link:../../shared/tscanner-common
       tsx:
         specifier: ^4.20.6
         version: 4.20.6
       typescript:
         specifier: ^5.7.0
+        version: 5.9.3
+
+  shared/tscanner-common:
+    dependencies:
+      zod:
+        specifier: ^4.1.12
+        version: 4.1.12
+    devDependencies:
+      '@types/node':
+        specifier: ^24.10.1
+        version: 24.10.1
+      tsup:
+        specifier: ^8.5.1
+        version: 8.5.1(tsx@4.20.6)(typescript@5.9.3)(yaml@2.8.1)
+      typescript:
+        specifier: ^5.9.3
         version: 5.9.3
 
 packages:
@@ -915,6 +940,9 @@ packages:
   '@types/node@22.19.0':
     resolution: {integrity: sha512-xpr/lmLPQEj+TUnHmR+Ab91/glhJvsqcjB+yY0Ix9GO70H6Lb4FHH5GeqdOE5btAx7eIMwuHkp4H2MSkLcqWbA==}
 
+  '@types/node@24.10.1':
+    resolution: {integrity: sha512-GNWcUTRBgIRJD5zj+Tq0fKOJ5XZajIiBroOF0yvj2bSU1WvNdYS/dn9UxwsujGW4JX06dnHyjV2y9rRaybH0iQ==}
+
   '@types/vscode@1.105.0':
     resolution: {integrity: sha512-Lotk3CTFlGZN8ray4VxJE7axIyLZZETQJVWi/lYoUVQuqfRxlQhVOfoejsD2V3dVXPSbS15ov5ZyowMAzgUqcw==}
 
@@ -1609,6 +1637,9 @@ packages:
   undici-types@6.21.0:
     resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
 
+  undici-types@7.16.0:
+    resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
+
   undici@5.29.0:
     resolution: {integrity: sha512-raqeBD6NQK4SkWhQzeYKd1KmIG6dllBOTt55Rmkt4HtI9mwdWtJljnrXjAFUBLTSN67HWrOIZ3EPF4kjUw80Bg==}
     engines: {node: '>=14.0'}
@@ -1742,7 +1773,7 @@ snapshots:
     dependencies:
       '@changesets/types': 6.1.0
 
-  '@changesets/cli@2.29.7(@types/node@22.19.0)':
+  '@changesets/cli@2.29.7(@types/node@24.10.1)':
     dependencies:
       '@changesets/apply-release-plan': 7.0.13
       '@changesets/assemble-release-plan': 6.0.9
@@ -1758,7 +1789,7 @@ snapshots:
       '@changesets/should-skip-package': 0.1.2
       '@changesets/types': 6.1.0
       '@changesets/write': 0.4.0
-      '@inquirer/external-editor': 1.0.3(@types/node@22.19.0)
+      '@inquirer/external-editor': 1.0.3(@types/node@24.10.1)
       '@manypkg/get-packages': 1.1.3
       ansi-colors: 4.1.3
       ci-info: 3.9.0
@@ -2090,12 +2121,12 @@ snapshots:
 
   '@fastify/busboy@2.1.1': {}
 
-  '@inquirer/external-editor@1.0.3(@types/node@22.19.0)':
+  '@inquirer/external-editor@1.0.3(@types/node@24.10.1)':
     dependencies:
       chardet: 2.1.1
       iconv-lite: 0.7.0
     optionalDependencies:
-      '@types/node': 22.19.0
+      '@types/node': 24.10.1
 
   '@jridgewell/gen-mapping@0.3.13':
     dependencies:
@@ -2270,6 +2301,10 @@ snapshots:
   '@types/node@22.19.0':
     dependencies:
       undici-types: 6.21.0
+
+  '@types/node@24.10.1':
+    dependencies:
+      undici-types: 7.16.0
 
   '@types/vscode@1.105.0': {}
 
@@ -2961,6 +2996,8 @@ snapshots:
   ufo@1.6.1: {}
 
   undici-types@6.21.0: {}
+
+  undici-types@7.16.0: {}
 
   undici@5.29.0:
     dependencies:

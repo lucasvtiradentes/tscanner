@@ -1,7 +1,7 @@
-import { COMMENT_MARKER, Severity } from '../constants';
+import { Severity, pluralize } from 'tscanner-common';
+import { COMMENT_MARKER } from '../constants';
 import { type Octokit, githubHelper } from '../lib/actions-helper';
 import { formatTimestamp } from '../utils/format-timestamp';
-import { pluralize } from '../utils/pluralize';
 import { buildPrFileUrl } from '../utils/url-builder';
 import type { RuleGroup, ScanResult } from './scanner';
 

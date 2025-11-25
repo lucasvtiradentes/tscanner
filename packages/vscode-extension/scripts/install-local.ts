@@ -74,7 +74,7 @@ async function copyBinaries() {
   }
 
   const { platform, npmPlatform } = platformInfo;
-  const sourcePath = join(coreTargetDir, getBinaryName());
+  const sourcePath = join(coreTargetDir, getBinaryName(BINARY_BASE_NAME));
 
   if (!existsSync(sourcePath)) {
     logger.log('   ⚠️  Binary not found - skipping (not built yet)');

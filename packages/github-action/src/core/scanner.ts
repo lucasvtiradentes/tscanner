@@ -1,4 +1,4 @@
-import { type GroupMode, Severity } from '../constants';
+import { type GroupMode, Severity } from 'tscanner-common';
 import { githubHelper } from '../lib/actions-helper';
 import { type CliExecutor, createDevModeExecutor, createProdModeExecutor } from './cli-executor';
 

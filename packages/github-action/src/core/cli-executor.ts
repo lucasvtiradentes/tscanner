@@ -1,4 +1,4 @@
-import { PACKAGE_NAME } from '../constants';
+import { PACKAGE_NAME } from 'tscanner-common';
 import { githubHelper } from '../lib/actions-helper';
 
 export type CliExecutor = {

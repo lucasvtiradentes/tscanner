@@ -5,7 +5,11 @@
     "moduleResolution": "node",
     "strict": true,
     "skipLibCheck": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "tscanner-common": ["../../shared/tscanner-common/src/index.ts"]
+    }
   },
   "include": ["src/**/*", "scripts/**/*.ts"]
 }
