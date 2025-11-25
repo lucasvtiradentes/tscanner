@@ -1,5 +1,11 @@
 # @tscanner/cli-linux-arm64
 
+## 0.0.11
+
+### Patch Changes
+
+- cbd4ec8: fix lint error
+
 ## 0.0.10
 
 ### Patch Changes
