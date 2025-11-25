@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.10
+
+### Patch Changes
+
+- c9741db: fix publish error
+
 ## 0.0.9
 
 ### Patch Changes
