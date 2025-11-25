@@ -55,6 +55,8 @@ export function createFindIssueCommand(
     const hasCustom = customConfigDir ? await hasCustomConfig(workspaceFolder.uri.fsPath, customConfigDir) : false;
 
     if (!hasConfiguredRules(effectiveConfig)) {
+      searchProvider.setResults([]);
+      updateBadge();
       if (!options?.silent) {
         const action = await showToastMessage(
           ToastKind.Warning,
