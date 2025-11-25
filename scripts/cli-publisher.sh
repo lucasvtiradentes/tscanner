@@ -8,6 +8,11 @@ log() {
 log "Starting CLI packages publish process..."
 log "============================================"
 
+if [ -n "$NPM_TOKEN" ]; then
+  log "Configuring npm authentication..."
+  echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" >> ~/.npmrc
+fi
+
 log "Publishing npm packages via changesets..."
 pnpm exec changeset publish
 
