@@ -1,5 +1,5 @@
 {
- "$schema": "../packages/cli/schema.json",
+  "$schema": "../packages/cli/schema.json",
   "builtinRules": {
     "no-var": {},
     "prefer-type-over-interface": {},
@@ -24,7 +24,10 @@
       "severity": "error"
     },
     "no-todo-comments": {},
-    "no-console-log": { "severity": "error" }
+    "no-console-log": {
+      "severity": "error"
+    },
+    "no-alias-imports": {}
   },
   "customRules": {
     "no-debug-log-calls": {
@@ -38,6 +41,14 @@
       "message": "there's no need to return promise void"
     }
   },
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/.git/**"
+  ]
 }

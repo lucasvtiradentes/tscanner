@@ -6,40 +6,97 @@ function log(message) {
   console.log(`[changeset-commit] ${message}`);
 }
 
-function updateGithubActionReadme() {
-  const packageJsonPath = join(process.cwd(), 'packages', 'github-action', 'package.json');
-  const readmePath = join(process.cwd(), 'packages', 'github-action', 'README.md');
+function updateRustWorkspaceVersion(newVersion) {
+  const cargoTomlPath = join(process.cwd(), 'packages', 'core', 'Cargo.toml');
 
   try {
-    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+    let cargoToml = readFileSync(cargoTomlPath, 'utf-8');
+    const versionPattern = /^(version = ")[\d.]+(")/m;
+
+    if (versionPattern.test(cargoToml)) {
+      cargoToml = cargoToml.replace(versionPattern, `$1${newVersion}$2`);
+      writeFileSync(cargoTomlPath, cargoToml, 'utf-8');
+      execSync('git add packages/core/Cargo.toml', { stdio: 'inherit' });
+      log(`Updated Rust workspace version to ${newVersion}`);
+    }
+  } catch (error) {
+    log(`Error updating Rust workspace version: ${error.message}`);
+  }
+}
+
+function updateSchemaVersionInFiles(newVersion) {
+  const filePaths = [
+    join(process.cwd(), 'README.md'),
+    join(process.cwd(), 'packages', 'cli', 'README.md'),
+    join(process.cwd(), 'assets', 'default-config.json'),
+  ];
+  const schemaPattern = /(unpkg\.com\/tscanner@)[\d.]+(\/)schema\.json/g;
+
+  try {
+    for (const filePath of filePaths) {
+      let content = readFileSync(filePath, 'utf-8');
+      if (schemaPattern.test(content)) {
+        schemaPattern.lastIndex = 0;
+        content = content.replace(schemaPattern, `$1${newVersion}$2schema.json`);
+        writeFileSync(filePath, content, 'utf-8');
+        log(`Updated schema version in ${filePath} to ${newVersion}`);
+      }
+    }
+  } catch (error) {
+    log(`Error updating schema version in files: ${error.message}`);
+  }
+}
+
+function updateReadmeVersions() {
+  const cliPackageJsonPath = join(process.cwd(), 'packages', 'cli', 'package.json');
+  const githubActionPackageJsonPath = join(process.cwd(), 'packages', 'github-action', 'package.json');
+  const githubActionReadmePath = join(process.cwd(), 'packages', 'github-action', 'README.md');
+  const rootReadmePath = join(process.cwd(), 'README.md');
+
+  try {
+    const cliPackageJson = JSON.parse(readFileSync(cliPackageJsonPath, 'utf-8'));
+    const cliVersion = cliPackageJson.version;
+    updateRustWorkspaceVersion(cliVersion);
+    updateSchemaVersionInFiles(cliVersion);
+
+    const packageJson = JSON.parse(readFileSync(githubActionPackageJsonPath, 'utf-8'));
     const newVersion = packageJson.version;
-
-    log(`Updating README to version ${newVersion}`);
-
-    let readme = readFileSync(readmePath, 'utf-8');
     const versionPattern = /@v\d+\.\d+\.\d+/g;
     const newVersionTag = `@v${newVersion}`;
 
-    const matches = readme.match(versionPattern);
-    if (matches) {
-      log(`Found ${matches.length} version references to update`);
-      readme = readme.replace(versionPattern, newVersionTag);
-      writeFileSync(readmePath, readme, 'utf-8');
+    log(`Updating READMEs to version ${newVersion}`);
 
-      execSync('git add packages/github-action/README.md', { stdio: 'inherit' });
-      log('Added README.md to git staging');
+    let githubActionReadme = readFileSync(githubActionReadmePath, 'utf-8');
+    const githubActionMatches = githubActionReadme.match(versionPattern);
+    if (githubActionMatches) {
+      log(`Found ${githubActionMatches.length} version references in github-action README`);
+      githubActionReadme = githubActionReadme.replace(versionPattern, newVersionTag);
+      writeFileSync(githubActionReadmePath, githubActionReadme, 'utf-8');
+    }
+
+    let rootReadme = readFileSync(rootReadmePath, 'utf-8');
+    const rootMatches = rootReadme.match(versionPattern);
+    if (rootMatches) {
+      log(`Found ${rootMatches.length} version references in root README`);
+      rootReadme = rootReadme.replace(versionPattern, newVersionTag);
+      writeFileSync(rootReadmePath, rootReadme, 'utf-8');
+    }
+
+    if (githubActionMatches || rootMatches) {
+      execSync('git add packages/github-action/README.md README.md', { stdio: 'inherit' });
+      log('Added README files to git staging');
     } else {
-      log('No version references found in README.md');
+      log('No version references found in README files');
     }
   } catch (error) {
-    log(`Error updating README: ${error.message}`);
+    log(`Error updating READMEs: ${error.message}`);
   }
 }
 
 async function getVersionMessage() {
   log('Running getVersionMessage hook');
 
-  updateGithubActionReadme();
+  updateReadmeVersions();
 
   return 'Version Packages';
 }

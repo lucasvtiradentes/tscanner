@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { z } from 'zod';
 import { getCommandId, getContextKey } from '../constants';
-import { CONTEXT_PREFIX } from '../scripts-constants';
+import { CONTEXT_PREFIX, DEFAULT_TARGET_BRANCH } from '../scripts-constants';
 
 export enum ViewMode {
   List = 'list',
@@ -24,6 +24,7 @@ export enum WorkspaceStateKey {
   ScanMode = 'scanMode',
   CompareBranch = 'compareBranch',
   CachedResults = 'cachedResults',
+  CustomConfigDir = 'customConfigDir',
 }
 
 const workspaceStateSchema = z.object({
@@ -32,6 +33,7 @@ const workspaceStateSchema = z.object({
   [WorkspaceStateKey.ScanMode]: z.enum(ScanMode),
   [WorkspaceStateKey.CompareBranch]: z.string(),
   [WorkspaceStateKey.CachedResults]: z.array(z.any()),
+  [WorkspaceStateKey.CustomConfigDir]: z.string().nullable(),
 });
 
 type WorkspaceStateSchema = z.infer<typeof workspaceStateSchema>;
@@ -41,8 +43,9 @@ const defaultValues: WorkspaceStateSchema = {
   [WorkspaceStateKey.ViewMode]: ViewMode.List,
   [WorkspaceStateKey.GroupMode]: GroupMode.Default,
   [WorkspaceStateKey.ScanMode]: ScanMode.Codebase,
-  [WorkspaceStateKey.CompareBranch]: 'main',
+  [WorkspaceStateKey.CompareBranch]: DEFAULT_TARGET_BRANCH,
   [WorkspaceStateKey.CachedResults]: [],
+  [WorkspaceStateKey.CustomConfigDir]: null,
 };
 
 const keyMapping: Record<WorkspaceStateKeyType, string> = Object.fromEntries(

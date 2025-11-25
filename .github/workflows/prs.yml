@@ -24,7 +24,7 @@ jobs:
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
   tscanner_pr_check:
-    name: 'tscanner PR Check'
+    name: 'TScanner PR Check'
     runs-on: ubuntu-latest
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}

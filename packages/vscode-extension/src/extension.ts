@@ -33,13 +33,14 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   activationKey = currentKey;
-  logger.info('Tscanner extension activated');
+  logger.info('TScanner extension activated');
 
   const searchProvider = new SearchResultProvider();
   const viewModeKey = getWorkspaceState(context, WorkspaceStateKey.ViewMode);
   const groupModeKey = getWorkspaceState(context, WorkspaceStateKey.GroupMode);
   const scanModeKey = getWorkspaceState(context, WorkspaceStateKey.ScanMode);
   const compareBranch = getWorkspaceState(context, WorkspaceStateKey.CompareBranch);
+  const customConfigDir = getWorkspaceState(context, WorkspaceStateKey.CustomConfigDir);
 
   searchProvider.viewMode = viewModeKey;
   searchProvider.groupMode = groupModeKey;
@@ -59,9 +60,15 @@ export function activate(context: vscode.ExtensionContext) {
   const isSearchingRef = { current: false };
   const currentScanModeRef = { current: scanModeKey };
   const currentCompareBranchRef = { current: compareBranch };
+  const currentCustomConfigDirRef = { current: customConfigDir };
 
   logger.info('Creating status bar manager...');
-  const statusBarManager = new StatusBarManager(context, currentScanModeRef, currentCompareBranchRef);
+  const statusBarManager = new StatusBarManager(
+    context,
+    currentScanModeRef,
+    currentCompareBranchRef,
+    currentCustomConfigDirRef,
+  );
   const updateStatusBar = async () => {
     await statusBarManager.update();
   };
@@ -84,6 +91,7 @@ export function activate(context: vscode.ExtensionContext) {
     isSearchingRef,
     currentScanModeRef,
     currentCompareBranchRef,
+    currentCustomConfigDirRef,
     getRustClient,
   });
 
@@ -110,7 +118,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       const document = await openTextDocument(uri);
       const content = document.getText();
-      const config = await loadEffectiveConfig(context, workspaceFolder.uri.fsPath);
+      const config = await loadEffectiveConfig(context, workspaceFolder.uri.fsPath, currentCustomConfigDirRef.current);
       let newResults = await scanContent(uri.fsPath, content, config ?? undefined);
 
       if (currentScanModeRef.current === ScanMode.Branch) {

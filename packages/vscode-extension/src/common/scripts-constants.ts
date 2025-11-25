@@ -1,10 +1,12 @@
 export const EXTENSION_PUBLISHER = 'lucasvtiradentes';
 export const EXTENSION_NAME = 'tscanner-vscode';
-export const EXTENSION_DISPLAY_NAME = 'Tscanner';
+export const EXTENSION_DISPLAY_NAME = 'TScanner';
 
 export const CONTEXT_PREFIX = 'tscanner';
 export const VIEW_ID = 'tscannerExplorer';
 export const DEV_SUFFIX = 'Dev';
+
+export const DEFAULT_TARGET_BRANCH = 'origin/main';
 
 export const LOG_BASENAME = 'tscannerlogs';
 

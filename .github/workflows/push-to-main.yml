@@ -52,8 +52,8 @@ jobs:
           target: ${{ matrix.target }}
           os: ${{ matrix.os }}
 
-  release:
-    name: 'Release'
+  prepare_release:
+    name: 'Prepare Release'
     needs: [push_to_main_ci, build_rust_binaries]
     if: |
       always() &&
@@ -61,11 +61,32 @@ jobs:
       !contains(needs.*.result, 'failure') &&
       !contains(needs.*.result, 'cancelled')
     runs-on: ubuntu-latest
+    outputs:
+      has_changesets: ${{ steps.changesets.outputs.hasChangesets }}
     env:
       HUSKY: 0
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: ./.github/actions/setup-and-install
+
+      - name: Create Release Pull Request (if changesets exist)
+        id: changesets
+        uses: changesets/action@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  release_npm:
+    name: 'Release NPM'
+    needs: [push_to_main_ci, build_rust_binaries, prepare_release]
+    if: needs.prepare_release.outputs.has_changesets == 'false' && needs.push_to_main_ci.outputs.should_release_npm == 'true'
+    runs-on: ubuntu-latest
+    env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
     steps:
       - uses: actions/checkout@v4
@@ -75,22 +96,11 @@ jobs:
       - uses: ./.github/actions/setup-and-install
 
       - name: Download all binaries
-        if: needs.push_to_main_ci.outputs.should_release == 'true'
         uses: actions/download-artifact@v4
         with:
           path: artifacts
 
-      - name: Organize binaries for extension
-        if: needs.push_to_main_ci.outputs.should_release == 'true'
-        run: |
-          mkdir -p packages/vscode-extension/out/binaries
-          find artifacts -type f -name 'tscanner-server-*' -exec cp {} packages/vscode-extension/out/binaries/ \;
-          chmod +x packages/vscode-extension/out/binaries/tscanner-server-* 2>/dev/null || true
-          echo "📦 Binaries ready for extension:"
-          ls -lah packages/vscode-extension/out/binaries/
-
       - name: Organize binaries for CLI
-        if: needs.push_to_main_ci.outputs.should_release == 'true'
         run: |
           echo "📦 Organizing binaries for CLI packages..."
 
@@ -131,44 +141,76 @@ jobs:
           done
 
           echo ""
-          echo "📦 Summary: $found_count binaries copied, $missing_count not found (expected during non-release builds)"
+          echo "📦 Summary: $found_count binaries copied, $missing_count not found"
 
           if [ $found_count -gt 0 ]; then
             echo "📦 CLI binaries ready:"
             find packages/cli/npm -type f \( -name "tscanner" -o -name "tscanner.exe" \) -exec ls -lh {} \;
           fi
 
-      - name: Rebuild extension with binaries
-        if: needs.push_to_main_ci.outputs.should_release == 'true'
-        run: |
-          echo "🔨 Rebuilding VSCode extension with organized binaries..."
-          pnpm turbo run build --filter=tscanner-vscode --force
-          echo "✅ Extension rebuild complete with binaries included"
-
       - name: Generate scoped npm packages
-        if: needs.push_to_main_ci.outputs.should_release == 'true'
         run: |
           echo "📦 Generating scoped @tscanner packages..."
           pnpm --filter tscanner run script:fix-packages
           echo "✅ Scoped packages generated"
 
-      - name: Create Release Pull Request or Publish
-        id: changesets
-        uses: changesets/action@v1
-        with:
-          publish: bash scripts/cli-publisher.sh
+      - name: Publish NPM packages
+        run: bash scripts/cli-publisher.sh
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
+  release_vscode:
+    name: 'Release VSCode Extension'
+    needs: [push_to_main_ci, build_rust_binaries, prepare_release]
+    if: needs.prepare_release.outputs.has_changesets == 'false' && needs.push_to_main_ci.outputs.should_release_vscode == 'true'
+    runs-on: ubuntu-latest
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: ./.github/actions/setup-and-install
+
+      - name: Download all binaries
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Organize binaries for extension
+        run: |
+          mkdir -p packages/vscode-extension/out/binaries
+          find artifacts -type f -name 'tscanner-server-*' -exec cp {} packages/vscode-extension/out/binaries/ \;
+          chmod +x packages/vscode-extension/out/binaries/tscanner-server-* 2>/dev/null || true
+          echo "📦 Binaries ready for extension:"
+          ls -lah packages/vscode-extension/out/binaries/
+
+      - name: Rebuild extension with binaries
+        run: |
+          echo "🔨 Rebuilding VSCode extension with organized binaries..."
+          pnpm turbo run build --filter=tscanner-vscode --force
+          echo "✅ Extension rebuild complete with binaries included"
+
       - name: Publish VSCode Extension
-        if: steps.changesets.outputs.published == 'true'
         run: bash scripts/vscode-publisher.sh
         env:
           AZURE_VSCODE_PAT: ${{ secrets.AZURE_VSCODE_PAT }}
 
+  release_github_action:
+    name: 'Release GitHub Action'
+    needs: [prepare_release, push_to_main_ci]
+    if: needs.prepare_release.outputs.has_changesets == 'false' && needs.push_to_main_ci.outputs.should_release_github_action == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - uses: ./.github/actions/setup-and-install
+
       - name: Publish GitHub Action
-        if: steps.changesets.outputs.published == 'true'
         run: bash scripts/publish-github-action.sh
         env:
           GH_PAT_SYNC_TSCANNER_GH_ACTION: ${{ secrets.GH_PAT_SYNC_TSCANNER_GH_ACTION }}

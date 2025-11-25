@@ -1,29 +1,27 @@
 <a name="TOC"></a>
 
 <div align="center">
-<img width="128" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/logo.svg" alt="tscanner CLI logo">
-<h4>tscanner - CLI</h4>
-<p>
-  <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/v/tscanner.svg" alt="npm version"></a>
-  <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/dm/tscanner.svg" alt="downloads"></a>
-  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="License: MIT"></a>
-  <br>
+  <img height="80" src="https://i.ibb.co/1tyQ1m40/tscanner-logo.png" alt="tscanner logo">
+  <div><strong>TScanner - CLI</strong></div>
+  <br />
+  <div>
+    <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/v/tscanner.svg" alt="npm version"></a>
+    <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/dm/tscanner.svg" alt="downloads"></a>
+  </div>
   <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> • <a href="#-architecture">Architecture</a> • <a href="#-license">License</a>
-</p>
-
 </div>
 
-<a href="#"><img src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/divider.png" /></a>
+<a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
 
-## 🎺 Overview<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## 🎺 Overview<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
-Terminal interface for [Tscanner](https://github.com/lucasvtiradentes/tscanner): catch code quality issues with built-in rules or define project-specific patterns using regex, scripts, or AI validation. Integrates seamlessly with CI/CD, git hooks, and development workflows.
+Terminal interface for [TScanner](https://github.com/lucasvtiradentes/tscanner): catch code quality issues with built-in rules or define project-specific patterns using regex, scripts, or AI validation. Integrates seamlessly with CI/CD, git hooks, and development workflows.
 
 <div align="center">
-  <img src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/cli-demo.png" alt="CLI Scan Screenshot">
+  <img src="https://i.ibb.co/1fSYhwTy/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
 </div>
 
-## ⭐ Features<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## ⭐ Features<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 
 - **23+ Built-in Rules** - Comprehensive TypeScript linting rules
@@ -35,7 +33,7 @@ Terminal interface for [Tscanner](https://github.com/lucasvtiradentes/tscanner):
 - **Rust-Powered Performance** - Lightning-fast scanning with parallel processing
 - **Smart Caching** - Intelligent file caching to skip unchanged files
 
-## 🚀 Installation<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## 🚀 Installation<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 ```bash
 npm install -g tscanner
@@ -50,7 +48,7 @@ After installation, the `tscanner` command will be available globally.
 - macOS (Intel, Apple Silicon)
 - Windows (x64)
 
-## 💡 Usage<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## 💡 Usage<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 ### Commands Overview
 
@@ -92,6 +90,7 @@ tscanner init /path/to/project
 Creates `.tscanner/config.jsonc` with default rule configuration:
 ```json
 {
+  "schema": "https://unpkg.com/tscanner@0.0.9/schema.json",
   "builtinRules": {
     "no-any-type": {
       "enabled": true,
@@ -211,12 +210,12 @@ tscanner rules --config /path/to/config/dir
 
 </details>
 
-## 🚀 Use Cases<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## 🚀 Use Cases<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 <details>
 <summary><b>CI/CD Pipeline</b></summary>
 
-It is recommended to use [tscanner gh action](https://github.com/lucasvtiradentes/tscanner/tree/main/packages/github-action), but you can also set up your own workflow:
+It is recommended to use [TScanner gh action](https://github.com/lucasvtiradentes/tscanner/tree/main/packages/github-action), but you can also set up your own workflow:
 
 ```yaml
 name: Code Quality
@@ -232,9 +231,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      - name: Install tscanner
+      - name: Install TScanner
         run: npm install -g tscanner
-      - name: Run tscanner validation
+      - name: Run TScanner validation
         run: tscanner check
 ```
 
@@ -308,7 +307,7 @@ fi
 
 </details>
 
-## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 ```
 CLI (Node.js)              Rust Binary
@@ -324,6 +323,17 @@ CLI (Node.js)              Rust Binary
 - Spawns platform-specific Rust binary with stdio inheritance
 - Binary packaged separately per platform via optional dependencies
 
-## 📜 License<a href="#TOC"><img align="right" src="https://raw.githubusercontent.com/lucasvtiradentes/tscanner/main/.github/image/up_arrow.png" width="22"></a>
+## 📜 License<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 MIT License - see [LICENSE](../../LICENSE) file for details.
+
+<a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
+
+<div align="center">
+  <div>
+    <a target="_blank" href="https://www.linkedin.com/in/lucasvtiradentes/"><img src="https://img.shields.io/badge/-linkedin-blue?logo=Linkedin&logoColor=white" alt="LinkedIn"></a>
+    <a target="_blank" href="mailto:lucasvtiradentes@gmail.com"><img src="https://img.shields.io/badge/gmail-red?logo=gmail&logoColor=white" alt="Gmail"></a>
+    <a target="_blank" href="https://x.com/lucasvtiradente"><img src="https://img.shields.io/badge/-X-black?logo=X&logoColor=white" alt="X"></a>
+    <a target="_blank" href="https://github.com/lucasvtiradentes"><img src="https://img.shields.io/badge/-github-gray?logo=Github&logoColor=white" alt="Github"></a>
+  </div>
+</div>

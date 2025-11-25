@@ -1,7 +1,6 @@
 {
-  "name": "tscanner",
+  "name": "tscanner-monorepo",
   "private": true,
-  "version": "1.0.0",
   "description": "High-performance TypeScript code quality scanner with custom rule support",
   "packageManager": "pnpm@10.22.0",
   "scripts": {

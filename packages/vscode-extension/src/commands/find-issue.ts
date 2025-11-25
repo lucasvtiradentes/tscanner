@@ -1,5 +1,5 @@
 import type * as vscode from 'vscode';
-import { hasLocalConfig, loadEffectiveConfig } from '../common/lib/config-manager';
+import { hasCustomConfig, hasLocalConfig, loadEffectiveConfig } from '../common/lib/config-manager';
 import { scanWorkspace } from '../common/lib/scanner';
 import {
   Command,
@@ -31,6 +31,7 @@ export function createFindIssueCommand(
   isSearchingRef: { current: boolean },
   currentScanModeRef: { current: ScanMode },
   currentCompareBranchRef: { current: string },
+  currentCustomConfigDirRef: { current: string | null },
 ) {
   return registerCommand(Command.FindIssue, async (options?: { silent?: boolean }) => {
     if (isSearchingRef.current) {
@@ -48,10 +49,14 @@ export function createFindIssueCommand(
       return;
     }
 
-    const effectiveConfig = await loadEffectiveConfig(context, workspaceFolder.uri.fsPath);
+    const customConfigDir = currentCustomConfigDirRef.current;
+    const effectiveConfig = await loadEffectiveConfig(context, workspaceFolder.uri.fsPath, customConfigDir);
     const hasLocal = await hasLocalConfig(workspaceFolder.uri.fsPath);
+    const hasCustom = customConfigDir ? await hasCustomConfig(workspaceFolder.uri.fsPath, customConfigDir) : false;
 
     if (!hasConfiguredRules(effectiveConfig)) {
+      searchProvider.setResults([]);
+      updateBadge();
       if (!options?.silent) {
         const action = await showToastMessage(
           ToastKind.Warning,
@@ -65,8 +70,10 @@ export function createFindIssueCommand(
       return;
     }
 
-    const configToPass = hasLocal ? undefined : (effectiveConfig ?? undefined);
-    if (hasLocal) {
+    const configToPass = hasLocal && !hasCustom ? undefined : (effectiveConfig ?? undefined);
+    if (hasCustom) {
+      logger.info(`Using custom config from ${customConfigDir}`);
+    } else if (hasLocal) {
       logger.info('Using local config from .tscanner');
     } else {
       logger.info('Using global config from extension storage');

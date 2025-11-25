@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { GroupMode, ScanMode } from '../constants';
+import { CONFIG_DIR_NAME, GroupMode, ScanMode } from '../constants';
 import { githubHelper } from '../lib/actions-helper';
 
 const baseInputsSchema = z
@@ -30,7 +30,7 @@ export type ActionInputs = z.infer<typeof actionInputsSchema>;
 
 const DEFAULT_INPUTS = {
   timezone: 'UTC',
-  configPath: '.tscanner',
+  configPath: CONFIG_DIR_NAME,
   tscannerVersion: 'latest',
   groupBy: GroupMode.File,
   targetBranch: 'origin/main',

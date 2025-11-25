@@ -64,7 +64,7 @@ export async function scanWorkspace(
     logger.error('Rust binary not found');
     vscode.window
       .showErrorMessage(
-        `Tscanner: Rust binary not found. Please build the Rust core:\n\ncd packages/core && cargo build --release\n\nCheck logs at ${LOG_FILE_PATH} for details.`,
+        `TScanner: Rust binary not found. Please build the Rust core:\n\ncd packages/core && cargo build --release\n\nCheck logs at ${LOG_FILE_PATH} for details.`,
         'Open Logs',
       )
       .then((selection) => {
@@ -94,7 +94,7 @@ export async function scanWorkspace(
   } catch (error) {
     logger.error(`Rust backend failed: ${error}`);
     vscode.window
-      .showErrorMessage(`Tscanner: Rust backend error: ${error}\n\nCheck logs at ${LOG_FILE_PATH}`, 'Open Logs')
+      .showErrorMessage(`TScanner: Rust backend error: ${error}\n\nCheck logs at ${LOG_FILE_PATH}`, 'Open Logs')
       .then((selection) => {
         if (selection === 'Open Logs') {
           openTextDocument(vscode.Uri.file(LOG_FILE_PATH)).then((doc) => {

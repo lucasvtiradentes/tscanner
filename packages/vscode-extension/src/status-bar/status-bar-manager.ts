@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getCommandId, getStatusBarName } from '../common/constants';
+import { getCommandId } from '../common/constants';
 import { loadEffectiveConfig } from '../common/lib/config-manager';
 import { Command, ScanMode, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import { hasConfiguredRules } from '../common/types';
@@ -12,6 +12,7 @@ export class StatusBarManager {
     private context: vscode.ExtensionContext,
     private currentScanModeRef: { current: ScanMode },
     private currentCompareBranchRef: { current: string },
+    private currentCustomConfigDirRef: { current: string | null },
   ) {
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     this.statusBarItem.command = getCommandId(Command.OpenSettingsMenu);
@@ -24,22 +25,27 @@ export class StatusBarManager {
       return;
     }
 
-    const config = await loadEffectiveConfig(this.context, workspaceFolder.uri.fsPath);
+    const customConfigDir = this.currentCustomConfigDirRef.current;
+    const config = await loadEffectiveConfig(this.context, workspaceFolder.uri.fsPath, customConfigDir);
     const hasConfig = hasConfiguredRules(config);
 
-    const icon = hasConfig ? '$(gear)' : '$(warning)';
-    const modeText = this.currentScanModeRef.current === ScanMode.Codebase ? 'Codebase' : 'Branch';
-    const branchText =
-      this.currentScanModeRef.current === ScanMode.Branch ? ` (${this.currentCompareBranchRef.current})` : '';
-    const configWarning = hasConfig ? '' : ' [No rules configured]';
-
-    const finalText = `${icon} ${getStatusBarName()}: ${modeText}${branchText}${configWarning}`;
+    let finalText: string;
+    if (hasConfig) {
+      const icon = '$(shield)';
+      const modeText =
+        this.currentScanModeRef.current === ScanMode.Codebase
+          ? 'Codebase'
+          : `Branch (${this.currentCompareBranchRef.current})`;
+      finalText = `${icon} ${modeText}`;
+    } else {
+      finalText = '$(warning) [No rules]';
+    }
     logger.info(`Status bar text updated to: "${finalText}"`);
 
     this.statusBarItem.text = finalText;
     this.statusBarItem.tooltip = hasConfig
-      ? 'Click to change scan settings'
-      : 'No rules configured. Click to set up rules.';
+      ? `TScanner - Click to change settings${customConfigDir ? `\nConfig: ${customConfigDir}` : ''}`
+      : 'TScanner - No rules configured. Click to set up.';
 
     this.statusBarItem.show();
   }

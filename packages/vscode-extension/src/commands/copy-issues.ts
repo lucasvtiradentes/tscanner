@@ -1,11 +1,12 @@
 import * as vscode from 'vscode';
 import type { RustClient } from '../common/lib/rust-client';
 import { Command, ScanMode, ToastKind, registerCommand, showToastMessage } from '../common/lib/vscode-utils';
+import { DEFAULT_TARGET_BRANCH } from '../common/scripts-constants';
 import { type FolderNode, type IssueResult, NodeKind, type ScanResult } from '../common/types';
 import type { FileResultItem, FolderResultItem, RuleGroupItem } from '../sidebar/tree-items';
 
 let currentScanMode: ScanMode = ScanMode.Codebase;
-let currentCompareBranch = 'main';
+let currentCompareBranch = DEFAULT_TARGET_BRANCH;
 let getRustClientFn: (() => RustClient | null) | null = null;
 
 export function setCopyRustClient(getRustClient: () => RustClient | null) {

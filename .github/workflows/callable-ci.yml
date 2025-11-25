@@ -13,8 +13,17 @@ on:
         required: true
     outputs:
       should_release:
-        description: 'Whether version was bumped and should trigger release'
-        value: ${{ jobs.check_version.outputs.should_build }}
+        description: 'Whether any version was bumped and should trigger release'
+        value: ${{ jobs.check_version.outputs.should_release }}
+      should_release_npm:
+        description: 'Whether CLI/NPM package version was bumped'
+        value: ${{ jobs.check_version.outputs.should_release_npm }}
+      should_release_vscode:
+        description: 'Whether VSCode extension version was bumped'
+        value: ${{ jobs.check_version.outputs.should_release_vscode }}
+      should_release_github_action:
+        description: 'Whether GitHub Action version was bumped'
+        value: ${{ jobs.check_version.outputs.should_release_github_action }}
     secrets:
       TURBO_TOKEN:
         description: Turbo token for cache
@@ -32,7 +41,10 @@ jobs:
   check_version:
     runs-on: ubuntu-latest
     outputs:
-      should_build: ${{ steps.check.outputs.should_build }}
+      should_release: ${{ steps.check.outputs.should_release }}
+      should_release_npm: ${{ steps.check.outputs.should_release_npm }}
+      should_release_vscode: ${{ steps.check.outputs.should_release_vscode }}
+      should_release_github_action: ${{ steps.check.outputs.should_release_github_action }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -45,7 +57,20 @@ jobs:
           git diff --name-only HEAD^ HEAD || echo "  (none - initial commit)"
           echo ""
 
-          VERSION_BUMPED="false"
+          SHOULD_RELEASE_NPM="false"
+          SHOULD_RELEASE_VSCODE="false"
+          SHOULD_RELEASE_GITHUB_ACTION="false"
+
+          # Check CLI/NPM package
+          CLI_PKG="packages/cli/package.json"
+          CLI_CURRENT=$(node -p "require('./$CLI_PKG').version")
+          CLI_PREVIOUS=$(git show HEAD^:./$CLI_PKG 2>/dev/null | node -p "try { JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf-8')).version } catch(e) { '' }" || echo "")
+
+          echo "🔍 CLI/NPM: $CLI_PREVIOUS → $CLI_CURRENT"
+          if [ -n "$CLI_PREVIOUS" ] && [ "$CLI_PREVIOUS" != "$CLI_CURRENT" ]; then
+            echo "✅ CLI/NPM version bumped"
+            SHOULD_RELEASE_NPM="true"
+          fi
 
           # Check VSCode extension
           VSCODE_PKG="packages/vscode-extension/package.json"
@@ -55,27 +80,31 @@ jobs:
           echo "🔍 VSCode Extension: $VSCODE_PREVIOUS → $VSCODE_CURRENT"
           if [ -n "$VSCODE_PREVIOUS" ] && [ "$VSCODE_PREVIOUS" != "$VSCODE_CURRENT" ]; then
             echo "✅ VSCode extension version bumped"
-            VERSION_BUMPED="true"
+            SHOULD_RELEASE_VSCODE="true"
           fi
 
-          # Check CLI package
-          CLI_PKG="packages/cli/package.json"
-          CLI_CURRENT=$(node -p "require('./$CLI_PKG').version")
-          CLI_PREVIOUS=$(git show HEAD^:./$CLI_PKG 2>/dev/null | node -p "try { JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf-8')).version } catch(e) { '' }" || echo "")
+          # Check GitHub Action
+          ACTION_PKG="packages/github-action/package.json"
+          ACTION_CURRENT=$(node -p "require('./$ACTION_PKG').version")
+          ACTION_PREVIOUS=$(git show HEAD^:./$ACTION_PKG 2>/dev/null | node -p "try { JSON.parse(require('fs').readFileSync('/dev/stdin', 'utf-8')).version } catch(e) { '' }" || echo "")
 
-          echo "🔍 CLI: $CLI_PREVIOUS → $CLI_CURRENT"
-          if [ -n "$CLI_PREVIOUS" ] && [ "$CLI_PREVIOUS" != "$CLI_CURRENT" ]; then
-            echo "✅ CLI version bumped"
-            VERSION_BUMPED="true"
+          echo "🔍 GitHub Action: $ACTION_PREVIOUS → $ACTION_CURRENT"
+          if [ -n "$ACTION_PREVIOUS" ] && [ "$ACTION_PREVIOUS" != "$ACTION_CURRENT" ]; then
+            echo "✅ GitHub Action version bumped"
+            SHOULD_RELEASE_GITHUB_ACTION="true"
           fi
 
           echo ""
-          if [ "$VERSION_BUMPED" = "true" ]; then
+          echo "should_release_npm=$SHOULD_RELEASE_NPM" >> $GITHUB_OUTPUT
+          echo "should_release_vscode=$SHOULD_RELEASE_VSCODE" >> $GITHUB_OUTPUT
+          echo "should_release_github_action=$SHOULD_RELEASE_GITHUB_ACTION" >> $GITHUB_OUTPUT
+
+          if [ "$SHOULD_RELEASE_NPM" = "true" ] || [ "$SHOULD_RELEASE_VSCODE" = "true" ]; then
             echo "✅ Building binaries (version bumped)"
-            echo "should_build=true" >> $GITHUB_OUTPUT
+            echo "should_release=true" >> $GITHUB_OUTPUT
           else
             echo "⏭️  No version bump, skipping binary build"
-            echo "should_build=false" >> $GITHUB_OUTPUT
+            echo "should_release=false" >> $GITHUB_OUTPUT
           fi
 
   lint:

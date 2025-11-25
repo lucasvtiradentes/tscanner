@@ -84,10 +84,10 @@ sync_files_to_standalone() {
   sed -i '/## 📜 License/i \
 ## 📝 Notes\
 \
+This repository is automatically generated. If you want to contribute or see the source code, you can find it in the [TScanner monorepo](https://github.com/lucasvtiradentes/tscanner/tree/main/packages/github-action).\
+\
 - **Current version:** `'"v${CURRENT_VERSION}"'`\
 - **Generated at:** `'"${TIMESTAMP}"'`\
-\
-This repository is automatically generated. If you want to contribute or see the source code, you can find it in the [tscanner monorepo](https://github.com/lucasvtiradentes/tscanner/tree/main/packages/github-action).\
 \
 ---\
 \

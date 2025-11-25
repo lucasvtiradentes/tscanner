@@ -1,10 +1,11 @@
 use anyhow::{Context, Result};
 use colored::*;
-use core::config::TscannerConfig;
 use std::fs;
 use std::path::Path;
 
 use core::{log_error, log_info, CONFIG_DIR_NAME, CONFIG_FILE_NAME};
+
+const DEFAULT_CONFIG_JSON: &str = include_str!("../../../../../../assets/default-config.json");
 
 pub fn cmd_init(path: &Path) -> Result<()> {
     log_info(&format!(
@@ -26,12 +27,10 @@ pub fn cmd_init(path: &Path) -> Result<()> {
         std::process::exit(1);
     }
 
-    let default_config = TscannerConfig::default();
     fs::create_dir_all(&config_dir)
         .context(format!("Failed to create {} directory", CONFIG_DIR_NAME))?;
 
-    let config_json = serde_json::to_string_pretty(&default_config)?;
-    fs::write(&config_path, config_json).context("Failed to write config file")?;
+    fs::write(&config_path, DEFAULT_CONFIG_JSON).context("Failed to write config file")?;
 
     log_info(&format!(
         "cmd_init: Created config: {}",
