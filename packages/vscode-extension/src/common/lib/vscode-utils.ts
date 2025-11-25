@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { z } from 'zod';
 import { getCommandId, getContextKey } from '../constants';
-import { CONTEXT_PREFIX } from '../scripts-constants';
+import { CONTEXT_PREFIX, DEFAULT_TARGET_BRANCH } from '../scripts-constants';
 
 export enum ViewMode {
   List = 'list',
@@ -43,7 +43,7 @@ const defaultValues: WorkspaceStateSchema = {
   [WorkspaceStateKey.ViewMode]: ViewMode.List,
   [WorkspaceStateKey.GroupMode]: GroupMode.Default,
   [WorkspaceStateKey.ScanMode]: ScanMode.Codebase,
-  [WorkspaceStateKey.CompareBranch]: 'main',
+  [WorkspaceStateKey.CompareBranch]: DEFAULT_TARGET_BRANCH,
   [WorkspaceStateKey.CachedResults]: [],
   [WorkspaceStateKey.CustomConfigDir]: null,
 };

@@ -29,14 +29,17 @@ export class StatusBarManager {
     const config = await loadEffectiveConfig(this.context, workspaceFolder.uri.fsPath, customConfigDir);
     const hasConfig = hasConfiguredRules(config);
 
-    const icon = hasConfig ? '$(shield)' : '$(warning)';
-    const modeText =
-      this.currentScanModeRef.current === ScanMode.Codebase
-        ? 'Codebase'
-        : `Branch (${this.currentCompareBranchRef.current})`;
-    const configWarning = hasConfig ? '' : ' [No rules]';
-
-    const finalText = `${icon} ${modeText}${configWarning}`;
+    let finalText: string;
+    if (hasConfig) {
+      const icon = '$(shield)';
+      const modeText =
+        this.currentScanModeRef.current === ScanMode.Codebase
+          ? 'Codebase'
+          : `Branch (${this.currentCompareBranchRef.current})`;
+      finalText = `${icon} ${modeText}`;
+    } else {
+      finalText = '$(warning) [No rules]';
+    }
     logger.info(`Status bar text updated to: "${finalText}"`);
 
     this.statusBarItem.text = finalText;
