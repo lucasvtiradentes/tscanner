@@ -7,7 +7,13 @@ class GitHelper {
   }
 
   async getCommitMessage(commitSha: string): Promise<string> {
-    return githubHelper.execCommandWithOutput('git', ['log', '-1', '--pretty=%s', commitSha]);
+    try {
+      const message = await githubHelper.execCommandWithOutput('git', ['log', '-1', '--pretty=%s', commitSha]);
+      return message || '';
+    } catch {
+      githubHelper.logWarning(`Failed to get commit message for ${commitSha}`);
+      return '';
+    }
   }
 }
 
