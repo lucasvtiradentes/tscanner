@@ -1,12 +1,10 @@
 #!/usr/bin/env node
 
 import { spawn } from 'node:child_process';
-import { DEFAULT_PAGE_SIZE } from 'tscanner-common';
 import { getBinaryPath } from './binary-resolver';
 
 function main(): void {
   try {
-    console.log(`[tscanner-common] DEFAULT_PAGE_SIZE=${DEFAULT_PAGE_SIZE}`);
     const binaryPath = getBinaryPath();
 
     const child = spawn(binaryPath, process.argv.slice(2), {

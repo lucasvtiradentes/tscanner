@@ -1,4 +1,3 @@
-import { DEFAULT_PAGE_SIZE } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { getViewId } from './common/constants';
@@ -51,8 +50,6 @@ export function activate(context: vscode.ExtensionContext) {
   setContextKey(ContextKey.GroupMode, groupModeKey);
   setContextKey(ContextKey.ScanMode, scanModeKey);
   setContextKey(ContextKey.Searching, false);
-
-  logger.info(`[tscanner-common] DEFAULT_PAGE_SIZE=${DEFAULT_PAGE_SIZE}`);
 
   const viewId = getViewId();
   logger.info(`Registering tree view with ID: ${viewId}`);
