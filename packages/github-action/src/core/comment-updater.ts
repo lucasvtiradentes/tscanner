@@ -133,6 +133,7 @@ function buildCommentBody(
   };
 
   if (totalIssues === 0) {
+    const commitInfo = commitMessage ? `\`${commitSha}\` - ${commitMessage}` : `\`${commitSha}\``;
     return `${COMMENT_MARKER}
 ## ✅ TScanner - No Issues Found
 
@@ -143,7 +144,7 @@ All files passed validation!
 
 ---
 **Last updated:** ${timestamp}
-**Last commit analyzed:** \`${commitSha}\``;
+**Last commit analyzed:** ${commitInfo}`;
   }
 
   const icon = totalErrors > 0 ? '❌' : '⚠️';
