@@ -1,3 +1,4 @@
+import * as path from 'node:path';
 import * as vscode from 'vscode';
 import {
   deleteCustomConfig,
@@ -626,7 +627,7 @@ async function showFolderPickerQuickPick(
     items.push({
       id: '__select__',
       label: '$(check) Select this Folder',
-      detail: `Use: ${displayPath}/${CONFIG_DIR_NAME}`,
+      detail: `Use: ${path.posix.join(displayPath, CONFIG_DIR_NAME)}`,
     });
 
     if (currentRelativePath !== '.') {
@@ -641,7 +642,7 @@ async function showFolderPickerQuickPick(
       items.push({
         id: folder,
         label: `$(folder) ${folder}`,
-        detail: currentRelativePath === '.' ? `${folder}` : `${currentRelativePath}/${folder}`,
+        detail: currentRelativePath === '.' ? folder : path.posix.join(currentRelativePath, folder),
       });
     }
 
@@ -657,13 +658,12 @@ async function showFolderPickerQuickPick(
     }
 
     if (selected.id === '__parent__') {
-      const parts = currentRelativePath.split('/');
-      parts.pop();
-      currentRelativePath = parts.length === 0 ? '.' : parts.join('/');
+      const parent = path.posix.dirname(currentRelativePath);
+      currentRelativePath = parent === '.' || parent === '' ? '.' : parent;
       continue;
     }
 
-    currentRelativePath = currentRelativePath === '.' ? selected.id : `${currentRelativePath}/${selected.id}`;
+    currentRelativePath = currentRelativePath === '.' ? selected.id : path.posix.join(currentRelativePath, selected.id);
   }
 }
 

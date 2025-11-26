@@ -3,6 +3,10 @@ import * as vscode from 'vscode';
 import type { ModifiedLineRange } from '../types';
 import { logger } from './logger';
 
+function toGitPath(filePath: string): string {
+  return filePath.replace(/\\/g, '/');
+}
+
 type GitExtension = {
   getAPI(version: 1): GitAPI;
 };
@@ -66,7 +70,7 @@ export async function getCurrentBranch(workspaceRoot: string): Promise<string | 
 
 export async function branchExists(workspaceRoot: string, branchName: string): Promise<boolean> {
   try {
-    execSync(`git rev-parse --verify ${branchName}`, {
+    execSync(`git rev-parse --verify "${branchName}"`, {
       cwd: workspaceRoot,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'pipe'],
@@ -171,7 +175,8 @@ export async function getFileContentAtRef(
   ref: string,
 ): Promise<string | null> {
   try {
-    const content = execSync(`git show ${ref}:${filePath}`, {
+    const gitPath = toGitPath(filePath);
+    const content = execSync(`git show "${ref}:${gitPath}"`, {
       cwd: workspaceRoot,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'ignore'],
@@ -192,7 +197,8 @@ export async function getModifiedLineRanges(
     const currentBranch = await getCurrentBranch(workspaceRoot);
     if (!currentBranch) return [];
 
-    const diff = execSync(`git diff ${compareBranch}...${currentBranch} -- ${filePath}`, {
+    const gitPath = toGitPath(filePath);
+    const diff = execSync(`git diff "${compareBranch}...${currentBranch}" -- "${gitPath}"`, {
       cwd: workspaceRoot,
       encoding: 'utf-8',
       stdio: ['pipe', 'pipe', 'ignore'],
