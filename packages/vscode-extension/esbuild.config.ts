@@ -19,6 +19,9 @@ const extensionBuildOptions: BuildOptions = {
   define: {
     __IS_DEV_BUILD__: isDev ? 'true' : 'false',
   },
+  alias: {
+    zod: require.resolve('zod'),
+  },
 };
 
 async function build() {
