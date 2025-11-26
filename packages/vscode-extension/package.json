@@ -3,7 +3,7 @@
   "private": true,
   "displayName": "TScanner",
   "description": "Code quality scanner for the AI-generated code era",
-  "version": "0.0.18",
+  "version": "0.0.19",
   "publisher": "lucasvtiradentes",
   "license": "MIT",
   "icon": "resources/icon.png",
@@ -18,7 +18,12 @@
   "engines": {
     "vscode": "^1.93.0"
   },
-  "categories": ["Linters", "Programming Languages", "Formatters", "Testing"],
+  "categories": [
+    "Linters",
+    "Programming Languages",
+    "Formatters",
+    "Testing"
+  ],
   "keywords": [
     "typescript",
     "linter",
@@ -65,7 +70,9 @@
     "tsx": "^4.20.6",
     "typescript": "^5.7.0"
   },
-  "activationEvents": ["onStartupFinished"],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
   "contributes": {
     "viewsContainers": {
       "activitybar": [
