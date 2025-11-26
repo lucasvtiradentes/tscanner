@@ -10,7 +10,7 @@ use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::Arc;
 
-use crate::config_loader::{get_vscode_global_config_path, load_config_with_custom};
+use crate::config_loader::load_config_with_custom;
 use crate::GroupMode;
 use core::{log_error, log_info, APP_NAME, CONFIG_DIR_NAME, CONFIG_FILE_NAME};
 
@@ -194,7 +194,7 @@ pub fn cmd_check(
                     .bold()
             );
             eprintln!();
-            eprintln!("Searched for config in:");
+            eprintln!("Expected config at:");
             eprintln!(
                 "  • {}",
                 format!(
@@ -206,14 +206,14 @@ pub fn cmd_check(
                 .yellow()
             );
 
-            if let Some(global_path) = get_vscode_global_config_path(&root) {
-                eprintln!("  • {}", global_path.display().to_string().yellow());
-            }
-
             eprintln!();
             eprintln!(
-                "Run {} to create a default configuration.",
+                "Run {} to create a default configuration,",
                 format!("{} init", APP_NAME).cyan()
+            );
+            eprintln!(
+                "or use {} to specify a custom config directory.",
+                "--config <path>".cyan()
             );
             std::process::exit(1);
         }

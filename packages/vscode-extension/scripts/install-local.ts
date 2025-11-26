@@ -149,11 +149,14 @@ async function copyToVSCodeExtensions() {
 }
 
 async function printSuccessMessage() {
+  const editor = detectCurrentEditor();
   const targetDir = getVSCodeExtensionsDirectory();
+  const editorName = editor === 'vscode' ? 'VSCode' : editor === 'cursor' ? 'Cursor' : 'VSCodium';
 
   logger.log(`\n✅ Extension installed to: ${targetDir}`);
   logger.log(`   Extension ID: ${EXTENSION_ID_DEV}`);
-  logger.log('\n🔄 Reload VSCode to activate the extension:');
+  logger.log(`   Editor detected: ${editorName}`);
+  logger.log(`\n🔄 Reload ${editorName} to activate the extension:`);
   logger.log('   - Press Ctrl+Shift+P');
   logger.log(`   - Type "Reload Window" and press Enter\n`);
 }
@@ -163,8 +166,46 @@ function getLocalDistDirectory(): string {
   return join(extensionRoot, 'dist-dev');
 }
 
+type EditorType = 'vscode' | 'cursor' | 'vscodium';
+
+interface EditorExtensionPaths {
+  vscode: string;
+  cursor: string;
+  vscodium: string;
+}
+
+function detectCurrentEditor(): EditorType {
+  const vscodeEnv = process.env.VSCODE_PID || process.env.TERM_PROGRAM;
+  if (vscodeEnv === 'vscode') return 'vscode';
+
+  const cursorPath = join(homedir(), '.cursor', 'extensions');
+  const vscodiumPath =
+    process.platform === 'darwin'
+      ? join(homedir(), '.vscode-oss', 'extensions')
+      : join(homedir(), '.config', 'VSCodium', 'extensions');
+  const vscodePath = join(homedir(), '.vscode', 'extensions');
+
+  if (existsSync(cursorPath) && !existsSync(vscodePath)) return 'cursor';
+  if (existsSync(vscodiumPath) && !existsSync(vscodePath)) return 'vscodium';
+
+  return 'vscode';
+}
+
+function getEditorExtensionsPath(editor: EditorType): string {
+  const paths: EditorExtensionPaths = {
+    vscode: join(homedir(), '.vscode', 'extensions'),
+    cursor: join(homedir(), '.cursor', 'extensions'),
+    vscodium:
+      process.platform === 'darwin'
+        ? join(homedir(), '.vscode-oss', 'extensions')
+        : join(homedir(), '.config', 'VSCodium', 'extensions'),
+  };
+  return paths[editor];
+}
+
 function getVSCodeExtensionsDirectory(): string {
-  return join(homedir(), '.vscode', 'extensions', EXTENSION_ID_DEV);
+  const editor = detectCurrentEditor();
+  return join(getEditorExtensionsPath(editor), EXTENSION_ID_DEV);
 }
 
 function getPlatformInfo(): { platform: string; npmPlatform: string } | null {
