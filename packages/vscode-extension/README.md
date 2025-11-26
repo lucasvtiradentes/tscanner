@@ -5,10 +5,6 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner - VS Code Extension</strong></div>
   <br />
-  <div>
-    <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/visual-studio-marketplace/v/lucasvtiradentes.tscanner-vscode.svg" alt="vscode version"></a>
-    <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/visual-studio-marketplace/i/lucasvtiradentes.tscanner-vscode.svg" alt="installs"></a>
-  </div>
   <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> • <a href="#-architecture">Architecture</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-license">License</a>
 </div>
 
