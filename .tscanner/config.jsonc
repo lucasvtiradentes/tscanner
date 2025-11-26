@@ -1,6 +1,7 @@
 {
   "$schema": "../packages/cli/schema.json",
   "builtinRules": {
+    "no-forwarded-exports": {},
     "no-var": {},
     "prefer-type-over-interface": {},
     "no-constant-condition": {},
