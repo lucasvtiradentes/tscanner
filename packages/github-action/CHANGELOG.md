@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.14
+
+### Patch Changes
+
+- 4f7a80f: fix images
+
 ## 0.0.13
 
 ### Patch Changes
