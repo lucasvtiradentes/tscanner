@@ -1,0 +1,168 @@
+---
+source: crates/core/tests/spec_tests.rs
+assertion_line: 38
+expression: snapshot
+---
+# Input
+```ts
+function fiveParams(a: string, b: number, c: boolean, d: object, e: string) {
+  return a;
+}
+
+function sixParams(a: string, b: number, c: boolean, d: object, e: string, f: number) {
+  return a;
+}
+
+const arrowFiveParams = (a: string, b: number, c: boolean, d: object, e: string) => {
+  return a;
+};
+
+const arrowSixParams = (a: string, b: number, c: boolean, d: object, e: string, f: number) => {
+  return a;
+};
+
+class MyClass {
+  methodFiveParams(a: string, b: number, c: boolean, d: object, e: string) {
+    return a;
+  }
+
+  methodSixParams(a: string, b: number, c: boolean, d: object, e: string, f: number) {
+    return a;
+  }
+}
+
+export function exportedFiveParams(a: string, b: number, c: boolean, d: object, e: string) {
+  return a;
+}
+```
+
+# Diagnostics
+```
+invalid.ts:1:2 max-params ━━━━━━━━━━━━━━━━━━━━
+
+  ! Function 'fiveParams' has 5 parameters (max: 4). Consider using an options object.
+
+  > 1 │ function fiveParams(a: string, b: number, c: boolean, d: object, e: string) {
+    2 │   return a;
+
+```
+
+```
+invalid.ts:1:2 max-params ━━━━━━━━━━━━━━━━━━━━
+
+  ! Function 'anonymous' has 5 parameters (max: 4). Consider using an options object.
+
+  > 1 │ function fiveParams(a: string, b: number, c: boolean, d: object, e: string) {
+    2 │   return a;
+
+```
+
+```
+invalid.ts:5:2 max-params ━━━━━━━━━━━━━━━━━━━━
+
+  ! Function 'sixParams' has 6 parameters (max: 4). Consider using an options object.
+
+    4 │ 
+  > 5 │ function sixParams(a: string, b: number, c: boolean, d: object, e: string, f: number) {
+    6 │   return a;
+
+```
+
+```
+invalid.ts:5:2 max-params ━━━━━━━━━━━━━━━━━━━━
+
+  ! Function 'anonymous' has 6 parameters (max: 4). Consider using an options object.
+
+    4 │ 
+  > 5 │ function sixParams(a: string, b: number, c: boolean, d: object, e: string, f: number) {
+    6 │   return a;
+
+```
+
+```
+invalid.ts:9:26 max-params ━━━━━━━━━━━━━━━━━━━━
+
+  ! Function 'arrow' has 5 parameters (max: 4). Consider using an options object.
+
+    8 │ 
+  > 9 │ const arrowFiveParams = (a: string, b: number, c: boolean, d: object, e: string) => {
+    10 │   return a;
+
+```
+
+```
+invalid.ts:13:25 max-params ━━━━━━━━━━━━━━━━━━━━
+
+  ! Function 'arrow' has 6 parameters (max: 4). Consider using an options object.
+
+    12 │ 
+  > 13 │ const arrowSixParams = (a: string, b: number, c: boolean, d: object, e: string, f: number) => {
+    14 │   return a;
+
+```
+
+```
+invalid.ts:18:4 max-params ━━━━━━━━━━━━━━━━━━━━
+
+  ! Function 'methodFiveParams' has 5 parameters (max: 4). Consider using an options object.
+
+    17 │ class MyClass {
+  > 18 │   methodFiveParams(a: string, b: number, c: boolean, d: object, e: string) {
+    19 │     return a;
+
+```
+
+```
+invalid.ts:18:4 max-params ━━━━━━━━━━━━━━━━━━━━
+
+  ! Function 'anonymous' has 5 parameters (max: 4). Consider using an options object.
+
+    17 │ class MyClass {
+  > 18 │   methodFiveParams(a: string, b: number, c: boolean, d: object, e: string) {
+    19 │     return a;
+
+```
+
+```
+invalid.ts:22:4 max-params ━━━━━━━━━━━━━━━━━━━━
+
+  ! Function 'methodSixParams' has 6 parameters (max: 4). Consider using an options object.
+
+    21 │ 
+  > 22 │   methodSixParams(a: string, b: number, c: boolean, d: object, e: string, f: number) {
+    23 │     return a;
+
+```
+
+```
+invalid.ts:22:4 max-params ━━━━━━━━━━━━━━━━━━━━
+
+  ! Function 'anonymous' has 6 parameters (max: 4). Consider using an options object.
+
+    21 │ 
+  > 22 │   methodSixParams(a: string, b: number, c: boolean, d: object, e: string, f: number) {
+    23 │     return a;
+
+```
+
+```
+invalid.ts:27:9 max-params ━━━━━━━━━━━━━━━━━━━━
+
+  ! Function 'exportedFiveParams' has 5 parameters (max: 4). Consider using an options object.
+
+    26 │ 
+  > 27 │ export function exportedFiveParams(a: string, b: number, c: boolean, d: object, e: string) {
+    28 │   return a;
+
+```
+
+```
+invalid.ts:27:9 max-params ━━━━━━━━━━━━━━━━━━━━
+
+  ! Function 'anonymous' has 5 parameters (max: 4). Consider using an options object.
+
+    26 │ 
+  > 27 │ export function exportedFiveParams(a: string, b: number, c: boolean, d: object, e: string) {
+    28 │   return a;
+
+```

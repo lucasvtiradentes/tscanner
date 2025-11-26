@@ -1,33 +1,40 @@
 {
   "$schema": "../packages/cli/schema.json",
   "builtinRules": {
-    "no-var": {},
-    "prefer-type-over-interface": {},
-    "no-constant-condition": {},
-    "no-duplicate-imports": {},
-    "no-unreachable-code": {},
-    "max-function-length": {},
-    "no-nested-ternary": {},
-    "no-nested-require": {
-      "severity": "error"
-    },
-    "no-empty-function": {},
-    "no-dynamic-import": {
-      "severity": "error"
-    },
     "consistent-return": {},
-    "no-implicit-any": {},
-    "no-unused-vars": {},
+    "max-function-length": {},
+    "max-params": {},
+    "no-alias-imports": {},
+    "no-any-type": { "severity": "error" },
+    "no-async-without-await": {},
+    "no-console-log": { "severity": "error" },
+    "no-constant-condition": {},
+    "no-default-export": {},
+    "no-duplicate-imports": {},
+    "no-dynamic-import": { "severity": "error" },
+    "no-else-return": {},
     "no-empty-class": {},
+    "no-empty-function": {},
+    "no-empty-interface": {},
+    "no-floating-promises": {},
+    "no-forwarded-exports": {},
+    "no-implicit-any": {},
+    "no-inferrable-types": {},
+    "no-nested-require": { "severity": "error" },
+    "no-nested-ternary": {},
+    "no-non-null-assertion": {},
+    "no-return-await": {},
+    "no-shadow": {},
+    "no-single-or-array-union": {},
+    "no-unnecessary-type-assertion": {},
+    "no-unreachable-code": {},
+    "no-unused-vars": {},
+    "no-useless-catch": {},
+    "no-var": {},
     "prefer-const": {},
-    "no-any-type": {
-      "severity": "error"
-    },
-    "no-todo-comments": {},
-    "no-console-log": {
-      "severity": "error"
-    },
-    "no-alias-imports": {}
+    "prefer-nullish-coalescing": {},
+    "prefer-optional-chain": {},
+    "prefer-type-over-interface": {}
   },
   "customRules": {
     "no-debug-log-calls": {

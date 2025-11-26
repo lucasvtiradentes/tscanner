@@ -20,6 +20,9 @@ importers:
       lint-staged:
         specifier: ^15.2.11
         version: 15.5.2
+      markdown-helper:
+        specifier: ^0.0.0
+        version: 0.0.0
       rimraf:
         specifier: ^6.0.1
         version: 6.1.2
@@ -1294,6 +1297,9 @@ packages:
   magic-string@0.30.21:
     resolution: {integrity: sha512-vd2F4YUyEXKGcLHoq+TEyCjxueSeHnFxyyjNp80yg0XV4vUhnDer/lvvlqM/arB5bXQN5K2/3oinyCRyx8T2CQ==}
 
+  markdown-helper@0.0.0:
+    resolution: {integrity: sha512-z867XxUqG6xo3jyQgF/hfOIjEeEUI58Upt6xl65GJjLDKUeB/tY6wsq6b9nkbkFzvYUDWZUiuBlm+6dVF7TXAg==}
+
   merge-stream@2.0.0:
     resolution: {integrity: sha512-abv/qOcuPfk3URPfDzmZU1LKmuw8kT+0nIHvKrKgFrwifol/doWcdA4ZqsWQ8ENrFKkd67Mfpo/LovbIUsbt3w==}
 
@@ -1708,6 +1714,9 @@ packages:
     resolution: {integrity: sha512-HvWtU2UG41LALjajJrML6uQejQhNJx+JBO9IflpSja4R03iNWfKXrj6W2h7ljuLyc1nKS+9yDyL/9tD1U/yBnQ==}
     peerDependencies:
       zod: ^3.25 || ^4
+
+  zod@3.25.76:
+    resolution: {integrity: sha512-gzUt/qt81nXsFGKIFcC3YnfEAx5NkunCfnDlvuBSSFS02bcXu4Lmea0AFIUwbLWxWPx3d9p8S5QoaujKcNQxcQ==}
 
   zod@4.1.12:
     resolution: {integrity: sha512-JInaHOamG8pt5+Ey8kGmdcAcg3OL9reK8ltczgHTAwNhMys/6ThXHityHxVV2p3fkw/c+MAvBHFVYHFZDmjMCQ==}
@@ -2723,6 +2732,10 @@ snapshots:
     dependencies:
       '@jridgewell/sourcemap-codec': 1.5.5
 
+  markdown-helper@0.0.0:
+    dependencies:
+      zod: 3.25.76
+
   merge-stream@2.0.0: {}
 
   merge2@1.4.1: {}
@@ -3090,5 +3103,7 @@ snapshots:
   zod-to-json-schema@3.25.0(zod@4.1.12):
     dependencies:
       zod: 4.1.12
+
+  zod@3.25.76: {}
 
   zod@4.1.12: {}

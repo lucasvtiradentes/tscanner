@@ -1,0 +1,12 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+const result = a ? 1 : 2;
+const simple = x > 0 ? 'positive' : 'non-positive';
+```
+
+# Diagnostics
+No issues found.

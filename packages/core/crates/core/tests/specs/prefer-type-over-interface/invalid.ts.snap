@@ -1,0 +1,37 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+interface User {
+  name: string;
+  age: number;
+}
+
+interface Props {
+  children: React.ReactNode;
+}
+```
+
+# Diagnostics
+```
+invalid.ts:1:2 prefer-type-over-interface ━━━━━━━━━━━━━━━━━━━━
+
+  ! Prefer 'type' over 'interface' for 'User'
+
+  > 1 │ interface User {
+    2 │   name: string;
+
+```
+
+```
+invalid.ts:6:2 prefer-type-over-interface ━━━━━━━━━━━━━━━━━━━━
+
+  ! Prefer 'type' over 'interface' for 'Props'
+
+    5 │ 
+  > 6 │ interface Props {
+    7 │   children: React.ReactNode;
+
+```

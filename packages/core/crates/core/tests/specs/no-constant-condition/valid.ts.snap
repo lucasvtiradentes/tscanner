@@ -1,0 +1,15 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+const condition = Math.random() > 0.5;
+if (condition) {
+}
+while (condition) {}
+const x = condition ? 1 : 2;
+```
+
+# Diagnostics
+No issues found.

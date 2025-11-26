@@ -1,0 +1,43 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+export { foo } from './foo';
+export * from './bar';
+import { baz } from './baz';
+export { baz };
+```
+
+# Diagnostics
+```
+invalid.ts:1:2 no-forwarded-exports ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid re-exporting from './foo';'. Import and use directly instead.
+
+  > 1 │ export { foo } from './foo';
+    2 │ export * from './bar';
+
+```
+
+```
+invalid.ts:2:2 no-forwarded-exports ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid star re-export from './bar';'. Import and use directly instead.
+
+    1 │ export { foo } from './foo';
+  > 2 │ export * from './bar';
+    3 │ import { baz } from './baz';
+
+```
+
+```
+invalid.ts:4:11 no-forwarded-exports ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid re-exporting 'baz'. Import and use directly instead.
+
+    3 │ import { baz } from './baz';
+  > 4 │ export { baz };
+
+```

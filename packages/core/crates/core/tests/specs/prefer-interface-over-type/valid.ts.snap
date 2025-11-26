@@ -1,0 +1,17 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+interface User {
+  name: string;
+  age: number;
+}
+
+type StringOrNumber = string | number;
+type Callback = () => void;
+```
+
+# Diagnostics
+No issues found.

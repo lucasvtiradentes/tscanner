@@ -1,0 +1,16 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+const x = 1;
+const y = 'hello';
+let z = 0;
+z = 1;
+let w;
+w = 'assigned later';
+```
+
+# Diagnostics
+No issues found.

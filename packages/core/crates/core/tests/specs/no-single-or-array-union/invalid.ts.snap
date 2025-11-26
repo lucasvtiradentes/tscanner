@@ -1,0 +1,86 @@
+---
+source: crates/core/tests/spec_tests.rs
+assertion_line: 38
+expression: snapshot
+---
+# Input
+```ts
+type Foo = string | string[];
+
+type Bar = number | number[];
+
+function baz(x: boolean | boolean[]) {}
+
+interface Props {
+  value: bigint | bigint[];
+}
+
+const handler = (data: symbol | symbol[]): void => {};
+
+type Mixed = object | object[];
+```
+
+# Diagnostics
+```
+invalid.ts:1:13 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid union of 'string' with 'string[]'. Use consistent type to avoid multiple code paths.
+
+  > 1 │ type Foo = string | string[];
+    2 │ 
+
+```
+
+```
+invalid.ts:3:13 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid union of 'number' with 'number[]'. Use consistent type to avoid multiple code paths.
+
+    2 │ 
+  > 3 │ type Bar = number | number[];
+    4 │ 
+
+```
+
+```
+invalid.ts:5:18 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid union of 'boolean' with 'boolean[]'. Use consistent type to avoid multiple code paths.
+
+    4 │ 
+  > 5 │ function baz(x: boolean | boolean[]) {}
+    6 │ 
+
+```
+
+```
+invalid.ts:8:11 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid union of 'bigint' with 'bigint[]'. Use consistent type to avoid multiple code paths.
+
+    7 │ interface Props {
+  > 8 │   value: bigint | bigint[];
+    9 │ }
+
+```
+
+```
+invalid.ts:11:25 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid union of 'symbol' with 'symbol[]'. Use consistent type to avoid multiple code paths.
+
+    10 │ 
+  > 11 │ const handler = (data: symbol | symbol[]): void => {};
+    12 │ 
+
+```
+
+```
+invalid.ts:13:15 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid union of 'object' with 'object[]'. Use consistent type to avoid multiple code paths.
+
+    12 │ 
+  > 13 │ type Mixed = object | object[];
+
+```

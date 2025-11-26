@@ -1,0 +1,23 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+function inconsistent(x: boolean) {
+  if (x) {
+    return 1;
+  }
+  return;
+}
+
+const arrowInconsistent = (x: boolean) => {
+  if (x) {
+    return 1;
+  }
+  return;
+};
+```
+
+# Diagnostics
+No issues found.

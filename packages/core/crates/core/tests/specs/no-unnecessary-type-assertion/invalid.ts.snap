@@ -1,0 +1,42 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+const x = "hello" as string;
+const y = 123 as number;
+const z = true as boolean;
+```
+
+# Diagnostics
+```
+invalid.ts:1:12 no-unnecessary-type-assertion ━━━━━━━━━━━━━━━━━━━━
+
+  ! Unnecessary type assertion: string literal is already of type string
+
+  > 1 │ const x = "hello" as string;
+    2 │ const y = 123 as number;
+
+```
+
+```
+invalid.ts:2:12 no-unnecessary-type-assertion ━━━━━━━━━━━━━━━━━━━━
+
+  ! Unnecessary type assertion: number literal is already of type number
+
+    1 │ const x = "hello" as string;
+  > 2 │ const y = 123 as number;
+    3 │ const z = true as boolean;
+
+```
+
+```
+invalid.ts:3:12 no-unnecessary-type-assertion ━━━━━━━━━━━━━━━━━━━━
+
+  ! Unnecessary type assertion: boolean literal is already of type boolean
+
+    2 │ const y = 123 as number;
+  > 3 │ const z = true as boolean;
+
+```

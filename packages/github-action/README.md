@@ -11,7 +11,7 @@
 
 ## 🎺 Overview<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-GitHub Action for [TScanner](https://github.com/lucasvtiradentes/tscanner): Enforce project-specific patterns, detect anti-patterns, and validate architectural conventions with 23+ built-in rules or custom validation (regex, scripts, AI). Integrates into CI/CD workflows with smart PR comments and flexible scan modes.
+GitHub Action for [TScanner](https://github.com/lucasvtiradentes/tscanner): Enforce project-specific patterns, detect anti-patterns, and validate architectural conventions with 39 built-in rules or custom validation (regex, scripts, AI). Integrates into CI/CD workflows with smart PR comments and flexible scan modes.
 
 <table>
   <tr>
@@ -29,7 +29,7 @@ GitHub Action for [TScanner](https://github.com/lucasvtiradentes/tscanner): Enfo
 - **Smart PR Comments** - Auto-posted summary with clickable file links to exact lines
 - **Git-Aware Scanning** - Full codebase or only files changed in PR
 - **Dual Grouping** - View issues by file or by rule in the same comment
-- **23+ Built-in Rules** - Type safety, imports, and code quality checks
+- **39 Built-in Rules** - Type safety, imports, and code quality checks
 - **Custom Rules** - Regex patterns, scripts, or AI-powered validation
 - **Flexible Control** - Block PR or continue with warnings
 

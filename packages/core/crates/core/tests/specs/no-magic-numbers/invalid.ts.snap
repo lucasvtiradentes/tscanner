@@ -1,0 +1,56 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+const timeout = 3000;
+const retries = 5;
+const percentage = 100;
+if (count > 42) {
+}
+```
+
+# Diagnostics
+```
+invalid.ts:1:18 no-magic-numbers ━━━━━━━━━━━━━━━━━━━━
+
+  ! Magic number '3000' found. Consider using a named constant instead
+
+  > 1 │ const timeout = 3000;
+    2 │ const retries = 5;
+
+```
+
+```
+invalid.ts:2:18 no-magic-numbers ━━━━━━━━━━━━━━━━━━━━
+
+  ! Magic number '5' found. Consider using a named constant instead
+
+    1 │ const timeout = 3000;
+  > 2 │ const retries = 5;
+    3 │ const percentage = 100;
+
+```
+
+```
+invalid.ts:3:21 no-magic-numbers ━━━━━━━━━━━━━━━━━━━━
+
+  ! Magic number '100' found. Consider using a named constant instead
+
+    2 │ const retries = 5;
+  > 3 │ const percentage = 100;
+    4 │ if (count > 42) {
+
+```
+
+```
+invalid.ts:4:14 no-magic-numbers ━━━━━━━━━━━━━━━━━━━━
+
+  ! Magic number '42' found. Consider using a named constant instead
+
+    3 │ const percentage = 100;
+  > 4 │ if (count > 42) {
+    5 │ }
+
+```

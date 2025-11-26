@@ -1,0 +1,18 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+type User = {
+  name: string;
+  age: number;
+};
+
+type Props = {
+  children: React.ReactNode;
+};
+```
+
+# Diagnostics
+No issues found.

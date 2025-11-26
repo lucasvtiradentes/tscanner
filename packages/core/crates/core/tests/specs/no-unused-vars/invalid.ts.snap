@@ -1,0 +1,13 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+const unused = 1;
+let alsoUnused = 'hello';
+function unusedFn() {}
+```
+
+# Diagnostics
+No issues found.

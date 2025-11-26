@@ -1,0 +1,25 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+const zero = 0;
+const one = 1;
+const negOne = -1;
+const TIMEOUT_MS = 3000;
+if (count > TIMEOUT_MS) {
+}
+```
+
+# Diagnostics
+```
+valid.ts:4:21 no-magic-numbers ━━━━━━━━━━━━━━━━━━━━
+
+  ! Magic number '3000' found. Consider using a named constant instead
+
+    3 │ const negOne = -1;
+  > 4 │ const TIMEOUT_MS = 3000;
+    5 │ if (count > TIMEOUT_MS) {
+
+```
