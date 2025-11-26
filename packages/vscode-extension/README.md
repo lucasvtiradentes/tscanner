@@ -9,12 +9,12 @@
     <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/visual-studio-marketplace/v/lucasvtiradentes.tscanner-vscode.svg" alt="vscode version"></a>
     <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/visual-studio-marketplace/i/lucasvtiradentes.tscanner-vscode.svg" alt="installs"></a>
   </div>
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> • <a href="#-architecture">Architecture</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> • <a href="#-architecture">Architecture</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-license">License</a>
 </div>
 
 <a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
 
-## 🎺 Overview
+## 🎺 Overview<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 Real-time TypeScript code quality scanner with sidebar integration and Git-aware scanning. Catch issues as you type with instant visual feedback.
 
@@ -22,14 +22,12 @@ Real-time TypeScript code quality scanner with sidebar integration and Git-aware
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
-- **Real-time Scanning** - File system watching detects changes instantly
-- **Multiple scanning modes** - Scan full codebase or only branch changes
-- **Flexible Views** - Tree/list layouts with file or rule grouping
-- **Quick Navigation** - F8/Shift+F8 keyboard shortcuts to jump between issues
-- **Settings Menu** - Interactive rule management and configuration
-- **Status Bar Integration** - See useful info at a glance
-- **23+ Built-in Rules** - AST-based validation for TypeScript/TSX
-- **Custom Rules** - Regex patterns, JavaScript scripts, or AI-powered validation
+- **Real-time Scanning** - Issues appear instantly as you type
+- **Git-Aware Mode** - Scan full codebase or only your branch changes
+- **Quick Navigation** - F8/Shift+F8 to jump between issues
+- **Flexible Views** - Tree/list layouts, group by file or rule
+- **23+ Built-in Rules** - Type safety, imports, and code quality checks
+- **Custom Rules** - Regex patterns, scripts, or AI-powered validation
 
 ## 🚀 Installation<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
@@ -46,7 +44,7 @@ Real-time TypeScript code quality scanner with sidebar integration and Git-aware
 code --install-extension lucasvtiradentes.tscanner-vscode
 ```
 
-## 💡 Usage<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 📖 Usage<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 ### Getting Started
 
@@ -189,6 +187,11 @@ Extension (TypeScript)        Rust Server
 ```
 
 **Communication:** Line-delimited JSON-RPC over stdin/stdout with GZIP compression for large result sets.
+
+## 💡 Inspirations<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+
+- [Biome](https://github.com/biomejs/biome) - Biome is a performant toolchain for web projects, it aims to provide developer tools to maintain the health of said projects.
+- [VSCode Bookmarks](https://github.com/alefragnani/vscode-bookmarks) - Bookmarks Extension for Visual Studio Code
 
 ## 📜 License<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 

@@ -1,4 +1,4 @@
-import { ScanMode } from './constants';
+import { ScanMode } from 'tscanner-common';
 import { updateOrCreateComment } from './core/comment-updater';
 import { type ActionInputs, getActionInputs } from './core/input-validator';
 import { type ScanOptions, type ScanResult, scanChangedFiles } from './core/scanner';
@@ -64,7 +64,7 @@ class ActionRunner {
     const prNumber = prInfo.number;
     const { owner, repo } = context.repo;
     const latestCommitSha = prInfo.head.sha.substring(0, 7);
-    const commitMessage = await gitHelper.getCommitMessage(prInfo.head.sha);
+    const commitMessage = await this.getCommitMessageFromApi(octokit, owner, repo, prInfo.head.sha);
 
     await updateOrCreateComment({
       octokit,
@@ -77,6 +77,16 @@ class ActionRunner {
       commitMessage,
       targetBranch: inputs.mode === ScanMode.Branch ? inputs.targetBranch : undefined,
     });
+  }
+
+  private async getCommitMessageFromApi(octokit: Octokit, owner: string, repo: string, sha: string): Promise<string> {
+    try {
+      const { data } = await octokit.rest.repos.getCommit({ owner, repo, ref: sha });
+      return data.commit.message.split('\n')[0];
+    } catch {
+      githubHelper.logWarning(`Failed to get commit message for ${sha}`);
+      return '';
+    }
   }
 
   private handleScanResults(scanResult: ScanResult, inputs: ActionInputs): void {

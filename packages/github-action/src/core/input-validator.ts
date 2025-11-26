@@ -1,5 +1,5 @@
+import { CONFIG_DIR_NAME, GroupMode, ScanMode } from 'tscanner-common';
 import { z } from 'zod';
-import { CONFIG_DIR_NAME, GroupMode, ScanMode } from '../constants';
 import { githubHelper } from '../lib/actions-helper';
 
 const baseInputsSchema = z

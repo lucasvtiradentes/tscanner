@@ -1,6 +1,6 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { CONFIG_FILE_NAME } from '../constants';
+import { CONFIG_FILE_NAME } from 'tscanner-common';
 import { githubHelper } from '../lib/actions-helper';
 
 export function validateConfigFiles(configPath: string): void {

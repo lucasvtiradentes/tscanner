@@ -4,13 +4,16 @@
     "module": "commonjs",
     "lib": ["ES2022"],
     "outDir": "./dist",
-    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "moduleResolution": "node"
+    "moduleResolution": "node",
+    "baseUrl": ".",
+    "paths": {
+      "tscanner-common": ["../../shared/tscanner-common/src/index.ts"]
+    }
   },
   "include": ["src", "scripts"],
   "exclude": ["node_modules", "dist"]

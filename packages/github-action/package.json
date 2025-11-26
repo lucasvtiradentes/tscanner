@@ -2,11 +2,22 @@
   "name": "tscanner-github-action",
   "version": "0.0.11",
   "private": true,
-  "description": "GitHub Action for tscanner PR validation",
+  "description": "Code quality scanner for the AI-generated code era",
+  "keywords": [
+    "github-action",
+    "typescript",
+    "linter",
+    "code-quality",
+    "pr-review",
+    "ci-cd",
+    "static-analysis",
+    "code-review",
+    "pull-request"
+  ],
   "packageManager": "pnpm@10.22.0",
   "main": "dist/index.js",
   "scripts": {
-    "build": "ncc build src/index.ts -o dist --minify",
+    "build": "tsup",
     "lint": "biome check src",
     "lint:fix": "biome check --fix --unsafe src",
     "format": "biome format --write src",
@@ -16,11 +27,12 @@
     "@actions/core": "^1.11.1",
     "@actions/exec": "^1.1.1",
     "@actions/github": "^6.0.0",
+    "tscanner-common": "workspace:*",
     "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "@vercel/ncc": "^0.38.3",
+    "tsup": "^8.5.1",
     "tsx": "^4.20.6",
     "typescript": "^5.7.2"
   }

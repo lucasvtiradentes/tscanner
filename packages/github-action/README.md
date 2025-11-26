@@ -3,7 +3,7 @@
 <div align="center">
   <img height="80" src="https://i.ibb.co/1tyQ1m40/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner - GitHub Action</strong></div>
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-usage">Usage</a> • <a href="#-inputs">Inputs</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-usage">Usage</a> • <a href="#-inputs">Inputs</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-license">License</a>
 </div>
 
 <a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
@@ -18,22 +18,21 @@ GitHub Action for [TScanner](https://github.com/lucasvtiradentes/tscanner): Enfo
     <th>PR Comment - No Issues Found</th>
   </tr>
   <tr>
-    <td><img src="https://i.ibb.co/m5DS0kY6/pr-comment-issues-found.png" alt="PR Comment - Issues Found"></td>
+    <td><img src="https://i.ibb.co/5W7GNQPv/tscanner-pr-comment-issues-found.png" alt="PR Comment - Issues Found"></td>
     <td><img src="https://i.ibb.co/0V6d51HR/tscanner-pr-comment-no-issues.png" alt="PR Comment - No Issues"></td>
   </tr>
 </table>
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
-- **23+ Built-in Rules** - AST-based validation for TypeScript/TSX
-- **Custom Rules** - Regex patterns, JavaScript scripts, or AI-powered validation
-- **Two Scan Modes** - Full codebase or only changed files
-- **Smart PR Comments** - Automatic PR annotations with dual grouping (rule + file)
-- **Direct File Links** - Jump to exact line in PR files view
-- **Flexible Control** - Continue or fail workflow on errors
-- **CI/CD Integration** - Works with any GitHub Actions workflow
+- **Smart PR Comments** - Auto-posted summary with clickable file links to exact lines
+- **Git-Aware Scanning** - Full codebase or only files changed in PR
+- **Dual Grouping** - View issues by file or by rule in the same comment
+- **23+ Built-in Rules** - Type safety, imports, and code quality checks
+- **Custom Rules** - Regex patterns, scripts, or AI-powered validation
+- **Flexible Control** - Block PR or continue with warnings
 
-## 🚀 Usage<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 📖 Usage<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 ### Quick Start
 
@@ -153,6 +152,11 @@ All options:
 | `group-by` | No | `file` | Primary grouping mode: `file` or `rule` |
 | `continue-on-error` | No | `false` | Continue workflow even if errors found (`true`/`false`) |
 | `timezone` | No | `UTC` | Timezone for timestamps in PR comments. Example: `America/New_York` |
+
+## 💡 Inspirations<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+
+- [Biome](https://github.com/biomejs/biome) - Biome is a performant toolchain for web projects, it aims to provide developer tools to maintain the health of said projects.
+- [VSCode Bookmarks](https://github.com/alefragnani/vscode-bookmarks) - Bookmarks Extension for Visual Studio Code
 
 ## 📜 License<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 

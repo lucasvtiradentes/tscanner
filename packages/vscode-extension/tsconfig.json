@@ -5,12 +5,15 @@
     "lib": ["ES2024"],
     "outDir": "out",
     "sourceMap": true,
-    "rootDir": ".",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "tscanner-common": ["../../shared/tscanner-common/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", ".vscode-test", "out"]
 }

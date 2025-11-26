@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import * as vscode from 'vscode';
-import { BINARY_BASE_NAME, PLATFORM_TARGET_MAP, getBinaryName } from '../constants';
+import { BINARY_BASE_NAME, PLATFORM_TARGET_MAP, getServerBinaryName } from '../constants';
 import type { IssueResult, TscannerConfig } from '../types';
 import { getExtensionPath } from '../utils/extension-helper';
 import { LOG_FILE_PATH, logger } from '../utils/logger';
@@ -22,7 +22,9 @@ export function getRustBinaryPath(): string | null {
   const platform = process.platform;
   const arch = process.arch;
   const target = PLATFORM_TARGET_MAP[`${platform}-${arch}`];
-  const binaryName = target ? `${BINARY_BASE_NAME}-${target}${platform === 'win32' ? '.exe' : ''}` : getBinaryName();
+  const binaryName = target
+    ? `${BINARY_BASE_NAME}-${target}${platform === 'win32' ? '.exe' : ''}`
+    : getServerBinaryName();
 
   const bundledBinary = join(extensionPath, 'out', 'binaries', binaryName);
   logger.debug(`Checking bundled binary: ${bundledBinary}`);
@@ -31,7 +33,7 @@ export function getRustBinaryPath(): string | null {
     return bundledBinary;
   }
 
-  const devBinaryRelease = join(extensionPath, '..', '..', 'core', 'target', 'release', getBinaryName());
+  const devBinaryRelease = join(extensionPath, '..', '..', 'core', 'target', 'release', getServerBinaryName());
   logger.debug(`Checking dev release binary: ${devBinaryRelease}`);
   if (existsSync(devBinaryRelease)) {
     logger.info(`Found dev release binary: ${devBinaryRelease}`);

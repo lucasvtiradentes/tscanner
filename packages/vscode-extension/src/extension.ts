@@ -49,6 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
   setContextKey(ContextKey.ViewMode, viewModeKey);
   setContextKey(ContextKey.GroupMode, groupModeKey);
   setContextKey(ContextKey.ScanMode, scanModeKey);
+  setContextKey(ContextKey.Searching, false);
 
   const viewId = getViewId();
   logger.info(`Registering tree view with ID: ${viewId}`);

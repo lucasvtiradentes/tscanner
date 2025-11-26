@@ -1,10 +1,10 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { PLATFORM_MAP, getBinaryName, getPlatformKey } from './platform';
+import { PLATFORM_PACKAGE_MAP, getBinaryName, getPlatformKey } from 'tscanner-common';
 
 export function getBinaryPath(): string {
   const platformKey = getPlatformKey();
-  const packageName = PLATFORM_MAP[platformKey];
+  const packageName = PLATFORM_PACKAGE_MAP[platformKey];
   const binaryName = getBinaryName();
 
   const devPath = join(__dirname, '..', 'npm', `cli-${platformKey}`, binaryName);

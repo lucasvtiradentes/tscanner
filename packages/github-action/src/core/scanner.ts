@@ -1,4 +1,4 @@
-import { type GroupMode, Severity } from '../constants';
+import { type GroupMode, Severity } from 'tscanner-common';
 import { githubHelper } from '../lib/actions-helper';
 import { type CliExecutor, createDevModeExecutor, createProdModeExecutor } from './cli-executor';
 
@@ -108,8 +108,8 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ScanResult
   try {
     scanDataFile = JSON.parse(scanOutputFile) as CliJsonOutputByFile;
     scanDataRule = JSON.parse(scanOutputRule) as CliJsonOutputByRule;
-  } catch {
-    githubHelper.logError('Failed to parse scan output');
+  } catch (err) {
+    githubHelper.logError(`Failed to parse scan output: ${err instanceof Error ? err.message : String(err)}`);
     githubHelper.logDebug(`Raw output: ${scanOutputFile.substring(0, 500)}`);
     throw new Error('Invalid scan output format');
   }

@@ -1,6 +1,5 @@
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, PLATFORM_TARGET_MAP, getBinaryName } from 'tscanner-common';
 import {
-  CONFIG_DIR_NAME,
-  CONFIG_FILE_NAME,
   CONTEXT_PREFIX,
   DEV_SUFFIX,
   EXTENSION_DISPLAY_NAME,
@@ -11,7 +10,7 @@ import {
   buildLogFilename,
 } from './scripts-constants';
 
-export { CONFIG_DIR_NAME, CONFIG_FILE_NAME };
+export { CONFIG_DIR_NAME, CONFIG_FILE_NAME, PLATFORM_TARGET_MAP };
 
 declare const __IS_DEV_BUILD__: boolean;
 const IS_DEV = typeof __IS_DEV_BUILD__ !== 'undefined' && __IS_DEV_BUILD__;
@@ -41,14 +40,8 @@ export function getStatusBarName(): string {
 
 export const BINARY_BASE_NAME = 'tscanner-server';
 
-export function getBinaryName(): string {
-  return process.platform === 'win32' ? `${BINARY_BASE_NAME}.exe` : BINARY_BASE_NAME;
-}
+export { getBinaryName };
 
-export const PLATFORM_TARGET_MAP: Record<string, string> = {
-  'linux-x64': 'x86_64-unknown-linux-gnu',
-  'linux-arm64': 'aarch64-unknown-linux-gnu',
-  'darwin-x64': 'x86_64-apple-darwin',
-  'darwin-arm64': 'aarch64-apple-darwin',
-  'win32-x64': 'x86_64-pc-windows-msvc',
-};
+export function getServerBinaryName(): string {
+  return getBinaryName(BINARY_BASE_NAME);
+}

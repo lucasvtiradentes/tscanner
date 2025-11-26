@@ -4,7 +4,7 @@
   <img height="80" src="https://i.ibb.co/1tyQ1m40/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner - Core Engine</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-architecture">Architecture</a> • <a href="#-built-in-rules">Built-in Rules</a> • <a href="#-json-rpc-protocol">JSON-RPC Protocol</a> • <a href="#-performance">Performance</a> • <a href="#-development">Development</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-architecture">Architecture</a> • <a href="#-built-in-rules">Built-in Rules</a> • <a href="#-json-rpc-protocol">JSON-RPC Protocol</a> • <a href="#-performance">Performance</a> • <a href="#-development">Development</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-license">License</a>
 </div>
 
 <a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
@@ -370,6 +370,11 @@ cargo run --bin generate_schema > schema.json
 Used by VS Code extension for autocomplete and validation.
 
 </details>
+
+## 💡 Inspirations<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+
+- [Biome](https://github.com/biomejs/biome) - Biome is a performant toolchain for web projects, it aims to provide developer tools to maintain the health of said projects.
+- [VSCode Bookmarks](https://github.com/alefragnani/vscode-bookmarks) - Bookmarks Extension for Visual Studio Code
 
 ## 📜 License<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 

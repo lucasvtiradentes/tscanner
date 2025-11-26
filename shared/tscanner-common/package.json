@@ -1,0 +1,32 @@
+{
+  "name": "tscanner-common",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": ["dist"],
+  "scripts": {
+    "build": "tsup",
+    "lint": "biome check src",
+    "lint:fix": "biome check --fix --unsafe src",
+    "format": "biome format --write src",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^24.10.1",
+    "tsup": "^8.5.1",
+    "typescript": "^5.9.3"
+  }
+}

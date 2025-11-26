@@ -1,5 +1,5 @@
 name: 'tscanner-action'
-description: 'Enforce code standards with 23+ rules or custom validation. Smart PR comments and flexible scan modes for CI/CD workflows.'
+description: 'Code quality scanner for the AI-generated code era'
 author: 'lucasvtiradentes'
 
 branding:

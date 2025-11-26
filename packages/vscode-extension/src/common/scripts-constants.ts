@@ -1,3 +1,7 @@
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, DEFAULT_TARGET_BRANCH } from 'tscanner-common';
+
+export { CONFIG_DIR_NAME, CONFIG_FILE_NAME, DEFAULT_TARGET_BRANCH };
+
 export const EXTENSION_PUBLISHER = 'lucasvtiradentes';
 export const EXTENSION_NAME = 'tscanner-vscode';
 export const EXTENSION_DISPLAY_NAME = 'TScanner';
@@ -6,12 +10,7 @@ export const CONTEXT_PREFIX = 'tscanner';
 export const VIEW_ID = 'tscannerExplorer';
 export const DEV_SUFFIX = 'Dev';
 
-export const DEFAULT_TARGET_BRANCH = 'origin/main';
-
 export const LOG_BASENAME = 'tscannerlogs';
-
-export const CONFIG_DIR_NAME = '.tscanner';
-export const CONFIG_FILE_NAME = 'config.jsonc';
 
 export function addDevSuffix(str: string): string {
   return `${str}${DEV_SUFFIX}`;
