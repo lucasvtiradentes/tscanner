@@ -27,11 +27,11 @@
     "@actions/core": "^1.11.1",
     "@actions/exec": "^1.1.1",
     "@actions/github": "^6.0.0",
+    "tscanner-common": "workspace:*",
     "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",
-    "tscanner-common": "workspace:*",
     "@vercel/ncc": "^0.38.3",
     "tsx": "^4.20.6",
     "typescript": "^5.7.2"

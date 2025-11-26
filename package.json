@@ -12,13 +12,15 @@
     "lint:fix": "turbo run lint:fix",
     "format": "turbo run format",
     "typecheck": "turbo run typecheck",
-    "changeset": "changeset"
+    "changeset": "changeset",
+    "clean": "rimraf --glob '**/dist' '**/dist-dev' '**/.turbo' '**/out' '**/node_modules' '**/target'"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",
     "@changesets/cli": "^2.29.7",
     "husky": "^9.1.7",
     "lint-staged": "^15.2.11",
+    "rimraf": "^6.0.1",
     "tsx": "^4.20.6",
     "turbo": "^2.6.1"
   }

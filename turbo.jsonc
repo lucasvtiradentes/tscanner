@@ -67,37 +67,7 @@
         "../core/target/release/**"
       ]
     },
-    "test": {
-      "outputLogs": "new-only",
-      "inputs": [
-        "./src/**",
-        "./crates/**",
-        "./Cargo.toml",
-        "./Cargo.lock"
-      ]
-    },
-    "clippy": {
-      "outputLogs": "new-only",
-      "inputs": [
-        "./src/**",
-        "./crates/**",
-        "./Cargo.toml",
-        "./Cargo.lock"
-      ]
-    },
     "format": {
-      "outputLogs": "new-only",
-      "inputs": ["./src/**", "./crates/**", "./biome.json", "./rustfmt.toml"]
-    },
-    "format:ts": {
-      "outputLogs": "new-only",
-      "inputs": ["./src/**", "./biome.json"]
-    },
-    "format:rust": {
-      "outputLogs": "new-only",
-      "inputs": ["./crates/**", "./src/**", "./rustfmt.toml"]
-    },
-    "format:check": {
       "outputLogs": "new-only",
       "inputs": ["./src/**", "./crates/**", "./biome.json", "./rustfmt.toml"]
     },
