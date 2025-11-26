@@ -3,7 +3,7 @@
 <div align="center">
   <img height="80" src="https://i.ibb.co/1tyQ1m40/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner - GitHub Action</strong></div>
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-usage">Usage</a> • <a href="#-inputs">Inputs</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-usage">Usage</a> • <a href="#-inputs">Inputs</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-license">License</a>
 </div>
 
 <a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
@@ -18,7 +18,7 @@ GitHub Action for [TScanner](https://github.com/lucasvtiradentes/tscanner): Enfo
     <th>PR Comment - No Issues Found</th>
   </tr>
   <tr>
-    <td><img src="https://i.ibb.co/m5DS0kY6/pr-comment-issues-found.png" alt="PR Comment - Issues Found"></td>
+    <td><img src="https://i.ibb.co/5W7GNQPv/tscanner-pr-comment-issues-found.png" alt="PR Comment - Issues Found"></td>
     <td><img src="https://i.ibb.co/0V6d51HR/tscanner-pr-comment-no-issues.png" alt="PR Comment - No Issues"></td>
   </tr>
 </table>
@@ -33,7 +33,7 @@ GitHub Action for [TScanner](https://github.com/lucasvtiradentes/tscanner): Enfo
 - **Flexible Control** - Continue or fail workflow on errors
 - **CI/CD Integration** - Works with any GitHub Actions workflow
 
-## 🚀 Usage<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 📖 Usage<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 ### Quick Start
 
@@ -153,6 +153,11 @@ All options:
 | `group-by` | No | `file` | Primary grouping mode: `file` or `rule` |
 | `continue-on-error` | No | `false` | Continue workflow even if errors found (`true`/`false`) |
 | `timezone` | No | `UTC` | Timezone for timestamps in PR comments. Example: `America/New_York` |
+
+## 💡 Inspirations<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+
+- [Biome](https://github.com/biomejs/biome) - Biome is a performant toolchain for web projects, it aims to provide developer tools to maintain the health of said projects.
+- [VSCode Bookmarks](https://github.com/alefragnani/vscode-bookmarks) - Bookmarks Extension for Visual Studio Code
 
 ## 📜 License<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 

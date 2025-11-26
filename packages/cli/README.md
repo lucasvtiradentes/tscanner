@@ -8,7 +8,7 @@
     <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/v/tscanner.svg" alt="npm version"></a>
     <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/dm/tscanner.svg" alt="downloads"></a>
   </div>
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> • <a href="#-architecture">Architecture</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> • <a href="#-use-cases">Use Cases</a> • <a href="#-architecture">Architecture</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-license">License</a>
 </div>
 
 <a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
@@ -48,7 +48,7 @@ After installation, the `tscanner` command will be available globally.
 - macOS (Intel, Apple Silicon)
 - Windows (x64)
 
-## 💡 Usage<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 📖 Usage<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 ### Commands Overview
 
@@ -210,7 +210,7 @@ tscanner rules --config /path/to/config/dir
 
 </details>
 
-## 🚀 Use Cases<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 🎯 Use Cases<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
 <details>
 <summary><b>CI/CD Pipeline</b></summary>
@@ -323,9 +323,14 @@ CLI (Node.js)              Rust Binary
 - Spawns platform-specific Rust binary with stdio inheritance
 - Binary packaged separately per platform via optional dependencies
 
+## 💡 Inspirations<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+
+- [Biome](https://github.com/biomejs/biome) - Biome is a performant toolchain for web projects, it aims to provide developer tools to maintain the health of said projects.
+- [VSCode Bookmarks](https://github.com/alefragnani/vscode-bookmarks) - Bookmarks Extension for Visual Studio Code
+
 ## 📜 License<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
-MIT License - see [LICENSE](../../LICENSE) file for details.
+MIT License - see [LICENSE](LICENSE) file for details.
 
 <a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
 
