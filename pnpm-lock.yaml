@@ -111,7 +111,7 @@ importers:
         specifier: ^22.0.0
         version: 22.19.0
       '@types/vscode':
-        specifier: ^1.100.0
+        specifier: ^1.93.0
         version: 1.105.0
       esbuild:
         specifier: ^0.24.0

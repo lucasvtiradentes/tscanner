@@ -16,14 +16,9 @@
   },
   "homepage": "https://github.com/lucasvtiradentes/tscanner#readme",
   "engines": {
-    "vscode": "^1.100.0"
+    "vscode": "^1.93.0"
   },
-  "categories": [
-    "Linters",
-    "Programming Languages",
-    "Formatters",
-    "Testing"
-  ],
+  "categories": ["Linters", "Programming Languages", "Formatters", "Testing"],
   "keywords": [
     "typescript",
     "linter",
@@ -65,14 +60,12 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "tscanner-common": "workspace:*",
-    "@types/vscode": "^1.100.0",
+    "@types/vscode": "^1.93.0",
     "esbuild": "^0.24.0",
     "tsx": "^4.20.6",
     "typescript": "^5.7.0"
   },
-  "activationEvents": [
-    "onStartupFinished"
-  ],
+  "activationEvents": ["onStartupFinished"],
   "contributes": {
     "viewsContainers": {
       "activitybar": [

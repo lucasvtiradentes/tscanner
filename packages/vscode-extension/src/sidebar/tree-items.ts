@@ -1,3 +1,4 @@
+import { basename } from 'node:path';
 import * as vscode from 'vscode';
 import { getCommandId } from '../common/constants';
 import { Command, TreeItemContextValue, type ViewMode } from '../common/lib/vscode-utils';
@@ -34,10 +35,7 @@ export class FileResultItem extends vscode.TreeItem {
     public readonly filePath: string,
     public readonly results: IssueResult[],
   ) {
-    super(
-      vscode.workspace.asRelativePath(filePath).split('/').pop() || filePath,
-      vscode.TreeItemCollapsibleState.Collapsed,
-    );
+    super(basename(filePath), vscode.TreeItemCollapsibleState.Collapsed);
 
     this.description = `${results.length} ${results.length === 1 ? 'issue' : 'issues'}`;
     this.iconPath = new vscode.ThemeIcon(NodeKind.File);

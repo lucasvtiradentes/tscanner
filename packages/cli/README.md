@@ -4,10 +4,6 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner - CLI</strong></div>
   <br />
-  <div>
-    <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/v/tscanner.svg" alt="npm version"></a>
-    <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/dm/tscanner.svg" alt="downloads"></a>
-  </div>
   <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> • <a href="#-use-cases">Use Cases</a> • <a href="#-architecture">Architecture</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-license">License</a>
 </div>
 
@@ -90,20 +86,15 @@ Creates `.tscanner/config.jsonc` with default rule configuration:
   "schema": "https://unpkg.com/tscanner@0.0.18/schema.json",
   "builtinRules": {
     "no-any-type": {
-      "enabled": true,
       "severity": "error"
     },
-    "no-console-log": {
-      "enabled": true,
-      "severity": "warning"
-    }
+    "no-console-log": {}
   },
   "customRules": {
     "todo-comment": {
       "type": "regex",
       "pattern": "TODO:",
-      "message": "Found TODO comment",
-      "severity": "warning"
+      "message": "Found TODO comment"
     }
   },
   "include": ["**/*.{ts,tsx}"],
@@ -322,7 +313,7 @@ CLI (Node.js)              Rust Binary
 
 ## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-- [Biome](https://github.com/biomejs/biome) - Biome is a performant toolchain for web projects, it aims to provide developer tools to maintain the health of said projects.
+- [Biome](https://github.com/biomejs/biome) - High-performance Rust-based linter and formatter for web projects
 - [VSCode Bookmarks](https://github.com/alefragnani/vscode-bookmarks) - Bookmarks Extension for Visual Studio Code
 
 ## 📜 License<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>

@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { isAbsolute } from 'node:path';
 import * as jsonc from 'jsonc-parser';
 import * as vscode from 'vscode';
 import defaultConfig from '../../../../../assets/default-config.json';
@@ -26,7 +27,7 @@ export function getLocalConfigPath(workspacePath: string): vscode.Uri {
 }
 
 export function getCustomConfigPath(workspacePath: string, customConfigDir: string): vscode.Uri {
-  const customDir = customConfigDir.startsWith('/')
+  const customDir = isAbsolute(customConfigDir)
     ? vscode.Uri.file(customConfigDir)
     : vscode.Uri.joinPath(vscode.Uri.file(workspacePath), customConfigDir);
   return vscode.Uri.joinPath(customDir, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
