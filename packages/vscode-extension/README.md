@@ -27,27 +27,23 @@ Real-time TypeScript code quality scanner with sidebar integration and Git-aware
 
 ## 🚀 Installation<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-**From VS Code Marketplace:**
+| Code Editor | Install |
+|--------|---------|
+| VS Code | <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/badge/VS%20Code-Extension-blue.svg" alt="VS Marketplace"></a> |
+| Cursor, VSCodium, etc. | <a href="https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode"><img src="https://img.shields.io/open-vsx/v/lucasvtiradentes/tscanner-vscode?label=Open%20VSX&logo=data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSI0LjYgNSA5Ni4yIDEyMi43IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwYXRoIGQ9Ik0zMCA0NC4yTDUyLjYgNUg3LjN6TTQuNiA4OC41aDQ1LjNMMjcuMiA0OS40em01MSAwbDIyLjYgMzkuMiAyMi42LTM5LjJ6IiBmaWxsPSIjYzE2MGVmIi8+CiAgPHBhdGggZD0iTTUyLjYgNUwzMCA0NC4yaDQ1LjJ6TTI3LjIgNDkuNGwyMi43IDM5LjEgMjIuNi0zOS4xem01MSAwTDU1LjYgODguNWg0NS4yeiIgZmlsbD0iI2E2MGVlNSIvPgo8L3N2Zz4=&labelColor=a60ee5&color=374151" alt="Open VSX"></a> |
 
-1. Open VS Code
-2. Go to Extensions (Ctrl/Cmd + Shift + X)
-3. Search for "tscanner"
-4. Click Install
-
-**From Command Line:**
-
-```bash
-code --install-extension lucasvtiradentes.tscanner-vscode
-```
+Or search for **"TScanner"** in your editor's Extensions panel (Ctrl/Cmd + Shift + X).
 
 ## 📖 Usage<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 ### Getting Started
 
-1. Open a TypeScript/TSX workspace in VS Code
+1. Open a TypeScript/TSX workspace
 2. Click the TScanner icon in the activity bar
-3. Issues appear automatically in the sidebar
-4. Click any issue to jump to its location
+3. Open the Settings Menu and select "Manage Rules"
+4. Enable the built-in rules you want to use
+5. Issues will appear automatically in the sidebar
+6. Click any issue to jump to its location
 
 ### Scan Modes
 
@@ -181,7 +177,7 @@ Extension (TypeScript)        Rust Server
 
 ## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-- [Biome](https://github.com/biomejs/biome) - Biome is a performant toolchain for web projects, it aims to provide developer tools to maintain the health of said projects.
+- [Biome](https://github.com/biomejs/biome) - High-performance Rust-based linter and formatter for web projects
 - [VSCode Bookmarks](https://github.com/alefragnani/vscode-bookmarks) - Bookmarks Extension for Visual Studio Code
 
 ## 📜 License<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
