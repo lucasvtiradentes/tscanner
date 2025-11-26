@@ -17,6 +17,10 @@ runs:
       with:
         path: artifacts
 
+    - name: Build shared dependencies
+      shell: bash
+      run: pnpm turbo run build --filter=tscanner-common
+
     - name: Organize binaries for extension
       shell: bash
       run: |
@@ -25,13 +29,6 @@ runs:
         chmod +x packages/vscode-extension/out/binaries/tscanner-server-* 2>/dev/null || true
         echo "📦 Binaries ready for extension:"
         ls -lah packages/vscode-extension/out/binaries/
-
-    - name: Build extension with binaries
-      shell: bash
-      run: |
-        echo "🔨 Building VSCode extension with binaries..."
-        pnpm turbo run build --filter=tscanner-vscode --force
-        echo "✅ Extension build complete"
 
     - name: Get version
       id: version
