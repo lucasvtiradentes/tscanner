@@ -1,5 +1,13 @@
 # tscanner-github-action
 
+## 0.0.12
+
+### Patch Changes
+
+- d7793b3: add reusable package
+- Updated dependencies [d7793b3]
+  - tscanner-common@0.0.2
+
 ## 0.0.11
 
 ### Patch Changes
