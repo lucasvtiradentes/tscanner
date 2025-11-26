@@ -147,7 +147,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: lucasvtiradentes/tscanner-action@v0.0.12
+      - uses: lucasvtiradentes/tscanner-action@v0.0.13
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           target-branch: 'origin/main'  # Optional: scan only changed files
@@ -159,7 +159,7 @@ Create `.tscanner/config.jsonc`:
 
 ```json
 {
-  "schema": "https://unpkg.com/tscanner@0.0.15/schema.json",
+  "schema": "https://unpkg.com/tscanner@0.0.16/schema.json",
   "builtinRules": {
     "no-any-type": {
       "enabled": true,
