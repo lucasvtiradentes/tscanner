@@ -52,6 +52,7 @@ runs:
         path: |
           node_modules
           packages/*/node_modules
+          shared/*/node_modules
         key: node_modules-${{ hashFiles('pnpm-lock.yaml') }}
       id: pnpm-cache
 
