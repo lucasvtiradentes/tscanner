@@ -1,15 +1,15 @@
 <a name="TOC"></a>
 
 <div align="center">
-  <img height="80" src="https://i.ibb.co/1tyQ1m40/tscanner-logo.png" alt="tscanner logo">
+  <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner</strong></div>
   <br />
   <a href="#-overview">Overview</a> • <a href="#-ways-to-use">Ways to use</a> • <a href="#-features">Features</a> • <a href="#-use-cases">Use Cases</a> • <a href="#-architecture">Architecture</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-license">License</a>
 </div>
 
-<a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
+<a href="#"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/divider.png" /></a>
 
-## 🎺 Overview<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 🎺 Overview<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 High-performance TypeScript code quality scanner. 23+ built-in rules plus custom patterns via regex, scripts, or AI validation. Integrates with CI/CD, git hooks, and VS Code/Cursor.
 
@@ -19,12 +19,12 @@ High-performance TypeScript code quality scanner. 23+ built-in rules plus custom
 <th>issues detected in the latest push in a PR</th>
 </tr>
 <tr>
-<td width="50%"><img src="https://i.ibb.co/8DZqQqn6/tscanner-vscode-demo.png" alt="VS Code Extension Screenshot" width="100%"></td>
-<td width="50%"><img src="https://i.ibb.co/5W7GNQPv/tscanner-pr-comment-issues-found.png" alt="VS Code Extension Screenshot" width="100%"></td>
+<td width="50%"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Screenshot" width="100%"></td>
+<td width="50%"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-issues-found.png" alt="VS Code Extension Screenshot" width="100%"></td>
 </tr>
 </table>
 
-## 📦 Ways to use<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 📦 Ways to use<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 <table>
   <tr>
@@ -49,7 +49,7 @@ High-performance TypeScript code quality scanner. 23+ built-in rules plus custom
   </tr>
 </table>
 
-## ⭐ Features<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 - **23+ Built-in Rules** - AST-based TypeScript/TSX validation for type safety, imports, and code quality
 - **Custom Rules** - Regex patterns, JavaScript scripts, or AI-powered validation
@@ -57,7 +57,7 @@ High-performance TypeScript code quality scanner. 23+ built-in rules plus custom
 - **Works Everywhere** - CLI, VS Code extension, and GitHub Action with zero config
 - **Rust-Powered Speed** - 100-500 files in <1s with parallel processing and smart caching
 
-## 🎯 Use Cases<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 🎯 Use Cases<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 <table>
   <tr>
@@ -78,7 +78,7 @@ High-performance TypeScript code quality scanner. 23+ built-in rules plus custom
   </tr>
 </table> 
 
-## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 ```
 CLI/VSCode/GitHub Action (TypeScript)
@@ -99,7 +99,7 @@ CLI/VSCode/GitHub Action (TypeScript)
 - GZIP compression for large result sets (>10KB)
 - Real-time file watching for incremental updates
 
-## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 
 ### CLI
@@ -193,16 +193,16 @@ const data: any = fetchData();
 // Entire file is skipped
 ```
 
-## 💡 Inspirations<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 - [Biome](https://github.com/biomejs/biome) - Biome is a performant toolchain for web projects, it aims to provide developer tools to maintain the health of said projects.
 - [VSCode Bookmarks](https://github.com/alefragnani/vscode-bookmarks) - Bookmarks Extension for Visual Studio Code
 
-## 📜 License<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 📜 License<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-<a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
+<a href="#"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/divider.png" /></a>
 
 <div align="center">
   <div>

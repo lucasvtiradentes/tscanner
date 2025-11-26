@@ -1,21 +1,21 @@
 <a name="TOC"></a>
 
 <div align="center">
-  <img height="80" src="https://i.ibb.co/1tyQ1m40/tscanner-logo.png" alt="tscanner logo">
+  <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner - Core Engine</strong></div>
   <br />
   <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-architecture">Architecture</a> • <a href="#-built-in-rules">Built-in Rules</a> • <a href="#-json-rpc-protocol">JSON-RPC Protocol</a> • <a href="#-performance">Performance</a> • <a href="#-development">Development</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-license">License</a>
 </div>
 
-<a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
+<a href="#"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/divider.png" /></a>
 
-## 🎺 Overview<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 🎺 Overview<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 High-performance Rust engine powering [tscanner](https://github.com/lucasvtiradentes/tscanner). Provides blazing-fast TypeScript/TSX code analysis with parallel processing, AST-based validation, and intelligent caching.
 
 The core engine serves as the foundation for multiple tscanner packages: the CLI tool, VS Code extension, and GitHub Action. It delivers consistent scanning results across all platforms with minimal overhead.
 
-## ⭐ Features<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 - **23+ Built-in Rules** - AST-based TypeScript/TSX validation
 - **Custom Rules** - Regex pattern matching with custom messages
@@ -28,7 +28,7 @@ The core engine serves as the foundation for multiple tscanner packages: the CLI
 - **Inline Disables** - Per-file and per-line disable comments
 - **Zero Config** - Sensible defaults with optional customization
 
-## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 ### Workspace Structure
 
@@ -106,7 +106,7 @@ Extension/CLI          JSON-RPC Protocol       Core Engine
 
 </details>
 
-## 📋 Built-in Rules<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 📋 Built-in Rules<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 <details>
 <summary><b>Type Safety (6)</b></summary>
@@ -165,7 +165,7 @@ Extension/CLI          JSON-RPC Protocol       Core Engine
 
 </details>
 
-## 🔌 JSON-RPC Protocol<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 🔌 JSON-RPC Protocol<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 <details>
 <summary><b>Transport & Methods</b></summary>
@@ -244,7 +244,7 @@ Response: {"id": 1, "result": {...}}
 
 </details>
 
-## 📊 Performance<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 📊 Performance<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 <details>
 <summary><b>Optimization Details</b></summary>
@@ -272,7 +272,7 @@ Response: {"id": 1, "result": {...}}
 
 </details>
 
-## 🔧 Development<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 🔧 Development<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 <details>
 <summary><b>Build Commands</b></summary>
@@ -371,16 +371,16 @@ Used by VS Code extension for autocomplete and validation.
 
 </details>
 
-## 💡 Inspirations<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 - [Biome](https://github.com/biomejs/biome) - Biome is a performant toolchain for web projects, it aims to provide developer tools to maintain the health of said projects.
 - [VSCode Bookmarks](https://github.com/alefragnani/vscode-bookmarks) - Bookmarks Extension for Visual Studio Code
 
-## 📜 License<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
+## 📜 License<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 MIT License - see [LICENSE](../../LICENSE) file for details.
 
-<a href="#"><img src="https://i.ibb.co/CKW9djzW/divider.png" /></a>
+<a href="#"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/divider.png" /></a>
 
 <div align="center">
   <div>
