@@ -90,20 +90,15 @@ Creates `.tscanner/config.jsonc` with default rule configuration:
   "schema": "https://unpkg.com/tscanner@0.0.18/schema.json",
   "builtinRules": {
     "no-any-type": {
-      "enabled": true,
       "severity": "error"
     },
-    "no-console-log": {
-      "enabled": true,
-      "severity": "warning"
-    }
+    "no-console-log": {}
   },
   "customRules": {
     "todo-comment": {
       "type": "regex",
       "pattern": "TODO:",
-      "message": "Found TODO comment",
-      "severity": "warning"
+      "message": "Found TODO comment"
     }
   },
   "include": ["**/*.{ts,tsx}"],

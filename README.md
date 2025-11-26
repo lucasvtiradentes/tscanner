@@ -162,20 +162,15 @@ Create `.tscanner/config.jsonc`:
   "schema": "https://unpkg.com/tscanner@0.0.18/schema.json",
   "builtinRules": {
     "no-any-type": {
-      "enabled": true,
       "severity": "error"
     },
-    "no-console-log": {
-      "enabled": true,
-      "severity": "warning"
-    }
+    "no-console-log": {}
   },
   "customRules": {
     "no-todos": {
       "type": "regex",
       "pattern": "TODO:|FIXME:",
-      "message": "Remove TODO comments",
-      "severity": "warning"
+      "message": "Remove TODO comments"
     }
   },
   "include": ["**/*.{ts,tsx}"],
