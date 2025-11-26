@@ -60,13 +60,15 @@
     "@tscanner/cli-linux-x64": "0.0.14",
     "@tscanner/cli-win32-x64": "0.0.14"
   },
+  "dependencies": {
+    "zod": "^4.1.12"
+  },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "tscanner-common": "workspace:*",
     "tsup": "^8.5.1",
     "tsx": "^4.19.2",
     "typescript": "^5.7.0",
-    "zod": "^4.1.12",
     "zod-to-json-schema": "^3.25.0"
   }
 }
