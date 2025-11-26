@@ -25,13 +25,12 @@ GitHub Action for [TScanner](https://github.com/lucasvtiradentes/tscanner): Enfo
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
-- **23+ Built-in Rules** - AST-based validation for TypeScript/TSX
-- **Custom Rules** - Regex patterns, JavaScript scripts, or AI-powered validation
-- **Two Scan Modes** - Full codebase or only changed files
-- **Smart PR Comments** - Automatic PR annotations with dual grouping (rule + file)
-- **Direct File Links** - Jump to exact line in PR files view
-- **Flexible Control** - Continue or fail workflow on errors
-- **CI/CD Integration** - Works with any GitHub Actions workflow
+- **Smart PR Comments** - Auto-posted summary with clickable file links to exact lines
+- **Git-Aware Scanning** - Full codebase or only files changed in PR
+- **Dual Grouping** - View issues by file or by rule in the same comment
+- **23+ Built-in Rules** - Type safety, imports, and code quality checks
+- **Custom Rules** - Regex patterns, scripts, or AI-powered validation
+- **Flexible Control** - Block PR or continue with warnings
 
 ## 📖 Usage<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 

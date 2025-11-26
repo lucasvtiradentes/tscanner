@@ -23,15 +23,12 @@ Terminal interface for [TScanner](https://github.com/lucasvtiradentes/tscanner):
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
-
-- **23+ Built-in Rules** - Comprehensive TypeScript linting rules
-- **Custom Rules** - Regex-based and AST-based custom rules support
-- **Multiple Output Formats** - JSON, pretty-print, or standard output
-- **Multiple Scanning modes** - full codebase or only files changed in your branch
-- **Flexible Filtering** - Filter by branch, file patterns, or specific rules
-- **Zero Config** - Works out of the box with sensible defaults
-- **Rust-Powered Performance** - Lightning-fast scanning with parallel processing
-- **Smart Caching** - Intelligent file caching to skip unchanged files
+- **Blazing Fast** - 100-500 files in <1s with Rust parallel processing
+- **Smart Caching** - Skip unchanged files, 80-95% cache hit rate
+- **Git-Aware Scanning** - Full codebase or only changed files vs branch
+- **23+ Built-in Rules** - Type safety, imports, and code quality validation
+- **Custom Rules** - Regex patterns, scripts, or AI-powered validation
+- **Zero Config** - Works out of the box, JSON/pretty output formats
 
 ## 🚀 Installation<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
