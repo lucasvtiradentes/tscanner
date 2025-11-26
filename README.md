@@ -11,7 +11,7 @@
 
 ## 🎺 Overview<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
-TScanner is a high-performance code quality scanner for TypeScript codebases. Catch code quality issues with 23+ built-in rules or define project-specific patterns using regex, scripts, or AI validation. Integrates seamlessly with CI/CD, git hooks, and development workflows.
+High-performance TypeScript code quality scanner. 23+ built-in rules plus custom patterns via regex, scripts, or AI validation. Integrates with CI/CD, git hooks, and VS Code/Cursor.
 
 <table>
 <tr>
@@ -53,13 +53,9 @@ TScanner is a high-performance code quality scanner for TypeScript codebases. Ca
 
 - **23+ Built-in Rules** - AST-based TypeScript/TSX validation for type safety, imports, and code quality
 - **Custom Rules** - Regex patterns, JavaScript scripts, or AI-powered validation
-- **Rust-Powered Performance** - Parallel processing with Rayon (100-500 files in <1s)
-- **Smart Caching** - DashMap concurrent cache with 80-95% hit rate
-- **Multiple Output Formats** - JSON, pretty-print, or standard output
 - **Git-Aware Scanning** - Full codebase or only files changed in your branch
-- **Flexible Severity** - Errors block CI, warnings report only
-- **Inline Control** - Disable rules per line/file with `tscanner-disable` directives
-- **Zero Config** - Works out of the box with sensible defaults
+- **Works Everywhere** - CLI, VS Code extension, and GitHub Action with zero config
+- **Rust-Powered Speed** - 100-500 files in <1s with parallel processing and smart caching
 
 ## 🎯 Use Cases<a href="#TOC"><img align="right" src="https://i.ibb.co/YBVkRcnC/up-arrow.png" width="22"></a>
 
