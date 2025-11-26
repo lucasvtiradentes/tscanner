@@ -151,7 +151,7 @@ async function copyToVSCodeExtensions() {
 async function printSuccessMessage() {
   const editor = detectCurrentEditor();
   const targetDir = getVSCodeExtensionsDirectory();
-  const editorName = editor === 'vscode' ? 'VSCode' : editor === 'cursor' ? 'Cursor' : 'VSCodium';
+  const editorName = EDITOR_DISPLAY_NAMES[editor];
 
   logger.log(`\n✅ Extension installed to: ${targetDir}`);
   logger.log(`   Extension ID: ${EXTENSION_ID_DEV}`);
@@ -166,36 +166,45 @@ function getLocalDistDirectory(): string {
   return join(extensionRoot, 'dist-dev');
 }
 
-type EditorType = 'vscode' | 'cursor' | 'vscodium';
-
-interface EditorExtensionPaths {
-  vscode: string;
-  cursor: string;
-  vscodium: string;
+enum Editor {
+  VSCode = 'vscode',
+  Cursor = 'cursor',
+  VSCodium = 'vscodium',
+  Windsurf = 'windsurf',
 }
 
-function detectCurrentEditor(): EditorType {
+const EDITOR_DISPLAY_NAMES: Record<Editor, string> = {
+  [Editor.VSCode]: 'VSCode',
+  [Editor.Cursor]: 'Cursor',
+  [Editor.VSCodium]: 'VSCodium',
+  [Editor.Windsurf]: 'Windsurf',
+};
+
+function detectCurrentEditor(): Editor {
   const vscodeEnv = process.env.VSCODE_PID || process.env.TERM_PROGRAM;
-  if (vscodeEnv === 'vscode') return 'vscode';
+  if (vscodeEnv === 'vscode') return Editor.VSCode;
 
   const cursorPath = join(homedir(), '.cursor', 'extensions');
+  const windsurfPath = join(homedir(), '.windsurf', 'extensions');
   const vscodiumPath =
     process.platform === 'darwin'
       ? join(homedir(), '.vscode-oss', 'extensions')
       : join(homedir(), '.config', 'VSCodium', 'extensions');
   const vscodePath = join(homedir(), '.vscode', 'extensions');
 
-  if (existsSync(cursorPath) && !existsSync(vscodePath)) return 'cursor';
-  if (existsSync(vscodiumPath) && !existsSync(vscodePath)) return 'vscodium';
+  if (existsSync(cursorPath) && !existsSync(vscodePath)) return Editor.Cursor;
+  if (existsSync(windsurfPath) && !existsSync(vscodePath)) return Editor.Windsurf;
+  if (existsSync(vscodiumPath) && !existsSync(vscodePath)) return Editor.VSCodium;
 
-  return 'vscode';
+  return Editor.VSCode;
 }
 
-function getEditorExtensionsPath(editor: EditorType): string {
-  const paths: EditorExtensionPaths = {
-    vscode: join(homedir(), '.vscode', 'extensions'),
-    cursor: join(homedir(), '.cursor', 'extensions'),
-    vscodium:
+function getEditorExtensionsPath(editor: Editor): string {
+  const paths: Record<Editor, string> = {
+    [Editor.VSCode]: join(homedir(), '.vscode', 'extensions'),
+    [Editor.Cursor]: join(homedir(), '.cursor', 'extensions'),
+    [Editor.Windsurf]: join(homedir(), '.windsurf', 'extensions'),
+    [Editor.VSCodium]:
       process.platform === 'darwin'
         ? join(homedir(), '.vscode-oss', 'extensions')
         : join(homedir(), '.config', 'VSCodium', 'extensions'),
