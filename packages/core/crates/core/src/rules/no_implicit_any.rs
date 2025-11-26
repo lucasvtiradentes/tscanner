@@ -80,6 +80,10 @@ fn is_inferred_callback_context(method_name: &str) -> bool {
     is_array_method(method_name) || is_promise_method(method_name)
 }
 
+fn is_promise_constructor(callee: &Expr) -> bool {
+    matches!(callee, Expr::Ident(ident) if ident.sym.as_ref() == "Promise")
+}
+
 impl<'a> ImplicitAnyVisitor<'a> {
     fn check_param(&mut self, param: &Param) {
         if self.in_inferred_context {
@@ -280,6 +284,27 @@ impl<'a> Visit for ImplicitAnyVisitor<'a> {
                 }
             }
         }
+        n.visit_children_with(self);
+    }
+
+    fn visit_new_expr(&mut self, n: &NewExpr) {
+        let has_arrow_callback = n
+            .args
+            .as_ref()
+            .map(|args| {
+                args.iter()
+                    .any(|arg| matches!(arg.expr.as_ref(), Expr::Arrow(_)))
+            })
+            .unwrap_or(false);
+
+        if has_arrow_callback && is_promise_constructor(&n.callee) {
+            let prev_context = self.in_inferred_context;
+            self.in_inferred_context = true;
+            n.visit_children_with(self);
+            self.in_inferred_context = prev_context;
+            return;
+        }
+
         n.visit_children_with(self);
     }
 }
