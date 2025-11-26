@@ -1,0 +1,15 @@
+---
+source: crates/core/tests/spec_tests.rs
+assertion_line: 37
+expression: snapshot
+---
+# Input
+```ts
+import { foo } from "./foo";
+export const myFoo = foo;
+export function myFunc() {}
+export const myConst = 1;
+```
+
+# Diagnostics
+No issues found.

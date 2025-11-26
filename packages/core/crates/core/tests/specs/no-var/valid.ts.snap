@@ -1,0 +1,17 @@
+---
+source: crates/core/tests/spec_tests.rs
+assertion_line: 37
+expression: snapshot
+---
+# Input
+```ts
+const x = 1;
+let y = "hello";
+function test() {
+    const z = true;
+    let w = false;
+}
+```
+
+# Diagnostics
+No issues found.

@@ -1,0 +1,18 @@
+---
+source: crates/core/tests/spec_tests.rs
+assertion_line: 37
+expression: snapshot
+---
+# Input
+```ts
+const value: string = "hello";
+let data: number;
+function process(input: string): string {
+    return input;
+}
+const result = value as unknown;
+type StringAlias = string;
+```
+
+# Diagnostics
+No issues found.

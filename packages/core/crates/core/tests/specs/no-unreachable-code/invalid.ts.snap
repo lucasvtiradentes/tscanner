@@ -1,0 +1,58 @@
+---
+source: crates/core/tests/spec_tests.rs
+assertion_line: 37
+expression: snapshot
+---
+# Input
+```ts
+function test() {
+    return 1;
+    const unreachable = 2;
+}
+
+function throwExample() {
+    throw new Error();
+    console.log("unreachable");
+}
+
+function breakExample() {
+    while (true) {
+        break;
+        doSomething();
+    }
+}
+```
+
+# Diagnostics
+```
+invalid.ts:3:6 no-unreachable-code ━━━━━━━━━━━━━━━━━━━━
+
+  ! Unreachable code detected after return/throw/break/continue
+
+    2 │     return 1;
+  > 3 │     const unreachable = 2;
+    4 │ }
+
+```
+
+```
+invalid.ts:8:6 no-unreachable-code ━━━━━━━━━━━━━━━━━━━━
+
+  ! Unreachable code detected after return/throw/break/continue
+
+    7 │     throw new Error();
+  > 8 │     console.log("unreachable");
+    9 │ }
+
+```
+
+```
+invalid.ts:14:10 no-unreachable-code ━━━━━━━━━━━━━━━━━━━━
+
+  ! Unreachable code detected after return/throw/break/continue
+
+    13 │         break;
+  > 14 │         doSomething();
+    15 │     }
+
+```

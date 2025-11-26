@@ -1,0 +1,15 @@
+---
+source: crates/core/tests/spec_tests.rs
+assertion_line: 37
+expression: snapshot
+---
+# Input
+```ts
+console.error("error");
+console.warn("warning");
+console.info("info");
+const log = (msg: string) => msg;
+```
+
+# Diagnostics
+No issues found.

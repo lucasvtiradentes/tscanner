@@ -1,0 +1,65 @@
+---
+source: crates/core/tests/spec_tests.rs
+assertion_line: 37
+expression: snapshot
+---
+# Input
+```ts
+function noType(x) {
+    return x;
+}
+
+const arrowNoType = (x) => x;
+
+function destructuredNoType({ a, b }) {
+    return a + b;
+}
+
+function restNoType(...args) {
+    return args;
+}
+```
+
+# Diagnostics
+```
+invalid.ts:1:18 no-implicit-any ━━━━━━━━━━━━━━━━━━━━
+
+  ! Parameter 'x' implicitly has 'any' type. Add type annotation.
+
+  > 1 │ function noType(x) {
+    2 │     return x;
+
+```
+
+```
+invalid.ts:5:23 no-implicit-any ━━━━━━━━━━━━━━━━━━━━
+
+  ! Parameter 'x' implicitly has 'any' type. Add type annotation.
+
+    4 │ 
+  > 5 │ const arrowNoType = (x) => x;
+    6 │ 
+
+```
+
+```
+invalid.ts:7:30 no-implicit-any ━━━━━━━━━━━━━━━━━━━━
+
+  ! Destructured parameter implicitly has 'any' type. Add type annotation.
+
+    6 │ 
+  > 7 │ function destructuredNoType({ a, b }) {
+    8 │     return a + b;
+
+```
+
+```
+invalid.ts:11:22 no-implicit-any ━━━━━━━━━━━━━━━━━━━━
+
+  ! Rest parameter implicitly has 'any' type. Add type annotation.
+
+    10 │ 
+  > 11 │ function restNoType(...args) {
+    12 │     return args;
+
+```

@@ -1,0 +1,16 @@
+---
+source: crates/core/tests/spec_tests.rs
+assertion_line: 37
+expression: snapshot
+---
+# Input
+```ts
+const used = 1;
+console.log(used);
+const _intentionallyUnused = 2;
+function usedFn() { return 1; }
+usedFn();
+```
+
+# Diagnostics
+No issues found.

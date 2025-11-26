@@ -1,0 +1,14 @@
+---
+source: crates/core/tests/spec_tests.rs
+assertion_line: 37
+expression: snapshot
+---
+# Input
+```ts
+import { a, b } from "lodash";
+import { x } from "react";
+import { y } from "vue";
+```
+
+# Diagnostics
+No issues found.

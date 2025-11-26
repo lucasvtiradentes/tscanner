@@ -1,0 +1,33 @@
+---
+source: crates/core/tests/spec_tests.rs
+assertion_line: 37
+expression: snapshot
+---
+# Input
+```ts
+import { a } from "lodash";
+import { b } from "lodash";
+import type { c } from "lodash";
+```
+
+# Diagnostics
+```
+invalid.ts:2:20 no-duplicate-imports ━━━━━━━━━━━━━━━━━━━━
+
+  ! Module 'lodash";' is already imported at line 1. Merge imports.
+
+    1 │ import { a } from "lodash";
+  > 2 │ import { b } from "lodash";
+    3 │ import type { c } from "lodash";
+
+```
+
+```
+invalid.ts:3:25 no-duplicate-imports ━━━━━━━━━━━━━━━━━━━━
+
+  ! Module 'lodash";' is already imported at line 1. Merge imports.
+
+    2 │ import { b } from "lodash";
+  > 3 │ import type { c } from "lodash";
+
+```

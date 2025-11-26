@@ -1,0 +1,25 @@
+---
+source: crates/core/tests/spec_tests.rs
+assertion_line: 37
+expression: snapshot
+---
+# Input
+```ts
+function alwaysReturnsValue(x: boolean): number {
+    if (x) {
+        return 1;
+    }
+    return 0;
+}
+
+function neverReturnsValue(x: boolean): void {
+    if (x) {
+        console.log("x is true");
+        return;
+    }
+    console.log("x is false");
+}
+```
+
+# Diagnostics
+No issues found.

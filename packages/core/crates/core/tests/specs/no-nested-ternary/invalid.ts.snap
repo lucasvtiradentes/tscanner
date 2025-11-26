@@ -1,0 +1,31 @@
+---
+source: crates/core/tests/spec_tests.rs
+assertion_line: 37
+expression: snapshot
+---
+# Input
+```ts
+const result = a ? b ? 1 : 2 : 3;
+const nested = x > 0 ? x > 10 ? "big" : "small" : "negative";
+```
+
+# Diagnostics
+```
+invalid.ts:1:17 no-nested-ternary ━━━━━━━━━━━━━━━━━━━━
+
+  ! Nested ternary expressions are not allowed. Use if-else statements for better readability.
+
+  > 1 │ const result = a ? b ? 1 : 2 : 3;
+    2 │ const nested = x > 0 ? x > 10 ? "big" : "small" : "negative";
+
+```
+
+```
+invalid.ts:2:17 no-nested-ternary ━━━━━━━━━━━━━━━━━━━━
+
+  ! Nested ternary expressions are not allowed. Use if-else statements for better readability.
+
+    1 │ const result = a ? b ? 1 : 2 : 3;
+  > 2 │ const nested = x > 0 ? x > 10 ? "big" : "small" : "negative";
+
+```

@@ -11,6 +11,10 @@ on:
         description: 'Run build'
         type: boolean
         required: true
+      run_test:
+        description: 'Run tests'
+        type: boolean
+        required: true
     outputs:
       should_release:
         description: 'Whether any version was bumped and should trigger release'
@@ -86,3 +90,15 @@ jobs:
 
       - name: Build all packages
         run: pnpm run build
+
+  test:
+    if: inputs.run_test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup-and-install
+        with:
+          install-rust: 'true'
+
+      - name: Run tests
+        run: pnpm run test

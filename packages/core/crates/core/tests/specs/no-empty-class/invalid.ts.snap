@@ -1,0 +1,31 @@
+---
+source: crates/core/tests/spec_tests.rs
+assertion_line: 37
+expression: snapshot
+---
+# Input
+```ts
+class EmptyClass {}
+class AnotherEmpty { }
+```
+
+# Diagnostics
+```
+invalid.ts:1:2 no-empty-class ━━━━━━━━━━━━━━━━━━━━
+
+  ! Empty class without methods or properties
+
+  > 1 │ class EmptyClass {}
+    2 │ class AnotherEmpty { }
+
+```
+
+```
+invalid.ts:2:2 no-empty-class ━━━━━━━━━━━━━━━━━━━━
+
+  ! Empty class without methods or properties
+
+    1 │ class EmptyClass {}
+  > 2 │ class AnotherEmpty { }
+
+```

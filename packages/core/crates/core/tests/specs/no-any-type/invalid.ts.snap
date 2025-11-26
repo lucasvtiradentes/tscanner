@@ -1,0 +1,91 @@
+---
+source: crates/core/tests/spec_tests.rs
+assertion_line: 37
+expression: snapshot
+---
+# Input
+```ts
+const value: any = "hello";
+let data: any;
+function process(input: any): any {
+    return input;
+}
+const result = value as any;
+type AnyAlias = any;
+```
+
+# Diagnostics
+```
+invalid.ts:1:15 no-any-type ━━━━━━━━━━━━━━━━━━━━
+
+  ! Found `: any` type annotation
+
+  > 1 │ const value: any = "hello";
+    2 │ let data: any;
+
+```
+
+```
+invalid.ts:2:12 no-any-type ━━━━━━━━━━━━━━━━━━━━
+
+  ! Found `: any` type annotation
+
+    1 │ const value: any = "hello";
+  > 2 │ let data: any;
+    3 │ function process(input: any): any {
+
+```
+
+```
+invalid.ts:3:26 no-any-type ━━━━━━━━━━━━━━━━━━━━
+
+  ! Found `: any` type annotation
+
+    2 │ let data: any;
+  > 3 │ function process(input: any): any {
+    4 │     return input;
+
+```
+
+```
+invalid.ts:3:32 no-any-type ━━━━━━━━━━━━━━━━━━━━
+
+  ! Found `: any` type annotation
+
+    2 │ let data: any;
+  > 3 │ function process(input: any): any {
+    4 │     return input;
+
+```
+
+```
+invalid.ts:6:26 no-any-type ━━━━━━━━━━━━━━━━━━━━
+
+  ! Found `as any` type assertion
+
+    5 │ }
+  > 6 │ const result = value as any;
+    7 │ type AnyAlias = any;
+
+```
+
+```
+invalid.ts:6:26 no-any-type ━━━━━━━━━━━━━━━━━━━━
+
+  ! Found `: any` type annotation
+
+    5 │ }
+  > 6 │ const result = value as any;
+    7 │ type AnyAlias = any;
+
+```
+
+```
+invalid.ts:7:18 no-any-type ━━━━━━━━━━━━━━━━━━━━
+
+  ! Found `: any` type annotation
+
+    6 │ const result = value as any;
+  > 7 │ type AnyAlias = any;
+
+```

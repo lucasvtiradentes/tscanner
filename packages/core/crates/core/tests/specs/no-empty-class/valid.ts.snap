@@ -1,0 +1,17 @@
+---
+source: crates/core/tests/spec_tests.rs
+assertion_line: 37
+expression: snapshot
+---
+# Input
+```ts
+class NotEmpty {
+    method() {}
+}
+class WithProperty {
+    value = 1;
+}
+```
+
+# Diagnostics
+No issues found.
