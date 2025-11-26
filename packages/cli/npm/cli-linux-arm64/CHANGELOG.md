@@ -1,5 +1,11 @@
 # @tscanner/cli-linux-arm64
 
+## 0.0.20
+
+### Patch Changes
+
+- e881167: add new rules
+
 ## 0.0.19
 
 ### Patch Changes

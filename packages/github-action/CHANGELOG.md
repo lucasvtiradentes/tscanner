@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.17
+
+### Patch Changes
+
+- e881167: add new rules
+
 ## 0.0.16
 
 ### Patch Changes
