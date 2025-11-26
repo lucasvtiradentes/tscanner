@@ -22,7 +22,7 @@ Terminal interface for [TScanner](https://github.com/lucasvtiradentes/tscanner):
 - **Blazing Fast** - 100-500 files in <1s with Rust parallel processing
 - **Smart Caching** - Skip unchanged files, 80-95% cache hit rate
 - **Git-Aware Scanning** - Full codebase or only changed files vs branch
-- **23+ Built-in Rules** - Type safety, imports, and code quality validation
+- **39 Built-in Rules** - Type safety, imports, and code quality validation
 - **Custom Rules** - Regex patterns, scripts, or AI-powered validation
 - **Zero Config** - Works out of the box, JSON/pretty output formats
 
@@ -301,7 +301,7 @@ fi
 CLI (Node.js)              Rust Binary
 ├─ Platform detector  →    ├─ Scanner
 ├─ Binary resolver         ├─ Parser (SWC)
-├─ Process spawner    ←→   ├─ Rules (23+)
+├─ Process spawner    ←→   ├─ Rules (39)
 └─ Args forwarder          ├─ Cache (DashMap)
                            └─ Config loader
 ```
