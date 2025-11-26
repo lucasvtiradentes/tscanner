@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.16
+
+### Patch Changes
+
+- 7ef3f68: fix support for cursor
+
 ## 0.0.15
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # tscanner-vscode
 
+## 0.0.19
+
+### Patch Changes
+
+- 7ef3f68: fix support for cursor
+
 ## 0.0.18
 
 ### Patch Changes
