@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.13
+
+### Patch Changes
+
+- a14cd9d: fix ci error
+
 ## 0.0.12
 
 ### Patch Changes

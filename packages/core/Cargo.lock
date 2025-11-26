@@ -228,7 +228,7 @@ checksum = "a1d728cc89cf3aee9ff92b05e62b19ee65a02b5702cff7d5a377e32c6ae29d8d"
 
 [[package]]
 name = "cli"
-version = "0.0.15"
+version = "0.0.16"
 dependencies = [
  "anyhow",
  "clap",
@@ -261,7 +261,7 @@ dependencies = [
 
 [[package]]
 name = "core"
-version = "0.0.15"
+version = "0.0.16"
 dependencies = [
  "anyhow",
  "dashmap",
@@ -1181,7 +1181,7 @@ dependencies = [
 
 [[package]]
 name = "server"
-version = "0.0.15"
+version = "0.0.16"
 dependencies = [
  "anyhow",
  "base64",

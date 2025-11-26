@@ -1,5 +1,11 @@
 # @tscanner/cli-win32-x64
 
+## 0.0.16
+
+### Patch Changes
+
+- a14cd9d: fix ci error
+
 ## 0.0.15
 
 ### Patch Changes
