@@ -1,22 +1,21 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 37
 expression: snapshot
 ---
 # Input
 ```ts
 function noType(x) {
-    return x;
+  return x;
 }
 
 const arrowNoType = (x) => x;
 
 function destructuredNoType({ a, b }) {
-    return a + b;
+  return a + b;
 }
 
 function restNoType(...args) {
-    return args;
+  return args;
 }
 ```
 
@@ -27,7 +26,7 @@ invalid.ts:1:18 no-implicit-any ━━━━━━━━━━━━━━━━
   ! Parameter 'x' implicitly has 'any' type. Add type annotation.
 
   > 1 │ function noType(x) {
-    2 │     return x;
+    2 │   return x;
 
 ```
 
@@ -49,7 +48,7 @@ invalid.ts:7:30 no-implicit-any ━━━━━━━━━━━━━━━━
 
     6 │ 
   > 7 │ function destructuredNoType({ a, b }) {
-    8 │     return a + b;
+    8 │   return a + b;
 
 ```
 
@@ -60,6 +59,6 @@ invalid.ts:11:22 no-implicit-any ━━━━━━━━━━━━━━━�
 
     10 │ 
   > 11 │ function restNoType(...args) {
-    12 │     return args;
+    12 │   return args;
 
 ```

@@ -1,18 +1,17 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 37
 expression: snapshot
 ---
 # Input
 ```ts
 function shortFunc() {
-    const a = 1;
-    const b = 2;
-    return a + b;
+  const a = 1;
+  const b = 2;
+  return a + b;
 }
 
 const arrowShort = () => {
-    return 1;
+  return 1;
 };
 ```
 

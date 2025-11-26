@@ -1,12 +1,11 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 37
 expression: snapshot
 ---
 # Input
 ```ts
 const unused = 1;
-let alsoUnused = "hello";
+let alsoUnused = 'hello';
 function unusedFn() {}
 ```
 

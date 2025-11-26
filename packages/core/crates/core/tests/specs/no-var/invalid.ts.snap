@@ -1,14 +1,13 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 37
 expression: snapshot
 ---
 # Input
 ```ts
 var x = 1;
-var y = "hello";
+var y = 'hello';
 function test() {
-    var z = true;
+  var z = true;
 }
 var a, b, c;
 ```
@@ -20,7 +19,7 @@ invalid.ts:1:2 no-var ━━━━━━━━━━━━━━━━━━━�
   ! Use 'let' or 'const' instead of 'var'
 
   > 1 │ var x = 1;
-    2 │ var y = "hello";
+    2 │ var y = 'hello';
 
 ```
 
@@ -30,18 +29,18 @@ invalid.ts:2:2 no-var ━━━━━━━━━━━━━━━━━━━�
   ! Use 'let' or 'const' instead of 'var'
 
     1 │ var x = 1;
-  > 2 │ var y = "hello";
+  > 2 │ var y = 'hello';
     3 │ function test() {
 
 ```
 
 ```
-invalid.ts:4:6 no-var ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:4:4 no-var ━━━━━━━━━━━━━━━━━━━━
 
   ! Use 'let' or 'const' instead of 'var'
 
     3 │ function test() {
-  > 4 │     var z = true;
+  > 4 │   var z = true;
     5 │ }
 
 ```

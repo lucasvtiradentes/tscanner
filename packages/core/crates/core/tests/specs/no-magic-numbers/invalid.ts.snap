@@ -1,6 +1,5 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 37
 expression: snapshot
 ---
 # Input
@@ -8,7 +7,8 @@ expression: snapshot
 const timeout = 3000;
 const retries = 5;
 const percentage = 100;
-if (count > 42) {}
+if (count > 42) {
+}
 ```
 
 # Diagnostics
@@ -40,7 +40,7 @@ invalid.ts:3:21 no-magic-numbers ━━━━━━━━━━━━━━━�
 
     2 │ const retries = 5;
   > 3 │ const percentage = 100;
-    4 │ if (count > 42) {}
+    4 │ if (count > 42) {
 
 ```
 
@@ -50,6 +50,7 @@ invalid.ts:4:14 no-magic-numbers ━━━━━━━━━━━━━━━�
   ! Magic number '42' found. Consider using a named constant instead
 
     3 │ const percentage = 100;
-  > 4 │ if (count > 42) {}
+  > 4 │ if (count > 42) {
+    5 │ }
 
 ```

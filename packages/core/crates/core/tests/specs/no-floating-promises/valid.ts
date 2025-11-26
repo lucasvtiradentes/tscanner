@@ -1,0 +1,17 @@
+await fetch('https://api.example.com/data');
+
+fetch('https://api.example.com/data').then(handleResponse);
+
+fetch('https://api.example.com/data').catch(handleError);
+
+fetch('https://api.example.com/data').finally(cleanup);
+
+const result = fetch('https://api.example.com/data');
+
+const promise = asyncFunc();
+
+await asyncFunc();
+
+asyncFunc().then(handler);
+
+Promise.resolve(42).catch(console.error);

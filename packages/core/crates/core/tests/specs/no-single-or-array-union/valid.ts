@@ -1,0 +1,17 @@
+type Foo = string[];
+
+type Bar = string | number;
+
+function baz(x: number[]) {}
+
+interface Props {
+  value: boolean | string;
+}
+
+const handler = (data: symbol): void => {};
+
+type Mixed = object | string;
+
+type Multi = string | number | boolean;
+
+type SingleType = bigint;

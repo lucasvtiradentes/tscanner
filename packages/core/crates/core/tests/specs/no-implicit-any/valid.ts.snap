@@ -1,12 +1,11 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 37
 expression: snapshot
 ---
 # Input
 ```ts
 function withType(x: number): number {
-    return x;
+  return x;
 }
 
 const arrowWithType = (x: string): string => x;

@@ -1,16 +1,15 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 37
 expression: snapshot
 ---
 # Input
 ```ts
-const fs = require("fs");
-const path = require("path");
-const http = require("http");
+const fs = require('fs');
+const path = require('path');
+const http = require('http');
 
 function useFs() {
-    return fs.readFileSync("file.txt");
+  return fs.readFileSync('file.txt');
 }
 ```
 

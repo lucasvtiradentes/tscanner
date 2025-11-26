@@ -1,13 +1,12 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 37
 expression: snapshot
 ---
 # Input
 ```ts
-import { foo } from "./foo";
-import { bar } from "../bar";
-import { baz } from "../../baz";
+import { foo } from './foo';
+import { bar } from '../bar';
+import { baz } from '../../baz';
 ```
 
 # Diagnostics
@@ -16,8 +15,8 @@ invalid.ts:1:22 no-relative-imports ━━━━━━━━━━━━━━�
 
   ! Use absolute imports with @ prefix instead of relative imports
 
-  > 1 │ import { foo } from "./foo";
-    2 │ import { bar } from "../bar";
+  > 1 │ import { foo } from './foo';
+    2 │ import { bar } from '../bar';
 
 ```
 
@@ -26,9 +25,9 @@ invalid.ts:2:22 no-relative-imports ━━━━━━━━━━━━━━�
 
   ! Use absolute imports with @ prefix instead of relative imports
 
-    1 │ import { foo } from "./foo";
-  > 2 │ import { bar } from "../bar";
-    3 │ import { baz } from "../../baz";
+    1 │ import { foo } from './foo';
+  > 2 │ import { bar } from '../bar';
+    3 │ import { baz } from '../../baz';
 
 ```
 
@@ -37,7 +36,7 @@ invalid.ts:3:22 no-relative-imports ━━━━━━━━━━━━━━�
 
   ! Use absolute imports with @ prefix instead of relative imports
 
-    2 │ import { bar } from "../bar";
-  > 3 │ import { baz } from "../../baz";
+    2 │ import { bar } from '../bar';
+  > 3 │ import { baz } from '../../baz';
 
 ```

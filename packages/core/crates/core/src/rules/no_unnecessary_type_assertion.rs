@@ -74,8 +74,8 @@ impl<'a> Visit for UnnecessaryTypeAssertionVisitor<'a> {
 }
 
 fn check_unnecessary_assertion(n: &TsAsExpr) -> Option<(&'static str, &'static str)> {
-    match &*n.type_ann {
-        TsType::TsKeywordType(kw) => match kw.kind {
+    if let TsType::TsKeywordType(kw) = &*n.type_ann {
+        match kw.kind {
             TsKeywordTypeKind::TsStringKeyword => {
                 if matches!(&*n.expr, Expr::Lit(Lit::Str(_))) {
                     return Some(("string literal", "string"));
@@ -92,8 +92,7 @@ fn check_unnecessary_assertion(n: &TsAsExpr) -> Option<(&'static str, &'static s
                 }
             }
             _ => {}
-        },
-        _ => {}
+        }
     }
     None
 }

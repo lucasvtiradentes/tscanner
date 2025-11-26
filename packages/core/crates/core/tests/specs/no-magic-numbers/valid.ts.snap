@@ -1,6 +1,5 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 37
 expression: snapshot
 ---
 # Input
@@ -9,7 +8,8 @@ const zero = 0;
 const one = 1;
 const negOne = -1;
 const TIMEOUT_MS = 3000;
-if (count > TIMEOUT_MS) {}
+if (count > TIMEOUT_MS) {
+}
 ```
 
 # Diagnostics
@@ -20,6 +20,6 @@ valid.ts:4:21 no-magic-numbers ━━━━━━━━━━━━━━━━�
 
     3 │ const negOne = -1;
   > 4 │ const TIMEOUT_MS = 3000;
-    5 │ if (count > TIMEOUT_MS) {}
+    5 │ if (count > TIMEOUT_MS) {
 
 ```

@@ -1,17 +1,16 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 37
 expression: snapshot
 ---
 # Input
 ```ts
 type User = {
-    name: string;
-    age: number;
+  name: string;
+  age: number;
 };
 
 type Props = {
-    children: React.ReactNode;
+  children: React.ReactNode;
 };
 ```
 

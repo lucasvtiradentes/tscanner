@@ -1,0 +1,12 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+const x = foo as string;
+const y = bar as number;
+```
+
+# Diagnostics
+No issues found.

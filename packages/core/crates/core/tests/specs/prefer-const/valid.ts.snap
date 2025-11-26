@@ -1,16 +1,15 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 38
 expression: snapshot
 ---
 # Input
 ```ts
 const x = 1;
-const y = "hello";
+const y = 'hello';
 let z = 0;
 z = 1;
 let w;
-w = "assigned later";
+w = 'assigned later';
 ```
 
 # Diagnostics

@@ -1,12 +1,11 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 37
 expression: snapshot
 ---
 # Input
 ```ts
 const result = a ? 1 : 2;
-const simple = x > 0 ? "positive" : "non-positive";
+const simple = x > 0 ? 'positive' : 'non-positive';
 ```
 
 # Diagnostics

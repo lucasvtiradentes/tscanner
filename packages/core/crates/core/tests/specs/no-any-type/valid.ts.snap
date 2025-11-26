@@ -1,14 +1,13 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 37
 expression: snapshot
 ---
 # Input
 ```ts
-const value: string = "hello";
+const value: string = 'hello';
 let data: number;
 function process(input: string): string {
-    return input;
+  return input;
 }
 const result = value as unknown;
 type StringAlias = string;

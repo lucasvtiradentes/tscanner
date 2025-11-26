@@ -1,17 +1,16 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 37
 expression: snapshot
 ---
 # Input
 ```ts
 type User = {
-    name: string;
-    age: number;
+  name: string;
+  age: number;
 };
 
 type Config = {
-    timeout: number;
+  timeout: number;
 };
 ```
 
@@ -22,7 +21,7 @@ invalid.ts:1:2 prefer-interface-over-type ━━━━━━━━━━━━�
   ! Use 'interface' instead of 'type' for object types
 
   > 1 │ type User = {
-    2 │     name: string;
+    2 │   name: string;
 
 ```
 
@@ -33,6 +32,6 @@ invalid.ts:6:2 prefer-interface-over-type ━━━━━━━━━━━━�
 
     5 │ 
   > 6 │ type Config = {
-    7 │     timeout: number;
+    7 │   timeout: number;
 
 ```

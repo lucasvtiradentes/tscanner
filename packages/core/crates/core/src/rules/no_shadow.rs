@@ -100,10 +100,8 @@ impl<'a> ShadowVisitor<'a> {
                 self.add_variable(ident.id.sym.to_string(), ident.span());
             }
             Pat::Array(arr) => {
-                for elem in &arr.elems {
-                    if let Some(elem) = elem {
-                        self.add_param(elem);
-                    }
+                for elem in arr.elems.iter().flatten() {
+                    self.add_param(elem);
                 }
             }
             Pat::Object(obj) => {

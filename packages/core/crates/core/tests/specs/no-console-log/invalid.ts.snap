@@ -1,14 +1,13 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 37
 expression: snapshot
 ---
 # Input
 ```ts
-console.log("hello");
-console.log("world");
+console.log('hello');
+console.log('world');
 function test() {
-    console.log("inside function");
+  console.log('inside function');
 }
 ```
 
@@ -18,8 +17,8 @@ invalid.ts:1:1 no-console-log ━━━━━━━━━━━━━━━━�
 
   ! Avoid using console.log in production code
 
-  > 1 │ console.log("hello");
-    2 │ console.log("world");
+  > 1 │ console.log('hello');
+    2 │ console.log('world');
 
 ```
 
@@ -28,19 +27,19 @@ invalid.ts:2:1 no-console-log ━━━━━━━━━━━━━━━━�
 
   ! Avoid using console.log in production code
 
-    1 │ console.log("hello");
-  > 2 │ console.log("world");
+    1 │ console.log('hello');
+  > 2 │ console.log('world');
     3 │ function test() {
 
 ```
 
 ```
-invalid.ts:4:5 no-console-log ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:4:3 no-console-log ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid using console.log in production code
 
     3 │ function test() {
-  > 4 │     console.log("inside function");
+  > 4 │   console.log('inside function');
     5 │ }
 
 ```

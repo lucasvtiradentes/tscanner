@@ -1,13 +1,12 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 37
 expression: snapshot
 ---
 # Input
 ```ts
-import { lodash } from "lodash";
-import * as utils from "./utils";
-import React from "react";
+import { lodash } from 'lodash';
+import * as utils from './utils';
+import React from 'react';
 ```
 
 # Diagnostics

@@ -1,53 +1,52 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 37
 expression: snapshot
 ---
 # Input
 ```ts
 function loadModule() {
-    const fs = require("fs");
+  const fs = require('fs');
 }
 
 if (true) {
-    const path = require("path");
+  const path = require('path');
 }
 
 const arrow = () => {
-    const http = require("http");
+  const http = require('http');
 };
 ```
 
 # Diagnostics
 ```
-invalid.ts:2:17 no-nested-require ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:2:15 no-nested-require ━━━━━━━━━━━━━━━━━━━━
 
   ! require() calls should not be nested inside functions or blocks. Move to top level for static analysis.
 
     1 │ function loadModule() {
-  > 2 │     const fs = require("fs");
+  > 2 │   const fs = require('fs');
     3 │ }
 
 ```
 
 ```
-invalid.ts:6:19 no-nested-require ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:6:17 no-nested-require ━━━━━━━━━━━━━━━━━━━━
 
   ! require() calls should not be nested inside functions or blocks. Move to top level for static analysis.
 
     5 │ if (true) {
-  > 6 │     const path = require("path");
+  > 6 │   const path = require('path');
     7 │ }
 
 ```
 
 ```
-invalid.ts:10:19 no-nested-require ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:10:17 no-nested-require ━━━━━━━━━━━━━━━━━━━━
 
   ! require() calls should not be nested inside functions or blocks. Move to top level for static analysis.
 
     9 │ const arrow = () => {
-  > 10 │     const http = require("http");
+  > 10 │   const http = require('http');
     11 │ };
 
 ```

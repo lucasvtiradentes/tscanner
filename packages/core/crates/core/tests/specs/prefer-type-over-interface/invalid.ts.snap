@@ -1,17 +1,16 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 37
 expression: snapshot
 ---
 # Input
 ```ts
 interface User {
-    name: string;
-    age: number;
+  name: string;
+  age: number;
 }
 
 interface Props {
-    children: React.ReactNode;
+  children: React.ReactNode;
 }
 ```
 
@@ -22,7 +21,7 @@ invalid.ts:1:2 prefer-type-over-interface ━━━━━━━━━━━━�
   ! Prefer 'type' over 'interface' for 'User'
 
   > 1 │ interface User {
-    2 │     name: string;
+    2 │   name: string;
 
 ```
 
@@ -33,6 +32,6 @@ invalid.ts:6:2 prefer-type-over-interface ━━━━━━━━━━━━�
 
     5 │ 
   > 6 │ interface Props {
-    7 │     children: React.ReactNode;
+    7 │   children: React.ReactNode;
 
 ```
