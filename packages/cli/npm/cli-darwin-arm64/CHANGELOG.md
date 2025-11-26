@@ -1,5 +1,11 @@
 # @tscanner/cli-darwin-arm64
 
+## 0.0.18
+
+### Patch Changes
+
+- bb14205: publish extension to open vsx registry
+
 ## 0.0.17
 
 ### Patch Changes

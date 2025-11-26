@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.15
+
+### Patch Changes
+
+- bb14205: publish extension to open vsx registry
+
 ## 0.0.14
 
 ### Patch Changes
