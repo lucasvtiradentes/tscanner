@@ -1,5 +1,11 @@
 # tscanner-vscode
 
+## 0.0.17
+
+### Patch Changes
+
+- 4f7a80f: fix images
+
 ## 0.0.16
 
 ### Patch Changes
