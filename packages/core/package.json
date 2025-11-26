@@ -1,7 +1,7 @@
 {
   "name": "core",
   "private": true,
-  "description": "Rust core library for TScanner code quality scanner",
+  "description": "Code quality scanner for the AI-generated code era",
   "scripts": {
     "build": "cargo build --release",
     "postbuild": "cargo run --bin generate_schema",

@@ -1,7 +1,7 @@
 {
   "name": "tscanner-monorepo",
   "private": true,
-  "description": "High-performance TypeScript code quality scanner with custom rule support",
+  "description": "Code quality scanner for the AI-generated code era",
   "packageManager": "pnpm@10.22.0",
   "scripts": {
     "prepare": "husky",

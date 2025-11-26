@@ -1,12 +1,41 @@
 {
   "name": "tscanner",
   "version": "0.0.14",
-  "description": "High-performance TypeScript/TSX code quality scanner - CLI",
+  "description": "Code quality scanner for the AI-generated code era",
   "license": "MIT",
+  "author": "lucasvtiradentes",
   "repository": {
     "type": "git",
     "url": "https://github.com/lucasvtiradentes/tscanner.git"
   },
+  "homepage": "https://github.com/lucasvtiradentes/tscanner#readme",
+  "bugs": {
+    "url": "https://github.com/lucasvtiradentes/tscanner/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "keywords": [
+    "typescript",
+    "linter",
+    "code-quality",
+    "scanner",
+    "static-analysis",
+    "ast",
+    "rust",
+    "swc",
+    "eslint-alternative",
+    "biome-alternative",
+    "custom-rules",
+    "regex-rules",
+    "ai-validation",
+    "ci-cd",
+    "pre-commit",
+    "git-hooks",
+    "tsx",
+    "javascript",
+    "code-review"
+  ],
   "bin": {
     "tscanner": "./dist/main.js"
   },

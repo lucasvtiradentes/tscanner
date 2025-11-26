@@ -2,7 +2,18 @@
   "name": "tscanner-github-action",
   "version": "0.0.11",
   "private": true,
-  "description": "GitHub Action for tscanner PR validation",
+  "description": "Code quality scanner for the AI-generated code era",
+  "keywords": [
+    "github-action",
+    "typescript",
+    "linter",
+    "code-quality",
+    "pr-review",
+    "ci-cd",
+    "static-analysis",
+    "code-review",
+    "pull-request"
+  ],
   "packageManager": "pnpm@10.22.0",
   "main": "dist/index.js",
   "scripts": {
