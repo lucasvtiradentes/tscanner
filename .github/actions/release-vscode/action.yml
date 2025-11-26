@@ -1,9 +1,12 @@
 name: 'Release VSCode Extension'
-description: 'Downloads binaries, organizes them for extension, and publishes to VS Code Marketplace'
+description: 'Downloads binaries, organizes them for extension, and publishes to VS Code Marketplace and Open VSX'
 
 inputs:
   azure-pat:
     description: 'Azure DevOps Personal Access Token for VS Code Marketplace'
+    required: true
+  open-vsx-pat:
+    description: 'Personal Access Token for Open VSX Registry'
     required: true
 
 runs:
@@ -14,6 +17,10 @@ runs:
       with:
         path: artifacts
 
+    - name: Build shared dependencies
+      shell: bash
+      run: pnpm turbo run build --filter=tscanner-common
+
     - name: Organize binaries for extension
       shell: bash
       run: |
@@ -23,15 +30,36 @@ runs:
         echo "📦 Binaries ready for extension:"
         ls -lah packages/vscode-extension/out/binaries/
 
-    - name: Rebuild extension with binaries
+    - name: Get version
+      id: version
       shell: bash
       run: |
-        echo "🔨 Rebuilding VSCode extension with organized binaries..."
-        pnpm turbo run build --filter=tscanner-vscode --force
-        echo "✅ Extension rebuild complete with binaries included"
+        VERSION=$(node -p "require('./packages/vscode-extension/package.json').version")
+        echo "current=$VERSION" >> $GITHUB_OUTPUT
+        echo "📦 Publishing version: $VERSION"
 
-    - name: Publish VSCode Extension
+    - name: Publish to Open VSX Registry
+      id: publishToOpenVSX
+      uses: HaaLeo/publish-vscode-extension@v2
+      with:
+        pat: ${{ inputs.open-vsx-pat }}
+        packagePath: ./packages/vscode-extension
+        dependencies: false
+        skipDuplicate: true
+
+    - name: Publish to VS Code Marketplace
+      uses: HaaLeo/publish-vscode-extension@v2
+      with:
+        pat: ${{ inputs.azure-pat }}
+        registryUrl: https://marketplace.visualstudio.com
+        extensionFile: ${{ steps.publishToOpenVSX.outputs.vsixPath }}
+        dependencies: false
+        skipDuplicate: true
+
+    - name: Create release tag
       shell: bash
-      run: bash scripts/publish-vscode-extension.sh
-      env:
-        AZURE_VSCODE_PAT: ${{ inputs.azure-pat }}
+      run: bash scripts/create-release-tag.sh "vscode-extension" "${{ steps.version.outputs.current }}"
+
+    - name: Summary
+      shell: bash
+      run: echo "✅ VSCode extension v${{ steps.version.outputs.current }} published to both marketplaces!"

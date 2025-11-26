@@ -104,6 +104,7 @@ jobs:
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -112,6 +113,7 @@ jobs:
       - uses: ./.github/actions/release-vscode
         with:
           azure-pat: ${{ secrets.AZURE_VSCODE_PAT }}
+          open-vsx-pat: ${{ secrets.OPEN_VSX_PAT }}
 
   release_github_action:
     name: 'Release GitHub Action'
