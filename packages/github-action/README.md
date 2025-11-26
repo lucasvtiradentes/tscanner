@@ -145,13 +145,13 @@ All options:
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `github-token` | ✅ Yes | - | GitHub token for posting PR comments (`${{ secrets.GITHUB_TOKEN }}`) |
-| `target-branch` | No | - | Target branch to compare (enables branch mode). Example: `origin/main` |
-| `config-path` | No | `.tscanner` | Path to tscanner config directory containing `config.jsonc` |
-| `tscanner-version` | No | `latest` | NPM version of tscanner CLI to install |
-| `group-by` | No | `file` | Primary grouping mode: `file` or `rule` |
-| `continue-on-error` | No | `false` | Continue workflow even if errors found (`true`/`false`) |
-| `timezone` | No | `UTC` | Timezone for timestamps in PR comments. Example: `America/New_York` |
+| `github-token` | Yes | - | GitHub token for posting PR comments (`${{ secrets.GITHUB_TOKEN }}`) |
+| `target-branch` | - | - | Target branch to compare (enables branch mode). Example: `origin/main` |
+| `config-path` | - | `.tscanner` | Path to tscanner config directory containing `config.jsonc` |
+| `tscanner-version` | - | `latest` | NPM version of tscanner CLI to install |
+| `group-by` | - | `file` | Primary grouping mode: `file` or `rule` |
+| `continue-on-error` | - | `false` | Continue workflow even if errors found (`true`/`false`) |
+| `timezone` | - | `UTC` | Timezone for timestamps in PR comments. Example: `America/New_York` |
 
 ## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 

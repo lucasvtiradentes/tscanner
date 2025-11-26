@@ -81,17 +81,11 @@ sync_files_to_standalone() {
   TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
 
   log "Adding version notes to README..."
-  cat >> README.md << EOF
+  NOTES="This repository is automatically generated. If you want to contribute or see the source code, you can find it in the [TScanner monorepo](https://github.com/lucasvtiradentes/tscanner/tree/main/packages/github-action).\n\n- **Current version:** \`v${CURRENT_VERSION}\`\n- **Generated at:** \`${TIMESTAMP}\`\n\n<a href=\"#\"><img src=\"https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/divider.png\" /></a>\n"
 
-<a href="#"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/divider.png" /></a>
-
-## 📝 Notes<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
-
-This repository is automatically generated. If you want to contribute or see the source code, you can find it in the [TScanner monorepo](https://github.com/lucasvtiradentes/tscanner/tree/main/packages/github-action).
-
-- **Current version:** \`v${CURRENT_VERSION}\`
-- **Generated at:** \`${TIMESTAMP}\`
-EOF
+  sed -i "/<div align=\"center\">/{N;/<div>/{i\\
+$NOTES
+}}" README.md
 }
 
 commit_and_push() {
