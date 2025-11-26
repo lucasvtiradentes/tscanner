@@ -6,7 +6,7 @@ CURRENT_VERSION=""
 PREVIOUS_VERSION=""
 
 log() {
-  echo "vscode-publisher - $1"
+  echo "publish-vscode-extension - $1"
 }
 
 check_package_exists() {

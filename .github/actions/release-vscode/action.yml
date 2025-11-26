@@ -32,6 +32,6 @@ runs:
 
     - name: Publish VSCode Extension
       shell: bash
-      run: bash scripts/vscode-publisher.sh
+      run: bash scripts/publish-vscode-extension.sh
       env:
         AZURE_VSCODE_PAT: ${{ inputs.azure-pat }}

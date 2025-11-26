@@ -72,6 +72,6 @@ runs:
 
     - name: Publish NPM packages
       shell: bash
-      run: bash scripts/cli-publisher.sh
+      run: bash scripts/publish-npm-package.sh
       env:
         NPM_TOKEN: ${{ inputs.npm-token }}
