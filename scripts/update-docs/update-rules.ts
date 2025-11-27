@@ -74,9 +74,9 @@ Customize TScanner to validate what matters to your project while maintaining co
 
 <table>
   <tr>
-    <th>Type</th>
-    <th>Use Case</th>
-    <th>Example</th>
+    <th width="100">Type</th>
+    <th width="250">Use Case</th>
+    <th width="400">Example</th>
   </tr>
   <tr>
     <td><b><a href="packages/core/crates/core/src/rules">Built-in</a></b></td>

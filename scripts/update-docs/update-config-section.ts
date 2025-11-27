@@ -10,7 +10,15 @@ const defaultConfigContent = JSON.stringify(defaultConfigJson, null, 2);
 
 const configSectionContent = `## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-Create \`.tscanner/config.jsonc\`:
+To create TScanner configuration, you can use the following command:
+
+\`\`\`bash
+tscanner init
+\`\`\`
+
+or go the \`VSCode Extension\` \`status bar\` and click on the \`Manage Rules\` button, select the rules you want to enable and click on the \`Save\` button.
+
+The default configuration is:
 
 \`\`\`json
 ${defaultConfigContent}

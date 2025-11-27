@@ -178,7 +178,15 @@ Perfect for PR validation - see only issues you introduced.
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
 ## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-Create `.tscanner/config.jsonc`:
+To create TScanner configuration, you can use the following command:
+
+```bash
+tscanner init
+```
+
+or go the `VSCode Extension` `status bar` and click on the `Manage Rules` button, select the rules you want to enable and click on the `Save` button.
+
+The default configuration is:
 
 ```json
 {
@@ -220,9 +228,9 @@ Customize TScanner to validate what matters to your project while maintaining co
 
 <table>
   <tr>
-    <th>Type</th>
-    <th>Use Case</th>
-    <th>Example</th>
+    <th width="100">Type</th>
+    <th width="250">Use Case</th>
+    <th width="400">Example</th>
   </tr>
   <tr>
     <td><b><a href="packages/core/crates/core/src/rules">Built-in</a></b></td>
