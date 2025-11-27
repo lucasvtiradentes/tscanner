@@ -29,113 +29,28 @@ Real-time TypeScript code quality scanner with sidebar integration and Git-aware
 - **39 Built-in Rules** - Type safety, imports, and code quality checks
 - **Custom Rules** - Regex patterns, scripts, or AI-powered validation
 
-## 🚀 Installation - Option 1<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+## 🚀 Installation<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-Search for **"TScanner"** in your editor's Extensions panel (`Ctrl/Cmd + Shift + X`).
-
-Direct links: [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode) | [Open VSX](https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode) (Cursor, VSCodium, etc.)
-
----
-
-## 🚀 Installation - Option 2
-
-Search for **"TScanner"** in Extensions (`Ctrl/Cmd + Shift + X`), or install directly:
-
-- [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode)
-- [Open VSX](https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode) (Cursor, VSCodium, etc.)
-
----
-
-## 🚀 Installation - Option 3
-
-Search for **"TScanner"** in Extensions (`Ctrl/Cmd + Shift + X`), or install directly:
-
-[![VS Code](https://img.shields.io/badge/VS%20Code-Marketplace-007ACC?logo=visual-studio-code&logoColor=white)](https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode) [![Open VSX](https://img.shields.io/badge/Open%20VSX-Registry-a60ee5?logo=eclipse-ide&logoColor=white)](https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode)
-
----
-
-## 🚀 Installation - Option 4
+**Two ways to install:**
 
 <div align="center">
 
-[![VS Code](https://img.shields.io/badge/VS%20Code-Marketplace-007ACC?logo=visual-studio-code&logoColor=white&style=for-the-badge)](https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode)
-[![Open VSX](https://img.shields.io/badge/Open%20VSX-Registry-a60ee5?logo=eclipse-ide&logoColor=white&style=for-the-badge)](https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode)
-
+<table>
+  <tr>
+    <th>Search in Extensions</th>
+    <th>Install from marketplace</th>
+  </tr>
+  <tr>
+    <td><img width="300" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-install.png" alt="TScanner installation"></td>
+    <td>
+      <div align="center">
+      <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/badge/VS%20Code-Marketplace-007ACC?logo=visual-studio-code&logoColor=white" alt="VS Code"></a><br/>
+      <a href="https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode"><img src="https://img.shields.io/badge/Open%20VSX-Registry-a60ee5?logo=eclipse-ide&logoColor=white" alt="Open VSX"></a>
+      </div>
+    </td>
+  </tr>
+</table>
 </div>
-
-Or search for **"TScanner"** in Extensions (`Ctrl/Cmd + Shift + X`).
-
----
-
-## 🚀 Installation - Option 5
-
-<div align="center">
-  <img width="400" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-install.png" alt="TScanner installation">
-</div>
-
-<br/>
-
-Search for **"TScanner"** in Extensions, or use direct links:
-- [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode)
-- [Open VSX](https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode) (Cursor, VSCodium, etc.)
-
----
-
-## 🚀 Installation - Option 6
-
-<div align="center">
-  <img width="400" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-install.png" alt="TScanner installation">
-  <br/><br/>
-  <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/badge/VS%20Code-Marketplace-007ACC?logo=visual-studio-code&logoColor=white&style=for-the-badge" alt="VS Code"></a>
-  <a href="https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode"><img src="https://img.shields.io/badge/Open%20VSX-Registry-a60ee5?logo=eclipse-ide&logoColor=white&style=for-the-badge" alt="Open VSX"></a>
-</div>
-
-<br/>
-
-Or search for **"TScanner"** in Extensions (`Ctrl/Cmd + Shift + X`).
-
----
-
-## 🚀 Installation - Option 7
-
-**VS Code:** Install from [Marketplace](https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode)
-
-**Cursor, VSCodium, Windsurf:** Install from [Open VSX](https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode)
-
-Or search **"TScanner"** in Extensions (`Ctrl/Cmd + Shift + X`).
-
----
-
-## 🚀 Installation - Option 8
-
-| Editor | Link |
-|--------|------|
-| VS Code | [Marketplace](https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode) |
-| Cursor, VSCodium, Windsurf | [Open VSX](https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode) |
-
-Or search **"TScanner"** in Extensions (`Ctrl/Cmd + Shift + X`).
-
----
-
-## 🚀 Installation - Option 9
-
-1. Open Extensions panel (`Ctrl/Cmd + Shift + X`)
-2. Search for **"TScanner"**
-3. Click **Install**
-
-Or use direct links: [VS Code](https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode) | [Open VSX](https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode)
-
----
-
-## 🚀 Installation - Option 10
-
-> **Quick Install:** Search for **"TScanner"** in Extensions (`Ctrl/Cmd + Shift + X`)
-
-**Direct links:**
-- **VS Code** → [Marketplace](https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode)
-- **Cursor / VSCodium / Windsurf** → [Open VSX](https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode)
-
----
 
 ## 📖 Usage<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
