@@ -4,7 +4,7 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner - CLI</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> • <a href="#-configuration">Configuration</a> • <a href="#-use-cases">Use Cases</a> • <a href="#-rules">Rules</a> • <a href="#-architecture">Architecture</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-usage">Usage</a> • <a href="#-configuration">Configuration</a> • <a href="#-use-cases">Use Cases</a> • <a href="#-rules">Rules</a> • <a href="#-architecture">Architecture</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-license">License</a>
 </div>
 
 <div width="100%" align="center">
@@ -32,18 +32,31 @@ Terminal interface for [TScanner](https://github.com/lucasvtiradentes/tscanner):
 - **Custom Rules** - Regex patterns, scripts, or AI-powered validation
 - **Zero Config** - Works out of the box, JSON/pretty output formats
 
-## 🚀 Installation<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+<!-- <DYNFIELD:QUICK_START_CLI> -->
+## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+
+1. Install globally
 
 ```bash
 npm install -g tscanner
 ```
 
-After installation, the `tscanner` command will be available globally.
+2. Initialize configuration
 
-**Supported Platforms:**
-- Linux (x64, arm64)
-- macOS (Intel, Apple Silicon)
-- Windows (x64)
+```bash
+tscanner init
+```
+
+3. Use it
+
+```bash
+# Scan workspace
+tscanner check
+
+# Scan only changed files vs branch
+tscanner check --branch origin/main
+```
+<!-- </DYNFIELD:QUICK_START_CLI> -->
 
 ## 📖 Usage<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
@@ -191,7 +204,7 @@ To create TScanner configuration, you can use the following command:
 tscanner init
 ```
 
-or go the `VSCode Extension` `status bar` and click on the `Manage Rules` button, select the rules you want to enable and click on the `Save` button.
+or go the `Status Bar` and click on `Manage Rules`, select the rules you want to enable and click on the `Save` button.
 
 The default configuration is:
 

@@ -165,7 +165,7 @@ To create TScanner configuration, you can use the following command:
 tscanner init
 ```
 
-or go the `VSCode Extension` `status bar` and click on the `Manage Rules` button, select the rules you want to enable and click on the `Save` button.
+or go the `Status Bar` and click on `Manage Rules`, select the rules you want to enable and click on the `Save` button.
 
 The default configuration is:
 

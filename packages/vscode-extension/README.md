@@ -5,7 +5,7 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner - VS Code Extension</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-installation">Installation</a> • <a href="#-usage">Usage</a> • <a href="#-configuration">Configuration</a> • <a href="#-rules">Rules</a> • <a href="#-architecture">Architecture</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-usage">Usage</a> • <a href="#-configuration">Configuration</a> • <a href="#-rules">Rules</a> • <a href="#-architecture">Architecture</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-license">License</a>
 </div>
 
 <div width="100%" align="center">
@@ -33,15 +33,16 @@ Real-time TypeScript code quality scanner with sidebar integration and Git-aware
 - **39 Built-in Rules** - Type safety, imports, and code quality checks
 - **Custom Rules** - Regex patterns, scripts, or AI-powered validation
 
-## 🚀 Installation<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+<!-- <DYNFIELD:QUICK_START_VSCODE_EXTENSION> -->
+## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-**Two ways to install:**
+1. Install the extension:
 
 <div align="center">
 
 <table>
   <tr>
-    <th>Search in Extensions</th>
+    <th>Search "TScanner" in Extensions</th>
     <th>Install from marketplace</th>
   </tr>
   <tr>
@@ -56,16 +57,12 @@ Real-time TypeScript code quality scanner with sidebar integration and Git-aware
 </table>
 </div>
 
+2. Click TScanner icon in activity bar
+3. Go to Settings Menu → "Manage Rules" → enable desired rules -> click "Save"
+4. Issues appear automatically in the sidebar (if any)
+<!-- </DYNFIELD:QUICK_START_VSCODE_EXTENSION> -->
+
 ## 📖 Usage<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
-
-### Getting Started
-
-1. Open a TypeScript/TSX workspace
-2. Click the TScanner icon in the activity bar
-3. Open the Settings Menu and select `Manage Rules`
-4. Enable the `built-in rules` you want to use
-5. Issues will appear automatically in the sidebar
-6. Click any issue to jump to its location
 
 ### Scan Modes
 
@@ -80,14 +77,39 @@ Change via Settings Menu or status bar click.
 
 Organize results with 4 combinations:
 
-```
-List + Default    → Flat files with nested issues
-Tree + Default    → Folder hierarchy with issues
-List + By Rule    → Rules with nested file/issues
-Tree + By Rule    → Rules → folders → files → issues
-```
 
-Toggle via toolbar icons or commands.
+<div align="center">
+<table>
+  <tr>
+    <th>By rule - flat list</th>
+    <th>By rule - tree</th>
+    <th>By file - flat list</th>
+    <th>By file - tree</th>
+  </tr>
+  <tr>
+    <td>
+      <div align="center">
+        <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-view-1.png" alt="VS Code">
+      </div>
+    </td>
+    <td>
+      <div align="center">
+        <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-view-2.png" alt="VS Code">
+      </div>
+    </td>
+    <td>
+      <div align="center">
+        <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-view-3.png" alt="VS Code">
+      </div>
+    </td>
+    <td>
+      <div align="center">
+        <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-view-4.png" alt="VS Code">
+      </div>
+    </td>
+  </tr>
+</table>
+</div>
 
 ### Commands
 
@@ -128,44 +150,60 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 
 ### Other details 
 
+<div align="center">
+
 <details>
 <summary><b>Settings Menu</b></summary>
 
-Interactive configuration panel:
+<br />
+
+<div align="left">
 
 - **Manage Rules**: Multi-select UI for 39 built-in rules with enable/disable toggles
 - **Scan Settings**: Choose workspace or branch mode, select target branch
 - **Config Files**: Edit `.tscanner/config.jsonc` or create from template
+
+</div>
 
 </details>
 
 <details>
 <summary><b>Issue Navigation</b></summary>
 
-Navigate efficiently:
+<br />
+
+<div align="left">
 
 - **Click to Jump**: Click any issue to open file at exact line/column
 - **Keyboard**: F8 (next issue), Shift+F8 (previous issue)
 - **Context Menu**: Right-click for copy path options
 - **Badge Count**: Sidebar shows total issue count
 
+</div>
+
 </details>
 
 <details>
 <summary><b>Status Bar</b></summary>
 
-Quick access info:
+<br />
+
+<div align="left">
 
 - **Scan Mode**: Shows "Codebase" or "Branch: {name}"
 - **Click**: Opens Settings Menu
 - **Config Status**: Green checkmark if `.tscanner/config.jsonc` exists
+
+</div>
 
 </details>
 
 <details>
 <summary><b>Branch Mode</b></summary>
 
-When scanning branch changes:
+<br />
+
+<div align="left">
 
 1. Extension runs `git diff {branch}...HEAD` to detect changed files
 2. Parses hunks to extract modified line ranges
@@ -173,7 +211,12 @@ When scanning branch changes:
 
 Perfect for PR validation - see only issues you introduced.
 
+</div>
+
 </details>
+
+</div>
+
 
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
 ## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
@@ -184,7 +227,7 @@ To create TScanner configuration, you can use the following command:
 tscanner init
 ```
 
-or go the `VSCode Extension` `status bar` and click on the `Manage Rules` button, select the rules you want to enable and click on the `Save` button.
+or go the `Status Bar` and click on `Manage Rules`, select the rules you want to enable and click on the `Save` button.
 
 The default configuration is:
 

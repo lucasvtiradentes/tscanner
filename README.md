@@ -138,15 +138,38 @@ With real-time feedback on violations in the code editor and PR checks before me
 
 </div>
 
+
+<!-- <DYNFIELD:QUICK_START_VSCODE_EXTENSION> -->
 ### [VSCode Extension](packages/vscode-extension#readme)
 
 1. Install the extension:
-   - **VS Code**: Search "TScanner" in Extensions menu or <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode">install from Marketplace</a>
-   - **Cursor/Windsurf**: Search "TScanner" in Extensions menu or <a href="https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode">install from Open VSX</a>
+
+<div align="center">
+
+<table>
+  <tr>
+    <th>Search "TScanner" in Extensions</th>
+    <th>Install from marketplace</th>
+  </tr>
+  <tr>
+    <td><img width="300" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-install.png" alt="TScanner installation"></td>
+    <td>
+      <div align="center">
+      <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/badge/VS%20Code-Marketplace-007ACC?logo=visual-studio-code&logoColor=white" alt="VS Code"></a><br/>
+      <a href="https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode"><img src="https://img.shields.io/badge/Open%20VSX-Registry-a60ee5?logo=eclipse-ide&logoColor=white" alt="Open VSX"></a>
+      </div>
+    </td>
+  </tr>
+</table>
+</div>
+
 2. Click TScanner icon in activity bar
 3. Go to Settings Menu → "Manage Rules" → enable desired rules -> click "Save"
 4. Issues appear automatically in the sidebar (if any)
+5. Click any issue to jump to its location
+<!-- </DYNFIELD:QUICK_START_VSCODE_EXTENSION> -->
 
+<!-- <DYNFIELD:QUICK_START_CLI> -->
 ### [CLI](packages/cli#readme)
 
 1. Install globally
@@ -170,6 +193,7 @@ tscanner check
 # Scan only changed files vs branch
 tscanner check --branch origin/main
 ```
+<!-- </DYNFIELD:QUICK_START_CLI> -->
 
 ### [GitHub Action](packages/github-action#readme)
 
@@ -512,7 +536,7 @@ To create TScanner configuration, you can use the following command:
 tscanner init
 ```
 
-or go the `VSCode Extension` `status bar` and click on the `Manage Rules` button, select the rules you want to enable and click on the `Save` button.
+or go the `Status Bar` and click on `Manage Rules`, select the rules you want to enable and click on the `Save` button.
 
 The default configuration is:
 
