@@ -36,8 +36,6 @@ Terminal interface for [TScanner](https://github.com/lucasvtiradentes/tscanner):
 
 ```bash
 npm install -g tscanner
-pnpm add -g tscanner
-yarn global add tscanner
 ```
 
 After installation, the `tscanner` command will be available globally.

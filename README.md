@@ -144,7 +144,7 @@ With real-time feedback on violations in the code editor and PR checks before me
    - **VS Code**: Search "TScanner" in Extensions menu or <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode">install from Marketplace</a>
    - **Cursor/Windsurf**: Search "TScanner" in Extensions menu or <a href="https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode">install from Open VSX</a>
 2. Click TScanner icon in activity bar
-3. Go to Settings Menu → "Manage Rules" → enable desired rules
+3. Go to Settings Menu → "Manage Rules" → enable desired rules -> click "Save"
 4. Issues appear automatically in the sidebar (if any)
 
 ### [CLI](packages/cli#readme)
@@ -153,8 +153,6 @@ With real-time feedback on violations in the code editor and PR checks before me
 
 ```bash
 npm install -g tscanner
-pnpm add -g tscanner
-yarn global add tscanner
 ```
 
 2. Initialize configuration
