@@ -16,9 +16,13 @@
 
 Real-time TypeScript code quality scanner with sidebar integration and Git-aware scanning. Catch issues as you type with instant visual feedback.
 
-<div width="100%" align="center">
-  <img width="50%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Screenshot" width="100%">
+<!-- <DYNFIELD:VSCODE_IMAGE> -->
+<div align="center">
+  <img width="50%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Screenshot">
+  <br>
+  <em>issues detected in real time in the code editor</em>
 </div>
+<!-- </DYNFIELD:VSCODE_IMAGE> -->
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 

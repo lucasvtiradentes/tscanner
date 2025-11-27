@@ -42,7 +42,15 @@ const rootDir = path.resolve(__dirname, '..');
 const rulesJson: RuleMetadata[] = getJson(path.join(rootDir, 'assets/rules.json'));
 const vscodePackageJson: VscodePackageJson = getJson(path.join(rootDir, 'packages/vscode-extension/package.json'));
 
-type TFields = 'RULES' | 'DEFAULT_CONFIG' | 'COMMANDS';
+type TFields =
+  | 'RULES'
+  | 'DEFAULT_CONFIG'
+  | 'COMMANDS'
+  | 'VSCODE_IMAGE'
+  | 'VSCODE_EXTENSION_DEMO_IMAGE'
+  | 'CLI_DEMO_IMAGE'
+  | 'GITHUB_ACTION_DEMO_IMAGE'
+  | 'CLI_IMAGE';
 
 const readmePaths = {
   root: path.join(rootDir, 'README.md'),
@@ -62,6 +70,38 @@ const readmes = {
 
 const defaultConfigJson = getJson(path.join(rootDir, 'assets/default-config.json'));
 const defaultConfigContent = `\`\`\`json\n${JSON.stringify(defaultConfigJson, null, 2)}\n\`\`\``;
+
+const baseImageUrl = 'https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image';
+
+const vscodeImageContent = `<div align="center">
+  <img width="50%" src="${baseImageUrl}/tscanner-vscode-demo.png" alt="VS Code Extension Screenshot">
+  <br>
+  <em>issues detected in real time in the code editor</em>
+</div>`;
+
+const vscodeExtensionDemoImageContent = `  <div align="center">
+    <img width="50%" src="${baseImageUrl}/tscanner-vscode-demo.png" alt="VS Code Extension Demo">
+    <br>
+    <em>issues detected in real time in the code editor</em>
+  </div>`;
+
+const cliDemoImageContent = `  <div align="center">
+    <img src="${baseImageUrl}/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
+    <br>
+    <em>scanning codebase via CLI</em>
+  </div>`;
+
+const githubActionDemoImageContent = `  <div align="center">
+    <img width="50%" src="${baseImageUrl}/tscanner-pr-comment-issues-found.png" alt="GitHub Action PR Comment">
+    <br>
+    <em>issues detected in the latest push in a PR</em>
+  </div>`;
+
+const cliImageContent = `<div align="center">
+  <img src="${baseImageUrl}/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
+  <br>
+  <em>scanning codebase via CLI</em>
+</div>`;
 
 const categoryMap: Record<string, string> = {
   typesafety: 'Type Safety',
@@ -121,10 +161,15 @@ readmes.core.saveFile();
 
 readmes.root.updateField('RULES', builtInRulesContent);
 readmes.root.updateField('DEFAULT_CONFIG', defaultConfigContent);
+readmes.root.updateField('VSCODE_IMAGE', vscodeImageContent);
+readmes.root.updateField('VSCODE_EXTENSION_DEMO_IMAGE', vscodeExtensionDemoImageContent);
+readmes.root.updateField('CLI_DEMO_IMAGE', cliDemoImageContent);
+readmes.root.updateField('GITHUB_ACTION_DEMO_IMAGE', githubActionDemoImageContent);
 readmes.root.saveFile();
 
 readmes.cli.updateField('RULES', builtInRulesContent);
 readmes.cli.updateField('DEFAULT_CONFIG', defaultConfigContent);
+readmes.cli.updateField('CLI_IMAGE', cliImageContent);
 readmes.cli.saveFile();
 
 const hiddenCommands = new Set(
@@ -170,6 +215,7 @@ const commandsContent = `<div align="center">\n\n${commandsTable.getTable()}\n\n
 readmes.vscode.updateField('RULES', builtInRulesContent);
 readmes.vscode.updateField('DEFAULT_CONFIG', defaultConfigContent);
 readmes.vscode.updateField('COMMANDS', commandsContent);
+readmes.vscode.updateField('VSCODE_IMAGE', vscodeImageContent);
 readmes.vscode.saveFile();
 
 readmes.githubAction.updateField('RULES', builtInRulesContent);

@@ -7,27 +7,56 @@
   <a href="#-overview">Overview</a> • <a href="#-ways-to-use">Ways to use</a> • <a href="#-features">Features</a> • <a href="#-use-cases">Use Cases</a> • <a href="#-rules">Rules</a> • <a href="#-architecture">Architecture</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-license">License</a>
 </div>
 
-<a href="#"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/divider.png" /></a>
+<div width="100%" align="center">
+  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/divider.png" />
+</div>
 
 ## 🎺 Overview<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 High-performance TypeScript code quality scanner. 39 built-in rules plus custom patterns via regex, scripts, or AI validation. Integrates with CI/CD, git hooks, and VS Code/Cursor.
 
+<!-- <DYNFIELD:VSCODE_IMAGE> -->
 <div align="center">
   <img width="50%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Screenshot">
   <br>
   <em>issues detected in real time in the code editor</em>
 </div>
+<!-- </DYNFIELD:VSCODE_IMAGE> -->
+
+<br />
+
+<div align="center"> 
 
 <details>
   <summary>Other images</summary>
   <br />
-  <div align="center">
-    <img width="50%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-issues-found.png" alt="VS Code Extension Screenshot">
-    <br>
-    <em>issues detected in the latest push in a PR</em>
-  </div>
+<!-- <DYNFIELD:VSCODE_EXTENSION_DEMO_IMAGE> -->
+        <div align="center">
+          <img width="50%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Demo">
+          <br>
+          <em>issues detected in real time in the code editor</em>
+        </div>
+<!-- </DYNFIELD:VSCODE_EXTENSION_DEMO_IMAGE> -->
+
+<!-- <DYNFIELD:CLI_DEMO_IMAGE> -->
+        <div align="center">
+          <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
+          <br>
+          <em>scanning codebase via CLI</em>
+        </div>
+<!-- </DYNFIELD:CLI_DEMO_IMAGE> -->
+
+<!-- <DYNFIELD:GITHUB_ACTION_DEMO_IMAGE> -->
+        <div align="center">
+          <img width="50%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-issues-found.png" alt="GitHub Action PR Comment">
+          <br>
+          <em>issues detected in the latest push in a PR</em>
+        </div>
+<!-- </DYNFIELD:GITHUB_ACTION_DEMO_IMAGE> -->
+
 </details>
+
+</div>
 
 ## 📦 Ways to use<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
@@ -520,7 +549,9 @@ CLI/VSCode/GitHub Action (TypeScript)
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-<a href="#"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/divider.png" /></a>
+<div width="100%" align="center">
+  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/divider.png" />
+</div>
 
 <div align="center">
   <div>

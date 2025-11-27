@@ -7,7 +7,9 @@
   <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-architecture">Architecture</a> • <a href="#-configuration">Configuration</a> • <a href="#-rules">Rules</a> • <a href="#-json-rpc-protocol">JSON-RPC Protocol</a> • <a href="#-performance">Performance</a> • <a href="#-development">Development</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-license">License</a>
 </div>
 
-<a href="#"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/divider.png" /></a>
+<div width="100%" align="center">
+  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/divider.png" />
+</div>
 
 ## 🎺 Overview<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
@@ -607,7 +609,9 @@ Used by VS Code extension for autocomplete and validation.
 
 MIT License - see [LICENSE](../../LICENSE) file for details.
 
-<a href="#"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/divider.png" /></a>
+<div width="100%" align="center">
+  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/divider.png" />
+</div>
 
 <div align="center">
   <div>
