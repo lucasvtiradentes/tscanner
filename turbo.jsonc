@@ -50,10 +50,12 @@
       "outputs": ["dist/**", "npm/**"],
       "inputs": [
         "./src/**",
-        "./scripts/**",
         "./tsconfig.json",
         "./package.json",
-        "../core/target/release/**"
+        "../core/target/release/tscanner",
+        "../core/target/release/tscanner.exe",
+        "../core/target/release/tscanner-server",
+        "../core/target/release/tscanner-server.exe"
       ]
     },
     "tscanner-vscode#build": {
@@ -64,8 +66,10 @@
         "./src/**",
         "./esbuild.config.ts",
         "./package.json",
-        "./scripts/install-local.ts",
-        "../core/target/release/**"
+        "../core/target/release/tscanner",
+        "../core/target/release/tscanner.exe",
+        "../core/target/release/tscanner-server",
+        "../core/target/release/tscanner-server.exe"
       ]
     },
     "format": {

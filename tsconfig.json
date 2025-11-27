@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "tscanner-common": ["shared/tscanner-common/src/index.ts"]
+    }
+  },
+  "include": ["scripts/**/*.ts"]
+}

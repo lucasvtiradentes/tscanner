@@ -1,6 +1,6 @@
 import type * as vscode from 'vscode';
-import { hasCustomConfig, hasLocalConfig, loadEffectiveConfig } from '../common/lib/config-manager';
-import { scanWorkspace } from '../common/lib/scanner';
+import { hasCustomConfig, hasLocalConfig, loadEffectiveConfig } from '../../common/lib/config-manager';
+import { scanWorkspace } from '../../common/lib/scanner';
 import {
   Command,
   ContextKey,
@@ -15,14 +15,14 @@ import {
   setWorkspaceState,
   showToastMessage,
   updateState,
-} from '../common/lib/vscode-utils';
-import { type IssueResult, hasConfiguredRules } from '../common/types';
-import { branchExists } from '../common/utils/git-helper';
-import { logger } from '../common/utils/logger';
-import type { SearchResultProvider } from '../sidebar/search-provider';
+} from '../../common/lib/vscode-utils';
+import { type IssueResult, hasConfiguredRules } from '../../common/types';
+import { branchExists } from '../../common/utils/git-helper';
+import { logger } from '../../common/utils/logger';
+import type { SearchResultProvider } from '../../sidebar/search-provider';
 import { resetIssueIndex } from './issue-navigation';
 
-export function createFindIssueCommand(
+export function createScanWorkspaceCommand(
   searchProvider: SearchResultProvider,
   context: vscode.ExtensionContext,
   treeView: vscode.TreeView<any>,

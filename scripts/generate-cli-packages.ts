@@ -1,8 +1,10 @@
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 
-const CLI_ROOT = resolve(__dirname, '..');
-const MANIFEST_PATH = join(CLI_ROOT, 'package.json');
+const SCRIPT_DIR = __dirname;
+const ROOT_DIR = join(SCRIPT_DIR, '..');
+const CLI_DIR = join(ROOT_DIR, 'packages', 'cli');
+const CLI_MANIFEST_PATH = join(CLI_DIR, 'package.json');
 
 const logger = console;
 
@@ -20,25 +22,25 @@ async function main() {
     process.exit(1);
   }
 
-  const rootManifest = JSON.parse(readFileSync(MANIFEST_PATH, 'utf-8'));
+  const cliManifest = JSON.parse(readFileSync(CLI_MANIFEST_PATH, 'utf-8'));
 
-  await generateNativePackages(rootManifest);
-  await updateCliPackageVersion(rootManifest);
+  await generateNativePackages(cliManifest);
+  await updateCliPackageVersion(cliManifest);
   await printSuccessMessage();
 }
 
 main();
 
-async function generateNativePackages(rootManifest: any) {
+async function generateNativePackages(cliManifest: any) {
   logger.log(`Step 1/2 - Generating native packages for ${PLATFORMS.length} platforms...`);
 
   for (const { platform, arch } of PLATFORMS) {
     const os = platform;
     const buildName = `cli-${platform}-${arch}`;
-    const packageRoot = resolve(CLI_ROOT, 'npm', buildName);
+    const packageRoot = join(CLI_DIR, 'npm', buildName);
     const packageName = `@tscanner/${buildName}`;
 
-    const { version, license, repository } = rootManifest;
+    const { version, license, repository } = cliManifest;
 
     const binaryName = os === 'win32' ? 'tscanner.exe' : 'tscanner';
 
@@ -61,11 +63,11 @@ async function generateNativePackages(rootManifest: any) {
       mkdirSync(packageRoot, { recursive: true });
     }
 
-    const manifestPath = resolve(packageRoot, 'package.json');
+    const manifestPath = join(packageRoot, 'package.json');
     writeFileSync(manifestPath, manifest);
 
     const ext = os === 'win32' ? '.exe' : '';
-    const binaryPath = resolve(packageRoot, `tscanner${ext}`);
+    const binaryPath = join(packageRoot, `tscanner${ext}`);
 
     if (existsSync(binaryPath)) {
       chmodSync(binaryPath, 0o755);
@@ -76,13 +78,11 @@ async function generateNativePackages(rootManifest: any) {
   }
 }
 
-async function updateCliPackageVersion(rootManifest: any) {
+async function updateCliPackageVersion(cliManifest: any) {
   logger.log('Step 2/2 - Updating CLI package version...');
 
-  const manifestPath = MANIFEST_PATH;
-  const manifest = JSON.parse(readFileSync(manifestPath, 'utf-8'));
-
-  const { version } = rootManifest;
+  const manifest = JSON.parse(readFileSync(CLI_MANIFEST_PATH, 'utf-8'));
+  const { version } = cliManifest;
 
   if (manifest.optionalDependencies) {
     for (const dependency of Object.keys(manifest.optionalDependencies)) {
@@ -92,7 +92,7 @@ async function updateCliPackageVersion(rootManifest: any) {
     }
   }
 
-  writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+  writeFileSync(CLI_MANIFEST_PATH, `${JSON.stringify(manifest, null, 2)}\n`);
   logger.log('   ✅ Updated CLI package version');
 }
 

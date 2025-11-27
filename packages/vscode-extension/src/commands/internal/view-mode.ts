@@ -6,8 +6,8 @@ import {
   WorkspaceStateKey,
   registerCommand,
   updateState,
-} from '../common/lib/vscode-utils';
-import type { SearchResultProvider } from '../sidebar/search-provider';
+} from '../../common/lib/vscode-utils';
+import type { SearchResultProvider } from '../../sidebar/search-provider';
 
 type ViewState = {
   viewMode: ViewMode;

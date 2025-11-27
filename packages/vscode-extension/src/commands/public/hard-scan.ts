@@ -1,4 +1,4 @@
-import { clearCache } from '../common/lib/scanner';
+import { clearCache } from '../../common/lib/scanner';
 import {
   Command,
   ToastKind,
@@ -6,15 +6,9 @@ import {
   getCurrentWorkspaceFolder,
   registerCommand,
   showToastMessage,
-} from '../common/lib/vscode-utils';
-import { invalidateCache } from '../common/utils/git-helper';
-import { logger } from '../common/utils/logger';
-
-export function createRefreshCommand() {
-  return registerCommand(Command.Refresh, async () => {
-    await executeCommand(Command.FindIssue);
-  });
-}
+} from '../../common/lib/vscode-utils';
+import { invalidateCache } from '../../common/utils/git-helper';
+import { logger } from '../../common/utils/logger';
 
 export function createHardScanCommand(isSearchingRef: { current: boolean }) {
   return registerCommand(Command.HardScan, async () => {

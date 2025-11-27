@@ -39,23 +39,17 @@
   "bin": {
     "tscanner": "./dist/main.js"
   },
-  "files": [
-    "dist",
-    "schema.json",
-    "postinstall.js"
-  ],
+  "files": ["dist", "schema.json", "postinstall.js"],
   "scripts": {
     "postinstall": "node postinstall.js",
     "build": "tsup",
-    "postbuild": "tsx scripts/install-local.ts",
     "start": "node ./dist/main.js",
     "dev": "tsx ./src/main.ts",
     "typecheck": "tsc --noEmit",
     "lint": "biome check src",
     "lint:fix": "biome check --fix --unsafe src",
-    "format": "biome format --write src scripts/*.ts",
-    "prepublishOnly": "pnpm run build",
-    "script:fix-packages": "tsx scripts/generate-packages.ts"
+    "format": "biome format --write src",
+    "prepublishOnly": "pnpm run build"
   },
   "optionalDependencies": {
     "@tscanner/cli-darwin-arm64": "0.0.20",

@@ -10,7 +10,12 @@ import {
 } from 'node:fs';
 import { homedir } from 'node:os';
 import { join, resolve } from 'node:path';
-import { BINARY_BASE_NAME, EXTENSION_ID_DEV, PLATFORM_TARGET_MAP, getBinaryName } from '../src/common/constants';
+import {
+  BINARY_BASE_NAME,
+  EXTENSION_ID_DEV,
+  PLATFORM_TARGET_MAP,
+  getBinaryName,
+} from '../packages/vscode-extension/src/common/constants';
 import {
   CONTEXT_PREFIX,
   DEV_SUFFIX,
@@ -19,13 +24,18 @@ import {
   addDevLabel,
   addDevSuffix,
   buildLogFilename,
-} from '../src/common/scripts-constants';
+} from '../packages/vscode-extension/src/common/scripts-constants';
 
 const logger = console;
 
+const SCRIPT_DIR = __dirname;
+const ROOT_DIR = join(SCRIPT_DIR, '..');
+const EXTENSION_DIR = join(ROOT_DIR, 'packages', 'vscode-extension');
+const CORE_DIR = join(ROOT_DIR, 'packages', 'core');
+
 async function main() {
   if (process.env.CI || process.env.GITHUB_ACTIONS) {
-    logger.log('Skipping local installation in CI environment');
+    logger.log('[VSCode] Skipping local installation in CI environment');
     process.exit(0);
   }
 
@@ -42,7 +52,7 @@ async function main() {
 main();
 
 async function setupLocalDistDirectory() {
-  logger.log('Step 1/7 - Setting up local dist directory...');
+  logger.log('[VSCode] Step 1/7 - Setting up local dist directory...');
   const targetDir = getLocalDistDirectory();
 
   if (existsSync(targetDir)) {
@@ -53,23 +63,22 @@ async function setupLocalDistDirectory() {
 }
 
 async function copyExtensionFiles() {
-  logger.log('Step 2/7 - Copying extension files...');
+  logger.log('[VSCode] Step 2/7 - Copying extension files...');
   const targetDir = getLocalDistDirectory();
 
-  copyRecursive('out', join(targetDir, 'out'));
-  copyRecursive('resources', join(targetDir, 'resources'));
+  copyRecursive(join(EXTENSION_DIR, 'out'), join(targetDir, 'out'));
+  copyRecursive(join(EXTENSION_DIR, 'resources'), join(targetDir, 'resources'));
 }
 
 async function copyBinaries() {
-  logger.log('Step 3/7 - Copying Rust binary...');
+  logger.log('[VSCode] Step 3/7 - Copying Rust binary...');
   const targetDir = getLocalDistDirectory();
-  const extensionRoot = resolve(__dirname, '..');
-  const coreTargetDir = join(extensionRoot, '..', 'core', 'target', 'release');
+  const coreTargetDir = join(CORE_DIR, 'target', 'release');
   const outBinariesDir = join(targetDir, 'out', 'binaries');
 
   const platformInfo = getPlatformInfo();
   if (!platformInfo) {
-    logger.log('   ⚠️  Unsupported platform - skipping');
+    logger.log('[VSCode]    ⚠️  Unsupported platform - skipping');
     return;
   }
 
@@ -77,7 +86,7 @@ async function copyBinaries() {
   const sourcePath = join(coreTargetDir, getBinaryName(BINARY_BASE_NAME));
 
   if (!existsSync(sourcePath)) {
-    logger.log('   ⚠️  Binary not found - skipping (not built yet)');
+    logger.log('[VSCode]    ⚠️  Binary not found - skipping (not built yet)');
     return;
   }
 
@@ -86,11 +95,11 @@ async function copyBinaries() {
   const targetBinary = join(outBinariesDir, `${BINARY_BASE_NAME}-${npmPlatform}${platform === 'win32' ? '.exe' : ''}`);
 
   copyFileSync(sourcePath, targetBinary);
-  logger.log(`   ✅ Copied binary for ${npmPlatform}`);
+  logger.log(`[VSCode]    ✅ Copied binary for ${npmPlatform}`);
 }
 
 async function patchExtensionCode() {
-  logger.log('Step 4/7 - Patching extension code...');
+  logger.log('[VSCode] Step 4/7 - Patching extension code...');
   const targetDir = getLocalDistDirectory();
   const extensionJsPath = join(targetDir, 'out', 'extension.js');
 
@@ -114,29 +123,32 @@ async function patchExtensionCode() {
 }
 
 async function writePackageJson() {
-  logger.log('Step 5/7 - Writing package.json...');
+  logger.log('[VSCode] Step 5/7 - Writing package.json...');
   const targetDir = getLocalDistDirectory();
-  const packageJson = JSON.parse(readFileSync('package.json', 'utf8'));
+  const packageJsonPath = join(EXTENSION_DIR, 'package.json');
+  const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   const modifiedPackageJson = applyDevTransformations(packageJson);
 
   writeFileSync(join(targetDir, 'package.json'), JSON.stringify(modifiedPackageJson, null, 2));
 }
 
 async function copyMetaFiles() {
-  logger.log('Step 6/7 - Copying meta files...');
+  logger.log('[VSCode] Step 6/7 - Copying meta files...');
   const targetDir = getLocalDistDirectory();
 
-  if (existsSync('LICENSE')) {
-    copyFileSync('LICENSE', join(targetDir, 'LICENSE'));
+  const licensePath = join(EXTENSION_DIR, 'LICENSE');
+  if (existsSync(licensePath)) {
+    copyFileSync(licensePath, join(targetDir, 'LICENSE'));
   }
 
-  if (existsSync('README.md')) {
-    copyFileSync('README.md', join(targetDir, 'README.md'));
+  const readmePath = join(EXTENSION_DIR, 'README.md');
+  if (existsSync(readmePath)) {
+    copyFileSync(readmePath, join(targetDir, 'README.md'));
   }
 }
 
 async function copyToVSCodeExtensions() {
-  logger.log('Step 7/7 - Installing to VSCode extensions...');
+  logger.log('[VSCode] Step 7/7 - Installing to VSCode extensions...');
   const sourceDir = getLocalDistDirectory();
   const targetDir = getVSCodeExtensionsDirectory();
 
@@ -153,17 +165,16 @@ async function printSuccessMessage() {
   const targetDir = getVSCodeExtensionsDirectory();
   const editorName = EDITOR_DISPLAY_NAMES[editor];
 
-  logger.log(`\n✅ Extension installed to: ${targetDir}`);
-  logger.log(`   Extension ID: ${EXTENSION_ID_DEV}`);
-  logger.log(`   Editor detected: ${editorName}`);
-  logger.log(`\n🔄 Reload ${editorName} to activate the extension:`);
-  logger.log('   - Press Ctrl+Shift+P');
-  logger.log(`   - Type "Reload Window" and press Enter\n`);
+  logger.log(`\n[VSCode] ✅ Extension installed to: ${targetDir}`);
+  logger.log(`[VSCode]    Extension ID: ${EXTENSION_ID_DEV}`);
+  logger.log(`[VSCode]    Editor detected: ${editorName}`);
+  logger.log(`\n[VSCode] 🔄 Reload ${editorName} to activate the extension:`);
+  logger.log('[VSCode]    - Press Ctrl+Shift+P');
+  logger.log(`[VSCode]    - Type "Reload Window" and press Enter\n`);
 }
 
 function getLocalDistDirectory(): string {
-  const extensionRoot = resolve(__dirname, '..');
-  return join(extensionRoot, 'dist-dev');
+  return join(EXTENSION_DIR, 'dist-dev');
 }
 
 enum Editor {

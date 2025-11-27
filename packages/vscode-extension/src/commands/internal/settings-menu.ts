@@ -14,7 +14,7 @@ import {
   saveCustomConfig,
   saveGlobalConfig,
   saveLocalConfig,
-} from '../common/lib/config-manager';
+} from '../../common/lib/config-manager';
 import {
   Command,
   ScanMode,
@@ -26,12 +26,12 @@ import {
   registerCommand,
   showToastMessage,
   updateState,
-} from '../common/lib/vscode-utils';
-import { CONFIG_DIR_NAME } from '../common/scripts-constants';
-import { getAllBranches, getCurrentBranch, invalidateCache } from '../common/utils/git-helper';
-import { logger } from '../common/utils/logger';
-import type { SearchResultProvider } from '../sidebar/search-provider';
-import { setCopyScanContext } from './copy-issues';
+} from '../../common/lib/vscode-utils';
+import { CONFIG_DIR_NAME } from '../../common/scripts-constants';
+import { getAllBranches, getCurrentBranch, invalidateCache } from '../../common/utils/git-helper';
+import { logger } from '../../common/utils/logger';
+import type { SearchResultProvider } from '../../sidebar/search-provider';
+import { setCopyScanContext } from './copy';
 
 enum SettingsMenuOption {
   ManageRules = 'manage-rules',
@@ -40,7 +40,7 @@ enum SettingsMenuOption {
   OpenConfigFile = 'open-config-file',
 }
 
-enum ConfigLocation {
+export enum ConfigLocation {
   ExtensionStorage = 'extension-storage',
   ProjectFolder = 'project-folder',
   CustomPath = 'custom-path',
@@ -774,5 +774,3 @@ export async function showConfigLocationMenuForFirstSetup(
     return { location: targetLocation, customPath: null };
   }
 }
-
-export { ConfigLocation };
