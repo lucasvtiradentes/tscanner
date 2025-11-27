@@ -32,16 +32,6 @@ High-performance TypeScript code quality scanner. 39 built-in rules plus custom 
 
 <br />
 
-<!-- <DYNFIELD:VSCODE_EXTENSION_DEMO_IMAGE> -->
-<div align="center">
-  <img width="50%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Demo">
-  <br>
-  <em>issues detected in real time in the code editor</em>
-</div>
-<!-- </DYNFIELD:VSCODE_EXTENSION_DEMO_IMAGE> -->
-
-<br />
-
 <!-- <DYNFIELD:CLI_DEMO_IMAGE> -->
 <div align="center">
   <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
