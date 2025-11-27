@@ -3,14 +3,15 @@ import { arch, platform } from 'node:os';
 import { join } from 'node:path';
 
 const SCRIPT_DIR = __dirname;
-const CLI_DIR = join(SCRIPT_DIR, '..');
-const TSCANNER_CORE_DIR = join(CLI_DIR, '..', 'core');
+const ROOT_DIR = join(SCRIPT_DIR, '..');
+const CLI_DIR = join(ROOT_DIR, 'packages', 'cli');
+const CORE_DIR = join(ROOT_DIR, 'packages', 'core');
 
 const logger = console;
 
 async function main() {
   if (process.env.CI || process.env.GITHUB_ACTIONS) {
-    logger.log('Skipping local installation in CI environment');
+    logger.log('[CLI] Skipping local installation in CI environment');
     process.exit(0);
   }
 
@@ -21,7 +22,7 @@ async function main() {
 main();
 
 async function copyBinary() {
-  logger.log('Step 1/1 - Copying Rust binary for current platform...');
+  logger.log('[CLI] Step 1/1 - Copying Rust binary for current platform...');
 
   const OS = platform();
   const ARCH = arch();
@@ -45,11 +46,11 @@ async function copyBinary() {
   }
 
   if (!NPM_PLATFORM) {
-    logger.log(`   ⚠️  Unsupported platform: ${OS}-${ARCH} - skipping`);
+    logger.log(`[CLI]    ⚠️  Unsupported platform: ${OS}-${ARCH} - skipping`);
     return;
   }
 
-  let SOURCE_PATH = join(TSCANNER_CORE_DIR, 'target', 'release', 'tscanner');
+  let SOURCE_PATH = join(CORE_DIR, 'target', 'release', 'tscanner');
   if (NPM_PLATFORM.startsWith('win32')) {
     SOURCE_PATH += '.exe';
   }
@@ -61,7 +62,7 @@ async function copyBinary() {
   }
 
   if (!existsSync(SOURCE_PATH)) {
-    logger.log('   ⚠️  Binary not found - skipping (not built yet)');
+    logger.log('[CLI]    ⚠️  Binary not found - skipping (not built yet)');
     return;
   }
 
@@ -72,10 +73,10 @@ async function copyBinary() {
     chmodSync(DEST_PATH, 0o755);
   } catch {}
 
-  logger.log(`   ✅ Copied binary for ${NPM_PLATFORM}`);
+  logger.log(`[CLI]    ✅ Copied binary for ${NPM_PLATFORM}`);
 }
 
 async function printSuccessMessage() {
-  logger.log('\n✅ Build complete!');
-  logger.log('   Binary is ready to use\n');
+  logger.log('[CLI] ✅ Build complete!');
+  logger.log('[CLI]    Binary is ready to use\n');
 }

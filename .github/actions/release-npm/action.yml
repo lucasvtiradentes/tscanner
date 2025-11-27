@@ -67,7 +67,7 @@ runs:
       shell: bash
       run: |
         echo "📦 Generating scoped @tscanner packages..."
-        pnpm --filter tscanner run script:fix-packages
+        pnpm tsx scripts/generate-cli-packages.ts
         echo "✅ Scoped packages generated"
 
     - name: Publish NPM packages
