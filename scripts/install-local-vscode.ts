@@ -148,27 +148,35 @@ async function copyMetaFiles() {
 }
 
 async function copyToVSCodeExtensions() {
-  logger.log('[VSCode] Step 7/7 - Installing to VSCode extensions...');
+  logger.log('[VSCode] Step 7/7 - Installing to all detected editors...');
   const sourceDir = getLocalDistDirectory();
-  const targetDir = getVSCodeExtensionsDirectory();
+  const installedEditors: string[] = [];
 
-  if (existsSync(targetDir)) {
-    rmSync(targetDir, { recursive: true });
+  for (const editor of Object.values(Editor)) {
+    const extensionsPath = getEditorExtensionsPath(editor);
+    if (!existsSync(extensionsPath)) continue;
+
+    const targetDir = join(extensionsPath, EXTENSION_ID_DEV);
+
+    if (existsSync(targetDir)) {
+      rmSync(targetDir, { recursive: true });
+    }
+
+    mkdirSync(targetDir, { recursive: true });
+    copyRecursive(sourceDir, targetDir);
+    installedEditors.push(EDITOR_DISPLAY_NAMES[editor]);
   }
 
-  mkdirSync(targetDir, { recursive: true });
-  copyRecursive(sourceDir, targetDir);
+  if (installedEditors.length === 0) {
+    logger.log('[VSCode]    ⚠️  No editors found');
+  } else {
+    logger.log(`[VSCode]    ✅ Installed to: ${installedEditors.join(', ')}`);
+  }
 }
 
 async function printSuccessMessage() {
-  const editor = detectCurrentEditor();
-  const targetDir = getVSCodeExtensionsDirectory();
-  const editorName = EDITOR_DISPLAY_NAMES[editor];
-
-  logger.log(`\n[VSCode] ✅ Extension installed to: ${targetDir}`);
-  logger.log(`[VSCode]    Extension ID: ${EXTENSION_ID_DEV}`);
-  logger.log(`[VSCode]    Editor detected: ${editorName}`);
-  logger.log(`\n[VSCode] 🔄 Reload ${editorName} to activate the extension:`);
+  logger.log(`\n[VSCode] ✅ Extension ID: ${EXTENSION_ID_DEV}`);
+  logger.log('\n[VSCode] 🔄 Reload your editor(s) to activate the extension:');
   logger.log('[VSCode]    - Press Ctrl+Shift+P');
   logger.log(`[VSCode]    - Type "Reload Window" and press Enter\n`);
 }
@@ -191,37 +199,6 @@ const EDITOR_DISPLAY_NAMES: Record<Editor, string> = {
   [Editor.Windsurf]: 'Windsurf',
 };
 
-function detectCurrentEditor(): Editor {
-  if (process.env.CURSOR_TRACE_ID) return Editor.Cursor;
-
-  const termProgram = process.env.TERM_PROGRAM;
-  if (termProgram === 'cursor') return Editor.Cursor;
-  if (termProgram === 'windsurf') return Editor.Windsurf;
-
-  const vscodeIpc = process.env.VSCODE_IPC_HOOK;
-  if (vscodeIpc) {
-    if (vscodeIpc.includes('cursor')) return Editor.Cursor;
-    if (vscodeIpc.includes('windsurf')) return Editor.Windsurf;
-    if (vscodeIpc.includes('vscodium') || vscodeIpc.includes('codium')) return Editor.VSCodium;
-  }
-
-  if (termProgram === 'vscode') return Editor.VSCode;
-
-  const cursorPath = join(homedir(), '.cursor', 'extensions');
-  const windsurfPath = join(homedir(), '.windsurf', 'extensions');
-  const vscodiumPath =
-    process.platform === 'darwin'
-      ? join(homedir(), '.vscode-oss', 'extensions')
-      : join(homedir(), '.config', 'VSCodium', 'extensions');
-  const vscodePath = join(homedir(), '.vscode', 'extensions');
-
-  if (existsSync(cursorPath) && !existsSync(vscodePath)) return Editor.Cursor;
-  if (existsSync(windsurfPath) && !existsSync(vscodePath)) return Editor.Windsurf;
-  if (existsSync(vscodiumPath) && !existsSync(vscodePath)) return Editor.VSCodium;
-
-  return Editor.VSCode;
-}
-
 function getEditorExtensionsPath(editor: Editor): string {
   const paths: Record<Editor, string> = {
     [Editor.VSCode]: join(homedir(), '.vscode', 'extensions'),
@@ -233,11 +210,6 @@ function getEditorExtensionsPath(editor: Editor): string {
         : join(homedir(), '.config', 'VSCodium', 'extensions'),
   };
   return paths[editor];
-}
-
-function getVSCodeExtensionsDirectory(): string {
-  const editor = detectCurrentEditor();
-  return join(getEditorExtensionsPath(editor), EXTENSION_ID_DEV);
 }
 
 function getPlatformInfo(): { platform: string; npmPlatform: string } | null {
