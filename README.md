@@ -31,27 +31,27 @@ High-performance TypeScript code quality scanner. 39 built-in rules plus custom 
   <summary>Other images</summary>
   <br />
 <!-- <DYNFIELD:VSCODE_EXTENSION_DEMO_IMAGE> -->
-        <div align="center">
-          <img width="50%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Demo">
-          <br>
-          <em>issues detected in real time in the code editor</em>
-        </div>
+<div align="center">
+  <img width="50%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Demo">
+  <br>
+  <em>issues detected in real time in the code editor</em>
+</div>
 <!-- </DYNFIELD:VSCODE_EXTENSION_DEMO_IMAGE> -->
 
 <!-- <DYNFIELD:CLI_DEMO_IMAGE> -->
-        <div align="center">
-          <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
-          <br>
-          <em>scanning codebase via CLI</em>
-        </div>
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
+  <br>
+  <em>scanning codebase via CLI</em>
+</div>
 <!-- </DYNFIELD:CLI_DEMO_IMAGE> -->
 
 <!-- <DYNFIELD:GITHUB_ACTION_DEMO_IMAGE> -->
-        <div align="center">
-          <img width="50%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-issues-found.png" alt="GitHub Action PR Comment">
-          <br>
-          <em>issues detected in the latest push in a PR</em>
-        </div>
+<div align="center">
+  <img width="50%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-issues-found.png" alt="GitHub Action PR Comment">
+  <br>
+  <em>issues detected in the latest push in a PR</em>
+</div>
 <!-- </DYNFIELD:GITHUB_ACTION_DEMO_IMAGE> -->
 
 </details>

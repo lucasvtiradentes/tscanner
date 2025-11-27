@@ -79,23 +79,23 @@ const vscodeImageContent = `<div align="center">
   <em>issues detected in real time in the code editor</em>
 </div>`;
 
-const vscodeExtensionDemoImageContent = `  <div align="center">
-    <img width="50%" src="${baseImageUrl}/tscanner-vscode-demo.png" alt="VS Code Extension Demo">
-    <br>
-    <em>issues detected in real time in the code editor</em>
-  </div>`;
+const vscodeExtensionDemoImageContent = `<div align="center">
+  <img width="50%" src="${baseImageUrl}/tscanner-vscode-demo.png" alt="VS Code Extension Demo">
+  <br>
+  <em>issues detected in real time in the code editor</em>
+</div>`;
 
-const cliDemoImageContent = `  <div align="center">
-    <img src="${baseImageUrl}/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
-    <br>
-    <em>scanning codebase via CLI</em>
-  </div>`;
+const cliDemoImageContent = `<div align="center">
+  <img src="${baseImageUrl}/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
+  <br>
+  <em>scanning codebase via CLI</em>
+</div>`;
 
-const githubActionDemoImageContent = `  <div align="center">
-    <img width="50%" src="${baseImageUrl}/tscanner-pr-comment-issues-found.png" alt="GitHub Action PR Comment">
-    <br>
-    <em>issues detected in the latest push in a PR</em>
-  </div>`;
+const githubActionDemoImageContent = `<div align="center">
+  <img width="50%" src="${baseImageUrl}/tscanner-pr-comment-issues-found.png" alt="GitHub Action PR Comment">
+  <br>
+  <em>issues detected in the latest push in a PR</em>
+</div>`;
 
 const cliImageContent = `<div align="center">
   <img src="${baseImageUrl}/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
