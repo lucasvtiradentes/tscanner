@@ -46,7 +46,6 @@ type TFields =
   | 'RULES'
   | 'DEFAULT_CONFIG'
   | 'COMMANDS'
-  | 'VSCODE_IMAGE'
   | 'VSCODE_EXTENSION_DEMO_IMAGE'
   | 'CLI_DEMO_IMAGE'
   | 'GITHUB_ACTION_DEMO_IMAGE'
@@ -72,12 +71,6 @@ const defaultConfigJson = getJson(path.join(rootDir, 'assets/default-config.json
 const defaultConfigContent = `\`\`\`json\n${JSON.stringify(defaultConfigJson, null, 2)}\n\`\`\``;
 
 const baseImageUrl = 'https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image';
-
-const vscodeImageContent = `<div align="center">
-  <img width="50%" src="${baseImageUrl}/tscanner-vscode-demo.png" alt="VS Code Extension Screenshot">
-  <br>
-  <em>issues detected in real time in the code editor</em>
-</div>`;
 
 const vscodeExtensionDemoImageContent = `<div align="center">
   <img width="50%" src="${baseImageUrl}/tscanner-vscode-demo.png" alt="VS Code Extension Demo">
@@ -161,7 +154,6 @@ readmes.core.saveFile();
 
 readmes.root.updateField('RULES', builtInRulesContent);
 readmes.root.updateField('DEFAULT_CONFIG', defaultConfigContent);
-readmes.root.updateField('VSCODE_IMAGE', vscodeImageContent);
 readmes.root.updateField('VSCODE_EXTENSION_DEMO_IMAGE', vscodeExtensionDemoImageContent);
 readmes.root.updateField('CLI_DEMO_IMAGE', cliDemoImageContent);
 readmes.root.updateField('GITHUB_ACTION_DEMO_IMAGE', githubActionDemoImageContent);
@@ -215,7 +207,7 @@ const commandsContent = `<div align="center">\n\n${commandsTable.getTable()}\n\n
 readmes.vscode.updateField('RULES', builtInRulesContent);
 readmes.vscode.updateField('DEFAULT_CONFIG', defaultConfigContent);
 readmes.vscode.updateField('COMMANDS', commandsContent);
-readmes.vscode.updateField('VSCODE_IMAGE', vscodeImageContent);
+readmes.vscode.updateField('VSCODE_EXTENSION_DEMO_IMAGE', vscodeExtensionDemoImageContent);
 readmes.vscode.saveFile();
 
 readmes.githubAction.updateField('RULES', builtInRulesContent);
