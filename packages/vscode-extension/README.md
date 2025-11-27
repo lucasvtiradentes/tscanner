@@ -83,15 +83,13 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 
 <div align="center">
 
-| Command | Description |
-|---------|-------------|
-| `tscanner: Scan Workspace` | Run the selected scanning mode scan (Codebase or Branch) |
-| `tscanner: Hard Scan` | Clear cache and rescan |
-| `tscanner: Refresh` | Reload current results |
-| `tscanner: Open Settings` | Configure rules and modes |
-| `tscanner: Next Issue` | Jump to next issue |
-| `tscanner: Previous Issue` | Jump to previous issue |
-| `tscanner: Show Logs` | View extension logs |
+| Command | Description | Keybinding |
+|---------|-------------|------------|
+| `tscanner: Scan Workspace` | Run scan (Codebase or Branch mode) | - |
+| `tscanner: Hard Scan (Clear Cache & Rescan)` | Clear cache and rescan | - |
+| `tscanner: Go to Next Issue` | Jump to next issue | `F8` |
+| `tscanner: Go to Previous Issue` | Jump to previous issue | `Shift+F8` |
+| `tscanner: Show Logs` | View extension logs | - |
 
 </div>
 
@@ -410,6 +408,7 @@ Create `.tscanner/config.jsonc` in your workspace root:
 </table>
 
 </details>
+
 
 <!-- </DYNFIELD:RULES> -->
 

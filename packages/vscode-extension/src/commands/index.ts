@@ -8,20 +8,21 @@ import {
   createCopyRuleIssuesCommand,
   setCopyRustClient,
   setCopyScanContext,
-} from './copy-issues';
-import { createFindIssueCommand } from './find-issue';
-import { createGoToNextIssueCommand, createGoToPreviousIssueCommand, resetIssueIndex } from './issue-navigation';
-import { createManageRulesCommand } from './manage-rules';
-import { createOpenFileCommand } from './navigation';
-import { createHardScanCommand, createRefreshCommand } from './scan';
-import { createOpenSettingsMenuCommand } from './settings';
-import { createShowLogsCommand } from './show-logs';
+} from './internal/copy';
+import { createManageRulesCommand } from './internal/manage-rules';
+import { createOpenFileCommand } from './internal/navigation';
+import { createRefreshCommand } from './internal/refresh';
+import { createOpenSettingsMenuCommand } from './internal/settings-menu';
 import {
   createCycleViewModeFileFlatViewCommand,
   createCycleViewModeFileTreeViewCommand,
   createCycleViewModeRuleFlatViewCommand,
   createCycleViewModeRuleTreeViewCommand,
-} from './view-mode';
+} from './internal/view-mode';
+import { createHardScanCommand } from './public/hard-scan';
+import { createGoToNextIssueCommand, createGoToPreviousIssueCommand, resetIssueIndex } from './public/issue-navigation';
+import { createScanWorkspaceCommand } from './public/scan-workspace';
+import { createShowLogsCommand } from './public/show-logs';
 
 export interface CommandContext {
   searchProvider: SearchResultProvider;
@@ -41,7 +42,7 @@ export function registerAllCommands(ctx: CommandContext): vscode.Disposable[] {
   setCopyScanContext(ctx.currentScanModeRef.current, ctx.currentCompareBranchRef.current);
 
   return [
-    createFindIssueCommand(
+    createScanWorkspaceCommand(
       ctx.searchProvider,
       ctx.context,
       ctx.treeView,
@@ -52,6 +53,11 @@ export function registerAllCommands(ctx: CommandContext): vscode.Disposable[] {
       ctx.currentCompareBranchRef,
       ctx.currentCustomConfigDirRef,
     ),
+    createHardScanCommand(ctx.isSearchingRef),
+    createGoToNextIssueCommand(ctx.searchProvider),
+    createGoToPreviousIssueCommand(ctx.searchProvider),
+    createShowLogsCommand(),
+    createRefreshCommand(),
     createManageRulesCommand(ctx.updateStatusBar, ctx.context, ctx.currentCustomConfigDirRef),
     createOpenSettingsMenuCommand(
       ctx.updateStatusBar,
@@ -67,11 +73,6 @@ export function registerAllCommands(ctx: CommandContext): vscode.Disposable[] {
     createCycleViewModeRuleFlatViewCommand(ctx.searchProvider, ctx.context),
     createCycleViewModeRuleTreeViewCommand(ctx.searchProvider, ctx.context),
     createOpenFileCommand(),
-    createRefreshCommand(),
-    createHardScanCommand(ctx.isSearchingRef),
-    createGoToNextIssueCommand(ctx.searchProvider),
-    createGoToPreviousIssueCommand(ctx.searchProvider),
-    createShowLogsCommand(),
     createCopyRuleIssuesCommand(),
     createCopyFileIssuesCommand(),
     createCopyFolderIssuesCommand(),

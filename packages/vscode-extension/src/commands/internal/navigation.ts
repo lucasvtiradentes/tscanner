@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { Command, openTextDocument, registerCommand } from '../common/lib/vscode-utils';
+import { Command, openTextDocument, registerCommand } from '../../common/lib/vscode-utils';
 
 export function createOpenFileCommand() {
   return registerCommand(Command.OpenFile, (uri: vscode.Uri, line: number, column: number) => {

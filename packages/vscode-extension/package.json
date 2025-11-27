@@ -99,8 +99,28 @@
     "commands": [
       {
         "command": "tscanner.findIssue",
-        "title": "Scan Workspace",
+        "title": "tscanner: Scan Workspace",
         "icon": "$(search)"
+      },
+      {
+        "command": "tscanner.hardScan",
+        "title": "tscanner: Hard Scan (Clear Cache & Rescan)",
+        "icon": "$(debug-restart)"
+      },
+      {
+        "command": "tscanner.goToNextIssue",
+        "title": "tscanner: Go to Next Issue",
+        "icon": "$(arrow-down)"
+      },
+      {
+        "command": "tscanner.goToPreviousIssue",
+        "title": "tscanner: Go to Previous Issue",
+        "icon": "$(arrow-up)"
+      },
+      {
+        "command": "tscanner.showLogs",
+        "title": "tscanner: Show Logs",
+        "icon": "$(output)"
       },
       {
         "command": "tscanner.refresh",
@@ -108,9 +128,8 @@
         "icon": "$(refresh)"
       },
       {
-        "command": "tscanner.hardScan",
-        "title": "tscanner: Hard Scan (Clear Cache & Rescan)",
-        "icon": "$(debug-restart)"
+        "command": "tscanner.openSettingsMenu",
+        "title": "Open Settings"
       },
       {
         "command": "tscanner.cycleViewModeFileFlatView",
@@ -144,25 +163,6 @@
       {
         "command": "tscanner.copyRelativePath",
         "title": "Copy Relative Path"
-      },
-      {
-        "command": "tscanner.openSettingsMenu",
-        "title": "tscanner: Open Settings"
-      },
-      {
-        "command": "tscanner.goToNextIssue",
-        "title": "tscanner: Go to Next Issue",
-        "icon": "$(arrow-down)"
-      },
-      {
-        "command": "tscanner.goToPreviousIssue",
-        "title": "tscanner: Go to Previous Issue",
-        "icon": "$(arrow-up)"
-      },
-      {
-        "command": "tscanner.showLogs",
-        "title": "tscanner: Show Logs",
-        "icon": "$(output)"
       },
       {
         "command": "tscanner.copyRuleIssues",
@@ -254,6 +254,30 @@
       ],
       "commandPalette": [
         {
+          "command": "tscanner.refresh",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.openSettingsMenu",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.cycleViewModeFileFlatView",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.cycleViewModeFileTreeView",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.cycleViewModeRuleFlatView",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.cycleViewModeRuleTreeView",
+          "when": "false"
+        },
+        {
           "command": "tscanner.openFile",
           "when": "false"
         },
@@ -263,14 +287,6 @@
         },
         {
           "command": "tscanner.copyRelativePath",
-          "when": "false"
-        },
-        {
-          "command": "tscanner.refresh",
-          "when": "false"
-        },
-        {
-          "command": "tscanner.openSettingsMenu",
           "when": "false"
         },
         {
