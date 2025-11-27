@@ -110,7 +110,7 @@ for (const cat of categoryOrder) {
     ]);
   }
 
-  rulesContent += `${table.getTable()}\n\n</details>\n\n`;
+  rulesContent += `<div align="center">\n\n${table.getTable()}\n\n</div>\n\n</details>\n\n`;
 }
 
 const builtInRulesContent = `### Built-in Rules (${rulesJson.length})\n\n${rulesContent.replace(/^## 📋 Rules.*\n\n### Built-in Rules.*\n\n/, '')}`;

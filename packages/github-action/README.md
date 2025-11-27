@@ -188,6 +188,8 @@ Create `.tscanner/config.jsonc` in your repository root:
 <details>
 <summary><b>Type Safety (6)</b></summary>
 
+<div align="center">
+
 <table>
   <tr>
     <th width="250">Rule</th>
@@ -219,10 +221,14 @@ Create `.tscanner/config.jsonc` in your repository root:
   </tr>
 </table>
 
+</div>
+
 </details>
 
 <details>
 <summary><b>Code Quality (14)</b></summary>
+
+<div align="center">
 
 <table>
   <tr>
@@ -287,10 +293,14 @@ Create `.tscanner/config.jsonc` in your repository root:
   </tr>
 </table>
 
+</div>
+
 </details>
 
 <details>
 <summary><b>Bug Prevention (4)</b></summary>
+
+<div align="center">
 
 <table>
   <tr>
@@ -315,10 +325,14 @@ Create `.tscanner/config.jsonc` in your repository root:
   </tr>
 </table>
 
+</div>
+
 </details>
 
 <details>
 <summary><b>Variables (3)</b></summary>
+
+<div align="center">
 
 <table>
   <tr>
@@ -339,10 +353,14 @@ Create `.tscanner/config.jsonc` in your repository root:
   </tr>
 </table>
 
+</div>
+
 </details>
 
 <details>
 <summary><b>Imports (8)</b></summary>
+
+<div align="center">
 
 <table>
   <tr>
@@ -383,10 +401,14 @@ Create `.tscanner/config.jsonc` in your repository root:
   </tr>
 </table>
 
+</div>
+
 </details>
 
 <details>
 <summary><b>Style (4)</b></summary>
+
+<div align="center">
 
 <table>
   <tr>
@@ -410,6 +432,8 @@ Create `.tscanner/config.jsonc` in your repository root:
     <td align="left">Suggests using 'type' keyword instead of 'interface' for consistency. Type aliases are more flexible and composable.</td>
   </tr>
 </table>
+
+</div>
 
 </details>
 

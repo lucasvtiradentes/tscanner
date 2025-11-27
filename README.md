@@ -13,18 +13,25 @@
 
 High-performance TypeScript code quality scanner. 39 built-in rules plus custom patterns via regex, scripts, or AI validation. Integrates with CI/CD, git hooks, and VS Code/Cursor.
 
-<table>
-<tr>
-<th>issues detected in real time in the code editor</th>
-<th>issues detected in the latest push in a PR</th>
-</tr>
-<tr>
-<td width="50%"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Screenshot" width="100%"></td>
-<td width="50%"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-issues-found.png" alt="VS Code Extension Screenshot" width="100%"></td>
-</tr>
-</table>
+<div align="center">
+  <figure>
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Screenshot">
+    <figcaption>issues detected in real time in the code editor</figcaption>
+  </figure>
+</div>
+
+<details>
+  <summary>Other images</summary>
+  <br />
+  <figure>
+    <img width="50%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-issues-found.png" alt="VS Code Extension Screenshot">
+    <figcaption>issues detected in the latest push in a PR</figcaption>
+  </figure>
+</details>
 
 ## 📦 Ways to use<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+
+<div align="center">
 
 <table>
   <tr>
@@ -33,30 +40,42 @@ High-performance TypeScript code quality scanner. 39 built-in rules plus custom 
     <th>Download</th>
   </tr>
   <tr>
-    <td><b><a href="packages/cli">CLI</a></b></td>
-    <td>Terminal scanning, CI/CD integration, pre-commit hooks</td>
-    <td><a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/v/tscanner?label=npm&logo=npm&logoColor=white&labelColor=CB3837&color=374151" alt="npm"></a></td>
-  </tr>
-  <tr>
     <td><b><a href="packages/vscode-extension">VSCode Extension</a></b></td>
     <td>Real-time sidebar integration with Git-aware branch scanning</td>
     <td>
-      <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/badge/VS%20Code-Extension-blue.svg" alt="VS Marketplace"></a>
-      <a href="https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode"><img src="https://img.shields.io/open-vsx/v/lucasvtiradentes/tscanner-vscode?label=Open%20VSX&logo=data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSI0LjYgNSA5Ni4yIDEyMi43IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwYXRoIGQ9Ik0zMCA0NC4yTDUyLjYgNUg3LjN6TTQuNiA4OC41aDQ1LjNMMjcuMiA0OS40em01MSAwbDIyLjYgMzkuMiAyMi42LTM5LjJ6IiBmaWxsPSIjYzE2MGVmIi8+CiAgPHBhdGggZD0iTTUyLjYgNUwzMCA0NC4yaDQ1LjJ6TTI3LjIgNDkuNGwyMi43IDM5LjEgMjIuNi0zOS4xem01MSAwTDU1LjYgODguNWg0NS4yeiIgZmlsbD0iI2E2MGVlNSIvPgo8L3N2Zz4=&labelColor=a60ee5&color=374151" alt="Open VSX"></a>
+      <div align="center">
+        <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/badge/VS%20Code-Extension-blue.svg" alt="VS Marketplace"></a>
+        <a href="https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode"><img src="https://img.shields.io/open-vsx/v/lucasvtiradentes/tscanner-vscode?label=Open%20VSX&logo=data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSI0LjYgNSA5Ni4yIDEyMi43IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwYXRoIGQ9Ik0zMCA0NC4yTDUyLjYgNUg3LjN6TTQuNiA4OC41aDQ1LjNMMjcuMiA0OS40em01MSAwbDIyLjYgMzkuMiAyMi42LTM5LjJ6IiBmaWxsPSIjYzE2MGVmIi8+CiAgPHBhdGggZD0iTTUyLjYgNUwzMCA0NC4yaDQ1LjJ6TTI3LjIgNDkuNGwyMi43IDM5LjEgMjIuNi0zOS4xem01MSAwTDU1LjYgODguNWg0NS4yeiIgZmlsbD0iI2E2MGVlNSIvPgo8L3N2Zz4=&labelColor=a60ee5&color=374151" alt="Open VSX"></a>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td><b><a href="packages/cli">CLI</a></b></td>
+    <td>Terminal scanning, CI/CD integration, pre-commit hooks</td>
+    <td>
+      <div align="center">
+        <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/v/tscanner?label=npm&logo=npm&logoColor=white&labelColor=CB3837&color=374151" alt="npm"></a>
+      </div>
     </td>
   </tr>
   <tr>
     <td><b><a href="packages/github-action">GitHub Action</a></b></td>
     <td>CICD integration with analysis summary attached to PR comments</td>
-    <td><a href="https://github.com/marketplace/actions/tscanner-action"><img src="https://img.shields.io/badge/Marketplace-black.svg?logo=github&logoColor=white&labelColor=181717&color=374151" alt="GitHub Marketplace"></a></td>
+    <td>
+      <div align="center">
+        <a href="https://github.com/marketplace/actions/tscanner-action"><img src="https://img.shields.io/badge/Marketplace-black.svg?logo=github&logoColor=white&labelColor=181717&color=374151" alt="GitHub Marketplace"></a>
+      </div>
+    </td>
   </tr>
 </table>
+
+</div>
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 - **39 Built-in Rules** - AST-based TypeScript/TSX validation for type safety, imports, and code quality
 - **Custom Rules** - Regex patterns, JavaScript scripts, or AI-powered validation
-- **Git-Aware Scanning** - Full codebase or only files changed in your branch
+- **Multiple Scanning Modes** - Full codebase or only files changed in your branch
 - **Works Everywhere** - CLI, VS Code extension, and GitHub Action with zero config
 - **Rust-Powered Speed** - 100-500 files in <1s with parallel processing and smart caching
 
@@ -90,6 +109,8 @@ High-performance TypeScript code quality scanner. 39 built-in rules plus custom 
 <details>
 <summary><b>Type Safety (6)</b></summary>
 
+<div align="center">
+
 <table>
   <tr>
     <th width="250">Rule</th>
@@ -121,10 +142,14 @@ High-performance TypeScript code quality scanner. 39 built-in rules plus custom 
   </tr>
 </table>
 
+</div>
+
 </details>
 
 <details>
 <summary><b>Code Quality (14)</b></summary>
+
+<div align="center">
 
 <table>
   <tr>
@@ -189,10 +214,14 @@ High-performance TypeScript code quality scanner. 39 built-in rules plus custom 
   </tr>
 </table>
 
+</div>
+
 </details>
 
 <details>
 <summary><b>Bug Prevention (4)</b></summary>
+
+<div align="center">
 
 <table>
   <tr>
@@ -217,10 +246,14 @@ High-performance TypeScript code quality scanner. 39 built-in rules plus custom 
   </tr>
 </table>
 
+</div>
+
 </details>
 
 <details>
 <summary><b>Variables (3)</b></summary>
+
+<div align="center">
 
 <table>
   <tr>
@@ -241,10 +274,14 @@ High-performance TypeScript code quality scanner. 39 built-in rules plus custom 
   </tr>
 </table>
 
+</div>
+
 </details>
 
 <details>
 <summary><b>Imports (8)</b></summary>
+
+<div align="center">
 
 <table>
   <tr>
@@ -285,10 +322,14 @@ High-performance TypeScript code quality scanner. 39 built-in rules plus custom 
   </tr>
 </table>
 
+</div>
+
 </details>
 
 <details>
 <summary><b>Style (4)</b></summary>
+
+<div align="center">
 
 <table>
   <tr>
@@ -312,6 +353,8 @@ High-performance TypeScript code quality scanner. 39 built-in rules plus custom 
     <td align="left">Suggests using 'type' keyword instead of 'interface' for consistency. Type aliases are more flexible and composable.</td>
   </tr>
 </table>
+
+</div>
 
 </details>
 
@@ -357,27 +400,6 @@ Soon!
 Soon!
 
 </details>
-
-## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
-
-```
-CLI/VSCode/GitHub Action (TypeScript)
-            ↓
-   JSON-RPC Protocol (GZIP compressed)
-            ↓
-    tscanner-core (Rust)
-    ├─ Scanner (Rayon parallel processing)
-    ├─ Parser (SWC AST)
-    ├─ Rule Registry (23+ built-in + custom)
-    ├─ Cache (DashMap memory + disk persistence)
-    ├─ File Watcher (notify)
-    └─ Config (.tscanner/config.jsonc)
-```
-
-**Communication:**
-- Line-delimited JSON-RPC over stdin/stdout
-- GZIP compression for large result sets (>10KB)
-- Real-time file watching for incremental updates
 
 ## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
@@ -467,6 +489,27 @@ const data: any = fetchData();
 // tscanner-disable-file
 // Entire file is skipped
 ```
+
+## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+
+```
+CLI/VSCode/GitHub Action (TypeScript)
+            ↓
+   JSON-RPC Protocol (GZIP compressed)
+            ↓
+    tscanner-core (Rust)
+    ├─ Scanner (Rayon parallel processing)
+    ├─ Parser (SWC AST)
+    ├─ Rule Registry (23+ built-in + custom)
+    ├─ Cache (DashMap memory + disk persistence)
+    ├─ File Watcher (notify)
+    └─ Config (.tscanner/config.jsonc)
+```
+
+**Communication:**
+- Line-delimited JSON-RPC over stdin/stdout
+- GZIP compression for large result sets (>10KB)
+- Real-time file watching for incremental updates
 
 ## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
