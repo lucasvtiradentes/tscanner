@@ -9,9 +9,9 @@ import {
   saveCustomConfig,
   saveGlobalConfig,
   saveLocalConfig,
-} from '../../common/lib/config-manager';
-import { RustClient } from '../../common/lib/rust-client';
-import { getRustBinaryPath } from '../../common/lib/scanner';
+} from '../common/lib/config-manager';
+import { RustClient } from '../common/lib/rust-client';
+import { getRustBinaryPath } from '../common/lib/scanner';
 import {
   Command,
   ToastKind,
@@ -19,9 +19,9 @@ import {
   getCurrentWorkspaceFolder,
   registerCommand,
   showToastMessage,
-} from '../../common/lib/vscode-utils';
-import { logger } from '../../common/utils/logger';
-import { ConfigLocation, showConfigLocationMenuForFirstSetup } from './settings-menu';
+} from '../common/lib/vscode-utils';
+import { logger } from '../common/utils/logger';
+import { ConfigLocation, showConfigLocationMenuForFirstSetup } from './config-location';
 
 interface RuleQuickPickItem extends vscode.QuickPickItem {
   ruleName: string;

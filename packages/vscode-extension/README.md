@@ -90,7 +90,6 @@ Toggle via toolbar icons or commands.
 Access via Command Palette (Ctrl/Cmd + Shift + P):
 
 <!-- <DYNFIELD:COMMANDS> -->
-
 <div align="center">
 
 <table>
@@ -127,7 +126,6 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 </table>
 
 </div>
-
 <!-- </DYNFIELD:COMMANDS> -->
 
 ### Other details 

@@ -9,7 +9,7 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { homedir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { join } from 'node:path';
 import {
   BINARY_BASE_NAME,
   EXTENSION_ID_DEV,

@@ -1,6 +1,7 @@
 import type * as vscode from 'vscode';
 import type { RustClient } from '../common/lib/rust-client';
 import type { ScanMode } from '../common/lib/vscode-utils';
+import { createManageRulesCommand, createOpenSettingsMenuCommand } from '../settings-menu';
 import type { SearchResultProvider } from '../sidebar/search-provider';
 import {
   createCopyFileIssuesCommand,
@@ -9,10 +10,8 @@ import {
   setCopyRustClient,
   setCopyScanContext,
 } from './internal/copy';
-import { createManageRulesCommand } from './internal/manage-rules';
 import { createOpenFileCommand } from './internal/navigation';
 import { createRefreshCommand } from './internal/refresh';
-import { createOpenSettingsMenuCommand } from './internal/settings-menu';
 import {
   createCycleViewModeFileFlatViewCommand,
   createCycleViewModeFileTreeViewCommand,
