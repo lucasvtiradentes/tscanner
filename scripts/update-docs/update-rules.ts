@@ -38,7 +38,7 @@ const rulesByCategory = rulesJson.reduce(
 
 const categoryOrder = ['typesafety', 'codequality', 'bugprevention', 'variables', 'imports', 'style', 'performance'];
 
-let rulesContent = `## 📋 Rules<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>\n\n### Built-in Rules (${rulesJson.length})\n\n`;
+let builtInRulesContent = `### Built-in Rules (${rulesJson.length})\n\n`;
 
 for (const cat of categoryOrder) {
   const rules = rulesByCategory[cat];
@@ -46,7 +46,7 @@ for (const cat of categoryOrder) {
 
   const categoryName = categoryMap[cat] || cat;
 
-  rulesContent += `<details>\n<summary><b>${categoryName} (${rules.length})</b></summary>\n\n`;
+  builtInRulesContent += `<details>\n<summary><b>${categoryName} (${rules.length})</b></summary>\n\n`;
 
   const headerContent = [
     { content: 'Rule', width: 250 },
@@ -63,22 +63,100 @@ for (const cat of categoryOrder) {
     ]);
   }
 
-  rulesContent += `<div align="center">\n\n${table.getTable()}\n\n</div>\n\n</details>\n\n`;
+  builtInRulesContent += `<div align="center">\n\n${table.getTable()}\n\n</div>\n\n</details>\n\n`;
 }
 
-const builtInRulesContent = `### Built-in Rules (${rulesJson.length})\n\n${rulesContent.replace(/^## 📋 Rules.*\n\n### Built-in Rules.*\n\n/, '')}`;
+const rulesIntroTable = `## 📋 Rules<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+
+Customize TScanner to validate what matters to your project while maintaining consistency.
+
+<div align="center">
+
+<table>
+  <tr>
+    <th>Type</th>
+    <th>Use Case</th>
+    <th>Example</th>
+  </tr>
+  <tr>
+    <td><b><a href="packages/core/crates/core/src/rules">Built-in</a></b></td>
+    <td>${rulesJson.length} ready-to-use AST rules</td>
+    <td><code>no-any-type</code>, <code>prefer-const</code>, <code>no-console-log</code></td>
+  </tr>
+  <tr>
+    <td><b>Regex</b></td>
+    <td>Simple text patterns</td>
+    <td>Match <code>TODO</code> comments, banned imports, naming conventions</td>
+  </tr>
+  <tr>
+    <td><b>Script</b></td>
+    <td>Complex logic via JS</td>
+    <td>Validate file naming, check if tests exist, enforce folder structure</td>
+  </tr>
+  <tr>
+    <td><b>AI</b></td>
+    <td>Semantic validation via prompts</td>
+    <td>Enforce React Hook Form usage, validate API integration patterns with SWR/TanStack</td>
+  </tr>
+</table>
+
+</div>
+
+`;
+
+const customRulesContent = `### Custom Rules
+
+<details>
+<summary><b>Regex Rules</b></summary>
+
+Define patterns to match in your code using regular expressions:
+
+\`\`\`json
+{
+  "customRules": {
+    "no-todos": {
+      "type": "regex",
+      "pattern": "TODO:|FIXME:",
+      "message": "Remove TODO comments before merging"
+    },
+    "no-debug-logs": {
+      "type": "regex",
+      "pattern": "console\\\\.(log|debug|info)",
+      "message": "Remove debug statements"
+    }
+  }
+}
+\`\`\`
+
+</details>
+
+<details>
+<summary><b>Script Rules</b></summary>
+
+Soon!
+
+</details>
+
+<details>
+<summary><b>AI Rules</b></summary>
+
+Soon!
+
+</details>`;
+
+const fullRulesContent = `${rulesIntroTable}${builtInRulesContent}${customRulesContent}`;
 
 const readmePaths = [
-  { path: path.join(rootDir, 'packages/core/README.md'), content: rulesContent },
-  { path: path.join(rootDir, 'README.md'), content: builtInRulesContent },
-  { path: path.join(rootDir, 'packages/cli/README.md'), content: builtInRulesContent },
-  { path: path.join(rootDir, 'packages/vscode-extension/README.md'), content: builtInRulesContent },
-  { path: path.join(rootDir, 'packages/github-action/README.md'), content: builtInRulesContent },
+  path.join(rootDir, 'README.md'),
+  path.join(rootDir, 'packages/core/README.md'),
+  path.join(rootDir, 'packages/cli/README.md'),
+  path.join(rootDir, 'packages/vscode-extension/README.md'),
+  path.join(rootDir, 'packages/github-action/README.md'),
 ];
 
-for (const { path: filePath, content } of readmePaths) {
+for (const filePath of readmePaths) {
   const readme = new DynMarkdown<TFields>(filePath);
-  readme.updateField('RULES', content);
+  readme.updateField('RULES', fullRulesContent);
   readme.saveFile();
 }
 

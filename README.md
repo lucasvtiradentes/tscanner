@@ -96,6 +96,7 @@ With real-time feedback on violations in the code editor and PR checks before me
 - **Works Everywhere** - CLI, VS Code extension, and GitHub Action
 - **Rust-Powered Speed** - 100-500 files in <1s with parallel processing and smart caching
 
+<!-- <DYNFIELD:RULES> -->
 ## 📋 Rules<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 Customize TScanner to validate what matters to your project while maintaining consistency.
@@ -132,7 +133,6 @@ Customize TScanner to validate what matters to your project while maintaining co
 
 </div>
 
-<!-- <DYNFIELD:RULES> -->
 ### Built-in Rules (39)
 
 <details>
@@ -387,9 +387,6 @@ Customize TScanner to validate what matters to your project while maintaining co
 
 </details>
 
-
-<!-- </DYNFIELD:RULES> -->
-
 ### Custom Rules
 
 <details>
@@ -429,6 +426,7 @@ Soon!
 Soon!
 
 </details>
+<!-- </DYNFIELD:RULES> -->
 
 ## 📦 Ways to use<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
@@ -525,11 +523,11 @@ jobs:
           target-branch: 'origin/main'  # Optional: scan only changed files
 ```
 
+<!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
 ## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 Create `.tscanner/config.jsonc`:
 
-<!-- <DYNFIELD:DEFAULT_CONFIG> -->
 ```json
 {
   "$schema": "https://unpkg.com/tscanner@0.0.20/schema.json",
@@ -549,7 +547,6 @@ Create `.tscanner/config.jsonc`:
   ]
 }
 ```
-<!-- </DYNFIELD:DEFAULT_CONFIG> -->
 
 **Inline Disables:**
 
@@ -560,6 +557,7 @@ const data: any = fetchData();
 // tscanner-disable-file
 // Entire file is skipped
 ```
+<!-- </DYNFIELD:COMMON_SECTION_CONFIG> -->
 
 ## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
