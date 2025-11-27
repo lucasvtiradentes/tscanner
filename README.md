@@ -14,19 +14,19 @@
 High-performance TypeScript code quality scanner. 39 built-in rules plus custom patterns via regex, scripts, or AI validation. Integrates with CI/CD, git hooks, and VS Code/Cursor.
 
 <div align="center">
-  <figure>
-    <img width="50%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Screenshot">
-    <figcaption>issues detected in real time in the code editor</figcaption>
-  </figure>
+  <img width="50%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Screenshot">
+  <br>
+  <em>issues detected in real time in the code editor</em>
 </div>
 
 <details>
   <summary>Other images</summary>
   <br />
-  <figure>
+  <div align="center">
     <img width="50%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-issues-found.png" alt="VS Code Extension Screenshot">
-    <figcaption>issues detected in the latest push in a PR</figcaption>
-  </figure>
+    <br>
+    <em>issues detected in the latest push in a PR</em>
+  </div>
 </details>
 
 ## 📦 Ways to use<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
