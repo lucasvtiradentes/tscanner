@@ -256,12 +256,14 @@ Customize TScanner to validate what matters to your project while maintaining co
 
 </div>
 
-### Built-in Rules (39)
+<div align="center">
 
 <details>
-<summary><b>Type Safety (6)</b></summary>
+<summary>Built-in rules (39)</summary>
+<br />
+<div align="left">
 
-<div align="center">
+#### Type Safety (6)
 
 <table>
   <tr>
@@ -294,14 +296,7 @@ Customize TScanner to validate what matters to your project while maintaining co
   </tr>
 </table>
 
-</div>
-
-</details>
-
-<details>
-<summary><b>Code Quality (14)</b></summary>
-
-<div align="center">
+#### Code Quality (14)
 
 <table>
   <tr>
@@ -366,14 +361,7 @@ Customize TScanner to validate what matters to your project while maintaining co
   </tr>
 </table>
 
-</div>
-
-</details>
-
-<details>
-<summary><b>Bug Prevention (4)</b></summary>
-
-<div align="center">
+#### Bug Prevention (4)
 
 <table>
   <tr>
@@ -398,14 +386,7 @@ Customize TScanner to validate what matters to your project while maintaining co
   </tr>
 </table>
 
-</div>
-
-</details>
-
-<details>
-<summary><b>Variables (3)</b></summary>
-
-<div align="center">
+#### Variables (3)
 
 <table>
   <tr>
@@ -426,14 +407,7 @@ Customize TScanner to validate what matters to your project while maintaining co
   </tr>
 </table>
 
-</div>
-
-</details>
-
-<details>
-<summary><b>Imports (8)</b></summary>
-
-<div align="center">
+#### Imports (8)
 
 <table>
   <tr>
@@ -474,14 +448,7 @@ Customize TScanner to validate what matters to your project while maintaining co
   </tr>
 </table>
 
-</div>
-
-</details>
-
-<details>
-<summary><b>Style (4)</b></summary>
-
-<div align="center">
+#### Style (4)
 
 <table>
   <tr>
@@ -507,13 +474,12 @@ Customize TScanner to validate what matters to your project while maintaining co
 </table>
 
 </div>
-
 </details>
 
-### Custom Rules
-
 <details>
-<summary><b>Regex Rules</b></summary>
+<summary>Regex rules examples</summary>
+<br />
+<div align="left">
 
 Define patterns to match in your code using regular expressions:
 
@@ -534,21 +500,30 @@ Define patterns to match in your code using regular expressions:
 }
 ```
 
+</div>
 </details>
 
 <details>
-<summary><b>Script Rules</b></summary>
+<summary>Script rules examples</summary>
+<br />
+<div align="left">
 
 Soon!
 
+</div>
 </details>
 
 <details>
-<summary><b>AI Rules</b></summary>
+<summary>AI rules examples</summary>
+<br />
+<div align="left">
 
 Soon!
 
+</div>
 </details>
+
+</div>
 <!-- </DYNFIELD:RULES> -->
 
 ## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>

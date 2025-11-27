@@ -38,7 +38,7 @@ const rulesByCategory = rulesJson.reduce(
 
 const categoryOrder = ['typesafety', 'codequality', 'bugprevention', 'variables', 'imports', 'style', 'performance'];
 
-let builtInRulesContent = `### Built-in Rules (${rulesJson.length})\n\n`;
+let builtInRulesTableContent = '';
 
 for (const cat of categoryOrder) {
   const rules = rulesByCategory[cat];
@@ -46,7 +46,7 @@ for (const cat of categoryOrder) {
 
   const categoryName = categoryMap[cat] || cat;
 
-  builtInRulesContent += `<details>\n<summary><b>${categoryName} (${rules.length})</b></summary>\n\n`;
+  builtInRulesTableContent += `#### ${categoryName} (${rules.length})\n\n`;
 
   const headerContent = [
     { content: 'Rule', width: 250 },
@@ -63,8 +63,18 @@ for (const cat of categoryOrder) {
     ]);
   }
 
-  builtInRulesContent += `<div align="center">\n\n${table.getTable()}\n\n</div>\n\n</details>\n\n`;
+  builtInRulesTableContent += `${table.getTable()}\n\n`;
 }
+
+const builtInRulesContent = `<details>
+<summary>Built-in rules (${rulesJson.length})</summary>
+<br />
+<div align="left">
+
+${builtInRulesTableContent.trim()}
+
+</div>
+</details>`;
 
 const rulesIntroTable = `## 📋 Rules<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
@@ -104,10 +114,10 @@ Customize TScanner to validate what matters to your project while maintaining co
 
 `;
 
-const customRulesContent = `### Custom Rules
-
-<details>
-<summary><b>Regex Rules</b></summary>
+const customRulesContent = `<details>
+<summary>Regex rules examples</summary>
+<br />
+<div align="left">
 
 Define patterns to match in your code using regular expressions:
 
@@ -128,23 +138,36 @@ Define patterns to match in your code using regular expressions:
 }
 \`\`\`
 
+</div>
 </details>
 
 <details>
-<summary><b>Script Rules</b></summary>
+<summary>Script rules examples</summary>
+<br />
+<div align="left">
 
 Soon!
 
+</div>
 </details>
 
 <details>
-<summary><b>AI Rules</b></summary>
+<summary>AI rules examples</summary>
+<br />
+<div align="left">
 
 Soon!
 
+</div>
 </details>`;
 
-const fullRulesContent = `${rulesIntroTable}${builtInRulesContent}${customRulesContent}`;
+const fullRulesContent = `${rulesIntroTable}<div align="center">
+
+${builtInRulesContent}
+
+${customRulesContent}
+
+</div>`;
 
 const readmePaths = [
   path.join(rootDir, 'README.md'),

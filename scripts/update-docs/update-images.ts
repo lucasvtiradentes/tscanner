@@ -19,7 +19,7 @@ const cliDemoImageContent = `<div align="center">
 </div>`;
 
 const githubActionDemoImageContent = `<div align="center">
-  <img width="50%" src="${baseImageUrl}/tscanner-pr-comment-issues-found.png" alt="GitHub Action PR Comment">
+  <img width="80%" src="${baseImageUrl}/tscanner-pr-comment-issues-found.png" alt="GitHub Action PR Comment">
   <br>
   <em>issues detected in the latest push in a PR</em>
 </div>`;
