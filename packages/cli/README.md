@@ -15,13 +15,13 @@
 
 Terminal interface for [TScanner](https://github.com/lucasvtiradentes/tscanner): catch code quality issues with built-in rules or define project-specific patterns using regex, scripts, or AI validation. Integrates seamlessly with CI/CD, git hooks, and development workflows.
 
-<!-- <DYNFIELD:CLI_IMAGE> -->
+<!-- <DYNFIELD:CLI_DEMO_IMAGE> -->
 <div align="center">
   <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
   <br>
   <em>scanning codebase via CLI</em>
 </div>
-<!-- </DYNFIELD:CLI_IMAGE> -->
+<!-- </DYNFIELD:CLI_DEMO_IMAGE> -->
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
