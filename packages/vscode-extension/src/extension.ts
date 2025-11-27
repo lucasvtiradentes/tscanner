@@ -18,7 +18,8 @@ import {
 import { getChangedFiles, getModifiedLineRanges, invalidateCache } from './common/utils/git-helper';
 import { getNewIssues } from './common/utils/issue-comparator';
 import { logger } from './common/utils/logger';
-import { SearchResultProvider } from './sidebar/search-provider';
+import { IssuesPanelContent } from './issues-panel/panel-content';
+import { IssuesPanelIcon } from './issues-panel/panel-icon';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 
 let activationKey: string | undefined;
@@ -35,16 +36,16 @@ export function activate(context: vscode.ExtensionContext) {
   activationKey = currentKey;
   logger.info('TScanner extension activated');
 
-  const searchProvider = new SearchResultProvider();
+  const panelContent = new IssuesPanelContent();
   const viewModeKey = getWorkspaceState(context, WorkspaceStateKey.ViewMode);
   const groupModeKey = getWorkspaceState(context, WorkspaceStateKey.GroupMode);
   const scanModeKey = getWorkspaceState(context, WorkspaceStateKey.ScanMode);
   const compareBranch = getWorkspaceState(context, WorkspaceStateKey.CompareBranch);
   const customConfigDir = getWorkspaceState(context, WorkspaceStateKey.CustomConfigDir);
 
-  searchProvider.viewMode = viewModeKey;
-  searchProvider.groupMode = groupModeKey;
-  searchProvider.setResults([]);
+  panelContent.viewMode = viewModeKey;
+  panelContent.groupMode = groupModeKey;
+  panelContent.setResults([]);
 
   setContextKey(ContextKey.ViewMode, viewModeKey);
   setContextKey(ContextKey.GroupMode, groupModeKey);
@@ -55,8 +56,10 @@ export function activate(context: vscode.ExtensionContext) {
   logger.info(`Registering tree view with ID: ${viewId}`);
 
   const treeView = vscode.window.createTreeView(viewId, {
-    treeDataProvider: searchProvider,
+    treeDataProvider: panelContent,
   });
+
+  const panelIcon = new IssuesPanelIcon(treeView, panelContent);
 
   const isSearchingRef = { current: false };
   const currentScanModeRef = { current: scanModeKey };
@@ -77,14 +80,13 @@ export function activate(context: vscode.ExtensionContext) {
   logger.info('Status bar setup complete');
 
   const updateBadge = () => {
-    const count = searchProvider.getResultCount();
-    treeView.badge = count > 0 ? { value: count, tooltip: `${count} issue${count === 1 ? '' : 's'}` } : undefined;
+    panelIcon.update();
   };
 
   updateBadge();
 
   const commands = registerAllCommands({
-    searchProvider,
+    panelContent,
     context,
     treeView,
     updateBadge,
@@ -134,7 +136,7 @@ export function activate(context: vscode.ExtensionContext) {
         logger.debug(`Filtered ${newResults.length} issues to modified lines only`);
       }
 
-      const currentResults = searchProvider.getResults();
+      const currentResults = panelContent.getResults();
       const filteredResults = currentResults.filter((r) => {
         const resultPath = vscode.workspace.asRelativePath(r.uri);
         return resultPath !== relativePath;
@@ -145,7 +147,7 @@ export function activate(context: vscode.ExtensionContext) {
         `Updated results: removed ${currentResults.length - filteredResults.length}, added ${newResults.length}, total ${mergedResults.length}`,
       );
 
-      searchProvider.setResults(mergedResults);
+      panelContent.setResults(mergedResults);
 
       const serializedResults = mergedResults.map((r) => {
         const { uri, ...rest } = r;
@@ -172,7 +174,7 @@ export function activate(context: vscode.ExtensionContext) {
       invalidateCache();
     }
 
-    const currentResults = searchProvider.getResults();
+    const currentResults = panelContent.getResults();
     const filteredResults = currentResults.filter((r) => {
       const resultPath = vscode.workspace.asRelativePath(r.uri);
       return resultPath !== relativePath;
@@ -180,7 +182,7 @@ export function activate(context: vscode.ExtensionContext) {
 
     if (filteredResults.length !== currentResults.length) {
       logger.debug(`Removed ${currentResults.length - filteredResults.length} issues from deleted file`);
-      searchProvider.setResults(filteredResults);
+      panelContent.setResults(filteredResults);
 
       const serializedResults = filteredResults.map((r) => {
         const { uri, ...rest } = r;

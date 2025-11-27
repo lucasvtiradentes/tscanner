@@ -7,7 +7,7 @@ import {
   registerCommand,
   updateState,
 } from '../../common/lib/vscode-utils';
-import type { SearchResultProvider } from '../../sidebar/search-provider';
+import type { IssuesPanelContent } from '../../issues-panel/panel-content';
 
 type ViewState = {
   viewMode: ViewMode;
@@ -21,9 +21,9 @@ const VIEW_STATES: ViewState[] = [
   { viewMode: ViewMode.Tree, groupMode: GroupMode.Rule },
 ];
 
-function cycleToNextMode(searchProvider: SearchResultProvider, context: vscode.ExtensionContext) {
-  const currentViewMode = searchProvider.viewMode;
-  const currentGroupMode = searchProvider.groupMode;
+function cycleToNextMode(panelContent: IssuesPanelContent, context: vscode.ExtensionContext) {
+  const currentViewMode = panelContent.viewMode;
+  const currentGroupMode = panelContent.groupMode;
 
   const currentIndex = VIEW_STATES.findIndex(
     (state) => state.viewMode === currentViewMode && state.groupMode === currentGroupMode,
@@ -32,37 +32,37 @@ function cycleToNextMode(searchProvider: SearchResultProvider, context: vscode.E
   const nextIndex = (currentIndex + 1) % VIEW_STATES.length;
   const nextState = VIEW_STATES[nextIndex];
 
-  searchProvider.viewMode = nextState.viewMode;
-  searchProvider.groupMode = nextState.groupMode;
+  panelContent.viewMode = nextState.viewMode;
+  panelContent.groupMode = nextState.groupMode;
 
   updateState(context, WorkspaceStateKey.ViewMode, nextState.viewMode);
   updateState(context, WorkspaceStateKey.GroupMode, nextState.groupMode);
 }
 
 export function createCycleViewModeFileFlatViewCommand(
-  searchProvider: SearchResultProvider,
+  panelContent: IssuesPanelContent,
   context: vscode.ExtensionContext,
 ) {
-  return registerCommand(Command.CycleViewModeFileFlatView, () => cycleToNextMode(searchProvider, context));
+  return registerCommand(Command.CycleViewModeFileFlatView, () => cycleToNextMode(panelContent, context));
 }
 
 export function createCycleViewModeFileTreeViewCommand(
-  searchProvider: SearchResultProvider,
+  panelContent: IssuesPanelContent,
   context: vscode.ExtensionContext,
 ) {
-  return registerCommand(Command.CycleViewModeFileTreeView, () => cycleToNextMode(searchProvider, context));
+  return registerCommand(Command.CycleViewModeFileTreeView, () => cycleToNextMode(panelContent, context));
 }
 
 export function createCycleViewModeRuleFlatViewCommand(
-  searchProvider: SearchResultProvider,
+  panelContent: IssuesPanelContent,
   context: vscode.ExtensionContext,
 ) {
-  return registerCommand(Command.CycleViewModeRuleFlatView, () => cycleToNextMode(searchProvider, context));
+  return registerCommand(Command.CycleViewModeRuleFlatView, () => cycleToNextMode(panelContent, context));
 }
 
 export function createCycleViewModeRuleTreeViewCommand(
-  searchProvider: SearchResultProvider,
+  panelContent: IssuesPanelContent,
   context: vscode.ExtensionContext,
 ) {
-  return registerCommand(Command.CycleViewModeRuleTreeView, () => cycleToNextMode(searchProvider, context));
+  return registerCommand(Command.CycleViewModeRuleTreeView, () => cycleToNextMode(panelContent, context));
 }

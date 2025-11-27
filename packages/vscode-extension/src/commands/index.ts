@@ -1,8 +1,8 @@
 import type * as vscode from 'vscode';
 import type { RustClient } from '../common/lib/rust-client';
 import type { ScanMode } from '../common/lib/vscode-utils';
+import type { IssuesPanelContent } from '../issues-panel/panel-content';
 import { createManageRulesCommand, createOpenSettingsMenuCommand } from '../settings-menu';
-import type { SearchResultProvider } from '../sidebar/search-provider';
 import {
   createCopyFileIssuesCommand,
   createCopyFolderIssuesCommand,
@@ -24,7 +24,7 @@ import { createScanWorkspaceCommand } from './public/scan-workspace';
 import { createShowLogsCommand } from './public/show-logs';
 
 export interface CommandContext {
-  searchProvider: SearchResultProvider;
+  panelContent: IssuesPanelContent;
   context: vscode.ExtensionContext;
   treeView: vscode.TreeView<any>;
   updateBadge: () => void;
@@ -42,7 +42,7 @@ export function registerAllCommands(ctx: CommandContext): vscode.Disposable[] {
 
   return [
     createScanWorkspaceCommand(
-      ctx.searchProvider,
+      ctx.panelContent,
       ctx.context,
       ctx.treeView,
       ctx.updateBadge,
@@ -53,8 +53,8 @@ export function registerAllCommands(ctx: CommandContext): vscode.Disposable[] {
       ctx.currentCustomConfigDirRef,
     ),
     createHardScanCommand(ctx.isSearchingRef),
-    createGoToNextIssueCommand(ctx.searchProvider),
-    createGoToPreviousIssueCommand(ctx.searchProvider),
+    createGoToNextIssueCommand(ctx.panelContent),
+    createGoToPreviousIssueCommand(ctx.panelContent),
     createShowLogsCommand(),
     createRefreshCommand(),
     createManageRulesCommand(ctx.updateStatusBar, ctx.context, ctx.currentCustomConfigDirRef),
@@ -65,12 +65,12 @@ export function registerAllCommands(ctx: CommandContext): vscode.Disposable[] {
       ctx.currentCompareBranchRef,
       ctx.currentCustomConfigDirRef,
       ctx.context,
-      ctx.searchProvider,
+      ctx.panelContent,
     ),
-    createCycleViewModeFileFlatViewCommand(ctx.searchProvider, ctx.context),
-    createCycleViewModeFileTreeViewCommand(ctx.searchProvider, ctx.context),
-    createCycleViewModeRuleFlatViewCommand(ctx.searchProvider, ctx.context),
-    createCycleViewModeRuleTreeViewCommand(ctx.searchProvider, ctx.context),
+    createCycleViewModeFileFlatViewCommand(ctx.panelContent, ctx.context),
+    createCycleViewModeFileTreeViewCommand(ctx.panelContent, ctx.context),
+    createCycleViewModeRuleFlatViewCommand(ctx.panelContent, ctx.context),
+    createCycleViewModeRuleTreeViewCommand(ctx.panelContent, ctx.context),
     createOpenFileCommand(),
     createCopyRuleIssuesCommand(),
     createCopyFileIssuesCommand(),

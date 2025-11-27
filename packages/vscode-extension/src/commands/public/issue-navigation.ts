@@ -1,13 +1,13 @@
 import * as vscode from 'vscode';
 import { Command, ToastKind, openTextDocument, registerCommand, showToastMessage } from '../../common/lib/vscode-utils';
 import { logger } from '../../common/utils/logger';
-import type { SearchResultProvider } from '../../sidebar/search-provider';
+import type { IssuesPanelContent } from '../../issues-panel/panel-content';
 
 let currentIssueIndex = -1;
 
-export function createGoToNextIssueCommand(searchProvider: SearchResultProvider) {
+export function createGoToNextIssueCommand(panelContent: IssuesPanelContent) {
   return registerCommand(Command.GoToNextIssue, async () => {
-    const results = searchProvider.getResults();
+    const results = panelContent.getResults();
 
     if (results.length === 0) {
       showToastMessage(ToastKind.Info, 'No issues found');
@@ -30,9 +30,9 @@ export function createGoToNextIssueCommand(searchProvider: SearchResultProvider)
   });
 }
 
-export function createGoToPreviousIssueCommand(searchProvider: SearchResultProvider) {
+export function createGoToPreviousIssueCommand(panelContent: IssuesPanelContent) {
   return registerCommand(Command.GoToPreviousIssue, async () => {
-    const results = searchProvider.getResults();
+    const results = panelContent.getResults();
 
     if (results.length === 0) {
       showToastMessage(ToastKind.Info, 'No issues found');

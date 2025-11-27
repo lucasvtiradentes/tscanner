@@ -10,7 +10,7 @@ import {
   showToastMessage,
 } from '../common/lib/vscode-utils';
 import { logger } from '../common/utils/logger';
-import type { SearchResultProvider } from '../sidebar/search-provider';
+import type { IssuesPanelContent } from '../issues-panel/panel-content';
 import { getCurrentLocationLabel, openConfigFile, showConfigLocationMenu } from './config-location';
 import { showScanModeMenu } from './scan-mode';
 
@@ -32,7 +32,7 @@ export function createOpenSettingsMenuCommand(
   currentCompareBranchRef: { current: string },
   currentCustomConfigDirRef: { current: string | null },
   context: vscode.ExtensionContext,
-  searchProvider: SearchResultProvider,
+  panelContent: IssuesPanelContent,
 ) {
   return registerCommand(Command.OpenSettingsMenu, async () => {
     logger.info('openSettingsMenu command called');
@@ -99,11 +99,11 @@ export function createOpenSettingsMenuCommand(
         break;
       case SettingsMenuOption.ManageScanMode:
         logger.info('User selected: Manage Scan Mode');
-        await showScanModeMenu(updateStatusBar, currentScanModeRef, currentCompareBranchRef, context, searchProvider);
+        await showScanModeMenu(updateStatusBar, currentScanModeRef, currentCompareBranchRef, context, panelContent);
         break;
       case SettingsMenuOption.ManageConfigLocation:
         logger.info('User selected: Manage Config Location');
-        await showConfigLocationMenu(updateStatusBar, updateBadge, currentCustomConfigDirRef, context, searchProvider);
+        await showConfigLocationMenu(updateStatusBar, updateBadge, currentCustomConfigDirRef, context, panelContent);
         break;
       case SettingsMenuOption.OpenConfigFile:
         logger.info('User selected: Open Config File');

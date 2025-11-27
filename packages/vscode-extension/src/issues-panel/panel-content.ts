@@ -2,15 +2,17 @@ import * as vscode from 'vscode';
 import { GroupMode, ViewMode, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import { type IssueResult, NodeKind } from '../common/types';
 import { logger } from '../common/utils/logger';
-import { buildFolderTree } from './tree-builder';
-import { FileResultItem, FolderResultItem, LineResultItem, RuleGroupItem } from './tree-items';
+import { buildFolderTree } from './utils/tree-builder';
+import { FileResultItem, FolderResultItem, LineResultItem, RuleGroupItem } from './utils/tree-items';
 
-export class SearchResultProvider implements vscode.TreeDataProvider<SearchResultItem> {
+type PanelContentItem = RuleGroupItem | FolderResultItem | FileResultItem | LineResultItem;
+
+export class IssuesPanelContent implements vscode.TreeDataProvider<PanelContentItem> {
   private results: IssueResult[] = [];
   private _viewMode: ViewMode = ViewMode.List;
   private _groupMode: GroupMode = GroupMode.Default;
 
-  private _onDidChangeTreeData = new vscode.EventEmitter<SearchResultItem | undefined>();
+  private _onDidChangeTreeData = new vscode.EventEmitter<PanelContentItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
 
   get viewMode(): ViewMode {
@@ -86,11 +88,11 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
     return folders;
   }
 
-  getTreeItem(element: SearchResultItem): vscode.TreeItem {
+  getTreeItem(element: PanelContentItem): vscode.TreeItem {
     return element;
   }
 
-  getChildren(element?: SearchResultItem): Thenable<SearchResultItem[]> {
+  getChildren(element?: PanelContentItem): Thenable<PanelContentItem[]> {
     if (!element) {
       if (this._groupMode === GroupMode.Rule) {
         const grouped = this.groupByRule();
@@ -117,7 +119,7 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
       const workspaceRoot = getCurrentWorkspaceFolder()?.uri.fsPath || '';
       const tree = buildFolderTree(this.results, workspaceRoot);
 
-      const items: SearchResultItem[] = [];
+      const items: PanelContentItem[] = [];
       for (const [, node] of tree) {
         if (node.type === NodeKind.Folder) {
           items.push(new FolderResultItem(node));
@@ -134,7 +136,7 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
       const workspaceRoot = getCurrentWorkspaceFolder()?.uri.fsPath || '';
       const tree = buildFolderTree(element.results, workspaceRoot);
 
-      const items: SearchResultItem[] = [];
+      const items: PanelContentItem[] = [];
       for (const [, node] of tree) {
         if (node.type === NodeKind.Folder) {
           items.push(new FolderResultItem(node));
@@ -145,7 +147,7 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
       return Promise.resolve(items);
     }
     if (element instanceof FolderResultItem) {
-      const items: SearchResultItem[] = [];
+      const items: PanelContentItem[] = [];
       for (const [, node] of element.node.children) {
         if (node.type === NodeKind.Folder) {
           items.push(new FolderResultItem(node));
@@ -162,5 +164,3 @@ export class SearchResultProvider implements vscode.TreeDataProvider<SearchResul
     return Promise.resolve([]);
   }
 }
-
-type SearchResultItem = RuleGroupItem | FolderResultItem | FileResultItem | LineResultItem;

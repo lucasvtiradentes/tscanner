@@ -1,8 +1,8 @@
 import { basename } from 'node:path';
 import * as vscode from 'vscode';
-import { getCommandId } from '../common/constants';
-import { Command, TreeItemContextValue, type ViewMode } from '../common/lib/vscode-utils';
-import { type FolderNode, type IssueResult, NodeKind } from '../common/types';
+import { getCommandId } from '../../common/constants';
+import { Command, TreeItemContextValue, type ViewMode } from '../../common/lib/vscode-utils';
+import { type FolderNode, type IssueResult, NodeKind } from '../../common/types';
 import { getFolderIssueCount } from './tree-builder';
 
 export class RuleGroupItem extends vscode.TreeItem {

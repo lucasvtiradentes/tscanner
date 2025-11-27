@@ -19,11 +19,11 @@ import {
 import { type IssueResult, hasConfiguredRules } from '../../common/types';
 import { branchExists } from '../../common/utils/git-helper';
 import { logger } from '../../common/utils/logger';
-import type { SearchResultProvider } from '../../sidebar/search-provider';
+import type { IssuesPanelContent } from '../../issues-panel/panel-content';
 import { resetIssueIndex } from './issue-navigation';
 
 export function createScanWorkspaceCommand(
-  searchProvider: SearchResultProvider,
+  panelContent: IssuesPanelContent,
   context: vscode.ExtensionContext,
   treeView: vscode.TreeView<any>,
   updateBadge: () => void,
@@ -55,7 +55,7 @@ export function createScanWorkspaceCommand(
     const hasCustom = customConfigDir ? await hasCustomConfig(workspaceFolder.uri.fsPath, customConfigDir) : false;
 
     if (!hasConfiguredRules(effectiveConfig)) {
-      searchProvider.setResults([]);
+      panelContent.setResults([]);
       updateBadge();
       if (!options?.silent) {
         const action = await showToastMessage(
@@ -121,7 +121,7 @@ export function createScanWorkspaceCommand(
       logger.info(`Search completed in ${elapsed}ms, found ${results.length} results`);
 
       resetIssueIndex();
-      searchProvider.setResults(results);
+      panelContent.setResults(results);
 
       const serializedResults = results.map((r) => {
         const { uri, ...rest } = r;
@@ -133,9 +133,9 @@ export function createScanWorkspaceCommand(
       setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializedResults);
       updateBadge();
 
-      if (searchProvider.viewMode === ViewMode.Tree) {
+      if (panelContent.viewMode === ViewMode.Tree) {
         setTimeout(() => {
-          const folders = searchProvider.getAllFolderItems();
+          const folders = panelContent.getAllFolderItems();
           for (const folder of folders) {
             treeView.reveal(folder, { expand: true, select: false, focus: false });
           }

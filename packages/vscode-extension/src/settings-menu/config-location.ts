@@ -28,7 +28,7 @@ import {
 import { CONFIG_DIR_NAME } from '../common/scripts-constants';
 import { invalidateCache } from '../common/utils/git-helper';
 import { logger } from '../common/utils/logger';
-import type { SearchResultProvider } from '../sidebar/search-provider';
+import type { IssuesPanelContent } from '../issues-panel/panel-content';
 
 export enum ConfigLocation {
   ExtensionStorage = 'extension-storage',
@@ -112,7 +112,7 @@ export async function showConfigLocationMenu(
   updateBadge: () => void,
   currentCustomConfigDirRef: { current: string | null },
   context: vscode.ExtensionContext,
-  searchProvider: SearchResultProvider,
+  panelContent: IssuesPanelContent,
 ) {
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (!workspaceFolder) {
@@ -165,7 +165,7 @@ export async function showConfigLocationMenu(
         workspacePath,
         currentCustomConfigDirRef,
         context,
-        searchProvider,
+        panelContent,
         updateStatusBar,
         updateBadge,
         currentLocation,
@@ -182,7 +182,7 @@ export async function showConfigLocationMenu(
       workspacePath,
       currentCustomConfigDirRef,
       context,
-      searchProvider,
+      panelContent,
       updateStatusBar,
       updateBadge,
       currentLocation,
@@ -198,7 +198,7 @@ export async function showConfigLocationMenu(
       workspacePath,
       currentCustomConfigDirRef,
       context,
-      searchProvider,
+      panelContent,
       updateStatusBar,
       updateBadge,
       currentLocation,
@@ -219,7 +219,7 @@ async function handleCustomPathSelection(
   workspacePath: string,
   currentCustomConfigDirRef: { current: string | null },
   context: vscode.ExtensionContext,
-  searchProvider: SearchResultProvider,
+  panelContent: IssuesPanelContent,
   updateStatusBar: () => Promise<void>,
   updateBadge: () => void,
   currentLocation: ConfigLocation | null,
@@ -240,7 +240,7 @@ async function handleCustomPathSelection(
       workspacePath,
       currentCustomConfigDirRef,
       context,
-      searchProvider,
+      panelContent,
       updateStatusBar,
       updateBadge,
       currentLocation,
@@ -260,7 +260,7 @@ async function moveConfigToLocation(
   workspacePath: string,
   currentCustomConfigDirRef: { current: string | null },
   context: vscode.ExtensionContext,
-  searchProvider: SearchResultProvider,
+  panelContent: IssuesPanelContent,
   updateStatusBar: () => Promise<void>,
   updateBadge: () => void,
   fromLocation: ConfigLocation,
@@ -318,7 +318,7 @@ async function moveConfigToLocation(
       break;
   }
 
-  searchProvider.setResults([]);
+  panelContent.setResults([]);
   updateBadge();
   invalidateCache();
   await updateStatusBar();
