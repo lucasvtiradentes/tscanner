@@ -192,8 +192,20 @@ const EDITOR_DISPLAY_NAMES: Record<Editor, string> = {
 };
 
 function detectCurrentEditor(): Editor {
-  const vscodeEnv = process.env.VSCODE_PID || process.env.TERM_PROGRAM;
-  if (vscodeEnv === 'vscode') return Editor.VSCode;
+  if (process.env.CURSOR_TRACE_ID) return Editor.Cursor;
+
+  const termProgram = process.env.TERM_PROGRAM;
+  if (termProgram === 'cursor') return Editor.Cursor;
+  if (termProgram === 'windsurf') return Editor.Windsurf;
+
+  const vscodeIpc = process.env.VSCODE_IPC_HOOK;
+  if (vscodeIpc) {
+    if (vscodeIpc.includes('cursor')) return Editor.Cursor;
+    if (vscodeIpc.includes('windsurf')) return Editor.Windsurf;
+    if (vscodeIpc.includes('vscodium') || vscodeIpc.includes('codium')) return Editor.VSCodium;
+  }
+
+  if (termProgram === 'vscode') return Editor.VSCode;
 
   const cursorPath = join(homedir(), '.cursor', 'extensions');
   const windsurfPath = join(homedir(), '.windsurf', 'extensions');
