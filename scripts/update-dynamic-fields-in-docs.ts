@@ -11,10 +11,38 @@ type RuleMetadata = {
   category: string;
 };
 
+type VscodeCommand = {
+  command: string;
+  title: string;
+  icon?: string;
+};
+
+type VscodeKeybinding = {
+  command: string;
+  key: string;
+  when?: string;
+};
+
+type CommandPaletteEntry = {
+  command: string;
+  when: string;
+};
+
+type VscodePackageJson = {
+  contributes: {
+    commands: VscodeCommand[];
+    keybindings: VscodeKeybinding[];
+    menus: {
+      commandPalette: CommandPaletteEntry[];
+    };
+  };
+};
+
 const rootDir = path.resolve(__dirname, '..');
 const rulesJson: RuleMetadata[] = getJson(path.join(rootDir, 'assets/rules.json'));
+const vscodePackageJson: VscodePackageJson = getJson(path.join(rootDir, 'packages/vscode-extension/package.json'));
 
-type TFields = 'RULES' | 'DEFAULT_CONFIG';
+type TFields = 'RULES' | 'DEFAULT_CONFIG' | 'COMMANDS';
 
 const readmePaths = {
   root: path.join(rootDir, 'README.md'),
@@ -99,12 +127,55 @@ readmes.cli.updateField('RULES', builtInRulesContent);
 readmes.cli.updateField('DEFAULT_CONFIG', defaultConfigContent);
 readmes.cli.saveFile();
 
+const hiddenCommands = new Set(
+  vscodePackageJson.contributes.menus.commandPalette
+    .filter((entry) => entry.when === 'false')
+    .map((entry) => entry.command),
+);
+
+const keybindingsMap = new Map(vscodePackageJson.contributes.keybindings.map((kb) => [kb.command, kb.key]));
+
+const commandDescriptions: Record<string, string> = {
+  'tscanner.findIssue': 'Run scan (Codebase or Branch mode)',
+  'tscanner.hardScan': 'Clear cache and rescan workspace',
+  'tscanner.goToNextIssue': 'Jump to next issue in the list',
+  'tscanner.goToPreviousIssue': 'Jump to previous issue in the list',
+  'tscanner.showLogs': 'View extension logs file',
+};
+
+const visibleCommands = vscodePackageJson.contributes.commands.filter(
+  (cmd) => !hiddenCommands.has(cmd.command) && cmd.title.startsWith('tscanner:'),
+);
+
+const commandsHeaderContent = [
+  { content: 'Command', width: 300 },
+  { content: 'Description', width: 250 },
+  { content: 'Keybinding', width: 100 },
+] as const satisfies TRowContent;
+
+const commandsTable = new MarkdownTable(commandsHeaderContent);
+
+for (const cmd of visibleCommands) {
+  const keybinding = keybindingsMap.get(cmd.command);
+  const description = commandDescriptions[cmd.command] || '-';
+  commandsTable.addBodyRow([
+    { content: `<code>${cmd.title}</code>`, align: 'left' },
+    { content: description, align: 'left' },
+    { content: keybinding ? `<code>${keybinding}</code>` : '-', align: 'center' },
+  ]);
+}
+
+const commandsContent = `<div align="center">\n\n${commandsTable.getTable()}\n\n</div>`;
+
 readmes.vscode.updateField('RULES', builtInRulesContent);
 readmes.vscode.updateField('DEFAULT_CONFIG', defaultConfigContent);
+readmes.vscode.updateField('COMMANDS', commandsContent);
 readmes.vscode.saveFile();
 
 readmes.githubAction.updateField('RULES', builtInRulesContent);
 readmes.githubAction.updateField('DEFAULT_CONFIG', defaultConfigContent);
 readmes.githubAction.saveFile();
 
-console.log(`✓ Updated all READMEs with ${rulesJson.length} rules and default config`);
+console.log(
+  `✓ Updated all READMEs with ${rulesJson.length} rules, default config, and ${visibleCommands.length} commands`,
+);

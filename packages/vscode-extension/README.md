@@ -81,17 +81,46 @@ Toggle via toolbar icons or commands.
 
 Access via Command Palette (Ctrl/Cmd + Shift + P):
 
+<!-- <DYNFIELD:COMMANDS> -->
+
 <div align="center">
 
-| Command | Description | Keybinding |
-|---------|-------------|------------|
-| `tscanner: Scan Workspace` | Run scan (Codebase or Branch mode) | - |
-| `tscanner: Hard Scan (Clear Cache & Rescan)` | Clear cache and rescan | - |
-| `tscanner: Go to Next Issue` | Jump to next issue | `F8` |
-| `tscanner: Go to Previous Issue` | Jump to previous issue | `Shift+F8` |
-| `tscanner: Show Logs` | View extension logs | - |
+<table>
+  <tr>
+    <th width="300">Command</th>
+    <th width="250">Description</th>
+    <th width="100">Keybinding</th>
+  </tr>
+  <tr>
+    <td align="left"><code>tscanner: Scan Workspace</code></td>
+    <td align="left">Run scan (Codebase or Branch mode)</td>
+    <td align="center">-</td>
+  </tr>
+  <tr>
+    <td align="left"><code>tscanner: Hard Scan (Clear Cache & Rescan)</code></td>
+    <td align="left">Clear cache and rescan workspace</td>
+    <td align="center">-</td>
+  </tr>
+  <tr>
+    <td align="left"><code>tscanner: Go to Next Issue</code></td>
+    <td align="left">Jump to next issue in the list</td>
+    <td align="center"><code>f8</code></td>
+  </tr>
+  <tr>
+    <td align="left"><code>tscanner: Go to Previous Issue</code></td>
+    <td align="left">Jump to previous issue in the list</td>
+    <td align="center"><code>shift+f8</code></td>
+  </tr>
+  <tr>
+    <td align="left"><code>tscanner: Show Logs</code></td>
+    <td align="left">View extension logs file</td>
+    <td align="center">-</td>
+  </tr>
+</table>
 
 </div>
+
+<!-- </DYNFIELD:COMMANDS> -->
 
 ### Other details 
 
