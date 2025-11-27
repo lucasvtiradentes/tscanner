@@ -71,13 +71,13 @@ export function createCopyRuleIssuesCommand() {
     const scanResult = convertToScanResult(item.results);
     const result = await rustClient.formatResults(workspaceRoot, scanResult, 'rule');
 
-    const scanModeText = currentScanMode === ScanMode.Branch ? 'branch mode' : 'workspace mode';
+    const scanModeText = currentScanMode === ScanMode.Branch ? 'branch mode' : 'codebase mode';
     const branch = currentScanMode === ScanMode.Branch ? currentCompareBranch : undefined;
     const cliCommand = branch
       ? `tscanner check --rule "${item.rule}" --branch ${branch}`
       : `tscanner check --rule "${item.rule}"`;
 
-    const header = `tscanner report searching for all the issues of the rule "${item.rule}" in the ${scanModeText}\n\ncli command: ${cliCommand}\nfound issues: ${result.summary.total_issues} issues\n`;
+    const header = `TScanner report searching for all the issues of the rule "${item.rule}" in the ${scanModeText}\n\ncli command: ${cliCommand}\nfound issues: ${result.summary.total_issues} issues\n`;
 
     const summaryText = `\n\nIssues: ${result.summary.total_issues} (${result.summary.error_count} errors, ${result.summary.warning_count} warnings)\nFiles: ${result.summary.file_count}\nRules: ${result.summary.rule_count}`;
 
@@ -111,13 +111,13 @@ export function createCopyFileIssuesCommand() {
     const result = await rustClient.formatResults(workspaceRoot, scanResult, 'file');
 
     const relativePath = vscode.workspace.asRelativePath(item.filePath);
-    const scanModeText = currentScanMode === ScanMode.Branch ? 'branch mode' : 'workspace mode';
+    const scanModeText = currentScanMode === ScanMode.Branch ? 'branch mode' : 'codebase mode';
     const branch = currentScanMode === ScanMode.Branch ? currentCompareBranch : undefined;
     const cliCommand = branch
       ? `tscanner check --file "${relativePath}" --branch ${branch}`
       : `tscanner check --file "${relativePath}"`;
 
-    const header = `tscanner report searching for all the issues in file "${relativePath}" in the ${scanModeText}\n\ncli command: ${cliCommand}\nfound issues: ${result.summary.total_issues} issues\n`;
+    const header = `TScanner report searching for all the issues in file "${relativePath}" in the ${scanModeText}\n\ncli command: ${cliCommand}\nfound issues: ${result.summary.total_issues} issues\n`;
 
     const summaryText = `\n\nIssues: ${result.summary.total_issues} (${result.summary.error_count} errors, ${result.summary.warning_count} warnings)\nFiles: ${result.summary.file_count}\nRules: ${result.summary.rule_count}`;
 
@@ -157,13 +157,13 @@ export function createCopyFolderIssuesCommand() {
     const result = await rustClient.formatResults(workspaceRoot, scanResult, 'file');
 
     const relativeFolderPath = vscode.workspace.asRelativePath(item.node.path);
-    const scanModeText = currentScanMode === ScanMode.Branch ? 'branch mode' : 'workspace mode';
+    const scanModeText = currentScanMode === ScanMode.Branch ? 'branch mode' : 'codebase mode';
     const branch = currentScanMode === ScanMode.Branch ? currentCompareBranch : undefined;
     const cliCommand = branch
       ? `tscanner check --file "${relativeFolderPath}/**/*" --branch ${branch}`
       : `tscanner check --file "${relativeFolderPath}/**/*"`;
 
-    const header = `tscanner report searching for all the issues in folder "${item.node.name}" in the ${scanModeText}\n\ncli command: ${cliCommand}\nfound issues: ${result.summary.total_issues} issues\n`;
+    const header = `TScanner report searching for all the issues in folder "${item.node.name}" in the ${scanModeText}\n\ncli command: ${cliCommand}\nfound issues: ${result.summary.total_issues} issues\n`;
 
     const summaryText = `\n\nIssues: ${result.summary.total_issues} (${result.summary.error_count} errors, ${result.summary.warning_count} warnings)\nFiles: ${result.summary.file_count}\nRules: ${result.summary.rule_count}`;
 
