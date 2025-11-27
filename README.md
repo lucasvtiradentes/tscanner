@@ -436,26 +436,27 @@ jobs:
 
 Create `.tscanner/config.jsonc`:
 
+<!-- <DYNFIELD:DEFAULT_CONFIG> -->
 ```json
 {
-  "schema": "https://unpkg.com/tscanner@0.0.20/schema.json",
+  "$schema": "https://unpkg.com/tscanner@0.0.20/schema.json",
   "builtinRules": {
-    "no-any-type": {
-      "severity": "error"
-    },
-    "no-console-log": {}
+    "no-any-type": {}
   },
-  "customRules": {
-    "no-todos": {
-      "type": "regex",
-      "pattern": "TODO:|FIXME:",
-      "message": "Remove TODO comments"
-    }
-  },
-  "include": ["**/*.{ts,tsx}"],
-  "exclude": ["node_modules/**", "dist/**", "build/**", ".git/**"]
+  "customRules": {},
+  "include": [
+    "**/*.ts",
+    "**/*.tsx"
+  ],
+  "exclude": [
+    "**/node_modules/**",
+    "**/dist/**",
+    "**/build/**",
+    "**/.git/**"
+  ]
 }
 ```
+<!-- </DYNFIELD:DEFAULT_CONFIG> -->
 
 **Inline Disables:**
 
