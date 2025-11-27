@@ -93,10 +93,44 @@ With real-time feedback on violations in the code editor and PR checks before me
 - **39 Built-in Rules** - AST-based TypeScript/TSX validation for type safety, imports, and code quality
 - **Custom Rules** - Regex patterns, JavaScript scripts, or AI-powered validation
 - **Multiple Scanning Modes** - Full codebase or only files changed in your branch
-- **Works Everywhere** - CLI, VS Code extension, and GitHub Action with zero config
+- **Works Everywhere** - CLI, VS Code extension, and GitHub Action
 - **Rust-Powered Speed** - 100-500 files in <1s with parallel processing and smart caching
 
 ## 📋 Rules<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+
+Customize TScanner to validate what matters to your project while maintaining consistency.
+
+<div align="center">
+
+<table>
+  <tr>
+    <th>Type</th>
+    <th>Use Case</th>
+    <th>Example</th>
+  </tr>
+  <tr>
+    <td><b><a href="packages/core/crates/core/src/rules">Built-in</a></b></td>
+    <td>39 ready-to-use AST rules</td>
+    <td><code>no-any-type</code>, <code>prefer-const</code>, <code>no-console-log</code></td>
+  </tr>
+  <tr>
+    <td><b>Regex</b></td>
+    <td>Simple text patterns</td>
+    <td>Match <code>TODO</code> comments, banned imports, naming conventions</td>
+  </tr>
+  <tr>
+    <td><b>Script</b></td>
+    <td>Complex logic via JS</td>
+    <td>Validate file naming, check if tests exist, enforce folder structure</td>
+  </tr>
+  <tr>
+    <td><b>AI</b></td>
+    <td>Semantic validation via prompts</td>
+    <td>Enforce React Hook Form usage, validate API integration patterns with SWR/TanStack</td>
+  </tr>
+</table>
+
+</div>
 
 <!-- <DYNFIELD:RULES> -->
 ### Built-in Rules (39)

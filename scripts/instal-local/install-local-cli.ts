@@ -3,7 +3,7 @@ import { arch, platform } from 'node:os';
 import { join } from 'node:path';
 
 const SCRIPT_DIR = __dirname;
-const ROOT_DIR = join(SCRIPT_DIR, '..');
+const ROOT_DIR = join(SCRIPT_DIR, '..', '..');
 const CLI_DIR = join(ROOT_DIR, 'packages', 'cli');
 const CORE_DIR = join(ROOT_DIR, 'packages', 'core');
 

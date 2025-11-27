@@ -2,7 +2,7 @@ import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'n
 import { join } from 'node:path';
 
 const SCRIPT_DIR = __dirname;
-const ROOT_DIR = join(SCRIPT_DIR, '..');
+const ROOT_DIR = join(SCRIPT_DIR, '..', '..');
 const CLI_DIR = join(ROOT_DIR, 'packages', 'cli');
 const CLI_MANIFEST_PATH = join(CLI_DIR, 'package.json');
 

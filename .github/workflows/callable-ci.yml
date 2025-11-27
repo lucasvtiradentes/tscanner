@@ -56,7 +56,7 @@ jobs:
 
       - name: Check if version was bumped
         id: check
-        run: bash scripts/check-version-bump.sh
+        run: bash scripts/release/check-version-bump.sh
 
   lint:
     if: inputs.run_lint

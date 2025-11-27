@@ -58,7 +58,7 @@ runs:
 
     - name: Create release tag
       shell: bash
-      run: bash scripts/create-release-tag.sh "vscode-extension" "${{ steps.version.outputs.current }}"
+      run: bash scripts/release/create-release-tag.sh "vscode-extension" "${{ steps.version.outputs.current }}"
 
     - name: Summary
       shell: bash

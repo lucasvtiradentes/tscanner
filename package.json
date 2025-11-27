@@ -8,7 +8,7 @@
     "start": "node ./packages/cli/dist/main.js",
     "dev": "tsx ./packages/cli/src/main.ts",
     "build": "turbo run build",
-    "postbuild": "tsx scripts/update-dynamic-fields-in-docs.ts && tsx scripts/install-local-cli.ts && tsx scripts/install-local-vscode.ts",
+    "postbuild": "tsx scripts/update-docs/update-dynamic-fields-in-docs.ts && tsx scripts/instal-local/install-local-cli.ts && tsx scripts/instal-local/install-local-vscode.ts",
     "lint": "turbo run lint",
     "lint:fix": "turbo run lint:fix",
     "format": "turbo run format",

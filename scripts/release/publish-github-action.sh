@@ -129,7 +129,7 @@ main() {
 
     log "Creating release tag..."
     cd $GITHUB_WORKSPACE
-    bash scripts/create-release-tag.sh "github-action" "$CURRENT_VERSION"
+    bash scripts/release/create-release-tag.sh "github-action" "$CURRENT_VERSION"
   else
     print_debug_info
   fi

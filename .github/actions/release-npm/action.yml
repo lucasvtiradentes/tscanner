@@ -67,11 +67,11 @@ runs:
       shell: bash
       run: |
         echo "📦 Generating scoped @tscanner packages..."
-        pnpm tsx scripts/generate-cli-packages.ts
+        pnpm tsx scripts/release/generate-cli-packages.ts
         echo "✅ Scoped packages generated"
 
     - name: Publish NPM packages
       shell: bash
-      run: bash scripts/publish-npm-package.sh
+      run: bash scripts/release/publish-npm-package.sh
       env:
         NPM_TOKEN: ${{ inputs.npm-token }}

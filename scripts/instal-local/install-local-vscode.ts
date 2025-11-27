@@ -15,7 +15,7 @@ import {
   EXTENSION_ID_DEV,
   PLATFORM_TARGET_MAP,
   getBinaryName,
-} from '../packages/vscode-extension/src/common/constants';
+} from '../../packages/vscode-extension/src/common/constants';
 import {
   CONTEXT_PREFIX,
   DEV_SUFFIX,
@@ -24,12 +24,12 @@ import {
   addDevLabel,
   addDevSuffix,
   buildLogFilename,
-} from '../packages/vscode-extension/src/common/scripts-constants';
+} from '../../packages/vscode-extension/src/common/scripts-constants';
 
 const logger = console;
 
 const SCRIPT_DIR = __dirname;
-const ROOT_DIR = join(SCRIPT_DIR, '..');
+const ROOT_DIR = join(SCRIPT_DIR, '..', '..');
 const EXTENSION_DIR = join(ROOT_DIR, 'packages', 'vscode-extension');
 const CORE_DIR = join(ROOT_DIR, 'packages', 'core');
 

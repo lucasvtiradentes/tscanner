@@ -38,7 +38,7 @@ type VscodePackageJson = {
   };
 };
 
-const rootDir = path.resolve(__dirname, '..');
+const rootDir = path.resolve(__dirname, '..', '..');
 const rulesJson: RuleMetadata[] = getJson(path.join(rootDir, 'assets/rules.json'));
 const vscodePackageJson: VscodePackageJson = getJson(path.join(rootDir, 'packages/vscode-extension/package.json'));
 

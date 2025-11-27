@@ -11,6 +11,6 @@ runs:
   steps:
     - name: Publish GitHub Action
       shell: bash
-      run: bash scripts/publish-github-action.sh
+      run: bash scripts/release/publish-github-action.sh
       env:
         GH_PAT_SYNC_TSCANNER_GH_ACTION: ${{ inputs.gh-pat }}

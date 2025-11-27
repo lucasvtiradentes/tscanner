@@ -22,7 +22,7 @@ VERSION=$(node -p "require('./$CLI_PKG').version")
 log "npm packages published!"
 
 log "Creating release tag..."
-bash scripts/create-release-tag.sh "npm-package" "$VERSION"
+bash scripts/release/create-release-tag.sh "npm-package" "$VERSION"
 
 log "CLI publish process completed!"
 log "============================================"
