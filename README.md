@@ -107,7 +107,7 @@ With real-time feedback on violations in the code editor and PR checks before me
     <th>Download</th>
   </tr>
   <tr>
-    <td><b><a href="packages/vscode-extension">VSCode Extension</a></b></td>
+    <td><b><a href="packages/vscode-extension#readme">VSCode Extension</a></b></td>
     <td>Real-time sidebar integration with Git-aware branch scanning</td>
     <td>
       <div align="center">
@@ -117,7 +117,7 @@ With real-time feedback on violations in the code editor and PR checks before me
     </td>
   </tr>
   <tr>
-    <td><b><a href="packages/cli">CLI</a></b></td>
+    <td><b><a href="packages/cli#readme">CLI</a></b></td>
     <td>Terminal scanning, CI/CD integration, pre-commit hooks</td>
     <td>
       <div align="center">
@@ -126,7 +126,7 @@ With real-time feedback on violations in the code editor and PR checks before me
     </td>
   </tr>
   <tr>
-    <td><b><a href="packages/github-action">GitHub Action</a></b></td>
+    <td><b><a href="packages/github-action#readme">GitHub Action</a></b></td>
     <td>CICD integration with analysis summary attached to PR comments</td>
     <td>
       <div align="center">
@@ -530,13 +530,11 @@ Soon!
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
 ## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-To create TScanner configuration, you can use the following command:
+To scan your code, you need to set up the rules in the TScanner config folder. Here's how to get started:
 
-```bash
-tscanner init
-```
-
-or go the `Status Bar` and click on `Manage Rules`, select the rules you want to enable and click on the `Save` button.
+1. **VSCode Extension**: Click on TScanner icon in the status bar → `Manage Rules` → Select desired rules → `Save`
+2. **CLI**: Run `tscanner init` in your project root
+3. **Manual**: Copy the default config below to `.tscanner/config.json`
 
 The default configuration is:
 
