@@ -100,6 +100,7 @@ With real-time feedback on violations in the code editor and PR checks before me
 
 ## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
+<!-- <DYNFIELD:WAYS_TO_USE_TSCANNER> -->
 <div align="center">
 
 <table>
@@ -139,6 +140,7 @@ With real-time feedback on violations in the code editor and PR checks before me
 </table>
 
 </div>
+<!-- </DYNFIELD:WAYS_TO_USE_TSCANNER> -->
 
 
 <!-- <DYNFIELD:QUICK_START_VSCODE_EXTENSION> -->

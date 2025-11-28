@@ -24,6 +24,46 @@ Real-time TypeScript code quality scanner with sidebar integration and Git-aware
 </div>
 <!-- </DYNFIELD:VSCODE_EXTENSION_DEMO_IMAGE> -->
 
+<br />
+
+<div align="center">
+
+<!-- <DYNFIELD:WAYS_TO_USE_TSCANNER> -->
+<details>
+<summary>Other ways to use TScanner</summary>
+<br />
+
+<table>
+  <tr>
+    <th>Package</th>
+    <th>Description</th>
+    <th>Download</th>
+  </tr>
+  <tr>
+    <td><b><a href="https://github.com/lucasvtiradentes/tscanner/tree/main/packages/cli#readme">CLI</a></b></td>
+    <td>Terminal scanning, CI/CD integration, pre-commit hooks</td>
+    <td>
+      <div align="center">
+        <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/v/tscanner?label=npm&logo=npm&logoColor=white&labelColor=CB3837&color=374151" alt="npm"></a>
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td><b><a href="https://github.com/lucasvtiradentes/tscanner/tree/main/packages/github-action#readme">GitHub Action</a></b></td>
+    <td>CICD integration with analysis summary attached to PR comments</td>
+    <td>
+      <div align="center">
+        <a href="https://github.com/marketplace/actions/tscanner-action"><img src="https://img.shields.io/badge/Marketplace-black.svg?logo=github&logoColor=white&labelColor=181717&color=374151" alt="GitHub Marketplace"></a>
+      </div>
+    </td>
+  </tr>
+</table>
+
+</details>
+<!-- </DYNFIELD:WAYS_TO_USE_TSCANNER> -->
+
+</div>
+
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 - **Real-time Scanning** - Issues appear instantly as you type
