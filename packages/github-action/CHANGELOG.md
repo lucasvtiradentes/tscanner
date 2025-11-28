@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.18
+
+### Patch Changes
+
+- b38ad09: update docs
+
 ## 0.0.17
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @tscanner/cli-linux-arm64
 
+## 0.0.21
+
+### Patch Changes
+
+- b38ad09: update docs
+
 ## 0.0.20
 
 ### Patch Changes
