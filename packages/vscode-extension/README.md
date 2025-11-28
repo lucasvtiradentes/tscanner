@@ -317,7 +317,7 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 </div>
 <!-- </DYNFIELD:COMMANDS> -->
 
-### Other details 
+### Other Details 
 
 <div align="center">
 

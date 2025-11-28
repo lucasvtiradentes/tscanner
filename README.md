@@ -36,7 +36,7 @@ Define what "good code" means for your project. TScanner enforces your patterns 
 <div align="center">
   <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
   <br>
-  <em>scanning codebase via CLI</em>
+  <em>scanning the codebase via CLI</em>
 </div>
 <!-- </DYNFIELD:CLI_DEMO_IMAGE> -->
 

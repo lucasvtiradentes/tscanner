@@ -17,19 +17,13 @@ export function updateImages() {
   const cliDemoImageContent = `<div align="center">
   <img src="${baseImageUrl}/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
   <br>
-  <em>scanning codebase via CLI</em>
+  <em>scanning the codebase via CLI</em>
 </div>`;
 
   const githubActionDemoImageContent = `<div align="center">
   <img width="80%" src="${baseImageUrl}/tscanner-pr-comment-issues-found.png" alt="GitHub Action PR Comment">
   <br>
   <em>issues detected in the latest commit pushed to a PR</em>
-</div>`;
-
-  const cliImageContent = `<div align="center">
-  <img src="${baseImageUrl}/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
-  <br>
-  <em>scanning codebase via CLI</em>
 </div>`;
 
   const rootReadme = new DynMarkdown<TFields>(path.join(rootDir, 'README.md'));
@@ -39,7 +33,7 @@ export function updateImages() {
   rootReadme.saveFile();
 
   const cliReadme = new DynMarkdown<TFields>(path.join(rootDir, 'packages/cli/README.md'));
-  cliReadme.updateField('CLI_DEMO_IMAGE', cliImageContent);
+  cliReadme.updateField('CLI_DEMO_IMAGE', cliDemoImageContent);
   cliReadme.saveFile();
 
   const vscodeReadme = new DynMarkdown<TFields>(path.join(rootDir, 'packages/vscode-extension/README.md'));

@@ -20,7 +20,7 @@ Scan your codebase from the terminal. Run before commits, in CI pipelines, or as
 <div align="center">
   <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
   <br>
-  <em>scanning codebase via CLI</em>
+  <em>scanning the codebase via CLI</em>
 </div>
 <!-- </DYNFIELD:CLI_DEMO_IMAGE> -->
 
@@ -294,7 +294,7 @@ const data: any = fetchData();
 <details>
 <summary><b>CI/CD Pipeline</b></summary>
 
-It is recommended to use [TScanner gh action](https://github.com/lucasvtiradentes/tscanner/tree/main/packages/github-action), but you can also set up your own workflow:
+It is recommended to use [TScanner GitHub action](https://github.com/lucasvtiradentes/tscanner/tree/main/packages/github-action), but you can also set up your own workflow:
 
 ```yaml
 name: Code Quality
