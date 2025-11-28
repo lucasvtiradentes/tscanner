@@ -48,7 +48,7 @@ export function updateRules() {
 
     const categoryName = categoryMap[cat] || cat;
 
-    builtInRulesTableContent += `#### ${categoryName} (${rules.length})\n\n`;
+    builtInRulesTableContent += `<div align="left">\n\n#### ${categoryName} (${rules.length})\n\n</div>\n\n`;
 
     const headerContent = [
       { content: 'Rule', width: 250 },
@@ -80,11 +80,9 @@ export function updateRules() {
   const builtInRulesContent = `<details>
 <summary>Built-in rules (${rulesJson.length})</summary>
 <br />
-<div align="left">
 
 ${builtInRulesTableContent.trim()}
 
-</div>
 </details>`;
 
   const rulesIntroTable = `## 📋 Rules<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>

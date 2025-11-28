@@ -471,9 +471,12 @@ Customize TScanner to validate what matters to your project while maintaining co
 <details>
 <summary>Built-in rules (39)</summary>
 <br />
+
 <div align="left">
 
 #### Type Safety (6)
+
+</div>
 
 <table>
   <tr>
@@ -506,7 +509,11 @@ Customize TScanner to validate what matters to your project while maintaining co
   </tr>
 </table>
 
+<div align="left">
+
 #### Code Quality (14)
+
+</div>
 
 <table>
   <tr>
@@ -571,7 +578,11 @@ Customize TScanner to validate what matters to your project while maintaining co
   </tr>
 </table>
 
+<div align="left">
+
 #### Bug Prevention (4)
+
+</div>
 
 <table>
   <tr>
@@ -596,7 +607,11 @@ Customize TScanner to validate what matters to your project while maintaining co
   </tr>
 </table>
 
+<div align="left">
+
 #### Variables (3)
+
+</div>
 
 <table>
   <tr>
@@ -617,7 +632,11 @@ Customize TScanner to validate what matters to your project while maintaining co
   </tr>
 </table>
 
+<div align="left">
+
 #### Imports (8)
+
+</div>
 
 <table>
   <tr>
@@ -658,7 +677,11 @@ Customize TScanner to validate what matters to your project while maintaining co
   </tr>
 </table>
 
+<div align="left">
+
 #### Style (4)
+
+</div>
 
 <table>
   <tr>
@@ -683,7 +706,6 @@ Customize TScanner to validate what matters to your project while maintaining co
   </tr>
 </table>
 
-</div>
 </details>
 
 <details>
