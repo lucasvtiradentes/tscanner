@@ -13,7 +13,7 @@
 
 ## 🎺 Overview<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-Define what "good code" means for your project. TScanner enforces your patterns in real-time in the editor, blocks violations in PRs, and runs in CI. 39 ready-to-use rules + custom rules via regex, scripts, or AI.
+Define what "good code" means for your project. TScanner enforces your patterns in real-time in the code editor, blocks violations in PRs, and runs in CI. 39 ready-to-use rules + custom rules via regex, scripts, or AI.
 
 <!-- <DYNFIELD:VSCODE_EXTENSION_DEMO_IMAGE> -->
 <div align="center">
@@ -79,20 +79,22 @@ Define what "good code" means for your project. TScanner enforces your patterns 
 
 </div>
 
+<!-- <DYNFIELD:FEATURES> -->
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 - **Your Rules, Enforced** - 39 built-in checks + define your own with regex, scripts, or AI
-- **See Issues Instantly** - Real-time feedback in VS Code as you type
+- **See Issues Instantly** - Real-time feedback in code editor as you type, no manual scan needed
 - **Focus on What Matters** - Scan your branch changes only, or audit the full codebase
 - **Catch Before Merge** - PR comments show violations with clickable links to exact lines
 - **Sub-second Scans** - Rust engine processes hundreds of files in <1s
+<!-- </DYNFIELD:FEATURES> -->
 
 <!-- <DYNFIELD:MOTIVATION> -->
 ## ❓ Motivation<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-AI generates code fast. But it doesn't know your project's conventions, preferred patterns, or forbidden shortcuts. You end up reviewing the same issues over and over.
+AI generates code fast, but it doesn't know your project's conventions, preferred patterns, or forbidden shortcuts. You end up reviewing the same issues over and over.
 
-TScanner lets you define those rules once. Every AI-generated file, every PR, every save - automatically checked against your standards. Stop repeating yourself in code reviews.
+TScanner lets you define those rules once. Every AI-generated file, every PR, every save: automatically checked against your standards. Stop repeating yourself in code reviews.
 <!-- </DYNFIELD:MOTIVATION> -->
 
 ## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>

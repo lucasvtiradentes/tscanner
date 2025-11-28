@@ -7,6 +7,7 @@ import { updateInspirations } from './update-inspirations';
 import { updateContributing } from './update-contributing';
 import { updateWaysToUseTscanner } from './update-ways-to-use-tscanner';
 import { updateMotivation } from './update-motivation';
+import { updateFeaturesSection } from './update-features-section';
 
 type UpdateFn = { name: string; fn: () => void };
 
@@ -20,6 +21,7 @@ const updates: UpdateFn[] = [
   { name: 'contributing', fn: updateContributing },
   { name: 'ways-to-use-tscanner', fn: updateWaysToUseTscanner },
   { name: 'motivation', fn: updateMotivation },
+  { name: 'features-section', fn: updateFeaturesSection },
 ];
 
 const errors: { name: string; error: string }[] = [];
