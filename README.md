@@ -4,7 +4,7 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-rules">Rules</a> • <a href="#-configuration">Configuration</a> • <a href="#-architecture">Architecture</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-rules">Rules</a><br /><a href="#-configuration">Configuration</a> • <a href="#-architecture">Architecture</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
 </div>
 
 <div width="100%" align="center">
@@ -100,52 +100,11 @@ With real-time feedback on violations in the code editor and PR checks before me
 
 ## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-<!-- <DYNFIELD:WAYS_TO_USE_TSCANNER> -->
-<table>
-  <tr>
-    <th>Package</th>
-    <th>Description</th>
-  </tr>
-  <tr>
-    <td>
-      <div align="center">
-        <b><a href="packages/vscode-extension#readme">VSCode Extension</a></b>
-        <br />
-        <br />
-        <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/badge/VS%20Code-Extension-blue.svg" alt="VS Marketplace"></a><br /><a href="https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode"><img src="https://img.shields.io/open-vsx/v/lucasvtiradentes/tscanner-vscode?label=Open%20VSX&logo=data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSI0LjYgNSA5Ni4yIDEyMi43IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwYXRoIGQ9Ik0zMCA0NC4yTDUyLjYgNUg3LjN6TTQuNiA4OC41aDQ1LjNMMjcuMiA0OS40em01MSAwbDIyLjYgMzkuMiAyMi42LTM5LjJ6IiBmaWxsPSIjYzE2MGVmIi8+CiAgPHBhdGggZD0iTTUyLjYgNUwzMCA0NC4yaDQ1LjJ6TTI3LjIgNDkuNGwyMi43IDM5LjEgMjIuNi0zOS4xem01MSAwTDU1LjYgODguNWg0NS4yeiIgZmlsbD0iI2E2MGVlNSIvPgo8L3N2Zz4=&labelColor=a60ee5&color=374151" alt="Open VSX"></a>
-      </div>
-    </td>
-    <td>Real-time sidebar integration with Git-aware branch scanning</td>
-  </tr>
-  <tr>
-    <td>
-      <div align="center">
-        <b><a href="packages/cli#readme">CLI</a></b>
-        <br />
-        <br />
-        <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/v/tscanner?label=npm&logo=npm&logoColor=white&labelColor=CB3837&color=374151" alt="npm"></a>
-      </div>
-    </td>
-    <td>Terminal scanning, CI/CD integration, pre-commit hooks</td>
-  </tr>
-  <tr>
-    <td>
-      <div align="center">
-        <b><a href="packages/github-action#readme">GitHub Action</a></b>
-        <br />
-        <br />
-        <a href="https://github.com/marketplace/actions/tscanner-action"><img src="https://img.shields.io/badge/Marketplace-black.svg?logo=github&logoColor=white&labelColor=181717&color=374151" alt="GitHub Marketplace"></a>
-      </div>
-    </td>
-    <td>CICD integration with analysis summary attached to PR comments</td>
-  </tr>
-</table>
-<!-- </DYNFIELD:WAYS_TO_USE_TSCANNER> -->
+TScanner is available as a [VSCode Extension](packages/vscode-extension#readme), [CLI](packages/cli#readme), and [GitHub Action](packages/github-action#readme).
 
-
-<!-- <DYNFIELD:QUICK_START_VSCODE_EXTENSION> -->
 ### [VSCode Extension](packages/vscode-extension#readme)
 
+<!-- <DYNFIELD:QUICK_START_VSCODE_EXTENSION> -->
 1. Install the extension:
 
 <div align="center">
@@ -173,9 +132,9 @@ With real-time feedback on violations in the code editor and PR checks before me
 5. Click any issue to jump to its location
 <!-- </DYNFIELD:QUICK_START_VSCODE_EXTENSION> -->
 
-<!-- <DYNFIELD:QUICK_START_CLI> -->
-### [CLI](packages/cli#readme)
+### [CLI](packages/cli#readme) <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/v/tscanner?label=npm&logo=npm&logoColor=white&labelColor=CB3837&color=374151" alt="npm"></a>
 
+<!-- <DYNFIELD:QUICK_START_CLI> -->
 1. Install globally
 
 ```bash
@@ -199,7 +158,7 @@ tscanner check --branch origin/main
 ```
 <!-- </DYNFIELD:QUICK_START_CLI> -->
 
-### [GitHub Action](packages/github-action#readme)
+### [GitHub Action](packages/github-action#readme) <a href="https://github.com/marketplace/actions/tscanner-action"><img src="https://img.shields.io/badge/Marketplace-black.svg?logo=github&logoColor=white&labelColor=181717&color=374151" alt="GitHub Marketplace"></a>
 
 <!-- <DYNFIELD:QUICK_START_GITHUB_ACTION> -->
 1. Create `.github/workflows/tscanner.yml`:

@@ -83,7 +83,6 @@ ${rows}
   };
 
   const readmeConfigs: TReadmeConfig[] = [
-    { path: 'README.md', useFullGithubLink: false, hiddenPackages: [], wrapInDetails: false },
     { path: 'packages/cli/README.md', useFullGithubLink: true, hiddenPackages: ['cli'], wrapInDetails: true },
     {
       path: 'packages/github-action/README.md',
