@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import { getCommandId } from '../common/constants';
+import { getCommandId, getStatusBarName } from '../common/constants';
 import { loadEffectiveConfig } from '../common/lib/config-manager';
 import { Command, ScanMode, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import { hasConfiguredRules } from '../common/types';
@@ -43,9 +43,10 @@ export class StatusBarManager {
     logger.info(`Status bar text updated to: "${finalText}"`);
 
     this.statusBarItem.text = finalText;
+    const displayName = getStatusBarName();
     this.statusBarItem.tooltip = hasConfig
-      ? `TScanner - Click to change settings${customConfigDir ? `\nConfig: ${customConfigDir}` : ''}`
-      : 'TScanner - No rules configured. Click to set up.';
+      ? `${displayName} - Click to change settings${customConfigDir ? `\nConfig: ${customConfigDir}` : ''}`
+      : `${displayName} - No rules configured. Click to set up.`;
 
     this.statusBarItem.show();
   }
