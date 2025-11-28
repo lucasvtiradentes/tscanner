@@ -173,7 +173,6 @@ ${customRulesContent}
 
   const readmePaths = [
     path.join(rootDir, 'README.md'),
-    path.join(rootDir, 'packages/core/README.md'),
     path.join(rootDir, 'packages/cli/README.md'),
     path.join(rootDir, 'packages/vscode-extension/README.md'),
     path.join(rootDir, 'packages/github-action/README.md'),

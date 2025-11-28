@@ -19,7 +19,6 @@ TScanner lets you define those rules once. Every AI-generated file, every PR, ev
     { path: 'packages/cli/README.md' },
     { path: 'packages/github-action/README.md' },
     { path: 'packages/vscode-extension/README.md' },
-    { path: 'packages/core/README.md' },
   ];
 
   readmeConfigs.forEach(({ path: filePath }) => {

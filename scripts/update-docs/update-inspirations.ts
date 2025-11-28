@@ -18,7 +18,6 @@ export function updateInspirations() {
     { path: 'packages/cli/README.md' },
     { path: 'packages/github-action/README.md' },
     { path: 'packages/vscode-extension/README.md' },
-    { path: 'packages/core/README.md' },
   ];
 
   readmeConfigs.forEach(({ path: filePath }) => {

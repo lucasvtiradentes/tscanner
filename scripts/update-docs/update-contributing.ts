@@ -30,7 +30,6 @@ pnpm run build
     { path: 'packages/cli/README.md', useAbsoluteLink: true },
     { path: 'packages/github-action/README.md', useAbsoluteLink: true },
     { path: 'packages/vscode-extension/README.md', useAbsoluteLink: true },
-    { path: 'packages/core/README.md', useAbsoluteLink: true },
   ];
 
   readmeConfigs.forEach(({ path: filePath, useAbsoluteLink }) => {
