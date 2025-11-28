@@ -57,5 +57,7 @@ mod prefer_optional_chain;
 mod prefer_type_over_interface;
 mod regex_rule;
 
-pub use metadata::{get_all_rule_metadata, RuleCategory, RuleMetadata, RuleMetadataRegistration};
+pub use metadata::{
+    get_all_rule_metadata, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType,
+};
 pub use regex_rule::RegexRule;

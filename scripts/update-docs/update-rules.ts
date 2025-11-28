@@ -2,13 +2,13 @@ import path from 'node:path';
 import { DynMarkdown, MarkdownTable, type TRowContent, getJson } from 'markdown-helper';
 
 type RuleMetadata = {
-  name: string;
   displayName: string;
   description: string;
   ruleType: 'ast' | 'regex';
   defaultSeverity: 'error' | 'warning';
   defaultEnabled: boolean;
   category: string;
+  sourcePath?: string;
 };
 
 type TFields = 'RULES';
@@ -59,8 +59,17 @@ export function updateRules() {
 
     for (const rule of rules) {
       const description = rule.description.replace(/`([^`]+)`/g, '<code>$1</code>');
+      const ruleName = rule.displayName
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
+
+      const ruleCell = rule.sourcePath
+        ? `<a href="https://github.com/lucasvtiradentes/tscanner/blob/main/${rule.sourcePath}"><code>${ruleName}</code></a>`
+        : `<code>${ruleName}</code>`;
+
       table.addBodyRow([
-        { content: `<code>${rule.name}</code>`, align: 'left' },
+        { content: ruleCell, align: 'left' },
         { content: description, align: 'left' },
       ]);
     }
