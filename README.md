@@ -199,11 +199,11 @@ tscanner check --branch origin/main
 
 ### [GitHub Action](packages/github-action#readme)
 
-Add this file to `.github/workflows/check-pr.yaml`
+<!-- <DYNFIELD:QUICK_START_GITHUB_ACTION> -->
+1. Create `.github/workflows/tscanner.yml`:
 
 ```yaml
 name: Code Quality
-description: This will check every PR branch against the origin/main following the rules in `.tscanner/config.jsonc`
 
 on:
   pull_request:
@@ -217,8 +217,11 @@ jobs:
       - uses: lucasvtiradentes/tscanner-action@v0.0.17
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          target-branch: 'origin/main'  # Optional: scan only changed files
 ```
+
+2. Add TScanner config to your repo (run `tscanner init` or create `.tscanner/config.jsonc`)
+3. Open a PR and watch the magic happen!
+<!-- </DYNFIELD:QUICK_START_GITHUB_ACTION> -->
 
 
 <!-- <DYNFIELD:RULES> -->

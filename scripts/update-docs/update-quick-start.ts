@@ -1,7 +1,7 @@
 import path from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
 
-type TFields = 'QUICK_START_CLI' | 'QUICK_START_VSCODE_EXTENSION';
+type TFields = 'QUICK_START_CLI' | 'QUICK_START_VSCODE_EXTENSION' | 'QUICK_START_GITHUB_ACTION';
 
 const rootDir = path.resolve(__dirname, '..', '..');
 
@@ -108,9 +108,34 @@ const quickStartVscodeExtensionReadme = `## 🚀 Quick Start<a href="#TOC"><img 
 3. Go to Settings Menu → "Manage Rules" → enable desired rules -> click "Save"
 4. Issues appear automatically in the sidebar (if any)`;
 
+const quickStartGithubActionYaml = `\`\`\`yaml
+name: Code Quality
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  tscanner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lucasvtiradentes/tscanner-action@v0.0.17
+        with:
+          github-token: \${{ secrets.GITHUB_TOKEN }}
+\`\`\``;
+
+const quickStartGithubAction = `1. Create \`.github/workflows/tscanner.yml\`:
+
+${quickStartGithubActionYaml}
+
+2. Add TScanner config to your repo (run \`tscanner init\` or create \`.tscanner/config.jsonc\`)
+3. Open a PR and watch the magic happen!`;
+
 const mainReadme = new DynMarkdown<TFields>(path.join(rootDir, 'README.md'));
 mainReadme.updateField('QUICK_START_VSCODE_EXTENSION', quickStartVscodeExtension);
 mainReadme.updateField('QUICK_START_CLI', quickStartContentMain);
+mainReadme.updateField('QUICK_START_GITHUB_ACTION', quickStartGithubAction);
 mainReadme.saveFile();
 
 const cliReadme = new DynMarkdown<TFields>(path.join(rootDir, 'packages/cli/README.md'));
@@ -121,4 +146,8 @@ const vscodeReadme = new DynMarkdown<TFields>(path.join(rootDir, 'packages/vscod
 vscodeReadme.updateField('QUICK_START_VSCODE_EXTENSION', quickStartVscodeExtensionReadme);
 vscodeReadme.saveFile();
 
-console.log('✓ Updated QUICK_START_CLI and QUICK_START_VSCODE_EXTENSION');
+const githubActionReadme = new DynMarkdown<TFields>(path.join(rootDir, 'packages/github-action/README.md'));
+githubActionReadme.updateField('QUICK_START_GITHUB_ACTION', quickStartGithubAction);
+githubActionReadme.saveFile();
+
+console.log('✓ Updated QUICK_START sections');

@@ -4,7 +4,7 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner - GitHub Action</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-usage">Usage</a> • <a href="#-inputs">Inputs</a> • <a href="#-configuration">Configuration</a> • <a href="#-rules">Rules</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-usage">Usage</a> • <a href="#-configuration">Configuration</a> • <a href="#-rules">Rules</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
 </div>
 
 <div width="100%" align="center">
@@ -60,11 +60,10 @@ With real-time feedback on violations in the code editor and PR checks before me
 2. High-quality code that follows your standards
 <!-- </DYNFIELD:MOTIVATION> -->
 
-## 📖 Usage<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-### Quick Start
-
-**Scan full codebase:**
+<!-- <DYNFIELD:QUICK_START_GITHUB_ACTION> -->
+1. Create `.github/workflows/tscanner.yml`:
 
 ```yaml
 name: Code Quality
@@ -83,7 +82,35 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-**Scan only changed files (recommended for PRs):**
+2. Add TScanner config to your repo (run `tscanner init` or create `.tscanner/config.jsonc`)
+3. Open a PR and watch the magic happen!
+<!-- </DYNFIELD:QUICK_START_GITHUB_ACTION> -->
+
+## 📖 Usage<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+
+### Scan Modes
+
+<div align="center">
+<table>
+  <tr>
+    <th>Full Codebase</th>
+    <th>Changed Files Only (Recommended)</th>
+  </tr>
+  <tr>
+    <td>Scan all files in the repository</td>
+    <td>Scan only files changed in the PR</td>
+  </tr>
+  <tr>
+    <td>
+
+```yaml
+- uses: lucasvtiradentes/tscanner-action@v0.0.17
+  with:
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+</td>
+    <td>
 
 ```yaml
 - uses: lucasvtiradentes/tscanner-action@v0.0.17
@@ -92,7 +119,24 @@ jobs:
     target-branch: 'origin/main'
 ```
 
-### Additional examples
+</td>
+  </tr>
+</table>
+</div>
+
+### Inputs
+
+| Input | Required | Default | Description |
+|-------|----------|---------|-------------|
+| `github-token` | Yes | - | GitHub token for posting PR comments (`${{ secrets.GITHUB_TOKEN }}`) |
+| `target-branch` | - | - | Target branch to compare (enables branch mode). Example: `origin/main` |
+| `config-path` | - | `.tscanner` | Path to tscanner config directory containing `config.jsonc` |
+| `tscanner-version` | - | `latest` | NPM version of tscanner CLI to install |
+| `group-by` | - | `file` | Primary grouping mode: `file` or `rule` |
+| `continue-on-error` | - | `false` | Continue workflow even if errors found (`true`/`false`) |
+| `timezone` | - | `UTC` | Timezone for timestamps in PR comments. Example: `America/New_York` |
+
+### Examples
 
 <details>
 <summary><b>Continue on Errors</b></summary>
@@ -168,18 +212,6 @@ All options:
 ```
 
 </details>
-
-## 📋 Inputs<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
-
-| Input | Required | Default | Description |
-|-------|----------|---------|-------------|
-| `github-token` | Yes | - | GitHub token for posting PR comments (`${{ secrets.GITHUB_TOKEN }}`) |
-| `target-branch` | - | - | Target branch to compare (enables branch mode). Example: `origin/main` |
-| `config-path` | - | `.tscanner` | Path to tscanner config directory containing `config.jsonc` |
-| `tscanner-version` | - | `latest` | NPM version of tscanner CLI to install |
-| `group-by` | - | `file` | Primary grouping mode: `file` or `rule` |
-| `continue-on-error` | - | `false` | Continue workflow even if errors found (`true`/`false`) |
-| `timezone` | - | `UTC` | Timezone for timestamps in PR comments. Example: `America/New_York` |
 
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
 ## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
