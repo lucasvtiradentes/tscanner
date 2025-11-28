@@ -23,7 +23,7 @@ export function updateImages() {
   const githubActionDemoImageContent = `<div align="center">
   <img width="80%" src="${baseImageUrl}/tscanner-pr-comment-issues-found.png" alt="GitHub Action PR Comment">
   <br>
-  <em>issues detected in the latest push in a PR</em>
+  <em>issues detected in the latest commit pushed to a PR</em>
 </div>`;
 
   const cliImageContent = `<div align="center">
@@ -45,6 +45,10 @@ export function updateImages() {
   const vscodeReadme = new DynMarkdown<TFields>(path.join(rootDir, 'packages/vscode-extension/README.md'));
   vscodeReadme.updateField('VSCODE_EXTENSION_DEMO_IMAGE', vscodeExtensionDemoImageContent);
   vscodeReadme.saveFile();
+
+  const gihubReadme = new DynMarkdown<TFields>(path.join(rootDir, 'packages/github-action/README.md'));
+  gihubReadme.updateField('GITHUB_ACTION_DEMO_IMAGE', githubActionDemoImageContent);
+  gihubReadme.saveFile();
 
   console.log('✓ Updated IMAGES in 3 files (root, cli, vscode)');
 }

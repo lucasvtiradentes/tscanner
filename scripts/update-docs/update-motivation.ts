@@ -9,12 +9,9 @@ export function updateMotivation() {
   const getMotivationContent = () => {
     return `## ❓ Motivation<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-AI-assisted code is great for fast iteration, but working code is just one requirement. It also needs to follow project patterns, be type-safe, and avoid code smells.
+AI generates code fast. But it doesn't know your project's conventions, preferred patterns, or forbidden shortcuts. You end up reviewing the same issues over and over.
 
-With real-time feedback on violations in the code editor and PR checks before merging, you get the best of both worlds:
-
-1. Fast iteration
-2. High-quality code that follows your standards`;
+TScanner lets you define those rules once. Every AI-generated file, every PR, every save - automatically checked against your standards. Stop repeating yourself in code reviews.`;
   };
 
   const readmeConfigs = [
