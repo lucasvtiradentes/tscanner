@@ -4,7 +4,7 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-rules">Rules</a><br /><a href="#-configuration">Configuration</a> • <a href="#-architecture">Architecture</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-rules">Rules</a><br /><a href="#-configuration">Configuration</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
 </div>
 
 <div width="100%" align="center">
@@ -534,27 +534,6 @@ const data: any = fetchData();
 // Entire file is skipped
 ```
 <!-- </DYNFIELD:COMMON_SECTION_CONFIG> -->
-
-## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
-
-```
-CLI/VSCode/GitHub Action (TypeScript)
-            ↓
-   JSON-RPC Protocol (GZIP compressed)
-            ↓
-    tscanner-core (Rust)
-    ├─ Scanner (Rayon parallel processing)
-    ├─ Parser (SWC AST)
-    ├─ Rule Registry (23+ built-in + custom)
-    ├─ Cache (DashMap memory + disk persistence)
-    ├─ File Watcher (notify)
-    └─ Config (.tscanner/config.jsonc)
-```
-
-**Communication:**
-- Line-delimited JSON-RPC over stdin/stdout
-- GZIP compression for large result sets (>10KB)
-- Real-time file watching for incremental updates
 
 <!-- <DYNFIELD:INSPIRATIONS> -->
 ## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>

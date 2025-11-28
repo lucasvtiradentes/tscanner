@@ -5,7 +5,7 @@
   <div><strong>TScanner - CLI</strong></div>
   <br />
   <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-usage">Usage</a> • <a href="#-configuration">Configuration</a><br />
-  <a href="#-use-cases">Use Cases</a> • <a href="#-rules">Rules</a> • <a href="#-architecture">Architecture</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
+  <a href="#-use-cases">Use Cases</a> • <a href="#-rules">Rules</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
 </div>
 
 <div width="100%" align="center">
@@ -695,22 +695,6 @@ Soon!
 
 </div>
 <!-- </DYNFIELD:RULES> -->
-
-## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
-
-```
-CLI (Node.js)              Rust Binary
-├─ Platform detector  →    ├─ Scanner
-├─ Binary resolver         ├─ Parser (SWC)
-├─ Process spawner    ←→   ├─ Rules (39)
-└─ Args forwarder          ├─ Cache (DashMap)
-                           └─ Config loader
-```
-
-**Architecture:**
-- Node.js wrapper detects platform (Linux/macOS/Windows, x64/arm64)
-- Spawns platform-specific Rust binary with stdio inheritance
-- Binary packaged separately per platform via optional dependencies
 
 <!-- <DYNFIELD:INSPIRATIONS> -->
 ## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>

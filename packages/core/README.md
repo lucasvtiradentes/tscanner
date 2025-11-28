@@ -4,7 +4,7 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner - Core Engine</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-architecture">Architecture</a> • <a href="#-configuration">Configuration</a> • <a href="#-rules">Rules</a> • <a href="#-json-rpc-protocol">JSON-RPC Protocol</a> • <a href="#-performance">Performance</a> • <a href="#-development">Development</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-configuration">Configuration</a> • <a href="#-rules">Rules</a> • <a href="#-json-rpc-protocol">JSON-RPC Protocol</a> • <a href="#-performance">Performance</a> • <a href="#-development">Development</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
 </div>
 
 <div width="100%" align="center">
@@ -40,84 +40,6 @@ With real-time feedback on violations in the code editor and PR checks before me
 1. Fast iteration
 2. High-quality code that follows your standards
 <!-- </DYNFIELD:MOTIVATION> -->
-
-## 🏗️ Architecture<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
-
-### Workspace Structure
-
-Rust workspace with 3 crates:
-
-```
-packages/core/
-├── crates/core/        Core library (Scanner, Parser, Rules, Cache)
-├── crates/server/      JSON-RPC server binary
-└── crates/cli/         CLI binary
-```
-
-<details>
-<summary><b>Core Modules</b></summary>
-
-**Scanner (`scanner.rs`)**
-- Parallel file processing via Rayon
-- Cache integration with automatic invalidation
-- Glob pattern matching for file filtering
-- Git-aware scanning (branch mode support)
-
-**Parser (`parser.rs`)**
-- SWC-based TypeScript/TSX AST parsing
-- Source map generation for error reporting
-- Syntax error recovery and reporting
-
-**Rule Registry (`registry.rs`)**
-- Inventory auto-registration at compile time
-- Dynamic rule loading from configuration
-- Per-file rule filtering based on glob patterns
-- Severity level management (error/warning)
-
-**Cache (`cache.rs`)**
-- DashMap concurrent memory cache
-- Disk persistence to `~/.cache/tscanner/`
-- Mtime + config-hash validation
-- Atomic cache updates during scans
-
-**Config (`config.rs`)**
-- `.tscanner/config.jsonc` loader
-- Built-in and custom rule configuration
-- Glob pattern compilation with globset
-- Config hash generation for cache invalidation
-
-**File Watcher (`watcher.rs`)**
-- Real-time file change detection
-- Debounced event handling
-- Integration with scanner for incremental updates
-
-**Formatter (`formatter.rs`)**
-- Multiple output formats (JSON, pretty, standard)
-- Grouping by file or rule
-- Relative path conversion
-- Color-coded severity levels
-
-</details>
-
-<details>
-<summary><b>Communication Flow</b></summary>
-
-```
-Extension/CLI          JSON-RPC Protocol       Core Engine
-     │                        │                      │
-     ├─────── scan() ────────>│                      │
-     │                        ├────── Scanner ──────>│
-     │                        │                      ├─ Load Config
-     │                        │                      ├─ Check Cache
-     │                        │                      ├─ Parse Files (SWC)
-     │                        │                      ├─ Run Rules (Rayon)
-     │                        │                      └─ Update Cache
-     │                        │<──── ScanResult ─────┤
-     │<──── GZIP:{base64} ────┤                      │
-     │                        │                      │
-```
-
-</details>
 
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
 ## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
