@@ -14,7 +14,7 @@
 
 ## 🎺 Overview<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-Terminal interface for [TScanner](https://github.com/lucasvtiradentes/tscanner): catch code quality issues with built-in rules or define project-specific patterns using regex, scripts, or AI validation. Integrates seamlessly with CI/CD, git hooks, and development workflows.
+Scan your codebase from the terminal. Run before commits, in CI pipelines, or as part of your build. Get JSON output for tooling or pretty output for humans. Same rules as the VS Code extension.
 
 <!-- <DYNFIELD:CLI_DEMO_IMAGE> -->
 <div align="center">
@@ -69,22 +69,17 @@ Terminal interface for [TScanner](https://github.com/lucasvtiradentes/tscanner):
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-- **Blazing Fast** - 100-500 files in <1s with Rust parallel processing
-- **Smart Caching** - Skip unchanged files, 80-95% cache hit rate
-- **Git-Aware Scanning** - Full codebase or only changed files vs branch
-- **39 Built-in Rules** - Type safety, imports, and code quality validation
-- **Custom Rules** - Regex patterns, scripts, or AI-powered validation
-- **Zero Config** - Works out of the box, JSON/pretty output formats
+- **Your Rules, Enforced** - 39 built-in checks + define your own with regex, scripts, or AI
+- **Sub-second Scans** - Rust engine processes hundreds of files in <1s, with smart caching
+- **Focus on What Matters** - Scan your branch changes only, or audit the full codebase
+- **CI-Ready** - JSON output for automation, exit codes for pipelines
 
 <!-- <DYNFIELD:MOTIVATION> -->
 ## ❓ Motivation<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-AI-assisted code is great for fast iteration, but working code is just one requirement. It also needs to follow project patterns, be type-safe, and avoid code smells.
+AI generates code fast. But it doesn't know your project's conventions, preferred patterns, or forbidden shortcuts. You end up reviewing the same issues over and over.
 
-With real-time feedback on violations in the code editor and PR checks before merging, you get the best of both worlds:
-
-1. Fast iteration
-2. High-quality code that follows your standards
+TScanner lets you define those rules once. Every AI-generated file, every PR, every save - automatically checked against your standards. Stop repeating yourself in code reviews.
 <!-- </DYNFIELD:MOTIVATION> -->
 
 ## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
