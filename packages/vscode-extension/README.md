@@ -66,12 +66,32 @@ Real-time TypeScript code quality scanner with sidebar integration and Git-aware
 
 ### Scan Modes
 
-Switch between scanning strategies:
+You have two scanning options, switchable via status bar click:
 
-- **Codebase**: Analyze all files in the codebase
-- **Branch**: Scan only files changed compared to target branch (git diff)
-
-Change via Settings Menu or status bar click.
+<div align="center">
+<table>
+  <tr>
+    <th>Codebase</th>
+    <th>Branch</th>
+  </tr>
+  <tr>
+    <td>
+      <div align="center">
+        <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-scan-codebase.png" alt="Codebase mode">
+      </div>
+    </td>
+    <td>
+      <div align="center">
+        <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-scan-branch.png" alt="Branch mode">
+      </div>
+    </td>
+  </tr>
+  <tr>
+    <td>Analyze all files in the codebase</td>
+    <td>Scan only modified files in current branch <br />compared to target branch</td>
+  </tr>
+</table>
+</div>
 
 ### View Modes
 
