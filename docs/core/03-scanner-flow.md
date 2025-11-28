@@ -1,0 +1,157 @@
+# Scanner Pipeline and Data Flow
+
+## Scanner Structure
+
+The `Scanner` struct orchestrates the entire analysis pipeline:
+
+```rust
+pub struct Scanner {
+    registry: RuleRegistry,
+    config: TscannerConfig,
+    cache: FileCache,
+}
+```
+
+**Initialization:**
+- `Scanner::new(config)` - Creates scanner with empty cache
+- `Scanner::with_cache(config, cache)` - Creates scanner with pre-loaded cache
+
+## Scan Flow
+
+### 1. File Discovery
+
+Uses `WalkBuilder` with gitignore support:
+
+```
+WalkBuilder::new(root)
+  ├─ Filter by extension (.ts, .tsx, .js, .jsx)
+  ├─ Skip node_modules, .git, dist
+  └─ Optional: Filter by changed files (branch mode)
+```
+
+### 2. Parallel Processing
+
+```
+files.par_iter().flat_map(|path| {
+  ├─ Check cache (mtime + config_hash)
+  ├─ If cache hit: return cached issues
+  └─ If cache miss: analyze_file()
+})
+```
+
+### 3. File Analysis
+
+```rust
+analyze_file(path):
+  1. Read file content
+  2. Parse DisableDirectives
+     - // tscanner-disable-file
+     - // tscanner-disable-line rule-name
+     - // tscanner-disable-next-line rule-name
+  3. Parse with SWC (parse_file)
+  4. Get enabled rules for file (registry.get_enabled_rules)
+  5. Run each rule's check() method
+  6. Filter issues by disable directives
+  7. Cache results (path, mtime, config_hash, issues)
+```
+
+### 4. Post-processing
+
+Branch mode filtering:
+```
+For each issue:
+  ├─ Get modified line ranges from git diff
+  └─ Keep only issues on modified lines
+```
+
+## Scan Methods
+
+### Full Workspace Scan
+```rust
+scan(&self, root: &Path, file_filter: Option<Vec<PathBuf>>) -> Vec<Issue>
+```
+- Walks directory tree
+- Applies gitignore rules
+- Parallelizes with Rayon
+- Uses cache
+
+### Single File Scan
+```rust
+scan_single(&self, path: &Path) -> Vec<Issue>
+```
+- Invalidates cache entry first
+- Analyzes single file
+- Updates cache
+
+### Content Scan
+```rust
+scan_content(&self, path: &Path, content: &str) -> Vec<Issue>
+```
+- In-memory analysis
+- No cache interaction
+- Used for unsaved changes
+
+## Branch Mode Integration
+
+### Changed Files Detection
+```bash
+git diff --name-only target_branch
+```
+
+Returns list of modified file paths.
+
+### Modified Line Ranges
+```bash
+git diff -U0 target_branch -- file.ts
+```
+
+Parse hunk headers:
+```
+@@ -10,3 +10,5 @@
+   ↓      ↓
+  old    new (start, count)
+```
+
+Extract modified line ranges from new side.
+
+### Issue Filtering
+```rust
+For each issue:
+  if issue.line in modified_ranges:
+    keep
+  else:
+    discard
+```
+
+## Disable Directives
+
+### File-level
+```typescript
+// tscanner-disable-file
+```
+Skips all rules for entire file.
+
+### Line-level
+```typescript
+const x: any = 1; // tscanner-disable-line no-any-type
+```
+Disables specific rule for current line.
+
+### Next-line
+```typescript
+// tscanner-disable-next-line no-any-type
+const x: any = 1;
+```
+Disables specific rule for next line.
+
+## Performance Optimizations
+
+1. **Parallel Processing** - Rayon par_iter for multi-core utilization
+2. **Cache Hits** - Skip parsing/analysis for unchanged files
+3. **Early Exit** - File-level disable directive skips entire analysis
+4. **Gitignore** - WalkBuilder filters out ignored files upfront
+
+## Related Documentation
+
+- [Caching](04-caching.md) - Cache invalidation and persistence
+- [Rule System](02-rule-system.md) - How rules are registered and executed
