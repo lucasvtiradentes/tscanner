@@ -4,7 +4,7 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-motivation">Motivation</a> • <a href="#-features">Features</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-rules">Rules</a> • <a href="#-configuration">Configuration</a> • <a href="#-architecture">Architecture</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-rules">Rules</a> • <a href="#-configuration">Configuration</a> • <a href="#-architecture">Architecture</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
 </div>
 
 <div width="100%" align="center">
@@ -79,15 +79,6 @@ High-performance TypeScript code quality scanner. 39 built-in rules plus custom 
 
 </div>
 
-## ❓ Motivation<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
-
-AI-assisted code is great for fast iteration, but working code is just one requirement. It also needs to follow project patterns, be type-safe, and avoid code smells.
-
-With real-time feedback on violations in the code editor and PR checks before merging, you get the best of both worlds:
-
-1. Fast iteration
-2. High-quality code that follows your standards 
-
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 - **39 Built-in Rules** - AST-based TypeScript/TSX validation for type safety, imports, and code quality
@@ -95,6 +86,17 @@ With real-time feedback on violations in the code editor and PR checks before me
 - **Multiple Scanning Modes** - Full codebase or only files changed in your branch
 - **Works Everywhere** - CLI, VS Code extension, and GitHub Action
 - **Rust-Powered Speed** - 100-500 files in <1s with parallel processing and smart caching
+
+<!-- <DYNFIELD:MOTIVATION> -->
+## ❓ Motivation<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+
+AI-assisted code is great for fast iteration, but working code is just one requirement. It also needs to follow project patterns, be type-safe, and avoid code smells.
+
+With real-time feedback on violations in the code editor and PR checks before merging, you get the best of both worlds:
+
+1. Fast iteration
+2. High-quality code that follows your standards
+<!-- </DYNFIELD:MOTIVATION> -->
 
 ## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
