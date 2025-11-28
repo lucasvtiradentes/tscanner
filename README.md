@@ -174,7 +174,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: lucasvtiradentes/tscanner-action@v0.0.18
+      - uses: lucasvtiradentes/tscanner-action@v0.0.17
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -551,9 +551,12 @@ Contributions are welcome! See [CONTRIBUTING.md](CONTRIBUTING.md) for setup inst
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
+<!-- <DYNFIELD:FOOTER> -->
 <div width="100%" align="center">
-  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/divider.png" />
+  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/lino@main/.github/image/divider.png" />
 </div>
+
+<br />
 
 <div align="center">
   <div>
@@ -563,3 +566,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
     <a target="_blank" href="https://github.com/lucasvtiradentes"><img src="https://img.shields.io/badge/-github-gray?logo=Github&logoColor=white" alt="Github"></a>
   </div>
 </div>
+<!-- </DYNFIELD:FOOTER> -->
