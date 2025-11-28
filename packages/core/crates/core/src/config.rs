@@ -304,12 +304,25 @@ impl TscannerConfig {
     pub fn compute_hash(&self) -> u64 {
         let mut hasher = DefaultHasher::new();
 
+        for pattern in &self.include {
+            pattern.hash(&mut hasher);
+        }
+        for pattern in &self.exclude {
+            pattern.hash(&mut hasher);
+        }
+
         let sorted_builtin: BTreeMap<_, _> = self.builtin_rules.iter().collect();
         for (name, config) in sorted_builtin {
             name.hash(&mut hasher);
             config.enabled.hash(&mut hasher);
             if let Some(sev) = &config.severity {
                 format!("{:?}", sev).hash(&mut hasher);
+            }
+            for pattern in &config.include {
+                pattern.hash(&mut hasher);
+            }
+            for pattern in &config.exclude {
+                pattern.hash(&mut hasher);
             }
         }
 
@@ -318,6 +331,12 @@ impl TscannerConfig {
             name.hash(&mut hasher);
             config.enabled.hash(&mut hasher);
             if let Some(pattern) = &config.pattern {
+                pattern.hash(&mut hasher);
+            }
+            for pattern in &config.include {
+                pattern.hash(&mut hasher);
+            }
+            for pattern in &config.exclude {
                 pattern.hash(&mut hasher);
             }
         }
@@ -346,6 +365,11 @@ fn compile_globs(
     } else {
         rule_patterns
     };
+
+    crate::log_debug(&format!(
+        "compile_globs: rule_patterns={:?}, global_patterns={:?}, using={:?}",
+        rule_patterns, global_patterns, patterns
+    ));
 
     for pattern in patterns {
         let glob = Glob::new(pattern)?;
