@@ -1,8 +1,8 @@
 use std::env;
 
 pub const APP_NAME: &str = "tscanner";
-pub const APP_DISPLAY_NAME: &str = "T Scanner";
-pub const APP_DESCRIPTION: &str = "High-performance TypeScript/TSX code quality scanner";
+pub const APP_DISPLAY_NAME: &str = "TScanner";
+pub const APP_DESCRIPTION: &str = "Code quality scanner for the AI-generated code era";
 
 pub const CONFIG_DIR_NAME: &str = ".tscanner";
 pub const CONFIG_FILE_NAME: &str = "config.jsonc";
