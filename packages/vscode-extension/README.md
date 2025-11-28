@@ -37,25 +37,28 @@ Real-time TypeScript code quality scanner with sidebar integration and Git-aware
   <tr>
     <th>Package</th>
     <th>Description</th>
-    <th>Download</th>
   </tr>
   <tr>
-    <td><b><a href="https://github.com/lucasvtiradentes/tscanner/tree/main/packages/cli#readme">CLI</a></b></td>
-    <td>Terminal scanning, CI/CD integration, pre-commit hooks</td>
     <td>
       <div align="center">
+        <b><a href="https://github.com/lucasvtiradentes/tscanner/tree/main/packages/cli#readme">CLI</a></b>
+        <br />
+        <br />
         <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/v/tscanner?label=npm&logo=npm&logoColor=white&labelColor=CB3837&color=374151" alt="npm"></a>
       </div>
     </td>
+    <td>Terminal scanning, CI/CD integration, pre-commit hooks</td>
   </tr>
   <tr>
-    <td><b><a href="https://github.com/lucasvtiradentes/tscanner/tree/main/packages/github-action#readme">GitHub Action</a></b></td>
-    <td>CICD integration with analysis summary attached to PR comments</td>
     <td>
       <div align="center">
+        <b><a href="https://github.com/lucasvtiradentes/tscanner/tree/main/packages/github-action#readme">GitHub Action</a></b>
+        <br />
+        <br />
         <a href="https://github.com/marketplace/actions/tscanner-action"><img src="https://img.shields.io/badge/Marketplace-black.svg?logo=github&logoColor=white&labelColor=181717&color=374151" alt="GitHub Marketplace"></a>
       </div>
     </td>
+    <td>CICD integration with analysis summary attached to PR comments</td>
   </tr>
 </table>
 
@@ -747,10 +750,12 @@ Extension (TypeScript)        Rust Server
 
 **Communication:** Line-delimited JSON-RPC over stdin/stdout with GZIP compression for large result sets.
 
+<!-- <DYNFIELD:INSPIRATIONS> -->
 ## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 - [Biome](https://github.com/biomejs/biome) - High-performance Rust-based linter and formatter for web projects
 - [VSCode Bookmarks](https://github.com/alefragnani/vscode-bookmarks) - Bookmarks Extension for Visual Studio Code
+<!-- </DYNFIELD:INSPIRATIONS> -->
 
 <!-- <DYNFIELD:CONTRIBUTING> -->
 ## 🤝 Contributing<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>

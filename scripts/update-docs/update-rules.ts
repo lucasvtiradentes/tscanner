@@ -14,59 +14,61 @@ type RuleMetadata = {
 type TFields = 'RULES';
 
 const rootDir = path.resolve(__dirname, '..', '..');
-const rulesJson: RuleMetadata[] = getJson(path.join(rootDir, 'assets/rules.json'));
 
-const categoryMap: Record<string, string> = {
-  typesafety: 'Type Safety',
-  codequality: 'Code Quality',
-  style: 'Style',
-  performance: 'Performance',
-  bugprevention: 'Bug Prevention',
-  variables: 'Variables',
-  imports: 'Imports',
-};
+export function updateRules() {
+  const rulesJson: RuleMetadata[] = getJson(path.join(rootDir, 'assets/rules.json'));
 
-const rulesByCategory = rulesJson.reduce(
-  (acc, rule) => {
-    const cat = rule.category;
-    if (!acc[cat]) acc[cat] = [];
-    acc[cat].push(rule);
-    return acc;
-  },
-  {} as Record<string, RuleMetadata[]>,
-);
+  const categoryMap: Record<string, string> = {
+    typesafety: 'Type Safety',
+    codequality: 'Code Quality',
+    style: 'Style',
+    performance: 'Performance',
+    bugprevention: 'Bug Prevention',
+    variables: 'Variables',
+    imports: 'Imports',
+  };
 
-const categoryOrder = ['typesafety', 'codequality', 'bugprevention', 'variables', 'imports', 'style', 'performance'];
+  const rulesByCategory = rulesJson.reduce(
+    (acc, rule) => {
+      const cat = rule.category;
+      if (!acc[cat]) acc[cat] = [];
+      acc[cat].push(rule);
+      return acc;
+    },
+    {} as Record<string, RuleMetadata[]>,
+  );
 
-let builtInRulesTableContent = '';
+  const categoryOrder = ['typesafety', 'codequality', 'bugprevention', 'variables', 'imports', 'style', 'performance'];
 
-for (const cat of categoryOrder) {
-  const rules = rulesByCategory[cat];
-  if (!rules || rules.length === 0) continue;
+  let builtInRulesTableContent = '';
 
-  const categoryName = categoryMap[cat] || cat;
+  for (const cat of categoryOrder) {
+    const rules = rulesByCategory[cat];
+    if (!rules || rules.length === 0) continue;
 
-  builtInRulesTableContent += `#### ${categoryName} (${rules.length})\n\n`;
+    const categoryName = categoryMap[cat] || cat;
 
-  const headerContent = [
-    { content: 'Rule', width: 250 },
-    { content: 'Description', width: 500 },
-  ] as const satisfies TRowContent;
+    builtInRulesTableContent += `#### ${categoryName} (${rules.length})\n\n`;
 
-  const table = new MarkdownTable(headerContent);
+    const headerContent = [
+      { content: 'Rule', width: 250 },
+      { content: 'Description', width: 500 },
+    ] as const satisfies TRowContent;
 
-  for (const rule of rules) {
-    const description = rule.description.replace(/`([^`]+)`/g, '<code>$1</code>');
-    table.addBodyRow([
-      { content: `<code>${rule.name}</code>`, align: 'left' },
-      { content: description, align: 'left' },
-    ]);
+    const table = new MarkdownTable(headerContent);
+
+    for (const rule of rules) {
+      const description = rule.description.replace(/`([^`]+)`/g, '<code>$1</code>');
+      table.addBodyRow([
+        { content: `<code>${rule.name}</code>`, align: 'left' },
+        { content: description, align: 'left' },
+      ]);
+    }
+
+    builtInRulesTableContent += `${table.getTable()}\n\n`;
   }
 
-  builtInRulesTableContent += `${table.getTable()}\n\n`;
-}
-
-const builtInRulesContent = `<details>
+  const builtInRulesContent = `<details>
 <summary>Built-in rules (${rulesJson.length})</summary>
 <br />
 <div align="left">
@@ -76,7 +78,7 @@ ${builtInRulesTableContent.trim()}
 </div>
 </details>`;
 
-const rulesIntroTable = `## 📋 Rules<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+  const rulesIntroTable = `## 📋 Rules<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 Customize TScanner to validate what matters to your project while maintaining consistency.
 
@@ -114,7 +116,7 @@ Customize TScanner to validate what matters to your project while maintaining co
 
 `;
 
-const customRulesContent = `<details>
+  const customRulesContent = `<details>
 <summary>Regex rules examples</summary>
 <br />
 <div align="left">
@@ -161,7 +163,7 @@ Soon!
 </div>
 </details>`;
 
-const fullRulesContent = `${rulesIntroTable}<div align="center">
+  const fullRulesContent = `${rulesIntroTable}<div align="center">
 
 ${builtInRulesContent}
 
@@ -169,18 +171,19 @@ ${customRulesContent}
 
 </div>`;
 
-const readmePaths = [
-  path.join(rootDir, 'README.md'),
-  path.join(rootDir, 'packages/core/README.md'),
-  path.join(rootDir, 'packages/cli/README.md'),
-  path.join(rootDir, 'packages/vscode-extension/README.md'),
-  path.join(rootDir, 'packages/github-action/README.md'),
-];
+  const readmePaths = [
+    path.join(rootDir, 'README.md'),
+    path.join(rootDir, 'packages/core/README.md'),
+    path.join(rootDir, 'packages/cli/README.md'),
+    path.join(rootDir, 'packages/vscode-extension/README.md'),
+    path.join(rootDir, 'packages/github-action/README.md'),
+  ];
 
-for (const filePath of readmePaths) {
-  const readme = new DynMarkdown<TFields>(filePath);
-  readme.updateField('RULES', fullRulesContent);
-  readme.saveFile();
+  for (const filePath of readmePaths) {
+    const readme = new DynMarkdown<TFields>(filePath);
+    readme.updateField('RULES', fullRulesContent);
+    readme.saveFile();
+  }
+
+  console.log(`✓ Updated RULES in ${readmePaths.length} files (${rulesJson.length} rules)`);
 }
-
-console.log(`✓ Updated RULES in ${readmePaths.length} files (${rulesJson.length} rules)`);

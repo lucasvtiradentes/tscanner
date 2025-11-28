@@ -31,39 +31,42 @@ type VscodePackageJson = {
 type TFields = 'COMMANDS';
 
 const rootDir = path.resolve(__dirname, '..', '..');
-const vscodePackageJson: VscodePackageJson = getJson(path.join(rootDir, 'packages/vscode-extension/package.json'));
 
-const hiddenCommands = new Set(
-  vscodePackageJson.contributes.menus.commandPalette
-    .filter((entry) => entry.when === 'false')
-    .map((entry) => entry.command),
-);
+export function updateCommands() {
+  const vscodePackageJson: VscodePackageJson = getJson(path.join(rootDir, 'packages/vscode-extension/package.json'));
 
-const keybindingsMap = new Map(vscodePackageJson.contributes.keybindings.map((kb) => [kb.command, kb.key]));
+  const hiddenCommands = new Set(
+    vscodePackageJson.contributes.menus.commandPalette
+      .filter((entry) => entry.when === 'false')
+      .map((entry) => entry.command),
+  );
 
-const visibleCommands = vscodePackageJson.contributes.commands.filter(
-  (cmd) => !hiddenCommands.has(cmd.command) && cmd.title.startsWith('tscanner:'),
-);
+  const keybindingsMap = new Map(vscodePackageJson.contributes.keybindings.map((kb) => [kb.command, kb.key]));
 
-const commandsHeaderContent = [
-  { content: 'Command', width: 400 },
-  { content: 'Keybinding', width: 100 },
-] as const satisfies TRowContent;
+  const visibleCommands = vscodePackageJson.contributes.commands.filter(
+    (cmd) => !hiddenCommands.has(cmd.command) && cmd.title.startsWith('tscanner:'),
+  );
 
-const commandsTable = new MarkdownTable(commandsHeaderContent);
+  const commandsHeaderContent = [
+    { content: 'Command', width: 400 },
+    { content: 'Keybinding', width: 100 },
+  ] as const satisfies TRowContent;
 
-for (const cmd of visibleCommands) {
-  const keybinding = keybindingsMap.get(cmd.command);
-  commandsTable.addBodyRow([
-    { content: `<code>${cmd.title}</code>`, align: 'left' },
-    { content: keybinding ? `<code>${keybinding}</code>` : '-', align: 'center' },
-  ]);
+  const commandsTable = new MarkdownTable(commandsHeaderContent);
+
+  for (const cmd of visibleCommands) {
+    const keybinding = keybindingsMap.get(cmd.command);
+    commandsTable.addBodyRow([
+      { content: `<code>${cmd.title}</code>`, align: 'left' },
+      { content: keybinding ? `<code>${keybinding}</code>` : '-', align: 'center' },
+    ]);
+  }
+
+  const commandsContent = `<div align="center">\n\n${commandsTable.getTable()}\n\n</div>`;
+
+  const vscodeReadme = new DynMarkdown<TFields>(path.join(rootDir, 'packages/vscode-extension/README.md'));
+  vscodeReadme.updateField('COMMANDS', commandsContent);
+  vscodeReadme.saveFile();
+
+  console.log(`✓ Updated COMMANDS in vscode readme (${visibleCommands.length} commands)`);
 }
-
-const commandsContent = `<div align="center">\n\n${commandsTable.getTable()}\n\n</div>`;
-
-const vscodeReadme = new DynMarkdown<TFields>(path.join(rootDir, 'packages/vscode-extension/README.md'));
-vscodeReadme.updateField('COMMANDS', commandsContent);
-vscodeReadme.saveFile();
-
-console.log(`✓ Updated COMMANDS in vscode readme (${visibleCommands.length} commands)`);

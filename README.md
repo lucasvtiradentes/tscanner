@@ -101,45 +101,45 @@ With real-time feedback on violations in the code editor and PR checks before me
 ## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 <!-- <DYNFIELD:WAYS_TO_USE_TSCANNER> -->
-<div align="center">
-
 <table>
   <tr>
     <th>Package</th>
     <th>Description</th>
-    <th>Download</th>
   </tr>
   <tr>
-    <td><b><a href="packages/vscode-extension#readme">VSCode Extension</a></b></td>
-    <td>Real-time sidebar integration with Git-aware branch scanning</td>
     <td>
       <div align="center">
-        <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/badge/VS%20Code-Extension-blue.svg" alt="VS Marketplace"></a>
-        <a href="https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode"><img src="https://img.shields.io/open-vsx/v/lucasvtiradentes/tscanner-vscode?label=Open%20VSX&logo=data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSI0LjYgNSA5Ni4yIDEyMi43IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwYXRoIGQ9Ik0zMCA0NC4yTDUyLjYgNUg3LjN6TTQuNiA4OC41aDQ1LjNMMjcuMiA0OS40em01MSAwbDIyLjYgMzkuMiAyMi42LTM5LjJ6IiBmaWxsPSIjYzE2MGVmIi8+CiAgPHBhdGggZD0iTTUyLjYgNUwzMCA0NC4yaDQ1LjJ6TTI3LjIgNDkuNGwyMi43IDM5LjEgMjIuNi0zOS4xem01MSAwTDU1LjYgODguNWg0NS4yeiIgZmlsbD0iI2E2MGVlNSIvPgo8L3N2Zz4=&labelColor=a60ee5&color=374151" alt="Open VSX"></a>
+        <b><a href="packages/vscode-extension#readme">VSCode Extension</a></b>
+        <br />
+        <br />
+        <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/badge/VS%20Code-Extension-blue.svg" alt="VS Marketplace"></a><br /><a href="https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode"><img src="https://img.shields.io/open-vsx/v/lucasvtiradentes/tscanner-vscode?label=Open%20VSX&logo=data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSI0LjYgNSA5Ni4yIDEyMi43IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwYXRoIGQ9Ik0zMCA0NC4yTDUyLjYgNUg3LjN6TTQuNiA4OC41aDQ1LjNMMjcuMiA0OS40em01MSAwbDIyLjYgMzkuMiAyMi42LTM5LjJ6IiBmaWxsPSIjYzE2MGVmIi8+CiAgPHBhdGggZD0iTTUyLjYgNUwzMCA0NC4yaDQ1LjJ6TTI3LjIgNDkuNGwyMi43IDM5LjEgMjIuNi0zOS4xem01MSAwTDU1LjYgODguNWg0NS4yeiIgZmlsbD0iI2E2MGVlNSIvPgo8L3N2Zz4=&labelColor=a60ee5&color=374151" alt="Open VSX"></a>
       </div>
     </td>
+    <td>Real-time sidebar integration with Git-aware branch scanning</td>
   </tr>
   <tr>
-    <td><b><a href="packages/cli#readme">CLI</a></b></td>
-    <td>Terminal scanning, CI/CD integration, pre-commit hooks</td>
     <td>
       <div align="center">
+        <b><a href="packages/cli#readme">CLI</a></b>
+        <br />
+        <br />
         <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/v/tscanner?label=npm&logo=npm&logoColor=white&labelColor=CB3837&color=374151" alt="npm"></a>
       </div>
     </td>
+    <td>Terminal scanning, CI/CD integration, pre-commit hooks</td>
   </tr>
   <tr>
-    <td><b><a href="packages/github-action#readme">GitHub Action</a></b></td>
-    <td>CICD integration with analysis summary attached to PR comments</td>
     <td>
       <div align="center">
+        <b><a href="packages/github-action#readme">GitHub Action</a></b>
+        <br />
+        <br />
         <a href="https://github.com/marketplace/actions/tscanner-action"><img src="https://img.shields.io/badge/Marketplace-black.svg?logo=github&logoColor=white&labelColor=181717&color=374151" alt="GitHub Marketplace"></a>
       </div>
     </td>
+    <td>CICD integration with analysis summary attached to PR comments</td>
   </tr>
 </table>
-
-</div>
 <!-- </DYNFIELD:WAYS_TO_USE_TSCANNER> -->
 
 
@@ -597,10 +597,12 @@ CLI/VSCode/GitHub Action (TypeScript)
 - GZIP compression for large result sets (>10KB)
 - Real-time file watching for incremental updates
 
+<!-- <DYNFIELD:INSPIRATIONS> -->
 ## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 - [Biome](https://github.com/biomejs/biome) - High-performance Rust-based linter and formatter for web projects
 - [VSCode Bookmarks](https://github.com/alefragnani/vscode-bookmarks) - Bookmarks Extension for Visual Studio Code
+<!-- </DYNFIELD:INSPIRATIONS> -->
 
 <!-- <DYNFIELD:CONTRIBUTING> -->
 ## 🤝 Contributing<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
