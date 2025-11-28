@@ -15,16 +15,30 @@
 
 GitHub Action for [TScanner](https://github.com/lucasvtiradentes/tscanner): Enforce project-specific patterns, detect anti-patterns, and validate architectural conventions with 39 built-in rules or custom validation (regex, scripts, AI). Integrates into CI/CD workflows with smart PR comments and flexible scan modes.
 
-<table>
-  <tr>
-    <th>PR Comment - Issues Found</th>
-    <th>PR Comment - No Issues Found</th>
-  </tr>
-  <tr>
-    <td><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-issues-found.png" alt="PR Comment - Issues Found"></td>
-    <td><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-no-issues.png" alt="PR Comment - No Issues"></td>
-  </tr>
-</table>
+<div align="center">
+  <img width="60%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-issues-found.png" alt="PR Comment - Issues Found">
+  <br>
+  <em>issues detected in the latest commit pushed to a PR</em>
+</div>
+
+<br />
+
+<div align="center">
+
+<details>
+  <summary>Other images</summary>
+
+<br />
+
+<div align="center">
+  <img width="80%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-no-issues.png" alt="PR Comment - No Issues">
+  <br>
+  <em>no issues detected in the PR</em>
+</div>
+
+</details>
+
+</div>
 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
