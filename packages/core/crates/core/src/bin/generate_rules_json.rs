@@ -1,4 +1,4 @@
-use core::rules::{get_all_rule_metadata, RuleType};
+use core::rules::get_all_rule_metadata;
 use std::fs;
 use std::path::PathBuf;
 
@@ -12,16 +12,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let mut obj = serde_json::to_value(r).unwrap();
             let map = obj.as_object_mut().unwrap();
 
-            if r.rule_type == RuleType::Ast {
-                let snake_name = r.name.replace('-', "_");
-                map.insert(
-                    "sourcePath".to_string(),
-                    serde_json::Value::String(format!(
-                        "packages/core/crates/core/src/rules/{}.rs",
-                        snake_name
-                    )),
-                );
-            }
+            let snake_name = r.name.replace('-', "_");
+            map.insert(
+                "sourcePath".to_string(),
+                serde_json::Value::String(format!(
+                    "packages/core/crates/core/src/rules/{}.rs",
+                    snake_name
+                )),
+            );
 
             obj
         })

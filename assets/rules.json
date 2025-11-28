@@ -76,7 +76,8 @@
     "description": "Finds console.log() statements in code. Console statements should be removed before committing to production.",
     "displayName": "No Console Log",
     "name": "no-console-log",
-    "ruleType": "regex"
+    "ruleType": "regex",
+    "sourcePath": "packages/core/crates/core/src/rules/no_console_log.rs"
   },
   {
     "category": "bugprevention",
@@ -285,7 +286,8 @@
     "description": "Detects TODO, FIXME, and similar comment markers.",
     "displayName": "No TODO Comments",
     "name": "no-todo-comments",
-    "ruleType": "regex"
+    "ruleType": "regex",
+    "sourcePath": "packages/core/crates/core/src/rules/no_todo_comments.rs"
   },
   {
     "category": "typesafety",

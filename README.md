@@ -288,7 +288,7 @@ Customize TScanner to validate what matters to your project while maintaining co
     <td align="left">Disallows async functions that don't use await. The async keyword is unnecessary if await is never used.</td>
   </tr>
   <tr>
-    <td align="left"><code>no-console-log</code></td>
+    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_console_log.rs"><code>no-console-log</code></a></td>
     <td align="left">Finds console.log() statements in code. Console statements should be removed before committing to production.</td>
   </tr>
   <tr>
@@ -320,7 +320,7 @@ Customize TScanner to validate what matters to your project while maintaining co
     <td align="left">Disallows redundant 'return await' in async functions. The await is unnecessary since the function already returns a Promise.</td>
   </tr>
   <tr>
-    <td align="left"><code>no-todo-comments</code></td>
+    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_todo_comments.rs"><code>no-todo-comments</code></a></td>
     <td align="left">Detects TODO, FIXME, and similar comment markers.</td>
   </tr>
   <tr>
