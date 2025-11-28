@@ -281,6 +281,26 @@ impl TscannerConfig {
         rule_config.include.is_match(path) && !rule_config.exclude.is_match(path)
     }
 
+    pub fn matches_file_with_root(
+        &self,
+        path: &Path,
+        root: &Path,
+        rule_config: &CompiledRuleConfig,
+    ) -> bool {
+        if !rule_config.enabled {
+            return false;
+        }
+
+        let relative_path = path.strip_prefix(root).unwrap_or(path);
+
+        let include_match =
+            rule_config.include.is_match(path) || rule_config.include.is_match(relative_path);
+        let exclude_match =
+            rule_config.exclude.is_match(path) || rule_config.exclude.is_match(relative_path);
+
+        include_match && !exclude_match
+    }
+
     pub fn compute_hash(&self) -> u64 {
         let mut hasher = DefaultHasher::new();
 

@@ -226,8 +226,8 @@ pub fn cmd_check(
         FileCache::with_config_hash(config_hash)
     };
 
-    let scanner =
-        Scanner::with_cache(config, Arc::new(cache)).map_err(|e| anyhow::anyhow!("{}", e))?;
+    let scanner = Scanner::with_cache(config, Arc::new(cache), root.clone())
+        .map_err(|e| anyhow::anyhow!("{}", e))?;
 
     if !json_output {
         println!("{}", "Scanning...".cyan().bold());

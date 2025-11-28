@@ -16,28 +16,32 @@ pub struct Scanner {
     registry: RuleRegistry,
     config: TscannerConfig,
     cache: Arc<FileCache>,
+    root: PathBuf,
 }
 
 impl Scanner {
-    pub fn new(config: TscannerConfig) -> Result<Self, Box<dyn std::error::Error>> {
+    pub fn new(config: TscannerConfig, root: PathBuf) -> Result<Self, Box<dyn std::error::Error>> {
         let registry = RuleRegistry::with_config(&config)?;
         let config_hash = config.compute_hash();
         Ok(Self {
             registry,
             config,
             cache: Arc::new(FileCache::with_config_hash(config_hash)),
+            root,
         })
     }
 
     pub fn with_cache(
         config: TscannerConfig,
         cache: Arc<FileCache>,
+        root: PathBuf,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let registry = RuleRegistry::with_config(&config)?;
         Ok(Self {
             registry,
             config,
             cache,
+            root,
         })
     }
 
@@ -134,7 +138,9 @@ impl Scanner {
             }
         };
 
-        let enabled_rules = self.registry.get_enabled_rules(path, &self.config);
+        let enabled_rules = self
+            .registry
+            .get_enabled_rules(path, &self.root, &self.config);
         let source_lines: Vec<&str> = content.lines().collect();
 
         let issues: Vec<_> = enabled_rules
@@ -180,7 +186,9 @@ impl Scanner {
             }
         };
 
-        let enabled_rules = self.registry.get_enabled_rules(path, &self.config);
+        let enabled_rules = self
+            .registry
+            .get_enabled_rules(path, &self.root, &self.config);
         let source_lines: Vec<&str> = source.lines().collect();
 
         let issues: Vec<_> = enabled_rules

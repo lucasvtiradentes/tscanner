@@ -57,6 +57,6 @@
     "**/dist/**",
     "**/build/**",
     "**/.git/**",
-    "**/packages/core/crates/core/tests/**"
+    "packages/core/crates/core/tests/**"
   ]
 }

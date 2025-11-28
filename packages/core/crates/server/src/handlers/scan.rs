@@ -117,7 +117,7 @@ pub fn handle_scan(request_id: u64, params: ScanParams, state: &mut ServerState)
     let cache = Arc::new(FileCache::with_config_hash(config_hash));
     state.cache = cache.clone();
 
-    let scanner = match Scanner::with_cache(config, cache) {
+    let scanner = match Scanner::with_cache(config, cache, params.root.clone()) {
         Ok(s) => s,
         Err(e) => {
             return Response {

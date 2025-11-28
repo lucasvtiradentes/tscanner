@@ -25,7 +25,7 @@ pub fn handle_scan_content(
         }
     };
 
-    let scanner = match Scanner::with_cache(config, state.cache.clone()) {
+    let scanner = match Scanner::with_cache(config, state.cache.clone(), params.root.clone()) {
         Ok(s) => s,
         Err(e) => {
             return Response {
