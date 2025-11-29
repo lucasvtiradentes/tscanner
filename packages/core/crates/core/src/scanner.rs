@@ -4,6 +4,7 @@ use crate::disable_comments::DisableDirectives;
 use crate::parser::parse_file;
 use crate::registry::RuleRegistry;
 use crate::types::{FileResult, ScanResult};
+use globset::{Glob, GlobSet, GlobSetBuilder};
 use ignore::WalkBuilder;
 use rayon::prelude::*;
 use std::collections::HashSet;
@@ -11,6 +12,15 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
+
+fn compile_globset(patterns: &[String]) -> Result<GlobSet, Box<dyn std::error::Error>> {
+    let mut builder = GlobSetBuilder::new();
+    for pattern in patterns {
+        let glob = Glob::new(pattern)?;
+        builder.add(glob);
+    }
+    Ok(builder.build()?)
+}
 
 pub struct Scanner {
     registry: RuleRegistry,
@@ -49,24 +59,36 @@ impl Scanner {
         let start = Instant::now();
         crate::log_info(&format!("Starting scan of {:?}", root));
 
+        let global_include = compile_globset(&self.config.include)
+            .expect("Failed to compile global include patterns");
+        let global_exclude = compile_globset(&self.config.exclude)
+            .expect("Failed to compile global exclude patterns");
+
+        let root_buf = root.to_path_buf();
+        let exclude_clone = global_exclude.clone();
+        let root_clone = root_buf.clone();
+
         let mut files: Vec<PathBuf> = WalkBuilder::new(root)
             .hidden(false)
             .git_ignore(true)
-            .filter_entry(|e| {
+            .filter_entry(move |e| {
                 let path = e.path();
                 if path.is_dir() {
-                    let name = path.file_name().and_then(|n| n.to_str()).unwrap_or("");
-                    return name != "node_modules" && name != ".git" && name != "dist";
+                    let relative = path.strip_prefix(&root_clone).unwrap_or(path);
+                    return !exclude_clone.is_match(relative);
                 }
-                if let Some(ext) = path.extension().and_then(|e| e.to_str()) {
-                    ext == "ts" || ext == "tsx"
-                } else {
-                    false
-                }
+                true
             })
             .build()
             .filter_map(|e| e.ok())
-            .filter(|e| e.path().is_file())
+            .filter(|e| {
+                let path = e.path();
+                if !path.is_file() {
+                    return false;
+                }
+                let relative = path.strip_prefix(&root_buf).unwrap_or(path);
+                global_include.is_match(relative) && !global_exclude.is_match(relative)
+            })
             .map(|e| e.path().to_path_buf())
             .collect();
 

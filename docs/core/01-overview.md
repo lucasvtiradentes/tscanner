@@ -59,7 +59,7 @@ packages/core/
 ### core
 
 **scanner.rs**
-Orchestrates parallel file scanning using Rayon. Loads configuration, matches files against include/exclude patterns, checks cache for valid entries, parses files with SWC, and runs rules. Returns aggregated issues.
+Orchestrates parallel file scanning using Rayon. Compiles global include/exclude patterns from config into `GlobSet`. Uses patterns in `WalkBuilder` filter (no hardcoded values). All paths normalized to relative before matching. Returns aggregated issues.
 
 **parser.rs**
 SWC-based TypeScript/TSX parser. Converts source text to AST with error recovery. Supports TypeScript, JSX, decorators, and latest ECMAScript features.
@@ -71,7 +71,7 @@ Global rule registry using `inventory` for compile-time registration. Rules impl
 DashMap-based concurrent cache with disk persistence. Stores (mtime, config_hash, issues) per file. Loads from disk on startup, flushes after each scan. Cache invalidation on file change or config change.
 
 **config.rs**
-Loads and parses `.tscanner/rules.jsonc`. Computes config hash for cache invalidation. Validates rule configuration (enabled, severity, include/exclude patterns).
+Loads and parses `.tscanner/config.jsonc`. Computes config hash for cache invalidation. Validates rule configuration (enabled, severity, include/exclude patterns). Compiles glob patterns into `GlobSet` for fast matching. Rule patterns **intersect** with global patterns (not replace).
 
 **watcher.rs**
 File system watcher using `notify`. Monitors workspace for file create/modify/delete events. Filters events by include/exclude patterns. Sends invalidation events to extension.
@@ -135,8 +135,9 @@ See [Caching](04-caching.md) for cache implementation details.
 ## Testing Strategy
 
 - **Unit Tests**: Per-module tests for scanner, parser, cache, config
-- **Integration Tests**: Full scan workflow with fixture files
-- **Snapshot Tests**: AST rule outputs using `insta`
+- **Glob Tests**: Pattern matching unit tests (`glob_tests.rs`)
+- **Integration Tests**: Config glob integration tests (`integration_glob_tests.rs`)
+- **Snapshot Tests**: AST rule outputs using `insta` (`spec_tests.rs`)
 - **Benchmarks**: Scanner performance on large codebases
 
 See [Testing](06-testing.md) for test organization and best practices.
