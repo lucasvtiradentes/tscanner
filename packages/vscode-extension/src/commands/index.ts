@@ -23,7 +23,7 @@ import { createGoToNextIssueCommand, createGoToPreviousIssueCommand, resetIssueI
 import { createScanWorkspaceCommand } from './public/scan-workspace';
 import { createShowLogsCommand } from './public/show-logs';
 
-export interface CommandContext {
+export type CommandContext = {
   panelContent: IssuesPanelContent;
   context: vscode.ExtensionContext;
   treeView: vscode.TreeView<any>;
@@ -34,7 +34,7 @@ export interface CommandContext {
   currentCompareBranchRef: { current: string };
   currentCustomConfigDirRef: { current: string | null };
   getRustClient: () => RustClient | null;
-}
+};
 
 export function registerAllCommands(ctx: CommandContext): vscode.Disposable[] {
   setCopyRustClient(ctx.getRustClient);

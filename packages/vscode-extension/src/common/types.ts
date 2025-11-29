@@ -48,16 +48,16 @@ export enum NodeKind {
   File = 'file',
 }
 
-export interface FolderNode {
+export type FolderNode = {
   type: NodeKind.Folder;
   path: string;
   name: string;
   children: Map<string, FolderNode | FileNode>;
-}
+};
 
-export interface FileNode {
+export type FileNode = {
   type: NodeKind.File;
   path: string;
   name: string;
   results: IssueResult[];
-}
+};
