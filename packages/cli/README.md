@@ -183,8 +183,8 @@ tscanner check --branch origin/main
     <th width="350">Flag description</th>
   </tr>
   <tr>
-    <td rowspan="9" align="left"><code>check [path]</code></td>
-    <td rowspan="9" align="left">Scan code for issues and display results</td>
+    <td rowspan="14" align="left"><code>check [path]</code></td>
+    <td rowspan="14" align="left">Scan code for issues and display results</td>
     <td align="left"><code>--branch <BRANCH></code></td>
     <td align="left">Only show issues in files changed compared to branch (e.g., origin/main)</td>
   </tr>
@@ -215,6 +215,30 @@ tscanner check --branch origin/main
   <tr>
     <!-- <td align="left"><code>check [path]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--hide-rule-name</code></td>
+    <td align="left">Hide rule name</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [path]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--hide-severity</code></td>
+    <td align="left">Hide severity icon</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [path]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--hide-source-line</code></td>
+    <td align="left">Hide source line text</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [path]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--hide-summary</code></td>
+    <td align="left">Hide summary at footer</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [path]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--json</code></td>
     <td align="left">Output results as JSON</td>
   </tr>
@@ -235,6 +259,12 @@ tscanner check --branch origin/main
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--rule <RULE_NAME></code></td>
     <td align="left">Filter results to specific rule (e.g., 'no-console-log')</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [path]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--show-description</code></td>
+    <td align="left">Show rule description/message</td>
   </tr>
   <tr>
     <td rowspan="1" align="left"><code>init [path]</code></td>
@@ -421,6 +451,15 @@ The default configuration is:
   "lsp": {
     "errors": true,
     "warnings": false
+  },
+  "cli": {
+    "groupBy": "file",
+    "noCache": false,
+    "showSeverity": true,
+    "showSourceLine": true,
+    "showRuleName": true,
+    "showDescription": false,
+    "showSummaryAtFooter": true
   }
 }
 ```

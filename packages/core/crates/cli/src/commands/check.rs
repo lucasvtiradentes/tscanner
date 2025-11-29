@@ -11,8 +11,10 @@ use std::process::Command;
 use std::sync::Arc;
 
 use crate::config_loader::load_config_with_custom;
-use crate::GroupMode;
-use core::{log_error, log_info, APP_NAME, CONFIG_DIR_NAME, CONFIG_FILE_NAME};
+use crate::{CliOverrides, GroupMode};
+use core::{
+    log_error, log_info, CliConfig, CliGroupBy, APP_NAME, CONFIG_DIR_NAME, CONFIG_FILE_NAME,
+};
 
 #[derive(Serialize)]
 struct JsonIssue {
@@ -52,6 +54,8 @@ struct JsonRuleIssue {
 #[derive(Serialize)]
 struct JsonSummary {
     total_files: usize,
+    cached_files: usize,
+    scanned_files: usize,
     total_issues: usize,
     errors: usize,
     warnings: usize,
@@ -166,6 +170,7 @@ pub fn cmd_check(
     rule_filter: Option<String>,
     continue_on_error: bool,
     config_path: Option<PathBuf>,
+    cli_overrides: CliOverrides,
 ) -> Result<()> {
     log_info(&format!(
         "cmd_check: Starting at: {} (no_cache: {}, group_mode: {:?}, pretty: {})",
@@ -177,13 +182,14 @@ pub fn cmd_check(
 
     let root = fs::canonicalize(path).context("Failed to resolve path")?;
 
-    let config = match load_config_with_custom(&root, config_path)? {
+    let (config, cli_config) = match load_config_with_custom(&root, config_path)? {
         Some((cfg, config_file_path)) => {
             log_info(&format!(
                 "cmd_check: Config loaded successfully from: {}",
                 config_file_path
             ));
-            cfg
+            let file_cli_config = cfg.cli.clone().unwrap_or_default();
+            (cfg, file_cli_config)
         }
         None => {
             log_error("cmd_check: No config found");
@@ -219,8 +225,50 @@ pub fn cmd_check(
         }
     };
 
+    let resolved_cli = CliConfig {
+        group_by: cli_overrides
+            .by_rule
+            .map(|v| {
+                if v {
+                    CliGroupBy::Rule
+                } else {
+                    CliGroupBy::File
+                }
+            })
+            .unwrap_or(cli_config.group_by),
+        no_cache: cli_overrides.no_cache.unwrap_or(cli_config.no_cache),
+        show_severity: cli_overrides
+            .show_severity
+            .unwrap_or(cli_config.show_severity),
+        show_source_line: cli_overrides
+            .show_source_line
+            .unwrap_or(cli_config.show_source_line),
+        show_rule_name: cli_overrides
+            .show_rule_name
+            .unwrap_or(cli_config.show_rule_name),
+        show_description: cli_overrides
+            .show_description
+            .unwrap_or(cli_config.show_description),
+        show_summary_at_footer: cli_overrides
+            .show_summary_at_footer
+            .unwrap_or(cli_config.show_summary_at_footer),
+    };
+
+    let effective_group_mode = match resolved_cli.group_by {
+        CliGroupBy::Rule => GroupMode::Rule,
+        CliGroupBy::File => GroupMode::File,
+    };
+
+    let effective_group_mode = if matches!(group_mode, GroupMode::Rule) {
+        GroupMode::Rule
+    } else {
+        effective_group_mode
+    };
+
+    let effective_no_cache = no_cache || resolved_cli.no_cache;
+
     let config_hash = config.compute_hash();
-    let cache = if no_cache {
+    let cache = if effective_no_cache {
         FileCache::new()
     } else {
         FileCache::with_config_hash(config_hash)
@@ -231,6 +279,21 @@ pub fn cmd_check(
 
     if !json_output {
         println!("{}", "Scanning...".cyan().bold());
+        println!();
+        let group_by_str = match effective_group_mode {
+            GroupMode::Rule => "rule",
+            GroupMode::File => "file",
+        };
+        println!(
+            "  {} {}",
+            "Cache:".dimmed(),
+            if effective_no_cache {
+                "disabled"
+            } else {
+                "enabled"
+            }
+        );
+        println!("  {} {}", "Group by:".dimmed(), group_by_str);
     }
 
     let (changed_files, modified_lines) = if let Some(ref branch_name) = branch {
@@ -390,7 +453,7 @@ pub fn cmd_check(
     }
 
     if json_output {
-        let output = match group_mode {
+        let output = match effective_group_mode {
             GroupMode::File => {
                 let files: Vec<JsonFileGroup> = result
                     .files
@@ -424,7 +487,9 @@ pub fn cmd_check(
                 JsonOutput::ByFile {
                     files,
                     summary: JsonSummary {
-                        total_files: result.files.len(),
+                        total_files: result.total_files,
+                        cached_files: result.cached_files,
+                        scanned_files: result.scanned_files,
                         total_issues: error_count + warning_count,
                         errors: error_count,
                         warnings: warning_count,
@@ -473,7 +538,9 @@ pub fn cmd_check(
                 JsonOutput::ByRule {
                     rules,
                     summary: JsonSummary {
-                        total_files: result.files.len(),
+                        total_files: result.total_files,
+                        cached_files: result.cached_files,
+                        scanned_files: result.scanned_files,
                         total_issues: error_count + warning_count,
                         errors: error_count,
                         warnings: warning_count,
@@ -498,7 +565,7 @@ pub fn cmd_check(
         return Ok(());
     }
 
-    if matches!(group_mode, GroupMode::Rule) {
+    if matches!(effective_group_mode, GroupMode::Rule) {
         if pretty_output {
             let formatted = core::PrettyFormatter::format_by_rule(&result, &root);
             print!("{}", formatted);
@@ -534,20 +601,33 @@ pub fn cmd_check(
                 );
 
                 for (file_path, issue) in issues {
-                    let severity_icon = match issue.severity {
-                        Severity::Error => "✖".red(),
-                        Severity::Warning => "⚠".yellow(),
-                    };
-
                     let location =
                         format!("{}:{}:{}", file_path.display(), issue.line, issue.column).dimmed();
 
-                    println!("  {} {} {}", severity_icon, location, issue.message);
+                    let mut parts: Vec<String> = Vec::new();
 
-                    if let Some(line_text) = &issue.line_text {
-                        let trimmed = line_text.trim();
-                        if !trimmed.is_empty() {
-                            println!("    {}", trimmed.dimmed());
+                    if resolved_cli.show_severity {
+                        let icon = match issue.severity {
+                            Severity::Error => "✖".red().to_string(),
+                            Severity::Warning => "⚠".yellow().to_string(),
+                        };
+                        parts.push(icon);
+                    }
+
+                    parts.push(location.to_string());
+
+                    if resolved_cli.show_description {
+                        parts.push(issue.message.clone());
+                    }
+
+                    println!("  {}", parts.join(" "));
+
+                    if resolved_cli.show_source_line {
+                        if let Some(line_text) = &issue.line_text {
+                            let trimmed = line_text.trim();
+                            if !trimmed.is_empty() {
+                                println!("    {}", trimmed.dimmed());
+                            }
                         }
                     }
                 }
@@ -573,47 +653,75 @@ pub fn cmd_check(
             );
 
             for issue in &file_result.issues {
-                let severity_icon = match issue.severity {
-                    Severity::Error => "✖".red(),
-                    Severity::Warning => "⚠".yellow(),
-                };
-
                 let location = format!("{}:{}", issue.line, issue.column).dimmed();
-                let rule_name = format!("[{}]", issue.rule).cyan();
 
-                println!(
-                    "  {} {} {} {}",
-                    severity_icon, location, issue.message, rule_name
-                );
+                let mut parts: Vec<String> = Vec::new();
 
-                if let Some(line_text) = &issue.line_text {
-                    let trimmed = line_text.trim();
-                    if !trimmed.is_empty() {
-                        println!("    {}", trimmed.dimmed());
+                if resolved_cli.show_severity {
+                    let icon = match issue.severity {
+                        Severity::Error => "✖".red().to_string(),
+                        Severity::Warning => "⚠".yellow().to_string(),
+                    };
+                    parts.push(icon);
+                }
+
+                parts.push(location.to_string());
+
+                if resolved_cli.show_rule_name && resolved_cli.show_description {
+                    let rule_name = issue.rule.cyan().to_string();
+                    parts.push(format!("{} {}", rule_name, issue.message.dimmed()));
+                } else if resolved_cli.show_rule_name {
+                    let rule_name = issue.rule.cyan().to_string();
+                    parts.push(rule_name);
+                } else if resolved_cli.show_description {
+                    parts.push(issue.message.clone());
+                }
+
+                println!("  {}", parts.join(" "));
+
+                if resolved_cli.show_source_line {
+                    if let Some(line_text) = &issue.line_text {
+                        let trimmed = line_text.trim();
+                        if !trimmed.is_empty() {
+                            println!("    {}", trimmed.dimmed());
+                        }
                     }
                 }
             }
         }
     }
 
-    let total_issues = error_count + warning_count;
+    if resolved_cli.show_summary_at_footer {
+        let total_issues = error_count + warning_count;
 
-    let unique_rules: std::collections::HashSet<_> = result
-        .files
-        .iter()
-        .flat_map(|f| f.issues.iter().map(|i| &i.rule))
-        .collect();
+        let unique_rules: std::collections::HashSet<_> = result
+            .files
+            .iter()
+            .flat_map(|f| f.issues.iter().map(|i| &i.rule))
+            .collect();
 
-    println!();
-    println!(
-        "Issues: {} ({} errors, {} warnings)",
-        total_issues.to_string().cyan(),
-        error_count.to_string().red(),
-        warning_count.to_string().yellow()
-    );
-    println!("Files: {}", result.files.len());
-    println!("Rules: {}", unique_rules.len());
-    println!();
+        if pretty_output {
+            println!();
+        }
+        println!();
+        println!(
+            "{} {} ({} errors, {} warnings)",
+            "Issues:".dimmed(),
+            total_issues.to_string().cyan(),
+            error_count.to_string().red(),
+            warning_count.to_string().yellow()
+        );
+        println!(
+            "{} {} ({} cached, {} scanned)",
+            "Files:".dimmed(),
+            result.total_files,
+            result.cached_files.to_string().green(),
+            result.scanned_files.to_string().yellow()
+        );
+        println!("{} {}", "Rules:".dimmed(), unique_rules.len());
+        println!("{} {}ms", "Duration:".dimmed(), result.duration_ms);
+        println!();
+    }
 
     log_info(&format!(
         "cmd_check: Found {} errors, {} warnings",

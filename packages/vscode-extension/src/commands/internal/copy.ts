@@ -47,6 +47,9 @@ function convertToScanResult(results: IssueResult[]): ScanResult {
     files,
     total_issues: results.length,
     duration_ms: 0,
+    total_files: files.length,
+    cached_files: 0,
+    scanned_files: files.length,
   };
 }
 

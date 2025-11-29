@@ -33,4 +33,7 @@ pub struct ScanResult {
     pub files: Vec<FileResult>,
     pub total_issues: usize,
     pub duration_ms: u128,
+    pub total_files: usize,
+    pub cached_files: usize,
+    pub scanned_files: usize,
 }

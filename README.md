@@ -656,6 +656,15 @@ The default configuration is:
   "lsp": {
     "errors": true,
     "warnings": false
+  },
+  "cli": {
+    "groupBy": "file",
+    "noCache": false,
+    "showSeverity": true,
+    "showSourceLine": true,
+    "showRuleName": true,
+    "showDescription": false,
+    "showSummaryAtFooter": true
   }
 }
 ```

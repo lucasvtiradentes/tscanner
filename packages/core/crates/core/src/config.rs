@@ -11,7 +11,23 @@ const TSCANNER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub const CONFIG_ERROR_PREFIX: &str = "TSCANNER_CONFIG_ERROR:";
 
-const ALLOWED_TOP_LEVEL: &[&str] = &["$schema", "lsp", "builtinRules", "customRules", "files"];
+const ALLOWED_TOP_LEVEL: &[&str] = &[
+    "$schema",
+    "lsp",
+    "cli",
+    "builtinRules",
+    "customRules",
+    "files",
+];
+const ALLOWED_CLI: &[&str] = &[
+    "groupBy",
+    "noCache",
+    "showSeverity",
+    "showSourceLine",
+    "showRuleName",
+    "showDescription",
+    "showSummaryAtFooter",
+];
 const ALLOWED_FILES: &[&str] = &["include", "exclude"];
 const ALLOWED_LSP: &[&str] = &["errors", "warnings"];
 const ALLOWED_BUILTIN_RULE: &[&str] = &["enabled", "severity", "include", "exclude"];
@@ -65,6 +81,10 @@ fn validate_json_fields(json: &serde_json::Value) -> Result<(), String> {
 
     if let Some(lsp) = obj.get("lsp").and_then(|v| v.as_object()) {
         invalid_fields.extend(collect_invalid_fields(lsp, ALLOWED_LSP, "lsp"));
+    }
+
+    if let Some(cli) = obj.get("cli").and_then(|v| v.as_object()) {
+        invalid_fields.extend(collect_invalid_fields(cli, ALLOWED_CLI, "cli"));
     }
 
     if let Some(builtin_rules) = obj.get("builtinRules").and_then(|v| v.as_object()) {
@@ -138,6 +158,112 @@ impl Default for LspConfig {
     }
 }
 
+#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+#[serde(rename_all = "lowercase")]
+pub enum CliGroupBy {
+    #[default]
+    File,
+    Rule,
+}
+
+fn default_cli_config() -> CliConfig {
+    let config: TscannerConfig =
+        serde_json::from_str(DEFAULT_CONFIG_JSON).expect("Failed to parse default-config.json");
+    config.cli.unwrap_or(CliConfig {
+        group_by: CliGroupBy::File,
+        no_cache: false,
+        show_severity: true,
+        show_source_line: true,
+        show_rule_name: true,
+        show_description: false,
+        show_summary_at_footer: true,
+    })
+}
+
+fn default_cli_group_by() -> CliGroupBy {
+    default_cli_config().group_by
+}
+
+fn default_cli_no_cache() -> bool {
+    default_cli_config().no_cache
+}
+
+fn default_cli_show_severity() -> bool {
+    default_cli_config().show_severity
+}
+
+fn default_cli_show_source_line() -> bool {
+    default_cli_config().show_source_line
+}
+
+fn default_cli_show_rule_name() -> bool {
+    default_cli_config().show_rule_name
+}
+
+fn default_cli_show_description() -> bool {
+    default_cli_config().show_description
+}
+
+fn default_cli_show_summary_at_footer() -> bool {
+    default_cli_config().show_summary_at_footer
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct CliConfig {
+    #[serde(default = "default_cli_group_by")]
+    #[schemars(
+        default = "default_cli_group_by",
+        description = "Group issues by file or rule"
+    )]
+    pub group_by: CliGroupBy,
+
+    #[serde(default = "default_cli_no_cache")]
+    #[schemars(
+        default = "default_cli_no_cache",
+        description = "Skip cache and force full scan"
+    )]
+    pub no_cache: bool,
+
+    #[serde(default = "default_cli_show_severity")]
+    #[schemars(
+        default = "default_cli_show_severity",
+        description = "Show severity icon"
+    )]
+    pub show_severity: bool,
+
+    #[serde(default = "default_cli_show_source_line")]
+    #[schemars(
+        default = "default_cli_show_source_line",
+        description = "Show source line text"
+    )]
+    pub show_source_line: bool,
+
+    #[serde(default = "default_cli_show_rule_name")]
+    #[schemars(default = "default_cli_show_rule_name", description = "Show rule name")]
+    pub show_rule_name: bool,
+
+    #[serde(default = "default_cli_show_description")]
+    #[schemars(
+        default = "default_cli_show_description",
+        description = "Show rule description/message"
+    )]
+    pub show_description: bool,
+
+    #[serde(default = "default_cli_show_summary_at_footer")]
+    #[schemars(
+        default = "default_cli_show_summary_at_footer",
+        description = "Show summary at footer"
+    )]
+    pub show_summary_at_footer: bool,
+}
+
+impl Default for CliConfig {
+    fn default() -> Self {
+        default_cli_config()
+    }
+}
+
 fn default_files_config() -> FilesConfig {
     let config: TscannerConfig =
         serde_json::from_str(DEFAULT_CONFIG_JSON).expect("Failed to parse default-config.json");
@@ -180,6 +306,10 @@ pub struct TscannerConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[schemars(description = "LSP server configuration")]
     pub lsp: Option<LspConfig>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[schemars(description = "CLI output configuration")]
+    pub cli: Option<CliConfig>,
 
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     #[schemars(description = "Built-in AST rules configuration")]

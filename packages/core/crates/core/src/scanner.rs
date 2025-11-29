@@ -134,10 +134,16 @@ impl Scanner {
 
         self.cache.flush();
 
+        let cached = cache_hits.load(Ordering::Relaxed);
+        let scanned = file_count - cached;
+
         ScanResult {
             files: results,
             total_issues,
             duration_ms: duration.as_millis(),
+            total_files: file_count,
+            cached_files: cached,
+            scanned_files: scanned,
         }
     }
 

@@ -38,6 +38,57 @@
       },
       "type": "object"
     },
+    "CliConfig": {
+      "properties": {
+        "groupBy": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/CliGroupBy"
+            }
+          ],
+          "default": "file",
+          "description": "Group issues by file or rule"
+        },
+        "noCache": {
+          "default": false,
+          "description": "Skip cache and force full scan",
+          "type": "boolean"
+        },
+        "showDescription": {
+          "default": false,
+          "description": "Show rule description/message",
+          "type": "boolean"
+        },
+        "showRuleName": {
+          "default": true,
+          "description": "Show rule name",
+          "type": "boolean"
+        },
+        "showSeverity": {
+          "default": true,
+          "description": "Show severity icon",
+          "type": "boolean"
+        },
+        "showSourceLine": {
+          "default": true,
+          "description": "Show source line text",
+          "type": "boolean"
+        },
+        "showSummaryAtFooter": {
+          "default": true,
+          "description": "Show summary at footer",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "CliGroupBy": {
+      "enum": [
+        "file",
+        "rule"
+      ],
+      "type": "string"
+    },
     "CustomRuleConfig": {
       "properties": {
         "enabled": {
@@ -342,6 +393,17 @@
         }
       },
       "type": "object"
+    },
+    "cli": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/CliConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "CLI output configuration"
     },
     "customRules": {
       "additionalProperties": {

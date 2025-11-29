@@ -45,6 +45,9 @@ export const scanResultSchema = z.object({
   files: z.array(fileResultSchema),
   total_issues: z.number(),
   duration_ms: z.number(),
+  total_files: z.number(),
+  cached_files: z.number(),
+  scanned_files: z.number(),
 });
 
 export const ruleMetadataSchema = z.object({
@@ -89,6 +92,18 @@ export const lspConfigSchema = z.object({
   warnings: z.boolean().optional().default(true),
 });
 
+export const cliGroupBySchema = z.enum(['file', 'rule']);
+
+export const cliConfigSchema = z.object({
+  groupBy: cliGroupBySchema.optional().default('file'),
+  noCache: z.boolean().optional().default(false),
+  showSeverity: z.boolean().optional().default(true),
+  showSourceLine: z.boolean().optional().default(true),
+  showRuleName: z.boolean().optional().default(true),
+  showDescription: z.boolean().optional().default(false),
+  showSummaryAtFooter: z.boolean().optional().default(true),
+});
+
 export const filesConfigSchema = z.object({
   include: z.array(z.string()).optional(),
   exclude: z.array(z.string()).optional(),
@@ -96,6 +111,7 @@ export const filesConfigSchema = z.object({
 
 export const tscannerConfigSchema = z.object({
   lsp: lspConfigSchema.optional(),
+  cli: cliConfigSchema.optional(),
   builtinRules: z.record(z.string(), builtinRuleConfigSchema).optional(),
   customRules: z.record(z.string(), customRuleConfigSchema).optional(),
   files: filesConfigSchema.optional(),
@@ -114,6 +130,8 @@ export type ModifiedLineRange = z.infer<typeof modifiedLineRangeSchema>;
 export type BuiltinRuleConfig = z.infer<typeof builtinRuleConfigSchema>;
 export type CustomRuleConfig = z.infer<typeof customRuleConfigSchema>;
 export type LspConfig = z.infer<typeof lspConfigSchema>;
+export type CliGroupBy = z.infer<typeof cliGroupBySchema>;
+export type CliConfig = z.infer<typeof cliConfigSchema>;
 export type FilesConfig = z.infer<typeof filesConfigSchema>;
 export type TscannerConfig = z.infer<typeof tscannerConfigSchema>;
 

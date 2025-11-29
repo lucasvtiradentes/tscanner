@@ -16,7 +16,8 @@ pub mod watcher;
 
 pub use cache::FileCache;
 pub use config::{
-    BuiltinRuleConfig, CompiledRuleConfig, CustomRuleConfig, CustomRuleType, TscannerConfig,
+    BuiltinRuleConfig, CliConfig, CliGroupBy, CompiledRuleConfig, CustomRuleConfig, CustomRuleType,
+    TscannerConfig,
 };
 pub use constants::*;
 pub use file_source::FileSource;
