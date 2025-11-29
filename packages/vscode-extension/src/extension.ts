@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { getViewId } from './common/constants';
 import { loadEffectiveConfig } from './common/lib/config-manager';
-import { dispose as disposeScanner, getRustClient, scanContent } from './common/lib/scanner';
+import { dispose as disposeScanner, getRustClient, scanContent, startLspClient } from './common/lib/scanner';
 import {
   Command,
   ContextKey,
@@ -198,7 +198,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(...commands, fileWatcher, statusBarManager.getDisposable());
 
-  setTimeout(() => {
+  setTimeout(async () => {
+    logger.info('Starting LSP client...');
+    await startLspClient();
     logger.info('Running initial scan after 2s delay...');
     executeCommand(Command.FindIssue, { silent: true });
   }, 2000);

@@ -20,3 +20,5 @@ base64 = "0.21"
 pathdiff = { workspace = true }
 walkdir = { workspace = true }
 glob = "0.3"
+lsp-types = "0.95"
+lsp-server = "0.7"

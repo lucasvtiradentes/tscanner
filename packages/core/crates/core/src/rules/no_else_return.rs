@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
@@ -64,13 +64,15 @@ impl<'a> Visit for ElseReturnVisitor<'a> {
         if cons_has_return && n.alt.is_some() {
             if let Some(alt) = &n.alt {
                 let span = alt.span();
-                let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+                let (line, column, end_column) =
+                    get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
                 self.issues.push(Issue {
                     rule: "no-else-return".to_string(),
                     file: self.path.clone(),
                     line,
                     column,
+                    end_column,
                     message: "Unnecessary 'else' after 'return'. Remove the 'else' block since the function already returned.".to_string(),
                     severity: Severity::Warning,
                     line_text: None,

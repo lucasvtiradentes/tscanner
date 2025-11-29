@@ -4,6 +4,7 @@ use flate2::Compression;
 use std::io::{self, BufRead, Write};
 
 mod handlers;
+mod lsp_server;
 mod protocol;
 mod state;
 
@@ -13,7 +14,19 @@ use state::ServerState;
 
 fn main() {
     core::init_logger("rust_server     ");
-    core::log_info("TScanner server started");
+
+    let args: Vec<String> = std::env::args().collect();
+
+    if args.len() > 1 && args[1] == "--lsp" {
+        core::log_info("Starting in LSP mode");
+        if let Err(e) = lsp_server::run_lsp_server() {
+            core::log_error(&format!("LSP server error: {}", e));
+            std::process::exit(1);
+        }
+        return;
+    }
+
+    core::log_info("TScanner server started (JSON-RPC mode)");
 
     let mut state = ServerState::new();
     let stdin = io::stdin();

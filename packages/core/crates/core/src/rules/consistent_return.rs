@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
@@ -74,13 +74,18 @@ impl<'a> ConsistentReturnVisitor<'a> {
             && !no_value_returns.is_empty()
             && value_returns.len() > no_value_returns.len()
         {
-            let (line, column) = get_line_col(self.source, func_span.lo.0 as usize);
+            let (line, column, end_column) = get_span_positions(
+                self.source,
+                func_span.lo.0 as usize,
+                func_span.hi.0 as usize,
+            );
 
             self.issues.push(Issue {
                 rule: "consistent-return".to_string(),
                 file: self.path.clone(),
                 line,
                 column,
+                end_column,
                 message:
                     "Function has inconsistent return statements. Some return values, others don't."
                         .to_string(),

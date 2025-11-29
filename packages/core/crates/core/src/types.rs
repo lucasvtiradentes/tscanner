@@ -15,6 +15,7 @@ pub struct Issue {
     pub file: PathBuf,
     pub line: usize,
     pub column: usize,
+    pub end_column: usize,
     pub message: String,
     pub severity: Severity,
     #[serde(skip_serializing_if = "Option::is_none")]

@@ -16,3 +16,15 @@ pub fn get_line_col(source: &str, byte_pos: usize) -> (usize, usize) {
 
     (line, col)
 }
+
+pub fn get_span_positions(
+    source: &str,
+    start_byte: usize,
+    end_byte: usize,
+) -> (usize, usize, usize) {
+    let start = start_byte.saturating_sub(1);
+    let end = end_byte.saturating_sub(1);
+    let (line, col) = get_line_col(source, start);
+    let (_, end_col) = get_line_col(source, end);
+    (line, col, end_col)
+}

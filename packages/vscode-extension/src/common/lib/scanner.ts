@@ -5,10 +5,12 @@ import { BINARY_BASE_NAME, PLATFORM_TARGET_MAP, getServerBinaryName } from '../c
 import type { IssueResult, TscannerConfig } from '../types';
 import { getExtensionPath } from '../utils/extension-helper';
 import { LOG_FILE_PATH, logger } from '../utils/logger';
+import { TscannerLspClient } from './lsp-client';
 import { RustClient } from './rust-client';
 import { getCurrentWorkspaceFolder, openTextDocument } from './vscode-utils';
 
 let rustClient: RustClient | null = null;
+let lspClient: TscannerLspClient | null = null;
 
 export function getRustBinaryPath(): string | null {
   const extensionPath = getExtensionPath();
@@ -178,9 +180,38 @@ export function getRustClient(): RustClient | null {
   return rustClient;
 }
 
+export async function startLspClient(): Promise<void> {
+  const workspaceFolder = getCurrentWorkspaceFolder();
+  if (!workspaceFolder) {
+    logger.warn('No workspace folder found, cannot start LSP client');
+    return;
+  }
+
+  const binaryPath = getRustBinaryPath();
+  if (!binaryPath) {
+    logger.error('Rust binary not found, cannot start LSP client');
+    return;
+  }
+
+  if (!lspClient) {
+    lspClient = new TscannerLspClient(binaryPath);
+    try {
+      await lspClient.start(workspaceFolder.uri.fsPath);
+      logger.info('LSP client started successfully');
+    } catch (error) {
+      logger.error(`Failed to start LSP client: ${error}`);
+      lspClient = null;
+    }
+  }
+}
+
 export function dispose() {
   if (rustClient) {
     rustClient.stop();
     rustClient = null;
+  }
+  if (lspClient) {
+    lspClient.stop();
+    lspClient = null;
   }
 }

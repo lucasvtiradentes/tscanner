@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
@@ -50,14 +50,15 @@ struct NonNullAssertionVisitor<'a> {
 
 impl<'a> Visit for NonNullAssertionVisitor<'a> {
     fn visit_ts_non_null_expr(&mut self, n: &TsNonNullExpr) {
-        let span_start = n.span.lo.0 as usize;
-        let (line, column) = get_line_col(self.source, span_start);
+        let (line, column, end_column) =
+            get_span_positions(self.source, n.span.lo.0 as usize, n.span.hi.0 as usize);
 
         self.issues.push(Issue {
             rule: "no-non-null-assertion".to_string(),
             file: self.path.clone(),
             line,
             column,
+            end_column,
             message: "Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.".to_string(),
             severity: Severity::Warning,
             line_text: None,

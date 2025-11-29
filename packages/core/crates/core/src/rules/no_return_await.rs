@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
@@ -71,13 +71,15 @@ impl<'a> Visit for ReturnAwaitVisitor<'a> {
             if let Some(arg) = &n.arg {
                 if let Expr::Await(await_expr) = arg.as_ref() {
                     let span = await_expr.span();
-                    let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+                    let (line, column, end_column) =
+                        get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
                     self.issues.push(Issue {
                         rule: "no-return-await".to_string(),
                         file: self.path.clone(),
                         line,
                         column,
+                        end_column,
                         message: "Redundant 'return await' found. Remove 'await' since async function already returns a Promise.".to_string(),
                         severity: Severity::Warning,
                         line_text: None,

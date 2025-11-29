@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use std::sync::Arc;
@@ -47,13 +47,14 @@ impl Rule for PreferConstRule {
 
         let mut issues = Vec::new();
 
-        for (name, (line, column)) in collector.let_declarations {
+        for (name, (line, column, end_column)) in collector.let_declarations {
             if !checker.reassigned.contains(&name) {
                 issues.push(Issue {
                     rule: "prefer-const".to_string(),
                     file: path.to_path_buf(),
                     line,
                     column,
+                    end_column,
                     message: format!("'{}' is never reassigned, use 'const' instead", name),
                     severity: Severity::Warning,
                     line_text: None,
@@ -66,7 +67,7 @@ impl Rule for PreferConstRule {
 }
 
 struct VariableCollector<'a> {
-    let_declarations: HashMap<String, (usize, usize)>,
+    let_declarations: HashMap<String, (usize, usize, usize)>,
     source: &'a str,
 }
 
@@ -79,8 +80,10 @@ impl<'a> Visit for VariableCollector<'a> {
                 if let Pat::Ident(ident) = &decl.name {
                     let name = ident.id.sym.to_string();
                     let span = ident.span();
-                    let (line, column) = get_line_col(self.source, span.lo.0 as usize);
-                    self.let_declarations.insert(name, (line, column));
+                    let (line, column, end_column) =
+                        get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
+                    self.let_declarations
+                        .insert(name, (line, column, end_column));
                 }
             }
         }

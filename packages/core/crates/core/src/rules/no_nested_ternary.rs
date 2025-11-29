@@ -2,7 +2,7 @@ use crate::ast_utils::is_ternary_expr;
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
@@ -53,13 +53,15 @@ struct NestedTernaryVisitor<'a> {
 impl<'a> Visit for NestedTernaryVisitor<'a> {
     fn visit_cond_expr(&mut self, n: &CondExpr) {
         if is_ternary_expr(&n.cons) || is_ternary_expr(&n.alt) {
-            let (line, column) = get_line_col(self.source, n.span.lo.0 as usize);
+            let (line, column, end_column) =
+                get_span_positions(self.source, n.span.lo.0 as usize, n.span.hi.0 as usize);
 
             self.issues.push(Issue {
                 rule: "no-nested-ternary".to_string(),
                 file: self.path.clone(),
                 line,
                 column,
+                end_column,
                 message: "Nested ternary expressions are not allowed. Use if-else statements for better readability.".to_string(),
                 severity: Severity::Warning,
                 line_text: None,

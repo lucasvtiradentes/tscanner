@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
@@ -61,13 +61,15 @@ impl<'a> Visit for RelativeImportVisitor<'a> {
                 .trim_matches('\'')
                 .starts_with('.')
             {
-                let (line, column) = get_line_col(self.source, import_start);
+                let (line, column, end_column) =
+                    get_span_positions(self.source, import_start, import_end);
 
                 self.issues.push(Issue {
                     rule: "no-relative-imports".to_string(),
                     file: self.path.clone(),
                     line,
                     column,
+                    end_column,
                     message: "Use absolute imports with @ prefix instead of relative imports"
                         .to_string(),
                     severity: Severity::Warning,

@@ -2,7 +2,7 @@ use crate::ast_utils::count_statements;
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
@@ -57,13 +57,15 @@ impl<'a> MaxFunctionLengthVisitor<'a> {
         let stmt_count = count_statements(&body.stmts);
 
         if stmt_count > self.max_length {
-            let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+            let (line, column, end_column) =
+                get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
             self.issues.push(Issue {
                 rule: "max-function-length".to_string(),
                 file: self.path.clone(),
                 line,
                 column,
+                end_column,
                 message: format!(
                     "Function '{}' has {} statements (max: {}). Consider breaking it into smaller functions.",
                     name, stmt_count, self.max_length

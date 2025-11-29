@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
@@ -54,13 +54,15 @@ struct MaxParamsVisitor<'a> {
 impl<'a> MaxParamsVisitor<'a> {
     fn check_param_count(&mut self, param_count: usize, span: swc_common::Span, name: &str) {
         if param_count > self.max_params {
-            let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+            let (line, column, end_column) =
+                get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
             self.issues.push(Issue {
                 rule: "max-params".to_string(),
                 file: self.path.clone(),
                 line,
                 column,
+                end_column,
                 message: format!(
                     "Function '{}' has {} parameters (max: {}). Consider using an options object.",
                     name, param_count, self.max_params

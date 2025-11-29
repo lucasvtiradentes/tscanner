@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
@@ -51,14 +51,15 @@ struct NullishCoalescingVisitor<'a> {
 impl<'a> Visit for NullishCoalescingVisitor<'a> {
     fn visit_bin_expr(&mut self, n: &BinExpr) {
         if matches!(n.op, BinaryOp::LogicalOr) {
-            let span_start = n.span.lo.0 as usize;
-            let (line, column) = get_line_col(self.source, span_start);
+            let (line, column, end_column) =
+                get_span_positions(self.source, n.span.lo.0 as usize, n.span.hi.0 as usize);
 
             self.issues.push(Issue {
                 rule: "prefer-nullish-coalescing".to_string(),
                 file: self.path.clone(),
                 line,
                 column,
+                end_column,
                 message: "Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, \"\", and false as falsy, while ?? only checks for null/undefined.".to_string(),
                 severity: Severity::Warning,
                 line_text: None,

@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
@@ -62,13 +62,15 @@ impl<'a> Visit for DuplicateImportsVisitor<'a> {
             let module_name = src_slice.trim_matches('"').trim_matches('\'').to_string();
 
             if let Some(&first_line) = self.seen_imports.get(&module_name) {
-                let (line, column) = get_line_col(self.source, import_start);
+                let (line, column, end_column) =
+                    get_span_positions(self.source, import_start, import_end);
 
                 self.issues.push(Issue {
                     rule: "no-duplicate-imports".to_string(),
                     file: self.path.clone(),
                     line,
                     column,
+                    end_column,
                     message: format!(
                         "Module '{}' is already imported at line {}. Merge imports.",
                         module_name, first_line
@@ -77,7 +79,7 @@ impl<'a> Visit for DuplicateImportsVisitor<'a> {
                     line_text: None,
                 });
             } else {
-                let (line, _) = get_line_col(self.source, import_start);
+                let (line, _, _) = get_span_positions(self.source, import_start, import_end);
                 self.seen_imports.insert(module_name, line);
             }
         }

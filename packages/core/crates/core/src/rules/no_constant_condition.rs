@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
@@ -68,13 +68,15 @@ impl<'a> ConstantConditionVisitor<'a> {
     fn check_condition(&mut self, test: &Expr, context: &str) {
         if Self::is_constant(test) {
             let span = test.span();
-            let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+            let (line, column, end_column) =
+                get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
             self.issues.push(Issue {
                 rule: "no-constant-condition".to_string(),
                 file: self.path.clone(),
                 line,
                 column,
+                end_column,
                 message: format!("Constant condition in {}", context),
                 severity: Severity::Error,
                 line_text: None,

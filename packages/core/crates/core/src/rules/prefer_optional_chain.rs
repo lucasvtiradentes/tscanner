@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
@@ -73,14 +73,18 @@ impl<'a> Visit for OptionalChainVisitor<'a> {
             if let Some(left_name) = Self::get_ident_name(&n.left) {
                 if let Some(right_obj_name) = Self::get_member_expr_object_name(&n.right) {
                     if left_name == right_obj_name {
-                        let span_start = n.span.lo.0 as usize;
-                        let (line, column) = get_line_col(self.source, span_start);
+                        let (line, column, end_column) = get_span_positions(
+                            self.source,
+                            n.span.lo.0 as usize,
+                            n.span.hi.0 as usize,
+                        );
 
                         self.issues.push(Issue {
                             rule: "prefer-optional-chain".to_string(),
                             file: self.path.clone(),
                             line,
                             column,
+                            end_column,
                             message: "Use optional chaining (?.) instead of logical AND (&&) for null checks.".to_string(),
                             severity: Severity::Warning,
                             line_text: None,

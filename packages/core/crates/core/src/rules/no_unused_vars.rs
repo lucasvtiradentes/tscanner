@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use std::sync::Arc;
@@ -45,13 +45,15 @@ impl Rule for NoUnusedVarsRule {
 
         for (name, span) in &visitor.declared_vars {
             if !visitor.used_vars.contains(name) && !name.starts_with('_') {
-                let (line, column) = get_line_col(source, span.lo.0 as usize);
+                let (line, column, end_column) =
+                    get_span_positions(source, span.lo.0 as usize, span.hi.0 as usize);
 
                 visitor.issues.push(Issue {
                     rule: "no-unused-vars".to_string(),
                     file: path.to_path_buf(),
                     line,
                     column,
+                    end_column,
                     message: format!("Variable '{}' is declared but never used.", name),
                     severity: Severity::Warning,
                     line_text: None,

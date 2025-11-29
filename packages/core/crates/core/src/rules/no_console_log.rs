@@ -41,6 +41,7 @@ impl Rule for NoConsoleLogRule {
                     file: path.to_path_buf(),
                     line: line_num + 1,
                     column: mat.start() + 1,
+                    end_column: mat.end() + 1,
                     message: "Avoid using console.log in production code".to_string(),
                     severity: Severity::Warning,
                     line_text: None,

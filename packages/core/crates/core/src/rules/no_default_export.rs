@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
@@ -50,14 +50,15 @@ struct DefaultExportVisitor<'a> {
 
 impl<'a> Visit for DefaultExportVisitor<'a> {
     fn visit_export_default_decl(&mut self, n: &ExportDefaultDecl) {
-        let span_start = n.span.lo.0 as usize;
-        let (line, column) = get_line_col(self.source, span_start);
+        let (line, column, end_column) =
+            get_span_positions(self.source, n.span.lo.0 as usize, n.span.hi.0 as usize);
 
         self.issues.push(Issue {
             rule: "no-default-export".to_string(),
             file: self.path.clone(),
             line,
             column,
+            end_column,
             message: "Avoid default exports. Use named exports for better refactoring support."
                 .to_string(),
             severity: Severity::Warning,
@@ -68,14 +69,15 @@ impl<'a> Visit for DefaultExportVisitor<'a> {
     }
 
     fn visit_export_default_expr(&mut self, n: &ExportDefaultExpr) {
-        let span_start = n.span.lo.0 as usize;
-        let (line, column) = get_line_col(self.source, span_start);
+        let (line, column, end_column) =
+            get_span_positions(self.source, n.span.lo.0 as usize, n.span.hi.0 as usize);
 
         self.issues.push(Issue {
             rule: "no-default-export".to_string(),
             file: self.path.clone(),
             line,
             column,
+            end_column,
             message: "Avoid default exports. Use named exports for better refactoring support."
                 .to_string(),
             severity: Severity::Warning,

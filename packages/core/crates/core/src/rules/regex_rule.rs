@@ -42,6 +42,7 @@ impl Rule for RegexRule {
                     file: path.to_path_buf(),
                     line: line_num + 1,
                     column: mat.start() + 1,
+                    end_column: mat.end() + 1,
                     message: self.message.clone(),
                     severity: self.severity,
                     line_text: None,

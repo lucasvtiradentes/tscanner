@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
@@ -56,13 +56,15 @@ impl<'a> EmptyFunctionVisitor<'a> {
 
     fn check_empty_function(&mut self, body: &BlockStmt, span: swc_common::Span, kind: &str) {
         if self.is_empty_block(body) {
-            let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+            let (line, column, end_column) =
+                get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
             self.issues.push(Issue {
                 rule: "no-empty-function".to_string(),
                 file: self.path.clone(),
                 line,
                 column,
+                end_column,
                 message: format!("Empty {} body", kind),
                 severity: Severity::Warning,
                 line_text: None,

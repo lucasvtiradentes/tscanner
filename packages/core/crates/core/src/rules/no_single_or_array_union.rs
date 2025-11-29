@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
@@ -92,13 +92,15 @@ impl<'a> Visit for SingleOrArrayUnionVisitor<'a> {
                 for other_type in &types {
                     if is_array_of(other_type, &base_key) {
                         let span = n.span();
-                        let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+                        let (line, column, end_column) =
+                            get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
                         self.issues.push(Issue {
                             rule: "no-single-or-array-union".to_string(),
                             file: self.path.clone(),
                             line,
                             column,
+                            end_column,
                             message: format!(
                                 "Avoid union of '{}' with '{}[]'. Use consistent type to avoid multiple code paths.",
                                 base_key, base_key

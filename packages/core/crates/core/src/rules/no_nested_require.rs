@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
@@ -80,13 +80,18 @@ impl<'a> Visit for NestedRequireVisitor<'a> {
             if let Callee::Expr(box_expr) = &n.callee {
                 if let Expr::Ident(ident) = &**box_expr {
                     if ident.sym.as_ref() == "require" {
-                        let (line, column) = get_line_col(self.source, n.span.lo.0 as usize);
+                        let (line, column, end_column) = get_span_positions(
+                            self.source,
+                            n.span.lo.0 as usize,
+                            n.span.hi.0 as usize,
+                        );
 
                         self.issues.push(Issue {
                             rule: "no-nested-require".to_string(),
                             file: self.path.clone(),
                             line,
                             column,
+                            end_column,
                             message: "require() calls should not be nested inside functions or blocks. Move to top level for static analysis.".to_string(),
                             severity: Severity::Warning,
                             line_text: None,
