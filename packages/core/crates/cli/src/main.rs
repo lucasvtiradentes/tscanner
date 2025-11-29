@@ -3,6 +3,7 @@ use clap::Parser;
 
 mod commands;
 mod config_loader;
+mod shared;
 
 use cli::{Cli, CliOverrides, Commands, GroupMode};
 use commands::{cmd_check, cmd_init, cmd_rules};
