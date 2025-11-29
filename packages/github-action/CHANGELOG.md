@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.19
+
+### Patch Changes
+
+- ae7b837: add lsp
+
 ## 0.0.18
 
 ### Patch Changes
