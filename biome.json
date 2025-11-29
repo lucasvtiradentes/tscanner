@@ -6,7 +6,7 @@
     "useIgnoreFile": true
   },
   "files": {
-    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.json"],
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
     "ignore": [
       "**/node_modules/**",
       "**/dist/**",
@@ -19,7 +19,8 @@
       "**/npm/**",
       "pnpm-lock.yaml",
       "packages/cli/schema.json",
-      "packages/github-action/dist/**"
+      "packages/github-action/dist/**",
+      "packages/core/crates/core/tests/specs/**"
     ]
   },
   "formatter": {

@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
@@ -23,6 +23,9 @@ inventory::submit!(RuleMetadataRegistration {
         default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::Style,
+        typescript_only: false,
+        equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/prefer-optional-chain"),
+        equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/use-optional-chain"),
     }
 });
 
@@ -31,7 +34,13 @@ impl Rule for PreferOptionalChainRule {
         "prefer-optional-chain"
     }
 
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn check(
+        &self,
+        program: &Program,
+        path: &Path,
+        source: &str,
+        _file_source: crate::file_source::FileSource,
+    ) -> Vec<Issue> {
         let mut visitor = OptionalChainVisitor {
             issues: Vec::new(),
             path: path.to_path_buf(),
@@ -73,14 +82,18 @@ impl<'a> Visit for OptionalChainVisitor<'a> {
             if let Some(left_name) = Self::get_ident_name(&n.left) {
                 if let Some(right_obj_name) = Self::get_member_expr_object_name(&n.right) {
                     if left_name == right_obj_name {
-                        let span_start = n.span.lo.0 as usize;
-                        let (line, column) = get_line_col(self.source, span_start);
+                        let (line, column, end_column) = get_span_positions(
+                            self.source,
+                            n.span.lo.0 as usize,
+                            n.span.hi.0 as usize,
+                        );
 
                         self.issues.push(Issue {
                             rule: "prefer-optional-chain".to_string(),
                             file: self.path.clone(),
                             line,
                             column,
+                            end_column,
                             message: "Use optional chaining (?.) instead of logical AND (&&) for null checks.".to_string(),
                             severity: Severity::Warning,
                             line_text: None,

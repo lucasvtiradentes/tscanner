@@ -31,12 +31,23 @@
     },
     "include": {
       "default": [
-        "**/*.{ts,tsx}"
+        "**/*.{ts,tsx,js,jsx,mjs,cjs}"
       ],
       "type": "array",
       "items": {
         "type": "string"
       }
+    },
+    "lsp": {
+      "description": "LSP server configuration",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/LspConfig"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "schema": {
       "description": "JSON schema URL for editor support",
@@ -161,6 +172,21 @@
         "script",
         "ai"
       ]
+    },
+    "LspConfig": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "description": "Show error diagnostics in LSP (default: true)",
+          "default": true,
+          "type": "boolean"
+        },
+        "warnings": {
+          "description": "Show warning diagnostics in LSP (default: true)",
+          "default": true,
+          "type": "boolean"
+        }
+      }
     },
     "Severity": {
       "type": "string",

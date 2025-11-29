@@ -92,13 +92,15 @@ impl RuleRegistry {
     pub fn get_enabled_rules(
         &self,
         file_path: &Path,
+        root: &Path,
         config: &TscannerConfig,
     ) -> Vec<(Arc<dyn Rule>, Severity)> {
         self.rules
             .iter()
             .filter_map(|(name, rule)| {
                 if let Some(compiled) = self.compiled_configs.get(name) {
-                    if compiled.enabled && config.matches_file(file_path, compiled) {
+                    if compiled.enabled && config.matches_file_with_root(file_path, root, compiled)
+                    {
                         return Some((rule.clone(), compiled.severity));
                     }
                 }

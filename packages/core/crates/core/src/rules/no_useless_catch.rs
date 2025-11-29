@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
@@ -24,6 +24,9 @@ inventory::submit!(RuleMetadataRegistration {
         default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::CodeQuality,
+        typescript_only: false,
+        equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-useless-catch"),
+        equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-useless-catch"),
     }
 });
 
@@ -32,7 +35,13 @@ impl Rule for NoUselessCatchRule {
         "no-useless-catch"
     }
 
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn check(
+        &self,
+        program: &Program,
+        path: &Path,
+        source: &str,
+        _file_source: crate::file_source::FileSource,
+    ) -> Vec<Issue> {
         let mut visitor = UselessCatchVisitor {
             issues: Vec::new(),
             path: path.to_path_buf(),
@@ -58,13 +67,18 @@ impl<'a> Visit for UselessCatchVisitor<'a> {
                         if let Some(Pat::Ident(catch_param)) = &handler.param {
                             if throw_ident.sym == catch_param.sym {
                                 let span = handler.span();
-                                let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+                                let (line, column, end_column) = get_span_positions(
+                                    self.source,
+                                    span.lo.0 as usize,
+                                    span.hi.0 as usize,
+                                );
 
                                 self.issues.push(Issue {
                                     rule: "no-useless-catch".to_string(),
                                     file: self.path.clone(),
                                     line,
                                     column,
+                                    end_column,
                                     message: "Useless catch block that only rethrows the error. Remove the try-catch or add meaningful error handling.".to_string(),
                                     severity: Severity::Warning,
                                     line_text: None,

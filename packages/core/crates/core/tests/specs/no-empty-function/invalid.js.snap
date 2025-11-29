@@ -1,0 +1,56 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+function empty() {}
+const emptyArrow = () => {};
+class MyClass {
+  emptyMethod() {}
+}
+```
+
+# Diagnostics
+```
+invalid.js:1:1 no-empty-function ━━━━━━━━━━━━━━━━━━━━
+
+  ! Empty function body
+
+  > 1 │ function empty() {}
+    2 │ const emptyArrow = () => {};
+
+```
+
+```
+invalid.js:2:20 no-empty-function ━━━━━━━━━━━━━━━━━━━━
+
+  ! Empty arrow function body
+
+    1 │ function empty() {}
+  > 2 │ const emptyArrow = () => {};
+    3 │ class MyClass {
+
+```
+
+```
+invalid.js:4:3 no-empty-function ━━━━━━━━━━━━━━━━━━━━
+
+  ! Empty method body
+
+    3 │ class MyClass {
+  > 4 │   emptyMethod() {}
+    5 │ }
+
+```
+
+```
+invalid.js:4:3 no-empty-function ━━━━━━━━━━━━━━━━━━━━
+
+  ! Empty function body
+
+    3 │ class MyClass {
+  > 4 │   emptyMethod() {}
+    5 │ }
+
+```

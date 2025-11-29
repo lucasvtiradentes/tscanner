@@ -11,7 +11,7 @@ const lazyLoad = () => import('./component');
 
 # Diagnostics
 ```
-invalid.ts:1:23 no-dynamic-import ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:22 no-dynamic-import ━━━━━━━━━━━━━━━━━━━━
 
   ! Dynamic import() is not allowed. Use static imports at the top of the file.
 
@@ -21,7 +21,7 @@ invalid.ts:1:23 no-dynamic-import ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:2:2 no-dynamic-import ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:2:1 no-dynamic-import ━━━━━━━━━━━━━━━━━━━━
 
   ! Dynamic import() is not allowed. Use static imports at the top of the file.
 
@@ -32,7 +32,7 @@ invalid.ts:2:2 no-dynamic-import ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:3:25 no-dynamic-import ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:3:24 no-dynamic-import ━━━━━━━━━━━━━━━━━━━━
 
   ! Dynamic import() is not allowed. Use static imports at the top of the file.
 

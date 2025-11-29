@@ -1,0 +1,42 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+import { foo } from '@/foo';
+import { bar } from '@app/bar';
+import { utils } from '@utils/helpers';
+```
+
+# Diagnostics
+```
+invalid.js:1:21 no-alias-imports ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use relative imports instead of aliased imports
+
+  > 1 │ import { foo } from '@/foo';
+    2 │ import { bar } from '@app/bar';
+
+```
+
+```
+invalid.js:2:21 no-alias-imports ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use relative imports instead of aliased imports
+
+    1 │ import { foo } from '@/foo';
+  > 2 │ import { bar } from '@app/bar';
+    3 │ import { utils } from '@utils/helpers';
+
+```
+
+```
+invalid.js:3:23 no-alias-imports ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use relative imports instead of aliased imports
+
+    2 │ import { bar } from '@app/bar';
+  > 3 │ import { utils } from '@utils/helpers';
+
+```

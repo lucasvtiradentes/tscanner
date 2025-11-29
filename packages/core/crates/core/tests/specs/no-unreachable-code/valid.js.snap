@@ -1,0 +1,21 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+function test() {
+  const value = 1;
+  return value;
+}
+
+function conditional() {
+  if (true) {
+    return 1;
+  }
+  return 2;
+}
+```
+
+# Diagnostics
+No issues found.

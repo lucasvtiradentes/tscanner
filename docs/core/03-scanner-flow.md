@@ -20,14 +20,18 @@ pub struct Scanner {
 
 ### 1. File Discovery
 
-Uses `WalkBuilder` with gitignore support:
+Uses `WalkBuilder` with gitignore support and config patterns:
 
 ```
 WalkBuilder::new(root)
-  ├─ Filter by extension (.ts, .tsx, .js, .jsx)
-  ├─ Skip node_modules, .git, dist
+  ├─ Compile config.include patterns into GlobSet
+  ├─ Compile config.exclude patterns into GlobSet
+  ├─ Filter directories by exclude patterns
+  ├─ Filter files: include.is_match(path) && !exclude.is_match(path)
   └─ Optional: Filter by changed files (branch mode)
 ```
+
+All pattern matching uses **relative paths** from root for consistency.
 
 ### 2. Parallel Processing
 
@@ -144,12 +148,72 @@ const x: any = 1;
 ```
 Disables specific rule for next line.
 
+## Glob Pattern Matching
+
+### Pattern Semantics
+
+TScanner uses `globset` crate for fast pattern matching. All paths are normalized to **relative paths** before matching.
+
+**Global patterns** (config root level):
+```json
+{
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["**/node_modules/**", "**/dist/**"]
+}
+```
+
+**Rule-specific patterns** (per-rule):
+```json
+{
+  "builtinRules": {
+    "no-any-type": {
+      "include": ["src/**"],
+      "exclude": ["**/*.test.ts"]
+    }
+  }
+}
+```
+
+### Intersection Logic
+
+Rule patterns **intersect** with global patterns (not replace):
+
+```
+file_matches = global_include.match(path)
+            && !global_exclude.match(path)
+            && (rule_include.match(path) OR rule_include.is_empty())
+            && (!rule_exclude.match(path) OR rule_exclude.is_empty())
+```
+
+| Scenario | Behavior |
+|----------|----------|
+| Global only | Uses global include/exclude |
+| Rule include set | Must match BOTH global AND rule include |
+| Rule exclude set | Excluded if matches global OR rule exclude |
+| Empty rule patterns | Falls back to global patterns |
+
+### CompiledRuleConfig
+
+Each rule compiles to:
+
+```rust
+pub struct CompiledRuleConfig {
+    pub enabled: bool,
+    pub severity: Severity,
+    pub global_include: GlobSet,
+    pub global_exclude: GlobSet,
+    pub rule_include: Option<GlobSet>,
+    pub rule_exclude: Option<GlobSet>,
+}
+```
+
 ## Performance Optimizations
 
 1. **Parallel Processing** - Rayon par_iter for multi-core utilization
 2. **Cache Hits** - Skip parsing/analysis for unchanged files
 3. **Early Exit** - File-level disable directive skips entire analysis
 4. **Gitignore** - WalkBuilder filters out ignored files upfront
+5. **GlobSet** - Pre-compiled patterns for O(n) matching
 
 ## Related Documentation
 

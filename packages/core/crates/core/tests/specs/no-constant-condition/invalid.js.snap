@@ -1,0 +1,80 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+if (true) {
+}
+if (false) {
+}
+while (true) {}
+while (1) {}
+for (; false; ) {}
+const x = true ? 1 : 2;
+```
+
+# Diagnostics
+```
+invalid.js:1:5 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
+
+  ! Constant condition in if statement
+
+  > 1 │ if (true) {
+    2 │ }
+
+```
+
+```
+invalid.js:3:5 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
+
+  ! Constant condition in if statement
+
+    2 │ }
+  > 3 │ if (false) {
+    4 │ }
+
+```
+
+```
+invalid.js:5:8 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
+
+  ! Constant condition in while loop
+
+    4 │ }
+  > 5 │ while (true) {}
+    6 │ while (1) {}
+
+```
+
+```
+invalid.js:6:8 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
+
+  ! Constant condition in while loop
+
+    5 │ while (true) {}
+  > 6 │ while (1) {}
+    7 │ for (; false; ) {}
+
+```
+
+```
+invalid.js:7:8 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
+
+  ! Constant condition in for loop
+
+    6 │ while (1) {}
+  > 7 │ for (; false; ) {}
+    8 │ const x = true ? 1 : 2;
+
+```
+
+```
+invalid.js:8:11 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
+
+  ! Constant condition in ternary expression
+
+    7 │ for (; false; ) {}
+  > 8 │ const x = true ? 1 : 2;
+
+```

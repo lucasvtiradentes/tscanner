@@ -1,0 +1,42 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+let x = 1;
+let y = 'hello';
+let z = { a: 1 };
+```
+
+# Diagnostics
+```
+invalid.js:1:5 prefer-const ━━━━━━━━━━━━━━━━━━━━
+
+  ! 'x' is never reassigned, use 'const' instead
+
+  > 1 │ let x = 1;
+    2 │ let y = 'hello';
+
+```
+
+```
+invalid.js:2:5 prefer-const ━━━━━━━━━━━━━━━━━━━━
+
+  ! 'y' is never reassigned, use 'const' instead
+
+    1 │ let x = 1;
+  > 2 │ let y = 'hello';
+    3 │ let z = { a: 1 };
+
+```
+
+```
+invalid.js:3:5 prefer-const ━━━━━━━━━━━━━━━━━━━━
+
+  ! 'z' is never reassigned, use 'const' instead
+
+    2 │ let y = 'hello';
+  > 3 │ let z = { a: 1 };
+
+```

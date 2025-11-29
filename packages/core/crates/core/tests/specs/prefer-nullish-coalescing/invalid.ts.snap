@@ -19,7 +19,7 @@ const count = items.length || 10;
 
 # Diagnostics
 ```
-invalid.ts:1:12 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:11 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
 
   ! Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
 
@@ -29,7 +29,7 @@ invalid.ts:1:12 prefer-nullish-coalescing ━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:3:12 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:3:11 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
 
   ! Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
 
@@ -40,7 +40,7 @@ invalid.ts:3:12 prefer-nullish-coalescing ━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:5:12 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:5:11 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
 
   ! Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
 
@@ -51,7 +51,7 @@ invalid.ts:5:12 prefer-nullish-coalescing ━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:7:17 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:7:16 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
 
   ! Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
 
@@ -62,7 +62,7 @@ invalid.ts:7:17 prefer-nullish-coalescing ━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:9:15 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:9:14 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
 
   ! Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
 
@@ -73,7 +73,7 @@ invalid.ts:9:15 prefer-nullish-coalescing ━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:11:16 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:11:15 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
 
   ! Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
 

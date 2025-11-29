@@ -1,0 +1,61 @@
+try {
+  foo();
+} catch (e) {
+  console.error(e);
+  throw e;
+}
+
+try {
+  bar();
+} catch (error) {
+  handleError(error);
+}
+
+try {
+  baz();
+} catch (e) {
+  logError(e);
+  throw e;
+}
+
+try {
+  qux();
+} catch (e) {
+  throw new Error("Custom error");
+}
+
+try {
+  quux();
+} catch (e) {
+  throw new CustomError(e);
+}
+
+try {
+  process();
+} catch (error) {
+  cleanup();
+  throw error;
+}
+
+try {
+  execute();
+} catch (e) {
+}
+
+function example() {
+  try {
+    doSomething();
+  } catch (err) {
+    console.log(err);
+    throw err;
+  }
+}
+
+async function asyncExample() {
+  try {
+    await fetchData();
+  } catch (e) {
+    await logError(e);
+    throw e;
+  }
+}

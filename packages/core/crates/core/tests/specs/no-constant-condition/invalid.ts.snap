@@ -16,7 +16,7 @@ const x = true ? 1 : 2;
 
 # Diagnostics
 ```
-invalid.ts:1:6 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:5 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
 
   ! Constant condition in if statement
 
@@ -26,7 +26,7 @@ invalid.ts:1:6 no-constant-condition ━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:3:6 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:3:5 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
 
   ! Constant condition in if statement
 
@@ -37,7 +37,7 @@ invalid.ts:3:6 no-constant-condition ━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:5:9 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:5:8 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
 
   ! Constant condition in while loop
 
@@ -48,7 +48,7 @@ invalid.ts:5:9 no-constant-condition ━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:6:9 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:6:8 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
 
   ! Constant condition in while loop
 
@@ -59,7 +59,7 @@ invalid.ts:6:9 no-constant-condition ━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:7:9 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:7:8 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
 
   ! Constant condition in for loop
 
@@ -70,7 +70,7 @@ invalid.ts:7:9 no-constant-condition ━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:8:12 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:8:11 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
 
   ! Constant condition in ternary expression
 

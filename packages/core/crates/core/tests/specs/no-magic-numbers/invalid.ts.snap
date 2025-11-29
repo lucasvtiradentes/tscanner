@@ -13,7 +13,7 @@ if (count > 42) {
 
 # Diagnostics
 ```
-invalid.ts:1:18 no-magic-numbers ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:17 no-magic-numbers ━━━━━━━━━━━━━━━━━━━━
 
   ! Magic number '3000' found. Consider using a named constant instead
 
@@ -23,7 +23,7 @@ invalid.ts:1:18 no-magic-numbers ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:2:18 no-magic-numbers ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:2:17 no-magic-numbers ━━━━━━━━━━━━━━━━━━━━
 
   ! Magic number '5' found. Consider using a named constant instead
 
@@ -34,7 +34,7 @@ invalid.ts:2:18 no-magic-numbers ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:3:21 no-magic-numbers ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:3:20 no-magic-numbers ━━━━━━━━━━━━━━━━━━━━
 
   ! Magic number '100' found. Consider using a named constant instead
 
@@ -45,7 +45,7 @@ invalid.ts:3:21 no-magic-numbers ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:4:14 no-magic-numbers ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:4:13 no-magic-numbers ━━━━━━━━━━━━━━━━━━━━
 
   ! Magic number '42' found. Consider using a named constant instead
 

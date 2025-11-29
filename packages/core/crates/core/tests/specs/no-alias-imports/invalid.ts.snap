@@ -11,7 +11,7 @@ import { utils } from '@utils/helpers';
 
 # Diagnostics
 ```
-invalid.ts:1:22 no-alias-imports ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:21 no-alias-imports ━━━━━━━━━━━━━━━━━━━━
 
   ! Use relative imports instead of aliased imports
 
@@ -21,7 +21,7 @@ invalid.ts:1:22 no-alias-imports ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:2:22 no-alias-imports ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:2:21 no-alias-imports ━━━━━━━━━━━━━━━━━━━━
 
   ! Use relative imports instead of aliased imports
 
@@ -32,7 +32,7 @@ invalid.ts:2:22 no-alias-imports ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:3:24 no-alias-imports ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:3:23 no-alias-imports ━━━━━━━━━━━━━━━━━━━━
 
   ! Use relative imports instead of aliased imports
 

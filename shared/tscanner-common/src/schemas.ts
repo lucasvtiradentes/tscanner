@@ -30,6 +30,7 @@ export const issueSchema = z.object({
   file: z.string(),
   line: z.number(),
   column: z.number(),
+  end_column: z.number(),
   message: z.string(),
   severity: severitySchema,
   line_text: z.string().optional(),
@@ -54,6 +55,9 @@ export const ruleMetadataSchema = z.object({
   defaultSeverity: severitySchema,
   defaultEnabled: z.boolean(),
   category: z.enum([RuleCategory.TypeSafety, RuleCategory.CodeQuality, RuleCategory.Style, RuleCategory.Performance]),
+  typescriptOnly: z.boolean().optional(),
+  equivalentEslintRule: z.string().optional(),
+  equivalentBiomeRule: z.string().optional(),
 });
 
 export const modifiedLineRangeSchema = z.object({
@@ -80,7 +84,13 @@ export const customRuleConfigSchema = z.object({
   exclude: z.array(z.string()).optional(),
 });
 
+export const lspConfigSchema = z.object({
+  errors: z.boolean().optional().default(true),
+  warnings: z.boolean().optional().default(true),
+});
+
 export const tscannerConfigSchema = z.object({
+  lsp: lspConfigSchema.optional(),
   builtinRules: z.record(z.string(), builtinRuleConfigSchema).optional(),
   customRules: z.record(z.string(), customRuleConfigSchema).optional(),
   include: z.array(z.string()).optional(),
@@ -99,6 +109,7 @@ export type RuleMetadata = z.infer<typeof ruleMetadataSchema>;
 export type ModifiedLineRange = z.infer<typeof modifiedLineRangeSchema>;
 export type BuiltinRuleConfig = z.infer<typeof builtinRuleConfigSchema>;
 export type CustomRuleConfig = z.infer<typeof customRuleConfigSchema>;
+export type LspConfig = z.infer<typeof lspConfigSchema>;
 export type TscannerConfig = z.infer<typeof tscannerConfigSchema>;
 
 export function hasConfiguredRules(config: TscannerConfig | null): boolean {

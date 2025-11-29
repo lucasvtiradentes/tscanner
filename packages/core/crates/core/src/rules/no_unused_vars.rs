@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use std::sync::Arc;
@@ -25,6 +25,9 @@ inventory::submit!(RuleMetadataRegistration {
         default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::CodeQuality,
+        typescript_only: false,
+        equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-unused-vars"),
+        equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-unused-variables"),
     }
 });
 
@@ -33,7 +36,13 @@ impl Rule for NoUnusedVarsRule {
         "no-unused-vars"
     }
 
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn check(
+        &self,
+        program: &Program,
+        path: &Path,
+        source: &str,
+        _file_source: crate::file_source::FileSource,
+    ) -> Vec<Issue> {
         let mut visitor = UnusedVarsVisitor {
             issues: Vec::new(),
             _path: path.to_path_buf(),
@@ -45,13 +54,15 @@ impl Rule for NoUnusedVarsRule {
 
         for (name, span) in &visitor.declared_vars {
             if !visitor.used_vars.contains(name) && !name.starts_with('_') {
-                let (line, column) = get_line_col(source, span.lo.0 as usize);
+                let (line, column, end_column) =
+                    get_span_positions(source, span.lo.0 as usize, span.hi.0 as usize);
 
                 visitor.issues.push(Issue {
                     rule: "no-unused-vars".to_string(),
                     file: path.to_path_buf(),
                     line,
                     column,
+                    end_column,
                     message: format!("Variable '{}' is declared but never used.", name),
                     severity: Severity::Warning,
                     line_text: None,

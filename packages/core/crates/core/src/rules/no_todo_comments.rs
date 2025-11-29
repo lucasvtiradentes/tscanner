@@ -22,6 +22,9 @@ inventory::submit!(RuleMetadataRegistration {
         default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::CodeQuality,
+        typescript_only: false,
+        equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-warning-comments"),
+        equivalent_biome_rule: None,
     }
 });
 
@@ -30,7 +33,13 @@ impl Rule for NoTodoCommentsRule {
         "no-todo-comments"
     }
 
-    fn check(&self, _program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn check(
+        &self,
+        _program: &Program,
+        path: &Path,
+        source: &str,
+        _file_source: crate::file_source::FileSource,
+    ) -> Vec<Issue> {
         let regex = Regex::new(r"//\s*(TODO|FIXME|HACK|XXX|NOTE|BUG)").unwrap();
         let mut issues = Vec::new();
 
@@ -41,6 +50,7 @@ impl Rule for NoTodoCommentsRule {
                     file: path.to_path_buf(),
                     line: line_num + 1,
                     column: mat.start() + 1,
+                    end_column: mat.end() + 1,
                     message: "Comment marker found. Consider creating an issue instead".to_string(),
                     severity: Severity::Warning,
                     line_text: None,

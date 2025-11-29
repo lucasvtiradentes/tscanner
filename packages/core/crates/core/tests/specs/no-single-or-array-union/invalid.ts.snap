@@ -1,6 +1,5 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 38
 expression: snapshot
 ---
 # Input
@@ -22,7 +21,7 @@ type Mixed = object | object[];
 
 # Diagnostics
 ```
-invalid.ts:1:13 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:12 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid union of 'string' with 'string[]'. Use consistent type to avoid multiple code paths.
 
@@ -32,7 +31,7 @@ invalid.ts:1:13 no-single-or-array-union ━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:3:13 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:3:12 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid union of 'number' with 'number[]'. Use consistent type to avoid multiple code paths.
 
@@ -43,7 +42,7 @@ invalid.ts:3:13 no-single-or-array-union ━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:5:18 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:5:17 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid union of 'boolean' with 'boolean[]'. Use consistent type to avoid multiple code paths.
 
@@ -54,7 +53,7 @@ invalid.ts:5:18 no-single-or-array-union ━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:8:11 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:8:10 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid union of 'bigint' with 'bigint[]'. Use consistent type to avoid multiple code paths.
 
@@ -65,7 +64,7 @@ invalid.ts:8:11 no-single-or-array-union ━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:11:25 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:11:24 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid union of 'symbol' with 'symbol[]'. Use consistent type to avoid multiple code paths.
 
@@ -76,7 +75,7 @@ invalid.ts:11:25 no-single-or-array-union ━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:13:15 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:13:14 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid union of 'object' with 'object[]'. Use consistent type to avoid multiple code paths.
 

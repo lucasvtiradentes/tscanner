@@ -11,7 +11,7 @@ import type { c } from 'lodash';
 
 # Diagnostics
 ```
-invalid.ts:2:20 no-duplicate-imports ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:2:19 no-duplicate-imports ━━━━━━━━━━━━━━━━━━━━
 
   ! Module 'lodash';' is already imported at line 1. Merge imports.
 
@@ -22,7 +22,7 @@ invalid.ts:2:20 no-duplicate-imports ━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:3:25 no-duplicate-imports ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:3:24 no-duplicate-imports ━━━━━━━━━━━━━━━━━━━━
 
   ! Module 'lodash';' is already imported at line 1. Merge imports.
 

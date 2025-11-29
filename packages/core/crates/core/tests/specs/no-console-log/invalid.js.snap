@@ -1,0 +1,45 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+console.log('hello');
+console.log('world');
+function test() {
+  console.log('inside function');
+}
+```
+
+# Diagnostics
+```
+invalid.js:1:1 no-console-log ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid using console.log in production code
+
+  > 1 │ console.log('hello');
+    2 │ console.log('world');
+
+```
+
+```
+invalid.js:2:1 no-console-log ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid using console.log in production code
+
+    1 │ console.log('hello');
+  > 2 │ console.log('world');
+    3 │ function test() {
+
+```
+
+```
+invalid.js:4:3 no-console-log ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid using console.log in production code
+
+    3 │ function test() {
+  > 4 │   console.log('inside function');
+    5 │ }
+
+```

@@ -1,0 +1,22 @@
+export function foo() {
+  return 42;
+}
+
+export class Bar {
+  name = "bar";
+}
+
+export const x = 123;
+
+export const y = 999;
+
+export const obj = { key: "value" };
+
+export const arrow = () => "arrow";
+
+export { foo, Bar };
+
+const z = 1;
+export { z };
+
+export { z as zed };

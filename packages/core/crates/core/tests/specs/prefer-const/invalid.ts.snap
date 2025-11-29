@@ -11,7 +11,7 @@ let z = { a: 1 };
 
 # Diagnostics
 ```
-invalid.ts:1:6 prefer-const ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:5 prefer-const ━━━━━━━━━━━━━━━━━━━━
 
   ! 'x' is never reassigned, use 'const' instead
 
@@ -21,7 +21,7 @@ invalid.ts:1:6 prefer-const ━━━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:2:6 prefer-const ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:2:5 prefer-const ━━━━━━━━━━━━━━━━━━━━
 
   ! 'y' is never reassigned, use 'const' instead
 
@@ -32,7 +32,7 @@ invalid.ts:2:6 prefer-const ━━━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:3:6 prefer-const ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:3:5 prefer-const ━━━━━━━━━━━━━━━━━━━━
 
   ! 'z' is never reassigned, use 'const' instead
 

@@ -1,0 +1,42 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+const module = await import('./module');
+import('lodash').then((m) => m.default);
+const lazyLoad = () => import('./component');
+```
+
+# Diagnostics
+```
+invalid.js:1:22 no-dynamic-import ━━━━━━━━━━━━━━━━━━━━
+
+  ! Dynamic import() is not allowed. Use static imports at the top of the file.
+
+  > 1 │ const module = await import('./module');
+    2 │ import('lodash').then((m) => m.default);
+
+```
+
+```
+invalid.js:2:1 no-dynamic-import ━━━━━━━━━━━━━━━━━━━━
+
+  ! Dynamic import() is not allowed. Use static imports at the top of the file.
+
+    1 │ const module = await import('./module');
+  > 2 │ import('lodash').then((m) => m.default);
+    3 │ const lazyLoad = () => import('./component');
+
+```
+
+```
+invalid.js:3:24 no-dynamic-import ━━━━━━━━━━━━━━━━━━━━
+
+  ! Dynamic import() is not allowed. Use static imports at the top of the file.
+
+    2 │ import('lodash').then((m) => m.default);
+  > 3 │ const lazyLoad = () => import('./component');
+
+```

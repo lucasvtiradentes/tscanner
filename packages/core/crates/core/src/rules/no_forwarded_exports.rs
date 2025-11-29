@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::collections::HashSet;
 use std::path::Path;
 use std::sync::Arc;
@@ -24,6 +24,9 @@ inventory::submit!(RuleMetadataRegistration {
         default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::Imports,
+        typescript_only: false,
+        equivalent_eslint_rule: None,
+        equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-re-export-all"),
     }
 });
 
@@ -32,7 +35,13 @@ impl Rule for NoForwardedExportsRule {
         "no-forwarded-exports"
     }
 
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn check(
+        &self,
+        program: &Program,
+        path: &Path,
+        source: &str,
+        _file_source: crate::file_source::FileSource,
+    ) -> Vec<Issue> {
         let mut visitor = ForwardedExportsVisitor {
             issues: Vec::new(),
             path: path.to_path_buf(),
@@ -88,10 +97,9 @@ impl<'a> Visit for ForwardedExportsVisitor<'a> {
     }
 
     fn visit_named_export(&mut self, n: &NamedExport) {
-        let span_start = n.span.lo.0 as usize;
-
         if let Some(src) = &n.src {
-            let (line, column) = get_line_col(self.source, span_start);
+            let (line, column, end_column) =
+                get_span_positions(self.source, n.span.lo.0 as usize, n.span.hi.0 as usize);
             let src_value = self.get_source_value(src.span);
 
             self.issues.push(Issue {
@@ -99,6 +107,7 @@ impl<'a> Visit for ForwardedExportsVisitor<'a> {
                 file: self.path.clone(),
                 line,
                 column,
+                end_column,
                 message: format!(
                     "Avoid re-exporting from '{}'. Import and use directly instead.",
                     src_value
@@ -115,14 +124,18 @@ impl<'a> Visit for ForwardedExportsVisitor<'a> {
                     };
 
                     if self.imported_names.contains(&orig_name) {
-                        let spec_start = named.span.lo.0 as usize;
-                        let (line, column) = get_line_col(self.source, spec_start);
+                        let (line, column, end_column) = get_span_positions(
+                            self.source,
+                            named.span.lo.0 as usize,
+                            named.span.hi.0 as usize,
+                        );
 
                         self.issues.push(Issue {
                             rule: "no-forwarded-exports".to_string(),
                             file: self.path.clone(),
                             line,
                             column,
+                            end_column,
                             message: format!(
                                 "Avoid re-exporting '{}'. Import and use directly instead.",
                                 orig_name
@@ -139,8 +152,8 @@ impl<'a> Visit for ForwardedExportsVisitor<'a> {
     }
 
     fn visit_export_all(&mut self, n: &ExportAll) {
-        let span_start = n.span.lo.0 as usize;
-        let (line, column) = get_line_col(self.source, span_start);
+        let (line, column, end_column) =
+            get_span_positions(self.source, n.span.lo.0 as usize, n.span.hi.0 as usize);
         let src_value = self.get_source_value(n.src.span);
 
         self.issues.push(Issue {
@@ -148,6 +161,7 @@ impl<'a> Visit for ForwardedExportsVisitor<'a> {
             file: self.path.clone(),
             line,
             column,
+            end_column,
             message: format!(
                 "Avoid star re-export from '{}'. Import and use directly instead.",
                 src_value

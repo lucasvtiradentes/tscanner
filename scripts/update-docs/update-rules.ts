@@ -2,13 +2,16 @@ import path from 'node:path';
 import { DynMarkdown, MarkdownTable, type TRowContent, getJson } from 'markdown-helper';
 
 type RuleMetadata = {
-  name: string;
   displayName: string;
   description: string;
   ruleType: 'ast' | 'regex';
   defaultSeverity: 'error' | 'warning';
   defaultEnabled: boolean;
   category: string;
+  sourcePath?: string;
+  typescriptOnly?: boolean;
+  equivalentEslintRule?: string;
+  equivalentBiomeRule?: string;
 };
 
 type TFields = 'RULES';
@@ -48,20 +51,45 @@ export function updateRules() {
 
     const categoryName = categoryMap[cat] || cat;
 
-    builtInRulesTableContent += `#### ${categoryName} (${rules.length})\n\n`;
+    builtInRulesTableContent += `<div align="left">\n\n#### ${categoryName} (${rules.length})\n\n</div>\n\n`;
 
     const headerContent = [
       { content: 'Rule', width: 250 },
-      { content: 'Description', width: 500 },
+      { content: 'Description', width: 450 },
+      { content: 'Also in', width: 100 },
     ] as const satisfies TRowContent;
 
     const table = new MarkdownTable(headerContent);
 
     for (const rule of rules) {
       const description = rule.description.replace(/`([^`]+)`/g, '<code>$1</code>');
+      const ruleName = rule.displayName
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '');
+
+      const tsOnlyBadge = rule.typescriptOnly ? ' <sup>TS</sup>' : '';
+      const ruleCell = rule.sourcePath
+        ? `<a href="https://github.com/lucasvtiradentes/tscanner/blob/main/${rule.sourcePath}"><code>${ruleName}</code></a>${tsOnlyBadge}`
+        : `<code>${ruleName}</code>${tsOnlyBadge}`;
+
+      const equivalentBadges: string[] = [];
+      if (rule.equivalentEslintRule) {
+        equivalentBadges.push(
+          `<a href="${rule.equivalentEslintRule}"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a>`,
+        );
+      }
+      if (rule.equivalentBiomeRule) {
+        equivalentBadges.push(
+          `<a href="${rule.equivalentBiomeRule}"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a>`,
+        );
+      }
+      const equivalentCell = equivalentBadges.join(' ');
+
       table.addBodyRow([
-        { content: `<code>${rule.name}</code>`, align: 'left' },
+        { content: ruleCell, align: 'left' },
         { content: description, align: 'left' },
+        { content: equivalentCell, align: 'left' },
       ]);
     }
 
@@ -71,11 +99,9 @@ export function updateRules() {
   const builtInRulesContent = `<details>
 <summary>Built-in rules (${rulesJson.length})</summary>
 <br />
-<div align="left">
 
 ${builtInRulesTableContent.trim()}
 
-</div>
 </details>`;
 
   const rulesIntroTable = `## 📋 Rules<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>

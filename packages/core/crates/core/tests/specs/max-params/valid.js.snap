@@ -1,0 +1,75 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+function noParams() {
+  return true;
+}
+
+function oneParam(a) {
+  return a;
+}
+
+function twoParams(a, b) {
+  return a;
+}
+
+function threeParams(a, b, c) {
+  return a;
+}
+
+function fourParams(a, b, c, d) {
+  return a;
+}
+
+const arrowNoParams = () => {
+  return true;
+};
+
+const arrowOneParam = (a) => {
+  return a;
+};
+
+const arrowTwoParams = (a, b) => {
+  return a;
+};
+
+const arrowThreeParams = (a, b, c) => {
+  return a;
+};
+
+const arrowFourParams = (a, b, c, d) => {
+  return a;
+};
+
+class MyClass {
+  methodNoParams() {
+    return true;
+  }
+
+  methodOneParam(a) {
+    return a;
+  }
+
+  methodTwoParams(a, b) {
+    return a;
+  }
+
+  methodThreeParams(a, b, c) {
+    return a;
+  }
+
+  methodFourParams(a, b, c, d) {
+    return a;
+  }
+}
+
+export function exportedFourParams(a, b, c, d) {
+  return a;
+}
+```
+
+# Diagnostics
+No issues found.

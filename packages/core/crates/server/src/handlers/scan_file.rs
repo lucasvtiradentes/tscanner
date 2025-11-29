@@ -11,7 +11,7 @@ pub fn handle_scan_file(
 
     let config = TscannerConfig::load_from_workspace(&params.root).unwrap_or_default();
 
-    let scanner = match Scanner::with_cache(config, state.cache.clone()) {
+    let scanner = match Scanner::with_cache(config, state.cache.clone(), params.root.clone()) {
         Ok(s) => s,
         Err(e) => {
             return Response {

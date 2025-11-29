@@ -1,0 +1,106 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+const x = foo!;
+
+const y = obj.prop!;
+
+func()!;
+
+const z = arr[0]!;
+
+const nested = obj.deep.nested!;
+
+return value!;
+
+const chain = foo!.bar!.baz;
+```
+
+# Diagnostics
+```
+invalid.ts:1:11 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
+
+  > 1 │ const x = foo!;
+    2 │ 
+
+```
+
+```
+invalid.ts:3:11 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
+
+    2 │ 
+  > 3 │ const y = obj.prop!;
+    4 │ 
+
+```
+
+```
+invalid.ts:5:1 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
+
+    4 │ 
+  > 5 │ func()!;
+    6 │ 
+
+```
+
+```
+invalid.ts:7:11 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
+
+    6 │ 
+  > 7 │ const z = arr[0]!;
+    8 │ 
+
+```
+
+```
+invalid.ts:9:16 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
+
+    8 │ 
+  > 9 │ const nested = obj.deep.nested!;
+    10 │ 
+
+```
+
+```
+invalid.ts:11:8 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
+
+    10 │ 
+  > 11 │ return value!;
+    12 │ 
+
+```
+
+```
+invalid.ts:13:15 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
+
+    12 │ 
+  > 13 │ const chain = foo!.bar!.baz;
+
+```
+
+```
+invalid.ts:13:15 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
+
+    12 │ 
+  > 13 │ const chain = foo!.bar!.baz;
+
+```

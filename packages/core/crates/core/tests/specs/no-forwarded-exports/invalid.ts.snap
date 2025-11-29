@@ -12,7 +12,7 @@ export { baz };
 
 # Diagnostics
 ```
-invalid.ts:1:2 no-forwarded-exports ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:1 no-forwarded-exports ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid re-exporting from './foo';'. Import and use directly instead.
 
@@ -22,7 +22,7 @@ invalid.ts:1:2 no-forwarded-exports ━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:2:2 no-forwarded-exports ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:2:1 no-forwarded-exports ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid star re-export from './bar';'. Import and use directly instead.
 
@@ -33,7 +33,7 @@ invalid.ts:2:2 no-forwarded-exports ━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:4:11 no-forwarded-exports ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:4:10 no-forwarded-exports ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid re-exporting 'baz'. Import and use directly instead.
 

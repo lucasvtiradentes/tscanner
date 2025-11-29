@@ -1,0 +1,85 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+async function basicReturnAwait() {
+  return await fetchData();
+}
+
+async function arrowReturnAwait() {
+  const fn = async () => {
+    return await getData();
+  };
+}
+
+async function nestedReturnAwait() {
+  if (true) {
+    return await processData();
+  }
+}
+
+async function multipleReturns() {
+  if (condition) {
+    return await fetch();
+  }
+  return await fallback();
+}
+```
+
+# Diagnostics
+```
+invalid.js:2:10 no-return-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Redundant 'return await' found. Remove 'await' since async function already returns a Promise.
+
+    1 │ async function basicReturnAwait() {
+  > 2 │   return await fetchData();
+    3 │ }
+
+```
+
+```
+invalid.js:7:12 no-return-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Redundant 'return await' found. Remove 'await' since async function already returns a Promise.
+
+    6 │   const fn = async () => {
+  > 7 │     return await getData();
+    8 │   };
+
+```
+
+```
+invalid.js:13:12 no-return-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Redundant 'return await' found. Remove 'await' since async function already returns a Promise.
+
+    12 │   if (true) {
+  > 13 │     return await processData();
+    14 │   }
+
+```
+
+```
+invalid.js:19:12 no-return-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Redundant 'return await' found. Remove 'await' since async function already returns a Promise.
+
+    18 │   if (condition) {
+  > 19 │     return await fetch();
+    20 │   }
+
+```
+
+```
+invalid.js:21:10 no-return-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Redundant 'return await' found. Remove 'await' since async function already returns a Promise.
+
+    20 │   }
+  > 21 │   return await fallback();
+    22 │ }
+
+```

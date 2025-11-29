@@ -1,0 +1,20 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+import { a } from 'lodash';
+import { b } from 'lodash';
+```
+
+# Diagnostics
+```
+invalid.js:2:19 no-duplicate-imports ━━━━━━━━━━━━━━━━━━━━
+
+  ! Module 'lodash';' is already imported at line 1. Merge imports.
+
+    1 │ import { a } from 'lodash';
+  > 2 │ import { b } from 'lodash';
+
+```

@@ -9,10 +9,35 @@ use std::path::Path;
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
+pub struct LspConfig {
+    #[serde(default = "default_true")]
+    #[schemars(description = "Show error diagnostics in LSP (default: true)")]
+    pub errors: bool,
+
+    #[serde(default = "default_true")]
+    #[schemars(description = "Show warning diagnostics in LSP (default: true)")]
+    pub warnings: bool,
+}
+
+impl Default for LspConfig {
+    fn default() -> Self {
+        Self {
+            errors: true,
+            warnings: true,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct TscannerConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[schemars(description = "JSON schema URL for editor support")]
     pub schema: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[schemars(description = "LSP server configuration")]
+    pub lsp: Option<LspConfig>,
 
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     #[schemars(description = "Built-in AST rules configuration")]
@@ -103,10 +128,34 @@ fn default_true() -> bool {
 pub struct CompiledRuleConfig {
     pub enabled: bool,
     pub severity: Severity,
-    pub include: GlobSet,
-    pub exclude: GlobSet,
+    pub global_include: GlobSet,
+    pub global_exclude: GlobSet,
+    pub rule_include: Option<GlobSet>,
+    pub rule_exclude: Option<GlobSet>,
     pub message: Option<String>,
     pub pattern: Option<String>,
+}
+
+impl CompiledRuleConfig {
+    pub fn matches(&self, relative_path: &Path) -> bool {
+        if !self.global_include.is_match(relative_path) {
+            return false;
+        }
+        if self.global_exclude.is_match(relative_path) {
+            return false;
+        }
+        if let Some(ref rule_include) = self.rule_include {
+            if !rule_include.is_match(relative_path) {
+                return false;
+            }
+        }
+        if let Some(ref rule_exclude) = self.rule_exclude {
+            if rule_exclude.is_match(relative_path) {
+                return false;
+            }
+        }
+        true
+    }
 }
 
 fn default_severity() -> Severity {
@@ -114,7 +163,7 @@ fn default_severity() -> Severity {
 }
 
 fn default_include() -> Vec<String> {
-    vec!["**/*.{ts,tsx}".to_string()]
+    vec!["**/*.{ts,tsx,js,jsx,mjs,cjs}".to_string()]
 }
 
 fn default_exclude() -> Vec<String> {
@@ -239,14 +288,26 @@ impl TscannerConfig {
             .map(|m| m.default_severity)
             .unwrap_or(Severity::Warning);
 
-        let include = compile_globs(&rule_config.include, &self.include)?;
-        let exclude = compile_globs(&rule_config.exclude, &self.exclude)?;
+        let global_include = compile_globset(&self.include)?;
+        let global_exclude = compile_globset(&self.exclude)?;
+        let rule_include = if rule_config.include.is_empty() {
+            None
+        } else {
+            Some(compile_globset(&rule_config.include)?)
+        };
+        let rule_exclude = if rule_config.exclude.is_empty() {
+            None
+        } else {
+            Some(compile_globset(&rule_config.exclude)?)
+        };
 
         Ok(CompiledRuleConfig {
             enabled: rule_config.enabled.unwrap_or(true),
             severity: rule_config.severity.unwrap_or(default_severity),
-            include,
-            exclude,
+            global_include,
+            global_exclude,
+            rule_include,
+            rule_exclude,
             message: None,
             pattern: None,
         })
@@ -261,14 +322,26 @@ impl TscannerConfig {
             .get(name)
             .ok_or_else(|| format!("Custom rule '{}' not found in configuration", name))?;
 
-        let include = compile_globs(&rule_config.include, &self.include)?;
-        let exclude = compile_globs(&rule_config.exclude, &self.exclude)?;
+        let global_include = compile_globset(&self.include)?;
+        let global_exclude = compile_globset(&self.exclude)?;
+        let rule_include = if rule_config.include.is_empty() {
+            None
+        } else {
+            Some(compile_globset(&rule_config.include)?)
+        };
+        let rule_exclude = if rule_config.exclude.is_empty() {
+            None
+        } else {
+            Some(compile_globset(&rule_config.exclude)?)
+        };
 
         Ok(CompiledRuleConfig {
             enabled: rule_config.enabled,
             severity: rule_config.severity,
-            include,
-            exclude,
+            global_include,
+            global_exclude,
+            rule_include,
+            rule_exclude,
             message: Some(rule_config.message.clone()),
             pattern: rule_config.pattern.clone(),
         })
@@ -278,11 +351,32 @@ impl TscannerConfig {
         if !rule_config.enabled {
             return false;
         }
-        rule_config.include.is_match(path) && !rule_config.exclude.is_match(path)
+        rule_config.matches(path)
+    }
+
+    pub fn matches_file_with_root(
+        &self,
+        path: &Path,
+        root: &Path,
+        rule_config: &CompiledRuleConfig,
+    ) -> bool {
+        if !rule_config.enabled {
+            return false;
+        }
+
+        let relative_path = path.strip_prefix(root).unwrap_or(path);
+        rule_config.matches(relative_path)
     }
 
     pub fn compute_hash(&self) -> u64 {
         let mut hasher = DefaultHasher::new();
+
+        for pattern in &self.include {
+            pattern.hash(&mut hasher);
+        }
+        for pattern in &self.exclude {
+            pattern.hash(&mut hasher);
+        }
 
         let sorted_builtin: BTreeMap<_, _> = self.builtin_rules.iter().collect();
         for (name, config) in sorted_builtin {
@@ -291,6 +385,12 @@ impl TscannerConfig {
             if let Some(sev) = &config.severity {
                 format!("{:?}", sev).hash(&mut hasher);
             }
+            for pattern in &config.include {
+                pattern.hash(&mut hasher);
+            }
+            for pattern in &config.exclude {
+                pattern.hash(&mut hasher);
+            }
         }
 
         let sorted_custom: BTreeMap<_, _> = self.custom_rules.iter().collect();
@@ -298,6 +398,12 @@ impl TscannerConfig {
             name.hash(&mut hasher);
             config.enabled.hash(&mut hasher);
             if let Some(pattern) = &config.pattern {
+                pattern.hash(&mut hasher);
+            }
+            for pattern in &config.include {
+                pattern.hash(&mut hasher);
+            }
+            for pattern in &config.exclude {
                 pattern.hash(&mut hasher);
             }
         }
@@ -315,17 +421,8 @@ impl Default for TscannerConfig {
     }
 }
 
-fn compile_globs(
-    rule_patterns: &[String],
-    global_patterns: &[String],
-) -> Result<GlobSet, Box<dyn std::error::Error>> {
+fn compile_globset(patterns: &[String]) -> Result<GlobSet, Box<dyn std::error::Error>> {
     let mut builder = GlobSetBuilder::new();
-
-    let patterns = if rule_patterns.is_empty() {
-        global_patterns
-    } else {
-        rule_patterns
-    };
 
     for pattern in patterns {
         let glob = Glob::new(pattern)?;

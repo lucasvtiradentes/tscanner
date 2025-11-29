@@ -11,7 +11,7 @@ import { lodash } from 'lodash';
 
 # Diagnostics
 ```
-invalid.ts:1:22 no-absolute-imports ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:21 no-absolute-imports ━━━━━━━━━━━━━━━━━━━━
 
   ! Use relative or aliased imports instead of absolute imports
 
@@ -21,7 +21,7 @@ invalid.ts:1:22 no-absolute-imports ━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:2:22 no-absolute-imports ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:2:21 no-absolute-imports ━━━━━━━━━━━━━━━━━━━━
 
   ! Use relative or aliased imports instead of absolute imports
 
@@ -32,7 +32,7 @@ invalid.ts:2:22 no-absolute-imports ━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:3:25 no-absolute-imports ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:3:24 no-absolute-imports ━━━━━━━━━━━━━━━━━━━━
 
   ! Use relative or aliased imports instead of absolute imports
 

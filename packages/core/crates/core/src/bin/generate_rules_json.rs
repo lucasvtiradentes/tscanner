@@ -6,7 +6,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut rules = get_all_rule_metadata();
     rules.sort_by(|a, b| a.name.cmp(b.name));
 
-    let json = serde_json::to_string_pretty(&rules)?;
+    let output: Vec<serde_json::Value> = rules
+        .iter()
+        .map(|r| {
+            let mut obj = serde_json::to_value(r).unwrap();
+            let map = obj.as_object_mut().unwrap();
+
+            let snake_name = r.name.replace('-', "_");
+            map.insert(
+                "sourcePath".to_string(),
+                serde_json::Value::String(format!(
+                    "packages/core/crates/core/src/rules/{}.rs",
+                    snake_name
+                )),
+            );
+
+            obj
+        })
+        .collect();
+
+    let json = serde_json::to_string_pretty(&output)?;
 
     let manifest_dir = env!("CARGO_MANIFEST_DIR");
     let output_path = PathBuf::from(manifest_dir)

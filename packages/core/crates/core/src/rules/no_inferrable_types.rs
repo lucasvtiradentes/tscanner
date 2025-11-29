@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
@@ -24,6 +24,9 @@ inventory::submit!(RuleMetadataRegistration {
         default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::TypeSafety,
+        typescript_only: true,
+        equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-inferrable-types"),
+        equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-inferrable-types"),
     }
 });
 
@@ -32,7 +35,17 @@ impl Rule for NoInferrableTypesRule {
         "no-inferrable-types"
     }
 
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn is_typescript_only(&self) -> bool {
+        true
+    }
+
+    fn check(
+        &self,
+        program: &Program,
+        path: &Path,
+        source: &str,
+        _file_source: crate::file_source::FileSource,
+    ) -> Vec<Issue> {
         let mut visitor = InferrableTypesVisitor {
             issues: Vec::new(),
             path: path.to_path_buf(),
@@ -75,13 +88,15 @@ impl<'a> Visit for InferrableTypesVisitor<'a> {
 
                     if should_report {
                         let span = type_ann.span();
-                        let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+                        let (line, column, end_column) =
+                            get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
                         self.issues.push(Issue {
                             rule: "no-inferrable-types".to_string(),
                             file: self.path.clone(),
                             line,
                             column,
+                            end_column,
                             message: format!(
                                 "Type annotation on variable '{}' is redundant. TypeScript can infer this type from the literal value.",
                                 ident.id.sym

@@ -4,6 +4,6 @@
     "no-any-type": {}
   },
   "customRules": {},
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
   "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
 }

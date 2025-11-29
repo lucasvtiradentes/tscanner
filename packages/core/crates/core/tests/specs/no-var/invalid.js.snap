@@ -1,0 +1,56 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+var x = 1;
+var y = 'hello';
+function test() {
+  var z = true;
+}
+var a, b, c;
+```
+
+# Diagnostics
+```
+invalid.js:1:1 no-var ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use 'let' or 'const' instead of 'var'
+
+  > 1 │ var x = 1;
+    2 │ var y = 'hello';
+
+```
+
+```
+invalid.js:2:1 no-var ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use 'let' or 'const' instead of 'var'
+
+    1 │ var x = 1;
+  > 2 │ var y = 'hello';
+    3 │ function test() {
+
+```
+
+```
+invalid.js:4:3 no-var ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use 'let' or 'const' instead of 'var'
+
+    3 │ function test() {
+  > 4 │   var z = true;
+    5 │ }
+
+```
+
+```
+invalid.js:6:1 no-var ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use 'let' or 'const' instead of 'var'
+
+    5 │ }
+  > 6 │ var a, b, c;
+
+```

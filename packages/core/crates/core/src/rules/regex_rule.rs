@@ -32,7 +32,13 @@ impl Rule for RegexRule {
         &self.name
     }
 
-    fn check(&self, _program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn check(
+        &self,
+        _program: &Program,
+        path: &Path,
+        source: &str,
+        _file_source: crate::file_source::FileSource,
+    ) -> Vec<Issue> {
         let mut issues = Vec::new();
 
         for (line_num, line) in source.lines().enumerate() {
@@ -42,6 +48,7 @@ impl Rule for RegexRule {
                     file: path.to_path_buf(),
                     line: line_num + 1,
                     column: mat.start() + 1,
+                    end_column: mat.end() + 1,
                     message: self.message.clone(),
                     severity: self.severity,
                     line_text: None,

@@ -37,6 +37,7 @@ export type IssueResult = {
   uri: vscode.Uri;
   line: number;
   column: number;
+  endColumn: number;
   text: string;
   rule: string;
   severity: 'error' | 'warning';
@@ -48,16 +49,16 @@ export enum NodeKind {
   File = 'file',
 }
 
-export interface FolderNode {
+export type FolderNode = {
   type: NodeKind.Folder;
   path: string;
   name: string;
   children: Map<string, FolderNode | FileNode>;
-}
+};
 
-export interface FileNode {
+export type FileNode = {
   type: NodeKind.File;
   path: string;
   name: string;
   results: IssueResult[];
-}
+};

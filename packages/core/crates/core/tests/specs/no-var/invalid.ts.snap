@@ -14,7 +14,7 @@ var a, b, c;
 
 # Diagnostics
 ```
-invalid.ts:1:2 no-var ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:1 no-var ━━━━━━━━━━━━━━━━━━━━
 
   ! Use 'let' or 'const' instead of 'var'
 
@@ -24,7 +24,7 @@ invalid.ts:1:2 no-var ━━━━━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:2:2 no-var ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:2:1 no-var ━━━━━━━━━━━━━━━━━━━━
 
   ! Use 'let' or 'const' instead of 'var'
 
@@ -35,7 +35,7 @@ invalid.ts:2:2 no-var ━━━━━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:4:4 no-var ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:4:3 no-var ━━━━━━━━━━━━━━━━━━━━
 
   ! Use 'let' or 'const' instead of 'var'
 
@@ -46,7 +46,7 @@ invalid.ts:4:4 no-var ━━━━━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:6:2 no-var ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:6:1 no-var ━━━━━━━━━━━━━━━━━━━━
 
   ! Use 'let' or 'const' instead of 'var'
 

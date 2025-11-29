@@ -16,7 +16,7 @@ type Config = {
 
 # Diagnostics
 ```
-invalid.ts:1:2 prefer-interface-over-type ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:1 prefer-interface-over-type ━━━━━━━━━━━━━━━━━━━━
 
   ! Use 'interface' instead of 'type' for object types
 
@@ -26,7 +26,7 @@ invalid.ts:1:2 prefer-interface-over-type ━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:6:2 prefer-interface-over-type ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:6:1 prefer-interface-over-type ━━━━━━━━━━━━━━━━━━━━
 
   ! Use 'interface' instead of 'type' for object types
 

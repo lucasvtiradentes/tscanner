@@ -10,7 +10,7 @@ class AnotherEmpty {}
 
 # Diagnostics
 ```
-invalid.ts:1:2 no-empty-class ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:1 no-empty-class ━━━━━━━━━━━━━━━━━━━━
 
   ! Empty class without methods or properties
 
@@ -20,7 +20,7 @@ invalid.ts:1:2 no-empty-class ━━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:2:2 no-empty-class ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:2:1 no-empty-class ━━━━━━━━━━━━━━━━━━━━
 
   ! Empty class without methods or properties
 

@@ -23,11 +23,11 @@ import {
 import { logger } from '../common/utils/logger';
 import { ConfigLocation, showConfigLocationMenuForFirstSetup } from './config-location';
 
-interface RuleQuickPickItem extends vscode.QuickPickItem {
+type RuleQuickPickItem = vscode.QuickPickItem & {
   ruleName: string;
   picked: boolean;
   isCustom: boolean;
-}
+};
 
 function getCategoryIcon(category: string): string {
   const icons: Record<string, string> = {

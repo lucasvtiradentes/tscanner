@@ -11,7 +11,7 @@ import { baz } from '../../baz';
 
 # Diagnostics
 ```
-invalid.ts:1:22 no-relative-imports ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:21 no-relative-imports ━━━━━━━━━━━━━━━━━━━━
 
   ! Use absolute imports with @ prefix instead of relative imports
 
@@ -21,7 +21,7 @@ invalid.ts:1:22 no-relative-imports ━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:2:22 no-relative-imports ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:2:21 no-relative-imports ━━━━━━━━━━━━━━━━━━━━
 
   ! Use absolute imports with @ prefix instead of relative imports
 
@@ -32,7 +32,7 @@ invalid.ts:2:22 no-relative-imports ━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:3:22 no-relative-imports ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:3:21 no-relative-imports ━━━━━━━━━━━━━━━━━━━━
 
   ! Use absolute imports with @ prefix instead of relative imports
 

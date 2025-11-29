@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
@@ -25,6 +25,9 @@ inventory::submit!(RuleMetadataRegistration {
         default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::TypeSafety,
+        typescript_only: true,
+        equivalent_eslint_rule: None,
+        equivalent_biome_rule: None,
     }
 });
 
@@ -33,7 +36,17 @@ impl Rule for NoImplicitAnyRule {
         "no-implicit-any"
     }
 
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn is_typescript_only(&self) -> bool {
+        true
+    }
+
+    fn check(
+        &self,
+        program: &Program,
+        path: &Path,
+        source: &str,
+        _file_source: crate::file_source::FileSource,
+    ) -> Vec<Issue> {
         let mut visitor = ImplicitAnyVisitor {
             issues: Vec::new(),
             path: path.to_path_buf(),
@@ -94,13 +107,15 @@ impl<'a> ImplicitAnyVisitor<'a> {
             Pat::Ident(ident) => {
                 if ident.type_ann.is_none() {
                     let span = ident.span();
-                    let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+                    let (line, column, end_column) =
+                        get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
                     self.issues.push(Issue {
                         rule: "no-implicit-any".to_string(),
                         file: self.path.clone(),
                         line,
                         column,
+                        end_column,
                         message: format!(
                             "Parameter '{}' implicitly has 'any' type. Add type annotation.",
                             ident.id.sym
@@ -113,13 +128,15 @@ impl<'a> ImplicitAnyVisitor<'a> {
             Pat::Array(arr) => {
                 if arr.type_ann.is_none() {
                     let span = arr.span();
-                    let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+                    let (line, column, end_column) =
+                        get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
                     self.issues.push(Issue {
                         rule: "no-implicit-any".to_string(),
                         file: self.path.clone(),
                         line,
                         column,
+                        end_column,
                         message:
                             "Destructured parameter implicitly has 'any' type. Add type annotation."
                                 .to_string(),
@@ -131,13 +148,15 @@ impl<'a> ImplicitAnyVisitor<'a> {
             Pat::Object(obj) => {
                 if obj.type_ann.is_none() {
                     let span = obj.span();
-                    let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+                    let (line, column, end_column) =
+                        get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
                     self.issues.push(Issue {
                         rule: "no-implicit-any".to_string(),
                         file: self.path.clone(),
                         line,
                         column,
+                        end_column,
                         message:
                             "Destructured parameter implicitly has 'any' type. Add type annotation."
                                 .to_string(),
@@ -149,13 +168,15 @@ impl<'a> ImplicitAnyVisitor<'a> {
             Pat::Rest(rest) => {
                 if rest.type_ann.is_none() {
                     let span = rest.span();
-                    let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+                    let (line, column, end_column) =
+                        get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
                     self.issues.push(Issue {
                         rule: "no-implicit-any".to_string(),
                         file: self.path.clone(),
                         line,
                         column,
+                        end_column,
                         message: "Rest parameter implicitly has 'any' type. Add type annotation."
                             .to_string(),
                         severity: Severity::Error,
@@ -183,13 +204,18 @@ impl<'a> Visit for ImplicitAnyVisitor<'a> {
                     Pat::Ident(ident) => {
                         if ident.type_ann.is_none() {
                             let span = ident.span();
-                            let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+                            let (line, column, end_column) = get_span_positions(
+                                self.source,
+                                span.lo.0 as usize,
+                                span.hi.0 as usize,
+                            );
 
                             self.issues.push(Issue {
                                 rule: "no-implicit-any".to_string(),
                                 file: self.path.clone(),
                                 line,
                                 column,
+                                end_column,
                                 message: format!(
                                     "Parameter '{}' implicitly has 'any' type. Add type annotation.",
                                     ident.id.sym
@@ -202,13 +228,18 @@ impl<'a> Visit for ImplicitAnyVisitor<'a> {
                     Pat::Array(arr) => {
                         if arr.type_ann.is_none() {
                             let span = arr.span();
-                            let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+                            let (line, column, end_column) = get_span_positions(
+                                self.source,
+                                span.lo.0 as usize,
+                                span.hi.0 as usize,
+                            );
 
                             self.issues.push(Issue {
                                 rule: "no-implicit-any".to_string(),
                                 file: self.path.clone(),
                                 line,
                                 column,
+                                end_column,
                                 message: "Destructured parameter implicitly has 'any' type. Add type annotation.".to_string(),
                                 severity: Severity::Error,
                                 line_text: None,
@@ -218,13 +249,18 @@ impl<'a> Visit for ImplicitAnyVisitor<'a> {
                     Pat::Object(obj) => {
                         if obj.type_ann.is_none() {
                             let span = obj.span();
-                            let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+                            let (line, column, end_column) = get_span_positions(
+                                self.source,
+                                span.lo.0 as usize,
+                                span.hi.0 as usize,
+                            );
 
                             self.issues.push(Issue {
                                 rule: "no-implicit-any".to_string(),
                                 file: self.path.clone(),
                                 line,
                                 column,
+                                end_column,
                                 message: "Destructured parameter implicitly has 'any' type. Add type annotation.".to_string(),
                                 severity: Severity::Error,
                                 line_text: None,
@@ -234,13 +270,18 @@ impl<'a> Visit for ImplicitAnyVisitor<'a> {
                     Pat::Rest(rest) => {
                         if rest.type_ann.is_none() {
                             let span = rest.span();
-                            let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+                            let (line, column, end_column) = get_span_positions(
+                                self.source,
+                                span.lo.0 as usize,
+                                span.hi.0 as usize,
+                            );
 
                             self.issues.push(Issue {
                                 rule: "no-implicit-any".to_string(),
                                 file: self.path.clone(),
                                 line,
                                 column,
+                                end_column,
                                 message:
                                     "Rest parameter implicitly has 'any' type. Add type annotation."
                                         .to_string(),

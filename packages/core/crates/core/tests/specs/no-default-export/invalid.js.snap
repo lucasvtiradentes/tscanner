@@ -1,0 +1,88 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+export default function foo() {
+  return 42;
+}
+
+export default class Bar {
+  name = "bar";
+}
+
+const x = 123;
+export default x;
+
+export default 999;
+
+export default { key: "value" };
+
+export default () => "arrow";
+```
+
+# Diagnostics
+```
+invalid.js:1:1 no-default-export ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid default exports. Use named exports for better refactoring support.
+
+  > 1 │ export default function foo() {
+    2 │   return 42;
+
+```
+
+```
+invalid.js:5:1 no-default-export ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid default exports. Use named exports for better refactoring support.
+
+    4 │ 
+  > 5 │ export default class Bar {
+    6 │   name = "bar";
+
+```
+
+```
+invalid.js:10:1 no-default-export ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid default exports. Use named exports for better refactoring support.
+
+    9 │ const x = 123;
+  > 10 │ export default x;
+    11 │ 
+
+```
+
+```
+invalid.js:12:1 no-default-export ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid default exports. Use named exports for better refactoring support.
+
+    11 │ 
+  > 12 │ export default 999;
+    13 │ 
+
+```
+
+```
+invalid.js:14:1 no-default-export ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid default exports. Use named exports for better refactoring support.
+
+    13 │ 
+  > 14 │ export default { key: "value" };
+    15 │ 
+
+```
+
+```
+invalid.js:16:1 no-default-export ━━━━━━━━━━━━━━━━━━━━
+
+  ! Avoid default exports. Use named exports for better refactoring support.
+
+    15 │ 
+  > 16 │ export default () => "arrow";
+
+```

@@ -59,13 +59,14 @@
   },
   "dependencies": {
     "jsonc-parser": "^3.3.1",
+    "vscode-languageclient": "^9.0.1",
     "zod": "^4.1.12"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
-    "tscanner-common": "workspace:*",
     "@types/vscode": "^1.93.0",
     "esbuild": "^0.24.0",
+    "tscanner-common": "workspace:*",
     "tsx": "^4.20.6",
     "typescript": "^5.7.0"
   },

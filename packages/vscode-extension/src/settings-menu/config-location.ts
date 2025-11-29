@@ -350,60 +350,174 @@ async function getSubfolders(dirUri: vscode.Uri): Promise<string[]> {
 
 async function showFolderPickerQuickPick(
   workspaceRoot: vscode.Uri,
-  startPath: string,
+  currentRelativePath: string,
 ): Promise<string | null | 'cancelled'> {
-  let currentRelativePath = startPath;
+  const currentUri =
+    currentRelativePath === '.' ? workspaceRoot : vscode.Uri.joinPath(workspaceRoot, currentRelativePath);
 
-  while (true) {
-    const currentUri =
-      currentRelativePath === '.' ? workspaceRoot : vscode.Uri.joinPath(workspaceRoot, currentRelativePath);
+  const subfolders = await getSubfolders(currentUri);
+  const displayPath = currentRelativePath;
 
-    const subfolders = await getSubfolders(currentUri);
-    const displayPath = currentRelativePath;
+  const items: QuickPickItemWithId[] = [];
 
-    const items: QuickPickItemWithId[] = [];
+  items.push({
+    id: '__select__',
+    label: '$(check) Select this Folder',
+    detail: `Use: ${path.posix.join(displayPath, CONFIG_DIR_NAME)}`,
+  });
 
+  if (currentRelativePath !== '.') {
     items.push({
-      id: '__select__',
-      label: '$(check) Select this Folder',
-      detail: `Use: ${path.posix.join(displayPath, CONFIG_DIR_NAME)}`,
+      id: '__parent__',
+      label: '$(arrow-up) ..',
+      detail: 'Go to parent folder',
     });
-
-    if (currentRelativePath !== '.') {
-      items.push({
-        id: '__parent__',
-        label: '$(arrow-up) ..',
-        detail: 'Go to parent folder',
-      });
-    }
-
-    for (const folder of subfolders.sort()) {
-      items.push({
-        id: folder,
-        label: `$(folder) ${folder}`,
-        detail: currentRelativePath === '.' ? folder : path.posix.join(currentRelativePath, folder),
-      });
-    }
-
-    const selected = await vscode.window.showQuickPick(items, {
-      placeHolder: `Current: ${displayPath}`,
-      ignoreFocusOut: true,
-    });
-
-    if (!selected) return 'cancelled';
-
-    if (selected.id === '__select__') {
-      return currentRelativePath;
-    }
-
-    if (selected.id === '__parent__') {
-      const parent = path.posix.dirname(currentRelativePath);
-      currentRelativePath = parent === '.' || parent === '' ? '.' : parent;
-      continue;
-    }
-
-    currentRelativePath = currentRelativePath === '.' ? selected.id : path.posix.join(currentRelativePath, selected.id);
   }
+
+  for (const folder of subfolders.sort()) {
+    items.push({
+      id: folder,
+      label: `$(folder) ${folder}`,
+      detail: currentRelativePath === '.' ? folder : path.posix.join(currentRelativePath, folder),
+    });
+  }
+
+  const selected = await vscode.window.showQuickPick(items, {
+    placeHolder: `Current: ${displayPath}`,
+    ignoreFocusOut: true,
+  });
+
+  if (!selected) return 'cancelled';
+
+  if (selected.id === '__select__') {
+    return currentRelativePath;
+  }
+
+  if (selected.id === '__parent__') {
+    const parent = path.posix.dirname(currentRelativePath);
+    const parentPath = parent === '.' || parent === '' ? '.' : parent;
+    return showFolderPickerQuickPick(workspaceRoot, parentPath);
+  }
+
+  const nextPath = currentRelativePath === '.' ? selected.id : path.posix.join(currentRelativePath, selected.id);
+  return showFolderPickerQuickPick(workspaceRoot, nextPath);
+}
+
+async function showConfigLocationMenuLoop(
+  workspaceFolder: vscode.WorkspaceFolder,
+  workspacePath: string,
+  menuItems: QuickPickItemWithId[],
+  currentCustomConfigDirRef: { current: string | null },
+  context: vscode.ExtensionContext,
+): Promise<{ location: ConfigLocation; customPath: string | null } | null> {
+  const selected = await vscode.window.showQuickPick(menuItems, {
+    placeHolder: 'Where do you want to save the rules configuration?',
+    ignoreFocusOut: true,
+  });
+
+  if (!selected) return null;
+
+  const targetLocation = selected.id as ConfigLocation;
+
+  if (targetLocation === ConfigLocation.CustomPath) {
+    const result = await showFolderPickerQuickPick(workspaceFolder.uri, '.');
+    if (result === 'cancelled' || result === null) {
+      return showConfigLocationMenuLoop(workspaceFolder, workspacePath, menuItems, currentCustomConfigDirRef, context);
+    }
+
+    if (result === '.') {
+      const existingLocal = await hasLocalConfig(workspacePath);
+      if (existingLocal) {
+        const confirm = await vscode.window.showWarningMessage(
+          'A config already exists at ".tscanner". This will overwrite it.',
+          { modal: true },
+          'Overwrite',
+        );
+        if (confirm !== 'Overwrite') {
+          return showConfigLocationMenuLoop(
+            workspaceFolder,
+            workspacePath,
+            menuItems,
+            currentCustomConfigDirRef,
+            context,
+          );
+        }
+      }
+
+      currentCustomConfigDirRef.current = null;
+      updateState(context, WorkspaceStateKey.CustomConfigDir, null);
+
+      return { location: ConfigLocation.ProjectFolder, customPath: null };
+    }
+
+    const existingConfig = await hasCustomConfig(workspacePath, result);
+    if (existingConfig) {
+      const confirm = await vscode.window.showWarningMessage(
+        `A config already exists at "${result}/.tscanner". This will overwrite it.`,
+        { modal: true },
+        'Overwrite',
+      );
+      if (confirm !== 'Overwrite') {
+        return showConfigLocationMenuLoop(
+          workspaceFolder,
+          workspacePath,
+          menuItems,
+          currentCustomConfigDirRef,
+          context,
+        );
+      }
+    }
+
+    currentCustomConfigDirRef.current = result;
+    updateState(context, WorkspaceStateKey.CustomConfigDir, result);
+
+    return { location: targetLocation, customPath: result };
+  }
+
+  if (targetLocation === ConfigLocation.ProjectFolder) {
+    const existingLocal = await hasLocalConfig(workspacePath);
+    if (existingLocal) {
+      const confirm = await vscode.window.showWarningMessage(
+        'A config already exists at ".tscanner". This will overwrite it.',
+        { modal: true },
+        'Overwrite',
+      );
+      if (confirm !== 'Overwrite') {
+        return showConfigLocationMenuLoop(
+          workspaceFolder,
+          workspacePath,
+          menuItems,
+          currentCustomConfigDirRef,
+          context,
+        );
+      }
+    }
+  }
+
+  if (targetLocation === ConfigLocation.ExtensionStorage) {
+    const existingGlobal = await hasGlobalConfig(context, workspacePath);
+    if (existingGlobal) {
+      const confirm = await vscode.window.showWarningMessage(
+        'A config already exists in Extension Storage. This will overwrite it.',
+        { modal: true },
+        'Overwrite',
+      );
+      if (confirm !== 'Overwrite') {
+        return showConfigLocationMenuLoop(
+          workspaceFolder,
+          workspacePath,
+          menuItems,
+          currentCustomConfigDirRef,
+          context,
+        );
+      }
+    }
+  }
+
+  currentCustomConfigDirRef.current = null;
+  updateState(context, WorkspaceStateKey.CustomConfigDir, null);
+
+  return { location: targetLocation, customPath: null };
 }
 
 export async function showConfigLocationMenuForFirstSetup(
@@ -436,80 +550,5 @@ export async function showConfigLocationMenuForFirstSetup(
     },
   ];
 
-  while (true) {
-    const selected = await vscode.window.showQuickPick(menuItems, {
-      placeHolder: 'Where do you want to save the rules configuration?',
-      ignoreFocusOut: true,
-    });
-
-    if (!selected) return null;
-
-    const targetLocation = selected.id as ConfigLocation;
-
-    if (targetLocation === ConfigLocation.CustomPath) {
-      const result = await showFolderPickerQuickPick(workspaceFolder.uri, '.');
-      if (result === 'cancelled' || result === null) continue;
-
-      if (result === '.') {
-        const existingLocal = await hasLocalConfig(workspacePath);
-        if (existingLocal) {
-          const confirm = await vscode.window.showWarningMessage(
-            'A config already exists at ".tscanner". This will overwrite it.',
-            { modal: true },
-            'Overwrite',
-          );
-          if (confirm !== 'Overwrite') continue;
-        }
-
-        currentCustomConfigDirRef.current = null;
-        updateState(context, WorkspaceStateKey.CustomConfigDir, null);
-
-        return { location: ConfigLocation.ProjectFolder, customPath: null };
-      }
-
-      const existingConfig = await hasCustomConfig(workspacePath, result);
-      if (existingConfig) {
-        const confirm = await vscode.window.showWarningMessage(
-          `A config already exists at "${result}/.tscanner". This will overwrite it.`,
-          { modal: true },
-          'Overwrite',
-        );
-        if (confirm !== 'Overwrite') continue;
-      }
-
-      currentCustomConfigDirRef.current = result;
-      updateState(context, WorkspaceStateKey.CustomConfigDir, result);
-
-      return { location: targetLocation, customPath: result };
-    }
-
-    if (targetLocation === ConfigLocation.ProjectFolder) {
-      const existingLocal = await hasLocalConfig(workspacePath);
-      if (existingLocal) {
-        const confirm = await vscode.window.showWarningMessage(
-          'A config already exists at ".tscanner". This will overwrite it.',
-          { modal: true },
-          'Overwrite',
-        );
-        if (confirm !== 'Overwrite') continue;
-      }
-    }
-
-    if (targetLocation === ConfigLocation.ExtensionStorage) {
-      const existingGlobal = await hasGlobalConfig(context, workspacePath);
-      if (existingGlobal) {
-        const confirm = await vscode.window.showWarningMessage(
-          'A config already exists in Extension Storage. This will overwrite it.',
-          { modal: true },
-          'Overwrite',
-        );
-        if (confirm !== 'Overwrite') continue;
-      }
-    }
-
-    currentCustomConfigDirRef.current = null;
-    updateState(context, WorkspaceStateKey.CustomConfigDir, null);
-
-    return { location: targetLocation, customPath: null };
-  }
+  return showConfigLocationMenuLoop(workspaceFolder, workspacePath, menuItems, currentCustomConfigDirRef, context);
 }

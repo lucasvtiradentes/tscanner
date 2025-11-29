@@ -18,6 +18,12 @@ pub struct RuleMetadata {
     pub default_severity: Severity,
     pub default_enabled: bool,
     pub category: RuleCategory,
+    #[serde(default)]
+    pub typescript_only: bool,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub equivalent_eslint_rule: Option<&'static str>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub equivalent_biome_rule: Option<&'static str>,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]

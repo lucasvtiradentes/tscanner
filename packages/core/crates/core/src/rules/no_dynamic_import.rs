@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
@@ -23,6 +23,9 @@ inventory::submit!(RuleMetadataRegistration {
         default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::Imports,
+        typescript_only: false,
+        equivalent_eslint_rule: None,
+        equivalent_biome_rule: None,
     }
 });
 
@@ -31,7 +34,13 @@ impl Rule for NoDynamicImportRule {
         "no-dynamic-import"
     }
 
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn check(
+        &self,
+        program: &Program,
+        path: &Path,
+        source: &str,
+        _file_source: crate::file_source::FileSource,
+    ) -> Vec<Issue> {
         let mut visitor = DynamicImportVisitor {
             issues: Vec::new(),
             path: path.to_path_buf(),
@@ -51,13 +60,15 @@ struct DynamicImportVisitor<'a> {
 impl<'a> Visit for DynamicImportVisitor<'a> {
     fn visit_call_expr(&mut self, n: &CallExpr) {
         if let Callee::Import(_) = &n.callee {
-            let (line, column) = get_line_col(self.source, n.span.lo.0 as usize);
+            let (line, column, end_column) =
+                get_span_positions(self.source, n.span.lo.0 as usize, n.span.hi.0 as usize);
 
             self.issues.push(Issue {
                 rule: "no-dynamic-import".to_string(),
                 file: self.path.clone(),
                 line,
                 column,
+                end_column,
                 message:
                     "Dynamic import() is not allowed. Use static imports at the top of the file."
                         .to_string(),

@@ -1,0 +1,12 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+const x = 1;
+const y = 2;
+```
+
+# Diagnostics
+No issues found.

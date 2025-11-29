@@ -37,6 +37,7 @@ function convertToScanResult(results: IssueResult[]): ScanResult {
       message: issue.message,
       line: issue.line,
       column: issue.column,
+      end_column: issue.endColumn,
       severity: issue.severity as 'error' | 'warning',
       line_text: issue.text,
     })),

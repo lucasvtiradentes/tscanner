@@ -1,3 +1,4 @@
+use core::file_source::FileSource;
 use core::parser::parse_file;
 use core::rules::RuleRegistration;
 use std::fs;
@@ -19,16 +20,18 @@ fn run_rule_test(input_path: &str) {
     let program = parse_file(input_file, &source)
         .unwrap_or_else(|err| panic!("failed to parse {input_file:?}: {err:?}"));
 
+    let file_source = FileSource::from_path(input_file);
+
     let rule = inventory::iter::<RuleRegistration>
         .into_iter()
         .find(|r| r.name == rule_name)
         .map(|r| (r.factory)())
         .unwrap_or_else(|| panic!("rule '{rule_name}' not found"));
 
-    let mut issues = rule.check(&program, input_file, &source);
+    let mut issues = rule.check(&program, input_file, &source, file_source);
     issues.sort_by(|a, b| a.line.cmp(&b.line).then(a.column.cmp(&b.column)));
 
-    let snapshot = format_snapshot(&source, &issues);
+    let snapshot = format_snapshot(&source, &issues, input_file);
 
     insta::with_settings!({
         prepend_module_to_snapshot => false,
@@ -39,10 +42,11 @@ fn run_rule_test(input_path: &str) {
     });
 }
 
-fn format_snapshot(source: &str, issues: &[core::types::Issue]) -> String {
+fn format_snapshot(source: &str, issues: &[core::types::Issue], path: &Path) -> String {
+    let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("ts");
     let mut output = String::new();
 
-    output.push_str("# Input\n```ts\n");
+    output.push_str(&format!("# Input\n```{}\n", ext));
     output.push_str(source);
     if !source.ends_with('\n') {
         output.push('\n');
@@ -104,7 +108,7 @@ macro_rules! generate_rule_tests {
             use super::run_rule_test;
 
             #[test]
-            fn invalid() {
+            fn invalid_ts() {
                 let rule_dir = stringify!($rule_name).replace('_', "-");
                 let path = format!(
                     "{}/tests/specs/{}/invalid.ts",
@@ -117,10 +121,36 @@ macro_rules! generate_rule_tests {
             }
 
             #[test]
-            fn valid() {
+            fn valid_ts() {
                 let rule_dir = stringify!($rule_name).replace('_', "-");
                 let path = format!(
                     "{}/tests/specs/{}/valid.ts",
+                    env!("CARGO_MANIFEST_DIR"),
+                    rule_dir
+                );
+                if std::path::Path::new(&path).exists() {
+                    run_rule_test(&path);
+                }
+            }
+
+            #[test]
+            fn invalid_js() {
+                let rule_dir = stringify!($rule_name).replace('_', "-");
+                let path = format!(
+                    "{}/tests/specs/{}/invalid.js",
+                    env!("CARGO_MANIFEST_DIR"),
+                    rule_dir
+                );
+                if std::path::Path::new(&path).exists() {
+                    run_rule_test(&path);
+                }
+            }
+
+            #[test]
+            fn valid_js() {
+                let rule_dir = stringify!($rule_name).replace('_', "-");
+                let path = format!(
+                    "{}/tests/specs/{}/valid.js",
                     env!("CARGO_MANIFEST_DIR"),
                     rule_dir
                 );
@@ -164,3 +194,10 @@ generate_rule_tests!(max_params);
 generate_rule_tests!(prefer_interface_over_type);
 generate_rule_tests!(max_function_length);
 generate_rule_tests!(prefer_optional_chain);
+generate_rule_tests!(prefer_nullish_coalescing);
+generate_rule_tests!(no_floating_promises);
+generate_rule_tests!(no_useless_catch);
+generate_rule_tests!(no_return_await);
+generate_rule_tests!(no_empty_interface);
+generate_rule_tests!(no_inferrable_types);
+generate_rule_tests!(no_non_null_assertion);

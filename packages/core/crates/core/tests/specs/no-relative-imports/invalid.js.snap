@@ -1,0 +1,42 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+import { foo } from './foo';
+import { bar } from '../bar';
+import { baz } from '../../baz';
+```
+
+# Diagnostics
+```
+invalid.js:1:21 no-relative-imports ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use absolute imports with @ prefix instead of relative imports
+
+  > 1 │ import { foo } from './foo';
+    2 │ import { bar } from '../bar';
+
+```
+
+```
+invalid.js:2:21 no-relative-imports ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use absolute imports with @ prefix instead of relative imports
+
+    1 │ import { foo } from './foo';
+  > 2 │ import { bar } from '../bar';
+    3 │ import { baz } from '../../baz';
+
+```
+
+```
+invalid.js:3:21 no-relative-imports ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use absolute imports with @ prefix instead of relative imports
+
+    2 │ import { bar } from '../bar';
+  > 3 │ import { baz } from '../../baz';
+
+```

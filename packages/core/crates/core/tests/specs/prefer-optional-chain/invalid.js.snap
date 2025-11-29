@@ -1,0 +1,44 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+const x = a && a.b;
+
+const y = foo && foo.bar;
+
+const z = obj && obj.property && obj.property.nested;
+```
+
+# Diagnostics
+```
+invalid.js:1:11 prefer-optional-chain ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use optional chaining (?.) instead of logical AND (&&) for null checks.
+
+  > 1 │ const x = a && a.b;
+    2 │ 
+
+```
+
+```
+invalid.js:3:11 prefer-optional-chain ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use optional chaining (?.) instead of logical AND (&&) for null checks.
+
+    2 │ 
+  > 3 │ const y = foo && foo.bar;
+    4 │ 
+
+```
+
+```
+invalid.js:5:11 prefer-optional-chain ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use optional chaining (?.) instead of logical AND (&&) for null checks.
+
+    4 │ 
+  > 5 │ const z = obj && obj.property && obj.property.nested;
+
+```

@@ -1,7 +1,7 @@
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
-use crate::utils::get_line_col;
+use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
@@ -24,6 +24,9 @@ inventory::submit!(RuleMetadataRegistration {
         default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::BugPrevention,
+        typescript_only: false,
+        equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-unreachable"),
+        equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-unreachable"),
     }
 });
 
@@ -32,7 +35,13 @@ impl Rule for NoUnreachableCodeRule {
         "no-unreachable-code"
     }
 
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn check(
+        &self,
+        program: &Program,
+        path: &Path,
+        source: &str,
+        _file_source: crate::file_source::FileSource,
+    ) -> Vec<Issue> {
         let mut visitor = UnreachableCodeVisitor {
             issues: Vec::new(),
             path: path.to_path_buf(),
@@ -63,13 +72,15 @@ impl<'a> UnreachableCodeVisitor<'a> {
         for stmt in stmts {
             if found_terminator {
                 let span = stmt.span();
-                let (line, column) = get_line_col(self.source, span.lo.0 as usize);
+                let (line, column, end_column) =
+                    get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
                 self.issues.push(Issue {
                     rule: "no-unreachable-code".to_string(),
                     file: self.path.clone(),
                     line,
                     column,
+                    end_column,
                     message: "Unreachable code detected after return/throw/break/continue"
                         .to_string(),
                     severity: Severity::Error,
