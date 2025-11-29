@@ -2,6 +2,7 @@ use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use crate::types::{Issue, Severity};
 use crate::utils::get_span_positions;
+use std::collections::HashSet;
 use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
@@ -24,11 +25,48 @@ inventory::submit!(RuleMetadataRegistration {
         default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::BugPrevention,
-        typescript_only: false,
+        typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-floating-promises"),
-        equivalent_biome_rule: None,
+        equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-floating-promises"),
     }
 });
+
+struct AsyncFunctionCollector {
+    async_functions: HashSet<String>,
+}
+
+impl Visit for AsyncFunctionCollector {
+    fn visit_fn_decl(&mut self, n: &FnDecl) {
+        if n.function.is_async {
+            self.async_functions.insert(n.ident.sym.to_string());
+        }
+        n.visit_children_with(self);
+    }
+
+    fn visit_var_declarator(&mut self, n: &VarDeclarator) {
+        if let Pat::Ident(ident) = &n.name {
+            if let Some(init) = &n.init {
+                let is_async = match init.as_ref() {
+                    Expr::Arrow(arrow) => arrow.is_async,
+                    Expr::Fn(fn_expr) => fn_expr.function.is_async,
+                    _ => false,
+                };
+                if is_async {
+                    self.async_functions.insert(ident.id.sym.to_string());
+                }
+            }
+        }
+        n.visit_children_with(self);
+    }
+}
+
+fn collect_async_functions(program: &Program) -> HashSet<String> {
+    let mut collector = AsyncFunctionCollector {
+        async_functions: HashSet::new(),
+    };
+    program.visit_with(&mut collector);
+    collector.async_functions
+}
 
 impl Rule for NoFloatingPromisesRule {
     fn name(&self) -> &str {
@@ -42,10 +80,13 @@ impl Rule for NoFloatingPromisesRule {
         source: &str,
         _file_source: crate::file_source::FileSource,
     ) -> Vec<Issue> {
+        let async_functions = collect_async_functions(program);
+
         let mut visitor = FloatingPromiseVisitor {
             issues: Vec::new(),
             path: path.to_path_buf(),
             source,
+            async_functions,
         };
         program.visit_with(&mut visitor);
         visitor.issues
@@ -56,12 +97,15 @@ struct FloatingPromiseVisitor<'a> {
     issues: Vec<Issue>,
     path: std::path::PathBuf,
     source: &'a str,
+    async_functions: std::collections::HashSet<String>,
 }
 
 impl<'a> Visit for FloatingPromiseVisitor<'a> {
     fn visit_expr_stmt(&mut self, n: &ExprStmt) {
         if let Expr::Call(call_expr) = n.expr.as_ref() {
-            if !is_handled_promise_call(call_expr) {
+            if is_promise_expression(call_expr, &self.async_functions)
+                && !is_handled_promise(call_expr)
+            {
                 let span = call_expr.span();
                 let (line, column, end_column) =
                     get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
@@ -82,19 +126,127 @@ impl<'a> Visit for FloatingPromiseVisitor<'a> {
     }
 }
 
-fn is_handled_promise_call(call_expr: &CallExpr) -> bool {
-    match &call_expr.callee {
-        Callee::Expr(expr) => {
-            if let Expr::Member(member_expr) = expr.as_ref() {
-                if let MemberProp::Ident(ident) = &member_expr.prop {
-                    let method_name = ident.sym.as_ref();
-                    return method_name == "then"
-                        || method_name == "catch"
-                        || method_name == "finally";
+fn is_promise_expression(call_expr: &CallExpr, async_functions: &HashSet<String>) -> bool {
+    if is_promise_static_method(call_expr) {
+        return true;
+    }
+
+    if is_fetch_call(call_expr) {
+        return true;
+    }
+
+    if is_new_promise(call_expr) {
+        return true;
+    }
+
+    if is_chained_promise_call(call_expr) {
+        return true;
+    }
+
+    if is_async_function_call(call_expr, async_functions) {
+        return true;
+    }
+
+    false
+}
+
+fn is_chained_promise_call(call_expr: &CallExpr) -> bool {
+    if let Callee::Expr(expr) = &call_expr.callee {
+        if let Expr::Member(member_expr) = expr.as_ref() {
+            if let MemberProp::Ident(ident) = &member_expr.prop {
+                let method_name = ident.sym.as_ref();
+                if method_name == "then" || method_name == "catch" || method_name == "finally" {
+                    return is_promise_at_root(member_expr.obj.as_ref());
                 }
+            }
+        }
+    }
+    false
+}
+
+fn is_promise_at_root(expr: &Expr) -> bool {
+    match expr {
+        Expr::Call(call_expr) => {
+            if is_promise_static_method(call_expr) || is_fetch_call(call_expr) {
+                return true;
+            }
+            if let Callee::Expr(callee) = &call_expr.callee {
+                if let Expr::Member(member_expr) = callee.as_ref() {
+                    return is_promise_at_root(member_expr.obj.as_ref());
+                }
+            }
+            false
+        }
+        Expr::New(new_expr) => {
+            if let Expr::Ident(ident) = new_expr.callee.as_ref() {
+                return ident.sym.as_ref() == "Promise";
             }
             false
         }
         _ => false,
     }
+}
+
+fn is_promise_static_method(call_expr: &CallExpr) -> bool {
+    if let Callee::Expr(expr) = &call_expr.callee {
+        if let Expr::Member(member_expr) = expr.as_ref() {
+            if let Expr::Ident(obj) = member_expr.obj.as_ref() {
+                if obj.sym.as_ref() == "Promise" {
+                    return true;
+                }
+            }
+        }
+    }
+    false
+}
+
+fn is_fetch_call(call_expr: &CallExpr) -> bool {
+    if let Callee::Expr(expr) = &call_expr.callee {
+        if let Expr::Ident(ident) = expr.as_ref() {
+            return ident.sym.as_ref() == "fetch";
+        }
+    }
+    false
+}
+
+fn is_new_promise(call_expr: &CallExpr) -> bool {
+    if let Callee::Expr(expr) = &call_expr.callee {
+        if let Expr::New(new_expr) = expr.as_ref() {
+            if let Expr::Ident(ident) = new_expr.callee.as_ref() {
+                return ident.sym.as_ref() == "Promise";
+            }
+        }
+    }
+    false
+}
+
+fn is_async_function_call(call_expr: &CallExpr, async_functions: &HashSet<String>) -> bool {
+    if let Callee::Expr(expr) = &call_expr.callee {
+        if let Expr::Ident(ident) = expr.as_ref() {
+            return async_functions.contains(ident.sym.as_ref());
+        }
+    }
+    false
+}
+
+fn is_handled_promise(call_expr: &CallExpr) -> bool {
+    if let Callee::Expr(expr) = &call_expr.callee {
+        if let Expr::Member(member_expr) = expr.as_ref() {
+            if let MemberProp::Ident(ident) = &member_expr.prop {
+                let method_name = ident.sym.as_ref();
+                if method_name == "catch" {
+                    return true;
+                }
+                if method_name == "then" && call_expr.args.len() >= 2 {
+                    return true;
+                }
+                if method_name == "finally" {
+                    if let Expr::Call(inner_call) = member_expr.obj.as_ref() {
+                        return is_handled_promise(inner_call);
+                    }
+                }
+            }
+        }
+    }
+    false
 }

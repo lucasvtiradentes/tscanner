@@ -200,11 +200,12 @@
     "defaultSeverity": "warning",
     "description": "Disallows floating promises (promises used as statements without await, .then(), or .catch()). Unhandled promises can lead to silent failures.",
     "displayName": "No Floating Promises",
+    "equivalentBiomeRule": "https://biomejs.dev/linter/rules/no-floating-promises",
     "equivalentEslintRule": "https://typescript-eslint.io/rules/no-floating-promises",
     "name": "no-floating-promises",
     "ruleType": "ast",
     "sourcePath": "packages/core/crates/core/src/rules/no_floating_promises.rs",
-    "typescriptOnly": false
+    "typescriptOnly": true
   },
   {
     "category": "imports",

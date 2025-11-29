@@ -6,13 +6,29 @@ expression: snapshot
 ```ts
 fetch('https://api.example.com/data');
 
-asyncFunc();
-
 Promise.resolve(42);
 
-someObject.asyncMethod();
+Promise.reject(new Error('fail'));
 
-getPromise();
+Promise.all([p1, p2]);
+
+Promise.race([p1, p2]);
+
+fetch('/api').then(handleSuccess);
+
+Promise.resolve().finally(cleanup);
+
+async function delay(ms: number) {
+  await new Promise<void>((resolve) => setTimeout(() => resolve(), ms));
+}
+
+delay(200);
+
+const asyncArrow = async () => {
+  return 42;
+};
+
+asyncArrow();
 ```
 
 # Diagnostics
@@ -32,7 +48,7 @@ invalid.ts:3:1 no-floating-promises ━━━━━━━━━━━━━━�
   ! Promise-returning expression used without handling. Use await, .then(), .catch(), or assign to a variable.
 
     2 │ 
-  > 3 │ asyncFunc();
+  > 3 │ Promise.resolve(42);
     4 │ 
 
 ```
@@ -43,7 +59,7 @@ invalid.ts:5:1 no-floating-promises ━━━━━━━━━━━━━━�
   ! Promise-returning expression used without handling. Use await, .then(), .catch(), or assign to a variable.
 
     4 │ 
-  > 5 │ Promise.resolve(42);
+  > 5 │ Promise.reject(new Error('fail'));
     6 │ 
 
 ```
@@ -54,7 +70,7 @@ invalid.ts:7:1 no-floating-promises ━━━━━━━━━━━━━━�
   ! Promise-returning expression used without handling. Use await, .then(), .catch(), or assign to a variable.
 
     6 │ 
-  > 7 │ someObject.asyncMethod();
+  > 7 │ Promise.all([p1, p2]);
     8 │ 
 
 ```
@@ -65,6 +81,50 @@ invalid.ts:9:1 no-floating-promises ━━━━━━━━━━━━━━�
   ! Promise-returning expression used without handling. Use await, .then(), .catch(), or assign to a variable.
 
     8 │ 
-  > 9 │ getPromise();
+  > 9 │ Promise.race([p1, p2]);
+    10 │ 
+
+```
+
+```
+invalid.ts:11:1 no-floating-promises ━━━━━━━━━━━━━━━━━━━━
+
+  ! Promise-returning expression used without handling. Use await, .then(), .catch(), or assign to a variable.
+
+    10 │ 
+  > 11 │ fetch('/api').then(handleSuccess);
+    12 │ 
+
+```
+
+```
+invalid.ts:13:1 no-floating-promises ━━━━━━━━━━━━━━━━━━━━
+
+  ! Promise-returning expression used without handling. Use await, .then(), .catch(), or assign to a variable.
+
+    12 │ 
+  > 13 │ Promise.resolve().finally(cleanup);
+    14 │ 
+
+```
+
+```
+invalid.ts:19:1 no-floating-promises ━━━━━━━━━━━━━━━━━━━━
+
+  ! Promise-returning expression used without handling. Use await, .then(), .catch(), or assign to a variable.
+
+    18 │ 
+  > 19 │ delay(200);
+    20 │ 
+
+```
+
+```
+invalid.ts:25:1 no-floating-promises ━━━━━━━━━━━━━━━━━━━━
+
+  ! Promise-returning expression used without handling. Use await, .then(), .catch(), or assign to a variable.
+
+    24 │ 
+  > 25 │ asyncArrow();
 
 ```
