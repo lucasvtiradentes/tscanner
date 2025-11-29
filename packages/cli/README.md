@@ -104,6 +104,24 @@ TScanner automates the enforcement of your standards, freeing you from being the
 
 </details>
 
+<br />
+
+<details>
+<summary>How I put the pieces together to build TScanner?</summary>
+<br />
+
+<div align="left">
+
+I'm a heavy user of AI coding tools, always testing the latest and building personal projects that make my life easier at home and at work. I realized that despite going incredibly fast, AI never followed the patterns I care about: named components in array functions for React, types over interfaces, and so on.
+
+Even with a lot of working code, I wanted something fast to answer "what patterns and conventions are broken in this project?" or "what code smells should I fix in my PR before merging to main?".
+
+One day I was reflecting on why Rust-based tools for the TypeScript ecosystem are so ridiculously fast (<a href="https://github.com/oven-sh/bun">Bun</a>, <a href="https://github.com/vercel/turborepo">Turborepo</a>, <a href="https://github.com/biomejs/biome">Biome</a>). Then I had this crazy idea: build a tool as fast as <a href="https://github.com/biomejs/biome">Biome</a> but focused on code quality, my way, for my needs. And that's how TScanner was born.
+
+</div>
+
+</details>
+
 </div>
 
 <!-- </DYNFIELD:MOTIVATION> -->
