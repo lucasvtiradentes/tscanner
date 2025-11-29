@@ -1,44 +1,13 @@
+mod config_generator;
+
 use anyhow::{Context, Result};
 use colored::*;
 use std::fs;
 use std::path::Path;
 
+use config_generator::{get_all_rules_config, get_default_config};
 use core::rules::get_all_rule_metadata;
 use core::{log_error, log_info, CONFIG_DIR_NAME, CONFIG_FILE_NAME};
-
-const DEFAULT_CONFIG_JSON: &str = include_str!("../../../../../../assets/default-config.json");
-const TSCANNER_VERSION: &str = env!("CARGO_PKG_VERSION");
-
-fn generate_all_rules_config() -> String {
-    let metadata = get_all_rule_metadata();
-    let mut rule_names: Vec<&str> = metadata.iter().map(|m| m.name).collect();
-    rule_names.sort();
-
-    let rules_json: Vec<String> = rule_names
-        .iter()
-        .map(|name| format!("    \"{}\": {{}}", name))
-        .collect();
-
-    format!(
-        r#"{{
-  "$schema": "https://unpkg.com/tscanner@{}/schema.json",
-  "builtinRules": {{
-{}
-  }},
-  "customRules": {{}},
-  "files": {{
-    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
-    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
-  }},
-  "lsp": {{
-    "errors": true,
-    "warnings": false
-  }}
-}}"#,
-        TSCANNER_VERSION,
-        rules_json.join(",\n")
-    )
-}
 
 pub fn cmd_init(path: &Path, all_rules: bool) -> Result<()> {
     log_info(&format!(
@@ -65,9 +34,9 @@ pub fn cmd_init(path: &Path, all_rules: bool) -> Result<()> {
         .context(format!("Failed to create {} directory", CONFIG_DIR_NAME))?;
 
     let config_content = if all_rules {
-        generate_all_rules_config()
+        get_all_rules_config()
     } else {
-        DEFAULT_CONFIG_JSON.to_string()
+        get_default_config()
     };
 
     fs::write(&config_path, config_content).context("Failed to write config file")?;
