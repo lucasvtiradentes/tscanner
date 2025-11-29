@@ -3,9 +3,10 @@ use lsp_server::{Connection, Message, Notification, Request, Response};
 use lsp_types::{
     CodeAction, CodeActionKind, CodeActionOptions, CodeActionOrCommand, CodeActionParams,
     CodeActionProviderCapability, Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams,
-    DidCloseTextDocumentParams, DidOpenTextDocumentParams, DidSaveTextDocumentParams,
-    InitializeParams, Position, PublishDiagnosticsParams, Range, ServerCapabilities,
-    TextDocumentSyncCapability, TextDocumentSyncKind, TextEdit, Url, WorkspaceEdit,
+    DidChangeWatchedFilesParams, DidCloseTextDocumentParams, DidOpenTextDocumentParams,
+    DidSaveTextDocumentParams, FileChangeType, InitializeParams, Position,
+    PublishDiagnosticsParams, Range, ServerCapabilities, TextDocumentSyncCapability,
+    TextDocumentSyncKind, TextEdit, Url, WorkspaceEdit,
 };
 use std::{
     collections::HashMap,
@@ -48,11 +49,12 @@ pub fn run_lsp_server() -> Result<(), LspError> {
     let config = TscannerConfig::load_from_workspace(&workspace_root).unwrap_or_default();
     let config_hash = config.compute_hash();
     let cache = Arc::new(FileCache::with_config_hash(config_hash));
-    let scanner = Scanner::with_cache(config, cache.clone(), workspace_root.clone())
+    let scanner = Scanner::with_cache(config.clone(), cache.clone(), workspace_root.clone())
         .map_err(|e| -> LspError { e.to_string().into() })?;
 
     let mut state = LspState {
         workspace_root,
+        config,
         scanner,
         open_files: HashMap::new(),
         diagnostics: HashMap::new(),
@@ -66,8 +68,8 @@ pub fn run_lsp_server() -> Result<(), LspError> {
 }
 
 struct LspState {
-    #[allow(dead_code)]
     workspace_root: PathBuf,
+    config: TscannerConfig,
     scanner: Scanner,
     open_files: HashMap<Url, String>,
     diagnostics: HashMap<Url, Vec<(Diagnostic, String)>>,
@@ -282,8 +284,46 @@ fn handle_notification(
             };
             connection.sender.send(Message::Notification(notif))?;
         }
+        "workspace/didChangeWatchedFiles" => {
+            let params: DidChangeWatchedFilesParams = serde_json::from_value(notif.params)?;
+
+            for change in params.changes {
+                if let Ok(path) = change.uri.to_file_path() {
+                    if path.ends_with(".tscanner/config.jsonc")
+                        && (change.typ == FileChangeType::CREATED
+                            || change.typ == FileChangeType::CHANGED)
+                    {
+                        handle_config_reload(connection, state)?;
+                        break;
+                    }
+                }
+            }
+        }
         _ => {}
     }
+    Ok(())
+}
+
+fn handle_config_reload(connection: &Connection, state: &mut LspState) -> Result<(), LspError> {
+    core::log_info("Config file changed, reloading...");
+
+    let new_config = TscannerConfig::load_from_workspace(&state.workspace_root).unwrap_or_default();
+    let config_hash = new_config.compute_hash();
+
+    let cache = Arc::new(FileCache::with_config_hash(config_hash));
+    let new_scanner = Scanner::with_cache(new_config.clone(), cache, state.workspace_root.clone())
+        .map_err(|e| -> LspError { e.to_string().into() })?;
+
+    state.config = new_config;
+    state.scanner = new_scanner;
+
+    for (uri, content) in state.open_files.clone() {
+        if let Ok(path) = uri.to_file_path() {
+            publish_diagnostics(connection, &uri, &path, &content, state)?;
+        }
+    }
+
+    core::log_info("Config reloaded and diagnostics refreshed");
     Ok(())
 }
 
@@ -300,7 +340,19 @@ fn publish_diagnostics(
         .map(|result| result.issues)
         .unwrap_or_default();
 
-    let diags_with_rules: Vec<(Diagnostic, String)> = issues
+    let lsp_config = state.config.lsp.as_ref();
+    let show_errors = lsp_config.map(|c| c.errors).unwrap_or(true);
+    let show_warnings = lsp_config.map(|c| c.warnings).unwrap_or(true);
+
+    let filtered_issues: Vec<&Issue> = issues
+        .iter()
+        .filter(|issue| match issue.severity {
+            Severity::Error => show_errors,
+            Severity::Warning => show_warnings,
+        })
+        .collect();
+
+    let diags_with_rules: Vec<(Diagnostic, String)> = filtered_issues
         .iter()
         .map(|issue| (issue_to_diagnostic(issue), issue.rule.clone()))
         .collect();

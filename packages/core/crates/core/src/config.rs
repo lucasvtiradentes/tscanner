@@ -9,10 +9,35 @@ use std::path::Path;
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
+pub struct LspConfig {
+    #[serde(default = "default_true")]
+    #[schemars(description = "Show error diagnostics in LSP (default: true)")]
+    pub errors: bool,
+
+    #[serde(default = "default_true")]
+    #[schemars(description = "Show warning diagnostics in LSP (default: true)")]
+    pub warnings: bool,
+}
+
+impl Default for LspConfig {
+    fn default() -> Self {
+        Self {
+            errors: true,
+            warnings: true,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct TscannerConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[schemars(description = "JSON schema URL for editor support")]
     pub schema: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[schemars(description = "LSP server configuration")]
+    pub lsp: Option<LspConfig>,
 
     #[serde(default, skip_serializing_if = "HashMap::is_empty")]
     #[schemars(description = "Built-in AST rules configuration")]

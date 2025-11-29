@@ -35,7 +35,10 @@ export class TscannerLspClient {
       ],
       workspaceFolder: vscode.workspace.getWorkspaceFolder(vscode.Uri.file(workspaceRoot)),
       synchronize: {
-        fileEvents: vscode.workspace.createFileSystemWatcher('**/*.{ts,tsx,js,jsx}'),
+        fileEvents: [
+          vscode.workspace.createFileSystemWatcher('**/*.{ts,tsx,js,jsx}'),
+          vscode.workspace.createFileSystemWatcher('**/.tscanner/config.jsonc'),
+        ],
       },
     };
 

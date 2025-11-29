@@ -37,6 +37,7 @@ export type IssueResult = {
   uri: vscode.Uri;
   line: number;
   column: number;
+  endColumn: number;
   text: string;
   rule: string;
   severity: 'error' | 'warning';
