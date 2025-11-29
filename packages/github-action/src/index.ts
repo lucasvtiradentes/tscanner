@@ -6,15 +6,21 @@ import { type Octokit, githubHelper } from './lib/actions-helper';
 import { gitHelper } from './lib/git-helper';
 import { validateConfigFiles } from './utils/config-validator';
 
+function tmpLog(label: string, data: unknown) {
+  githubHelper.logInfo(`[TMP_DEBUG] ${label}: ${JSON.stringify(data, null, 2)}`);
+}
+
 class ActionRunner {
   async run() {
     try {
       const inputs = getActionInputs();
+      tmpLog('inputs', inputs);
 
       validateConfigFiles(inputs.configPath);
 
       if (inputs.mode === ScanMode.Branch) {
         const prInfo = githubHelper.getContext().payload.pull_request;
+        tmpLog('prInfo', prInfo ? { number: prInfo.number, head: prInfo.head } : null);
 
         if (!prInfo) {
           githubHelper.setFailed('Branch mode requires pull_request events');
@@ -23,11 +29,20 @@ class ActionRunner {
       }
 
       const scanResults = await this.executeScan(inputs);
+      tmpLog('scanResults', scanResults);
+
       const octokit = githubHelper.getOctokit(inputs.token);
 
+      tmpLog('before handlePRComment', { totalIssues: scanResults.totalIssues, totalRules: scanResults.totalRules });
       await this.handlePRComment(inputs, octokit, scanResults);
+      tmpLog('after handlePRComment', 'success');
+
       this.handleScanResults(scanResults, inputs);
     } catch (error) {
+      tmpLog('error caught', {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      });
       githubHelper.setFailed(`Action failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }
