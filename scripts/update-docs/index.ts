@@ -9,6 +9,7 @@ import { updateWaysToUseTscanner } from './update-ways-to-use-tscanner';
 import { updateMotivation } from './update-motivation';
 import { updateFeaturesSection } from './update-features-section';
 import { updateFooter } from './update-footer';
+import { updateCliUsage } from './update-cli-usage';
 
 type UpdateFn = { name: string; fn: () => void };
 
@@ -24,6 +25,7 @@ const updates: UpdateFn[] = [
   { name: 'motivation', fn: updateMotivation },
   { name: 'features-section', fn: updateFeaturesSection },
   { name: 'footer', fn: updateFooter },
+  { name: 'cli-usage', fn: updateCliUsage },
 ];
 
 const errors: { name: string; error: string }[] = [];

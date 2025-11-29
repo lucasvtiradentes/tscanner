@@ -170,36 +170,97 @@ tscanner check --branch origin/main
 ```
 <!-- </DYNFIELD:QUICK_START_CLI> -->
 
+<!-- <DYNFIELD:CLI_USAGE> -->
 ## 📖 Usage<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-### Commands Overview
+<div align="center">
 
-| Command | Description | Flags |
-|---------|-------------|-------|
-| `init [path]` | Create `.tscanner/config.jsonc` configuration | - |
-| `check [path]` | Scan files and report issues | `--no-cache`, `--json`, `--pretty`, `--by-rule`, `--branch`, `--file`, `--rule`, `--continue-on-error`, `--config` |
-| `rules [path]` | List all available rules with metadata | `--config` |
-| `--help` or `-h` | Show help information | - |
-| `--version` or `-V` | Show version number | - |
+<table>
+  <tr>
+    <th width="120">Command</th>
+    <th width="280">Description</th>
+    <th width="200">Flag</th>
+    <th width="350">Flag description</th>
+  </tr>
+  <tr>
+    <td rowspan="9" align="left"><code>check [path]</code></td>
+    <td rowspan="9" align="left">Scan code for issues and display results</td>
+    <td align="left"><code>--branch <BRANCH></code></td>
+    <td align="left">Only show issues in files changed compared to branch (e.g., origin/main)</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [path]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--by-rule</code></td>
+    <td align="left">Group issues by rule (default: group by file)</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [path]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--config <CONFIG_DIR></code></td>
+    <td align="left">Path to directory containing config.jsonc</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [path]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--continue-on-error</code></td>
+    <td align="left">Continue execution even when errors are found</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [path]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--file <FILE_PATTERN></code></td>
+    <td align="left">Filter results to specific file(s) using glob pattern (e.g., 'src/**/*.ts')</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [path]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--json</code></td>
+    <td align="left">Output results as JSON</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [path]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--no-cache</code></td>
+    <td align="left">Skip cache and force full scan</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [path]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--pretty</code></td>
+    <td align="left">Pretty output with rule definitions at the top</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [path]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--rule <RULE_NAME></code></td>
+    <td align="left">Filter results to specific rule (e.g., 'no-console-log')</td>
+  </tr>
+  <tr>
+    <td rowspan="1" align="left"><code>init [path]</code></td>
+    <td rowspan="1" align="left">Create a default configuration file</td>
+    <td align="left"><code>--all-rules</code></td>
+    <td align="left">Initialize with all built-in rules enabled</td>
+  </tr>
+  <tr>
+    <td rowspan="1" align="left"><code>rules [path]</code></td>
+    <td rowspan="1" align="left">List all available rules and their metadata</td>
+    <td align="left"><code>--config <CONFIG_DIR></code></td>
+    <td align="left">Path to directory containing config.jsonc</td>
+  </tr>
+</table>
 
-### Check Command Flags
-
-| Flag | Description | Example |
-|------|-------------|---------|
-| `--no-cache` | Skip cache and force full scan | `tscanner check --no-cache` |
-| `--json` | Output results as JSON | `tscanner check --json` |
-| `--pretty` | Pretty output with rule definitions | `tscanner check --pretty` |
-| `--by-rule` | Group issues by rule instead of file | `tscanner check --by-rule` |
-| `--branch <BRANCH>` | Only scan files changed vs branch | `tscanner check --branch main` |
-| `--file <PATTERN>` | Filter by file glob pattern | `tscanner check --file "src/**"` |
-| `--rule <RULE>` | Filter by specific rule | `tscanner check --rule no-any-type` |
-| `--continue-on-error` | Don't exit with error code | `tscanner check --continue-on-error` |
-| `--config <DIR>` | Custom config directory | `tscanner check --config ./custom` |
+</div>
+<!-- </DYNFIELD:CLI_USAGE> -->
 
 ### Examples
 
+<div align="center">
+
 <details>
 <summary><b>Initialize Configuration</b></summary>
+
+<div align="left">
 
 ```bash
 # Create .tscanner/config.jsonc in current directory
@@ -211,10 +272,14 @@ tscanner init /path/to/project
 
 Creates `.tscanner/config.jsonc` with default rule configuration (see [Configuration](#-configuration) section).
 
+</div>
+
 </details>
 
 <details>
 <summary><b>Scan Files</b></summary>
+
+<div align="left">
 
 ```bash
 # Basic scan
@@ -255,10 +320,14 @@ Scanned 2 files in 45ms
 - `0` - No errors found
 - `1` - Errors found or configuration missing
 
+</div>
+
 </details>
 
 <details>
 <summary><b>Advanced Filtering</b></summary>
+
+<div align="left">
 
 ```bash
 # Only scan files changed compared to branch
@@ -283,10 +352,14 @@ tscanner check --continue-on-error
 tscanner check --config /path/to/config/dir
 ```
 
+</div>
+
 </details>
 
 <details>
 <summary><b>List Rules</b></summary>
+
+<div align="left">
 
 ```bash
 # Show all available rules
@@ -305,7 +378,11 @@ tscanner rules --config /path/to/config/dir
 - Severity level (error/warning)
 - Rule type (ast/regex)
 
+</div>
+
 </details>
+
+</div>
 
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
 ## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
