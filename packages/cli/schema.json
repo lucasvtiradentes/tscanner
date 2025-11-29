@@ -3,6 +3,13 @@
   "title": "TscannerConfig",
   "type": "object",
   "properties": {
+    "$schema": {
+      "description": "JSON schema URL for editor support",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
     "builtinRules": {
       "description": "Built-in AST rules configuration",
       "type": "object",
@@ -47,13 +54,6 @@
         {
           "type": "null"
         }
-      ]
-    },
-    "schema": {
-      "description": "JSON schema URL for editor support",
-      "type": [
-        "string",
-        "null"
       ]
     }
   },

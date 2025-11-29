@@ -278,7 +278,11 @@ The default configuration is:
     "**/dist/**",
     "**/build/**",
     "**/.git/**"
-  ]
+  ],
+  "lsp": {
+    "errors": true,
+    "warnings": false
+  }
 }
 ```
 

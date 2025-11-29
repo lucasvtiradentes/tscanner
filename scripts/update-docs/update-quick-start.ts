@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
 
@@ -5,7 +6,14 @@ type TFields = 'QUICK_START_CLI' | 'QUICK_START_VSCODE_EXTENSION' | 'QUICK_START
 
 const rootDir = path.resolve(__dirname, '..', '..');
 
+function getGithubActionVersion(): string {
+  const pkgPath = path.join(rootDir, 'packages/github-action/package.json');
+  const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+  return pkg.version;
+}
+
 function getGithubActionSection() {
+  const version = getGithubActionVersion();
   const quickStartGithubActionYaml = `\`\`\`yaml
 name: Code Quality
 
@@ -18,7 +26,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: lucasvtiradentes/tscanner-action@v0.0.17
+      - uses: lucasvtiradentes/tscanner-action@v${version}
         with:
           github-token: \${{ secrets.GITHUB_TOKEN }}
 \`\`\``;
