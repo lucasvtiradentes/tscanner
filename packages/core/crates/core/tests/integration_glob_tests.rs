@@ -6,6 +6,7 @@ fn test_global_patterns_only() {
     let config = TscannerConfig {
         schema: None,
         lsp: None,
+        cli: None,
         builtin_rules: [(
             "no-any-type".to_string(),
             BuiltinRuleConfig {
@@ -54,6 +55,7 @@ fn test_rule_specific_include_intersects_with_global() {
     let config = TscannerConfig {
         schema: None,
         lsp: None,
+        cli: None,
         builtin_rules: [(
             "no-any-type".to_string(),
             BuiltinRuleConfig {
@@ -102,6 +104,7 @@ fn test_rule_specific_exclude_adds_to_global() {
     let config = TscannerConfig {
         schema: None,
         lsp: None,
+        cli: None,
         builtin_rules: [(
             "no-any-type".to_string(),
             BuiltinRuleConfig {
@@ -150,6 +153,7 @@ fn test_combined_rule_include_and_exclude() {
     let config = TscannerConfig {
         schema: None,
         lsp: None,
+        cli: None,
         builtin_rules: [(
             "no-any-type".to_string(),
             BuiltinRuleConfig {
@@ -200,6 +204,7 @@ fn test_path_normalization_with_root() {
     let config = TscannerConfig {
         schema: None,
         lsp: None,
+        cli: None,
         builtin_rules: [(
             "no-any-type".to_string(),
             BuiltinRuleConfig {
