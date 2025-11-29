@@ -24,6 +24,8 @@ inventory::submit!(RuleMetadataRegistration {
         default_enabled: false,
         category: RuleCategory::Style,
         typescript_only: false,
+        equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/prefer-nullish-coalescing"),
+        equivalent_biome_rule: None,
     }
 });
 

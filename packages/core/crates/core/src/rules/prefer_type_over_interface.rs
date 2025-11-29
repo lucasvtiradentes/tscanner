@@ -25,6 +25,8 @@ inventory::submit!(RuleMetadataRegistration {
         default_enabled: false,
         category: RuleCategory::Style,
         typescript_only: true,
+        equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/consistent-type-definitions"),
+        equivalent_biome_rule: None,
     }
 });
 

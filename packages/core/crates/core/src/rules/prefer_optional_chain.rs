@@ -24,6 +24,8 @@ inventory::submit!(RuleMetadataRegistration {
         default_enabled: false,
         category: RuleCategory::Style,
         typescript_only: false,
+        equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/prefer-optional-chain"),
+        equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/use-optional-chain"),
     }
 });
 

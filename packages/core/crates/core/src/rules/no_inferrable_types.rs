@@ -25,6 +25,8 @@ inventory::submit!(RuleMetadataRegistration {
         default_enabled: false,
         category: RuleCategory::TypeSafety,
         typescript_only: true,
+        equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-inferrable-types"),
+        equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-inferrable-types"),
     }
 });
 

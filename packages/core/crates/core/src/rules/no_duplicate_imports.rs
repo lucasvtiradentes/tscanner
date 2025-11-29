@@ -25,6 +25,8 @@ inventory::submit!(RuleMetadataRegistration {
         default_enabled: false,
         category: RuleCategory::Imports,
         typescript_only: false,
+        equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-duplicate-imports"),
+        equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-duplicate-json-keys"),
     }
 });
 

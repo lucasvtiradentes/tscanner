@@ -24,6 +24,8 @@ inventory::submit!(RuleMetadataRegistration {
         default_enabled: false,
         category: RuleCategory::Imports,
         typescript_only: false,
+        equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/global-require"),
+        equivalent_biome_rule: None,
     }
 });
 

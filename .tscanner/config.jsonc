@@ -54,6 +54,7 @@
     "**/dist/**",
     "**/build/**",
     ".git/**",
+    ".ignore/**",
     "packages/vscode-extension/dist-dev/**",
     "packages/vscode-extension/out/**",
     "packages/core/crates/core/tests/**"

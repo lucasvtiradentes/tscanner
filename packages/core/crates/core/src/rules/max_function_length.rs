@@ -26,6 +26,8 @@ inventory::submit!(RuleMetadataRegistration {
         default_enabled: false,
         category: RuleCategory::CodeQuality,
         typescript_only: false,
+        equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/max-lines-per-function"),
+        equivalent_biome_rule: None,
     }
 });
 

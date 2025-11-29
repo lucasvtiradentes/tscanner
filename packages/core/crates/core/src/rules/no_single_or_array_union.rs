@@ -25,6 +25,8 @@ inventory::submit!(RuleMetadataRegistration {
         default_enabled: false,
         category: RuleCategory::TypeSafety,
         typescript_only: true,
+        equivalent_eslint_rule: None,
+        equivalent_biome_rule: None,
     }
 });
 

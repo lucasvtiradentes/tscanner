@@ -24,6 +24,8 @@ inventory::submit!(RuleMetadataRegistration {
         default_enabled: false,
         category: RuleCategory::Imports,
         typescript_only: false,
+        equivalent_eslint_rule: None,
+        equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-default-export"),
     }
 });
 

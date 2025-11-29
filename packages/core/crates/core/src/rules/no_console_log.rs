@@ -23,6 +23,8 @@ inventory::submit!(RuleMetadataRegistration {
         default_enabled: false,
         category: RuleCategory::CodeQuality,
         typescript_only: false,
+        equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-console"),
+        equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-console"),
     }
 });
 

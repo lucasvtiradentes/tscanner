@@ -25,6 +25,8 @@ inventory::submit!(RuleMetadataRegistration {
         default_enabled: false,
         category: RuleCategory::CodeQuality,
         typescript_only: true,
+        equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-empty-interface"),
+        equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-empty-interface"),
     }
 });
 

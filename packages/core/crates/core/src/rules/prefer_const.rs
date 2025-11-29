@@ -26,6 +26,8 @@ inventory::submit!(RuleMetadataRegistration {
         default_enabled: false,
         category: RuleCategory::Variables,
         typescript_only: false,
+        equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/prefer-const"),
+        equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/use-const"),
     }
 });
 

@@ -10,6 +10,8 @@ type RuleMetadata = {
   category: string;
   sourcePath?: string;
   typescriptOnly?: boolean;
+  equivalentEslintRule?: string;
+  equivalentBiomeRule?: string;
 };
 
 type TFields = 'RULES';
@@ -53,7 +55,8 @@ export function updateRules() {
 
     const headerContent = [
       { content: 'Rule', width: 250 },
-      { content: 'Description', width: 500 },
+      { content: 'Description', width: 450 },
+      { content: 'Also in', width: 100 },
     ] as const satisfies TRowContent;
 
     const table = new MarkdownTable(headerContent);
@@ -70,9 +73,23 @@ export function updateRules() {
         ? `<a href="https://github.com/lucasvtiradentes/tscanner/blob/main/${rule.sourcePath}"><code>${ruleName}</code></a>${tsOnlyBadge}`
         : `<code>${ruleName}</code>${tsOnlyBadge}`;
 
+      const equivalentBadges: string[] = [];
+      if (rule.equivalentEslintRule) {
+        equivalentBadges.push(
+          `<a href="${rule.equivalentEslintRule}"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a>`,
+        );
+      }
+      if (rule.equivalentBiomeRule) {
+        equivalentBadges.push(
+          `<a href="${rule.equivalentBiomeRule}"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a>`,
+        );
+      }
+      const equivalentCell = equivalentBadges.join(' ');
+
       table.addBodyRow([
         { content: ruleCell, align: 'left' },
         { content: description, align: 'left' },
+        { content: equivalentCell, align: 'left' },
       ]);
     }
 
