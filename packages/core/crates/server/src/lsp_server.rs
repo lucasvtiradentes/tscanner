@@ -1,10 +1,11 @@
 use core::{FileCache, Issue, Scanner, Severity, TscannerConfig};
-use lsp_server::{Connection, Message, Notification};
+use lsp_server::{Connection, Message, Notification, Request, Response};
 use lsp_types::{
-    Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams, DidCloseTextDocumentParams,
-    DidOpenTextDocumentParams, DidSaveTextDocumentParams, InitializeParams, Position,
-    PublishDiagnosticsParams, Range, ServerCapabilities, TextDocumentSyncCapability,
-    TextDocumentSyncKind, Url,
+    CodeAction, CodeActionKind, CodeActionOptions, CodeActionOrCommand, CodeActionParams,
+    CodeActionProviderCapability, Diagnostic, DiagnosticSeverity, DidChangeTextDocumentParams,
+    DidCloseTextDocumentParams, DidOpenTextDocumentParams, DidSaveTextDocumentParams,
+    InitializeParams, Position, PublishDiagnosticsParams, Range, ServerCapabilities,
+    TextDocumentSyncCapability, TextDocumentSyncKind, TextEdit, Url, WorkspaceEdit,
 };
 use std::{
     collections::HashMap,
@@ -21,6 +22,10 @@ pub fn run_lsp_server() -> Result<(), LspError> {
 
     let server_capabilities = serde_json::to_value(ServerCapabilities {
         text_document_sync: Some(TextDocumentSyncCapability::Kind(TextDocumentSyncKind::FULL)),
+        code_action_provider: Some(CodeActionProviderCapability::Options(CodeActionOptions {
+            code_action_kinds: Some(vec![CodeActionKind::QUICKFIX]),
+            ..Default::default()
+        })),
         ..Default::default()
     })?;
 
@@ -50,6 +55,7 @@ pub fn run_lsp_server() -> Result<(), LspError> {
         workspace_root,
         scanner,
         open_files: HashMap::new(),
+        diagnostics: HashMap::new(),
     };
 
     main_loop(&connection, &mut state)?;
@@ -64,6 +70,7 @@ struct LspState {
     workspace_root: PathBuf,
     scanner: Scanner,
     open_files: HashMap<Url, String>,
+    diagnostics: HashMap<Url, Vec<(Diagnostic, String)>>,
 }
 
 fn main_loop(connection: &Connection, state: &mut LspState) -> Result<(), LspError> {
@@ -73,6 +80,7 @@ fn main_loop(connection: &Connection, state: &mut LspState) -> Result<(), LspErr
                 if connection.handle_shutdown(&req)? {
                     return Ok(());
                 }
+                handle_request(connection, req, state)?;
             }
             Message::Notification(notif) => {
                 handle_notification(connection, notif, state)?;
@@ -81,6 +89,142 @@ fn main_loop(connection: &Connection, state: &mut LspState) -> Result<(), LspErr
         }
     }
     Ok(())
+}
+
+fn handle_request(
+    connection: &Connection,
+    req: Request,
+    state: &mut LspState,
+) -> Result<(), LspError> {
+    if req.method == "textDocument/codeAction" {
+        let params: CodeActionParams = serde_json::from_value(req.params)?;
+        let actions = handle_code_action(params, state);
+        let response = Response::new_ok(req.id, actions);
+        connection.sender.send(Message::Response(response))?;
+    }
+    Ok(())
+}
+
+fn handle_code_action(params: CodeActionParams, state: &LspState) -> Vec<CodeActionOrCommand> {
+    let uri = &params.text_document.uri;
+    let mut actions: Vec<CodeActionOrCommand> = Vec::new();
+
+    let Some(diags_with_rules) = state.diagnostics.get(uri) else {
+        return actions;
+    };
+
+    let Some(content) = state.open_files.get(uri) else {
+        return actions;
+    };
+
+    for diagnostic in &params.context.diagnostics {
+        let matching = diags_with_rules
+            .iter()
+            .find(|(d, _)| d.range == diagnostic.range && d.message == diagnostic.message);
+
+        if let Some((_, rule_id)) = matching {
+            let line = diagnostic.range.start.line as usize;
+            let indentation = get_line_indentation(content, line);
+
+            let disable_line_action = create_disable_line_action(
+                uri.clone(),
+                rule_id,
+                line,
+                &indentation,
+                diagnostic.clone(),
+            );
+            actions.push(CodeActionOrCommand::CodeAction(disable_line_action));
+
+            let disable_file_action =
+                create_disable_file_action(uri.clone(), rule_id, diagnostic.clone());
+            actions.push(CodeActionOrCommand::CodeAction(disable_file_action));
+        }
+    }
+
+    actions
+}
+
+fn get_line_indentation(content: &str, line: usize) -> String {
+    content
+        .lines()
+        .nth(line)
+        .map(|l| {
+            let trimmed = l.trim_start();
+            l[..l.len() - trimmed.len()].to_string()
+        })
+        .unwrap_or_default()
+}
+
+fn create_disable_line_action(
+    uri: Url,
+    rule_id: &str,
+    line: usize,
+    indentation: &str,
+    diagnostic: Diagnostic,
+) -> CodeAction {
+    let comment = format!("{}// tscanner-disable-next-line {}\n", indentation, rule_id);
+
+    let edit = TextEdit {
+        range: Range {
+            start: Position {
+                line: line as u32,
+                character: 0,
+            },
+            end: Position {
+                line: line as u32,
+                character: 0,
+            },
+        },
+        new_text: comment,
+    };
+
+    let mut changes = HashMap::new();
+    changes.insert(uri, vec![edit]);
+
+    CodeAction {
+        title: format!("Disable {} for this line", rule_id),
+        kind: Some(CodeActionKind::QUICKFIX),
+        diagnostics: Some(vec![diagnostic]),
+        edit: Some(WorkspaceEdit {
+            changes: Some(changes),
+            ..Default::default()
+        }),
+        is_preferred: Some(false),
+        ..Default::default()
+    }
+}
+
+fn create_disable_file_action(uri: Url, rule_id: &str, diagnostic: Diagnostic) -> CodeAction {
+    let comment = format!("// tscanner-disable-file {}\n", rule_id);
+
+    let edit = TextEdit {
+        range: Range {
+            start: Position {
+                line: 0,
+                character: 0,
+            },
+            end: Position {
+                line: 0,
+                character: 0,
+            },
+        },
+        new_text: comment,
+    };
+
+    let mut changes = HashMap::new();
+    changes.insert(uri, vec![edit]);
+
+    CodeAction {
+        title: format!("Disable {} for entire file", rule_id),
+        kind: Some(CodeActionKind::QUICKFIX),
+        diagnostics: Some(vec![diagnostic]),
+        edit: Some(WorkspaceEdit {
+            changes: Some(changes),
+            ..Default::default()
+        }),
+        is_preferred: Some(false),
+        ..Default::default()
+    }
 }
 
 fn handle_notification(
@@ -116,8 +260,8 @@ fn handle_notification(
             let uri = params.text_document.uri;
 
             if let Ok(path) = uri.to_file_path() {
-                if let Some(content) = state.open_files.get(&uri) {
-                    publish_diagnostics(connection, &uri, &path, content, state)?;
+                if let Some(content) = state.open_files.get(&uri).cloned() {
+                    publish_diagnostics(connection, &uri, &path, &content, state)?;
                 }
             }
         }
@@ -125,6 +269,7 @@ fn handle_notification(
             let params: DidCloseTextDocumentParams = serde_json::from_value(notif.params)?;
             let uri = params.text_document.uri.clone();
             state.open_files.remove(&params.text_document.uri);
+            state.diagnostics.remove(&params.text_document.uri);
 
             let clear_params = PublishDiagnosticsParams {
                 uri,
@@ -147,13 +292,22 @@ fn publish_diagnostics(
     uri: &Url,
     path: &Path,
     content: &str,
-    state: &LspState,
+    state: &mut LspState,
 ) -> Result<(), LspError> {
-    let diagnostics: Vec<Diagnostic> = state
+    let issues: Vec<Issue> = state
         .scanner
         .scan_content(path, content)
-        .map(|result| result.issues.iter().map(issue_to_diagnostic).collect())
+        .map(|result| result.issues)
         .unwrap_or_default();
+
+    let diags_with_rules: Vec<(Diagnostic, String)> = issues
+        .iter()
+        .map(|issue| (issue_to_diagnostic(issue), issue.rule.clone()))
+        .collect();
+
+    let diagnostics: Vec<Diagnostic> = diags_with_rules.iter().map(|(d, _)| d.clone()).collect();
+
+    state.diagnostics.insert(uri.clone(), diags_with_rules);
 
     let params = PublishDiagnosticsParams {
         uri: uri.clone(),
