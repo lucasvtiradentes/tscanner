@@ -1069,7 +1069,7 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 <!-- <DYNFIELD:FOOTER> -->
 <div width="100%" align="center">
-  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/lino@main/.github/image/divider.png" />
+  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/divider.png" />
 </div>
 
 <br />
