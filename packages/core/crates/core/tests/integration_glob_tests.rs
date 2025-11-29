@@ -1,4 +1,4 @@
-use core::config::{BuiltinRuleConfig, TscannerConfig};
+use core::config::{BuiltinRuleConfig, FilesConfig, TscannerConfig};
 use std::path::Path;
 
 #[test]
@@ -18,8 +18,10 @@ fn test_global_patterns_only() {
         .into_iter()
         .collect(),
         custom_rules: Default::default(),
-        include: vec!["**/*.ts".to_string(), "**/*.tsx".to_string()],
-        exclude: vec!["**/node_modules/**".to_string(), "**/dist/**".to_string()],
+        files: FilesConfig {
+            include: vec!["**/*.ts".to_string(), "**/*.tsx".to_string()],
+            exclude: vec!["**/node_modules/**".to_string(), "**/dist/**".to_string()],
+        },
     };
 
     let compiled = config
@@ -64,8 +66,10 @@ fn test_rule_specific_include_intersects_with_global() {
         .into_iter()
         .collect(),
         custom_rules: Default::default(),
-        include: vec!["**/*.ts".to_string(), "**/*.tsx".to_string()],
-        exclude: vec!["**/node_modules/**".to_string()],
+        files: FilesConfig {
+            include: vec!["**/*.ts".to_string(), "**/*.tsx".to_string()],
+            exclude: vec!["**/node_modules/**".to_string()],
+        },
     };
 
     let compiled = config
@@ -110,8 +114,10 @@ fn test_rule_specific_exclude_adds_to_global() {
         .into_iter()
         .collect(),
         custom_rules: Default::default(),
-        include: vec!["**/*.ts".to_string()],
-        exclude: vec!["**/node_modules/**".to_string()],
+        files: FilesConfig {
+            include: vec!["**/*.ts".to_string()],
+            exclude: vec!["**/node_modules/**".to_string()],
+        },
     };
 
     let compiled = config
@@ -156,8 +162,10 @@ fn test_combined_rule_include_and_exclude() {
         .into_iter()
         .collect(),
         custom_rules: Default::default(),
-        include: vec!["**/*.ts".to_string()],
-        exclude: vec!["**/node_modules/**".to_string(), "**/dist/**".to_string()],
+        files: FilesConfig {
+            include: vec!["**/*.ts".to_string()],
+            exclude: vec!["**/node_modules/**".to_string(), "**/dist/**".to_string()],
+        },
     };
 
     let compiled = config
@@ -204,8 +212,10 @@ fn test_path_normalization_with_root() {
         .into_iter()
         .collect(),
         custom_rules: Default::default(),
-        include: vec!["**/*.ts".to_string()],
-        exclude: vec![],
+        files: FilesConfig {
+            include: vec!["**/*.ts".to_string()],
+            exclude: vec![],
+        },
     };
 
     let compiled = config
