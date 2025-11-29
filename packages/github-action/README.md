@@ -119,7 +119,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: lucasvtiradentes/tscanner-action@v0.0.17
+      - uses: lucasvtiradentes/tscanner-action@v0.0.19
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -146,7 +146,7 @@ jobs:
     <td>
 
 ```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.18
+- uses: lucasvtiradentes/tscanner-action@v0.0.19
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -155,7 +155,7 @@ jobs:
     <td>
 
 ```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.18
+- uses: lucasvtiradentes/tscanner-action@v0.0.19
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     target-branch: 'origin/main'
@@ -186,7 +186,7 @@ jobs:
 Scan but don't fail the workflow:
 
 ```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.18
+- uses: lucasvtiradentes/tscanner-action@v0.0.19
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     continue-on-error: 'true'
@@ -200,7 +200,7 @@ Scan but don't fail the workflow:
 Primary grouping by rule instead of file:
 
 ```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.18
+- uses: lucasvtiradentes/tscanner-action@v0.0.19
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     group-by: 'rule'
@@ -214,7 +214,7 @@ Primary grouping by rule instead of file:
 Use non-standard config location:
 
 ```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.18
+- uses: lucasvtiradentes/tscanner-action@v0.0.19
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     config-path: 'config/tscanner'
@@ -228,7 +228,7 @@ Use non-standard config location:
 Pin to exact CLI version:
 
 ```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.18
+- uses: lucasvtiradentes/tscanner-action@v0.0.19
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     tscanner-version: '0.1.5'
@@ -242,7 +242,7 @@ Pin to exact CLI version:
 All options:
 
 ```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.18
+- uses: lucasvtiradentes/tscanner-action@v0.0.19
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     target-branch: 'origin/develop'

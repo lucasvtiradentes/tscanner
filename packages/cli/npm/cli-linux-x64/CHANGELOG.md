@@ -1,5 +1,11 @@
 # @tscanner/cli-linux-x64
 
+## 0.0.22
+
+### Patch Changes
+
+- ae7b837: add lsp
+
 ## 0.0.21
 
 ### Patch Changes
