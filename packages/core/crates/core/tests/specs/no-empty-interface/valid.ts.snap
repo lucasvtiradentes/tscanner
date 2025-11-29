@@ -1,0 +1,14 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+interface Foo {
+  bar: string;
+}
+type Empty = {}
+```
+
+# Diagnostics
+No issues found.

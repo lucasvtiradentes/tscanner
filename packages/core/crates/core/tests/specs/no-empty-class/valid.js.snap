@@ -1,0 +1,16 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+class NotEmpty {
+  method() {}
+}
+class WithProperty {
+  value = 1;
+}
+```
+
+# Diagnostics
+No issues found.

@@ -1,6 +1,5 @@
 ---
 source: crates/core/tests/spec_tests.rs
-assertion_line: 38
 expression: snapshot
 ---
 # Input
@@ -43,7 +42,7 @@ function test4(x: boolean, y: boolean) {
 
 # Diagnostics
 ```
-invalid.ts:4:11 no-else-return ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:4:10 no-else-return ━━━━━━━━━━━━━━━━━━━━
 
   ! Unnecessary 'else' after 'return'. Remove the 'else' block since the function already returned.
 
@@ -54,7 +53,7 @@ invalid.ts:4:11 no-else-return ━━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:12:11 no-else-return ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:12:10 no-else-return ━━━━━━━━━━━━━━━━━━━━
 
   ! Unnecessary 'else' after 'return'. Remove the 'else' block since the function already returned.
 
@@ -65,7 +64,7 @@ invalid.ts:12:11 no-else-return ━━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:21:11 no-else-return ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:21:10 no-else-return ━━━━━━━━━━━━━━━━━━━━
 
   ! Unnecessary 'else' after 'return'. Remove the 'else' block since the function already returned.
 
@@ -76,7 +75,7 @@ invalid.ts:21:11 no-else-return ━━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:29:11 no-else-return ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:29:10 no-else-return ━━━━━━━━━━━━━━━━━━━━
 
   ! Unnecessary 'else' after 'return'. Remove the 'else' block since the function already returned.
 
@@ -87,7 +86,7 @@ invalid.ts:29:11 no-else-return ━━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:31:11 no-else-return ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:31:10 no-else-return ━━━━━━━━━━━━━━━━━━━━
 
   ! Unnecessary 'else' after 'return'. Remove the 'else' block since the function already returned.
 

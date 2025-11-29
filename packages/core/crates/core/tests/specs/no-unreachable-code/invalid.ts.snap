@@ -24,7 +24,7 @@ function breakExample() {
 
 # Diagnostics
 ```
-invalid.ts:3:4 no-unreachable-code ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:3:3 no-unreachable-code ━━━━━━━━━━━━━━━━━━━━
 
   ! Unreachable code detected after return/throw/break/continue
 
@@ -35,7 +35,7 @@ invalid.ts:3:4 no-unreachable-code ━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:8:4 no-unreachable-code ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:8:3 no-unreachable-code ━━━━━━━━━━━━━━━━━━━━
 
   ! Unreachable code detected after return/throw/break/continue
 
@@ -46,7 +46,7 @@ invalid.ts:8:4 no-unreachable-code ━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:14:6 no-unreachable-code ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:14:5 no-unreachable-code ━━━━━━━━━━━━━━━━━━━━
 
   ! Unreachable code detected after return/throw/break/continue
 

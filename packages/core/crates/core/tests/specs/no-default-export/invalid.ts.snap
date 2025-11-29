@@ -24,7 +24,7 @@ export default () => "arrow";
 
 # Diagnostics
 ```
-invalid.ts:1:2 no-default-export ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:1 no-default-export ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid default exports. Use named exports for better refactoring support.
 
@@ -34,7 +34,7 @@ invalid.ts:1:2 no-default-export ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:5:2 no-default-export ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:5:1 no-default-export ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid default exports. Use named exports for better refactoring support.
 
@@ -45,7 +45,7 @@ invalid.ts:5:2 no-default-export ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:10:2 no-default-export ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:10:1 no-default-export ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid default exports. Use named exports for better refactoring support.
 
@@ -56,7 +56,7 @@ invalid.ts:10:2 no-default-export ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:12:2 no-default-export ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:12:1 no-default-export ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid default exports. Use named exports for better refactoring support.
 
@@ -67,7 +67,7 @@ invalid.ts:12:2 no-default-export ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:14:2 no-default-export ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:14:1 no-default-export ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid default exports. Use named exports for better refactoring support.
 
@@ -78,7 +78,7 @@ invalid.ts:14:2 no-default-export ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:16:2 no-default-export ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:16:1 no-default-export ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid default exports. Use named exports for better refactoring support.
 

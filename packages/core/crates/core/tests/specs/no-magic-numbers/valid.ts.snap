@@ -14,7 +14,7 @@ if (count > TIMEOUT_MS) {
 
 # Diagnostics
 ```
-valid.ts:4:21 no-magic-numbers ━━━━━━━━━━━━━━━━━━━━
+valid.ts:4:20 no-magic-numbers ━━━━━━━━━━━━━━━━━━━━
 
   ! Magic number '3000' found. Consider using a named constant instead
 

@@ -25,6 +25,7 @@ inventory::submit!(RuleMetadataRegistration {
         default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::Variables,
+        typescript_only: false,
     }
 });
 
@@ -33,7 +34,13 @@ impl Rule for PreferConstRule {
         "prefer-const"
     }
 
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn check(
+        &self,
+        program: &Program,
+        path: &Path,
+        source: &str,
+        _file_source: crate::file_source::FileSource,
+    ) -> Vec<Issue> {
         let mut collector = VariableCollector {
             let_declarations: HashMap::new(),
             source,

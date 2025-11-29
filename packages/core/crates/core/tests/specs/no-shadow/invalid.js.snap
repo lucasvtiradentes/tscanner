@@ -1,0 +1,121 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+const x = 1;
+function foo() {
+  const x = 2;
+}
+
+let y = 'outer';
+{
+  let y = 'inner';
+}
+
+const z = true;
+const arrow = () => {
+  const z = false;
+};
+
+function params(a) {
+  const a = 5;
+}
+
+const destructure = 10;
+function test() {
+  const [destructure] = [1, 2, 3];
+}
+
+const outer = 'value';
+function nested() {
+  function inner() {
+    const outer = 'shadowed';
+  }
+}
+
+try {
+  throw new Error();
+} catch (err) {
+  const err = 'shadowed';
+}
+```
+
+# Diagnostics
+```
+invalid.js:3:9 no-shadow ━━━━━━━━━━━━━━━━━━━━
+
+  ! Variable 'x' shadows a variable in an outer scope.
+
+    2 │ function foo() {
+  > 3 │   const x = 2;
+    4 │ }
+
+```
+
+```
+invalid.js:8:7 no-shadow ━━━━━━━━━━━━━━━━━━━━
+
+  ! Variable 'y' shadows a variable in an outer scope.
+
+    7 │ {
+  > 8 │   let y = 'inner';
+    9 │ }
+
+```
+
+```
+invalid.js:13:9 no-shadow ━━━━━━━━━━━━━━━━━━━━
+
+  ! Variable 'z' shadows a variable in an outer scope.
+
+    12 │ const arrow = () => {
+  > 13 │   const z = false;
+    14 │ };
+
+```
+
+```
+invalid.js:17:9 no-shadow ━━━━━━━━━━━━━━━━━━━━
+
+  ! Variable 'a' shadows a variable in an outer scope.
+
+    16 │ function params(a) {
+  > 17 │   const a = 5;
+    18 │ }
+
+```
+
+```
+invalid.js:22:10 no-shadow ━━━━━━━━━━━━━━━━━━━━
+
+  ! Variable 'destructure' shadows a variable in an outer scope.
+
+    21 │ function test() {
+  > 22 │   const [destructure] = [1, 2, 3];
+    23 │ }
+
+```
+
+```
+invalid.js:28:11 no-shadow ━━━━━━━━━━━━━━━━━━━━
+
+  ! Variable 'outer' shadows a variable in an outer scope.
+
+    27 │   function inner() {
+  > 28 │     const outer = 'shadowed';
+    29 │   }
+
+```
+
+```
+invalid.js:35:9 no-shadow ━━━━━━━━━━━━━━━━━━━━
+
+  ! Variable 'err' shadows a variable in an outer scope.
+
+    34 │ } catch (err) {
+  > 35 │   const err = 'shadowed';
+    36 │ }
+
+```

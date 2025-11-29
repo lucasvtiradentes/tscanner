@@ -32,7 +32,13 @@ impl Rule for RegexRule {
         &self.name
     }
 
-    fn check(&self, _program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn check(
+        &self,
+        _program: &Program,
+        path: &Path,
+        source: &str,
+        _file_source: crate::file_source::FileSource,
+    ) -> Vec<Issue> {
         let mut issues = Vec::new();
 
         for (line_num, line) in source.lines().enumerate() {

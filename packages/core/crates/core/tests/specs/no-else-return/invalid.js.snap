@@ -1,0 +1,97 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+function test1(x) {
+  if (x) {
+    return 1;
+  } else {
+    return 2;
+  }
+}
+
+function test2(x) {
+  if (x) {
+    return true;
+  } else {
+    console.log('other');
+    return false;
+  }
+}
+
+const test3 = (x) => {
+  if (x) {
+    return 'yes';
+  } else {
+    return 'no';
+  }
+};
+
+function test4(x, y) {
+  if (x) {
+    return 1;
+  } else if (y) {
+    return 2;
+  } else {
+    return 3;
+  }
+}
+```
+
+# Diagnostics
+```
+invalid.js:4:10 no-else-return ━━━━━━━━━━━━━━━━━━━━
+
+  ! Unnecessary 'else' after 'return'. Remove the 'else' block since the function already returned.
+
+    3 │     return 1;
+  > 4 │   } else {
+    5 │     return 2;
+
+```
+
+```
+invalid.js:12:10 no-else-return ━━━━━━━━━━━━━━━━━━━━
+
+  ! Unnecessary 'else' after 'return'. Remove the 'else' block since the function already returned.
+
+    11 │     return true;
+  > 12 │   } else {
+    13 │     console.log('other');
+
+```
+
+```
+invalid.js:21:10 no-else-return ━━━━━━━━━━━━━━━━━━━━
+
+  ! Unnecessary 'else' after 'return'. Remove the 'else' block since the function already returned.
+
+    20 │     return 'yes';
+  > 21 │   } else {
+    22 │     return 'no';
+
+```
+
+```
+invalid.js:29:10 no-else-return ━━━━━━━━━━━━━━━━━━━━
+
+  ! Unnecessary 'else' after 'return'. Remove the 'else' block since the function already returned.
+
+    28 │     return 1;
+  > 29 │   } else if (y) {
+    30 │     return 2;
+
+```
+
+```
+invalid.js:31:10 no-else-return ━━━━━━━━━━━━━━━━━━━━
+
+  ! Unnecessary 'else' after 'return'. Remove the 'else' block since the function already returned.
+
+    30 │     return 2;
+  > 31 │   } else {
+    32 │     return 3;
+
+```

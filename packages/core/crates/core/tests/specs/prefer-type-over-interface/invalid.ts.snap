@@ -16,7 +16,7 @@ interface Props {
 
 # Diagnostics
 ```
-invalid.ts:1:2 prefer-type-over-interface ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:1 prefer-type-over-interface ━━━━━━━━━━━━━━━━━━━━
 
   ! Prefer 'type' over 'interface' for 'User'
 
@@ -26,7 +26,7 @@ invalid.ts:1:2 prefer-type-over-interface ━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:6:2 prefer-type-over-interface ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:6:1 prefer-type-over-interface ━━━━━━━━━━━━━━━━━━━━
 
   ! Prefer 'type' over 'interface' for 'Props'
 

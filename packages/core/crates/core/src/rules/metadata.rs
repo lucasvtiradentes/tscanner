@@ -18,6 +18,8 @@ pub struct RuleMetadata {
     pub default_severity: Severity,
     pub default_enabled: bool,
     pub category: RuleCategory,
+    #[serde(default)]
+    pub typescript_only: bool,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]

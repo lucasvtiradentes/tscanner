@@ -37,7 +37,7 @@ const obj = {
 
 # Diagnostics
 ```
-invalid.ts:1:2 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:1 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
 
   ! Async function does not use await. Remove 'async' keyword if await is not needed.
 
@@ -47,7 +47,7 @@ invalid.ts:1:2 no-async-without-await ━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:5:2 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:5:1 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
 
   ! Async function does not use await. Remove 'async' keyword if await is not needed.
 
@@ -58,7 +58,7 @@ invalid.ts:5:2 no-async-without-await ━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:9:14 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:9:13 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
 
   ! Async function does not use await. Remove 'async' keyword if await is not needed.
 
@@ -69,7 +69,7 @@ invalid.ts:9:14 no-async-without-await ━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:13:14 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:13:13 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
 
   ! Async function does not use await. Remove 'async' keyword if await is not needed.
 
@@ -80,7 +80,7 @@ invalid.ts:13:14 no-async-without-await ━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:15:2 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:15:1 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
 
   ! Async function does not use await. Remove 'async' keyword if await is not needed.
 
@@ -91,7 +91,7 @@ invalid.ts:15:2 no-async-without-await ━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:20:4 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:20:3 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
 
   ! Async function does not use await. Remove 'async' keyword if await is not needed.
 
@@ -102,7 +102,7 @@ invalid.ts:20:4 no-async-without-await ━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:26:4 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:26:3 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
 
   ! Async function does not use await. Remove 'async' keyword if await is not needed.
 

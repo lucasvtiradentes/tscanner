@@ -22,6 +22,7 @@ inventory::submit!(RuleMetadataRegistration {
         default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::CodeQuality,
+        typescript_only: false,
     }
 });
 
@@ -30,7 +31,13 @@ impl Rule for NoConsoleLogRule {
         "no-console-log"
     }
 
-    fn check(&self, _program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn check(
+        &self,
+        _program: &Program,
+        path: &Path,
+        source: &str,
+        _file_source: crate::file_source::FileSource,
+    ) -> Vec<Issue> {
         let regex = Regex::new(r"console\.log\(").unwrap();
         let mut issues = Vec::new();
 

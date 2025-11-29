@@ -62,7 +62,7 @@ function tooLong() {
 
 # Diagnostics
 ```
-invalid.ts:1:2 max-function-length ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:1 max-function-length ━━━━━━━━━━━━━━━━━━━━
 
   ! Function 'tooLong' has 52 statements (max: 50). Consider breaking it into smaller functions.
 
@@ -72,7 +72,7 @@ invalid.ts:1:2 max-function-length ━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:1:2 max-function-length ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:1 max-function-length ━━━━━━━━━━━━━━━━━━━━
 
   ! Function 'anonymous' has 52 statements (max: 50). Consider breaking it into smaller functions.
 

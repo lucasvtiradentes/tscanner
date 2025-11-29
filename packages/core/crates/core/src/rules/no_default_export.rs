@@ -23,6 +23,7 @@ inventory::submit!(RuleMetadataRegistration {
         default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::Imports,
+        typescript_only: false,
     }
 });
 
@@ -31,7 +32,13 @@ impl Rule for NoDefaultExportRule {
         "no-default-export"
     }
 
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn check(
+        &self,
+        program: &Program,
+        path: &Path,
+        source: &str,
+        _file_source: crate::file_source::FileSource,
+    ) -> Vec<Issue> {
         let mut visitor = DefaultExportVisitor {
             issues: Vec::new(),
             path: path.to_path_buf(),

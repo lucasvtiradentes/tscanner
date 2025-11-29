@@ -1,0 +1,39 @@
+function test1(x) {
+  if (x) {
+    return 1;
+  }
+  return 2;
+}
+
+function test2(x) {
+  if (x) {
+    console.log('x is true');
+  } else {
+    console.log('x is false');
+  }
+}
+
+const test3 = (x) => {
+  if (x) {
+    return 'yes';
+  }
+  return 'no';
+};
+
+function test4(x) {
+  if (x) {
+    console.log('true');
+  } else {
+    return false;
+  }
+}
+
+function test5(x, y) {
+  if (x) {
+    return 1;
+  }
+  if (y) {
+    return 2;
+  }
+  return 3;
+}

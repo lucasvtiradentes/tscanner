@@ -19,7 +19,7 @@ const arrow = () => {
 
 # Diagnostics
 ```
-invalid.ts:2:15 no-nested-require ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:2:14 no-nested-require ━━━━━━━━━━━━━━━━━━━━
 
   ! require() calls should not be nested inside functions or blocks. Move to top level for static analysis.
 
@@ -30,7 +30,7 @@ invalid.ts:2:15 no-nested-require ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:6:17 no-nested-require ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:6:16 no-nested-require ━━━━━━━━━━━━━━━━━━━━
 
   ! require() calls should not be nested inside functions or blocks. Move to top level for static analysis.
 
@@ -41,7 +41,7 @@ invalid.ts:6:17 no-nested-require ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:10:17 no-nested-require ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:10:16 no-nested-require ━━━━━━━━━━━━━━━━━━━━
 
   ! require() calls should not be nested inside functions or blocks. Move to top level for static analysis.
 

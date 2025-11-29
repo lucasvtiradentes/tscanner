@@ -1,0 +1,14 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+import { foo } from './foo';
+export const myFoo = foo;
+export function myFunc() {}
+export const myConst = 1;
+```
+
+# Diagnostics
+No issues found.

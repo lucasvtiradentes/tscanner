@@ -267,7 +267,11 @@ The default configuration is:
   "customRules": {},
   "include": [
     "**/*.ts",
-    "**/*.tsx"
+    "**/*.tsx",
+    "**/*.js",
+    "**/*.jsx",
+    "**/*.mjs",
+    "**/*.cjs"
   ],
   "exclude": [
     "**/node_modules/**",
@@ -441,27 +445,27 @@ Customize TScanner to validate what matters to your project while maintaining co
     <th width="500">Description</th>
   </tr>
   <tr>
-    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_any_type.rs"><code>no-any-type</code></a></td>
+    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_any_type.rs"><code>no-any-type</code></a> <sup>TS</sup></td>
     <td align="left">Detects usage of TypeScript 'any' type (<code>: any</code> and <code>as any</code>). Using 'any' defeats the purpose of TypeScript's type system.</td>
   </tr>
   <tr>
-    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_implicit_any.rs"><code>no-implicit-any</code></a></td>
+    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_implicit_any.rs"><code>no-implicit-any</code></a> <sup>TS</sup></td>
     <td align="left">Detects function parameters without type annotations that implicitly have 'any' type.</td>
   </tr>
   <tr>
-    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_inferrable_types.rs"><code>no-inferrable-types</code></a></td>
+    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_inferrable_types.rs"><code>no-inferrable-types</code></a> <sup>TS</sup></td>
     <td align="left">Disallows explicit type annotations on variables initialized with literal values. TypeScript can infer these types automatically.</td>
   </tr>
   <tr>
-    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_non_null_assertion.rs"><code>no-non-null-assertion</code></a></td>
+    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_non_null_assertion.rs"><code>no-non-null-assertion</code></a> <sup>TS</sup></td>
     <td align="left">Disallows the non-null assertion operator (!). Use proper null checks or optional chaining instead.</td>
   </tr>
   <tr>
-    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_single_or_array_union.rs"><code>no-single-or-array-union</code></a></td>
+    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_single_or_array_union.rs"><code>no-single-or-array-union</code></a> <sup>TS</sup></td>
     <td align="left">Disallows union types that combine a type with its array form (e.g., <code>string | string[]</code>, <code>number | number[]</code>). Prefer using a consistent type to avoid handling multiple cases in function implementations.</td>
   </tr>
   <tr>
-    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_unnecessary_type_assertion.rs"><code>no-unnecessary-type-assertion</code></a></td>
+    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_unnecessary_type_assertion.rs"><code>no-unnecessary-type-assertion</code></a> <sup>TS</sup></td>
     <td align="left">Disallows type assertions on values that are already of the asserted type (e.g., "hello" as string, 123 as number).</td>
   </tr>
 </table>
@@ -506,7 +510,7 @@ Customize TScanner to validate what matters to your project while maintaining co
     <td align="left">Disallows empty functions and methods. Empty functions are often leftovers from incomplete code.</td>
   </tr>
   <tr>
-    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_empty_interface.rs"><code>no-empty-interface</code></a></td>
+    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_empty_interface.rs"><code>no-empty-interface</code></a> <sup>TS</sup></td>
     <td align="left">Disallows empty interface declarations. Empty interfaces are equivalent to {} and usually indicate incomplete code.</td>
   </tr>
   <tr>
@@ -646,7 +650,7 @@ Customize TScanner to validate what matters to your project while maintaining co
     <th width="500">Description</th>
   </tr>
   <tr>
-    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/prefer_interface_over_type.rs"><code>prefer-interface-over-type</code></a></td>
+    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/prefer_interface_over_type.rs"><code>prefer-interface-over-type</code></a> <sup>TS</sup></td>
     <td align="left">Suggests using 'interface' keyword instead of 'type' for consistency.</td>
   </tr>
   <tr>
@@ -658,7 +662,7 @@ Customize TScanner to validate what matters to your project while maintaining co
     <td align="left">Suggests using optional chaining (?.) instead of logical AND (&&) chains for null checks.</td>
   </tr>
   <tr>
-    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/prefer_type_over_interface.rs"><code>prefer-type-over-interface</code></a></td>
+    <td align="left"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/prefer_type_over_interface.rs"><code>prefer-type-over-interface</code></a> <sup>TS</sup></td>
     <td align="left">Suggests using 'type' keyword instead of 'interface' for consistency. Type aliases are more flexible and composable.</td>
   </tr>
 </table>

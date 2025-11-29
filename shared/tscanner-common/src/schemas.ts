@@ -55,6 +55,7 @@ export const ruleMetadataSchema = z.object({
   defaultSeverity: severitySchema,
   defaultEnabled: z.boolean(),
   category: z.enum([RuleCategory.TypeSafety, RuleCategory.CodeQuality, RuleCategory.Style, RuleCategory.Performance]),
+  typescriptOnly: z.boolean().optional(),
 });
 
 export const modifiedLineRangeSchema = z.object({

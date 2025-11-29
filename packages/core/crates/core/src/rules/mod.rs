@@ -1,3 +1,4 @@
+use crate::file_source::FileSource;
 use crate::types::Issue;
 use std::path::Path;
 use std::sync::Arc;
@@ -5,7 +6,17 @@ use swc_ecma_ast::Program;
 
 pub trait Rule: Send + Sync {
     fn name(&self) -> &str;
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue>;
+    fn check(
+        &self,
+        program: &Program,
+        path: &Path,
+        source: &str,
+        file_source: FileSource,
+    ) -> Vec<Issue>;
+
+    fn is_typescript_only(&self) -> bool {
+        false
+    }
 }
 
 pub struct RuleRegistration {

@@ -1,6 +1,7 @@
 use crate::cache::FileCache;
 use crate::config::TscannerConfig;
 use crate::disable_comments::DisableDirectives;
+use crate::file_source::FileSource;
 use crate::parser::parse_file;
 use crate::registry::RuleRegistry;
 use crate::types::{FileResult, ScanResult};
@@ -152,6 +153,8 @@ impl Scanner {
             return None;
         }
 
+        let file_source = FileSource::from_path(path);
+
         let program = match parse_file(path, content) {
             Ok(p) => p,
             Err(e) => {
@@ -167,8 +170,9 @@ impl Scanner {
 
         let issues: Vec<_> = enabled_rules
             .iter()
+            .filter(|(rule, _)| !(rule.is_typescript_only() && file_source.is_javascript()))
             .flat_map(|(rule, severity)| {
-                let mut rule_issues = rule.check(&program, path, content);
+                let mut rule_issues = rule.check(&program, path, content, file_source);
                 for issue in &mut rule_issues {
                     issue.severity = *severity;
                     if issue.line > 0 && issue.line <= source_lines.len() {
@@ -200,6 +204,8 @@ impl Scanner {
             return None;
         }
 
+        let file_source = FileSource::from_path(path);
+
         let program = match parse_file(path, &source) {
             Ok(p) => p,
             Err(e) => {
@@ -215,8 +221,9 @@ impl Scanner {
 
         let issues: Vec<_> = enabled_rules
             .iter()
+            .filter(|(rule, _)| !(rule.is_typescript_only() && file_source.is_javascript()))
             .flat_map(|(rule, severity)| {
-                let mut rule_issues = rule.check(&program, path, &source);
+                let mut rule_issues = rule.check(&program, path, &source, file_source);
                 for issue in &mut rule_issues {
                     issue.severity = *severity;
                     if issue.line > 0 && issue.line <= source_lines.len() {

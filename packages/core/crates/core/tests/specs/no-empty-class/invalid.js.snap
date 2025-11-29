@@ -1,0 +1,30 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+class EmptyClass {}
+class AnotherEmpty {}
+```
+
+# Diagnostics
+```
+invalid.js:1:1 no-empty-class ━━━━━━━━━━━━━━━━━━━━
+
+  ! Empty class without methods or properties
+
+  > 1 │ class EmptyClass {}
+    2 │ class AnotherEmpty {}
+
+```
+
+```
+invalid.js:2:1 no-empty-class ━━━━━━━━━━━━━━━━━━━━
+
+  ! Empty class without methods or properties
+
+    1 │ class EmptyClass {}
+  > 2 │ class AnotherEmpty {}
+
+```

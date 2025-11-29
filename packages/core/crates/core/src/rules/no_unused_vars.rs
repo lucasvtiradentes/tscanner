@@ -25,6 +25,7 @@ inventory::submit!(RuleMetadataRegistration {
         default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::CodeQuality,
+        typescript_only: false,
     }
 });
 
@@ -33,7 +34,13 @@ impl Rule for NoUnusedVarsRule {
         "no-unused-vars"
     }
 
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn check(
+        &self,
+        program: &Program,
+        path: &Path,
+        source: &str,
+        _file_source: crate::file_source::FileSource,
+    ) -> Vec<Issue> {
         let mut visitor = UnusedVarsVisitor {
             issues: Vec::new(),
             _path: path.to_path_buf(),

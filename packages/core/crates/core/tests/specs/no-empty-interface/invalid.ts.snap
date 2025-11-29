@@ -1,0 +1,30 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+interface Foo {}
+interface Bar {}
+```
+
+# Diagnostics
+```
+invalid.ts:1:1 no-empty-interface ━━━━━━━━━━━━━━━━━━━━
+
+  ! Empty interface declaration
+
+  > 1 │ interface Foo {}
+    2 │ interface Bar {}
+
+```
+
+```
+invalid.ts:2:1 no-empty-interface ━━━━━━━━━━━━━━━━━━━━
+
+  ! Empty interface declaration
+
+    1 │ interface Foo {}
+  > 2 │ interface Bar {}
+
+```

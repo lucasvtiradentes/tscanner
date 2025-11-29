@@ -1,0 +1,33 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+import { foo } from './foo';
+import { bar } from '@/bar';
+import { fs } from 'fs';
+import { path } from 'path';
+```
+
+# Diagnostics
+```
+valid.js:3:20 no-absolute-imports ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use relative or aliased imports instead of absolute imports
+
+    2 │ import { bar } from '@/bar';
+  > 3 │ import { fs } from 'fs';
+    4 │ import { path } from 'path';
+
+```
+
+```
+valid.js:4:22 no-absolute-imports ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use relative or aliased imports instead of absolute imports
+
+    3 │ import { fs } from 'fs';
+  > 4 │ import { path } from 'path';
+
+```

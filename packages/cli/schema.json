@@ -31,7 +31,7 @@
     },
     "include": {
       "default": [
-        "**/*.{ts,tsx}"
+        "**/*.{ts,tsx,js,jsx,mjs,cjs}"
       ],
       "type": "array",
       "items": {

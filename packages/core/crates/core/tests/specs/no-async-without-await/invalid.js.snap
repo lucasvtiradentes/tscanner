@@ -1,0 +1,113 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+async function foo() {
+  return 1;
+}
+
+async function bar() {
+  console.log('hello');
+}
+
+const baz = async () => {
+  return 2;
+};
+
+const qux = async () => console.log('world');
+
+async function withPromise() {
+  return Promise.resolve(1);
+}
+
+class MyClass {
+  async method() {
+    return 3;
+  }
+}
+
+const obj = {
+  async method() {
+    return 4;
+  }
+};
+```
+
+# Diagnostics
+```
+invalid.js:1:1 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Async function does not use await. Remove 'async' keyword if await is not needed.
+
+  > 1 │ async function foo() {
+    2 │   return 1;
+
+```
+
+```
+invalid.js:5:1 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Async function does not use await. Remove 'async' keyword if await is not needed.
+
+    4 │ 
+  > 5 │ async function bar() {
+    6 │   console.log('hello');
+
+```
+
+```
+invalid.js:9:13 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Async function does not use await. Remove 'async' keyword if await is not needed.
+
+    8 │ 
+  > 9 │ const baz = async () => {
+    10 │   return 2;
+
+```
+
+```
+invalid.js:13:13 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Async function does not use await. Remove 'async' keyword if await is not needed.
+
+    12 │ 
+  > 13 │ const qux = async () => console.log('world');
+    14 │ 
+
+```
+
+```
+invalid.js:15:1 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Async function does not use await. Remove 'async' keyword if await is not needed.
+
+    14 │ 
+  > 15 │ async function withPromise() {
+    16 │   return Promise.resolve(1);
+
+```
+
+```
+invalid.js:20:3 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Async function does not use await. Remove 'async' keyword if await is not needed.
+
+    19 │ class MyClass {
+  > 20 │   async method() {
+    21 │     return 3;
+
+```
+
+```
+invalid.js:26:3 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Async function does not use await. Remove 'async' keyword if await is not needed.
+
+    25 │ const obj = {
+  > 26 │   async method() {
+    27 │     return 4;
+
+```

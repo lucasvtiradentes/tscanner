@@ -9,6 +9,7 @@ type RuleMetadata = {
   defaultEnabled: boolean;
   category: string;
   sourcePath?: string;
+  typescriptOnly?: boolean;
 };
 
 type TFields = 'RULES';
@@ -64,9 +65,10 @@ export function updateRules() {
         .replace(/\s+/g, '-')
         .replace(/[^a-z0-9-]/g, '');
 
+      const tsOnlyBadge = rule.typescriptOnly ? ' <sup>TS</sup>' : '';
       const ruleCell = rule.sourcePath
-        ? `<a href="https://github.com/lucasvtiradentes/tscanner/blob/main/${rule.sourcePath}"><code>${ruleName}</code></a>`
-        : `<code>${ruleName}</code>`;
+        ? `<a href="https://github.com/lucasvtiradentes/tscanner/blob/main/${rule.sourcePath}"><code>${ruleName}</code></a>${tsOnlyBadge}`
+        : `<code>${ruleName}</code>${tsOnlyBadge}`;
 
       table.addBodyRow([
         { content: ruleCell, align: 'left' },

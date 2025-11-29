@@ -25,6 +25,7 @@ inventory::submit!(RuleMetadataRegistration {
         default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::TypeSafety,
+        typescript_only: true,
     }
 });
 
@@ -33,7 +34,17 @@ impl Rule for NoImplicitAnyRule {
         "no-implicit-any"
     }
 
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn is_typescript_only(&self) -> bool {
+        true
+    }
+
+    fn check(
+        &self,
+        program: &Program,
+        path: &Path,
+        source: &str,
+        _file_source: crate::file_source::FileSource,
+    ) -> Vec<Issue> {
         let mut visitor = ImplicitAnyVisitor {
             issues: Vec::new(),
             path: path.to_path_buf(),

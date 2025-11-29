@@ -13,7 +13,7 @@ class MyClass {
 
 # Diagnostics
 ```
-invalid.ts:1:2 no-empty-function ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:1 no-empty-function ━━━━━━━━━━━━━━━━━━━━
 
   ! Empty function body
 
@@ -23,7 +23,7 @@ invalid.ts:1:2 no-empty-function ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:2:21 no-empty-function ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:2:20 no-empty-function ━━━━━━━━━━━━━━━━━━━━
 
   ! Empty arrow function body
 
@@ -34,7 +34,7 @@ invalid.ts:2:21 no-empty-function ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:4:4 no-empty-function ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:4:3 no-empty-function ━━━━━━━━━━━━━━━━━━━━
 
   ! Empty method body
 
@@ -45,7 +45,7 @@ invalid.ts:4:4 no-empty-function ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:4:4 no-empty-function ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:4:3 no-empty-function ━━━━━━━━━━━━━━━━━━━━
 
   ! Empty function body
 

@@ -7,7 +7,8 @@
     "displayName": "Consistent Return",
     "name": "consistent-return",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/consistent_return.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/consistent_return.rs",
+    "typescriptOnly": false
   },
   {
     "category": "codequality",
@@ -17,7 +18,8 @@
     "displayName": "Max Function Length",
     "name": "max-function-length",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/max_function_length.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/max_function_length.rs",
+    "typescriptOnly": false
   },
   {
     "category": "codequality",
@@ -27,7 +29,8 @@
     "displayName": "Max Parameters",
     "name": "max-params",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/max_params.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/max_params.rs",
+    "typescriptOnly": false
   },
   {
     "category": "imports",
@@ -37,7 +40,8 @@
     "displayName": "No Absolute Imports",
     "name": "no-absolute-imports",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_absolute_imports.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_absolute_imports.rs",
+    "typescriptOnly": false
   },
   {
     "category": "imports",
@@ -47,7 +51,8 @@
     "displayName": "No Alias Imports",
     "name": "no-alias-imports",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_alias_imports.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_alias_imports.rs",
+    "typescriptOnly": false
   },
   {
     "category": "typesafety",
@@ -57,7 +62,8 @@
     "displayName": "No Any Type",
     "name": "no-any-type",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_any_type.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_any_type.rs",
+    "typescriptOnly": true
   },
   {
     "category": "codequality",
@@ -67,7 +73,8 @@
     "displayName": "No Async Without Await",
     "name": "no-async-without-await",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_async_without_await.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_async_without_await.rs",
+    "typescriptOnly": false
   },
   {
     "category": "codequality",
@@ -77,7 +84,8 @@
     "displayName": "No Console Log",
     "name": "no-console-log",
     "ruleType": "regex",
-    "sourcePath": "packages/core/crates/core/src/rules/no_console_log.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_console_log.rs",
+    "typescriptOnly": false
   },
   {
     "category": "bugprevention",
@@ -87,7 +95,8 @@
     "displayName": "No Constant Condition",
     "name": "no-constant-condition",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_constant_condition.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_constant_condition.rs",
+    "typescriptOnly": false
   },
   {
     "category": "imports",
@@ -97,7 +106,8 @@
     "displayName": "No Default Export",
     "name": "no-default-export",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_default_export.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_default_export.rs",
+    "typescriptOnly": false
   },
   {
     "category": "imports",
@@ -107,7 +117,8 @@
     "displayName": "No Duplicate Imports",
     "name": "no-duplicate-imports",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_duplicate_imports.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_duplicate_imports.rs",
+    "typescriptOnly": false
   },
   {
     "category": "imports",
@@ -117,7 +128,8 @@
     "displayName": "No Dynamic Import",
     "name": "no-dynamic-import",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_dynamic_import.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_dynamic_import.rs",
+    "typescriptOnly": false
   },
   {
     "category": "codequality",
@@ -127,7 +139,8 @@
     "displayName": "No Else Return",
     "name": "no-else-return",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_else_return.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_else_return.rs",
+    "typescriptOnly": false
   },
   {
     "category": "codequality",
@@ -137,7 +150,8 @@
     "displayName": "No Empty Class",
     "name": "no-empty-class",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_empty_class.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_empty_class.rs",
+    "typescriptOnly": false
   },
   {
     "category": "codequality",
@@ -147,7 +161,8 @@
     "displayName": "No Empty Function",
     "name": "no-empty-function",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_empty_function.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_empty_function.rs",
+    "typescriptOnly": false
   },
   {
     "category": "codequality",
@@ -157,7 +172,8 @@
     "displayName": "No Empty Interface",
     "name": "no-empty-interface",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_empty_interface.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_empty_interface.rs",
+    "typescriptOnly": true
   },
   {
     "category": "bugprevention",
@@ -167,7 +183,8 @@
     "displayName": "No Floating Promises",
     "name": "no-floating-promises",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_floating_promises.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_floating_promises.rs",
+    "typescriptOnly": false
   },
   {
     "category": "imports",
@@ -177,7 +194,8 @@
     "displayName": "No Forwarded Exports",
     "name": "no-forwarded-exports",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_forwarded_exports.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_forwarded_exports.rs",
+    "typescriptOnly": false
   },
   {
     "category": "typesafety",
@@ -187,7 +205,8 @@
     "displayName": "No Implicit Any",
     "name": "no-implicit-any",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_implicit_any.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_implicit_any.rs",
+    "typescriptOnly": true
   },
   {
     "category": "typesafety",
@@ -197,7 +216,8 @@
     "displayName": "No Inferrable Types",
     "name": "no-inferrable-types",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_inferrable_types.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_inferrable_types.rs",
+    "typescriptOnly": true
   },
   {
     "category": "codequality",
@@ -207,7 +227,8 @@
     "displayName": "No Magic Numbers",
     "name": "no-magic-numbers",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_magic_numbers.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_magic_numbers.rs",
+    "typescriptOnly": false
   },
   {
     "category": "imports",
@@ -217,7 +238,8 @@
     "displayName": "No Nested Require",
     "name": "no-nested-require",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_nested_require.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_nested_require.rs",
+    "typescriptOnly": false
   },
   {
     "category": "codequality",
@@ -227,7 +249,8 @@
     "displayName": "No Nested Ternary",
     "name": "no-nested-ternary",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_nested_ternary.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_nested_ternary.rs",
+    "typescriptOnly": false
   },
   {
     "category": "typesafety",
@@ -237,7 +260,8 @@
     "displayName": "No Non-Null Assertion",
     "name": "no-non-null-assertion",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_non_null_assertion.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_non_null_assertion.rs",
+    "typescriptOnly": true
   },
   {
     "category": "imports",
@@ -247,7 +271,8 @@
     "displayName": "No Relative Imports",
     "name": "no-relative-imports",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_relative_imports.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_relative_imports.rs",
+    "typescriptOnly": false
   },
   {
     "category": "codequality",
@@ -257,7 +282,8 @@
     "displayName": "No Return Await",
     "name": "no-return-await",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_return_await.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_return_await.rs",
+    "typescriptOnly": false
   },
   {
     "category": "variables",
@@ -267,7 +293,8 @@
     "displayName": "No Shadow",
     "name": "no-shadow",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_shadow.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_shadow.rs",
+    "typescriptOnly": false
   },
   {
     "category": "typesafety",
@@ -277,7 +304,8 @@
     "displayName": "No Single Or Array Union",
     "name": "no-single-or-array-union",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_single_or_array_union.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_single_or_array_union.rs",
+    "typescriptOnly": true
   },
   {
     "category": "codequality",
@@ -287,7 +315,8 @@
     "displayName": "No TODO Comments",
     "name": "no-todo-comments",
     "ruleType": "regex",
-    "sourcePath": "packages/core/crates/core/src/rules/no_todo_comments.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_todo_comments.rs",
+    "typescriptOnly": false
   },
   {
     "category": "typesafety",
@@ -297,7 +326,8 @@
     "displayName": "No Unnecessary Type Assertion",
     "name": "no-unnecessary-type-assertion",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_unnecessary_type_assertion.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_unnecessary_type_assertion.rs",
+    "typescriptOnly": true
   },
   {
     "category": "bugprevention",
@@ -307,7 +337,8 @@
     "displayName": "No Unreachable Code",
     "name": "no-unreachable-code",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_unreachable_code.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_unreachable_code.rs",
+    "typescriptOnly": false
   },
   {
     "category": "codequality",
@@ -317,7 +348,8 @@
     "displayName": "No Unused Variables",
     "name": "no-unused-vars",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_unused_vars.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_unused_vars.rs",
+    "typescriptOnly": false
   },
   {
     "category": "codequality",
@@ -327,7 +359,8 @@
     "displayName": "No Useless Catch",
     "name": "no-useless-catch",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_useless_catch.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_useless_catch.rs",
+    "typescriptOnly": false
   },
   {
     "category": "variables",
@@ -337,7 +370,8 @@
     "displayName": "No Var",
     "name": "no-var",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_var.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/no_var.rs",
+    "typescriptOnly": false
   },
   {
     "category": "variables",
@@ -347,7 +381,8 @@
     "displayName": "Prefer Const",
     "name": "prefer-const",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/prefer_const.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/prefer_const.rs",
+    "typescriptOnly": false
   },
   {
     "category": "style",
@@ -357,7 +392,8 @@
     "displayName": "Prefer Interface Over Type",
     "name": "prefer-interface-over-type",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/prefer_interface_over_type.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/prefer_interface_over_type.rs",
+    "typescriptOnly": true
   },
   {
     "category": "style",
@@ -367,7 +403,8 @@
     "displayName": "Prefer Nullish Coalescing",
     "name": "prefer-nullish-coalescing",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/prefer_nullish_coalescing.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/prefer_nullish_coalescing.rs",
+    "typescriptOnly": false
   },
   {
     "category": "style",
@@ -377,7 +414,8 @@
     "displayName": "Prefer Optional Chain",
     "name": "prefer-optional-chain",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/prefer_optional_chain.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/prefer_optional_chain.rs",
+    "typescriptOnly": false
   },
   {
     "category": "style",
@@ -387,6 +425,7 @@
     "displayName": "Prefer Type Over Interface",
     "name": "prefer-type-over-interface",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/prefer_type_over_interface.rs"
+    "sourcePath": "packages/core/crates/core/src/rules/prefer_type_over_interface.rs",
+    "typescriptOnly": true
   }
 ]

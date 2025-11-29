@@ -35,7 +35,7 @@ async function asyncExample() {
 
 # Diagnostics
 ```
-invalid.ts:3:4 no-useless-catch ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:3:3 no-useless-catch ━━━━━━━━━━━━━━━━━━━━
 
   ! Useless catch block that only rethrows the error. Remove the try-catch or add meaningful error handling.
 
@@ -46,7 +46,7 @@ invalid.ts:3:4 no-useless-catch ━━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:9:4 no-useless-catch ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:9:3 no-useless-catch ━━━━━━━━━━━━━━━━━━━━
 
   ! Useless catch block that only rethrows the error. Remove the try-catch or add meaningful error handling.
 
@@ -57,7 +57,7 @@ invalid.ts:9:4 no-useless-catch ━━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:16:6 no-useless-catch ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:16:5 no-useless-catch ━━━━━━━━━━━━━━━━━━━━
 
   ! Useless catch block that only rethrows the error. Remove the try-catch or add meaningful error handling.
 
@@ -68,7 +68,7 @@ invalid.ts:16:6 no-useless-catch ━━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:24:6 no-useless-catch ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:24:5 no-useless-catch ━━━━━━━━━━━━━━━━━━━━
 
   ! Useless catch block that only rethrows the error. Remove the try-catch or add meaningful error handling.
 

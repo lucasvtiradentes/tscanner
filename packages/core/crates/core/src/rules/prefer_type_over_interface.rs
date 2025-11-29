@@ -24,6 +24,7 @@ inventory::submit!(RuleMetadataRegistration {
         default_severity: Severity::Warning,
         default_enabled: false,
         category: RuleCategory::Style,
+        typescript_only: true,
     }
 });
 
@@ -32,7 +33,17 @@ impl Rule for PreferTypeOverInterfaceRule {
         "prefer-type-over-interface"
     }
 
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn is_typescript_only(&self) -> bool {
+        true
+    }
+
+    fn check(
+        &self,
+        program: &Program,
+        path: &Path,
+        source: &str,
+        _file_source: crate::file_source::FileSource,
+    ) -> Vec<Issue> {
         let mut visitor = InterfaceVisitor {
             issues: Vec::new(),
             path: path.to_path_buf(),

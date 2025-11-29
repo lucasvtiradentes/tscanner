@@ -1,0 +1,23 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+const x = foo;
+
+const y = obj?.prop;
+
+if (foo) {
+  use(foo);
+}
+
+const z = arr[0] ?? defaultValue;
+
+const optional = obj?.deep?.nested;
+
+return value || defaultValue;
+```
+
+# Diagnostics
+No issues found.

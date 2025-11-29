@@ -163,7 +163,7 @@ fn default_severity() -> Severity {
 }
 
 fn default_include() -> Vec<String> {
-    vec!["**/*.{ts,tsx}".to_string()]
+    vec!["**/*.{ts,tsx,js,jsx,mjs,cjs}".to_string()]
 }
 
 fn default_exclude() -> Vec<String> {

@@ -1,0 +1,34 @@
+async function returnWithoutAwait() {
+  return fetchData();
+}
+
+async function awaitThenReturn() {
+  const result = await getData();
+  return result;
+}
+
+async function returnPrimitive() {
+  return 42;
+}
+
+function syncReturnAwait() {
+  return await getData();
+}
+
+async function awaitInExpression() {
+  return (await getData()) + 1;
+}
+
+async function multipleStatements() {
+  await setup();
+  const data = await fetch();
+  return processData(data);
+}
+
+async function conditionalAwait() {
+  if (condition) {
+    const x = await fetch();
+    return x;
+  }
+  return fallback();
+}

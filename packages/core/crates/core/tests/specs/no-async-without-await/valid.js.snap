@@ -1,0 +1,57 @@
+---
+source: crates/core/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+async function foo() {
+  await bar();
+}
+
+async function bar() {
+  const result = await fetch('https://example.com');
+  return result;
+}
+
+const baz = async () => {
+  await somePromise();
+};
+
+const qux = async () => await anotherPromise();
+
+function notAsync() {
+  return 1;
+}
+
+const normalArrow = () => {
+  return 2;
+};
+
+class MyClass {
+  async method() {
+    await this.otherMethod();
+  }
+
+  notAsyncMethod() {
+    return 3;
+  }
+}
+
+const obj = {
+  async method() {
+    await doSomething();
+  },
+  normalMethod() {
+    return 4;
+  }
+};
+
+async function multipleAwaits() {
+  await first();
+  await second();
+  return await third();
+}
+```
+
+# Diagnostics
+No issues found.
