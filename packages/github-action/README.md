@@ -140,6 +140,24 @@ One day I was reflecting on why Rust-based tools for the TypeScript ecosystem ar
 
 </details>
 
+<br />
+
+<details>
+<summary>Why not just push PRs to some industry open source linters?</summary>
+<br />
+
+<div align="left">
+
+Because not everything can be solved with regex or AST rules. Sometimes we need more flexibility to ensure our project is correct.
+
+Maybe you need a script rule to verify that every React component has a corresponding test file, or that route definitions match your actual folder structure. Or maybe you want an AI rule to ensure your team is following the agreed-upon patterns for data fetching with React Query, or that error boundaries are implemented correctly in critical paths.
+
+Regex doesn't solve everything. TScanner was built to support multiple rule types: AST, regex, scripts, and even AI-powered validations. This flexibility is what makes it different.
+
+</div>
+
+</details>
+
 </div>
 
 <!-- </DYNFIELD:MOTIVATION> -->
