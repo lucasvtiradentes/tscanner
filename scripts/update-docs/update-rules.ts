@@ -68,10 +68,20 @@ export function updateRules() {
         .replace(/\s+/g, '-')
         .replace(/[^a-z0-9-]/g, '');
 
-      const tsOnlyBadge = rule.typescriptOnly ? ' <sup>TS</sup>' : '';
-      const ruleCell = rule.sourcePath
-        ? `<a href="https://github.com/lucasvtiradentes/tscanner/blob/main/${rule.sourcePath}"><code>${ruleName}</code></a>${tsOnlyBadge}`
-        : `<code>${ruleName}</code>${tsOnlyBadge}`;
+      const ruleBadges: string[] = [];
+      if (rule.typescriptOnly) {
+        ruleBadges.push(
+          '<img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only">',
+        );
+      }
+      if (rule.ruleType === 'regex') {
+        ruleBadges.push('<img src="https://img.shields.io/badge/regex--rule-6C757D" alt="Regex rule">');
+      }
+      const badgesHtml = ruleBadges.length > 0 ? `<br/><br/>${ruleBadges.join(' ')}` : '';
+      const ruleLink = rule.sourcePath
+        ? `<a href="https://github.com/lucasvtiradentes/tscanner/blob/main/${rule.sourcePath}"><code>${ruleName}</code></a>`
+        : `<code>${ruleName}</code>`;
+      const ruleCell = `<div align="center">${ruleLink}${badgesHtml}</div>`;
 
       const equivalentBadges: string[] = [];
       if (rule.equivalentEslintRule) {
