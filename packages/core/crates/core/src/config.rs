@@ -95,45 +95,78 @@ fn validate_json_fields(json: &serde_json::Value) -> Result<(), String> {
     }
 }
 
+const DEFAULT_CONFIG_JSON: &str = include_str!("../../../../../assets/default-config.json");
+
+fn default_lsp_config() -> LspConfig {
+    let config: TscannerConfig =
+        serde_json::from_str(DEFAULT_CONFIG_JSON).expect("Failed to parse default-config.json");
+    config.lsp.unwrap_or(LspConfig {
+        errors: true,
+        warnings: false,
+    })
+}
+
+fn default_lsp_errors() -> bool {
+    default_lsp_config().errors
+}
+
+fn default_lsp_warnings() -> bool {
+    default_lsp_config().warnings
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct LspConfig {
-    #[serde(default = "default_true")]
-    #[schemars(description = "Show error diagnostics in LSP (default: true)")]
+    #[serde(default = "default_lsp_errors")]
+    #[schemars(
+        default = "default_lsp_errors",
+        description = "Show error diagnostics in LSP"
+    )]
     pub errors: bool,
 
-    #[serde(default = "default_true")]
-    #[schemars(description = "Show warning diagnostics in LSP (default: true)")]
+    #[serde(default = "default_lsp_warnings")]
+    #[schemars(
+        default = "default_lsp_warnings",
+        description = "Show warning diagnostics in LSP"
+    )]
     pub warnings: bool,
 }
 
 impl Default for LspConfig {
     fn default() -> Self {
-        Self {
-            errors: true,
-            warnings: true,
-        }
+        default_lsp_config()
     }
+}
+
+fn default_files_config() -> FilesConfig {
+    let config: TscannerConfig =
+        serde_json::from_str(DEFAULT_CONFIG_JSON).expect("Failed to parse default-config.json");
+    config.files
+}
+
+fn default_include() -> Vec<String> {
+    default_files_config().include
+}
+
+fn default_exclude() -> Vec<String> {
+    default_files_config().exclude
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct FilesConfig {
     #[serde(default = "default_include")]
-    #[schemars(description = "File patterns to include")]
+    #[schemars(default = "default_include", description = "File patterns to include")]
     pub include: Vec<String>,
 
     #[serde(default = "default_exclude")]
-    #[schemars(description = "File patterns to exclude")]
+    #[schemars(default = "default_exclude", description = "File patterns to exclude")]
     pub exclude: Vec<String>,
 }
 
 impl Default for FilesConfig {
     fn default() -> Self {
-        Self {
-            include: default_include(),
-            exclude: default_exclude(),
-        }
+        default_files_config()
     }
 }
 
@@ -267,19 +300,6 @@ impl CompiledRuleConfig {
 
 fn default_severity() -> Severity {
     Severity::Warning
-}
-
-fn default_include() -> Vec<String> {
-    vec!["**/*.{ts,tsx,js,jsx,mjs,cjs}".to_string()]
-}
-
-fn default_exclude() -> Vec<String> {
-    vec![
-        "node_modules/**".to_string(),
-        "dist/**".to_string(),
-        "build/**".to_string(),
-        ".git/**".to_string(),
-    ]
 }
 
 fn compile_optional_globset(
@@ -510,8 +530,6 @@ impl TscannerConfig {
 
 impl Default for TscannerConfig {
     fn default() -> Self {
-        const DEFAULT_CONFIG_JSON: &str = include_str!("../../../../../assets/default-config.json");
-
         serde_json::from_str(DEFAULT_CONFIG_JSON)
             .expect("Failed to parse embedded default-config.json")
     }
