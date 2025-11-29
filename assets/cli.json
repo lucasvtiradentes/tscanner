@@ -1,0 +1,151 @@
+{
+  "name": "tscanner",
+  "version": "0.0.22",
+  "description": "Code quality scanner for the AI-generated code era",
+  "commands": [
+    {
+      "name": "check",
+      "description": "Scan code for issues and display results",
+      "usage": "tscanner check [OPTIONS] [PATH]",
+      "arguments": [
+        {
+          "name": "path",
+          "description": "Directory or file to scan",
+          "required": false,
+          "defaultValue": "."
+        }
+      ],
+      "flags": [
+        {
+          "name": "branch",
+          "short": null,
+          "description": "Only show issues in files changed compared to branch (e.g., origin/main)",
+          "takesValue": true,
+          "valueName": "BRANCH",
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "by-rule",
+          "short": null,
+          "description": "Group issues by rule (default: group by file)",
+          "takesValue": false,
+          "valueName": null,
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "config",
+          "short": null,
+          "description": "Path to directory containing config.jsonc",
+          "takesValue": true,
+          "valueName": "CONFIG_DIR",
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "continue-on-error",
+          "short": null,
+          "description": "Continue execution even when errors are found",
+          "takesValue": false,
+          "valueName": null,
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "file",
+          "short": null,
+          "description": "Filter results to specific file(s) using glob pattern (e.g., 'src/**/*.ts')",
+          "takesValue": true,
+          "valueName": "FILE_PATTERN",
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "json",
+          "short": null,
+          "description": "Output results as JSON",
+          "takesValue": false,
+          "valueName": null,
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "no-cache",
+          "short": null,
+          "description": "Skip cache and force full scan",
+          "takesValue": false,
+          "valueName": null,
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "pretty",
+          "short": null,
+          "description": "Pretty output with rule definitions at the top",
+          "takesValue": false,
+          "valueName": null,
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "rule",
+          "short": null,
+          "description": "Filter results to specific rule (e.g., 'no-console-log')",
+          "takesValue": true,
+          "valueName": "RULE_NAME",
+          "defaultValue": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "init",
+      "description": "Create a default configuration file",
+      "usage": "tscanner init [OPTIONS] [PATH]",
+      "arguments": [
+        {
+          "name": "path",
+          "description": "Directory to initialize",
+          "required": false,
+          "defaultValue": "."
+        }
+      ],
+      "flags": [
+        {
+          "name": "all-rules",
+          "short": null,
+          "description": "Initialize with all built-in rules enabled",
+          "takesValue": false,
+          "valueName": null,
+          "defaultValue": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "rules",
+      "description": "List all available rules and their metadata",
+      "usage": "tscanner rules [OPTIONS] [PATH]",
+      "arguments": [
+        {
+          "name": "path",
+          "description": "Directory containing the config",
+          "required": false,
+          "defaultValue": "."
+        }
+      ],
+      "flags": [
+        {
+          "name": "config",
+          "short": null,
+          "description": "Path to directory containing config.jsonc",
+          "takesValue": true,
+          "valueName": "CONFIG_DIR",
+          "defaultValue": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

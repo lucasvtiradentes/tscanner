@@ -1,100 +1,12 @@
 use anyhow::Result;
-use clap::{Parser, Subcommand, ValueEnum};
-use std::path::PathBuf;
+use clap::Parser;
 
 mod commands;
 mod config_loader;
 
+use cli::{Cli, Commands, GroupMode};
 use commands::{cmd_check, cmd_init, cmd_rules};
-use core::{init_logger, APP_DESCRIPTION, APP_NAME};
-
-#[derive(Debug, Clone, ValueEnum)]
-pub enum GroupMode {
-    File,
-    Rule,
-}
-
-#[derive(Parser)]
-#[command(name = APP_NAME)]
-#[command(version, about = APP_DESCRIPTION, long_about = None)]
-struct Cli {
-    #[command(subcommand)]
-    command: Option<Commands>,
-}
-
-#[derive(Subcommand)]
-enum Commands {
-    #[command(about = "Scan code for issues and display results")]
-    Check {
-        #[arg(value_name = "PATH", default_value = ".")]
-        path: PathBuf,
-
-        #[arg(long, help = "Skip cache and force full scan")]
-        no_cache: bool,
-
-        #[arg(long, help = "Group issues by rule (default: group by file)")]
-        by_rule: bool,
-
-        #[arg(long, help = "Output results as JSON")]
-        json: bool,
-
-        #[arg(long, help = "Pretty output with rule definitions at the top")]
-        pretty: bool,
-
-        #[arg(
-            long,
-            value_name = "BRANCH",
-            help = "Only show issues in files changed compared to branch (e.g., origin/main)"
-        )]
-        branch: Option<String>,
-
-        #[arg(
-            long,
-            value_name = "FILE_PATTERN",
-            help = "Filter results to specific file(s) using glob pattern (e.g., 'src/**/*.ts')"
-        )]
-        file: Option<String>,
-
-        #[arg(
-            long,
-            value_name = "RULE_NAME",
-            help = "Filter results to specific rule (e.g., 'no-console-log')"
-        )]
-        rule: Option<String>,
-
-        #[arg(long, help = "Continue execution even when errors are found")]
-        continue_on_error: bool,
-
-        #[arg(
-            long,
-            value_name = "CONFIG_DIR",
-            help = "Path to directory containing config.jsonc"
-        )]
-        config: Option<PathBuf>,
-    },
-
-    #[command(about = "List all available rules and their metadata")]
-    Rules {
-        #[arg(value_name = "PATH", default_value = ".")]
-        path: PathBuf,
-
-        #[arg(
-            long,
-            value_name = "CONFIG_DIR",
-            help = "Path to directory containing config.jsonc"
-        )]
-        config: Option<PathBuf>,
-    },
-
-    #[command(about = "Create a default configuration file")]
-    Init {
-        #[arg(value_name = "PATH", default_value = ".")]
-        path: PathBuf,
-
-        #[arg(long, help = "Initialize with all built-in rules enabled")]
-        all_rules: bool,
-    },
-}
+use core::init_logger;
 
 fn main() -> Result<()> {
     init_logger("rust_cli        ");
