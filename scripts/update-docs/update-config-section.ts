@@ -32,7 +32,52 @@ const data: any = fetchData();
 
 // tscanner-disable-file
 // Entire file is skipped
-\`\`\``;
+\`\`\`
+
+<details>
+<summary><strong>Additional info about configuration</strong></summary>
+
+<br/>
+
+All configuration fields are **optional** with sensible defaults. The minimum required config is just enabling the rules you want:
+
+\`\`\`json
+{
+  "builtinRules": {
+    "no-any-type": {}
+  }
+}
+\`\`\`
+
+With this minimal config, TScanner will scan all \`.ts/.tsx/.js/.jsx/.mjs/.cjs\` files, excluding \`node_modules/\`, \`dist/\`, \`build/\`, and \`.git/\` directories.
+
+**Understanding \`files.include\` and \`files.exclude\`:**
+
+- \`files.include\`: Glob patterns for files to scan (default: \`["**/*.{ts,tsx,js,jsx,mjs,cjs}"]\`)
+- \`files.exclude\`: Glob patterns for files/folders to ignore (default: \`["node_modules/**", "dist/**", "build/**", ".git/**"]\`)
+
+Example with per-rule file patterns:
+
+\`\`\`json
+{
+  "builtinRules": {
+    "no-any-type": {},
+    "no-console-log": {
+      "exclude": ["src/utils/logger.ts"]
+    },
+    "max-function-length": {
+      "include": ["src/core/**/*.ts"]
+    }
+  }
+}
+\`\`\`
+
+This config:
+- Runs \`no-any-type\` on all files (uses global \`files\` patterns)
+- Runs \`no-console-log\` on all files except \`src/utils/logger.ts\`
+- Runs \`max-function-length\` only on files inside \`src/core/\`
+
+</details>`;
   };
 
   const readmeConfigs = [

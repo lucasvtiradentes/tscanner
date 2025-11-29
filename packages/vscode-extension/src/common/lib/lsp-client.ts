@@ -58,7 +58,7 @@ export class TscannerLspClient {
       logger.info('Stopping LSP client');
       await this.client.stop();
       this.client = null;
-      logger.info('LSP client stopped');
+      logger.info('LSP client stopped\n\n\n');
     }
   }
 

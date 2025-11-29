@@ -34,6 +34,7 @@ export function activate(context: vscode.ExtensionContext) {
   }
 
   activationKey = currentKey;
+  logger.clear();
   logger.info('TScanner extension activated');
 
   const panelContent = new IssuesPanelContent();

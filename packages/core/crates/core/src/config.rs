@@ -3,9 +3,97 @@ use globset::{Glob, GlobSet, GlobSetBuilder};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::hash_map::DefaultHasher;
-use std::collections::{BTreeMap, HashMap};
+use std::collections::{BTreeMap, HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 use std::path::Path;
+
+const TSCANNER_VERSION: &str = env!("CARGO_PKG_VERSION");
+
+pub const CONFIG_ERROR_PREFIX: &str = "TSCANNER_CONFIG_ERROR:";
+
+const ALLOWED_TOP_LEVEL: &[&str] = &["$schema", "lsp", "builtinRules", "customRules", "files"];
+const ALLOWED_FILES: &[&str] = &["include", "exclude"];
+const ALLOWED_LSP: &[&str] = &["errors", "warnings"];
+const ALLOWED_BUILTIN_RULE: &[&str] = &["enabled", "severity", "include", "exclude"];
+const ALLOWED_CUSTOM_RULE: &[&str] = &[
+    "type", "pattern", "script", "prompt", "message", "severity", "enabled", "include", "exclude",
+];
+
+fn collect_invalid_fields(
+    obj: &serde_json::Map<String, serde_json::Value>,
+    allowed: &[&str],
+    prefix: &str,
+) -> Vec<String> {
+    let allowed_set: HashSet<&str> = allowed.iter().copied().collect();
+    obj.keys()
+        .filter(|key| !allowed_set.contains(key.as_str()))
+        .map(|key| {
+            if prefix.is_empty() {
+                key.clone()
+            } else {
+                format!("{}.{}", prefix, key)
+            }
+        })
+        .collect()
+}
+
+fn validate_nested_rules(
+    rules: &serde_json::Map<String, serde_json::Value>,
+    allowed: &[&str],
+    section_name: &str,
+) -> Vec<String> {
+    let mut invalid = Vec::new();
+    for (rule_name, rule_config) in rules {
+        if let Some(rule_obj) = rule_config.as_object() {
+            let prefix = format!("{}.{}", section_name, rule_name);
+            invalid.extend(collect_invalid_fields(rule_obj, allowed, &prefix));
+        }
+    }
+    invalid
+}
+
+fn validate_json_fields(json: &serde_json::Value) -> Result<(), String> {
+    let Some(obj) = json.as_object() else {
+        return Ok(());
+    };
+
+    let mut invalid_fields = collect_invalid_fields(obj, ALLOWED_TOP_LEVEL, "");
+
+    if let Some(files) = obj.get("files").and_then(|v| v.as_object()) {
+        invalid_fields.extend(collect_invalid_fields(files, ALLOWED_FILES, "files"));
+    }
+
+    if let Some(lsp) = obj.get("lsp").and_then(|v| v.as_object()) {
+        invalid_fields.extend(collect_invalid_fields(lsp, ALLOWED_LSP, "lsp"));
+    }
+
+    if let Some(builtin_rules) = obj.get("builtinRules").and_then(|v| v.as_object()) {
+        invalid_fields.extend(validate_nested_rules(
+            builtin_rules,
+            ALLOWED_BUILTIN_RULE,
+            "builtinRules",
+        ));
+    }
+
+    if let Some(custom_rules) = obj.get("customRules").and_then(|v| v.as_object()) {
+        invalid_fields.extend(validate_nested_rules(
+            custom_rules,
+            ALLOWED_CUSTOM_RULE,
+            "customRules",
+        ));
+    }
+
+    if invalid_fields.is_empty() {
+        Ok(())
+    } else {
+        Err(format!(
+            "{}invalid_fields=[{}];version={}",
+            CONFIG_ERROR_PREFIX,
+            invalid_fields.join(","),
+            TSCANNER_VERSION
+        ))
+    }
+}
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
@@ -30,6 +118,27 @@ impl Default for LspConfig {
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
+pub struct FilesConfig {
+    #[serde(default = "default_include")]
+    #[schemars(description = "File patterns to include")]
+    pub include: Vec<String>,
+
+    #[serde(default = "default_exclude")]
+    #[schemars(description = "File patterns to exclude")]
+    pub exclude: Vec<String>,
+}
+
+impl Default for FilesConfig {
+    fn default() -> Self {
+        Self {
+            include: default_include(),
+            exclude: default_exclude(),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
 pub struct TscannerConfig {
     #[serde(rename = "$schema", skip_serializing_if = "Option::is_none")]
     #[schemars(description = "JSON schema URL for editor support")]
@@ -47,11 +156,9 @@ pub struct TscannerConfig {
     #[schemars(description = "Custom rules configuration (regex, script, or AI)")]
     pub custom_rules: HashMap<String, CustomRuleConfig>,
 
-    #[serde(default = "default_include")]
-    pub include: Vec<String>,
-
-    #[serde(default = "default_exclude")]
-    pub exclude: Vec<String>,
+    #[serde(default)]
+    #[schemars(description = "File patterns configuration")]
+    pub files: FilesConfig,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -175,11 +282,26 @@ fn default_exclude() -> Vec<String> {
     ]
 }
 
+fn compile_optional_globset(
+    patterns: &[String],
+) -> Result<Option<GlobSet>, Box<dyn std::error::Error>> {
+    if patterns.is_empty() {
+        Ok(None)
+    } else {
+        Ok(Some(compile_globset(patterns)?))
+    }
+}
+
 impl TscannerConfig {
     pub fn load_from_file(path: &Path) -> Result<Self, Box<dyn std::error::Error>> {
         let content = std::fs::read_to_string(path)?;
+
         let json_without_comments = json_comments::StripComments::new(content.as_bytes());
-        let config: Self = serde_json::from_reader(json_without_comments)?;
+        let json_value: serde_json::Value = serde_json::from_reader(json_without_comments)?;
+
+        validate_json_fields(&json_value)?;
+
+        let config: Self = serde_json::from_value(json_value)?;
         config.validate()?;
         Ok(config)
     }
@@ -288,26 +410,13 @@ impl TscannerConfig {
             .map(|m| m.default_severity)
             .unwrap_or(Severity::Warning);
 
-        let global_include = compile_globset(&self.include)?;
-        let global_exclude = compile_globset(&self.exclude)?;
-        let rule_include = if rule_config.include.is_empty() {
-            None
-        } else {
-            Some(compile_globset(&rule_config.include)?)
-        };
-        let rule_exclude = if rule_config.exclude.is_empty() {
-            None
-        } else {
-            Some(compile_globset(&rule_config.exclude)?)
-        };
-
         Ok(CompiledRuleConfig {
             enabled: rule_config.enabled.unwrap_or(true),
             severity: rule_config.severity.unwrap_or(default_severity),
-            global_include,
-            global_exclude,
-            rule_include,
-            rule_exclude,
+            global_include: compile_globset(&self.files.include)?,
+            global_exclude: compile_globset(&self.files.exclude)?,
+            rule_include: compile_optional_globset(&rule_config.include)?,
+            rule_exclude: compile_optional_globset(&rule_config.exclude)?,
             message: None,
             pattern: None,
         })
@@ -322,26 +431,13 @@ impl TscannerConfig {
             .get(name)
             .ok_or_else(|| format!("Custom rule '{}' not found in configuration", name))?;
 
-        let global_include = compile_globset(&self.include)?;
-        let global_exclude = compile_globset(&self.exclude)?;
-        let rule_include = if rule_config.include.is_empty() {
-            None
-        } else {
-            Some(compile_globset(&rule_config.include)?)
-        };
-        let rule_exclude = if rule_config.exclude.is_empty() {
-            None
-        } else {
-            Some(compile_globset(&rule_config.exclude)?)
-        };
-
         Ok(CompiledRuleConfig {
             enabled: rule_config.enabled,
             severity: rule_config.severity,
-            global_include,
-            global_exclude,
-            rule_include,
-            rule_exclude,
+            global_include: compile_globset(&self.files.include)?,
+            global_exclude: compile_globset(&self.files.exclude)?,
+            rule_include: compile_optional_globset(&rule_config.include)?,
+            rule_exclude: compile_optional_globset(&rule_config.exclude)?,
             message: Some(rule_config.message.clone()),
             pattern: rule_config.pattern.clone(),
         })
@@ -371,10 +467,10 @@ impl TscannerConfig {
     pub fn compute_hash(&self) -> u64 {
         let mut hasher = DefaultHasher::new();
 
-        for pattern in &self.include {
+        for pattern in &self.files.include {
             pattern.hash(&mut hasher);
         }
-        for pattern in &self.exclude {
+        for pattern in &self.files.exclude {
             pattern.hash(&mut hasher);
         }
 

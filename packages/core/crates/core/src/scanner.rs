@@ -60,9 +60,9 @@ impl Scanner {
         let start = Instant::now();
         crate::log_info(&format!("Starting scan of {:?}", root));
 
-        let global_include = compile_globset(&self.config.include)
+        let global_include = compile_globset(&self.config.files.include)
             .expect("Failed to compile global include patterns");
-        let global_exclude = compile_globset(&self.config.exclude)
+        let global_exclude = compile_globset(&self.config.files.exclude)
             .expect("Failed to compile global exclude patterns");
 
         let root_buf = root.to_path_buf();

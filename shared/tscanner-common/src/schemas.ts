@@ -89,12 +89,16 @@ export const lspConfigSchema = z.object({
   warnings: z.boolean().optional().default(true),
 });
 
+export const filesConfigSchema = z.object({
+  include: z.array(z.string()).optional(),
+  exclude: z.array(z.string()).optional(),
+});
+
 export const tscannerConfigSchema = z.object({
   lsp: lspConfigSchema.optional(),
   builtinRules: z.record(z.string(), builtinRuleConfigSchema).optional(),
   customRules: z.record(z.string(), customRuleConfigSchema).optional(),
-  include: z.array(z.string()).optional(),
-  exclude: z.array(z.string()).optional(),
+  files: filesConfigSchema.optional(),
 });
 
 export type ScanParams = z.infer<typeof scanParamsSchema>;
@@ -110,6 +114,7 @@ export type ModifiedLineRange = z.infer<typeof modifiedLineRangeSchema>;
 export type BuiltinRuleConfig = z.infer<typeof builtinRuleConfigSchema>;
 export type CustomRuleConfig = z.infer<typeof customRuleConfigSchema>;
 export type LspConfig = z.infer<typeof lspConfigSchema>;
+export type FilesConfig = z.infer<typeof filesConfigSchema>;
 export type TscannerConfig = z.infer<typeof tscannerConfigSchema>;
 
 export function hasConfiguredRules(config: TscannerConfig | null): boolean {

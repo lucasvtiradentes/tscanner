@@ -48,17 +48,19 @@
       "message": "there's no need to return promise void"
     }
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
-  "exclude": [
-    "**/node_modules/**",
-    "**/dist/**",
-    "**/build/**",
-    ".git/**",
-    ".ignore/**",
-    "packages/vscode-extension/dist-dev/**",
-    "packages/vscode-extension/out/**",
-    "packages/core/crates/core/tests/**"
-  ],
+  "files": {
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/build/**",
+      ".git/**",
+      ".ignore/**",
+      "packages/vscode-extension/dist-dev/**",
+      "packages/vscode-extension/out/**",
+      "packages/core/crates/core/tests/**"
+    ]
+  },
   "lsp": {
     "errors": true,
     "warnings": true

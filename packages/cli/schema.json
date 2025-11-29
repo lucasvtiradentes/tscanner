@@ -24,26 +24,24 @@
         "$ref": "#/definitions/CustomRuleConfig"
       }
     },
-    "exclude": {
-      "default": [
-        "node_modules/**",
-        "dist/**",
-        "build/**",
-        ".git/**"
-      ],
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "include": {
-      "default": [
-        "**/*.{ts,tsx,js,jsx,mjs,cjs}"
-      ],
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
+    "files": {
+      "description": "File patterns configuration",
+      "default": {
+        "exclude": [
+          "node_modules/**",
+          "dist/**",
+          "build/**",
+          ".git/**"
+        ],
+        "include": [
+          "**/*.{ts,tsx,js,jsx,mjs,cjs}"
+        ]
+      },
+      "allOf": [
+        {
+          "$ref": "#/definitions/FilesConfig"
+        }
+      ]
     },
     "lsp": {
       "description": "LSP server configuration",
@@ -172,6 +170,34 @@
         "script",
         "ai"
       ]
+    },
+    "FilesConfig": {
+      "type": "object",
+      "properties": {
+        "exclude": {
+          "description": "File patterns to exclude",
+          "default": [
+            "node_modules/**",
+            "dist/**",
+            "build/**",
+            ".git/**"
+          ],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "include": {
+          "description": "File patterns to include",
+          "default": [
+            "**/*.{ts,tsx,js,jsx,mjs,cjs}"
+          ],
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
     },
     "LspConfig": {
       "type": "object",

@@ -105,8 +105,11 @@ pub fn handle_scan(request_id: u64, params: ScanParams, state: &mut ServerState)
                 c
             }
             Err(e) => {
-                core::log_info(&format!("Using default configuration: {}", e));
-                TscannerConfig::default()
+                return Response {
+                    id: request_id,
+                    result: None,
+                    error: Some(e.to_string()),
+                };
             }
         }
     };

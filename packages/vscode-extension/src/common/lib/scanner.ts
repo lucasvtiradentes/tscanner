@@ -9,6 +9,44 @@ import { TscannerLspClient } from './lsp-client';
 import { RustClient } from './rust-client';
 import { getCurrentWorkspaceFolder, openTextDocument } from './vscode-utils';
 
+const CONFIG_ERROR_PREFIX = 'TSCANNER_CONFIG_ERROR:';
+
+type ConfigError = {
+  invalidFields: string[];
+  version: string;
+};
+
+function getDocsUrl(version: string): string {
+  return `https://github.com/lucasvtiradentes/tscanner/tree/vscode-extension-v${version}?tab=readme-ov-file#%EF%B8%8F-configuration`;
+}
+
+function parseConfigError(errorMessage: string): ConfigError | null {
+  if (!errorMessage.includes(CONFIG_ERROR_PREFIX)) {
+    return null;
+  }
+
+  const match = errorMessage.match(/invalid_fields=\[([^\]]*)\];version=([^\s]+)/);
+  if (!match) {
+    return null;
+  }
+
+  const [, fieldsStr, version] = match;
+  const invalidFields = fieldsStr.split(',').filter(Boolean);
+
+  return { invalidFields, version };
+}
+
+function showConfigErrorToast(configError: ConfigError) {
+  const fieldsText = configError.invalidFields.join(', ');
+  const message = `TScanner config error: invalid fields [${fieldsText}]. Please check the docs for v${configError.version}`;
+
+  vscode.window.showErrorMessage(message, 'Open Docs').then((selection) => {
+    if (selection === 'Open Docs') {
+      vscode.env.openExternal(vscode.Uri.parse(getDocsUrl(configError.version)));
+    }
+  });
+}
+
 let rustClient: RustClient | null = null;
 let lspClient: TscannerLspClient | null = null;
 
@@ -97,15 +135,24 @@ export async function scanWorkspace(
     return results;
   } catch (error) {
     logger.error(`Rust backend failed: ${error}`);
-    vscode.window
-      .showErrorMessage(`TScanner: Rust backend error: ${error}\n\nCheck logs at ${LOG_FILE_PATH}`, 'Open Logs')
-      .then((selection) => {
-        if (selection === 'Open Logs') {
-          openTextDocument(vscode.Uri.file(LOG_FILE_PATH)).then((doc) => {
-            vscode.window.showTextDocument(doc);
-          });
-        }
-      });
+
+    const errorMessage = String(error);
+    const configError = parseConfigError(errorMessage);
+
+    if (configError) {
+      showConfigErrorToast(configError);
+    } else {
+      vscode.window
+        .showErrorMessage(`TScanner: Rust backend error: ${error}\n\nCheck logs at ${LOG_FILE_PATH}`, 'Open Logs')
+        .then((selection) => {
+          if (selection === 'Open Logs') {
+            openTextDocument(vscode.Uri.file(LOG_FILE_PATH)).then((doc) => {
+              vscode.window.showTextDocument(doc);
+            });
+          }
+        });
+    }
+
     throw error;
   }
 }
