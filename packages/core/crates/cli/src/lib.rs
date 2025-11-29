@@ -11,7 +11,7 @@ pub enum GroupMode {
 
 #[derive(Debug, Clone, Default)]
 pub struct CliOverrides {
-    pub by_rule: Option<bool>,
+    pub group_by: Option<GroupMode>,
     pub no_cache: Option<bool>,
     pub show_severity: Option<bool>,
     pub show_source_line: Option<bool>,
@@ -42,8 +42,13 @@ pub enum Commands {
         #[arg(long, help = "Skip cache and force full scan")]
         no_cache: bool,
 
-        #[arg(long, help = "Group issues by rule (default: group by file)")]
-        by_rule: bool,
+        #[arg(
+            long,
+            value_enum,
+            value_name = "MODE",
+            help = "Group issues by file or rule"
+        )]
+        group_by: Option<GroupMode>,
 
         #[arg(long, help = "Hide severity icon")]
         hide_severity: bool,

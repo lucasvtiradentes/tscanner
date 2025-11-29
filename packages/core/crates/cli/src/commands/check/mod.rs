@@ -14,7 +14,8 @@ use std::sync::Arc;
 
 use crate::config_loader::load_config_with_custom;
 use crate::shared::SummaryStats;
-use crate::{CliOverrides, GroupMode};
+use crate::CliOverrides;
+use cli::GroupMode;
 use context::CheckContext;
 use core::{
     log_error, log_info, CliConfig, CliGroupBy, APP_NAME, CONFIG_DIR_NAME, CONFIG_FILE_NAME,
@@ -24,7 +25,6 @@ use core::{
 pub fn cmd_check(
     path: &Path,
     no_cache: bool,
-    group_mode: GroupMode,
     json_output: bool,
     pretty_output: bool,
     branch: Option<String>,
@@ -35,10 +35,10 @@ pub fn cmd_check(
     cli_overrides: CliOverrides,
 ) -> Result<()> {
     log_info(&format!(
-        "cmd_check: Starting at: {} (no_cache: {}, group_mode: {:?}, pretty: {})",
+        "cmd_check: Starting at: {} (no_cache: {}, group_by: {:?}, pretty: {})",
         path.display(),
         no_cache,
-        group_mode,
+        cli_overrides.group_by,
         pretty_output
     ));
 
@@ -88,7 +88,7 @@ pub fn cmd_check(
     };
 
     let resolved_cli = resolve_cli_config(&cli_config, &cli_overrides);
-    let effective_group_mode = resolve_group_mode(&resolved_cli, &group_mode);
+    let effective_group_mode = resolve_group_mode(&resolved_cli);
     let effective_no_cache = no_cache || resolved_cli.no_cache;
 
     let config_hash = config.compute_hash();
@@ -152,13 +152,11 @@ pub fn cmd_check(
 fn resolve_cli_config(cli_config: &CliConfig, overrides: &CliOverrides) -> CliConfig {
     CliConfig {
         group_by: overrides
-            .by_rule
-            .map(|v| {
-                if v {
-                    CliGroupBy::Rule
-                } else {
-                    CliGroupBy::File
-                }
+            .group_by
+            .as_ref()
+            .map(|g| match g {
+                GroupMode::Rule => CliGroupBy::Rule,
+                GroupMode::File => CliGroupBy::File,
             })
             .unwrap_or(cli_config.group_by),
         no_cache: overrides.no_cache.unwrap_or(cli_config.no_cache),
@@ -178,16 +176,10 @@ fn resolve_cli_config(cli_config: &CliConfig, overrides: &CliOverrides) -> CliCo
     }
 }
 
-fn resolve_group_mode(cli_config: &CliConfig, group_mode: &GroupMode) -> GroupMode {
-    let from_config = match cli_config.group_by {
+fn resolve_group_mode(cli_config: &CliConfig) -> GroupMode {
+    match cli_config.group_by {
         CliGroupBy::Rule => GroupMode::Rule,
         CliGroupBy::File => GroupMode::File,
-    };
-
-    if matches!(group_mode, GroupMode::Rule) {
-        GroupMode::Rule
-    } else {
-        from_config
     }
 }
 

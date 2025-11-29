@@ -191,12 +191,6 @@ tscanner check --branch origin/main
   <tr>
     <!-- <td align="left"><code>check [path]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><code>--by-rule</code></td>
-    <td align="left">Group issues by rule (default: group by file)</td>
-  </tr>
-  <tr>
-    <!-- <td align="left"><code>check [path]</code></td> -->
-    <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--config <CONFIG_DIR></code></td>
     <td align="left">Path to directory containing config.jsonc</td>
   </tr>
@@ -211,6 +205,12 @@ tscanner check --branch origin/main
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--file <FILE_PATTERN></code></td>
     <td align="left">Filter results to specific file(s) using glob pattern (e.g., 'src/**/*.ts')</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [path]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--group-by <MODE></code></td>
+    <td align="left">Group issues by file or rule</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [path]</code></td> -->

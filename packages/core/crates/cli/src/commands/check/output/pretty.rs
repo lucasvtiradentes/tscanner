@@ -1,7 +1,7 @@
 use super::OutputRenderer;
 use crate::commands::check::context::CheckContext;
 use crate::shared::SummaryStats;
-use crate::GroupMode;
+use cli::GroupMode;
 use colored::*;
 use core::types::ScanResult;
 

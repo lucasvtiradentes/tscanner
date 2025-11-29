@@ -5,7 +5,7 @@ mod commands;
 mod config_loader;
 mod shared;
 
-use cli::{Cli, CliOverrides, Commands, GroupMode};
+use cli::{Cli, CliOverrides, Commands};
 use commands::{cmd_check, cmd_init, cmd_rules};
 use core::init_logger;
 
@@ -18,7 +18,7 @@ fn main() -> Result<()> {
         Some(Commands::Check {
             path,
             no_cache,
-            by_rule,
+            group_by,
             hide_severity,
             hide_source_line,
             hide_rule_name,
@@ -32,14 +32,8 @@ fn main() -> Result<()> {
             continue_on_error,
             config,
         }) => {
-            let group_mode = if by_rule {
-                GroupMode::Rule
-            } else {
-                GroupMode::File
-            };
-
             let overrides = CliOverrides {
-                by_rule: if by_rule { Some(true) } else { None },
+                group_by: group_by.clone(),
                 no_cache: if no_cache { Some(true) } else { None },
                 show_severity: if hide_severity { Some(false) } else { None },
                 show_source_line: if hide_source_line { Some(false) } else { None },
@@ -51,7 +45,6 @@ fn main() -> Result<()> {
             cmd_check(
                 &path,
                 no_cache,
-                group_mode,
                 json,
                 pretty,
                 branch,

@@ -26,15 +26,6 @@
           "required": false
         },
         {
-          "name": "by-rule",
-          "short": null,
-          "description": "Group issues by rule (default: group by file)",
-          "takesValue": false,
-          "valueName": null,
-          "defaultValue": null,
-          "required": false
-        },
-        {
           "name": "config",
           "short": null,
           "description": "Path to directory containing config.jsonc",
@@ -58,6 +49,15 @@
           "description": "Filter results to specific file(s) using glob pattern (e.g., 'src/**/*.ts')",
           "takesValue": true,
           "valueName": "FILE_PATTERN",
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "group-by",
+          "short": null,
+          "description": "Group issues by file or rule",
+          "takesValue": true,
+          "valueName": "MODE",
           "defaultValue": null,
           "required": false
         },

@@ -90,7 +90,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ScanResult
 
   const executor: CliExecutor = devMode ? createDevModeExecutor() : createProdModeExecutor(tscannerVersion);
 
-  const argsFile = [
+  const baseArgs = [
     'check',
     '--json',
     '--continue-on-error',
@@ -98,7 +98,8 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ScanResult
     configPath,
     ...(targetBranch ? ['--branch', targetBranch] : []),
   ];
-  const argsRule = [...argsFile, '--by-rule'];
+  const argsFile = [...baseArgs, '--group-by=file'];
+  const argsRule = [...baseArgs, '--group-by=rule'];
 
   const [scanOutputFile, scanOutputRule] = await Promise.all([executor.execute(argsFile), executor.execute(argsRule)]);
 

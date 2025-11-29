@@ -1,7 +1,7 @@
 use core::CliConfig;
 use std::path::PathBuf;
 
-use crate::GroupMode;
+use cli::GroupMode;
 
 #[derive(Clone)]
 pub struct CheckContext {
