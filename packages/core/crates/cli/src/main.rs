@@ -90,6 +90,9 @@ enum Commands {
     Init {
         #[arg(value_name = "PATH", default_value = ".")]
         path: PathBuf,
+
+        #[arg(long, help = "Initialize with all built-in rules enabled")]
+        all_rules: bool,
     },
 }
 
@@ -130,7 +133,7 @@ fn main() -> Result<()> {
             )
         }
         Some(Commands::Rules { path, config }) => cmd_rules(&path, config),
-        Some(Commands::Init { path }) => cmd_init(&path),
+        Some(Commands::Init { path, all_rules }) => cmd_init(&path, all_rules),
         None => {
             Cli::parse_from(["tscanner", "--help"]);
             Ok(())

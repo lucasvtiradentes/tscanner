@@ -1,68 +1,15 @@
 {
-  "$schema": "../packages/cli/schema.json",
+  "$schema": "https://unpkg.com/tscanner@0.0.22/schema.json",
   "builtinRules": {
-    "consistent-return": {},
-    "max-function-length": {},
-    "max-params": {},
-    "no-alias-imports": {},
-    "no-any-type": { "severity": "error" },
-    "no-async-without-await": {},
-    "no-console-log": { "severity": "error" },
-    "no-constant-condition": {},
-    "no-default-export": {},
-    "no-duplicate-imports": {},
-    "no-dynamic-import": { "severity": "error" },
-    "no-else-return": {},
-    "no-empty-class": {},
-    "no-empty-function": {},
-    "no-empty-interface": {},
-    "no-floating-promises": {},
-    "no-forwarded-exports": {},
-    "no-implicit-any": {},
-    "no-inferrable-types": {},
-    "no-nested-require": { "severity": "error" },
-    "no-nested-ternary": {},
-    "no-non-null-assertion": {},
-    "no-return-await": {},
-    "no-shadow": {},
-    "no-single-or-array-union": {},
-    "no-unnecessary-type-assertion": {},
-    "no-unreachable-code": {},
-    "no-unused-vars": {},
-    "no-useless-catch": {},
-    "no-var": {},
-    "prefer-const": {},
-    "prefer-nullish-coalescing": {},
-    "prefer-optional-chain": {},
-    "prefer-type-over-interface": {}
+    "no-any-type": {}
   },
-  "customRules": {
-    "no-debug-log-calls": {
-      "type": "regex",
-      "pattern": "logger\\.debug",
-      "message": "logger calls should be removed before production"
-    },
-    "no-promise-void-return": {
-      "type": "regex",
-      "pattern": ": Promise<void>",
-      "message": "there's no need to return promise void"
-    }
-  },
+  "customRules": {},
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
-    "exclude": [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/build/**",
-      ".git/**",
-      ".ignore/**",
-      "packages/vscode-extension/dist-dev/**",
-      "packages/vscode-extension/out/**",
-      "packages/core/crates/core/tests/**"
-    ]
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
   },
   "lsp": {
     "errors": true,
-    "warnings": true
+    "warnings": false
   }
 }

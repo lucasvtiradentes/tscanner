@@ -3,14 +3,48 @@ use colored::*;
 use std::fs;
 use std::path::Path;
 
+use core::rules::get_all_rule_metadata;
 use core::{log_error, log_info, CONFIG_DIR_NAME, CONFIG_FILE_NAME};
 
 const DEFAULT_CONFIG_JSON: &str = include_str!("../../../../../../assets/default-config.json");
+const TSCANNER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
-pub fn cmd_init(path: &Path) -> Result<()> {
+fn generate_all_rules_config() -> String {
+    let metadata = get_all_rule_metadata();
+    let mut rule_names: Vec<&str> = metadata.iter().map(|m| m.name).collect();
+    rule_names.sort();
+
+    let rules_json: Vec<String> = rule_names
+        .iter()
+        .map(|name| format!("    \"{}\": {{}}", name))
+        .collect();
+
+    format!(
+        r#"{{
+  "$schema": "https://unpkg.com/tscanner@{}/schema.json",
+  "builtinRules": {{
+{}
+  }},
+  "customRules": {{}},
+  "files": {{
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
+  }},
+  "lsp": {{
+    "errors": true,
+    "warnings": false
+  }}
+}}"#,
+        TSCANNER_VERSION,
+        rules_json.join(",\n")
+    )
+}
+
+pub fn cmd_init(path: &Path, all_rules: bool) -> Result<()> {
     log_info(&format!(
-        "cmd_init: Initializing config at: {}",
-        path.display()
+        "cmd_init: Initializing config at: {} (all_rules: {})",
+        path.display(),
+        all_rules
     ));
 
     let root = fs::canonicalize(path).context("Failed to resolve path")?;
@@ -30,17 +64,36 @@ pub fn cmd_init(path: &Path) -> Result<()> {
     fs::create_dir_all(&config_dir)
         .context(format!("Failed to create {} directory", CONFIG_DIR_NAME))?;
 
-    fs::write(&config_path, DEFAULT_CONFIG_JSON).context("Failed to write config file")?;
+    let config_content = if all_rules {
+        generate_all_rules_config()
+    } else {
+        DEFAULT_CONFIG_JSON.to_string()
+    };
+
+    fs::write(&config_path, config_content).context("Failed to write config file")?;
 
     log_info(&format!(
         "cmd_init: Created config: {}",
         config_path.display()
     ));
 
-    println!("{}", "✓ Created default configuration".green().bold());
+    if all_rules {
+        let rule_count = get_all_rule_metadata().len();
+        println!(
+            "{}",
+            format!(
+                "✓ Created configuration with all {} built-in rules enabled",
+                rule_count
+            )
+            .green()
+            .bold()
+        );
+    } else {
+        println!("{}", "✓ Created default configuration".green().bold());
+    }
     println!("  {}", config_path.display());
     println!();
-    println!("Edit this file to enable rules and customize settings.");
+    println!("Edit this file to customize rules and settings.");
 
     Ok(())
 }
