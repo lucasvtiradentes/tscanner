@@ -170,7 +170,7 @@ Regex doesn't solve everything. TScanner was built to support multiple rule type
 </div>
 
 2. Click TScanner icon in activity bar
-3. Go to Settings Menu → "Manage Rules" → enable desired rules -> click "Save"
+3. Go to Settings Menu → "Manage Rules" → enable desired rules → click "Save"
 4. Issues appear automatically in the sidebar (if any)
 5. Click any issue to jump to its location
 <!-- </DYNFIELD:QUICK_START_VSCODE_EXTENSION> -->
@@ -278,17 +278,17 @@ Issues grouped by rule:
 no-non-null-assertion (5 issues, 4 files)
 
   packages/github-action/src/core/comment-updater.ts (2 issues)
-    ⚠ 36:23 -> const ruleMap = fileMap.get(file.filePath)!;
-    ⚠ 44:9 -> ruleMap.get(ruleName)!.push({
+    ⚠ 36:23 → const ruleMap = fileMap.get(file.filePath)!;
+    ⚠ 44:9 → ruleMap.get(ruleName)!.push({
 
   packages/github-action/src/core/scanner.ts (1 issues)
-    ⚠ 180:7 -> fileMap.get(issue.file)!.push({
+    ⚠ 180:7 → fileMap.get(issue.file)!.push({
 
   packages/vscode-extension/src/commands/internal/copy.ts (1 issues)
-    ⚠ 28:5 -> fileMap.get(filePath)!.push(result);
+    ⚠ 28:5 → fileMap.get(filePath)!.push(result);
 
   packages/vscode-extension/src/common/utils/git-helper.ts (1 issues)
-    ⚠ 118:12 -> return changedFilesCache.get(cacheKey)!;
+    ⚠ 118:12 → return changedFilesCache.get(cacheKey)!;
 
 Issues: 5 (0 errors, 5 warnings)
 Files: 4
@@ -323,11 +323,11 @@ Issues grouped by file:
 packages/github-action/src/core/cli-executor.ts - 3 issues - 2 rules
 
   no-floating-promises (2 issues)
-    ⚠ 12:3 -> githubHelper.logInfo(`Using local CLI: ${cliPath}`);
-    ⚠ 40:3 -> githubHelper.logInfo(`Using published ${PACKAGE_NAME} from npm: ${packageSpec}`);
+    ⚠ 12:3 → githubHelper.logInfo(`Using local CLI: ${cliPath}`);
+    ⚠ 40:3 → githubHelper.logInfo(`Using published ${PACKAGE_NAME} from npm: ${packageSpec}`);
 
   prefer-nullish-coalescing (1 issues)
-    ⚠ 9:25 -> const workspaceRoot = process.env.GITHUB_WORKSPACE || process.cwd();
+    ⚠ 9:25 → const workspaceRoot = process.env.GITHUB_WORKSPACE || process.cwd();
 
 Issues: 3 (0 errors, 3 warnings)
 Files: 1

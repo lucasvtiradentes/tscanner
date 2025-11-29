@@ -72,7 +72,7 @@ For each issue:
 
 ### Full Workspace Scan
 ```rust
-scan(&self, root: &Path, file_filter: Option<Vec<PathBuf>>) -> Vec<Issue>
+scan(&self, root: &Path, file_filter: Option<Vec<PathBuf>>) → Vec<Issue>
 ```
 - Walks directory tree
 - Applies gitignore rules
@@ -81,7 +81,7 @@ scan(&self, root: &Path, file_filter: Option<Vec<PathBuf>>) -> Vec<Issue>
 
 ### Single File Scan
 ```rust
-scan_single(&self, path: &Path) -> Vec<Issue>
+scan_single(&self, path: &Path) → Vec<Issue>
 ```
 - Invalidates cache entry first
 - Analyzes single file
@@ -89,7 +89,7 @@ scan_single(&self, path: &Path) -> Vec<Issue>
 
 ### Content Scan
 ```rust
-scan_content(&self, path: &Path, content: &str) -> Vec<Issue>
+scan_content(&self, path: &Path, content: &str) → Vec<Issue>
 ```
 - In-memory analysis
 - No cache interaction

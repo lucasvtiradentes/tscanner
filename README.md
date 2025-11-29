@@ -186,7 +186,7 @@ TScanner is available as a [VSCode Extension](packages/vscode-extension#readme),
 </div>
 
 2. Click TScanner icon in activity bar
-3. Go to Settings Menu → "Manage Rules" → enable desired rules -> click "Save"
+3. Go to Settings Menu → "Manage Rules" → enable desired rules → click "Save"
 4. Issues appear automatically in the sidebar (if any)
 5. Click any issue to jump to its location
 <!-- </DYNFIELD:QUICK_START_VSCODE_EXTENSION> -->
