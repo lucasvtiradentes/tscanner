@@ -64,6 +64,7 @@ export enum Command {
   CopyRuleIssues = 'copyRuleIssues',
   CopyFileIssues = 'copyFileIssues',
   CopyFolderIssues = 'copyFolderIssues',
+  CopyAllIssues = 'copyAllIssues',
 }
 
 export enum TreeItemContextValue {
@@ -191,4 +192,8 @@ export async function navigateToPosition(uri: vscode.Uri, line: number, column: 
   const position = new vscode.Position(line, column);
   editor.selection = new vscode.Selection(position, position);
   editor.revealRange(new vscode.Range(position, position), vscode.TextEditorRevealType.InCenter);
+}
+
+export function copyToClipboard(text: string): Thenable<void> {
+  return vscode.env.clipboard.writeText(text);
 }

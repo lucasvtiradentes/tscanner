@@ -1,6 +1,6 @@
 import { ScanMode } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { setCopyScanContext } from '../commands/internal/copy';
+import { setCopyScanContext } from '../common/lib/copy-utils';
 import {
   Command,
   type QuickPickItemWithId,

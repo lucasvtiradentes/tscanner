@@ -1,14 +1,14 @@
 import type * as vscode from 'vscode';
+import { setCopyRustClient, setCopyScanContext } from '../common/lib/copy-utils';
 import type { CommandContext } from '../common/lib/extension-state';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
 import { createManageRulesCommand, createOpenSettingsMenuCommand } from '../settings-menu';
+import { createCopyAllIssuesCommand } from './internal/copy-all';
 import {
   createCopyFileIssuesCommand,
   createCopyFolderIssuesCommand,
   createCopyRuleIssuesCommand,
-  setCopyRustClient,
-  setCopyScanContext,
-} from './internal/copy';
+} from './internal/copy-items';
 import { createOpenFileCommand } from './internal/navigation';
 import { createRefreshCommand } from './internal/refresh';
 import { createCycleViewModeCommand } from './internal/view-mode';
@@ -39,6 +39,7 @@ export function registerAllCommands(ctx: CommandContext, panelContent: IssuesPan
     createCopyRuleIssuesCommand(),
     createCopyFileIssuesCommand(),
     createCopyFolderIssuesCommand(),
+    createCopyAllIssuesCommand(() => panelContent.getResults()),
   ];
 }
 

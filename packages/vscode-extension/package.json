@@ -186,6 +186,11 @@
         "command": "tscanner.copyFolderIssues",
         "title": "Copy Folder Issues",
         "icon": "$(copy)"
+      },
+      {
+        "command": "tscanner.copyAllIssues",
+        "title": "Copy All Issues",
+        "icon": "$(copy)"
       }
     ],
     "keybindings": [
@@ -202,6 +207,11 @@
     ],
     "menus": {
       "view/title": [
+        {
+          "command": "tscanner.copyAllIssues",
+          "when": "view == tscannerExplorer",
+          "group": "navigation@5"
+        },
         {
           "command": "tscanner.refresh",
           "when": "view == tscannerExplorer && !tscannerSearching",
@@ -307,6 +317,10 @@
         },
         {
           "command": "tscanner.copyFolderIssues",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.copyAllIssues",
           "when": "false"
         }
       ]

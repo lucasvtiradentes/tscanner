@@ -1,11 +1,9 @@
 import { type ScanResult, Severity } from 'tscanner-common';
 import type { CliGroupBy } from 'tscanner-common';
-import * as vscode from 'vscode';
-import type { RustClient } from '../../common/lib/rust-client';
-import { Command, ScanMode, ToastKind, registerCommand, showToastMessage } from '../../common/lib/vscode-utils';
-import { DEFAULT_TARGET_BRANCH } from '../../common/scripts-constants';
-import { type FolderNode, type IssueResult, NodeKind } from '../../common/types';
-import type { FileResultItem, FolderResultItem, RuleGroupItem } from '../../issues-panel/utils/tree-items';
+import { DEFAULT_TARGET_BRANCH } from '../scripts-constants';
+import { type FolderNode, type IssueResult, NodeKind } from '../types';
+import type { RustClient } from './rust-client';
+import { ScanMode, ToastKind, copyToClipboard, getCurrentWorkspaceFolder, showToastMessage } from './vscode-utils';
 
 class CopyScanContext {
   private scanMode: ScanMode = ScanMode.Codebase;
@@ -37,7 +35,7 @@ class CopyScanContext {
   }
 }
 
-const copyScanContext = new CopyScanContext();
+export const copyScanContext = new CopyScanContext();
 
 export function setCopyRustClient(getRustClient: () => RustClient | null) {
   copyScanContext.setRustClient(getRustClient);
@@ -82,7 +80,7 @@ function convertToScanResult(results: IssueResult[]): ScanResult {
   };
 }
 
-function collectFolderIssues(node: FolderNode): IssueResult[] {
+export function collectFolderIssues(node: FolderNode): IssueResult[] {
   const results: IssueResult[] = [];
 
   for (const child of node.children.values()) {
@@ -96,14 +94,14 @@ function collectFolderIssues(node: FolderNode): IssueResult[] {
   return results;
 }
 
-type CopyParams = {
+export type CopyParams = {
   results: IssueResult[];
   groupMode: CliGroupBy;
   buildHeader: (summary: { total_issues: number }) => string;
   successMessage: string;
 };
 
-async function copyIssuesBase(params: CopyParams): Promise<void> {
+export async function copyIssuesBase(params: CopyParams): Promise<void> {
   if (params.results.length === 0) {
     showToastMessage(ToastKind.Error, 'No issues to copy');
     return;
@@ -115,11 +113,12 @@ async function copyIssuesBase(params: CopyParams): Promise<void> {
     return;
   }
 
-  const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-  if (!workspaceRoot) {
+  const workspaceFolder = getCurrentWorkspaceFolder();
+  if (!workspaceFolder) {
     showToastMessage(ToastKind.Error, 'No workspace folder found');
     return;
   }
+  const workspaceRoot = workspaceFolder.uri.fsPath;
 
   const scanResult = convertToScanResult(params.results);
   const result = await rustClient.formatResults(workspaceRoot, scanResult, params.groupMode);
@@ -128,62 +127,6 @@ async function copyIssuesBase(params: CopyParams): Promise<void> {
   const summaryText = `\n\nIssues: ${result.summary.total_issues} (${result.summary.error_count} errors, ${result.summary.warning_count} warnings)\nFiles: ${result.summary.file_count}\nRules: ${result.summary.rule_count}`;
   const finalText = header + result.output + summaryText;
 
-  await vscode.env.clipboard.writeText(finalText);
+  await copyToClipboard(finalText);
   showToastMessage(ToastKind.Info, params.successMessage);
-}
-
-export function createCopyRuleIssuesCommand() {
-  return registerCommand(Command.CopyRuleIssues, async (item: RuleGroupItem) => {
-    if (!item?.results) return;
-
-    await copyIssuesBase({
-      results: item.results,
-      groupMode: 'rule',
-      buildHeader: (summary) => {
-        const cliCommand = copyScanContext.buildCliCommand('rule', item.rule);
-        return `TScanner report searching for all the issues of the rule "${item.rule}" in the ${copyScanContext.getScanModeText()}\n\ncli command: ${cliCommand}\nfound issues: ${summary.total_issues} issues\n`;
-      },
-      successMessage: `Copied ${item.results.length} issues from "${item.rule}"`,
-    });
-  });
-}
-
-export function createCopyFileIssuesCommand() {
-  return registerCommand(Command.CopyFileIssues, async (item: FileResultItem) => {
-    if (!item?.results) return;
-
-    const relativePath = vscode.workspace.asRelativePath(item.filePath);
-
-    await copyIssuesBase({
-      results: item.results,
-      groupMode: 'file',
-      buildHeader: (summary) => {
-        const cliCommand = copyScanContext.buildCliCommand('glob', relativePath);
-        return `TScanner report searching for all the issues in file "${relativePath}" in the ${copyScanContext.getScanModeText()}\n\ncli command: ${cliCommand}\nfound issues: ${summary.total_issues} issues\n`;
-      },
-      successMessage: `Copied ${item.results.length} issues from "${relativePath}"`,
-    });
-  });
-}
-
-export function createCopyFolderIssuesCommand() {
-  return registerCommand(Command.CopyFolderIssues, async (item: FolderResultItem) => {
-    if (!item?.node) {
-      showToastMessage(ToastKind.Error, 'No folder data available');
-      return;
-    }
-
-    const allResults = collectFolderIssues(item.node);
-    const relativeFolderPath = vscode.workspace.asRelativePath(item.node.path);
-
-    await copyIssuesBase({
-      results: allResults,
-      groupMode: 'file',
-      buildHeader: (summary) => {
-        const cliCommand = copyScanContext.buildCliCommand('glob', `${relativeFolderPath}/**/*`);
-        return `TScanner report searching for all the issues in folder "${item.node.name}" in the ${copyScanContext.getScanModeText()}\n\ncli command: ${cliCommand}\nfound issues: ${summary.total_issues} issues\n`;
-      },
-      successMessage: `Copied ${allResults.length} issues from folder "${item.node.name}"`,
-    });
-  });
 }
