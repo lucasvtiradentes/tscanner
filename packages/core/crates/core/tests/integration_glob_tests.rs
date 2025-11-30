@@ -5,7 +5,7 @@ use std::path::Path;
 fn test_global_patterns_only() {
     let config = TscannerConfig {
         schema: None,
-        lsp: None,
+        code_editor: None,
         cli: None,
         builtin_rules: [(
             "no-any-type".to_string(),
@@ -54,7 +54,7 @@ fn test_global_patterns_only() {
 fn test_rule_specific_include_intersects_with_global() {
     let config = TscannerConfig {
         schema: None,
-        lsp: None,
+        code_editor: None,
         cli: None,
         builtin_rules: [(
             "no-any-type".to_string(),
@@ -103,7 +103,7 @@ fn test_rule_specific_include_intersects_with_global() {
 fn test_rule_specific_exclude_adds_to_global() {
     let config = TscannerConfig {
         schema: None,
-        lsp: None,
+        code_editor: None,
         cli: None,
         builtin_rules: [(
             "no-any-type".to_string(),
@@ -152,7 +152,7 @@ fn test_rule_specific_exclude_adds_to_global() {
 fn test_combined_rule_include_and_exclude() {
     let config = TscannerConfig {
         schema: None,
-        lsp: None,
+        code_editor: None,
         cli: None,
         builtin_rules: [(
             "no-any-type".to_string(),
@@ -203,7 +203,7 @@ fn test_combined_rule_include_and_exclude() {
 fn test_path_normalization_with_root() {
     let config = TscannerConfig {
         schema: None,
-        lsp: None,
+        code_editor: None,
         cli: None,
         builtin_rules: [(
             "no-any-type".to_string(),
