@@ -7,6 +7,7 @@ type CliFlag = {
   description: string;
   takesValue: boolean;
   valueName: string | null;
+  possibleValues: string[] | null;
   defaultValue: string | null;
   required: boolean;
 };
@@ -51,7 +52,8 @@ export function updateCliUsage() {
 
   for (const cmd of cliJson.commands) {
     const args = cmd.arguments.map((a) => `[${a.name}]`).join(' ');
-    const cmdName = `<code>${cmd.name}${args ? ` ${args}` : ''}</code>`;
+    const hasFlags = cmd.flags.length > 0;
+    const cmdName = `<code>${cmd.name}${hasFlags ? ' [options]' : ''}${args ? ` ${args}` : ''}</code>`;
 
     if (cmd.flags.length === 0) {
       table.addBodyRow([
@@ -62,7 +64,20 @@ export function updateCliUsage() {
       ]);
     } else {
       for (const flag of cmd.flags) {
-        const flagName = flag.takesValue ? `--${flag.name} <${flag.valueName}>` : `--${flag.name}`;
+        let flagName: string;
+        const isBooleanValues =
+          flag.possibleValues &&
+          flag.possibleValues.length === 2 &&
+          flag.possibleValues.includes('true') &&
+          flag.possibleValues.includes('false');
+
+        if (flag.possibleValues && flag.possibleValues.length > 0 && !isBooleanValues) {
+          flagName = `--${flag.name} [${flag.possibleValues.join('/')}]`;
+        } else if (flag.takesValue) {
+          flagName = `--${flag.name} <${flag.valueName}>`;
+        } else {
+          flagName = `--${flag.name}`;
+        }
         table.addBodyRow([
           { content: cmdName, align: 'left' },
           { content: cmd.description, align: 'left' },

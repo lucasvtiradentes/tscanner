@@ -6,7 +6,7 @@
     {
       "name": "check",
       "description": "Scan code for issues and display results",
-      "usage": "tscanner check [OPTIONS] [PATH]",
+      "usage": "tscanner check [options] [path]",
       "arguments": [
         {
           "name": "path",
@@ -22,6 +22,7 @@
           "description": "Only show issues in files changed compared to branch (e.g., origin/main)",
           "takesValue": true,
           "valueName": "BRANCH",
+          "possibleValues": null,
           "defaultValue": null,
           "required": false
         },
@@ -31,6 +32,7 @@
           "description": "Path to directory containing config.jsonc",
           "takesValue": true,
           "valueName": "CONFIG_DIR",
+          "possibleValues": null,
           "defaultValue": null,
           "required": false
         },
@@ -40,6 +42,10 @@
           "description": "Continue execution even when errors are found",
           "takesValue": false,
           "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
           "defaultValue": null,
           "required": false
         },
@@ -49,6 +55,7 @@
           "description": "Filter results to specific file(s) using glob pattern (e.g., 'src/**/*.ts')",
           "takesValue": true,
           "valueName": "FILE_PATTERN",
+          "possibleValues": null,
           "defaultValue": null,
           "required": false
         },
@@ -58,6 +65,10 @@
           "description": "Group issues by file or rule",
           "takesValue": true,
           "valueName": "MODE",
+          "possibleValues": [
+            "file",
+            "rule"
+          ],
           "defaultValue": null,
           "required": false
         },
@@ -67,6 +78,10 @@
           "description": "Hide rule name",
           "takesValue": false,
           "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
           "defaultValue": null,
           "required": false
         },
@@ -76,6 +91,10 @@
           "description": "Hide severity icon",
           "takesValue": false,
           "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
           "defaultValue": null,
           "required": false
         },
@@ -85,6 +104,10 @@
           "description": "Hide source line text",
           "takesValue": false,
           "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
           "defaultValue": null,
           "required": false
         },
@@ -94,6 +117,10 @@
           "description": "Hide summary at footer",
           "takesValue": false,
           "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
           "defaultValue": null,
           "required": false
         },
@@ -103,6 +130,10 @@
           "description": "Output results as JSON",
           "takesValue": false,
           "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
           "defaultValue": null,
           "required": false
         },
@@ -112,6 +143,10 @@
           "description": "Skip cache and force full scan",
           "takesValue": false,
           "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
           "defaultValue": null,
           "required": false
         },
@@ -121,6 +156,10 @@
           "description": "Pretty output with rule definitions at the top",
           "takesValue": false,
           "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
           "defaultValue": null,
           "required": false
         },
@@ -130,6 +169,7 @@
           "description": "Filter results to specific rule (e.g., 'no-console-log')",
           "takesValue": true,
           "valueName": "RULE_NAME",
+          "possibleValues": null,
           "defaultValue": null,
           "required": false
         },
@@ -139,6 +179,10 @@
           "description": "Show rule description/message",
           "takesValue": false,
           "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
           "defaultValue": null,
           "required": false
         }
@@ -147,7 +191,7 @@
     {
       "name": "init",
       "description": "Create a default configuration file",
-      "usage": "tscanner init [OPTIONS] [PATH]",
+      "usage": "tscanner init [options] [path]",
       "arguments": [
         {
           "name": "path",
@@ -163,6 +207,10 @@
           "description": "Initialize with all built-in rules enabled",
           "takesValue": false,
           "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
           "defaultValue": null,
           "required": false
         }
@@ -171,7 +219,7 @@
     {
       "name": "rules",
       "description": "List all available rules and their metadata",
-      "usage": "tscanner rules [OPTIONS] [PATH]",
+      "usage": "tscanner rules [options] [path]",
       "arguments": [
         {
           "name": "path",
@@ -187,6 +235,7 @@
           "description": "Path to directory containing config.jsonc",
           "takesValue": true,
           "valueName": "CONFIG_DIR",
+          "possibleValues": null,
           "defaultValue": null,
           "required": false
         }

@@ -40,6 +40,7 @@ struct FlagInfo {
     description: Option<String>,
     takes_value: bool,
     value_name: Option<String>,
+    possible_values: Option<Vec<String>>,
     default_value: Option<String>,
     required: bool,
 }
@@ -91,6 +92,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             } else {
                 let short = arg.get_short();
                 let takes_value = arg.get_action().takes_values();
+                let possible_values: Vec<String> = arg
+                    .get_possible_values()
+                    .iter()
+                    .map(|v| v.get_name().to_string())
+                    .collect();
 
                 flags.push(FlagInfo {
                     name: kebab_name,
@@ -98,6 +104,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     description,
                     takes_value,
                     value_name: if takes_value { value_name } else { None },
+                    possible_values: if possible_values.is_empty() {
+                        None
+                    } else {
+                        Some(possible_values)
+                    },
                     default_value,
                     required,
                 });
@@ -107,7 +118,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         flags.sort_by(|a, b| a.name.cmp(&b.name));
 
         let usage = format!(
-            "{} {} [OPTIONS]{}",
+            "{} {} [options]{}",
             name,
             subcmd.get_name(),
             if arguments.is_empty() {
@@ -118,9 +129,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     arguments
                         .iter()
                         .map(|a| if a.required {
-                            format!("<{}>", a.name.to_uppercase())
+                            format!("<{}>", a.name)
                         } else {
-                            format!("[{}]", a.name.to_uppercase())
+                            format!("[{}]", a.name)
                         })
                         .collect::<Vec<_>>()
                         .join(" ")
