@@ -52,32 +52,3 @@ export function escapeHtml(text: string): string {
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&#039;');
 }
-
-type RuleSummary = {
-  ruleName: string;
-  issueCount: number;
-  severity: Severity;
-};
-
-export function buildMostTriggeredTable(rules: RuleSummary[], limit = 5): string {
-  const mostTriggered = [...rules].sort((a, b) => b.issueCount - a.issueCount).slice(0, limit);
-  if (mostTriggered.length === 0) return '';
-
-  let rows = '';
-  for (const rule of mostTriggered) {
-    const badge = getSeverityBadge(rule.severity);
-    rows += `<tr><td>${badge} <code>${rule.ruleName}</code></td><td>${rule.issueCount}</td></tr>\n`;
-  }
-
-  const details = `<details>
-<summary><strong>🎯 Most triggered rules</strong></summary>
-<br />
-
-<table>
-<tr><th>Rule</th><th>Issues</th></tr>
-${rows}</table>
-
-</details>`;
-
-  return `${alignSection(Alignment.Center, details)}\n`;
-}

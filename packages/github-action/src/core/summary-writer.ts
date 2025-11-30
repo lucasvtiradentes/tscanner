@@ -1,6 +1,5 @@
 import { githubHelper } from '../lib/actions-helper';
 import type { ScanResult } from './scanner';
-import { buildMostTriggeredTable } from './shared/formatting';
 import { buildIssuesReport, buildSuccessReport } from './shared/sections';
 
 export type WriteSummaryParams = {
@@ -16,7 +15,6 @@ export type WriteSummaryParams = {
 
 export function writeSummary(params: WriteSummaryParams): void {
   const { scanResult, targetBranch, owner, repo, prNumber, commitSha, commitMessage, timestamp } = params;
-  const mostTriggered = buildMostTriggeredTable(scanResult.ruleGroupsByRule);
 
   const reportParams = {
     result: scanResult,
@@ -24,7 +22,6 @@ export function writeSummary(params: WriteSummaryParams): void {
     timestamp,
     commitSha,
     commitMessage,
-    extraSection: mostTriggered,
     issuesViewParams: { result: scanResult, owner, repo, prNumber },
   };
 
