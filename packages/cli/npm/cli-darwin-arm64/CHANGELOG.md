@@ -1,5 +1,11 @@
 # @tscanner/cli-darwin-arm64
 
+## 0.0.23
+
+### Patch Changes
+
+- 0c1fa72: add gh action annotations
+
 ## 0.0.22
 
 ### Patch Changes

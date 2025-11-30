@@ -179,7 +179,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: lucasvtiradentes/tscanner-action@v0.0.19
+      - uses: lucasvtiradentes/tscanner-action@v0.0.20
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -206,7 +206,7 @@ jobs:
     <td>
 
 ```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.19
+- uses: lucasvtiradentes/tscanner-action@v0.0.20
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -215,7 +215,7 @@ jobs:
     <td>
 
 ```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.19
+- uses: lucasvtiradentes/tscanner-action@v0.0.20
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     target-branch: 'origin/main'
@@ -254,7 +254,7 @@ jobs:
       checks: write
     steps:
       - uses: actions/checkout@v4
-      - uses: lucasvtiradentes/tscanner-action@v0.0.19
+      - uses: lucasvtiradentes/tscanner-action@v0.0.20
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -269,7 +269,7 @@ Without `checks: write`, annotations will only appear on lines that are part of 
 Scan but don't fail the workflow:
 
 ```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.19
+- uses: lucasvtiradentes/tscanner-action@v0.0.20
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     continue-on-error: 'true'
@@ -283,7 +283,7 @@ Scan but don't fail the workflow:
 Primary grouping by rule instead of file:
 
 ```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.19
+- uses: lucasvtiradentes/tscanner-action@v0.0.20
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     group-by: 'rule'
@@ -297,7 +297,7 @@ Primary grouping by rule instead of file:
 Use non-standard config location:
 
 ```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.19
+- uses: lucasvtiradentes/tscanner-action@v0.0.20
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     config-path: 'config/tscanner'
@@ -311,7 +311,7 @@ Use non-standard config location:
 Pin to exact CLI version:
 
 ```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.19
+- uses: lucasvtiradentes/tscanner-action@v0.0.20
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     tscanner-version: '0.1.5'
@@ -325,7 +325,7 @@ Pin to exact CLI version:
 Skip inline annotations in PR diff:
 
 ```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.19
+- uses: lucasvtiradentes/tscanner-action@v0.0.20
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     annotations: 'false'
@@ -348,7 +348,7 @@ Cache pnpm store for faster subsequent runs:
     node-version: '20'
     cache: 'pnpm'
 
-- uses: lucasvtiradentes/tscanner-action@v0.0.19
+- uses: lucasvtiradentes/tscanner-action@v0.0.20
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -361,7 +361,7 @@ Cache pnpm store for faster subsequent runs:
 All options:
 
 ```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.19
+- uses: lucasvtiradentes/tscanner-action@v0.0.20
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
     target-branch: 'origin/develop'
@@ -389,7 +389,7 @@ The default configuration is:
 
 ```json
 {
-  "$schema": "https://unpkg.com/tscanner@0.0.22/schema.json",
+  "$schema": "https://unpkg.com/tscanner@0.0.23/schema.json",
   "builtinRules": {
     "no-any-type": {}
   },
