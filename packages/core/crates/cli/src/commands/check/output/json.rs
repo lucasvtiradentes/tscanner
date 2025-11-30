@@ -1,5 +1,5 @@
-use super::OutputRenderer;
-use crate::commands::check::context::CheckContext;
+use super::renderer::OutputRenderer;
+use super::CheckContext;
 use crate::shared::{
     JsonFileGroup, JsonIssue, JsonRuleGroup, JsonRuleIssue, JsonSummary, SummaryStats,
 };
