@@ -19,11 +19,11 @@ export function formatTimestamp(timezone: string): string {
   const now = new Date();
 
   try {
-    const formatted = now.toLocaleString('en-US', {
+    const year = now.toLocaleString('en-US', { timeZone: timezone, year: 'numeric' });
+    const month = now.toLocaleString('en-US', { timeZone: timezone, month: '2-digit' });
+    const day = now.toLocaleString('en-US', { timeZone: timezone, day: '2-digit' });
+    const time = now.toLocaleString('en-GB', {
       timeZone: timezone,
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit',
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit',
@@ -31,7 +31,7 @@ export function formatTimestamp(timezone: string): string {
     });
 
     const offset = getTimezoneOffset(timezone);
-    return `${formatted} (UTC${offset})`;
+    return `${year}-${month}-${day} ${time} (UTC${offset})`;
   } catch {
     return `${now.toISOString()} (UTC)`;
   }
