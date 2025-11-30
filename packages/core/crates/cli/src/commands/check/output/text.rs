@@ -15,6 +15,8 @@ impl OutputRenderer for TextRenderer {
             GroupMode::File => self.render_by_file(ctx, result),
         }
 
+        println!();
+
         if ctx.cli_config.show_summary {
             render_summary(result, stats);
         }

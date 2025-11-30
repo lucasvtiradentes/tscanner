@@ -59,7 +59,7 @@
     "warnings": false
   },
   "cli": {
-    "groupBy": "rule",
+    "groupBy": "file",
     "noCache": false,
     "showSettings": true,
     "showIssueSeverity": true,

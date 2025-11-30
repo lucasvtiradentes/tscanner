@@ -195,6 +195,7 @@ pub fn cmd_check(
     if result.files.is_empty() && !is_json {
         println!();
         println!("{}", "✓ No issues found!".green().bold());
+        println!();
         if resolved_cli.show_summary {
             render_summary(&result, &stats);
         }

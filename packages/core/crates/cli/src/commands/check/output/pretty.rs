@@ -20,8 +20,9 @@ impl OutputRenderer for PrettyRenderer {
             }
         }
 
+        println!();
+
         if ctx.cli_config.show_summary {
-            println!();
             render_summary(result, stats);
         }
     }

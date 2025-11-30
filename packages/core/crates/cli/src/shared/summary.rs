@@ -66,7 +66,6 @@ impl JsonSummary {
 pub fn render_summary(result: &ScanResult, stats: &SummaryStats) {
     let files_with_issues = result.files.iter().filter(|f| !f.issues.is_empty()).count();
 
-    println!();
     println!("{}", "Check summary:".cyan().bold());
     println!();
     println!(
