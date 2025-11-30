@@ -5,6 +5,39 @@ import { formatTimestamp } from '../utils/format-timestamp';
 import { buildPrFileUrl } from '../utils/url-builder';
 import type { RuleGroup, ScanResult } from './scanner';
 
+const ICONS = {
+  SUCCESS: '✅',
+  ERROR: '❌',
+  WARNING: '⚠️',
+  ERROR_BADGE: '🔴',
+  WARNING_BADGE: '🟡',
+  RULE_ICON: '📋',
+  FILE_ICON: '📁',
+} as const;
+
+type CommitHistory = {
+  sha: string;
+  message: string;
+  totalIssues: number;
+  errors: number;
+  warnings: number;
+};
+
+function parseCommitHistory(commentBody: string): CommitHistory[] {
+  const historyMatch = commentBody.match(/<!-- COMMIT_HISTORY:(.*?)-->/s);
+  if (!historyMatch) return [];
+
+  try {
+    return JSON.parse(historyMatch[1]) as CommitHistory[];
+  } catch {
+    return [];
+  }
+}
+
+function serializeCommitHistory(history: CommitHistory[]): string {
+  return `<!-- COMMIT_HISTORY:${JSON.stringify(history)}-->`;
+}
+
 export type CommentUpdateParams = {
   octokit: Octokit;
   owner: string;
@@ -16,6 +49,49 @@ export type CommentUpdateParams = {
   commitMessage: string;
   targetBranch?: string;
 };
+
+function buildStatsTable(result: ScanResult, targetBranch?: string): string {
+  const { totalIssues, totalErrors, totalWarnings, totalFiles, totalRules } = result;
+  const modeLabel = targetBranch ? `branch (${targetBranch})` : 'codebase';
+
+  return `| Metric | Value |
+|--------|-------|
+| Total Issues | ${totalIssues} |
+| Errors | ${totalErrors} |
+| Warnings | ${totalWarnings} |
+| Files | ${totalFiles} |
+| Rules | ${totalRules} |
+| Mode | ${modeLabel} |`;
+}
+
+function buildTopOffenders(ruleGroups: RuleGroup[], limit = 5): string {
+  const sorted = [...ruleGroups].sort((a, b) => b.issueCount - a.issueCount).slice(0, limit);
+
+  if (sorted.length === 0) return '';
+
+  let output = '\n**Top offenders:**\n';
+  for (const rule of sorted) {
+    const badge = rule.severity === Severity.Error ? ICONS.ERROR_BADGE : ICONS.WARNING_BADGE;
+    output += `- ${badge} \`${rule.ruleName}\` - ${rule.issueCount} ${pluralize(rule.issueCount, 'issue')}\n`;
+  }
+  return output;
+}
+
+function buildCommitHistorySection(history: CommitHistory[]): string {
+  if (history.length === 0) return '';
+
+  let output = '\n<details>\n<summary><strong>📈 Scan history</strong></summary>\n<br />\n\n';
+  output += '| Commit | Issues | Errors | Warnings |\n';
+  output += '|--------|--------|--------|----------|\n';
+
+  for (const entry of history) {
+    const label = entry.message ? `\`${entry.sha}\` - ${entry.message}` : `\`${entry.sha}\``;
+    output += `| ${label} | ${entry.totalIssues} | ${entry.errors} | ${entry.warnings} |\n`;
+  }
+
+  output += '\n</details>\n';
+  return output;
+}
 
 function escapeHtml(text: string): string {
   return text
@@ -79,8 +155,8 @@ function buildGroupedByRuleView(ruleGroups: RuleGroup[], owner: string, repo: st
   let output = '';
 
   for (const group of ruleGroups) {
-    const icon = group.severity === Severity.Error ? '✗' : '⚠';
-    const summary = `${icon} <strong>${group.ruleName}</strong> - ${group.issueCount} ${pluralize(group.issueCount, 'issue')} - ${group.fileCount} ${pluralize(group.fileCount, 'file')}`;
+    const badge = group.severity === Severity.Error ? ICONS.ERROR_BADGE : ICONS.WARNING_BADGE;
+    const summary = `${badge} <strong>${group.ruleName}</strong> - ${group.issueCount} ${pluralize(group.issueCount, 'issue')} - ${group.fileCount} ${pluralize(group.fileCount, 'file')}`;
 
     output += `<details>\n<summary>${summary}</summary>\n<br />\n\n`;
 
@@ -111,60 +187,56 @@ function buildCommentBody(
   repo: string,
   prNumber: number,
   targetBranch: string | undefined,
+  commitHistory: CommitHistory[],
 ): string {
   const timestamp = formatTimestamp(timezone);
-  const { totalIssues, totalErrors, totalWarnings, totalFiles, totalRules, ruleGroupsByRule } = result;
-
-  const buildIssuesSummary = () => {
-    if (totalErrors > 0 && totalWarnings > 0) {
-      return `${totalIssues} (${totalErrors} ${pluralize(totalErrors, 'error')}, ${totalWarnings} ${pluralize(totalWarnings, 'warning')})`;
-    }
-    if (totalErrors > 0) {
-      return `${totalErrors} (${totalErrors} ${pluralize(totalErrors, 'error')})`;
-    }
-    if (totalWarnings > 0) {
-      return `${totalWarnings} (${totalWarnings} ${pluralize(totalWarnings, 'warning')})`;
-    }
-    return '0';
-  };
-
-  const buildModeLabel = () => {
-    return targetBranch ? `branch (${targetBranch})` : 'codebase';
-  };
+  const { totalIssues, totalErrors, ruleGroupsByRule } = result;
+  const modeLabel = targetBranch ? `branch (${targetBranch})` : 'codebase';
 
   if (totalIssues === 0) {
     const commitInfo = commitMessage ? `\`${commitSha}\` - ${commitMessage}` : `\`${commitSha}\``;
-    return `${COMMENT_MARKER}
-## ✅ TScanner - No Issues Found
+    const historySection = buildCommitHistorySection(commitHistory);
+    const historyData = serializeCommitHistory(commitHistory);
 
-**Issues:** 0
-**Mode:** ${buildModeLabel()}
+    return `${COMMENT_MARKER}
+${historyData}
+## ${ICONS.SUCCESS} TScanner - No Issues Found
+
+| Metric | Value |
+|--------|-------|
+| Total Issues | 0 |
+| Mode | ${modeLabel} |
 
 All files passed validation!
-
+${historySection}
 ---
 **Last updated:** ${timestamp}
 **Last commit analyzed:** ${commitInfo}`;
   }
 
-  const icon = totalErrors > 0 ? '❌' : '⚠️';
+  const icon = totalErrors > 0 ? ICONS.ERROR : ICONS.WARNING;
   const title = totalErrors > 0 ? 'Errors Found' : 'Warnings Found';
+  const statsTable = buildStatsTable(result, targetBranch);
+  const topOffenders = buildTopOffenders(ruleGroupsByRule);
 
   let comment = `${COMMENT_MARKER}
+${serializeCommitHistory(commitHistory)}
 ## ${icon} TScanner - ${title}
 
-**Issues:** ${buildIssuesSummary()}
-**Mode:** ${buildModeLabel()}
-
+${statsTable}
+${topOffenders}
 ---
 
 `;
 
+  const { totalFiles, totalRules } = result;
   const groupedByRule = buildGroupedByRuleView(ruleGroupsByRule, owner, repo, prNumber);
   const groupedByFile = buildGroupedByFileView(result, owner, repo, prNumber);
+  const historySection = buildCommitHistorySection(commitHistory);
 
-  comment += `<div align="center">\n\n<details>\n<summary><strong>📋 Issues grouped by rule (${totalRules})</strong></summary>\n<br />\n\n<div align="left">\n${groupedByRule}\n</div></details>\n\n</div>\n\n---\n\n`;
-  comment += `<div align="center">\n\n<details>\n<summary><strong>📁 Issues grouped by file (${totalFiles})</strong></summary>\n<br />\n\n<div align="left">\n${groupedByFile}\n</div></details>\n\n</div>\n\n`;
+  comment += `<div align="center">\n\n<details>\n<summary><strong>${ICONS.RULE_ICON} Issues grouped by rule (${totalRules})</strong></summary>\n<br />\n\n<div align="left">\n${groupedByRule}\n</div></details>\n\n</div>\n\n---\n\n`;
+  comment += `<div align="center">\n\n<details>\n<summary><strong>${ICONS.FILE_ICON} Issues grouped by file (${totalFiles})</strong></summary>\n<br />\n\n<div align="left">\n${groupedByFile}\n</div></details>\n\n</div>\n\n`;
+  comment += historySection;
 
   const commitInfo = commitMessage ? `\`${commitSha}\` - ${commitMessage}` : `\`${commitSha}\``;
 
@@ -173,10 +245,10 @@ All files passed validation!
   return comment;
 }
 
+const MAX_HISTORY_ENTRIES = 10;
+
 export async function updateOrCreateComment(params: CommentUpdateParams) {
   const { octokit, owner, repo, prNumber, scanResult, timezone, commitSha, commitMessage, targetBranch } = params;
-
-  const comment = buildCommentBody(scanResult, timezone, commitSha, commitMessage, owner, repo, prNumber, targetBranch);
 
   const existingComments = await octokit.rest.issues.listComments({
     owner,
@@ -185,6 +257,35 @@ export async function updateOrCreateComment(params: CommentUpdateParams) {
   });
 
   const botComment = existingComments.data.find((c) => c.user?.type === 'Bot' && c.body?.includes(COMMENT_MARKER));
+
+  let commitHistory: CommitHistory[] = [];
+  if (botComment?.body) {
+    commitHistory = parseCommitHistory(botComment.body);
+  }
+
+  const existingEntry = commitHistory.find((h) => h.sha === commitSha);
+  if (!existingEntry) {
+    commitHistory.unshift({
+      sha: commitSha,
+      message: commitMessage,
+      totalIssues: scanResult.totalIssues,
+      errors: scanResult.totalErrors,
+      warnings: scanResult.totalWarnings,
+    });
+    commitHistory = commitHistory.slice(0, MAX_HISTORY_ENTRIES);
+  }
+
+  const comment = buildCommentBody(
+    scanResult,
+    timezone,
+    commitSha,
+    commitMessage,
+    owner,
+    repo,
+    prNumber,
+    targetBranch,
+    commitHistory,
+  );
 
   if (botComment) {
     await octokit.rest.issues.updateComment({

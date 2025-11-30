@@ -1,7 +1,9 @@
 import { ScanMode } from 'tscanner-common';
+import { writeAnnotations } from './core/annotation-writer';
 import { updateOrCreateComment } from './core/comment-updater';
 import { type ActionInputs, getActionInputs } from './core/input-validator';
 import { type ScanOptions, type ScanResult, scanChangedFiles } from './core/scanner';
+import { writeSummary } from './core/summary-writer';
 import { type Octokit, githubHelper } from './lib/actions-helper';
 import { gitHelper } from './lib/git-helper';
 import { validateConfigFiles } from './utils/config-validator';
@@ -10,8 +12,6 @@ class ActionRunner {
   async run() {
     try {
       const inputs = getActionInputs();
-
-      console.log(2);
 
       validateConfigFiles(inputs.configPath);
 
@@ -29,6 +29,15 @@ class ActionRunner {
       const octokit = githubHelper.getOctokit(inputs.token);
 
       await this.handlePRComment(inputs, octokit, scanResults);
+
+      if (inputs.annotations && scanResults.totalIssues > 0) {
+        writeAnnotations(scanResults);
+      }
+
+      if (inputs.summary) {
+        const targetBranch = inputs.mode === ScanMode.Branch ? inputs.targetBranch : undefined;
+        writeSummary(scanResults, targetBranch);
+      }
 
       this.handleScanResults(scanResults, inputs);
     } catch (error) {

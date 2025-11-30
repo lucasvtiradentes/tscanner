@@ -37,6 +37,14 @@ inputs:
     description: 'Continue execution even when errors are found'
     required: false
     default: 'false'
+  annotations:
+    description: 'Add GitHub annotations inline in PR diff'
+    required: false
+    default: 'true'
+  summary:
+    description: 'Write results to GitHub Step Summary'
+    required: false
+    default: 'true'
 
 runs:
   using: 'node20'

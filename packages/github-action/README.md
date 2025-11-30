@@ -237,6 +237,8 @@ jobs:
 | `group-by` | - | `file` | Primary grouping mode: `file` or `rule` |
 | `continue-on-error` | - | `false` | Continue workflow even if errors found (`true`/`false`) |
 | `timezone` | - | `UTC` | Timezone for timestamps in PR comments. Example: `America/New_York` |
+| `annotations` | - | `true` | Add GitHub annotations inline in PR diff |
+| `summary` | - | `true` | Write results to GitHub Step Summary |
 
 ### Examples
 
@@ -297,6 +299,42 @@ Pin to exact CLI version:
 </details>
 
 <details>
+<summary><b>Disable Annotations</b></summary>
+
+Skip inline annotations in PR diff:
+
+```yaml
+- uses: lucasvtiradentes/tscanner-action@v0.0.19
+  with:
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+    annotations: 'false'
+```
+
+</details>
+
+<details>
+<summary><b>With Cache (Faster Runs)</b></summary>
+
+Cache pnpm store for faster subsequent runs:
+
+```yaml
+- uses: pnpm/action-setup@v4
+  with:
+    version: 9
+
+- uses: actions/setup-node@v4
+  with:
+    node-version: '20'
+    cache: 'pnpm'
+
+- uses: lucasvtiradentes/tscanner-action@v0.0.19
+  with:
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+</details>
+
+<details>
 <summary><b>Full Configuration</b></summary>
 
 All options:
@@ -311,6 +349,8 @@ All options:
     tscanner-version: 'latest'
     continue-on-error: 'false'
     group-by: 'rule'
+    annotations: 'true'
+    summary: 'true'
 ```
 
 </details>

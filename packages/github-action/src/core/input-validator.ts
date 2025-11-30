@@ -10,6 +10,8 @@ const baseInputsSchema = z
     tscannerVersion: z.string(),
     groupBy: z.enum(GroupMode),
     continueOnError: z.boolean(),
+    annotations: z.boolean(),
+    summary: z.boolean(),
   })
   .extend({
     devMode: z.boolean(),
@@ -45,6 +47,8 @@ export function getActionInputs(): ActionInputs {
   const groupByInput = githubHelper.getInput('group-by') || DEFAULT_INPUTS.groupBy;
   const targetBranch = githubHelper.getInput('target-branch');
   const continueOnError = githubHelper.getInput('continue-on-error') === 'true';
+  const annotations = githubHelper.getInput('annotations') !== 'false';
+  const summary = githubHelper.getInput('summary') !== 'false';
 
   const groupBy = groupByInput === GroupMode.Rule ? GroupMode.Rule : GroupMode.File;
 
@@ -58,6 +62,8 @@ export function getActionInputs(): ActionInputs {
     devMode,
     groupBy,
     continueOnError,
+    annotations,
+    summary,
     mode,
     ...(mode === ScanMode.Branch && { targetBranch: targetBranch || DEFAULT_INPUTS.targetBranch }),
   };
