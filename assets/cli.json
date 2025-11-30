@@ -87,58 +87,6 @@
           "required": false
         },
         {
-          "name": "hide-rule-name",
-          "short": null,
-          "description": "Hide rule name",
-          "takesValue": false,
-          "valueName": null,
-          "possibleValues": [
-            "true",
-            "false"
-          ],
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "hide-severity",
-          "short": null,
-          "description": "Hide severity icon",
-          "takesValue": false,
-          "valueName": null,
-          "possibleValues": [
-            "true",
-            "false"
-          ],
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "hide-source-line",
-          "short": null,
-          "description": "Hide source line text",
-          "takesValue": false,
-          "valueName": null,
-          "possibleValues": [
-            "true",
-            "false"
-          ],
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "hide-summary",
-          "short": null,
-          "description": "Hide summary at footer",
-          "takesValue": false,
-          "valueName": null,
-          "possibleValues": [
-            "true",
-            "false"
-          ],
-          "defaultValue": null,
-          "required": false
-        },
-        {
           "name": "no-cache",
           "short": null,
           "description": "Skip cache and force full scan",
@@ -158,19 +106,6 @@
           "takesValue": true,
           "valueName": "RULE_NAME",
           "possibleValues": null,
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "show-description",
-          "short": null,
-          "description": "Show rule description/message",
-          "takesValue": false,
-          "valueName": null,
-          "possibleValues": [
-            "true",
-            "false"
-          ],
           "defaultValue": null,
           "required": false
         }

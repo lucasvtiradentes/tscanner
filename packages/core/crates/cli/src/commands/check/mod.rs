@@ -14,7 +14,6 @@ use std::sync::Arc;
 
 use crate::config_loader::load_config_with_custom;
 use crate::shared::SummaryStats;
-use crate::CliOverrides;
 use cli::{GroupMode, OutputFormat};
 use context::CheckContext;
 use core::{
@@ -25,13 +24,13 @@ use core::{
 pub fn cmd_check(
     path: &Path,
     no_cache: bool,
+    group_by: Option<GroupMode>,
     format: Option<OutputFormat>,
     branch: Option<String>,
     file_filter: Option<String>,
     rule_filter: Option<String>,
     continue_on_error: bool,
     config_path: Option<PathBuf>,
-    cli_overrides: CliOverrides,
 ) -> Result<()> {
     let output_format = format.unwrap_or_default();
 
@@ -39,7 +38,7 @@ pub fn cmd_check(
         "cmd_check: Starting at: {} (no_cache: {}, group_by: {:?}, format: {:?})",
         path.display(),
         no_cache,
-        cli_overrides.group_by,
+        group_by,
         output_format
     ));
 
@@ -88,7 +87,7 @@ pub fn cmd_check(
         }
     };
 
-    let resolved_cli = resolve_cli_config(&cli_config, &cli_overrides);
+    let resolved_cli = apply_group_by_override(&cli_config, group_by);
     let effective_group_mode = resolve_group_mode(&resolved_cli);
     let effective_no_cache = no_cache || resolved_cli.no_cache;
 
@@ -151,30 +150,16 @@ pub fn cmd_check(
     Ok(())
 }
 
-fn resolve_cli_config(cli_config: &CliConfig, overrides: &CliOverrides) -> CliConfig {
+fn apply_group_by_override(cli_config: &CliConfig, group_by: Option<GroupMode>) -> CliConfig {
     CliConfig {
-        group_by: overrides
-            .group_by
+        group_by: group_by
             .as_ref()
             .map(|g| match g {
                 GroupMode::Rule => CliGroupBy::Rule,
                 GroupMode::File => CliGroupBy::File,
             })
             .unwrap_or(cli_config.group_by),
-        no_cache: overrides.no_cache.unwrap_or(cli_config.no_cache),
-        show_severity: overrides.show_severity.unwrap_or(cli_config.show_severity),
-        show_source_line: overrides
-            .show_source_line
-            .unwrap_or(cli_config.show_source_line),
-        show_rule_name: overrides
-            .show_rule_name
-            .unwrap_or(cli_config.show_rule_name),
-        show_description: overrides
-            .show_description
-            .unwrap_or(cli_config.show_description),
-        show_summary_at_footer: overrides
-            .show_summary_at_footer
-            .unwrap_or(cli_config.show_summary_at_footer),
+        ..cli_config.clone()
     }
 }
 

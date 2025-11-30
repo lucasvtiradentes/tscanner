@@ -17,17 +17,6 @@ pub enum OutputFormat {
     Pretty,
 }
 
-#[derive(Debug, Clone, Default)]
-pub struct CliOverrides {
-    pub group_by: Option<GroupMode>,
-    pub no_cache: Option<bool>,
-    pub show_severity: Option<bool>,
-    pub show_source_line: Option<bool>,
-    pub show_rule_name: Option<bool>,
-    pub show_description: Option<bool>,
-    pub show_summary_at_footer: Option<bool>,
-}
-
 #[derive(Parser)]
 #[command(name = APP_NAME)]
 #[command(version, about = APP_DESCRIPTION, long_about = None)]
@@ -57,21 +46,6 @@ pub enum Commands {
             help = "Group issues by file or rule"
         )]
         group_by: Option<GroupMode>,
-
-        #[arg(long, help = "Hide severity icon")]
-        hide_severity: bool,
-
-        #[arg(long, help = "Hide source line text")]
-        hide_source_line: bool,
-
-        #[arg(long, help = "Hide rule name")]
-        hide_rule_name: bool,
-
-        #[arg(long, help = "Show rule description/message")]
-        show_description: bool,
-
-        #[arg(long, help = "Hide summary at footer")]
-        hide_summary: bool,
 
         #[arg(
             long,
