@@ -7,6 +7,7 @@ import { writeSummary } from './core/summary-writer';
 import { type Octokit, githubHelper } from './lib/actions-helper';
 import { gitHelper } from './lib/git-helper';
 import { validateConfigFiles } from './utils/config-validator';
+import { formatTimestamp } from './utils/format-timestamp';
 
 class ActionRunner {
   async run() {
@@ -35,8 +36,26 @@ class ActionRunner {
       }
 
       if (inputs.summary) {
+        const context = githubHelper.getContext();
+        const prInfo = context.payload.pull_request;
+        const { owner, repo } = context.repo;
         const targetBranch = inputs.mode === ScanMode.Branch ? inputs.targetBranch : undefined;
-        writeSummary(scanResults, targetBranch);
+        const commitSha = prInfo?.head?.sha?.substring(0, 7);
+        const commitMessage = prInfo
+          ? await this.getCommitMessageFromApi(octokit, owner, repo, prInfo.head.sha)
+          : undefined;
+        const timestamp = formatTimestamp(inputs.timezone);
+
+        writeSummary({
+          scanResult: scanResults,
+          targetBranch,
+          owner,
+          repo,
+          prNumber: prInfo?.number ?? 0,
+          commitSha,
+          commitMessage,
+          timestamp,
+        });
       }
 
       this.handleScanResults(scanResults, inputs);
