@@ -45,8 +45,8 @@ export function buildScanSummaryTable(params: ScanSummaryParams): string {
   const issuesBreakdown = getIssuesBreakdown(totalErrors, totalWarnings);
 
   let rows = `<tr><td>Issues found</td><td>${totalIssues}${issuesBreakdown}</td></tr>
-<tr><td>Files with issues</td><td>${filesWithIssues}/${totalFiles}</td></tr>
 <tr><td>Triggered rules</td><td>${totalRules}/${totalEnabledRules}</td></tr>
+<tr><td>Files with issues</td><td>${filesWithIssues}/${totalFiles}</td></tr>
 <tr><td>Scan mode</td><td>${modeLabel}</td></tr>`;
 
   if (commitSha) {

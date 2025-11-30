@@ -56,8 +56,8 @@
   },
   "codeEditor": {
     "highlightErrors": true,
-    "highlightWarnings": true,
-    "scanIntervalSeconds": 5
+    "highlightWarnings": false,
+    "scanIntervalSeconds": 60
   },
   "cli": {
     "groupBy": "file",

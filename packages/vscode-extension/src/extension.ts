@@ -239,7 +239,7 @@ async function setupScanInterval(context: vscode.ExtensionContext, stateRefs: Ex
       logger.debug('Auto-scan skipped: search in progress');
       return;
     }
-    logger.debug('Running auto-scan...');
+    logger.debug(`Running auto-scan (every ${intervalMs}s)...`);
     executeCommand(Command.FindIssue, { silent: true });
   }, intervalMs);
 }
