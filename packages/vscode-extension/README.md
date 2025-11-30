@@ -460,7 +460,7 @@ The default configuration is:
 
 ```json
 {
-  "$schema": "https://unpkg.com/tscanner@0.0.22/schema.json",
+  "$schema": "https://unpkg.com/tscanner@0.0.23/schema.json",
   "builtinRules": {
     "no-any-type": {}
   },

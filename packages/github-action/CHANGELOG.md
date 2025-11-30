@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.20
+
+### Patch Changes
+
+- 0c1fa72: add gh action annotations
+
 ## 0.0.19
 
 ### Patch Changes
