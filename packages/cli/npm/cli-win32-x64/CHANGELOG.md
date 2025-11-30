@@ -1,5 +1,11 @@
 # @tscanner/cli-win32-x64
 
+## 0.0.25
+
+### Patch Changes
+
+- 71770e8: update docs
+
 ## 0.0.24
 
 ### Patch Changes
