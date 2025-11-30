@@ -203,14 +203,14 @@ tscanner check --branch origin/main
   <tr>
     <!-- <td align="left"><code>check [options] [path]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><code>--file <FILE_PATTERN></code></td>
-    <td align="left">Filter results to specific file(s) using glob pattern (e.g., 'src/**/*.ts')</td>
+    <td align="left"><code>--format [text/json/pretty]</code></td>
+    <td align="left">Output format: text, json, or pretty</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [path]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><code>--format [text/json/pretty]</code></td>
-    <td align="left">Output format: text, json, or pretty</td>
+    <td align="left"><code>--glob <GLOB_PATTERN></code></td>
+    <td align="left">Filter results by glob pattern (e.g., 'src/**/*.ts')</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [path]</code></td> -->

@@ -310,7 +310,7 @@ Rules: 1
 ```plain
 TScanner report searching for all the issues in file "packages/github-action/src/core/cli-executor.ts" in the codebase mode
 
-cli command: tscanner check --file "packages/github-action/src/core/cli-executor.ts"
+cli command: tscanner check --glob "packages/github-action/src/core/cli-executor.ts"
 found issues: 3 issues
 
 Rules triggered:

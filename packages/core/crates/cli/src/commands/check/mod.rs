@@ -27,7 +27,7 @@ pub fn cmd_check(
     group_by: Option<GroupMode>,
     format: Option<OutputFormat>,
     branch: Option<String>,
-    file_filter: Option<String>,
+    glob_filter: Option<String>,
     rule_filter: Option<String>,
     continue_on_error: bool,
     config_path: Option<PathBuf>,
@@ -108,7 +108,7 @@ pub fn cmd_check(
     let is_json = matches!(output_format, OutputFormat::Json);
     let (changed_files, modified_lines) = get_branch_changes(&root, &branch, is_json)?;
 
-    let files_to_scan = filters::get_files_to_scan(&root, file_filter.as_deref(), changed_files);
+    let files_to_scan = filters::get_files_to_scan(&root, glob_filter.as_deref(), changed_files);
 
     let mut result = scanner.scan(&root, files_to_scan.as_ref());
 

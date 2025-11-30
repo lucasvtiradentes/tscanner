@@ -50,16 +50,6 @@
           "required": false
         },
         {
-          "name": "file",
-          "short": null,
-          "description": "Filter results to specific file(s) using glob pattern (e.g., 'src/**/*.ts')",
-          "takesValue": true,
-          "valueName": "FILE_PATTERN",
-          "possibleValues": null,
-          "defaultValue": null,
-          "required": false
-        },
-        {
           "name": "format",
           "short": null,
           "description": "Output format: text, json, or pretty",
@@ -70,6 +60,16 @@
             "json",
             "pretty"
           ],
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "glob",
+          "short": null,
+          "description": "Filter results by glob pattern (e.g., 'src/**/*.ts')",
+          "takesValue": true,
+          "valueName": "GLOB_PATTERN",
+          "possibleValues": null,
           "defaultValue": null,
           "required": false
         },

@@ -64,10 +64,10 @@ pub enum Commands {
 
         #[arg(
             long,
-            value_name = "FILE_PATTERN",
-            help = "Filter results to specific file(s) using glob pattern (e.g., 'src/**/*.ts')"
+            value_name = "GLOB_PATTERN",
+            help = "Filter results by glob pattern (e.g., 'src/**/*.ts')"
         )]
-        file: Option<String>,
+        glob: Option<String>,
 
         #[arg(
             long,
