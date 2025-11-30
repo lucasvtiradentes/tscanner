@@ -11,7 +11,12 @@ import {
 } from './internal/copy-items';
 import { createOpenFileCommand } from './internal/navigation';
 import { createRefreshCommand } from './internal/refresh';
-import { createCycleViewModeCommand } from './internal/view-mode';
+import {
+  createCycleViewModeFileFlatViewCommand,
+  createCycleViewModeFileTreeViewCommand,
+  createCycleViewModeRuleFlatViewCommand,
+  createCycleViewModeRuleTreeViewCommand,
+} from './internal/view-mode';
 import { createHardScanCommand } from './public/hard-scan';
 import { createGoToNextIssueCommand, createGoToPreviousIssueCommand, resetIssueIndex } from './public/issue-navigation';
 import { createScanWorkspaceCommand } from './public/scan-workspace';
@@ -34,7 +39,10 @@ export function registerAllCommands(ctx: CommandContext, panelContent: IssuesPan
     createRefreshCommand(),
     createManageRulesCommand(updateStatusBar, context, stateRefs.currentCustomConfigDirRef),
     createOpenSettingsMenuCommand(ctx, panelContent),
-    createCycleViewModeCommand(panelContent, context),
+    createCycleViewModeFileFlatViewCommand(panelContent, context),
+    createCycleViewModeFileTreeViewCommand(panelContent, context),
+    createCycleViewModeRuleFlatViewCommand(panelContent, context),
+    createCycleViewModeRuleTreeViewCommand(panelContent, context),
     createOpenFileCommand(),
     createCopyRuleIssuesCommand(),
     createCopyFileIssuesCommand(),

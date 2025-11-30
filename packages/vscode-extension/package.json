@@ -219,12 +219,12 @@
         },
         {
           "command": "tscanner.cycleViewModeFileFlatView",
-          "when": "view == tscannerExplorer && tscannerViewMode == list && tscannerGroupMode == default",
+          "when": "view == tscannerExplorer && tscannerViewMode == list && tscannerGroupMode == file",
           "group": "navigation@20"
         },
         {
           "command": "tscanner.cycleViewModeFileTreeView",
-          "when": "view == tscannerExplorer && tscannerViewMode == tree && tscannerGroupMode == default",
+          "when": "view == tscannerExplorer && tscannerViewMode == tree && tscannerGroupMode == file",
           "group": "navigation@20"
         },
         {
@@ -261,12 +261,12 @@
         },
         {
           "command": "tscanner.copyFileIssues",
-          "when": "view == tscannerExplorer && viewItem == TscannerNodeFile && tscannerGroupMode == default",
+          "when": "view == tscannerExplorer && viewItem == TscannerNodeFile && tscannerGroupMode == file",
           "group": "inline"
         },
         {
           "command": "tscanner.copyFolderIssues",
-          "when": "view == tscannerExplorer && viewItem == TscannerNodeFolder && tscannerGroupMode == default",
+          "when": "view == tscannerExplorer && viewItem == TscannerNodeFolder && tscannerGroupMode == file",
           "group": "inline"
         }
       ],

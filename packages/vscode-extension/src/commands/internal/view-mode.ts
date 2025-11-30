@@ -33,6 +33,30 @@ function cycleToNextMode(panelContent: IssuesPanelContent, context: vscode.Exten
   updateState(context, WorkspaceStateKey.GroupMode, nextState.groupMode);
 }
 
-export function createCycleViewModeCommand(panelContent: IssuesPanelContent, context: vscode.ExtensionContext) {
-  return registerCommand(Command.CycleViewMode, () => cycleToNextMode(panelContent, context));
+export function createCycleViewModeFileFlatViewCommand(
+  panelContent: IssuesPanelContent,
+  context: vscode.ExtensionContext,
+) {
+  return registerCommand(Command.CycleViewModeFileFlatView, () => cycleToNextMode(panelContent, context));
+}
+
+export function createCycleViewModeFileTreeViewCommand(
+  panelContent: IssuesPanelContent,
+  context: vscode.ExtensionContext,
+) {
+  return registerCommand(Command.CycleViewModeFileTreeView, () => cycleToNextMode(panelContent, context));
+}
+
+export function createCycleViewModeRuleFlatViewCommand(
+  panelContent: IssuesPanelContent,
+  context: vscode.ExtensionContext,
+) {
+  return registerCommand(Command.CycleViewModeRuleFlatView, () => cycleToNextMode(panelContent, context));
+}
+
+export function createCycleViewModeRuleTreeViewCommand(
+  panelContent: IssuesPanelContent,
+  context: vscode.ExtensionContext,
+) {
+  return registerCommand(Command.CycleViewModeRuleTreeView, () => cycleToNextMode(panelContent, context));
 }
