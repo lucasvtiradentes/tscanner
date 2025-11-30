@@ -98,7 +98,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ScanResult
     'check',
     '--format=json',
     '--continue-on-error',
-    '--config',
+    '--config-path',
     configPath,
     ...(targetBranch ? ['--branch', targetBranch] : []),
   ];
