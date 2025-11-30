@@ -1,12 +1,12 @@
-import type * as vscode from 'vscode';
-import { hasCustomConfig, hasLocalConfig, loadEffectiveConfig } from '../../common/lib/config-manager';
+import { ScanMode, ViewMode } from 'tscanner-common';
+import { CONFIG_DIR_NAME } from '../../common/constants';
+import { getConfigState, loadEffectiveConfig } from '../../common/lib/config-manager';
+import type { CommandContext } from '../../common/lib/extension-state';
 import { scanWorkspace } from '../../common/lib/scanner';
 import {
   Command,
   ContextKey,
-  ScanMode,
   ToastKind,
-  ViewMode,
   WorkspaceStateKey,
   executeCommand,
   getCurrentWorkspaceFolder,
@@ -16,23 +16,16 @@ import {
   showToastMessage,
   updateState,
 } from '../../common/lib/vscode-utils';
-import { type IssueResult, hasConfiguredRules } from '../../common/types';
+import { hasConfiguredRules, serializeResults } from '../../common/types';
 import { branchExists } from '../../common/utils/git-helper';
 import { logger } from '../../common/utils/logger';
 import type { IssuesPanelContent } from '../../issues-panel/panel-content';
 import { resetIssueIndex } from './issue-navigation';
 
-export function createScanWorkspaceCommand(
-  panelContent: IssuesPanelContent,
-  context: vscode.ExtensionContext,
-  treeView: vscode.TreeView<any>,
-  updateBadge: () => void,
-  updateStatusBar: () => Promise<void>,
-  isSearchingRef: { current: boolean },
-  currentScanModeRef: { current: ScanMode },
-  currentCompareBranchRef: { current: string },
-  currentCustomConfigDirRef: { current: string | null },
-) {
+export function createScanWorkspaceCommand(ctx: CommandContext, panelContent: IssuesPanelContent) {
+  const { context, treeView, stateRefs, updateBadge, updateStatusBar } = ctx;
+  const { isSearchingRef, currentScanModeRef, currentCompareBranchRef, currentCustomConfigDirRef } = stateRefs;
+
   return registerCommand(Command.FindIssue, async (options?: { silent?: boolean }) => {
     if (isSearchingRef.current) {
       if (!options?.silent) {
@@ -51,8 +44,7 @@ export function createScanWorkspaceCommand(
 
     const customConfigDir = currentCustomConfigDirRef.current;
     const effectiveConfig = await loadEffectiveConfig(context, workspaceFolder.uri.fsPath, customConfigDir);
-    const hasLocal = await hasLocalConfig(workspaceFolder.uri.fsPath);
-    const hasCustom = customConfigDir ? await hasCustomConfig(workspaceFolder.uri.fsPath, customConfigDir) : false;
+    const configState = await getConfigState(context, workspaceFolder.uri.fsPath, customConfigDir);
 
     if (!hasConfiguredRules(effectiveConfig)) {
       panelContent.setResults([]);
@@ -70,11 +62,11 @@ export function createScanWorkspaceCommand(
       return;
     }
 
-    const configToPass = hasLocal && !hasCustom ? undefined : (effectiveConfig ?? undefined);
-    if (hasCustom) {
+    const configToPass = configState.hasLocal && !configState.hasCustom ? undefined : (effectiveConfig ?? undefined);
+    if (configState.hasCustom) {
       logger.info(`Using custom config from ${customConfigDir}`);
-    } else if (hasLocal) {
-      logger.info('Using local config from .tscanner');
+    } else if (configState.hasLocal) {
+      logger.info(`Using local config from ${CONFIG_DIR_NAME}`);
     } else {
       logger.info('Using global config from extension storage');
     }
@@ -109,28 +101,17 @@ export function createScanWorkspaceCommand(
 
     try {
       const startTime = Date.now();
-      let results: IssueResult[];
-
-      if (currentScanModeRef.current === ScanMode.Branch) {
-        results = await scanWorkspace(undefined, configToPass, currentCompareBranchRef.current);
-      } else {
-        results = await scanWorkspace(undefined, configToPass);
-      }
+      const results =
+        currentScanModeRef.current === ScanMode.Branch
+          ? await scanWorkspace(undefined, configToPass, currentCompareBranchRef.current)
+          : await scanWorkspace(undefined, configToPass);
 
       const elapsed = Date.now() - startTime;
       logger.info(`Search completed in ${elapsed}ms, found ${results.length} results`);
 
       resetIssueIndex();
       panelContent.setResults(results);
-
-      const serializedResults = results.map((r) => {
-        const { uri, ...rest } = r;
-        return {
-          ...rest,
-          uriString: uri.toString(),
-        };
-      });
-      setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializedResults);
+      setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializeResults(results));
       updateBadge();
 
       if (panelContent.viewMode === ViewMode.Tree) {

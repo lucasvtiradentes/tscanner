@@ -1,3 +1,4 @@
+use super::common::success_response;
 use crate::protocol::{FormatResultsParams, Response};
 use core::PrettyFormatter;
 
@@ -34,9 +35,9 @@ pub fn handle_format_results(id: u64, params: FormatResultsParams) -> Response {
         .collect();
     let rule_count = unique_rules.len();
 
-    Response {
+    success_response(
         id,
-        result: Some(serde_json::json!({
+        serde_json::json!({
             "output": formatted_output,
             "summary": {
                 "total_issues": params.results.total_issues,
@@ -45,7 +46,6 @@ pub fn handle_format_results(id: u64, params: FormatResultsParams) -> Response {
                 "file_count": file_count,
                 "rule_count": rule_count
             }
-        })),
-        error: None,
-    }
+        }),
+    )
 }

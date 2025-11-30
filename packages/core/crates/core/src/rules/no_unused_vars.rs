@@ -1,6 +1,6 @@
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use crate::utils::get_span_positions;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
@@ -13,7 +13,7 @@ pub struct NoUnusedVarsRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-unused-vars",
-    factory: || Arc::new(NoUnusedVarsRule),
+    factory: |_| Arc::new(NoUnusedVarsRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -28,6 +28,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-unused-vars"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-unused-variables"),
+        allowed_options: &[],
     }
 });
 
@@ -41,7 +42,7 @@ impl Rule for NoUnusedVarsRule {
         program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let mut visitor = UnusedVarsVisitor {
             issues: Vec::new(),

@@ -1,6 +1,6 @@
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
@@ -12,7 +12,7 @@ pub struct PreferInterfaceOverTypeRule;
 
 inventory::submit!(RuleRegistration {
     name: "prefer-interface-over-type",
-    factory: || Arc::new(PreferInterfaceOverTypeRule),
+    factory: |_| Arc::new(PreferInterfaceOverTypeRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -29,6 +29,7 @@ inventory::submit!(RuleMetadataRegistration {
             "https://typescript-eslint.io/rules/consistent-type-definitions"
         ),
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 
@@ -46,7 +47,7 @@ impl Rule for PreferInterfaceOverTypeRule {
         program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let mut visitor = TypeAliasVisitor {
             issues: Vec::new(),

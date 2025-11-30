@@ -176,73 +176,106 @@ tscanner check --branch origin/main
     <th width="120">Command</th>
     <th width="280">Description</th>
     <th width="200">Flag</th>
-    <th width="350">Flag description</th>
+    <th width="100">Default</th>
+    <th width="300">Flag description</th>
   </tr>
   <tr>
     <td rowspan="9" align="left"><code>check [options] [paths]</code></td>
     <td rowspan="9" align="left">Scan code for issues and display results</td>
     <td align="left"><code>--branch <BRANCH></code></td>
+    <td align="center">-</td>
     <td align="left">Only show issues in files changed compared to branch (e.g., origin/main)</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><code>--config <CONFIG_DIR></code></td>
-    <td align="left">Path to directory containing config.jsonc</td>
+    <td align="left"><code>--config-path <CONFIG_DIR></code></td>
+    <td align="center">.tscanner</td>
+    <td align="left">Path to .tscanner folder</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--continue-on-error</code></td>
+    <td align="center">-</td>
     <td align="left">Continue execution even when errors are found</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--format [text/json/pretty]</code></td>
+    <td align="center">text</td>
     <td align="left">Output format: text, json, or pretty</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--glob <GLOB_PATTERN></code></td>
+    <td align="center">-</td>
     <td align="left">Filter results by glob pattern (e.g., 'src/**/*.ts')</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--group-by [file/rule]</code></td>
+    <td align="center">-</td>
     <td align="left">Group issues by file or rule</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--no-cache</code></td>
+    <td align="center">-</td>
     <td align="left">Skip cache and force full scan</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--rule <RULE_NAME></code></td>
-    <td align="left">Filter results to specific rule (e.g., 'no-console-log')</td>
+    <td align="center">-</td>
+    <td align="left">Filter results to specific rule (e.g., 'no-console')</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--staged</code></td>
+    <td align="center">-</td>
     <td align="left">Scan only git staged files</td>
+  </tr>
+  <tr>
+    <td rowspan="4" align="left"><code>config [options]</code></td>
+    <td rowspan="4" align="left">Configuration management</td>
+    <td align="left"><code>--config-path <CONFIG_DIR></code></td>
+    <td align="center">.tscanner</td>
+    <td align="left">Path to .tscanner folder</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>config [options]</code></td> -->
+    <!-- <td align="left">Configuration management</td> -->
+    <td align="left"><code>--rules</code></td>
+    <td align="center">-</td>
+    <td align="left">List all available rules and their status</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>config [options]</code></td> -->
+    <!-- <td align="left">Configuration management</td> -->
+    <td align="left"><code>--show</code></td>
+    <td align="center">-</td>
+    <td align="left">Show the resolved configuration</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>config [options]</code></td> -->
+    <!-- <td align="left">Configuration management</td> -->
+    <td align="left"><code>--validate</code></td>
+    <td align="center">-</td>
+    <td align="left">Validate the configuration file</td>
   </tr>
   <tr>
     <td rowspan="1" align="left"><code>init [options]</code></td>
     <td rowspan="1" align="left">Create a default configuration file</td>
     <td align="left"><code>--all-rules</code></td>
+    <td align="center">-</td>
     <td align="left">Initialize with all built-in rules enabled</td>
-  </tr>
-  <tr>
-    <td rowspan="1" align="left"><code>rules [options]</code></td>
-    <td rowspan="1" align="left">List all available rules and their metadata</td>
-    <td align="left"><code>--config <CONFIG_DIR></code></td>
-    <td align="left">Path to directory containing config.jsonc</td>
   </tr>
 </table>
 
@@ -308,11 +341,11 @@ tscanner check --group-by rule
 Scanning...
 
 src/index.ts
-  ✖ 5:10 Found ': any' type annotation [no-any-type]
+  ✖ 5:10 Found ': any' type annotation [no-explicit-any]
   ⚠ 10:7 'count' is never reassigned, use 'const' instead [prefer-const]
 
 src/utils.ts
-  ⚠ 15:3 console.log found [no-console-log]
+  ⚠ 15:3 console.log found [no-console]
 
 ✖ 2 errors, 2 warnings
 Scanned 2 files in 45ms
@@ -341,11 +374,11 @@ tscanner check --file "src/**/*.ts"
 tscanner check --file "components/**/*.tsx"
 
 # Filter by specific rule
-tscanner check --rule no-console-log
-tscanner check --rule no-any-type
+tscanner check --rule no-console
+tscanner check --rule no-explicit-any
 
 # Combine filters
-tscanner check --branch main --file "src/**" --rule no-console-log
+tscanner check --branch main --file "src/**" --rule no-console
 
 # Continue on error (don't exit with code 1)
 tscanner check --continue-on-error
@@ -393,7 +426,7 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 
 1. **VSCode Extension**: TScanner icon in the status bar → `Manage Rules` → Select desired rules → `Save`
 2. **CLI**: Run `tscanner init` in your project root
-3. **Manual**: Copy the default config below to `.tscanner/config.json`
+3. **Manual**: Copy the default config below to `.tscanner/config.jsonc`
 
 The default configuration is:
 
@@ -401,7 +434,7 @@ The default configuration is:
 {
   "$schema": "https://unpkg.com/tscanner@0.0.25/schema.json",
   "builtinRules": {
-    "no-any-type": {}
+    "no-explicit-any": {}
   },
   "customRules": {},
   "files": {
@@ -420,18 +453,20 @@ The default configuration is:
       "**/.git/**"
     ]
   },
-  "lsp": {
-    "errors": true,
-    "warnings": false
+  "codeEditor": {
+    "highlightErrors": true,
+    "highlightWarnings": false,
+    "scanIntervalSeconds": 0
   },
   "cli": {
     "groupBy": "file",
     "noCache": false,
-    "showSeverity": true,
-    "showSourceLine": true,
-    "showRuleName": true,
-    "showDescription": false,
-    "showSummaryAtFooter": true
+    "showSettings": true,
+    "showIssueSeverity": true,
+    "showIssueSourceLine": true,
+    "showIssueRuleName": true,
+    "showIssueDescription": false,
+    "showSummary": true
   }
 }
 ```
@@ -439,7 +474,7 @@ The default configuration is:
 **Inline Disables:**
 
 ```typescript
-// tscanner-disable-next-line no-any-type
+// tscanner-disable-next-line no-explicit-any
 const data: any = fetchData();
 
 // tscanner-disable-file
@@ -456,7 +491,7 @@ All configuration fields are **optional** with sensible defaults. The minimum re
 ```json
 {
   "builtinRules": {
-    "no-any-type": {}
+    "no-explicit-any": {}
   }
 }
 ```
@@ -473,8 +508,8 @@ Example with per-rule file patterns:
 ```json
 {
   "builtinRules": {
-    "no-any-type": {},
-    "no-console-log": {
+    "no-explicit-any": {},
+    "no-console": {
       "exclude": ["src/utils/logger.ts"]
     },
     "max-function-length": {
@@ -485,8 +520,8 @@ Example with per-rule file patterns:
 ```
 
 This config:
-- Runs `no-any-type` on all files (uses global `files` patterns)
-- Runs `no-console-log` on all files except `src/utils/logger.ts`
+- Runs `no-explicit-any` on all files (uses global `files` patterns)
+- Runs `no-console` on all files except `src/utils/logger.ts`
 - Runs `max-function-length` only on files inside `src/core/`
 
 </details>
@@ -623,7 +658,7 @@ Customize TScanner to validate what matters to your project while maintaining co
   <tr>
     <td><b><a href="packages/core/crates/core/src/rules">Built-in</a></b></td>
     <td>38 ready-to-use AST rules</td>
-    <td><code>no-any-type</code>, <code>prefer-const</code>, <code>no-console-log</code></td>
+    <td><code>no-explicit-any</code>, <code>prefer-const</code>, <code>no-console</code></td>
   </tr>
   <tr>
     <td><b>Regex</b></td>
@@ -663,7 +698,7 @@ Customize TScanner to validate what matters to your project while maintaining co
     <th width="100">Also in</th>
   </tr>
   <tr>
-    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_any_type.rs"><code>no-any-type</code></a><br/><br/><img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only"></div></td>
+    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_explicit_any.rs"><code>no-explicit-any</code></a><br/><br/><img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only"></div></td>
     <td align="left">Detects usage of TypeScript 'any' type (<code>: any</code> and <code>as any</code>). Using 'any' defeats the purpose of TypeScript's type system.</td>
     <td align="left"><a href="https://typescript-eslint.io/rules/no-explicit-any"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-explicit-any"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
@@ -722,8 +757,8 @@ Customize TScanner to validate what matters to your project while maintaining co
     <td align="left"><a href="https://eslint.org/docs/latest/rules/require-await"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/use-await"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>
-    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_console_log.rs"><code>no-console-log</code></a><br/><br/><img src="https://img.shields.io/badge/regex--rule-6C757D" alt="Regex rule"></div></td>
-    <td align="left">Finds console.log() statements in code. Console statements should be removed before committing to production.</td>
+    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_console.rs"><code>no-console</code></a><br/><br/><img src="https://img.shields.io/badge/regex--rule-6C757D" alt="Regex rule"></div></td>
+    <td align="left">Disallow the use of console methods. Console statements should be removed before committing to production.</td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/no-console"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-console"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>

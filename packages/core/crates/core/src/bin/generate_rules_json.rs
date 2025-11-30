@@ -37,7 +37,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .unwrap()
         .parent()
         .unwrap()
-        .join("assets/rules.json");
+        .join("assets/generated/rules.json");
 
     fs::write(&output_path, json)?;
 

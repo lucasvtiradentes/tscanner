@@ -1,18 +1,18 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
 
-#[derive(Debug, Clone, ValueEnum)]
-pub enum GroupMode {
-    File,
-    Rule,
-}
-
 #[derive(Debug, Clone, Default, ValueEnum)]
 pub enum OutputFormat {
     #[default]
     Text,
     Json,
     Pretty,
+}
+
+#[derive(Debug, Clone, ValueEnum)]
+pub enum CliGroupMode {
+    File,
+    Rule,
 }
 
 #[derive(Parser)]
@@ -44,15 +44,16 @@ pub enum Commands {
             value_name = "MODE",
             help = "Group issues by file or rule"
         )]
-        group_by: Option<GroupMode>,
+        group_by: Option<CliGroupMode>,
 
         #[arg(
             long,
             value_enum,
             value_name = "FORMAT",
+            default_value = "text",
             help = "Output format: text, json, or pretty"
         )]
-        format: Option<OutputFormat>,
+        format: OutputFormat,
 
         #[arg(
             long,
@@ -74,7 +75,7 @@ pub enum Commands {
         #[arg(
             long,
             value_name = "RULE_NAME",
-            help = "Filter results to specific rule (e.g., 'no-console-log')"
+            help = "Filter results to specific rule (e.g., 'no-console')"
         )]
         rule: Option<String>,
 
@@ -84,19 +85,30 @@ pub enum Commands {
         #[arg(
             long,
             value_name = "CONFIG_DIR",
-            help = "Path to directory containing config.jsonc"
+            default_value = ".tscanner",
+            help = "Path to .tscanner folder"
         )]
-        config: Option<PathBuf>,
+        config_path: PathBuf,
     },
 
-    #[command(about = "List all available rules and their metadata")]
-    Rules {
+    #[command(about = "Configuration management")]
+    Config {
+        #[arg(long, help = "List all available rules and their status")]
+        rules: bool,
+
+        #[arg(long, help = "Validate the configuration file")]
+        validate: bool,
+
+        #[arg(long, help = "Show the resolved configuration")]
+        show: bool,
+
         #[arg(
             long,
             value_name = "CONFIG_DIR",
-            help = "Path to directory containing config.jsonc"
+            default_value = ".tscanner",
+            help = "Path to .tscanner folder"
         )]
-        config: Option<PathBuf>,
+        config_path: PathBuf,
     },
 
     #[command(about = "Create a default configuration file")]

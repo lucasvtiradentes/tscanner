@@ -4,7 +4,7 @@ import { DynMarkdown, getJson } from 'markdown-helper';
 type TFields = 'OVERVIEW';
 
 const rootDir = path.resolve(__dirname, '..', '..');
-const rulesJson: unknown[] = getJson(path.join(rootDir, 'assets/rules.json'));
+const rulesJson: unknown[] = getJson(path.join(rootDir, 'assets/generated/rules.json'));
 const RULES_COUNT = rulesJson.length;
 
 function getOverviewContent(): string {

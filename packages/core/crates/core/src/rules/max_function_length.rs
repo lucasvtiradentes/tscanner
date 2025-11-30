@@ -1,18 +1,53 @@
-use crate::ast_utils::count_statements;
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
+use crate::utils::count_statements;
 use crate::utils::get_span_positions;
+use serde::Deserialize;
 use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
 
-pub struct MaxFunctionLengthRule;
+const DEFAULT_MAX_LENGTH: usize = 50;
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct MaxFunctionLengthOptions {
+    #[serde(default = "default_max_length")]
+    max_length: usize,
+}
+
+fn default_max_length() -> usize {
+    DEFAULT_MAX_LENGTH
+}
+
+impl Default for MaxFunctionLengthOptions {
+    fn default() -> Self {
+        Self {
+            max_length: DEFAULT_MAX_LENGTH,
+        }
+    }
+}
+
+pub struct MaxFunctionLengthRule {
+    max_length: usize,
+}
+
+impl MaxFunctionLengthRule {
+    pub fn new(options: Option<&serde_json::Value>) -> Self {
+        let max_length = options
+            .and_then(|v| serde_json::from_value::<MaxFunctionLengthOptions>(v.clone()).ok())
+            .map(|o| o.max_length)
+            .unwrap_or(DEFAULT_MAX_LENGTH);
+
+        Self { max_length }
+    }
+}
 
 inventory::submit!(RuleRegistration {
     name: "max-function-length",
-    factory: || Arc::new(MaxFunctionLengthRule),
+    factory: |options| Arc::new(MaxFunctionLengthRule::new(options)),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -28,6 +63,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/max-lines-per-function"),
         equivalent_biome_rule: None,
+        allowed_options: &["maxLength"],
     }
 });
 
@@ -41,13 +77,13 @@ impl Rule for MaxFunctionLengthRule {
         program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let mut visitor = MaxFunctionLengthVisitor {
             issues: Vec::new(),
             path: path.to_path_buf(),
             source,
-            max_length: 50,
+            max_length: self.max_length,
         };
         program.visit_with(&mut visitor);
         visitor.issues

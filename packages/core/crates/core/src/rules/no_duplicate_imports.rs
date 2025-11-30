@@ -1,6 +1,6 @@
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use crate::utils::get_span_positions;
 use std::collections::HashMap;
 use std::path::Path;
@@ -12,7 +12,7 @@ pub struct NoDuplicateImportsRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-duplicate-imports",
-    factory: || Arc::new(NoDuplicateImportsRule),
+    factory: |_| Arc::new(NoDuplicateImportsRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-duplicate-imports"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-duplicate-json-keys"),
+        allowed_options: &[],
     }
 });
 
@@ -40,7 +41,7 @@ impl Rule for NoDuplicateImportsRule {
         program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let mut visitor = DuplicateImportsVisitor {
             issues: Vec::new(),

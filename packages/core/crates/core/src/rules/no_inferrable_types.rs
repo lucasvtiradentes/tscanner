@@ -1,6 +1,6 @@
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
@@ -12,7 +12,7 @@ pub struct NoInferrableTypesRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-inferrable-types",
-    factory: || Arc::new(NoInferrableTypesRule),
+    factory: |_| Arc::new(NoInferrableTypesRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-inferrable-types"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-inferrable-types"),
+        allowed_options: &[],
     }
 });
 
@@ -44,7 +45,7 @@ impl Rule for NoInferrableTypesRule {
         program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let mut visitor = InferrableTypesVisitor {
             issues: Vec::new(),

@@ -160,7 +160,7 @@ The CLI outputs JSON that the action parses to generate PR comments:
       "path": "src/utils/helper.ts",
       "issues": [
         {
-          "rule": "no-any-type",
+          "rule": "no-explicit-any",
           "message": "Avoid using 'any' type",
           "severity": "error",
           "line": 42,

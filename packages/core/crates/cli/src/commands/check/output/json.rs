@@ -1,10 +1,9 @@
-use super::OutputRenderer;
-use crate::commands::check::context::CheckContext;
+use super::renderer::OutputRenderer;
+use super::CheckContext;
 use crate::shared::{
     JsonFileGroup, JsonIssue, JsonRuleGroup, JsonRuleIssue, JsonSummary, SummaryStats,
 };
-use cli::GroupMode;
-use core::types::{ScanResult, Severity};
+use core::{GroupMode, ScanResult, Severity};
 use serde::Serialize;
 use std::collections::HashMap;
 

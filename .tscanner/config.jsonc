@@ -5,12 +5,13 @@
     "max-function-length": {},
     "max-params": {},
     // "no-absolute-imports": {},
+    // "no-absolute-imports": {},
     // "no-alias-imports": {},
-    "no-any-type": {},
+    "no-explicit-any": {},
     "no-async-without-await": {},
-    "no-console-log": {},
+    "no-console": {"exclude": ["**/scripts/*", ".changeset/commit.js"]},
     "no-constant-condition": {},
-    "no-default-export": {},
+    "no-default-export": {"exclude": ["*.config.ts"]},
     "no-duplicate-imports": {},
     "no-dynamic-import": {},
     "no-else-return": {},
@@ -18,13 +19,12 @@
     "no-empty-function": {},
     "no-empty-interface": {},
     "no-floating-promises": {},
-    "no-forwarded-exports": {},
+    "no-forwarded-exports": { "exclude": ["shared/tscanner-common/src/index.ts"]},
     "no-implicit-any": {},
     "no-inferrable-types": {},
     "no-nested-require": {},
     "no-nested-ternary": {},
     "no-non-null-assertion": {},
-    // "no-relative-imports": {},
     "no-return-await": {},
     "no-shadow": {},
     "no-single-or-array-union": {},
@@ -54,17 +54,19 @@
       "packages/core/crates/core/tests/**"
     ]
   },
-  "lsp": {
-    "errors": true,
-    "warnings": false
+  "codeEditor": {
+    "highlightErrors": true,
+    "highlightWarnings": false,
+    "scanIntervalSeconds": 60
   },
   "cli": {
-    "groupBy": "rule",
+    "groupBy": "file",
     "noCache": false,
-    "showSeverity": true,
-    "showSourceLine": true,
-    "showRuleName": true,
-    "showDescription": false,
-    "showSummaryAtFooter": true
+    "showSettings": true,
+    "showIssueSeverity": true,
+    "showIssueSourceLine": true,
+    "showIssueRuleName": true,
+    "showIssueDescription": false,
+    "showSummary": true
   }
 }

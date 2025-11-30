@@ -1,6 +1,6 @@
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use crate::utils::get_span_positions;
 use std::collections::HashSet;
 use std::path::Path;
@@ -12,7 +12,7 @@ pub struct NoForwardedExportsRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-forwarded-exports",
-    factory: || Arc::new(NoForwardedExportsRule),
+    factory: |_| Arc::new(NoForwardedExportsRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: None,
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-re-export-all"),
+        allowed_options: &[],
     }
 });
 
@@ -40,7 +41,7 @@ impl Rule for NoForwardedExportsRule {
         program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let mut visitor = ForwardedExportsVisitor {
             issues: Vec::new(),

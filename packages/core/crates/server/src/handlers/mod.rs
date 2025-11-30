@@ -1,4 +1,5 @@
 pub mod clear_cache;
+mod common;
 pub mod format_results;
 pub mod get_rules_metadata;
 pub mod scan;

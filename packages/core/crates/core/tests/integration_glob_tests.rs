@@ -5,15 +5,16 @@ use std::path::Path;
 fn test_global_patterns_only() {
     let config = TscannerConfig {
         schema: None,
-        lsp: None,
+        code_editor: None,
         cli: None,
         builtin_rules: [(
-            "no-any-type".to_string(),
+            "no-explicit-any".to_string(),
             BuiltinRuleConfig {
                 enabled: Some(true),
                 severity: None,
                 include: vec![],
                 exclude: vec![],
+                options: Default::default(),
             },
         )]
         .into_iter()
@@ -26,7 +27,7 @@ fn test_global_patterns_only() {
     };
 
     let compiled = config
-        .compile_builtin_rule("no-any-type")
+        .compile_builtin_rule("no-explicit-any")
         .expect("Failed to compile rule");
 
     let test_cases = vec![
@@ -54,15 +55,16 @@ fn test_global_patterns_only() {
 fn test_rule_specific_include_intersects_with_global() {
     let config = TscannerConfig {
         schema: None,
-        lsp: None,
+        code_editor: None,
         cli: None,
         builtin_rules: [(
-            "no-any-type".to_string(),
+            "no-explicit-any".to_string(),
             BuiltinRuleConfig {
                 enabled: Some(true),
                 severity: None,
                 include: vec!["src/**".to_string()],
                 exclude: vec![],
+                options: Default::default(),
             },
         )]
         .into_iter()
@@ -75,7 +77,7 @@ fn test_rule_specific_include_intersects_with_global() {
     };
 
     let compiled = config
-        .compile_builtin_rule("no-any-type")
+        .compile_builtin_rule("no-explicit-any")
         .expect("Failed to compile rule");
 
     let test_cases = vec![
@@ -103,15 +105,16 @@ fn test_rule_specific_include_intersects_with_global() {
 fn test_rule_specific_exclude_adds_to_global() {
     let config = TscannerConfig {
         schema: None,
-        lsp: None,
+        code_editor: None,
         cli: None,
         builtin_rules: [(
-            "no-any-type".to_string(),
+            "no-explicit-any".to_string(),
             BuiltinRuleConfig {
                 enabled: Some(true),
                 severity: None,
                 include: vec![],
                 exclude: vec!["**/*.test.ts".to_string()],
+                options: Default::default(),
             },
         )]
         .into_iter()
@@ -124,7 +127,7 @@ fn test_rule_specific_exclude_adds_to_global() {
     };
 
     let compiled = config
-        .compile_builtin_rule("no-any-type")
+        .compile_builtin_rule("no-explicit-any")
         .expect("Failed to compile rule");
 
     let test_cases = vec![
@@ -152,15 +155,16 @@ fn test_rule_specific_exclude_adds_to_global() {
 fn test_combined_rule_include_and_exclude() {
     let config = TscannerConfig {
         schema: None,
-        lsp: None,
+        code_editor: None,
         cli: None,
         builtin_rules: [(
-            "no-any-type".to_string(),
+            "no-explicit-any".to_string(),
             BuiltinRuleConfig {
                 enabled: Some(true),
                 severity: None,
                 include: vec!["src/**".to_string(), "lib/**".to_string()],
                 exclude: vec!["**/*.test.ts".to_string(), "**/*.spec.ts".to_string()],
+                options: Default::default(),
             },
         )]
         .into_iter()
@@ -173,7 +177,7 @@ fn test_combined_rule_include_and_exclude() {
     };
 
     let compiled = config
-        .compile_builtin_rule("no-any-type")
+        .compile_builtin_rule("no-explicit-any")
         .expect("Failed to compile rule");
 
     let test_cases = vec![
@@ -203,15 +207,16 @@ fn test_combined_rule_include_and_exclude() {
 fn test_path_normalization_with_root() {
     let config = TscannerConfig {
         schema: None,
-        lsp: None,
+        code_editor: None,
         cli: None,
         builtin_rules: [(
-            "no-any-type".to_string(),
+            "no-explicit-any".to_string(),
             BuiltinRuleConfig {
                 enabled: Some(true),
                 severity: None,
                 include: vec!["src/**".to_string()],
                 exclude: vec![],
+                options: Default::default(),
             },
         )]
         .into_iter()
@@ -224,7 +229,7 @@ fn test_path_normalization_with_root() {
     };
 
     let compiled = config
-        .compile_builtin_rule("no-any-type")
+        .compile_builtin_rule("no-explicit-any")
         .expect("Failed to compile rule");
 
     let root = Path::new("/home/user/project");

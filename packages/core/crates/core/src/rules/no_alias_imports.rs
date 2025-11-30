@@ -1,6 +1,6 @@
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
@@ -11,7 +11,7 @@ pub struct NoAliasImportsRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-alias-imports",
-    factory: || Arc::new(NoAliasImportsRule),
+    factory: |_| Arc::new(NoAliasImportsRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -26,6 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: None,
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 
@@ -39,7 +40,7 @@ impl Rule for NoAliasImportsRule {
         program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let mut visitor = AliasImportVisitor {
             issues: Vec::new(),

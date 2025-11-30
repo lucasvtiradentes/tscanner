@@ -1,4 +1,4 @@
-use crate::types::Severity;
+use crate::output::Severity;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -24,6 +24,8 @@ pub struct RuleMetadata {
     pub equivalent_eslint_rule: Option<&'static str>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub equivalent_biome_rule: Option<&'static str>,
+    #[serde(skip)]
+    pub allowed_options: &'static [&'static str],
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -48,4 +50,11 @@ pub fn get_all_rule_metadata() -> Vec<RuleMetadata> {
     inventory::iter::<RuleMetadataRegistration>()
         .map(|reg| reg.metadata.clone())
         .collect()
+}
+
+pub fn get_allowed_options_for_rule(rule_name: &str) -> &'static [&'static str] {
+    inventory::iter::<RuleMetadataRegistration>()
+        .find(|reg| reg.metadata.name == rule_name)
+        .map(|reg| reg.metadata.allowed_options)
+        .unwrap_or(&[])
 }

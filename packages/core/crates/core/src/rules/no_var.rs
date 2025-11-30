@@ -1,6 +1,6 @@
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
@@ -12,7 +12,7 @@ pub struct NoVarRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-var",
-    factory: || Arc::new(NoVarRule),
+    factory: |_| Arc::new(NoVarRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-var"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-var"),
+        allowed_options: &[],
     }
 });
 
@@ -40,7 +41,7 @@ impl Rule for NoVarRule {
         program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let mut visitor = NoVarVisitor {
             issues: Vec::new(),

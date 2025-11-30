@@ -1,37 +1,31 @@
-import {
-  type BuiltinRuleConfig,
-  type ClearCacheParams,
-  type CustomRuleConfig,
-  type FileResult,
-  type GetRulesMetadataParams,
-  type Issue,
-  type ModifiedLineRange,
-  type RuleMetadata,
-  type ScanContentParams,
-  type ScanFileParams,
-  type ScanParams,
-  type ScanResult,
-  type TscannerConfig,
-  hasConfiguredRules,
-} from 'tscanner-common';
+import { Severity } from 'tscanner-common';
 import type * as vscode from 'vscode';
 
+export type {
+  BuiltinRuleConfig,
+  ClearCacheParams,
+  CustomRuleConfig,
+  FileResult,
+  GetRulesMetadataParams,
+  Issue,
+  ModifiedLineRange,
+  RuleMetadata,
+  ScanContentParams,
+  ScanFileParams,
+  ScanParams,
+  ScanResult,
+  TscannerConfig,
+} from 'tscanner-common';
+
 export {
-  type BuiltinRuleConfig,
-  type ClearCacheParams,
-  type CustomRuleConfig,
-  type FileResult,
-  type GetRulesMetadataParams,
-  type Issue,
-  type ModifiedLineRange,
-  type RuleMetadata,
-  type ScanContentParams,
-  type ScanFileParams,
-  type ScanParams,
-  type ScanResult,
-  type TscannerConfig,
+  CustomRuleType,
+  GroupMode,
+  RuleCategory,
+  ScanMode,
+  Severity,
+  ViewMode,
   hasConfiguredRules,
-};
+} from 'tscanner-common';
 
 export type IssueResult = {
   uri: vscode.Uri;
@@ -40,7 +34,7 @@ export type IssueResult = {
   endColumn: number;
   text: string;
   rule: string;
-  severity: 'error' | 'warning';
+  severity: Severity;
   message: string;
 };
 
@@ -62,3 +56,16 @@ export type FileNode = {
   name: string;
   results: IssueResult[];
 };
+
+export function parseSeverity(severity: string): Severity {
+  return severity.toLowerCase() === 'error' ? Severity.Error : Severity.Warning;
+}
+
+export type SerializedIssueResult = Omit<IssueResult, 'uri'> & { uriString: string };
+
+export function serializeResults(results: IssueResult[]): SerializedIssueResult[] {
+  return results.map((r) => {
+    const { uri, ...rest } = r;
+    return { ...rest, uriString: uri.toString() };
+  });
+}

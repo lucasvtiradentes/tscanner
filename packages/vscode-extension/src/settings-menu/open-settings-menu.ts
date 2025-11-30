@@ -1,13 +1,12 @@
 import * as vscode from 'vscode';
-import { hasCustomConfig, hasGlobalConfig, hasLocalConfig } from '../common/lib/config-manager';
+import { getConfigState } from '../common/lib/config-manager';
+import type { CommandContext } from '../common/lib/extension-state';
 import {
   Command,
-  type ScanMode,
-  ToastKind,
+  type QuickPickItemWithId,
   executeCommand,
-  getCurrentWorkspaceFolder,
   registerCommand,
-  showToastMessage,
+  requireWorkspaceOrNull,
 } from '../common/lib/vscode-utils';
 import { logger } from '../common/utils/logger';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
@@ -21,39 +20,27 @@ enum SettingsMenuOption {
   OpenConfigFile = 'open-config-file',
 }
 
-type QuickPickItemWithId = {
-  id: string;
-} & vscode.QuickPickItem;
+export function createOpenSettingsMenuCommand(ctx: CommandContext, panelContent: IssuesPanelContent) {
+  const { context, stateRefs, updateBadge, updateStatusBar } = ctx;
+  const { currentScanModeRef, currentCompareBranchRef, currentCustomConfigDirRef } = stateRefs;
 
-export function createOpenSettingsMenuCommand(
-  updateStatusBar: () => Promise<void>,
-  updateBadge: () => void,
-  currentScanModeRef: { current: ScanMode },
-  currentCompareBranchRef: { current: string },
-  currentCustomConfigDirRef: { current: string | null },
-  context: vscode.ExtensionContext,
-  panelContent: IssuesPanelContent,
-) {
   return registerCommand(Command.OpenSettingsMenu, async () => {
     logger.info('openSettingsMenu command called');
 
-    const workspaceFolder = getCurrentWorkspaceFolder();
-    if (!workspaceFolder) {
-      showToastMessage(ToastKind.Error, 'No workspace folder open');
-      return;
-    }
+    const workspaceFolder = requireWorkspaceOrNull();
+    if (!workspaceFolder) return;
 
     const workspacePath = workspaceFolder.uri.fsPath;
     const customConfigDir = currentCustomConfigDirRef.current;
+    const configState = await getConfigState(context, workspacePath, customConfigDir);
+    const currentLocationLabel = getCurrentLocationLabel(
+      configState.hasCustom,
+      configState.hasLocal,
+      configState.hasGlobal,
+      customConfigDir,
+    );
 
-    const hasCustom = customConfigDir ? await hasCustomConfig(workspacePath, customConfigDir) : false;
-    const hasLocal = await hasLocalConfig(workspacePath);
-    const hasGlobal = await hasGlobalConfig(context, workspacePath);
-    const hasAnyConfig = hasCustom || hasLocal || hasGlobal;
-
-    const currentLocationLabel = getCurrentLocationLabel(hasCustom, hasLocal, hasGlobal, customConfigDir);
-
-    const mainMenuItems: QuickPickItemWithId[] = [
+    const mainMenuItems: QuickPickItemWithId<SettingsMenuOption>[] = [
       {
         id: SettingsMenuOption.ManageRules,
         label: '$(checklist) Manage Rules',
@@ -61,7 +48,7 @@ export function createOpenSettingsMenuCommand(
       },
     ];
 
-    if (hasAnyConfig) {
+    if (configState.hasAny) {
       mainMenuItems.push({
         id: SettingsMenuOption.ManageScanMode,
         label: '$(gear) Manage Scan Mode',
@@ -75,7 +62,7 @@ export function createOpenSettingsMenuCommand(
       detail: currentLocationLabel,
     });
 
-    if (hasAnyConfig) {
+    if (configState.hasAny) {
       mainMenuItems.push({
         id: SettingsMenuOption.OpenConfigFile,
         label: '$(edit) Open Config File',

@@ -132,7 +132,7 @@
       },
       {
         "command": "tscanner.refresh",
-        "title": "Scan Workspace",
+        "title": "Hard Scan (Clear Cache)",
         "icon": "$(refresh)"
       },
       {
@@ -186,6 +186,11 @@
         "command": "tscanner.copyFolderIssues",
         "title": "Copy Folder Issues",
         "icon": "$(copy)"
+      },
+      {
+        "command": "tscanner.copyAllIssues",
+        "title": "Copy All Issues",
+        "icon": "$(copy)"
       }
     ],
     "keybindings": [
@@ -203,18 +208,23 @@
     "menus": {
       "view/title": [
         {
+          "command": "tscanner.copyAllIssues",
+          "when": "view == tscannerExplorer",
+          "group": "navigation@5"
+        },
+        {
           "command": "tscanner.refresh",
           "when": "view == tscannerExplorer && !tscannerSearching",
-          "group": "navigation@10"
+          "group": "navigation@1"
         },
         {
           "command": "tscanner.cycleViewModeFileFlatView",
-          "when": "view == tscannerExplorer && tscannerViewMode == list && tscannerGroupMode == default",
+          "when": "view == tscannerExplorer && tscannerViewMode == list && tscannerGroupMode == file",
           "group": "navigation@20"
         },
         {
           "command": "tscanner.cycleViewModeFileTreeView",
-          "when": "view == tscannerExplorer && tscannerViewMode == tree && tscannerGroupMode == default",
+          "when": "view == tscannerExplorer && tscannerViewMode == tree && tscannerGroupMode == file",
           "group": "navigation@20"
         },
         {
@@ -251,12 +261,12 @@
         },
         {
           "command": "tscanner.copyFileIssues",
-          "when": "view == tscannerExplorer && viewItem == TscannerNodeFile && tscannerGroupMode == default",
+          "when": "view == tscannerExplorer && viewItem == TscannerNodeFile && tscannerGroupMode == file",
           "group": "inline"
         },
         {
           "command": "tscanner.copyFolderIssues",
-          "when": "view == tscannerExplorer && viewItem == TscannerNodeFolder && tscannerGroupMode == default",
+          "when": "view == tscannerExplorer && viewItem == TscannerNodeFolder && tscannerGroupMode == file",
           "group": "inline"
         }
       ],
@@ -307,6 +317,10 @@
         },
         {
           "command": "tscanner.copyFolderIssues",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.copyAllIssues",
           "when": "false"
         }
       ]

@@ -174,7 +174,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .unwrap()
         .parent()
         .unwrap()
-        .join("assets/cli.json");
+        .join("assets/generated/cli.json");
 
     fs::write(&output_path, &json)?;
 

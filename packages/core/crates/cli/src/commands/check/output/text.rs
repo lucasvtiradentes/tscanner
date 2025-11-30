@@ -1,9 +1,8 @@
-use super::OutputRenderer;
-use crate::commands::check::context::CheckContext;
-use crate::shared::SummaryStats;
-use cli::GroupMode;
+use super::renderer::OutputRenderer;
+use super::CheckContext;
+use crate::shared::{render_summary, SummaryStats};
 use colored::*;
-use core::types::{ScanResult, Severity};
+use core::{GroupMode, ScanResult, Severity};
 use std::collections::{HashMap, HashSet};
 
 pub struct TextRenderer;
@@ -15,8 +14,10 @@ impl OutputRenderer for TextRenderer {
             GroupMode::File => self.render_by_file(ctx, result),
         }
 
-        if ctx.cli_config.show_summary_at_footer {
-            self.render_summary(result, stats);
+        println!();
+
+        if ctx.cli_config.show_summary {
+            render_summary(result, stats);
         }
     }
 }
@@ -56,7 +57,7 @@ impl TextRenderer {
 
                 let mut parts: Vec<String> = Vec::new();
 
-                if ctx.cli_config.show_severity {
+                if ctx.cli_config.show_issue_severity {
                     let icon = match issue.severity {
                         Severity::Error => "✖".red().to_string(),
                         Severity::Warning => "⚠".yellow().to_string(),
@@ -66,13 +67,13 @@ impl TextRenderer {
 
                 parts.push(location.to_string());
 
-                if ctx.cli_config.show_description {
+                if ctx.cli_config.show_issue_description {
                     parts.push(issue.message.clone());
                 }
 
                 println!("  {}", parts.join(" "));
 
-                if ctx.cli_config.show_source_line {
+                if ctx.cli_config.show_issue_source_line {
                     if let Some(line_text) = &issue.line_text {
                         let trimmed = line_text.trim();
                         if !trimmed.is_empty() {
@@ -104,7 +105,7 @@ impl TextRenderer {
 
                 let mut parts: Vec<String> = Vec::new();
 
-                if ctx.cli_config.show_severity {
+                if ctx.cli_config.show_issue_severity {
                     let icon = match issue.severity {
                         Severity::Error => "✖".red().to_string(),
                         Severity::Warning => "⚠".yellow().to_string(),
@@ -114,19 +115,19 @@ impl TextRenderer {
 
                 parts.push(location.to_string());
 
-                if ctx.cli_config.show_rule_name && ctx.cli_config.show_description {
+                if ctx.cli_config.show_issue_rule_name && ctx.cli_config.show_issue_description {
                     let rule_name = issue.rule.cyan().to_string();
                     parts.push(format!("{} {}", rule_name, issue.message.dimmed()));
-                } else if ctx.cli_config.show_rule_name {
+                } else if ctx.cli_config.show_issue_rule_name {
                     let rule_name = issue.rule.cyan().to_string();
                     parts.push(rule_name);
-                } else if ctx.cli_config.show_description {
+                } else if ctx.cli_config.show_issue_description {
                     parts.push(issue.message.clone());
                 }
 
                 println!("  {}", parts.join(" "));
 
-                if ctx.cli_config.show_source_line {
+                if ctx.cli_config.show_issue_source_line {
                     if let Some(line_text) = &issue.line_text {
                         let trimmed = line_text.trim();
                         if !trimmed.is_empty() {
@@ -136,26 +137,5 @@ impl TextRenderer {
                 }
             }
         }
-    }
-
-    fn render_summary(&self, result: &ScanResult, stats: &SummaryStats) {
-        println!();
-        println!(
-            "{} {} ({} errors, {} warnings)",
-            "Issues:".dimmed(),
-            stats.total_issues.to_string().cyan(),
-            stats.error_count.to_string().red(),
-            stats.warning_count.to_string().yellow()
-        );
-        println!(
-            "{} {} ({} cached, {} scanned)",
-            "Files:".dimmed(),
-            result.total_files,
-            result.cached_files.to_string().green(),
-            result.scanned_files.to_string().yellow()
-        );
-        println!("{} {}", "Rules:".dimmed(), stats.unique_rules_count);
-        println!("{} {}ms", "Duration:".dimmed(), result.duration_ms);
-        println!();
     }
 }

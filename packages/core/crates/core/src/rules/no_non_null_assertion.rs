@@ -1,6 +1,6 @@
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
@@ -11,7 +11,7 @@ pub struct NoNonNullAssertionRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-non-null-assertion",
-    factory: || Arc::new(NoNonNullAssertionRule),
+    factory: |_| Arc::new(NoNonNullAssertionRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -26,6 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-non-null-assertion"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-non-null-assertion"),
+        allowed_options: &[],
     }
 });
 
@@ -43,7 +44,7 @@ impl Rule for NoNonNullAssertionRule {
         program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let mut visitor = NonNullAssertionVisitor {
             issues: Vec::new(),

@@ -1,15 +1,14 @@
 import type * as vscode from 'vscode';
-import type { RustClient } from '../common/lib/rust-client';
-import type { ScanMode } from '../common/lib/vscode-utils';
+import { setCopyRustClient, setCopyScanContext } from '../common/lib/copy-utils';
+import type { CommandContext } from '../common/lib/extension-state';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
 import { createManageRulesCommand, createOpenSettingsMenuCommand } from '../settings-menu';
+import { createCopyAllIssuesCommand } from './internal/copy-all';
 import {
   createCopyFileIssuesCommand,
   createCopyFolderIssuesCommand,
   createCopyRuleIssuesCommand,
-  setCopyRustClient,
-  setCopyScanContext,
-} from './internal/copy';
+} from './internal/copy-items';
 import { createOpenFileCommand } from './internal/navigation';
 import { createRefreshCommand } from './internal/refresh';
 import {
@@ -23,58 +22,35 @@ import { createGoToNextIssueCommand, createGoToPreviousIssueCommand, resetIssueI
 import { createScanWorkspaceCommand } from './public/scan-workspace';
 import { createShowLogsCommand } from './public/show-logs';
 
-export type CommandContext = {
-  panelContent: IssuesPanelContent;
-  context: vscode.ExtensionContext;
-  treeView: vscode.TreeView<any>;
-  updateBadge: () => void;
-  updateStatusBar: () => Promise<void>;
-  isSearchingRef: { current: boolean };
-  currentScanModeRef: { current: ScanMode };
-  currentCompareBranchRef: { current: string };
-  currentCustomConfigDirRef: { current: string | null };
-  getRustClient: () => RustClient | null;
-};
+export function registerAllCommands(ctx: CommandContext, panelContent: IssuesPanelContent): vscode.Disposable[] {
+  const { context, stateRefs, updateBadge, updateStatusBar, getRustClient } = ctx;
 
-export function registerAllCommands(ctx: CommandContext): vscode.Disposable[] {
-  setCopyRustClient(ctx.getRustClient);
-  setCopyScanContext(ctx.currentScanModeRef.current, ctx.currentCompareBranchRef.current);
+  setCopyRustClient(getRustClient);
+  setCopyScanContext(stateRefs.currentScanModeRef.current, stateRefs.currentCompareBranchRef.current);
+
+  void updateBadge;
 
   return [
-    createScanWorkspaceCommand(
-      ctx.panelContent,
-      ctx.context,
-      ctx.treeView,
-      ctx.updateBadge,
-      ctx.updateStatusBar,
-      ctx.isSearchingRef,
-      ctx.currentScanModeRef,
-      ctx.currentCompareBranchRef,
-      ctx.currentCustomConfigDirRef,
-    ),
-    createHardScanCommand(ctx.isSearchingRef),
-    createGoToNextIssueCommand(ctx.panelContent),
-    createGoToPreviousIssueCommand(ctx.panelContent),
+    createScanWorkspaceCommand(ctx, panelContent),
+    createHardScanCommand(stateRefs.isSearchingRef),
+    createGoToNextIssueCommand(panelContent),
+    createGoToPreviousIssueCommand(panelContent),
     createShowLogsCommand(),
     createRefreshCommand(),
-    createManageRulesCommand(ctx.updateStatusBar, ctx.context, ctx.currentCustomConfigDirRef),
-    createOpenSettingsMenuCommand(
-      ctx.updateStatusBar,
-      ctx.updateBadge,
-      ctx.currentScanModeRef,
-      ctx.currentCompareBranchRef,
-      ctx.currentCustomConfigDirRef,
-      ctx.context,
-      ctx.panelContent,
-    ),
-    createCycleViewModeFileFlatViewCommand(ctx.panelContent, ctx.context),
-    createCycleViewModeFileTreeViewCommand(ctx.panelContent, ctx.context),
-    createCycleViewModeRuleFlatViewCommand(ctx.panelContent, ctx.context),
-    createCycleViewModeRuleTreeViewCommand(ctx.panelContent, ctx.context),
+    createManageRulesCommand(updateStatusBar, context, stateRefs.currentCustomConfigDirRef),
+    createOpenSettingsMenuCommand(ctx, panelContent),
+    createCycleViewModeFileFlatViewCommand(panelContent, context),
+    createCycleViewModeFileTreeViewCommand(panelContent, context),
+    createCycleViewModeRuleFlatViewCommand(panelContent, context),
+    createCycleViewModeRuleTreeViewCommand(panelContent, context),
     createOpenFileCommand(),
     createCopyRuleIssuesCommand(),
     createCopyFileIssuesCommand(),
     createCopyFolderIssuesCommand(),
+    createCopyAllIssuesCommand(
+      () => panelContent.getResults(),
+      () => panelContent.groupMode,
+    ),
   ];
 }
 

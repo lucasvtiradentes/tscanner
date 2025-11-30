@@ -8,10 +8,14 @@ mod config_loader;
 mod shared;
 
 use cli::{Cli, Commands};
-use commands::{cmd_check, cmd_init, cmd_rules};
+use commands::{cmd_check, cmd_config, cmd_init};
 use core::init_logger;
 
 fn main() -> Result<()> {
+    if std::env::var("TSCANNER").map(|v| v == "0").unwrap_or(false) {
+        return Ok(());
+    }
+
     init_logger("rust_cli        ");
 
     let cli = Cli::parse();
@@ -27,7 +31,7 @@ fn main() -> Result<()> {
             glob,
             rule,
             continue_on_error,
-            config,
+            config_path,
         }) => {
             let paths = if paths.is_empty() {
                 vec![PathBuf::from(".")]
@@ -38,16 +42,27 @@ fn main() -> Result<()> {
                 &paths,
                 no_cache,
                 group_by,
-                format,
+                Some(format),
                 branch,
                 staged,
                 glob,
                 rule,
                 continue_on_error,
-                config,
+                Some(config_path),
             )
         }
-        Some(Commands::Rules { config }) => cmd_rules(&PathBuf::from("."), config),
+        Some(Commands::Config {
+            rules,
+            validate,
+            show,
+            config_path,
+        }) => cmd_config(
+            &PathBuf::from("."),
+            rules,
+            validate,
+            show,
+            Some(config_path),
+        ),
         Some(Commands::Init { all_rules }) => cmd_init(&PathBuf::from("."), all_rules),
         None => {
             Cli::parse_from(["tscanner", "--help"]);

@@ -1,6 +1,6 @@
+use super::common::{create_scanner, error_response, load_config_from_workspace, success_response};
 use crate::protocol::{Response, ScanFileParams};
 use crate::state::ServerState;
-use core::{Scanner, TscannerConfig};
 
 pub fn handle_scan_file(
     request_id: u64,
@@ -9,26 +9,14 @@ pub fn handle_scan_file(
 ) -> Response {
     core::log_debug(&format!("Scanning single file: {:?}", params.file));
 
-    let config = match TscannerConfig::load_from_workspace(&params.root) {
+    let config = match load_config_from_workspace(&params.root) {
         Ok(c) => c,
-        Err(e) => {
-            return Response {
-                id: request_id,
-                result: None,
-                error: Some(e.to_string()),
-            };
-        }
+        Err(e) => return error_response(request_id, e),
     };
 
-    let scanner = match Scanner::with_cache(config, state.cache.clone(), params.root.clone()) {
+    let scanner = match create_scanner(config, state.cache.clone(), &params.root) {
         Ok(s) => s,
-        Err(e) => {
-            return Response {
-                id: request_id,
-                result: None,
-                error: Some(format!("Failed to create scanner: {}", e)),
-            }
-        }
+        Err(e) => return error_response(request_id, e),
     };
 
     state.scanner = Some(scanner);
@@ -38,15 +26,16 @@ pub fn handle_scan_file(
         .as_ref()
         .and_then(|s| s.scan_single(&params.file))
     {
-        Some(result) => Response {
-            id: request_id,
-            result: Some(serde_json::to_value(&result).unwrap()),
-            error: None,
+        Some(result) => match serde_json::to_value(&result) {
+            Ok(value) => success_response(request_id, value),
+            Err(e) => error_response(
+                request_id,
+                format!("Failed to serialize scan results: {}", e),
+            ),
         },
-        None => Response {
-            id: request_id,
-            result: Some(serde_json::json!({"file": params.file, "issues": []})),
-            error: None,
-        },
+        None => success_response(
+            request_id,
+            serde_json::json!({"file": params.file, "issues": []}),
+        ),
     }
 }

@@ -1,6 +1,6 @@
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use crate::utils::get_span_positions;
 use std::collections::HashSet;
 use std::path::Path;
@@ -13,7 +13,7 @@ pub struct NoFloatingPromisesRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-floating-promises",
-    factory: || Arc::new(NoFloatingPromisesRule),
+    factory: |_| Arc::new(NoFloatingPromisesRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -28,6 +28,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-floating-promises"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-floating-promises"),
+        allowed_options: &[],
     }
 });
 
@@ -78,7 +79,7 @@ impl Rule for NoFloatingPromisesRule {
         program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let async_functions = collect_async_functions(program);
 

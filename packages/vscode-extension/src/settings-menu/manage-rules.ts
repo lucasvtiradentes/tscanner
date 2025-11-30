@@ -1,10 +1,10 @@
+import { CustomRuleType, RuleCategory } from 'tscanner-common';
 import * as vscode from 'vscode';
+import { CONFIG_DIR_NAME } from '../common/constants';
 import {
   type TscannerConfig,
+  getConfigState,
   getDefaultConfig,
-  hasCustomConfig,
-  hasGlobalConfig,
-  hasLocalConfig,
   loadEffectiveConfig,
   saveCustomConfig,
   saveGlobalConfig,
@@ -16,8 +16,8 @@ import {
   Command,
   ToastKind,
   executeCommand,
-  getCurrentWorkspaceFolder,
   registerCommand,
+  requireWorkspaceOrNull,
   showToastMessage,
 } from '../common/lib/vscode-utils';
 import { logger } from '../common/utils/logger';
@@ -29,17 +29,55 @@ type RuleQuickPickItem = vscode.QuickPickItem & {
   isCustom: boolean;
 };
 
+const CUSTOM_RULE_TYPE_CONFIG: Record<CustomRuleType, { icon: string; detailKey: 'pattern' | 'script' | 'prompt' }> = {
+  [CustomRuleType.Regex]: { icon: '$(regex)', detailKey: 'pattern' },
+  [CustomRuleType.Script]: { icon: '$(file-code)', detailKey: 'script' },
+  [CustomRuleType.Ai]: { icon: '$(sparkle)', detailKey: 'prompt' },
+};
+
+const CATEGORY_ICONS: Record<RuleCategory, string> = {
+  [RuleCategory.TypeSafety]: 'shield',
+  [RuleCategory.CodeQuality]: 'beaker',
+  [RuleCategory.Style]: 'symbol-color',
+  [RuleCategory.Performance]: 'dashboard',
+};
+
+const CATEGORY_LABELS: Record<RuleCategory, string> = {
+  [RuleCategory.TypeSafety]: 'Type Safety',
+  [RuleCategory.CodeQuality]: 'Code Quality',
+  [RuleCategory.Style]: 'Style',
+  [RuleCategory.Performance]: 'Performance',
+};
+
+const CATEGORY_ORDER: RuleCategory[] = [
+  RuleCategory.TypeSafety,
+  RuleCategory.CodeQuality,
+  RuleCategory.Style,
+  RuleCategory.Performance,
+];
+
 function getCategoryIcon(category: string): string {
-  const icons: Record<string, string> = {
-    typesafety: 'shield',
-    variables: 'symbol-variable',
-    imports: 'package',
-    codequality: 'beaker',
-    bugprevention: 'bug',
-    style: 'symbol-color',
-    performance: 'dashboard',
-  };
-  return icons[category] || 'circle-outline';
+  return CATEGORY_ICONS[category as RuleCategory] || 'circle-outline';
+}
+
+function buildCustomRuleItems(existingConfig: TscannerConfig): RuleQuickPickItem[] {
+  const customRules: RuleQuickPickItem[] = [];
+
+  if (existingConfig?.customRules) {
+    for (const [ruleName, ruleConfig] of Object.entries(existingConfig.customRules)) {
+      const typeInfo = CUSTOM_RULE_TYPE_CONFIG[ruleConfig.type as CustomRuleType];
+      customRules.push({
+        label: `${typeInfo.icon} ${ruleName}`,
+        description: `[${ruleConfig.type.toUpperCase()}] custom`,
+        detail: ruleConfig.message || ruleConfig[typeInfo.detailKey] || '',
+        ruleName,
+        picked: ruleConfig.enabled ?? true,
+        isCustom: true,
+      });
+    }
+  }
+
+  return customRules;
 }
 
 export function createManageRulesCommand(
@@ -48,11 +86,8 @@ export function createManageRulesCommand(
   currentCustomConfigDirRef: { current: string | null },
 ) {
   return registerCommand(Command.ManageRules, async () => {
-    const workspaceFolder = getCurrentWorkspaceFolder();
-    if (!workspaceFolder) {
-      showToastMessage(ToastKind.Error, 'No workspace folder open');
-      return;
-    }
+    const workspaceFolder = requireWorkspaceOrNull();
+    if (!workspaceFolder) return;
 
     const workspacePath = workspaceFolder.uri.fsPath;
     const customConfigDir = currentCustomConfigDirRef.current;
@@ -73,28 +108,7 @@ export function createManageRulesCommand(
       const existingConfig = (await loadEffectiveConfig(context, workspacePath, customConfigDir)) || getDefaultConfig();
       logger.info(`Loaded config with ${Object.keys(existingConfig.builtinRules || {}).length} builtin rules`);
 
-      const customRuleTypeMap = {
-        regex: { icon: '$(regex)', detailKey: 'pattern' as const },
-        script: { icon: '$(file-code)', detailKey: 'script' as const },
-        ai: { icon: '$(sparkle)', detailKey: 'prompt' as const },
-      };
-
-      const customRules: RuleQuickPickItem[] = [];
-
-      if (existingConfig?.customRules) {
-        for (const [ruleName, ruleConfig] of Object.entries(existingConfig.customRules)) {
-          const typeInfo = customRuleTypeMap[ruleConfig.type];
-          customRules.push({
-            label: `${typeInfo.icon} ${ruleName}`,
-            description: `[${ruleConfig.type.toUpperCase()}] custom`,
-            detail: ruleConfig.message || ruleConfig[typeInfo.detailKey] || '',
-            ruleName,
-            picked: ruleConfig.enabled ?? true,
-            isCustom: true,
-          });
-        }
-      }
-
+      const customRules = buildCustomRuleItems(existingConfig);
       const rulesByCategory = new Map<string, RuleQuickPickItem[]>();
 
       for (const rule of rules) {
@@ -117,36 +131,17 @@ export function createManageRulesCommand(
         rulesByCategory.get(category)?.push(ruleItem);
       }
 
-      const categoryOrder = [
-        'typesafety',
-        'variables',
-        'imports',
-        'codequality',
-        'bugprevention',
-        'style',
-        'performance',
-      ];
-      const categoryLabels: Record<string, string> = {
-        typesafety: 'Type Safety',
-        variables: 'Variables',
-        imports: 'Imports',
-        codequality: 'Code Quality',
-        bugprevention: 'Bug Prevention',
-        style: 'Style',
-        performance: 'Performance',
-      };
-
       const items: RuleQuickPickItem[] = [
         ...(customRules.length > 0
           ? [{ label: 'Custom Rules', kind: vscode.QuickPickItemKind.Separator } as any, ...customRules]
           : []),
       ];
 
-      for (const category of categoryOrder) {
+      for (const category of CATEGORY_ORDER) {
         const categoryRules = rulesByCategory.get(category);
         if (categoryRules && categoryRules.length > 0) {
           items.push(
-            { label: categoryLabels[category], kind: vscode.QuickPickItemKind.Separator } as any,
+            { label: CATEGORY_LABELS[category], kind: vscode.QuickPickItemKind.Separator } as any,
             ...categoryRules,
           );
         }
@@ -208,21 +203,18 @@ export function createManageRulesCommand(
         }
       }
 
-      const hasCustom = customConfigDir ? await hasCustomConfig(workspacePath, customConfigDir) : false;
-      const hasLocal = await hasLocalConfig(workspacePath);
-      const hasGlobal = await hasGlobalConfig(context, workspacePath);
-      const hasAnyConfig = hasCustom || hasLocal || hasGlobal;
+      const configState = await getConfigState(context, workspacePath, customConfigDir);
 
-      if (hasAnyConfig) {
-        if (hasCustom && customConfigDir) {
+      if (configState.hasAny) {
+        if (configState.hasCustom && customConfigDir) {
           await saveCustomConfig(workspacePath, customConfigDir, config);
           logger.info(`Updated custom config at ${customConfigDir}`);
           showToastMessage(ToastKind.Info, `Rules saved to ${customConfigDir}`);
-        } else if (hasLocal) {
+        } else if (configState.hasLocal) {
           await saveLocalConfig(workspacePath, config);
-          logger.info('Updated local .tscanner config');
-          showToastMessage(ToastKind.Info, 'Rules saved to .tscanner');
-        } else if (hasGlobal) {
+          logger.info(`Updated local ${CONFIG_DIR_NAME} config`);
+          showToastMessage(ToastKind.Info, `Rules saved to ${CONFIG_DIR_NAME}`);
+        } else if (configState.hasGlobal) {
           await saveGlobalConfig(context, workspacePath, config);
           logger.info('Updated global config (extension storage)');
           showToastMessage(ToastKind.Info, 'Rules saved to extension storage');
@@ -243,8 +235,8 @@ export function createManageRulesCommand(
             break;
           case ConfigLocation.ProjectFolder:
             await saveLocalConfig(workspacePath, config);
-            logger.info('Saved to local .tscanner config');
-            showToastMessage(ToastKind.Info, 'Rules saved to .tscanner');
+            logger.info(`Saved to local ${CONFIG_DIR_NAME} config`);
+            showToastMessage(ToastKind.Info, `Rules saved to ${CONFIG_DIR_NAME}`);
             break;
           case ConfigLocation.CustomPath:
             if (locationResult.customPath) {

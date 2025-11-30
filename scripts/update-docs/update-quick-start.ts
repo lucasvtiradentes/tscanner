@@ -1,6 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, PACKAGE_NAME } from 'tscanner-common';
 
 type TFields = 'QUICK_START_CLI' | 'QUICK_START_VSCODE_EXTENSION' | 'QUICK_START_GITHUB_ACTION';
 
@@ -35,7 +36,7 @@ jobs:
 
 ${quickStartGithubActionYaml}
 
-2. Add TScanner config to your repo (run \`tscanner init\` or create \`.tscanner/config.jsonc\`)
+2. Add TScanner config to your repo (run \`${PACKAGE_NAME} init\` or create \`${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}\`)
 3. Open a PR and watch the magic happen!`;
 
   return quickStartGithubAction;
@@ -45,23 +46,23 @@ function getCliSection() {
   const quickStartContentCli = `1. Install globally
 
 \`\`\`bash
-npm install -g tscanner
+npm install -g ${PACKAGE_NAME}
 \`\`\`
 
 2. Initialize configuration
 
 \`\`\`bash
-tscanner init
+${PACKAGE_NAME} init
 \`\`\`
 
 3. Use it
 
 \`\`\`bash
 # Scan workspace
-tscanner check
+${PACKAGE_NAME} check
 
 # Scan only changed files vs branch
-tscanner check --branch origin/main
+${PACKAGE_NAME} check --branch origin/main
 \`\`\``;
 
   return quickStartContentCli;

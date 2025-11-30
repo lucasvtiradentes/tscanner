@@ -1,5 +1,6 @@
+import { GroupMode, ViewMode } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { GroupMode, ViewMode, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
+import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import { type IssueResult, NodeKind } from '../common/types';
 import { logger } from '../common/utils/logger';
 import { buildFolderTree } from './utils/tree-builder';
@@ -10,7 +11,7 @@ type PanelContentItem = RuleGroupItem | FolderResultItem | FileResultItem | Line
 export class IssuesPanelContent implements vscode.TreeDataProvider<PanelContentItem> {
   private results: IssueResult[] = [];
   private _viewMode: ViewMode = ViewMode.List;
-  private _groupMode: GroupMode = GroupMode.Default;
+  private _groupMode: GroupMode = GroupMode.File;
 
   private _onDidChangeTreeData = new vscode.EventEmitter<PanelContentItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
@@ -60,13 +61,41 @@ export class IssuesPanelContent implements vscode.TreeDataProvider<PanelContentI
     return grouped;
   }
 
+  private groupByFile(results: IssueResult[]): Map<string, IssueResult[]> {
+    const grouped = new Map<string, IssueResult[]>();
+
+    for (const result of results) {
+      const filePath = result.uri.fsPath;
+      if (!grouped.has(filePath)) {
+        grouped.set(filePath, []);
+      }
+      grouped.get(filePath)?.push(result);
+    }
+
+    return grouped;
+  }
+
+  private buildTreeItems(results: IssueResult[]): PanelContentItem[] {
+    const workspaceRoot = getCurrentWorkspaceFolder()?.uri.fsPath || '';
+    const tree = buildFolderTree(results, workspaceRoot);
+
+    const items: PanelContentItem[] = [];
+    for (const [, node] of tree) {
+      if (node.type === NodeKind.Folder) {
+        items.push(new FolderResultItem(node));
+      } else {
+        items.push(new FileResultItem(node.path, node.results));
+      }
+    }
+    return items;
+  }
+
   getAllFolderItems(): FolderResultItem[] {
     if (this._viewMode !== ViewMode.Tree) {
       return [];
     }
 
     const workspaceRoot = getCurrentWorkspaceFolder()?.uri.fsPath || '';
-
     const tree = buildFolderTree(this.results, workspaceRoot);
     const folders: FolderResultItem[] = [];
 
@@ -92,73 +121,67 @@ export class IssuesPanelContent implements vscode.TreeDataProvider<PanelContentI
     return element;
   }
 
+  private getRootChildren(): PanelContentItem[] {
+    if (this._groupMode === GroupMode.Rule) {
+      const grouped = this.groupByRule();
+      const sortedEntries = Array.from(grouped.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+      return sortedEntries.map(([rule, results]) => new RuleGroupItem(rule, results, this._viewMode));
+    }
+
+    if (this._viewMode === ViewMode.List) {
+      const grouped = this.groupByFile(this.results);
+      const sortedEntries = Array.from(grouped.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+      return sortedEntries.map(([path, results]) => new FileResultItem(path, results));
+    }
+
+    return this.buildTreeItems(this.results);
+  }
+
+  private getRuleGroupChildren(element: RuleGroupItem): PanelContentItem[] {
+    if (element.viewMode === ViewMode.List) {
+      const sortedResults = [...element.results].sort((a, b) => {
+        const pathCompare = a.uri.fsPath.localeCompare(b.uri.fsPath);
+        if (pathCompare !== 0) return pathCompare;
+        return a.line - b.line;
+      });
+      return sortedResults.map((r) => new LineResultItem(r));
+    }
+
+    return this.buildTreeItems(element.results);
+  }
+
+  private getFolderChildren(element: FolderResultItem): PanelContentItem[] {
+    const items: PanelContentItem[] = [];
+    for (const [, node] of element.node.children) {
+      if (node.type === NodeKind.Folder) {
+        items.push(new FolderResultItem(node));
+      } else {
+        items.push(new FileResultItem(node.path, node.results));
+      }
+    }
+    return items;
+  }
+
+  private getFileChildren(element: FileResultItem): PanelContentItem[] {
+    const sortedResults = [...element.results].sort((a, b) => a.line - b.line);
+    return sortedResults.map((r) => new LineResultItem(r));
+  }
+
   getChildren(element?: PanelContentItem): Thenable<PanelContentItem[]> {
     if (!element) {
-      if (this._groupMode === GroupMode.Rule) {
-        const grouped = this.groupByRule();
-        return Promise.resolve(
-          Array.from(grouped.entries()).map(([rule, results]) => new RuleGroupItem(rule, results, this._viewMode)),
-        );
-      }
-
-      if (this._viewMode === ViewMode.List) {
-        const grouped = new Map<string, IssueResult[]>();
-        for (const result of this.results) {
-          const filePath = result.uri.fsPath;
-          if (!grouped.has(filePath)) {
-            grouped.set(filePath, []);
-          }
-          grouped.get(filePath)?.push(result);
-        }
-
-        return Promise.resolve(
-          Array.from(grouped.entries()).map(([path, results]) => new FileResultItem(path, results)),
-        );
-      }
-
-      const workspaceRoot = getCurrentWorkspaceFolder()?.uri.fsPath || '';
-      const tree = buildFolderTree(this.results, workspaceRoot);
-
-      const items: PanelContentItem[] = [];
-      for (const [, node] of tree) {
-        if (node.type === NodeKind.Folder) {
-          items.push(new FolderResultItem(node));
-        } else {
-          items.push(new FileResultItem(node.path, node.results));
-        }
-      }
-      return Promise.resolve(items);
+      return Promise.resolve(this.getRootChildren());
     }
+
     if (element instanceof RuleGroupItem) {
-      if (element.viewMode === ViewMode.List) {
-        return Promise.resolve(element.results.map((r) => new LineResultItem(r)));
-      }
-      const workspaceRoot = getCurrentWorkspaceFolder()?.uri.fsPath || '';
-      const tree = buildFolderTree(element.results, workspaceRoot);
+      return Promise.resolve(this.getRuleGroupChildren(element));
+    }
 
-      const items: PanelContentItem[] = [];
-      for (const [, node] of tree) {
-        if (node.type === NodeKind.Folder) {
-          items.push(new FolderResultItem(node));
-        } else {
-          items.push(new FileResultItem(node.path, node.results));
-        }
-      }
-      return Promise.resolve(items);
-    }
     if (element instanceof FolderResultItem) {
-      const items: PanelContentItem[] = [];
-      for (const [, node] of element.node.children) {
-        if (node.type === NodeKind.Folder) {
-          items.push(new FolderResultItem(node));
-        } else {
-          items.push(new FileResultItem(node.path, node.results));
-        }
-      }
-      return Promise.resolve(items);
+      return Promise.resolve(this.getFolderChildren(element));
     }
+
     if (element instanceof FileResultItem) {
-      return Promise.resolve(element.results.map((r) => new LineResultItem(r)));
+      return Promise.resolve(this.getFileChildren(element));
     }
 
     return Promise.resolve([]);

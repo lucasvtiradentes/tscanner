@@ -1,6 +1,6 @@
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use crate::utils::get_span_positions;
 use std::collections::HashSet;
 use std::path::Path;
@@ -13,7 +13,7 @@ pub struct NoShadowRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-shadow",
-    factory: || Arc::new(NoShadowRule),
+    factory: |_| Arc::new(NoShadowRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -28,6 +28,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-shadow"),
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 
@@ -41,7 +42,7 @@ impl Rule for NoShadowRule {
         program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let mut visitor = ShadowVisitor {
             issues: Vec::new(),
@@ -70,8 +71,8 @@ impl<'a> ShadowVisitor<'a> {
         self.scope_stack.pop();
     }
 
-    fn current_scope(&mut self) -> &mut HashSet<String> {
-        self.scope_stack.last_mut().unwrap()
+    fn current_scope(&mut self) -> Option<&mut HashSet<String>> {
+        self.scope_stack.last_mut()
     }
 
     fn is_shadowing(&self, name: &str) -> bool {
@@ -102,7 +103,9 @@ impl<'a> ShadowVisitor<'a> {
                 line_text: None,
             });
         }
-        self.current_scope().insert(name);
+        if let Some(scope) = self.current_scope() {
+            scope.insert(name);
+        }
     }
 
     fn add_param(&mut self, pat: &Pat) {

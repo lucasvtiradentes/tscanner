@@ -1,13 +1,13 @@
-use base64::Engine;
-use flate2::write::GzEncoder;
-use flate2::Compression;
+use serde::de::DeserializeOwned;
 use std::io::{self, BufRead, Write};
 
+mod compression;
 mod handlers;
-mod lsp_server;
+mod lsp;
 mod protocol;
 mod state;
 
+use compression::send_compressed_response;
 use handlers::*;
 use protocol::*;
 use state::ServerState;
@@ -19,7 +19,7 @@ fn main() {
 
     if args.len() > 1 && args[1] == "--lsp" {
         core::log_info("Starting in LSP mode");
-        if let Err(e) = lsp_server::run_lsp_server() {
+        if let Err(e) = lsp::run_lsp_server() {
             core::log_error(&format!("LSP server error: {}", e));
             std::process::exit(1);
         }
@@ -54,145 +54,73 @@ fn main() {
         };
 
         let response = handle_request(request, &mut state);
-        send_response(&mut stdout, response);
+        send_compressed_response(&mut stdout, response);
 
         process_file_events(&state, &mut stdout);
     }
 }
 
+fn parse_params<T: DeserializeOwned>(id: u64, params: serde_json::Value) -> Result<T, Response> {
+    serde_json::from_value(params).map_err(|e| Response {
+        id,
+        result: None,
+        error: Some(format!("Invalid params: {}", e)),
+    })
+}
+
 fn handle_request(request: Request, state: &mut ServerState) -> Response {
+    let id = request.id;
     match request.method.as_str() {
-        "scan" => match serde_json::from_value(request.params) {
-            Ok(params) => handle_scan(request.id, params, state),
-            Err(e) => Response {
-                id: request.id,
-                result: None,
-                error: Some(format!("Invalid params: {}", e)),
-            },
-        },
-        "watch" => match serde_json::from_value(request.params) {
-            Ok(params) => handle_watch(request.id, params, state),
-            Err(e) => Response {
-                id: request.id,
-                result: None,
-                error: Some(format!("Invalid params: {}", e)),
-            },
-        },
-        "scanFile" => match serde_json::from_value(request.params) {
-            Ok(params) => handle_scan_file(request.id, params, state),
-            Err(e) => Response {
-                id: request.id,
-                result: None,
-                error: Some(format!("Invalid params: {}", e)),
-            },
-        },
-        "getRulesMetadata" => handle_get_rules_metadata(request.id),
-        "scanContent" => match serde_json::from_value(request.params) {
-            Ok(params) => handle_scan_content(request.id, params, state),
-            Err(e) => Response {
-                id: request.id,
-                result: None,
-                error: Some(format!("Invalid params: {}", e)),
-            },
-        },
-        "formatResults" => match serde_json::from_value(request.params) {
-            Ok(params) => handle_format_results(request.id, params),
-            Err(e) => Response {
-                id: request.id,
-                result: None,
-                error: Some(format!("Invalid params: {}", e)),
-            },
-        },
-        "clearCache" => handle_clear_cache(request.id, state),
+        "scan" => {
+            parse_params(id, request.params).map_or_else(|e| e, |p| handle_scan(id, p, state))
+        }
+        "watch" => {
+            parse_params(id, request.params).map_or_else(|e| e, |p| handle_watch(id, p, state))
+        }
+        "scanFile" => {
+            parse_params(id, request.params).map_or_else(|e| e, |p| handle_scan_file(id, p, state))
+        }
+        "scanContent" => parse_params(id, request.params)
+            .map_or_else(|e| e, |p| handle_scan_content(id, p, state)),
+        "formatResults" => {
+            parse_params(id, request.params).map_or_else(|e| e, |p| handle_format_results(id, p))
+        }
+        "getRulesMetadata" => handle_get_rules_metadata(id),
+        "clearCache" => handle_clear_cache(id, state),
         _ => Response {
-            id: request.id,
+            id,
             result: None,
             error: Some(format!("Unknown method: {}", request.method)),
         },
     }
 }
 
-fn send_response(stdout: &mut io::Stdout, response: Response) {
-    let serialize_start = std::time::Instant::now();
-    if let Ok(json) = serde_json::to_string(&response) {
-        let serialize_time = serialize_start.elapsed();
-        let original_size = json.len();
-
-        let compress_start = std::time::Instant::now();
-        let mut encoder = GzEncoder::new(Vec::new(), Compression::fast());
-        if let Err(e) = encoder.write_all(json.as_bytes()) {
-            core::log_error(&format!("Failed to compress: {}", e));
-        } else if let Ok(compressed) = encoder.finish() {
-            let compress_time = compress_start.elapsed();
-            let compressed_size = compressed.len();
-
-            if serialize_time.as_millis() > 50 || compress_time.as_millis() > 50 {
-                core::log_debug(&format!(
-                    "Serialization took {}ms ({}KB), compression took {}ms ({}KB → {}KB, {:.1}%)",
-                    serialize_time.as_millis(),
-                    original_size / 1024,
-                    compress_time.as_millis(),
-                    original_size / 1024,
-                    compressed_size / 1024,
-                    (compressed_size as f64 / original_size as f64) * 100.0
-                ));
-            }
-
-            let write_start = std::time::Instant::now();
-            if let Err(e) = stdout.write_all(b"GZIP:") {
-                core::log_error(&format!("Failed to write marker: {}", e));
-            } else {
-                let encoded = base64::engine::general_purpose::STANDARD.encode(&compressed);
-                if let Err(e) = stdout.write_all(encoded.as_bytes()) {
-                    core::log_error(&format!("Failed to write compressed data: {}", e));
-                }
-                if let Err(e) = stdout.write_all(b"\n") {
-                    core::log_error(&format!("Failed to write newline: {}", e));
-                }
-            }
-            let write_time = write_start.elapsed();
-
-            let flush_start = std::time::Instant::now();
-            if let Err(e) = stdout.flush() {
-                core::log_error(&format!("Failed to flush stdout: {}", e));
-            }
-            let flush_time = flush_start.elapsed();
-
-            if write_time.as_millis() > 50 || flush_time.as_millis() > 50 {
-                core::log_debug(&format!(
-                    "Write took {}ms, flush took {}ms",
-                    write_time.as_millis(),
-                    flush_time.as_millis()
-                ));
-            }
-        }
-    }
-}
-
 fn process_file_events(state: &ServerState, stdout: &mut io::Stdout) {
-    if let Some(watcher) = &state.watcher {
-        while let Some(event) = watcher.try_recv() {
-            core::log_debug(&format!("File event: {:?}", event));
+    let Some(watcher) = &state.watcher else {
+        return;
+    };
 
-            use core::watcher::FileEvent;
-            match event {
-                FileEvent::Modified(path) | FileEvent::Created(path) => {
-                    if let Some(scanner) = &state.scanner {
-                        if let Some(result) = scanner.scan_single(&path) {
-                            let notification = Notification {
-                                method: "file_updated".to_string(),
-                                params: serde_json::to_value(&result).unwrap(),
-                            };
-                            if let Ok(json) = serde_json::to_string(&notification) {
-                                let _ = writeln!(stdout, "{}", json);
-                                let _ = stdout.flush();
-                            }
+    while let Some(event) = watcher.try_recv() {
+        core::log_debug(&format!("File event: {:?}", event));
+
+        use core::FileEvent;
+        match event {
+            FileEvent::Modified(path) | FileEvent::Created(path) => {
+                if let Some(scanner) = &state.scanner {
+                    if let Some(result) = scanner.scan_single(&path) {
+                        let notification = Notification {
+                            method: "file_updated".to_string(),
+                            params: serde_json::to_value(&result).unwrap(),
+                        };
+                        if let Ok(json) = serde_json::to_string(&notification) {
+                            let _ = writeln!(stdout, "{}", json);
+                            let _ = stdout.flush();
                         }
                     }
                 }
-                FileEvent::Removed(path) => {
-                    state.cache.invalidate(&path);
-                }
+            }
+            FileEvent::Removed(path) => {
+                state.cache.invalidate(&path);
             }
         }
     }

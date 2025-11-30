@@ -1,17 +1,52 @@
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use crate::utils::get_span_positions;
+use serde::Deserialize;
 use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
 
-pub struct MaxParamsRule;
+const DEFAULT_MAX_PARAMS: usize = 4;
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct MaxParamsOptions {
+    #[serde(default = "default_max_params")]
+    max_params: usize,
+}
+
+fn default_max_params() -> usize {
+    DEFAULT_MAX_PARAMS
+}
+
+impl Default for MaxParamsOptions {
+    fn default() -> Self {
+        Self {
+            max_params: DEFAULT_MAX_PARAMS,
+        }
+    }
+}
+
+pub struct MaxParamsRule {
+    max_params: usize,
+}
+
+impl MaxParamsRule {
+    pub fn new(options: Option<&serde_json::Value>) -> Self {
+        let max_params = options
+            .and_then(|v| serde_json::from_value::<MaxParamsOptions>(v.clone()).ok())
+            .map(|o| o.max_params)
+            .unwrap_or(DEFAULT_MAX_PARAMS);
+
+        Self { max_params }
+    }
+}
 
 inventory::submit!(RuleRegistration {
     name: "max-params",
-    factory: || Arc::new(MaxParamsRule),
+    factory: |options| Arc::new(MaxParamsRule::new(options)),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +62,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/max-params"),
         equivalent_biome_rule: None,
+        allowed_options: &["maxParams"],
     }
 });
 
@@ -40,13 +76,13 @@ impl Rule for MaxParamsRule {
         program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let mut visitor = MaxParamsVisitor {
             issues: Vec::new(),
             path: path.to_path_buf(),
             source,
-            max_params: 4,
+            max_params: self.max_params,
         };
         program.visit_with(&mut visitor);
         visitor.issues

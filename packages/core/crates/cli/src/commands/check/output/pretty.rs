@@ -1,9 +1,7 @@
-use super::OutputRenderer;
-use crate::commands::check::context::CheckContext;
-use crate::shared::SummaryStats;
-use cli::GroupMode;
-use colored::*;
-use core::types::ScanResult;
+use super::renderer::OutputRenderer;
+use super::CheckContext;
+use crate::shared::{render_summary, SummaryStats};
+use core::{GroupMode, ScanResult};
 
 pub struct PrettyRenderer;
 
@@ -21,32 +19,10 @@ impl OutputRenderer for PrettyRenderer {
             }
         }
 
-        if ctx.cli_config.show_summary_at_footer {
-            self.render_summary(ctx, result, stats);
-        }
-    }
-}
+        println!();
 
-impl PrettyRenderer {
-    fn render_summary(&self, _ctx: &CheckContext, result: &ScanResult, stats: &SummaryStats) {
-        println!();
-        println!();
-        println!(
-            "{} {} ({} errors, {} warnings)",
-            "Issues:".dimmed(),
-            stats.total_issues.to_string().cyan(),
-            stats.error_count.to_string().red(),
-            stats.warning_count.to_string().yellow()
-        );
-        println!(
-            "{} {} ({} cached, {} scanned)",
-            "Files:".dimmed(),
-            result.total_files,
-            result.cached_files.to_string().green(),
-            result.scanned_files.to_string().yellow()
-        );
-        println!("{} {}", "Rules:".dimmed(), stats.unique_rules_count);
-        println!("{} {}ms", "Duration:".dimmed(), result.duration_ms);
-        println!();
+        if ctx.cli_config.show_summary {
+            render_summary(result, stats);
+        }
     }
 }

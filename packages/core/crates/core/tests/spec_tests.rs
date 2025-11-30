@@ -1,6 +1,5 @@
-use core::file_source::FileSource;
-use core::parser::parse_file;
 use core::rules::RuleRegistration;
+use core::{parse_file, FileSource, Issue};
 use std::fs;
 use std::path::Path;
 
@@ -25,7 +24,7 @@ fn run_rule_test(input_path: &str) {
     let rule = inventory::iter::<RuleRegistration>
         .into_iter()
         .find(|r| r.name == rule_name)
-        .map(|r| (r.factory)())
+        .map(|r| (r.factory)(None))
         .unwrap_or_else(|| panic!("rule '{rule_name}' not found"));
 
     let mut issues = rule.check(&program, input_file, &source, file_source);
@@ -42,7 +41,7 @@ fn run_rule_test(input_path: &str) {
     });
 }
 
-fn format_snapshot(source: &str, issues: &[core::types::Issue], path: &Path) -> String {
+fn format_snapshot(source: &str, issues: &[Issue], path: &Path) -> String {
     let ext = path.extension().and_then(|e| e.to_str()).unwrap_or("ts");
     let mut output = String::new();
 

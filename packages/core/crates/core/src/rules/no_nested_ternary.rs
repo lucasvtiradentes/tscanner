@@ -1,8 +1,8 @@
-use crate::ast_utils::is_ternary_expr;
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use crate::utils::get_span_positions;
+use crate::utils::is_ternary_expr;
 use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
@@ -12,7 +12,7 @@ pub struct NoNestedTernaryRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-nested-ternary",
-    factory: || Arc::new(NoNestedTernaryRule),
+    factory: |_| Arc::new(NoNestedTernaryRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -28,6 +28,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-nested-ternary"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-nested-ternary"),
+        allowed_options: &[],
     }
 });
 
@@ -41,7 +42,7 @@ impl Rule for NoNestedTernaryRule {
         program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let mut visitor = NestedTernaryVisitor {
             issues: Vec::new(),

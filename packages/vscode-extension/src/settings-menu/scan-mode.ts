@@ -1,22 +1,19 @@
+import { ScanMode } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { setCopyScanContext } from '../commands/internal/copy';
+import { setCopyScanContext } from '../common/lib/copy-utils';
 import {
   Command,
-  ScanMode,
+  type QuickPickItemWithId,
   ToastKind,
   WorkspaceStateKey,
   executeCommand,
-  getCurrentWorkspaceFolder,
+  requireWorkspaceOrNull,
   showToastMessage,
   updateState,
 } from '../common/lib/vscode-utils';
 import { getAllBranches, getCurrentBranch, invalidateCache } from '../common/utils/git-helper';
 import { logger } from '../common/utils/logger';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
-
-type QuickPickItemWithId = {
-  id: string;
-} & vscode.QuickPickItem;
 
 enum BranchMenuOption {
   KeepCurrent = 'keep-current',
@@ -31,7 +28,7 @@ export async function showScanModeMenu(
   panelContent: IssuesPanelContent,
 ) {
   logger.info('showScanModeMenu called');
-  const scanModeItems: QuickPickItemWithId[] = [
+  const scanModeItems: QuickPickItemWithId<ScanMode>[] = [
     {
       id: ScanMode.Codebase,
       label: '$(file-directory) Codebase',
@@ -88,11 +85,8 @@ async function handleBranchScan(
   context: vscode.ExtensionContext,
   panelContent: IssuesPanelContent,
 ) {
-  const workspaceFolder = getCurrentWorkspaceFolder();
-  if (!workspaceFolder) {
-    showToastMessage(ToastKind.Error, 'No workspace folder open');
-    return;
-  }
+  const workspaceFolder = requireWorkspaceOrNull();
+  if (!workspaceFolder) return;
 
   const currentBranch = await getCurrentBranch(workspaceFolder.uri.fsPath);
   if (!currentBranch) {
@@ -100,7 +94,7 @@ async function handleBranchScan(
     return;
   }
 
-  const branchOptions: QuickPickItemWithId[] = [
+  const branchOptions: QuickPickItemWithId<BranchMenuOption>[] = [
     {
       id: BranchMenuOption.KeepCurrent,
       label: `Current value: ${currentCompareBranchRef.current}`,

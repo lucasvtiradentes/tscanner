@@ -1,22 +1,9 @@
+import { DEFAULT_TARGET_BRANCH, GroupMode, ScanMode, ViewMode } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { z } from 'zod';
 import { getCommandId, getContextKey } from '../constants';
-import { CONTEXT_PREFIX, DEFAULT_TARGET_BRANCH } from '../scripts-constants';
 
-export enum ViewMode {
-  List = 'list',
-  Tree = 'tree',
-}
-
-export enum GroupMode {
-  Default = 'default',
-  Rule = 'rule',
-}
-
-export enum ScanMode {
-  Codebase = 'codebase',
-  Branch = 'branch',
-}
+export { GroupMode, ScanMode, ViewMode };
 
 export enum WorkspaceStateKey {
   ViewMode = 'viewMode',
@@ -41,12 +28,14 @@ type WorkspaceStateKeyType = keyof WorkspaceStateSchema;
 
 const defaultValues: WorkspaceStateSchema = {
   [WorkspaceStateKey.ViewMode]: ViewMode.List,
-  [WorkspaceStateKey.GroupMode]: GroupMode.Default,
+  [WorkspaceStateKey.GroupMode]: GroupMode.File,
   [WorkspaceStateKey.ScanMode]: ScanMode.Codebase,
   [WorkspaceStateKey.CompareBranch]: DEFAULT_TARGET_BRANCH,
   [WorkspaceStateKey.CachedResults]: [],
   [WorkspaceStateKey.CustomConfigDir]: null,
 };
+
+const CONTEXT_PREFIX = 'tscanner';
 
 const keyMapping: Record<WorkspaceStateKeyType, string> = Object.fromEntries(
   Object.values(WorkspaceStateKey).map((key) => [key, `${CONTEXT_PREFIX}.${key}`]),
@@ -78,6 +67,7 @@ export enum Command {
   CopyRuleIssues = 'copyRuleIssues',
   CopyFileIssues = 'copyFileIssues',
   CopyFolderIssues = 'copyFolderIssues',
+  CopyAllIssues = 'copyAllIssues',
 }
 
 export enum TreeItemContextValue {
@@ -171,4 +161,42 @@ export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] | undef
 
 export function getCurrentWorkspaceFolder(): vscode.WorkspaceFolder | undefined {
   return vscode.workspace.workspaceFolders?.[0];
+}
+
+export function requireWorkspace(): vscode.WorkspaceFolder {
+  const workspaceFolder = getCurrentWorkspaceFolder();
+  if (!workspaceFolder) {
+    showToastMessage(ToastKind.Error, 'No workspace folder open');
+    throw new Error('No workspace folder open');
+  }
+  return workspaceFolder;
+}
+
+export function requireWorkspaceOrNull(): vscode.WorkspaceFolder | null {
+  const workspaceFolder = getCurrentWorkspaceFolder();
+  if (!workspaceFolder) {
+    showToastMessage(ToastKind.Error, 'No workspace folder open');
+    return null;
+  }
+  return workspaceFolder;
+}
+
+export type QuickPickItemWithId<T extends string = string> = {
+  id: T;
+} & vscode.QuickPickItem;
+
+export function formatIssueCount(count: number): string {
+  return `${count} ${count === 1 ? 'issue' : 'issues'}`;
+}
+
+export async function navigateToPosition(uri: vscode.Uri, line: number, column: number): Promise<void> {
+  const doc = await openTextDocument(uri);
+  const editor = await vscode.window.showTextDocument(doc);
+  const position = new vscode.Position(line, column);
+  editor.selection = new vscode.Selection(position, position);
+  editor.revealRange(new vscode.Range(position, position), vscode.TextEditorRevealType.InCenter);
+}
+
+export function copyToClipboard(text: string): Thenable<void> {
+  return vscode.env.clipboard.writeText(text);
 }

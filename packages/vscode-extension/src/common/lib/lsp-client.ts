@@ -5,6 +5,7 @@ import {
   type ServerOptions,
   TransportKind,
 } from 'vscode-languageclient/node';
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../constants';
 import { logger } from '../utils/logger';
 
 export class TscannerLspClient {
@@ -37,7 +38,7 @@ export class TscannerLspClient {
       synchronize: {
         fileEvents: [
           vscode.workspace.createFileSystemWatcher('**/*.{ts,tsx,js,jsx}'),
-          vscode.workspace.createFileSystemWatcher('**/.tscanner/config.jsonc'),
+          vscode.workspace.createFileSystemWatcher(`**/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`),
         ],
       },
     };

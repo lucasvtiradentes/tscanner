@@ -1,6 +1,6 @@
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use crate::utils::get_span_positions;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
@@ -13,7 +13,7 @@ pub struct PreferConstRule;
 
 inventory::submit!(RuleRegistration {
     name: "prefer-const",
-    factory: || Arc::new(PreferConstRule),
+    factory: |_| Arc::new(PreferConstRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -28,6 +28,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/prefer-const"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/use-const"),
+        allowed_options: &[],
     }
 });
 
@@ -41,7 +42,7 @@ impl Rule for PreferConstRule {
         program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let mut collector = VariableCollector {
             let_declarations: HashMap::new(),

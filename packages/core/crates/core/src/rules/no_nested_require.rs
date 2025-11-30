@@ -1,6 +1,6 @@
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
@@ -11,7 +11,7 @@ pub struct NoNestedRequireRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-nested-require",
-    factory: || Arc::new(NoNestedRequireRule),
+    factory: |_| Arc::new(NoNestedRequireRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -26,6 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/global-require"),
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 
@@ -39,7 +40,7 @@ impl Rule for NoNestedRequireRule {
         program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let mut visitor = NestedRequireVisitor {
             issues: Vec::new(),
