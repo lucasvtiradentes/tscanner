@@ -106,3 +106,26 @@ pub fn get_modified_lines(root: &Path, branch: &str) -> Result<HashMap<PathBuf, 
 
     Ok(result)
 }
+
+pub fn get_staged_modified_lines(root: &Path) -> Result<HashMap<PathBuf, HashSet<usize>>> {
+    let output = Command::new("git")
+        .args(["diff", "--cached"])
+        .current_dir(root)
+        .output()
+        .context("Failed to execute git diff --cached")?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        anyhow::bail!("git diff --cached failed: {}", stderr);
+    }
+
+    let diff_text = String::from_utf8_lossy(&output.stdout);
+    let file_lines = parse_modified_lines(&diff_text);
+
+    let result = file_lines
+        .into_iter()
+        .map(|(file, lines)| (root.join(file), lines))
+        .collect();
+
+    Ok(result)
+}

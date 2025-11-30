@@ -57,41 +57,57 @@ impl Scanner {
     }
 
     pub fn scan(&self, root: &Path, file_filter: Option<&HashSet<PathBuf>>) -> ScanResult {
+        self.scan_multi(&[root.to_path_buf()], file_filter)
+    }
+
+    pub fn scan_multi(
+        &self,
+        roots: &[PathBuf],
+        file_filter: Option<&HashSet<PathBuf>>,
+    ) -> ScanResult {
         let start = Instant::now();
-        crate::log_info(&format!("Starting scan of {:?}", root));
+        crate::log_info(&format!("Starting scan of {:?}", roots));
 
         let global_include = compile_globset(&self.config.files.include)
             .expect("Failed to compile global include patterns");
         let global_exclude = compile_globset(&self.config.files.exclude)
             .expect("Failed to compile global exclude patterns");
 
-        let root_buf = root.to_path_buf();
-        let exclude_clone = global_exclude.clone();
-        let root_clone = root_buf.clone();
+        let mut files: Vec<PathBuf> = Vec::new();
 
-        let mut files: Vec<PathBuf> = WalkBuilder::new(root)
-            .hidden(false)
-            .git_ignore(true)
-            .filter_entry(move |e| {
-                let path = e.path();
-                if path.is_dir() {
-                    let relative = path.strip_prefix(&root_clone).unwrap_or(path);
-                    return !exclude_clone.is_match(relative);
-                }
-                true
-            })
-            .build()
-            .filter_map(|e| e.ok())
-            .filter(|e| {
-                let path = e.path();
-                if !path.is_file() {
-                    return false;
-                }
-                let relative = path.strip_prefix(&root_buf).unwrap_or(path);
-                global_include.is_match(relative) && !global_exclude.is_match(relative)
-            })
-            .map(|e| e.path().to_path_buf())
-            .collect();
+        for root in roots {
+            let root_buf = root.to_path_buf();
+            let exclude_clone = global_exclude.clone();
+            let root_clone = root_buf.clone();
+            let include_clone = global_include.clone();
+            let exclude_clone2 = global_exclude.clone();
+
+            let root_files: Vec<PathBuf> = WalkBuilder::new(root)
+                .hidden(false)
+                .git_ignore(true)
+                .filter_entry(move |e| {
+                    let path = e.path();
+                    if path.is_dir() {
+                        let relative = path.strip_prefix(&root_clone).unwrap_or(path);
+                        return !exclude_clone.is_match(relative);
+                    }
+                    true
+                })
+                .build()
+                .filter_map(|e| e.ok())
+                .filter(|e| {
+                    let path = e.path();
+                    if !path.is_file() {
+                        return false;
+                    }
+                    let relative = path.strip_prefix(&root_buf).unwrap_or(path);
+                    include_clone.is_match(relative) && !exclude_clone2.is_match(relative)
+                })
+                .map(|e| e.path().to_path_buf())
+                .collect();
+
+            files.extend(root_files);
+        }
 
         if let Some(filter) = file_filter {
             files.retain(|f| filter.contains(f));

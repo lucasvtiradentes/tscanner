@@ -6,11 +6,11 @@
     {
       "name": "check",
       "description": "Scan code for issues and display results",
-      "usage": "tscanner check [options] [path]",
+      "usage": "tscanner check [options] [paths]",
       "arguments": [
         {
-          "name": "path",
-          "description": "Directory or file to scan",
+          "name": "paths",
+          "description": "Directory or file to scan (extra paths are ignored when --staged is used)",
           "required": false,
           "defaultValue": "."
         }
@@ -127,15 +127,8 @@
     {
       "name": "init",
       "description": "Create a default configuration file",
-      "usage": "tscanner init [options] [path]",
-      "arguments": [
-        {
-          "name": "path",
-          "description": "Directory to initialize",
-          "required": false,
-          "defaultValue": "."
-        }
-      ],
+      "usage": "tscanner init [options]",
+      "arguments": [],
       "flags": [
         {
           "name": "all-rules",
@@ -155,15 +148,8 @@
     {
       "name": "rules",
       "description": "List all available rules and their metadata",
-      "usage": "tscanner rules [options] [path]",
-      "arguments": [
-        {
-          "name": "path",
-          "description": "Directory containing the config",
-          "required": false,
-          "defaultValue": "."
-        }
-      ],
+      "usage": "tscanner rules [options]",
+      "arguments": [],
       "flags": [
         {
           "name": "config",

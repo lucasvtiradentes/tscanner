@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use anyhow::Result;
 use clap::Parser;
 
@@ -16,7 +18,7 @@ fn main() -> Result<()> {
 
     match cli.command {
         Some(Commands::Check {
-            path,
+            paths,
             no_cache,
             group_by,
             format,
@@ -26,20 +28,27 @@ fn main() -> Result<()> {
             rule,
             continue_on_error,
             config,
-        }) => cmd_check(
-            &path,
-            no_cache,
-            group_by,
-            format,
-            branch,
-            staged,
-            glob,
-            rule,
-            continue_on_error,
-            config,
-        ),
-        Some(Commands::Rules { path, config }) => cmd_rules(&path, config),
-        Some(Commands::Init { path, all_rules }) => cmd_init(&path, all_rules),
+        }) => {
+            let paths = if paths.is_empty() {
+                vec![PathBuf::from(".")]
+            } else {
+                paths
+            };
+            cmd_check(
+                &paths,
+                no_cache,
+                group_by,
+                format,
+                branch,
+                staged,
+                glob,
+                rule,
+                continue_on_error,
+                config,
+            )
+        }
+        Some(Commands::Rules { config }) => cmd_rules(&PathBuf::from("."), config),
+        Some(Commands::Init { all_rules }) => cmd_init(&PathBuf::from("."), all_rules),
         None => {
             Cli::parse_from(["tscanner", "--help"]);
             Ok(())

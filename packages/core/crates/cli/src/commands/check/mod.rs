@@ -22,7 +22,7 @@ use core::{
 
 #[allow(clippy::too_many_arguments)]
 pub fn cmd_check(
-    path: &Path,
+    paths: &[PathBuf],
     no_cache: bool,
     group_by: Option<GroupMode>,
     format: Option<OutputFormat>,
@@ -43,16 +43,27 @@ pub fn cmd_check(
 
     let output_format = format.unwrap_or_default();
 
+    let root = fs::canonicalize(".").context("Failed to resolve current directory")?;
+    let scan_paths: Vec<PathBuf> = if staged {
+        vec![root.clone()]
+    } else {
+        paths
+            .iter()
+            .map(|p| {
+                fs::canonicalize(p).context(format!("Failed to resolve path: {}", p.display()))
+            })
+            .collect::<Result<Vec<_>>>()?
+    };
+
     log_info(&format!(
-        "cmd_check: Starting at: {} (no_cache: {}, group_by: {:?}, format: {:?}, staged: {})",
-        path.display(),
+        "cmd_check: Root: {}, Scan paths: {:?} (no_cache: {}, group_by: {:?}, format: {:?}, staged: {})",
+        root.display(),
+        scan_paths.iter().map(|p| p.display().to_string()).collect::<Vec<_>>(),
         no_cache,
         group_by,
         output_format,
         staged
     ));
-
-    let root = fs::canonicalize(path).context("Failed to resolve path")?;
 
     let (config, cli_config) = match load_config_with_custom(&root, config_path)? {
         Some((cfg, config_file_path)) => {
@@ -119,6 +130,7 @@ pub fn cmd_check(
 
     let (files_to_scan, modified_lines) = if staged {
         let staged_files = git::get_staged_files(&root)?;
+        let staged_lines = git::get_staged_modified_lines(&root)?;
         if !is_json {
             println!(
                 "{}",
@@ -131,15 +143,20 @@ pub fn cmd_check(
             "cmd_check: Found {} staged files",
             staged_files.len()
         ));
-        let files = filters::get_files_to_scan(&root, glob_filter.as_deref(), Some(staged_files));
-        (files, None)
+        let files = filters::get_files_to_scan_multi(
+            &scan_paths,
+            glob_filter.as_deref(),
+            Some(staged_files),
+        );
+        (files, Some(staged_lines))
     } else {
         let (changed_files, modified_lines) = get_branch_changes(&root, &branch, is_json)?;
-        let files = filters::get_files_to_scan(&root, glob_filter.as_deref(), changed_files);
+        let files =
+            filters::get_files_to_scan_multi(&scan_paths, glob_filter.as_deref(), changed_files);
         (files, modified_lines)
     };
 
-    let mut result = scanner.scan(&root, files_to_scan.as_ref());
+    let mut result = scanner.scan_multi(&scan_paths, files_to_scan.as_ref());
 
     if let Some(ref line_filter) = modified_lines {
         filters::apply_line_filter(&mut result, line_filter);

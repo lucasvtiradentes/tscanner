@@ -32,9 +32,10 @@ pub enum Commands {
         #[arg(
             value_name = "PATH",
             default_value = ".",
-            help = "Directory or file to scan"
+            help = "Directory or file to scan (extra paths are ignored when --staged is used)",
+            num_args = 0..
         )]
-        path: PathBuf,
+        paths: Vec<PathBuf>,
 
         #[arg(long, help = "Skip cache and force full scan")]
         no_cache: bool,
@@ -93,13 +94,6 @@ pub enum Commands {
     #[command(about = "List all available rules and their metadata")]
     Rules {
         #[arg(
-            value_name = "PATH",
-            default_value = ".",
-            help = "Directory containing the config"
-        )]
-        path: PathBuf,
-
-        #[arg(
             long,
             value_name = "CONFIG_DIR",
             help = "Path to directory containing config.jsonc"
@@ -109,13 +103,6 @@ pub enum Commands {
 
     #[command(about = "Create a default configuration file")]
     Init {
-        #[arg(
-            value_name = "PATH",
-            default_value = ".",
-            help = "Directory to initialize"
-        )]
-        path: PathBuf,
-
         #[arg(long, help = "Initialize with all built-in rules enabled")]
         all_rules: bool,
     },
