@@ -122,8 +122,6 @@ TScanner automates the enforcement of your standards, freeing you from being the
 
 </details>
 
-<br />
-
 <details>
 <summary>How I put the pieces together to build TScanner?</summary>
 <br />
@@ -139,8 +137,6 @@ One day I was reflecting on why Rust-based tools for the TypeScript ecosystem ar
 </div>
 
 </details>
-
-<br />
 
 <details>
 <summary>Why not just push PRs to some industry open source linters?</summary>
