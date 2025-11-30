@@ -9,6 +9,7 @@ export type ScanResult = {
   totalFiles: number;
   filesWithIssues: number;
   totalRules: number;
+  totalEnabledRules: number;
   groupBy: GroupMode;
   ruleGroups: RuleGroup[];
   ruleGroupsByRule: RuleGroup[];
@@ -53,6 +54,7 @@ type CliJsonOutputByRule = {
     total_issues: number;
     errors: number;
     warnings: number;
+    total_enabled_rules: number;
   };
 };
 
@@ -73,6 +75,7 @@ type CliJsonOutputByFile = {
     total_issues: number;
     errors: number;
     warnings: number;
+    total_enabled_rules: number;
   };
 };
 
@@ -129,6 +132,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ScanResult
       totalFiles: 0,
       filesWithIssues: 0,
       totalRules: 0,
+      totalEnabledRules: scanDataFile.summary.total_enabled_rules,
       groupBy,
       ruleGroups: [],
       ruleGroupsByRule: [],
@@ -219,6 +223,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ScanResult
     totalFiles: scanDataFile.summary.total_files,
     filesWithIssues: scanDataFile.files.length,
     totalRules: scanDataRule.rules.length,
+    totalEnabledRules: scanDataFile.summary.total_enabled_rules,
     groupBy,
     ruleGroups,
     ruleGroupsByRule,

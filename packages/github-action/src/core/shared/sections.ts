@@ -39,13 +39,14 @@ export type IssuesViewParams = {
 
 export function buildScanSummaryTable(params: ScanSummaryParams): string {
   const { result, targetBranch, timestamp, commitSha, commitMessage } = params;
-  const { totalIssues, totalErrors, totalWarnings, totalFiles, filesWithIssues, totalRules } = result;
+  const { totalIssues, totalErrors, totalWarnings, totalFiles, filesWithIssues, totalRules, totalEnabledRules } =
+    result;
   const modeLabel = getModeLabel(targetBranch);
   const issuesBreakdown = getIssuesBreakdown(totalErrors, totalWarnings);
 
   let rows = `<tr><td>Issues found</td><td>${totalIssues}${issuesBreakdown}</td></tr>
 <tr><td>Files with issues</td><td>${filesWithIssues}/${totalFiles}</td></tr>
-<tr><td>Triggered rules</td><td>${totalRules}</td></tr>
+<tr><td>Triggered rules</td><td>${totalRules}/${totalEnabledRules}</td></tr>
 <tr><td>Scan mode</td><td>${modeLabel}</td></tr>`;
 
   if (commitSha) {

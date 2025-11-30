@@ -1,4 +1,4 @@
-use super::OutputRenderer;
+use super::{render_summary, OutputRenderer};
 use crate::commands::check::context::CheckContext;
 use crate::shared::SummaryStats;
 use cli::GroupMode;
@@ -16,7 +16,7 @@ impl OutputRenderer for TextRenderer {
         }
 
         if ctx.cli_config.show_summary_at_footer {
-            self.render_summary(result, stats);
+            render_summary(result, stats);
         }
     }
 }
@@ -136,26 +136,5 @@ impl TextRenderer {
                 }
             }
         }
-    }
-
-    fn render_summary(&self, result: &ScanResult, stats: &SummaryStats) {
-        println!();
-        println!(
-            "{} {} ({} errors, {} warnings)",
-            "Issues:".dimmed(),
-            stats.total_issues.to_string().cyan(),
-            stats.error_count.to_string().red(),
-            stats.warning_count.to_string().yellow()
-        );
-        println!(
-            "{} {} ({} cached, {} scanned)",
-            "Files:".dimmed(),
-            result.total_files,
-            result.cached_files.to_string().green(),
-            result.scanned_files.to_string().yellow()
-        );
-        println!("{} {}", "Rules:".dimmed(), stats.unique_rules_count);
-        println!("{} {}ms", "Duration:".dimmed(), result.duration_ms);
-        println!();
     }
 }

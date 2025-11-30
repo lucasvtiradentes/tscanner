@@ -607,6 +607,24 @@ impl TscannerConfig {
         rule_config.matches(relative_path)
     }
 
+    pub fn count_enabled_rules(&self) -> usize {
+        use crate::rules::get_all_rule_metadata;
+
+        let all_builtin_metadata = get_all_rule_metadata();
+
+        let enabled_builtin = all_builtin_metadata
+            .iter()
+            .filter(|meta| match self.builtin_rules.get(meta.name) {
+                Some(rule_config) => rule_config.enabled.unwrap_or(true),
+                None => meta.default_enabled,
+            })
+            .count();
+
+        let enabled_custom = self.custom_rules.values().filter(|r| r.enabled).count();
+
+        enabled_builtin + enabled_custom
+    }
+
     pub fn compute_hash(&self) -> u64 {
         let mut hasher = DefaultHasher::new();
 

@@ -10,6 +10,7 @@ pub struct JsonSummary {
     pub errors: usize,
     pub warnings: usize,
     pub duration_ms: u128,
+    pub total_enabled_rules: usize,
 }
 
 pub struct SummaryStats {
@@ -17,10 +18,11 @@ pub struct SummaryStats {
     pub error_count: usize,
     pub warning_count: usize,
     pub unique_rules_count: usize,
+    pub total_enabled_rules: usize,
 }
 
 impl SummaryStats {
-    pub fn from_result(result: &ScanResult) -> Self {
+    pub fn from_result(result: &ScanResult, total_enabled_rules: usize) -> Self {
         let mut error_count = 0;
         let mut warning_count = 0;
         let mut unique_rules = std::collections::HashSet::new();
@@ -40,6 +42,7 @@ impl SummaryStats {
             error_count,
             warning_count,
             unique_rules_count: unique_rules.len(),
+            total_enabled_rules,
         }
     }
 }
@@ -54,6 +57,7 @@ impl JsonSummary {
             errors: stats.error_count,
             warnings: stats.warning_count,
             duration_ms: result.duration_ms,
+            total_enabled_rules: stats.total_enabled_rules,
         }
     }
 }

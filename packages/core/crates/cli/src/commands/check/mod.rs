@@ -113,6 +113,7 @@ pub fn cmd_check(
     let effective_no_cache = no_cache || resolved_cli.no_cache;
 
     let config_hash = config.compute_hash();
+    let total_enabled_rules = config.count_enabled_rules();
     let cache = if effective_no_cache {
         FileCache::new()
     } else {
@@ -172,7 +173,7 @@ pub fn cmd_check(
         result.duration_ms
     ));
 
-    let stats = SummaryStats::from_result(&result);
+    let stats = SummaryStats::from_result(&result, total_enabled_rules);
 
     if result.files.is_empty() && !is_json {
         println!("{}", "✓ No issues found!".green().bold());
