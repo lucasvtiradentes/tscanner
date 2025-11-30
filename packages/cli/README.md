@@ -183,8 +183,8 @@ tscanner check --branch origin/main
     <th width="350">Flag description</th>
   </tr>
   <tr>
-    <td rowspan="14" align="left"><code>check [options] [path]</code></td>
-    <td rowspan="14" align="left">Scan code for issues and display results</td>
+    <td rowspan="13" align="left"><code>check [options] [path]</code></td>
+    <td rowspan="13" align="left">Scan code for issues and display results</td>
     <td align="left"><code>--branch <BRANCH></code></td>
     <td align="left">Only show issues in files changed compared to branch (e.g., origin/main)</td>
   </tr>
@@ -205,6 +205,12 @@ tscanner check --branch origin/main
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--file <FILE_PATTERN></code></td>
     <td align="left">Filter results to specific file(s) using glob pattern (e.g., 'src/**/*.ts')</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [path]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--format [text/json/pretty]</code></td>
+    <td align="left">Output format: text, json, or pretty</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [path]</code></td> -->
@@ -239,20 +245,8 @@ tscanner check --branch origin/main
   <tr>
     <!-- <td align="left"><code>check [options] [path]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><code>--json</code></td>
-    <td align="left">Output results as JSON</td>
-  </tr>
-  <tr>
-    <!-- <td align="left"><code>check [options] [path]</code></td> -->
-    <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--no-cache</code></td>
     <td align="left">Skip cache and force full scan</td>
-  </tr>
-  <tr>
-    <!-- <td align="left"><code>check [options] [path]</code></td> -->
-    <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><code>--pretty</code></td>
-    <td align="left">Pretty output with rule definitions at the top</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [path]</code></td> -->

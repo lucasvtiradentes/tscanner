@@ -92,7 +92,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ScanResult
 
   const baseArgs = [
     'check',
-    '--json',
+    '--format=json',
     '--continue-on-error',
     '--config',
     configPath,
@@ -136,7 +136,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ScanResult
   githubHelper.logInfo('');
   githubHelper.logInfo('📊 Scan Results:');
   githubHelper.logInfo('');
-  await executor.displayResults(argsFile.map((arg) => (arg === '--json' ? '--pretty' : arg)));
+  await executor.displayResults(argsFile.map((arg) => (arg === '--format=json' ? '--format=pretty' : arg)));
 
   const fileGroups: Array<{ file: string; issues: Issue[]; severity: Severity }> = scanDataFile.files.map(
     (fileData) => ({

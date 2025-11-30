@@ -15,7 +15,7 @@ use std::sync::Arc;
 use crate::config_loader::load_config_with_custom;
 use crate::shared::SummaryStats;
 use crate::CliOverrides;
-use cli::GroupMode;
+use cli::{GroupMode, OutputFormat};
 use context::CheckContext;
 use core::{
     log_error, log_info, CliConfig, CliGroupBy, APP_NAME, CONFIG_DIR_NAME, CONFIG_FILE_NAME,
@@ -25,8 +25,7 @@ use core::{
 pub fn cmd_check(
     path: &Path,
     no_cache: bool,
-    json_output: bool,
-    pretty_output: bool,
+    format: Option<OutputFormat>,
     branch: Option<String>,
     file_filter: Option<String>,
     rule_filter: Option<String>,
@@ -34,12 +33,14 @@ pub fn cmd_check(
     config_path: Option<PathBuf>,
     cli_overrides: CliOverrides,
 ) -> Result<()> {
+    let output_format = format.unwrap_or_default();
+
     log_info(&format!(
-        "cmd_check: Starting at: {} (no_cache: {}, group_by: {:?}, pretty: {})",
+        "cmd_check: Starting at: {} (no_cache: {}, group_by: {:?}, format: {:?})",
         path.display(),
         no_cache,
         cli_overrides.group_by,
-        pretty_output
+        output_format
     ));
 
     let root = fs::canonicalize(path).context("Failed to resolve path")?;
@@ -101,11 +102,12 @@ pub fn cmd_check(
     let scanner = Scanner::with_cache(config, Arc::new(cache), root.clone())
         .map_err(|e| anyhow::anyhow!("{}", e))?;
 
-    if !json_output {
+    if !matches!(output_format, OutputFormat::Json) {
         print_scan_header(effective_no_cache, &effective_group_mode);
     }
 
-    let (changed_files, modified_lines) = get_branch_changes(&root, &branch, json_output)?;
+    let is_json = matches!(output_format, OutputFormat::Json);
+    let (changed_files, modified_lines) = get_branch_changes(&root, &branch, is_json)?;
 
     let files_to_scan = filters::get_files_to_scan(&root, file_filter.as_deref(), changed_files);
 
@@ -127,14 +129,14 @@ pub fn cmd_check(
 
     let stats = SummaryStats::from_result(&result);
 
-    if result.files.is_empty() && !json_output {
+    if result.files.is_empty() && !is_json {
         println!("{}", "✓ No issues found!".green().bold());
         return Ok(());
     }
 
     let ctx = CheckContext::new(root, effective_group_mode, resolved_cli);
 
-    let renderer = output::get_renderer(json_output, pretty_output);
+    let renderer = output::get_renderer(&output_format);
     renderer.render(&ctx, &result, &stats);
 
     log_info(&format!(

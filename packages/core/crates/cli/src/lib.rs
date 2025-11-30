@@ -9,6 +9,14 @@ pub enum GroupMode {
     Rule,
 }
 
+#[derive(Debug, Clone, Default, ValueEnum)]
+pub enum OutputFormat {
+    #[default]
+    Text,
+    Json,
+    Pretty,
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct CliOverrides {
     pub group_by: Option<GroupMode>,
@@ -65,11 +73,13 @@ pub enum Commands {
         #[arg(long, help = "Hide summary at footer")]
         hide_summary: bool,
 
-        #[arg(long, help = "Output results as JSON")]
-        json: bool,
-
-        #[arg(long, help = "Pretty output with rule definitions at the top")]
-        pretty: bool,
+        #[arg(
+            long,
+            value_enum,
+            value_name = "FORMAT",
+            help = "Output format: text, json, or pretty"
+        )]
+        format: Option<OutputFormat>,
 
         #[arg(
             long,

@@ -60,6 +60,20 @@
           "required": false
         },
         {
+          "name": "format",
+          "short": null,
+          "description": "Output format: text, json, or pretty",
+          "takesValue": true,
+          "valueName": "FORMAT",
+          "possibleValues": [
+            "text",
+            "json",
+            "pretty"
+          ],
+          "defaultValue": null,
+          "required": false
+        },
+        {
           "name": "group-by",
           "short": null,
           "description": "Group issues by file or rule",
@@ -125,35 +139,9 @@
           "required": false
         },
         {
-          "name": "json",
-          "short": null,
-          "description": "Output results as JSON",
-          "takesValue": false,
-          "valueName": null,
-          "possibleValues": [
-            "true",
-            "false"
-          ],
-          "defaultValue": null,
-          "required": false
-        },
-        {
           "name": "no-cache",
           "short": null,
           "description": "Skip cache and force full scan",
-          "takesValue": false,
-          "valueName": null,
-          "possibleValues": [
-            "true",
-            "false"
-          ],
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "pretty",
-          "short": null,
-          "description": "Pretty output with rule definitions at the top",
           "takesValue": false,
           "valueName": null,
           "possibleValues": [
