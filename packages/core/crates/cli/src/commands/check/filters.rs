@@ -4,59 +4,11 @@ use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 
 pub fn apply_line_filter(result: &mut ScanResult, line_filter: &HashMap<PathBuf, HashSet<usize>>) {
-    let original_count = result.files.iter().map(|f| f.issues.len()).sum::<usize>();
-
-    result.files = result
-        .files
-        .drain(..)
-        .filter_map(|mut file_result| {
-            if let Some(modified_lines_in_file) = line_filter.get(&file_result.file) {
-                file_result
-                    .issues
-                    .retain(|issue| modified_lines_in_file.contains(&issue.line));
-                if !file_result.issues.is_empty() {
-                    Some(file_result)
-                } else {
-                    None
-                }
-            } else {
-                None
-            }
-        })
-        .collect();
-
-    let filtered_count = result.files.iter().map(|f| f.issues.len()).sum::<usize>();
-    result.total_issues = filtered_count;
-
-    log_info(&format!(
-        "filters: Filtered {} → {} issues (only modified lines)",
-        original_count, filtered_count
-    ));
+    result.filter_by_modified_lines(line_filter);
 }
 
 pub fn apply_rule_filter(result: &mut ScanResult, rule_name: &str) {
-    let original_count = result.files.iter().map(|f| f.issues.len()).sum::<usize>();
-
-    result.files = result
-        .files
-        .drain(..)
-        .filter_map(|mut file_result| {
-            file_result.issues.retain(|issue| issue.rule == rule_name);
-            if !file_result.issues.is_empty() {
-                Some(file_result)
-            } else {
-                None
-            }
-        })
-        .collect();
-
-    let filtered_count = result.files.iter().map(|f| f.issues.len()).sum::<usize>();
-    result.total_issues = filtered_count;
-
-    log_info(&format!(
-        "filters: Rule filter {} → {} issues (rule: {})",
-        original_count, filtered_count, rule_name
-    ));
+    result.filter_by_rule(rule_name);
 }
 
 pub fn get_files_to_scan_multi(
