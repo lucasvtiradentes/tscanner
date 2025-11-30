@@ -39,12 +39,12 @@ export type IssuesViewParams = {
 
 export function buildScanSummaryTable(params: ScanSummaryParams): string {
   const { result, targetBranch, timestamp, commitSha, commitMessage } = params;
-  const { totalIssues, totalErrors, totalWarnings, totalFiles, totalRules } = result;
+  const { totalIssues, totalErrors, totalWarnings, totalFiles, filesWithIssues, totalRules } = result;
   const modeLabel = getModeLabel(targetBranch);
   const issuesBreakdown = getIssuesBreakdown(totalErrors, totalWarnings);
 
   let rows = `<tr><td>Issues found</td><td>${totalIssues}${issuesBreakdown}</td></tr>
-<tr><td>Scanned files</td><td>${totalFiles}</td></tr>
+<tr><td>Files with issues</td><td>${filesWithIssues}/${totalFiles}</td></tr>
 <tr><td>Triggered rules</td><td>${totalRules}</td></tr>
 <tr><td>Scan mode</td><td>${modeLabel}</td></tr>`;
 
@@ -127,7 +127,7 @@ ${innerContent}
 
 export function buildIssuesByFileSection(params: IssuesViewParams): string {
   const { result, owner, repo, prNumber } = params;
-  const { totalFiles } = result;
+  const { filesWithIssues } = result;
 
   const fileMap = new Map<string, Map<string, Array<{ line: number; column: number; lineText: string }>>>();
 
@@ -177,7 +177,7 @@ export function buildIssuesByFileSection(params: IssuesViewParams): string {
   const innerContent = alignSection(Alignment.Left, content);
 
   const details = `<details>
-<summary><strong>${ICONS.FILE_ICON} Issues grouped by file (${totalFiles})</strong></summary>
+<summary><strong>${ICONS.FILE_ICON} Issues grouped by file (${filesWithIssues})</strong></summary>
 <br />
 
 ${innerContent}

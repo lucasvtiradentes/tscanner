@@ -7,6 +7,7 @@ export type ScanResult = {
   totalErrors: number;
   totalWarnings: number;
   totalFiles: number;
+  filesWithIssues: number;
   totalRules: number;
   groupBy: GroupMode;
   ruleGroups: RuleGroup[];
@@ -126,6 +127,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ScanResult
       totalErrors: 0,
       totalWarnings: 0,
       totalFiles: 0,
+      filesWithIssues: 0,
       totalRules: 0,
       groupBy,
       ruleGroups: [],
@@ -215,6 +217,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ScanResult
     totalErrors: scanDataFile.summary.errors,
     totalWarnings: scanDataFile.summary.warnings,
     totalFiles: scanDataFile.summary.total_files,
+    filesWithIssues: scanDataFile.files.length,
     totalRules: scanDataRule.rules.length,
     groupBy,
     ruleGroups,
