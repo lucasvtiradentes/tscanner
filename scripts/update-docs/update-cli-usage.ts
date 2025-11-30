@@ -45,7 +45,8 @@ export function updateCliUsage() {
     { content: 'Command', width: 120 },
     { content: 'Description', width: 280 },
     { content: 'Flag', width: 200 },
-    { content: 'Flag description', width: 350 },
+    { content: 'Default', width: 100 },
+    { content: 'Flag description', width: 300 },
   ] as const satisfies TRowContent;
 
   const table = new MarkdownTable(headerContent);
@@ -59,6 +60,7 @@ export function updateCliUsage() {
       table.addBodyRow([
         { content: cmdName, align: 'left' },
         { content: cmd.description, align: 'left' },
+        { content: '-', align: 'center' },
         { content: '-', align: 'center' },
         { content: '-', align: 'center' },
       ]);
@@ -78,10 +80,14 @@ export function updateCliUsage() {
         } else {
           flagName = `--${flag.name}`;
         }
+
+        const defaultValue = flag.defaultValue ?? '-';
+
         table.addBodyRow([
           { content: cmdName, align: 'left' },
           { content: cmd.description, align: 'left' },
           { content: `<code>${flagName}</code>`, align: 'left' },
+          { content: defaultValue, align: 'center' },
           { content: flag.description, align: 'left' },
         ]);
       }

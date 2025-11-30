@@ -27,13 +27,13 @@
           "required": false
         },
         {
-          "name": "config",
+          "name": "config-path",
           "short": null,
-          "description": "Path to directory containing config.jsonc",
+          "description": "Path to .tscanner folder",
           "takesValue": true,
           "valueName": "CONFIG_DIR",
           "possibleValues": null,
-          "defaultValue": null,
+          "defaultValue": ".tscanner",
           "required": false
         },
         {
@@ -60,7 +60,7 @@
             "json",
             "pretty"
           ],
-          "defaultValue": null,
+          "defaultValue": "text",
           "required": false
         },
         {
@@ -125,6 +125,63 @@
       ]
     },
     {
+      "name": "config",
+      "description": "Configuration management",
+      "usage": "tscanner config [options]",
+      "arguments": [],
+      "flags": [
+        {
+          "name": "config-path",
+          "short": null,
+          "description": "Path to .tscanner folder",
+          "takesValue": true,
+          "valueName": "CONFIG_DIR",
+          "possibleValues": null,
+          "defaultValue": ".tscanner",
+          "required": false
+        },
+        {
+          "name": "rules",
+          "short": null,
+          "description": "List all available rules and their status",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "show",
+          "short": null,
+          "description": "Show the resolved configuration",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "validate",
+          "short": null,
+          "description": "Validate the configuration file",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false
+        }
+      ]
+    },
+    {
       "name": "init",
       "description": "Create a default configuration file",
       "usage": "tscanner init [options]",
@@ -140,24 +197,6 @@
             "true",
             "false"
           ],
-          "defaultValue": null,
-          "required": false
-        }
-      ]
-    },
-    {
-      "name": "rules",
-      "description": "List all available rules and their metadata",
-      "usage": "tscanner rules [options]",
-      "arguments": [],
-      "flags": [
-        {
-          "name": "config",
-          "short": null,
-          "description": "Path to directory containing config.jsonc",
-          "takesValue": true,
-          "valueName": "CONFIG_DIR",
-          "possibleValues": null,
           "defaultValue": null,
           "required": false
         }

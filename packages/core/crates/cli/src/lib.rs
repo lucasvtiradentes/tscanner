@@ -50,9 +50,10 @@ pub enum Commands {
             long,
             value_enum,
             value_name = "FORMAT",
+            default_value = "text",
             help = "Output format: text, json, or pretty"
         )]
-        format: Option<OutputFormat>,
+        format: OutputFormat,
 
         #[arg(
             long,
@@ -84,19 +85,30 @@ pub enum Commands {
         #[arg(
             long,
             value_name = "CONFIG_DIR",
-            help = "Path to directory containing config.jsonc"
+            default_value = ".tscanner",
+            help = "Path to .tscanner folder"
         )]
-        config: Option<PathBuf>,
+        config_path: PathBuf,
     },
 
-    #[command(about = "List all available rules and their metadata")]
-    Rules {
+    #[command(about = "Configuration management")]
+    Config {
+        #[arg(long, help = "List all available rules and their status")]
+        rules: bool,
+
+        #[arg(long, help = "Validate the configuration file")]
+        validate: bool,
+
+        #[arg(long, help = "Show the resolved configuration")]
+        show: bool,
+
         #[arg(
             long,
             value_name = "CONFIG_DIR",
-            help = "Path to directory containing config.jsonc"
+            default_value = ".tscanner",
+            help = "Path to .tscanner folder"
         )]
-        config: Option<PathBuf>,
+        config_path: PathBuf,
     },
 
     #[command(about = "Create a default configuration file")]

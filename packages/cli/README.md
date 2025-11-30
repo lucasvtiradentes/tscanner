@@ -176,73 +176,106 @@ tscanner check --branch origin/main
     <th width="120">Command</th>
     <th width="280">Description</th>
     <th width="200">Flag</th>
-    <th width="350">Flag description</th>
+    <th width="100">Default</th>
+    <th width="300">Flag description</th>
   </tr>
   <tr>
     <td rowspan="9" align="left"><code>check [options] [paths]</code></td>
     <td rowspan="9" align="left">Scan code for issues and display results</td>
     <td align="left"><code>--branch <BRANCH></code></td>
+    <td align="center">-</td>
     <td align="left">Only show issues in files changed compared to branch (e.g., origin/main)</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><code>--config <CONFIG_DIR></code></td>
-    <td align="left">Path to directory containing config.jsonc</td>
+    <td align="left"><code>--config-path <CONFIG_DIR></code></td>
+    <td align="center">.tscanner</td>
+    <td align="left">Path to .tscanner folder</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--continue-on-error</code></td>
+    <td align="center">-</td>
     <td align="left">Continue execution even when errors are found</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--format [text/json/pretty]</code></td>
+    <td align="center">text</td>
     <td align="left">Output format: text, json, or pretty</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--glob <GLOB_PATTERN></code></td>
+    <td align="center">-</td>
     <td align="left">Filter results by glob pattern (e.g., 'src/**/*.ts')</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--group-by [file/rule]</code></td>
+    <td align="center">-</td>
     <td align="left">Group issues by file or rule</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--no-cache</code></td>
+    <td align="center">-</td>
     <td align="left">Skip cache and force full scan</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--rule <RULE_NAME></code></td>
+    <td align="center">-</td>
     <td align="left">Filter results to specific rule (e.g., 'no-console')</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--staged</code></td>
+    <td align="center">-</td>
     <td align="left">Scan only git staged files</td>
+  </tr>
+  <tr>
+    <td rowspan="4" align="left"><code>config [options]</code></td>
+    <td rowspan="4" align="left">Configuration management</td>
+    <td align="left"><code>--config-path <CONFIG_DIR></code></td>
+    <td align="center">.tscanner</td>
+    <td align="left">Path to .tscanner folder</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>config [options]</code></td> -->
+    <!-- <td align="left">Configuration management</td> -->
+    <td align="left"><code>--rules</code></td>
+    <td align="center">-</td>
+    <td align="left">List all available rules and their status</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>config [options]</code></td> -->
+    <!-- <td align="left">Configuration management</td> -->
+    <td align="left"><code>--show</code></td>
+    <td align="center">-</td>
+    <td align="left">Show the resolved configuration</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>config [options]</code></td> -->
+    <!-- <td align="left">Configuration management</td> -->
+    <td align="left"><code>--validate</code></td>
+    <td align="center">-</td>
+    <td align="left">Validate the configuration file</td>
   </tr>
   <tr>
     <td rowspan="1" align="left"><code>init [options]</code></td>
     <td rowspan="1" align="left">Create a default configuration file</td>
     <td align="left"><code>--all-rules</code></td>
+    <td align="center">-</td>
     <td align="left">Initialize with all built-in rules enabled</td>
-  </tr>
-  <tr>
-    <td rowspan="1" align="left"><code>rules [options]</code></td>
-    <td rowspan="1" align="left">List all available rules and their metadata</td>
-    <td align="left"><code>--config <CONFIG_DIR></code></td>
-    <td align="left">Path to directory containing config.jsonc</td>
   </tr>
 </table>
 

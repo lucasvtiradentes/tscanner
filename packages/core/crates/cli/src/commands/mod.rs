@@ -1,7 +1,7 @@
 pub mod check;
+pub mod config;
 pub mod init;
-pub mod rules;
 
 pub use check::cmd_check;
+pub use config::cmd_config;
 pub use init::cmd_init;
-pub use rules::cmd_rules;
