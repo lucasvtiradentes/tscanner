@@ -12,6 +12,10 @@ use commands::{cmd_check, cmd_init, cmd_rules};
 use core::init_logger;
 
 fn main() -> Result<()> {
+    if std::env::var("TSCANNER").map(|v| v == "0").unwrap_or(false) {
+        return Ok(());
+    }
+
     init_logger("rust_cli        ");
 
     let cli = Cli::parse();
