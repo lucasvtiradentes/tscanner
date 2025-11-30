@@ -1,5 +1,11 @@
 # @tscanner/cli-darwin-x64
 
+## 0.0.24
+
+### Patch Changes
+
+- 166e8aa: update docs
+
 ## 0.0.23
 
 ### Patch Changes
