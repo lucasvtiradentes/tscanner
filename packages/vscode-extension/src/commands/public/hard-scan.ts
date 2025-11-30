@@ -11,9 +11,10 @@ import { invalidateCache } from '../../common/utils/git-helper';
 import { logger } from '../../common/utils/logger';
 
 export function createHardScanCommand(isSearchingRef: { current: boolean }) {
-  return registerCommand(Command.HardScan, async () => {
+  return registerCommand(Command.HardScan, async (options?: { showToastMessage?: boolean }) => {
+    const shouldShowToast = options?.showToastMessage ?? true;
     if (isSearchingRef.current) {
-      showToastMessage(ToastKind.Warning, 'Search already in progress');
+      if (shouldShowToast) showToastMessage(ToastKind.Warning, 'Search already in progress');
       return;
     }
 
@@ -28,7 +29,7 @@ export function createHardScanCommand(isSearchingRef: { current: boolean }) {
     try {
       await clearCache();
       invalidateCache();
-      showToastMessage(ToastKind.Info, 'Cache cleared, rescanning...');
+      if (shouldShowToast) showToastMessage(ToastKind.Info, 'Cache cleared, rescanning...');
       await executeCommand(Command.FindIssue);
     } catch (error) {
       logger.error(`Hard scan failed: ${error}`);

@@ -12,7 +12,7 @@ export function createConfigWatcher(onConfigChange: () => Promise<void>): vscode
 
     await onConfigChange();
 
-    executeCommand(Command.HardScan);
+    executeCommand(Command.HardScan, { showToastMessage: false });
   };
 
   configWatcher.onDidChange(handleConfigChange);

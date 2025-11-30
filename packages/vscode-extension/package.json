@@ -133,7 +133,7 @@
       {
         "command": "tscanner.refresh",
         "title": "Hard Scan (Clear Cache)",
-        "icon": "$(debug-restart)"
+        "icon": "$(refresh)"
       },
       {
         "command": "tscanner.openSettingsMenu",
@@ -215,7 +215,7 @@
         {
           "command": "tscanner.refresh",
           "when": "view == tscannerExplorer && !tscannerSearching",
-          "group": "navigation@10"
+          "group": "navigation@1"
         },
         {
           "command": "tscanner.cycleViewModeFileFlatView",
