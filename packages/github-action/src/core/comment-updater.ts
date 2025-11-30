@@ -50,26 +50,41 @@ export type CommentUpdateParams = {
   targetBranch?: string;
 };
 
-function buildStatsTable(result: ScanResult, targetBranch?: string): string {
+type StatsTableParams = {
+  result: ScanResult;
+  targetBranch?: string;
+  timestamp: string;
+  commitSha: string;
+  commitMessage: string;
+};
+
+function buildStatsTable(params: StatsTableParams): string {
+  const { result, targetBranch, timestamp, commitSha, commitMessage } = params;
   const { totalIssues, totalErrors, totalWarnings, totalFiles, totalRules } = result;
   const modeLabel = targetBranch ? `branch (${targetBranch})` : 'codebase';
+  const commitInfo = commitMessage ? `\`${commitSha}\` - ${commitMessage}` : `\`${commitSha}\``;
+
+  const issuesBreakdown =
+    totalErrors > 0 || totalWarnings > 0
+      ? ` (${ICONS.ERROR_BADGE} ${totalErrors}, ${ICONS.WARNING_BADGE} ${totalWarnings})`
+      : '';
 
   return `| Metric | Value |
 |--------|-------|
-| Total Issues | ${totalIssues} |
-| Errors | ${totalErrors} |
-| Warnings | ${totalWarnings} |
-| Files | ${totalFiles} |
-| Rules | ${totalRules} |
-| Mode | ${modeLabel} |`;
+| Issues | ${totalIssues}${issuesBreakdown} |
+| Scanned files | ${totalFiles} |
+| Triggered rules | ${totalRules} |
+| Scan mode | ${modeLabel} |
+| Last commit | ${commitInfo} |
+| Last updated | ${timestamp} |`;
 }
 
-function buildTopOffenders(ruleGroups: RuleGroup[], limit = 5): string {
+function buildMostTriggeredRules(ruleGroups: RuleGroup[], limit = 5): string {
   const sorted = [...ruleGroups].sort((a, b) => b.issueCount - a.issueCount).slice(0, limit);
 
   if (sorted.length === 0) return '';
 
-  let output = '\n**Top offenders:**\n';
+  let output = '\n**Most triggered rules:**\n';
   for (const rule of sorted) {
     const badge = rule.severity === Severity.Error ? ICONS.ERROR_BADGE : ICONS.WARNING_BADGE;
     output += `- ${badge} \`${rule.ruleName}\` - ${rule.issueCount} ${pluralize(rule.issueCount, 'issue')}\n`;
@@ -192,9 +207,9 @@ function buildCommentBody(
   const timestamp = formatTimestamp(timezone);
   const { totalIssues, totalErrors, ruleGroupsByRule } = result;
   const modeLabel = targetBranch ? `branch (${targetBranch})` : 'codebase';
+  const commitInfo = commitMessage ? `\`${commitSha}\` - ${commitMessage}` : `\`${commitSha}\``;
 
   if (totalIssues === 0) {
-    const commitInfo = commitMessage ? `\`${commitSha}\` - ${commitMessage}` : `\`${commitSha}\``;
     const historySection = buildCommitHistorySection(commitHistory);
     const historyData = serializeCommitHistory(commitHistory);
 
@@ -204,27 +219,26 @@ ${historyData}
 
 | Metric | Value |
 |--------|-------|
-| Total Issues | 0 |
-| Mode | ${modeLabel} |
+| Issues | 0 |
+| Scan mode | ${modeLabel} |
+| Last commit | ${commitInfo} |
+| Last updated | ${timestamp} |
 
 All files passed validation!
-${historySection}
----
-**Last updated:** ${timestamp}
-**Last commit analyzed:** ${commitInfo}`;
+${historySection}`;
   }
 
   const icon = totalErrors > 0 ? ICONS.ERROR : ICONS.WARNING;
   const title = totalErrors > 0 ? 'Errors Found' : 'Warnings Found';
-  const statsTable = buildStatsTable(result, targetBranch);
-  const topOffenders = buildTopOffenders(ruleGroupsByRule);
+  const statsTable = buildStatsTable({ result, targetBranch, timestamp, commitSha, commitMessage });
+  const mostTriggered = buildMostTriggeredRules(ruleGroupsByRule);
 
   let comment = `${COMMENT_MARKER}
 ${serializeCommitHistory(commitHistory)}
 ## ${icon} TScanner - ${title}
 
 ${statsTable}
-${topOffenders}
+${mostTriggered}
 ---
 
 `;
@@ -237,10 +251,6 @@ ${topOffenders}
   comment += `<div align="center">\n\n<details>\n<summary><strong>${ICONS.RULE_ICON} Issues grouped by rule (${totalRules})</strong></summary>\n<br />\n\n<div align="left">\n${groupedByRule}\n</div></details>\n\n</div>\n\n---\n\n`;
   comment += `<div align="center">\n\n<details>\n<summary><strong>${ICONS.FILE_ICON} Issues grouped by file (${totalFiles})</strong></summary>\n<br />\n\n<div align="left">\n${groupedByFile}\n</div></details>\n\n</div>\n\n`;
   comment += historySection;
-
-  const commitInfo = commitMessage ? `\`${commitSha}\` - ${commitMessage}` : `\`${commitSha}\``;
-
-  comment += `---\n**Last updated:** ${timestamp}  \n**Last commit analyzed:** ${commitInfo}`;
 
   return comment;
 }
