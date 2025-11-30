@@ -2,7 +2,9 @@ import { pluralize } from 'tscanner-common';
 import { buildPrFileUrl } from '../../utils/url-builder';
 import type { ScanResult } from '../scanner';
 import {
+  Alignment,
   ICONS,
+  alignSection,
   escapeHtml,
   formatCommitInfo,
   getIssuesBreakdown,
@@ -41,39 +43,48 @@ export function buildScanSummaryTable(params: ScanSummaryParams): string {
   const modeLabel = getModeLabel(targetBranch);
   const issuesBreakdown = getIssuesBreakdown(totalErrors, totalWarnings);
 
-  let table = `| Metric | Value |
-|--------|-------|
-| Issues found | ${totalIssues}${issuesBreakdown} |
-| Scanned files | ${totalFiles} |
-| Triggered rules | ${totalRules} |
-| Scan mode | ${modeLabel} |`;
+  let rows = `<tr><td>Issues found</td><td>${totalIssues}${issuesBreakdown}</td></tr>
+<tr><td>Scanned files</td><td>${totalFiles}</td></tr>
+<tr><td>Triggered rules</td><td>${totalRules}</td></tr>
+<tr><td>Scan mode</td><td>${modeLabel}</td></tr>`;
 
   if (commitSha) {
     const commitInfo = formatCommitInfo(commitSha, commitMessage);
-    table += `\n| Last commit | ${commitInfo} |`;
+    rows += `\n<tr><td>Last commit</td><td>${commitInfo}</td></tr>`;
   }
 
   if (timestamp) {
-    table += `\n| Last updated | ${timestamp} |`;
+    rows += `\n<tr><td>Last updated</td><td>${timestamp}</td></tr>`;
   }
 
-  return table;
+  return `<table>
+<tr><th>Metric</th><th>Value</th></tr>
+${rows}
+</table>`;
 }
 
 export function buildCommitHistorySection(history: CommitHistoryEntry[]): string {
   if (history.length === 0) return '';
 
-  let output = '\n<div align="center"><details>\n<summary><strong>📈 Scan history</strong></summary>\n<br />\n\n';
-  output += '| Commit | Issues | Errors | Warnings |\n';
-  output += '|--------|--------|--------|----------|\n';
-
+  let rows = '';
   for (const entry of history) {
     const label = formatCommitInfo(entry.sha, entry.message);
-    output += `| ${label} | ${entry.totalIssues} | ${entry.errors} | ${entry.warnings} |\n`;
+    rows += `<tr><td>${label}</td><td>${entry.totalIssues}</td><td>${entry.errors}</td><td>${entry.warnings}</td></tr>\n`;
   }
 
-  output += '\n</details></div>\n';
-  return output;
+  const table = `<table>
+<tr><th>Commit</th><th>Issues</th><th>Errors</th><th>Warnings</th></tr>
+${rows}</table>`;
+
+  const details = `<details>
+<summary><strong>📈 Scan history</strong></summary>
+<br />
+
+${table}
+
+</details>`;
+
+  return `\n${alignSection(Alignment.Center, details)}\n`;
 }
 
 export function buildIssuesByRuleSection(params: IssuesViewParams): string {
@@ -102,19 +113,16 @@ export function buildIssuesByRuleSection(params: IssuesViewParams): string {
     content += '</details>\n\n';
   }
 
-  return `<div align="center">
+  const innerContent = alignSection(Alignment.Left, content);
 
-<details>
+  const details = `<details>
 <summary><strong>${ICONS.RULE_ICON} Issues grouped by rule (${totalRules})</strong></summary>
 <br />
 
-<div align="left">
-${content}
-</div></details>
+${innerContent}
+</details>`;
 
-</div>
-
-`;
+  return `${alignSection(Alignment.Center, details)}\n\n`;
 }
 
 export function buildIssuesByFileSection(params: IssuesViewParams): string {
@@ -166,19 +174,16 @@ export function buildIssuesByFileSection(params: IssuesViewParams): string {
     content += '</details>\n\n';
   }
 
-  return `<div align="center">
+  const innerContent = alignSection(Alignment.Left, content);
 
-<details>
+  const details = `<details>
 <summary><strong>${ICONS.FILE_ICON} Issues grouped by file (${totalFiles})</strong></summary>
 <br />
 
-<div align="left">
-${content}
-</div></details>
+${innerContent}
+</details>`;
 
-</div>
-
-`;
+  return `${alignSection(Alignment.Center, details)}\n\n`;
 }
 
 export function buildScanHeader(totalErrors: number, hasIssues: boolean): string {
@@ -192,4 +197,22 @@ export function buildScanHeader(totalErrors: number, hasIssues: boolean): string
 
 export function buildNoIssuesMessage(): string {
   return 'All files passed validation!';
+}
+
+export function buildNoIssuesTable(modeLabel: string, commitInfo?: string, timestamp?: string): string {
+  let rows = `<tr><td>Issues</td><td>0</td></tr>
+<tr><td>Scan mode</td><td>${modeLabel}</td></tr>`;
+
+  if (commitInfo) {
+    rows += `\n<tr><td>Last commit</td><td>${commitInfo}</td></tr>`;
+  }
+
+  if (timestamp) {
+    rows += `\n<tr><td>Last updated</td><td>${timestamp}</td></tr>`;
+  }
+
+  return `<table>
+<tr><th>Metric</th><th>Value</th></tr>
+${rows}
+</table>`;
 }

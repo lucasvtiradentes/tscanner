@@ -1,34 +1,37 @@
 import { githubHelper } from '../lib/actions-helper';
 import type { ScanResult } from './scanner';
 import { buildMostTriggeredTable, getModeLabel } from './shared/formatting';
-import { buildNoIssuesMessage, buildScanHeader, buildScanSummaryTable } from './shared/sections';
+import { buildNoIssuesMessage, buildNoIssuesTable, buildScanHeader, buildScanSummaryTable } from './shared/sections';
 
-export function writeSummary(scanResult: ScanResult, targetBranch?: string): void {
-  const { totalIssues, totalErrors, ruleGroupsByRule } = scanResult;
+function buildSuccessSummary(targetBranch?: string): string {
+  const header = buildScanHeader(0, false);
+  const modeLabel = getModeLabel(targetBranch);
+  const table = buildNoIssuesTable(modeLabel);
 
-  if (totalIssues === 0) {
-    const header = buildScanHeader(0, false);
-    const modeLabel = getModeLabel(targetBranch);
-    const summary = `${header}
+  return `${header}
 
-| Metric | Value |
-|--------|-------|
-| Scan mode | ${modeLabel} |
+${table}
 
 ${buildNoIssuesMessage()}`;
-    githubHelper.writeSummary(summary);
-    return;
-  }
+}
+
+function buildIssuesSummary(scanResult: ScanResult, targetBranch?: string): string {
+  const { totalErrors, ruleGroupsByRule } = scanResult;
 
   const header = buildScanHeader(totalErrors, true);
   const statsTable = buildScanSummaryTable({ result: scanResult, targetBranch });
   const mostTriggered = buildMostTriggeredTable(ruleGroupsByRule);
 
-  const summary = `${header}
+  return `${header}
 
 ${statsTable}
 
 ${mostTriggered}`;
+}
+
+export function writeSummary(scanResult: ScanResult, targetBranch?: string): void {
+  const summary =
+    scanResult.totalIssues === 0 ? buildSuccessSummary(targetBranch) : buildIssuesSummary(scanResult, targetBranch);
 
   githubHelper.writeSummary(summary);
 }

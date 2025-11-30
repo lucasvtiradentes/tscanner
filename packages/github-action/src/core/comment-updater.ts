@@ -2,13 +2,14 @@ import { COMMENT_MARKER } from '../constants';
 import { type Octokit, githubHelper } from '../lib/actions-helper';
 import { formatTimestamp } from '../utils/format-timestamp';
 import type { ScanResult } from './scanner';
-import { formatCommitInfo, getModeLabel } from './shared/formatting';
+import { Alignment, alignSection, formatCommitInfo, getModeLabel } from './shared/formatting';
 import {
   type CommitHistoryEntry,
   buildCommitHistorySection,
   buildIssuesByFileSection,
   buildIssuesByRuleSection,
   buildNoIssuesMessage,
+  buildNoIssuesTable,
   buildScanHeader,
   buildScanSummaryTable,
 } from './shared/sections';
@@ -60,17 +61,13 @@ function buildCommentBody(
     const header = buildScanHeader(0, false);
     const modeLabel = getModeLabel(targetBranch);
     const commitInfo = formatCommitInfo(commitSha, commitMessage);
+    const table = buildNoIssuesTable(modeLabel, commitInfo, timestamp);
 
     return `${COMMENT_MARKER}
 ${historyData}
 ${header}
 
-| Metric | Value |
-|--------|-------|
-| Issues | 0 |
-| Scan mode | ${modeLabel} |
-| Last commit | ${commitInfo} |
-| Last updated | ${timestamp} |
+${table}
 
 ${buildNoIssuesMessage()}
 ${historySection}`;
@@ -91,9 +88,7 @@ ${historySection}`;
 ${historyData}
 ${header}
 
-<div align="center">
-${statsTable}
-</div>
+${alignSection(Alignment.Center, statsTable)}
 
 <br />
 ${historySection}

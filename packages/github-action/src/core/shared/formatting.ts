@@ -1,5 +1,14 @@
 import { Severity } from 'tscanner-common';
 
+export enum Alignment {
+  Center = 'center',
+  Left = 'left',
+}
+
+export function alignSection(alignment: Alignment, content: string): string {
+  return `<div align="${alignment}">\n${content}\n</div>`;
+}
+
 export const ICONS = {
   SUCCESS: '✅',
   ERROR: '❌',
@@ -32,7 +41,7 @@ export function getSeverityBadge(severity: Severity): string {
 }
 
 export function formatCommitInfo(commitSha: string, commitMessage?: string): string {
-  return commitMessage ? `\`${commitSha}\` - ${commitMessage}` : `\`${commitSha}\``;
+  return commitMessage ? `<code>${commitSha}</code> - ${commitMessage}` : `<code>${commitSha}</code>`;
 }
 
 export function escapeHtml(text: string): string {
@@ -54,14 +63,17 @@ export function buildMostTriggeredTable(rules: RuleSummary[], limit = 5): string
   const mostTriggered = [...rules].sort((a, b) => b.issueCount - a.issueCount).slice(0, limit);
   if (mostTriggered.length === 0) return '';
 
-  let output = '<div align="center">\n\n';
-  output += '**Most triggered rules:**\n\n';
-  output += '| Rule | Issues |\n';
-  output += '|------|--------|\n';
+  let rows = '';
   for (const rule of mostTriggered) {
     const badge = getSeverityBadge(rule.severity);
-    output += `| ${badge} \`${rule.ruleName}\` | ${rule.issueCount} |\n`;
+    rows += `<tr><td>${badge} <code>${rule.ruleName}</code></td><td>${rule.issueCount}</td></tr>\n`;
   }
-  output += '\n</div>\n';
-  return output;
+
+  const table = `**Most triggered rules:**
+
+<table>
+<tr><th>Rule</th><th>Issues</th></tr>
+${rows}</table>`;
+
+  return `${alignSection(Alignment.Center, table)}\n`;
 }
