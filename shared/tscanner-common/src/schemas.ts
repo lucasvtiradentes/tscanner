@@ -88,20 +88,20 @@ export const customRuleConfigSchema = z.object({
 });
 
 export const lspConfigSchema = z.object({
-  errors: z.boolean().optional().default(true),
-  warnings: z.boolean().optional().default(true),
+  errors: z.boolean().optional(),
+  warnings: z.boolean().optional(),
 });
 
 export const cliGroupBySchema = z.enum(['file', 'rule']);
 
 export const cliConfigSchema = z.object({
-  groupBy: cliGroupBySchema.optional().default('file'),
-  noCache: z.boolean().optional().default(false),
-  showSeverity: z.boolean().optional().default(true),
-  showSourceLine: z.boolean().optional().default(true),
-  showRuleName: z.boolean().optional().default(true),
-  showDescription: z.boolean().optional().default(false),
-  showSummaryAtFooter: z.boolean().optional().default(true),
+  groupBy: cliGroupBySchema.optional(),
+  noCache: z.boolean().optional(),
+  showSeverity: z.boolean().optional(),
+  showSourceLine: z.boolean().optional(),
+  showRuleName: z.boolean().optional(),
+  showDescription: z.boolean().optional(),
+  showSummaryAtFooter: z.boolean().optional(),
 });
 
 export const filesConfigSchema = z.object({

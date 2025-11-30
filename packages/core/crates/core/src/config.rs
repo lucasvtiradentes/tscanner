@@ -120,10 +120,9 @@ const DEFAULT_CONFIG_JSON: &str = include_str!("../../../../../assets/default-co
 fn default_lsp_config() -> LspConfig {
     let config: TscannerConfig =
         serde_json::from_str(DEFAULT_CONFIG_JSON).expect("Failed to parse default-config.json");
-    config.lsp.unwrap_or(LspConfig {
-        errors: true,
-        warnings: false,
-    })
+    config
+        .lsp
+        .expect("default-config.json must have 'lsp' section")
 }
 
 fn default_lsp_errors() -> bool {
@@ -169,15 +168,9 @@ pub enum CliGroupBy {
 fn default_cli_config() -> CliConfig {
     let config: TscannerConfig =
         serde_json::from_str(DEFAULT_CONFIG_JSON).expect("Failed to parse default-config.json");
-    config.cli.unwrap_or(CliConfig {
-        group_by: CliGroupBy::File,
-        no_cache: false,
-        show_severity: true,
-        show_source_line: true,
-        show_rule_name: true,
-        show_description: false,
-        show_summary_at_footer: true,
-    })
+    config
+        .cli
+        .expect("default-config.json must have 'cli' section")
 }
 
 fn default_cli_group_by() -> CliGroupBy {
