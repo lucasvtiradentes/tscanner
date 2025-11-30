@@ -174,7 +174,7 @@ export class RustClient {
     });
 
     this.process.on('exit', (code) => {
-      logger.info(`Rust process exited with code: ${code}\n\n\n`);
+      logger.info(`Rust process exited with code: ${code}`);
       this.process = null;
     });
   }

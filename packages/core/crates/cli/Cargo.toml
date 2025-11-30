@@ -10,6 +10,10 @@ repository.workspace = true
 name = "tscanner"
 path = "src/main.rs"
 
+[[bin]]
+name = "generate_cli_json"
+path = "src/bin/generate_cli_json.rs"
+
 [dependencies]
 core = { path = "../core" }
 serde = { workspace = true }

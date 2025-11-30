@@ -1,10 +1,13 @@
 import { ScanMode } from 'tscanner-common';
+import { writeAnnotations } from './core/annotation-writer';
 import { updateOrCreateComment } from './core/comment-updater';
 import { type ActionInputs, getActionInputs } from './core/input-validator';
 import { type ScanOptions, type ScanResult, scanChangedFiles } from './core/scanner';
+import { writeSummary } from './core/summary-writer';
 import { type Octokit, githubHelper } from './lib/actions-helper';
 import { gitHelper } from './lib/git-helper';
 import { validateConfigFiles } from './utils/config-validator';
+import { formatTimestamp } from './utils/format-timestamp';
 
 class ActionRunner {
   async run() {
@@ -23,11 +26,48 @@ class ActionRunner {
       }
 
       const scanResults = await this.executeScan(inputs);
+
       const octokit = githubHelper.getOctokit(inputs.token);
 
-      await this.handlePRComment(inputs, octokit, scanResults);
+      if (inputs.prComment) {
+        await this.handlePRComment(inputs, octokit, scanResults);
+      }
+
+      if (inputs.annotations && scanResults.totalIssues > 0) {
+        await writeAnnotations(octokit, scanResults);
+      }
+
+      if (inputs.summary) {
+        const context = githubHelper.getContext();
+        const prInfo = context.payload.pull_request;
+        const { owner, repo } = context.repo;
+        const targetBranch = inputs.mode === ScanMode.Branch ? inputs.targetBranch : undefined;
+        const commitSha = prInfo?.head?.sha?.substring(0, 7);
+        const commitMessage = prInfo
+          ? await this.getCommitMessageFromApi(octokit, owner, repo, prInfo.head.sha)
+          : undefined;
+        const timestamp = formatTimestamp(inputs.timezone);
+
+        writeSummary({
+          scanResult: scanResults,
+          targetBranch,
+          owner,
+          repo,
+          prNumber: prInfo?.number ?? 0,
+          commitSha,
+          commitMessage,
+          timestamp,
+        });
+      }
+
       this.handleScanResults(scanResults, inputs);
     } catch (error) {
+      const errorData = {
+        message: error instanceof Error ? error.message : String(error),
+        stack: error instanceof Error ? error.stack : undefined,
+      };
+
+      githubHelper.logInfo(`error caught: ${JSON.stringify(errorData, null, 2)}`);
       githubHelper.setFailed(`Action failed: ${error instanceof Error ? error.message : String(error)}`);
     }
   }

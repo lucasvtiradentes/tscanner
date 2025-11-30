@@ -1,0 +1,167 @@
+{
+  "name": "tscanner",
+  "version": "0.0.22",
+  "description": "Code quality scanner for the AI-generated code era",
+  "commands": [
+    {
+      "name": "check",
+      "description": "Scan code for issues and display results",
+      "usage": "tscanner check [options] [paths]",
+      "arguments": [
+        {
+          "name": "paths",
+          "description": "Directory or file to scan (extra paths are ignored when --staged is used)",
+          "required": false,
+          "defaultValue": "."
+        }
+      ],
+      "flags": [
+        {
+          "name": "branch",
+          "short": null,
+          "description": "Only show issues in files changed compared to branch (e.g., origin/main)",
+          "takesValue": true,
+          "valueName": "BRANCH",
+          "possibleValues": null,
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "config",
+          "short": null,
+          "description": "Path to directory containing config.jsonc",
+          "takesValue": true,
+          "valueName": "CONFIG_DIR",
+          "possibleValues": null,
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "continue-on-error",
+          "short": null,
+          "description": "Continue execution even when errors are found",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "format",
+          "short": null,
+          "description": "Output format: text, json, or pretty",
+          "takesValue": true,
+          "valueName": "FORMAT",
+          "possibleValues": [
+            "text",
+            "json",
+            "pretty"
+          ],
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "glob",
+          "short": null,
+          "description": "Filter results by glob pattern (e.g., 'src/**/*.ts')",
+          "takesValue": true,
+          "valueName": "GLOB_PATTERN",
+          "possibleValues": null,
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "group-by",
+          "short": null,
+          "description": "Group issues by file or rule",
+          "takesValue": true,
+          "valueName": "MODE",
+          "possibleValues": [
+            "file",
+            "rule"
+          ],
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "no-cache",
+          "short": null,
+          "description": "Skip cache and force full scan",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "rule",
+          "short": null,
+          "description": "Filter results to specific rule (e.g., 'no-console-log')",
+          "takesValue": true,
+          "valueName": "RULE_NAME",
+          "possibleValues": null,
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "staged",
+          "short": null,
+          "description": "Scan only git staged files",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "init",
+      "description": "Create a default configuration file",
+      "usage": "tscanner init [options]",
+      "arguments": [],
+      "flags": [
+        {
+          "name": "all-rules",
+          "short": null,
+          "description": "Initialize with all built-in rules enabled",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false
+        }
+      ]
+    },
+    {
+      "name": "rules",
+      "description": "List all available rules and their metadata",
+      "usage": "tscanner rules [options]",
+      "arguments": [],
+      "flags": [
+        {
+          "name": "config",
+          "short": null,
+          "description": "Path to directory containing config.jsonc",
+          "takesValue": true,
+          "valueName": "CONFIG_DIR",
+          "possibleValues": null,
+          "defaultValue": null,
+          "required": false
+        }
+      ]
+    }
+  ]
+}

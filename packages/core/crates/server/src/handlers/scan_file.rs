@@ -9,7 +9,16 @@ pub fn handle_scan_file(
 ) -> Response {
     core::log_debug(&format!("Scanning single file: {:?}", params.file));
 
-    let config = TscannerConfig::load_from_workspace(&params.root).unwrap_or_default();
+    let config = match TscannerConfig::load_from_workspace(&params.root) {
+        Ok(c) => c,
+        Err(e) => {
+            return Response {
+                id: request_id,
+                result: None,
+                error: Some(e.to_string()),
+            };
+        }
+    };
 
     let scanner = match Scanner::with_cache(config, state.cache.clone(), params.root.clone()) {
         Ok(s) => s,

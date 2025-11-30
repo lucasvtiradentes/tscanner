@@ -23,7 +23,7 @@ GZIP:{base64-encoded-gzip-data}
 
 Decompression flow:
 ```
-stdout line -> strip "GZIP:" prefix -> base64 decode -> gunzip -> JSON parse
+stdout line → strip "GZIP:" prefix → base64 decode → gunzip → JSON parse
 ```
 
 ## RPC Methods

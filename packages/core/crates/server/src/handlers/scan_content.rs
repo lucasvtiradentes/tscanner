@@ -19,8 +19,11 @@ pub fn handle_scan_content(
                 c
             }
             Err(e) => {
-                core::log_debug(&format!("Using default configuration: {}", e));
-                TscannerConfig::default()
+                return Response {
+                    id: request_id,
+                    result: None,
+                    error: Some(e.to_string()),
+                };
             }
         }
     };

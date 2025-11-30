@@ -38,11 +38,11 @@ use swc_ecma_visit::{Visit, VisitWith};
 pub struct NoDebuggerRule;
 
 impl Rule for NoDebuggerRule {
-    fn name(&self) -> &str {
+    fn name(&self) → &str {
         "no-debugger"
     }
 
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn check(&self, program: &Program, path: &Path, source: &str) → Vec<Issue> {
         let mut visitor = NoDebuggerVisitor {
             issues: Vec::new(),
             path: path.to_path_buf(),
@@ -239,7 +239,7 @@ Some rules need two passes (e.g., `prefer-const` checks declarations then reassi
 
 ```rust
 impl Rule for PreferConstRule {
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn check(&self, program: &Program, path: &Path, source: &str) → Vec<Issue> {
         let mut collector = VariableCollector {
             let_declarations: HashMap::new(),
             source,
@@ -278,7 +278,7 @@ For simple pattern matching without AST:
 use regex::Regex;
 
 impl Rule for NoConsoleLogRule {
-    fn check(&self, _program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn check(&self, _program: &Program, path: &Path, source: &str) → Vec<Issue> {
         let regex = Regex::new(r"console\.log\(").unwrap();
         let mut issues = Vec::new();
 

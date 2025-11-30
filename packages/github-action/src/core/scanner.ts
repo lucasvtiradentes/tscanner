@@ -90,15 +90,16 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ScanResult
 
   const executor: CliExecutor = devMode ? createDevModeExecutor() : createProdModeExecutor(tscannerVersion);
 
-  const argsFile = [
+  const baseArgs = [
     'check',
-    '--json',
+    '--format=json',
     '--continue-on-error',
     '--config',
     configPath,
     ...(targetBranch ? ['--branch', targetBranch] : []),
   ];
-  const argsRule = [...argsFile, '--by-rule'];
+  const argsFile = [...baseArgs, '--group-by=file'];
+  const argsRule = [...baseArgs, '--group-by=rule'];
 
   const [scanOutputFile, scanOutputRule] = await Promise.all([executor.execute(argsFile), executor.execute(argsRule)]);
 
@@ -135,7 +136,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ScanResult
   githubHelper.logInfo('');
   githubHelper.logInfo('📊 Scan Results:');
   githubHelper.logInfo('');
-  await executor.displayResults(argsFile.map((arg) => (arg === '--json' ? '--pretty' : arg)));
+  await executor.displayResults(argsFile.map((arg) => (arg === '--format=json' ? '--format=pretty' : arg)));
 
   const fileGroups: Array<{ file: string; issues: Issue[]; severity: Severity }> = scanDataFile.files.map(
     (fileData) => ({

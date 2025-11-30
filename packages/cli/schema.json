@@ -1,65 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "TscannerConfig",
-  "type": "object",
-  "properties": {
-    "builtinRules": {
-      "description": "Built-in AST rules configuration",
-      "type": "object",
-      "additionalProperties": {
-        "$ref": "#/definitions/BuiltinRuleConfig"
-      }
-    },
-    "customRules": {
-      "description": "Custom rules configuration (regex, script, or AI)",
-      "type": "object",
-      "additionalProperties": {
-        "$ref": "#/definitions/CustomRuleConfig"
-      }
-    },
-    "exclude": {
-      "default": [
-        "node_modules/**",
-        "dist/**",
-        "build/**",
-        ".git/**"
-      ],
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "include": {
-      "default": [
-        "**/*.{ts,tsx,js,jsx,mjs,cjs}"
-      ],
-      "type": "array",
-      "items": {
-        "type": "string"
-      }
-    },
-    "lsp": {
-      "description": "LSP server configuration",
-      "anyOf": [
-        {
-          "$ref": "#/definitions/LspConfig"
-        },
-        {
-          "type": "null"
-        }
-      ]
-    },
-    "schema": {
-      "description": "JSON schema URL for editor support",
-      "type": [
-        "string",
-        "null"
-      ]
-    }
-  },
   "definitions": {
     "BuiltinRuleConfig": {
-      "type": "object",
       "properties": {
         "enabled": {
           "description": "Enable or disable this rule",
@@ -70,20 +12,19 @@
         },
         "exclude": {
           "description": "File patterns to exclude for this rule",
-          "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "type": "array"
         },
         "include": {
           "description": "File patterns to include for this rule",
-          "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "type": "array"
         },
         "severity": {
-          "description": "Severity level for this rule",
           "anyOf": [
             {
               "$ref": "#/definitions/Severity"
@@ -91,35 +32,83 @@
             {
               "type": "null"
             }
-          ]
+          ],
+          "description": "Severity level for this rule"
         }
-      }
+      },
+      "type": "object"
+    },
+    "CliConfig": {
+      "properties": {
+        "groupBy": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/CliGroupBy"
+            }
+          ],
+          "default": "file",
+          "description": "Group issues by file or rule"
+        },
+        "noCache": {
+          "default": false,
+          "description": "Skip cache and force full scan",
+          "type": "boolean"
+        },
+        "showDescription": {
+          "default": false,
+          "description": "Show rule description/message",
+          "type": "boolean"
+        },
+        "showRuleName": {
+          "default": true,
+          "description": "Show rule name",
+          "type": "boolean"
+        },
+        "showSeverity": {
+          "default": true,
+          "description": "Show severity icon",
+          "type": "boolean"
+        },
+        "showSourceLine": {
+          "default": true,
+          "description": "Show source line text",
+          "type": "boolean"
+        },
+        "showSummaryAtFooter": {
+          "default": true,
+          "description": "Show summary at footer",
+          "type": "boolean"
+        }
+      },
+      "type": "object"
+    },
+    "CliGroupBy": {
+      "enum": [
+        "file",
+        "rule"
+      ],
+      "type": "string"
     },
     "CustomRuleConfig": {
-      "type": "object",
-      "required": [
-        "message",
-        "type"
-      ],
       "properties": {
         "enabled": {
-          "description": "Enable or disable this rule (default: true)",
           "default": true,
+          "description": "Enable or disable this rule (default: true)",
           "type": "boolean"
         },
         "exclude": {
           "description": "File patterns to exclude",
-          "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "type": "array"
         },
         "include": {
           "description": "File patterns to include",
-          "type": "array",
           "items": {
             "type": "string"
-          }
+          },
+          "type": "array"
         },
         "message": {
           "description": "Error message to display when rule is violated",
@@ -147,53 +136,314 @@
           ]
         },
         "severity": {
-          "description": "Severity level (default: error)",
-          "default": "warning",
           "allOf": [
             {
               "$ref": "#/definitions/Severity"
             }
-          ]
+          ],
+          "default": "warning",
+          "description": "Severity level (default: error)"
         },
         "type": {
-          "description": "Type of custom rule",
           "allOf": [
             {
               "$ref": "#/definitions/CustomRuleType"
             }
-          ]
+          ],
+          "description": "Type of custom rule"
         }
-      }
+      },
+      "required": [
+        "message",
+        "type"
+      ],
+      "type": "object"
     },
     "CustomRuleType": {
-      "type": "string",
       "enum": [
         "regex",
         "script",
         "ai"
-      ]
+      ],
+      "type": "string"
+    },
+    "FilesConfig": {
+      "properties": {
+        "exclude": {
+          "default": [
+            "**/node_modules/**",
+            "**/dist/**",
+            "**/build/**",
+            "**/.git/**"
+          ],
+          "description": "File patterns to exclude",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "default": [
+            "**/*.ts",
+            "**/*.tsx",
+            "**/*.js",
+            "**/*.jsx",
+            "**/*.mjs",
+            "**/*.cjs"
+          ],
+          "description": "File patterns to include",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "type": "object"
     },
     "LspConfig": {
-      "type": "object",
       "properties": {
         "errors": {
-          "description": "Show error diagnostics in LSP (default: true)",
           "default": true,
+          "description": "Show error diagnostics in LSP",
           "type": "boolean"
         },
         "warnings": {
-          "description": "Show warning diagnostics in LSP (default: true)",
-          "default": true,
+          "default": false,
+          "description": "Show warning diagnostics in LSP",
           "type": "boolean"
         }
-      }
+      },
+      "type": "object"
     },
     "Severity": {
-      "type": "string",
       "enum": [
         "error",
         "warning"
-      ]
+      ],
+      "type": "string"
     }
-  }
+  },
+  "properties": {
+    "$schema": {
+      "description": "JSON schema URL for editor support",
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "builtinRules": {
+      "additionalProperties": false,
+      "description": "Built-in AST rules configuration",
+      "properties": {
+        "consistent-return": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Requires consistent return behavior in functions. Either all code paths return a value or none do."
+        },
+        "max-function-length": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Enforces a maximum number of statements in functions (default: 50). Long functions are harder to understand and maintain."
+        },
+        "max-params": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Limits the number of parameters in a function. Functions with many parameters should use an options object instead."
+        },
+        "no-absolute-imports": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows absolute imports without alias. Prefer relative or aliased imports."
+        },
+        "no-alias-imports": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows aliased imports (starting with @). Prefer relative imports."
+        },
+        "no-any-type": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Detects usage of TypeScript 'any' type (`: any` and `as any`). Using 'any' defeats the purpose of TypeScript's type system."
+        },
+        "no-async-without-await": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows async functions that don't use await. The async keyword is unnecessary if await is never used."
+        },
+        "no-console-log": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Finds console.log() statements in code. Console statements should be removed before committing to production."
+        },
+        "no-constant-condition": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows constant expressions in conditions (if/while/for/ternary). Likely a programming error."
+        },
+        "no-default-export": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows default exports. Named exports are preferred for better refactoring support and explicit imports."
+        },
+        "no-duplicate-imports": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows multiple import statements from the same module. Merge them into a single import."
+        },
+        "no-dynamic-import": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows dynamic import() expressions. Dynamic imports make static analysis harder and can impact bundle optimization."
+        },
+        "no-else-return": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows else blocks after return statements. The else is unnecessary since the function already returned."
+        },
+        "no-empty-class": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows empty classes without methods or properties."
+        },
+        "no-empty-function": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows empty functions and methods. Empty functions are often leftovers from incomplete code."
+        },
+        "no-empty-interface": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows empty interface declarations. Empty interfaces are equivalent to {} and usually indicate incomplete code."
+        },
+        "no-floating-promises": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows floating promises (promises used as statements without await, .then(), or .catch()). Unhandled promises can lead to silent failures."
+        },
+        "no-forwarded-exports": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows re-exporting from other modules. This includes direct re-exports (export { X } from 'module'), star re-exports (export * from 'module'), and re-exporting imported values."
+        },
+        "no-implicit-any": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Detects function parameters without type annotations that implicitly have 'any' type."
+        },
+        "no-inferrable-types": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows explicit type annotations on variables initialized with literal values. TypeScript can infer these types automatically."
+        },
+        "no-nested-require": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows require() calls inside functions, blocks, or conditionals. Require statements should be at the top level for static analysis."
+        },
+        "no-nested-ternary": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows nested ternary expressions. Nested ternaries are hard to read and should be replaced with if-else statements."
+        },
+        "no-non-null-assertion": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows the non-null assertion operator (!). Use proper null checks or optional chaining instead."
+        },
+        "no-relative-imports": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Detects relative imports (starting with './' or '../'). Prefer absolute imports with @ prefix for better maintainability."
+        },
+        "no-return-await": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows redundant 'return await' in async functions. The await is unnecessary since the function already returns a Promise."
+        },
+        "no-shadow": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows variable declarations that shadow variables in outer scopes. Shadowing can lead to confusing code and subtle bugs."
+        },
+        "no-single-or-array-union": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows union types that combine a type with its array form (e.g., `string | string[]`, `number | number[]`). Prefer using a consistent type to avoid handling multiple cases in function implementations."
+        },
+        "no-todo-comments": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Detects TODO, FIXME, and similar comment markers."
+        },
+        "no-unnecessary-type-assertion": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows type assertions on values that are already of the asserted type (e.g., \"hello\" as string, 123 as number)."
+        },
+        "no-unreachable-code": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Detects code after return, throw, break, or continue statements. This code will never execute."
+        },
+        "no-unused-vars": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Detects variables that are declared but never used in the code."
+        },
+        "no-useless-catch": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows catch blocks that only rethrow the caught error. Remove the try-catch or add meaningful error handling."
+        },
+        "no-var": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Disallows the use of 'var' keyword. Use 'let' or 'const' instead for block-scoped variables."
+        },
+        "prefer-const": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Suggests using 'const' instead of 'let' when variables are never reassigned."
+        },
+        "prefer-interface-over-type": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Suggests using 'interface' keyword instead of 'type' for consistency."
+        },
+        "prefer-nullish-coalescing": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Suggests using nullish coalescing (??) instead of logical OR (||) for default values. The || operator treats 0, \"\", and false as falsy, which may not be intended."
+        },
+        "prefer-optional-chain": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Suggests using optional chaining (?.) instead of logical AND (&&) chains for null checks."
+        },
+        "prefer-type-over-interface": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Suggests using 'type' keyword instead of 'interface' for consistency. Type aliases are more flexible and composable."
+        }
+      },
+      "type": "object"
+    },
+    "cli": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/CliConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "CLI output configuration"
+    },
+    "customRules": {
+      "additionalProperties": {
+        "$ref": "#/definitions/CustomRuleConfig"
+      },
+      "description": "Custom rules configuration (regex, script, or AI)",
+      "type": "object"
+    },
+    "files": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/FilesConfig"
+        }
+      ],
+      "default": {
+        "exclude": [
+          "**/node_modules/**",
+          "**/dist/**",
+          "**/build/**",
+          "**/.git/**"
+        ],
+        "include": [
+          "**/*.ts",
+          "**/*.tsx",
+          "**/*.js",
+          "**/*.jsx",
+          "**/*.mjs",
+          "**/*.cjs"
+        ]
+      },
+      "description": "File patterns configuration"
+    },
+    "lsp": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/LspConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "LSP server configuration"
+    }
+  },
+  "title": "TscannerConfig",
+  "type": "object"
 }

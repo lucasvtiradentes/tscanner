@@ -47,6 +47,9 @@ function convertToScanResult(results: IssueResult[]): ScanResult {
     files,
     total_issues: results.length,
     duration_ms: 0,
+    total_files: files.length,
+    cached_files: 0,
+    scanned_files: files.length,
   };
 }
 
@@ -115,8 +118,8 @@ export function createCopyFileIssuesCommand() {
     const scanModeText = currentScanMode === ScanMode.Branch ? 'branch mode' : 'codebase mode';
     const branch = currentScanMode === ScanMode.Branch ? currentCompareBranch : undefined;
     const cliCommand = branch
-      ? `tscanner check --file "${relativePath}" --branch ${branch}`
-      : `tscanner check --file "${relativePath}"`;
+      ? `tscanner check --glob "${relativePath}" --branch ${branch}`
+      : `tscanner check --glob "${relativePath}"`;
 
     const header = `TScanner report searching for all the issues in file "${relativePath}" in the ${scanModeText}\n\ncli command: ${cliCommand}\nfound issues: ${result.summary.total_issues} issues\n`;
 
@@ -161,8 +164,8 @@ export function createCopyFolderIssuesCommand() {
     const scanModeText = currentScanMode === ScanMode.Branch ? 'branch mode' : 'codebase mode';
     const branch = currentScanMode === ScanMode.Branch ? currentCompareBranch : undefined;
     const cliCommand = branch
-      ? `tscanner check --file "${relativeFolderPath}/**/*" --branch ${branch}`
-      : `tscanner check --file "${relativeFolderPath}/**/*"`;
+      ? `tscanner check --glob "${relativeFolderPath}/**/*" --branch ${branch}`
+      : `tscanner check --glob "${relativeFolderPath}/**/*"`;
 
     const header = `TScanner report searching for all the issues in folder "${item.node.name}" in the ${scanModeText}\n\ncli command: ${cliCommand}\nfound issues: ${result.summary.total_issues} issues\n`;
 

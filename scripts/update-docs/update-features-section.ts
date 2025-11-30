@@ -1,5 +1,9 @@
 import path from 'node:path';
-import { DynMarkdown } from 'markdown-helper';
+import { DynMarkdown, getJson } from 'markdown-helper';
+
+const rootDir = path.resolve(__dirname, '..', '..');
+const rulesJson: unknown[] = getJson(path.join(rootDir, 'assets/rules.json'));
+const RULES_COUNT = rulesJson.length;
 
 type TFields = 'FEATURES';
 
@@ -38,7 +42,7 @@ const FEATURE_BULLETS: FeatureBullet[] = [
   {
     id: FeatureId.Rules,
     title: 'Your Rules, Enforced',
-    description: '39 built-in checks + define your own with regex, scripts, or AI',
+    description: `${RULES_COUNT} built-in checks + define your own with regex, scripts, or AI`,
     packages: [Package.Main, Package.Cli, Package.Vscode, Package.Action],
   },
   {
@@ -110,8 +114,6 @@ const README_PATHS: Record<Package, string> = {
   [Package.Vscode]: 'packages/vscode-extension/README.md',
   [Package.Action]: 'packages/github-action/README.md',
 };
-
-const rootDir = path.resolve(__dirname, '..', '..');
 
 function formatBullet(bullet: FeatureBullet): string {
   return `- **${bullet.title}** - ${bullet.description}`;

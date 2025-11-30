@@ -11,7 +11,7 @@ const logger = console;
 
 async function main() {
   if (process.env.CI || process.env.GITHUB_ACTIONS) {
-    logger.log('[CLI] Skipping local installation in CI environment');
+    logger.log('Skipping local CLI installation in CI environment');
     process.exit(0);
   }
 

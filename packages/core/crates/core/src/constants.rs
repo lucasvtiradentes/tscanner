@@ -1,13 +1,52 @@
+use serde::Deserialize;
 use std::env;
 
-pub const APP_NAME: &str = "tscanner";
-pub const APP_DISPLAY_NAME: &str = "TScanner";
-pub const APP_DESCRIPTION: &str = "Code quality scanner for the AI-generated code era";
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct Constants {
+    package_name: String,
+    package_display_name: String,
+    package_description: String,
+    config_dir_name: String,
+    config_file_name: String,
+    default_target_branch: String,
+    log_basename: String,
+}
 
-pub const CONFIG_DIR_NAME: &str = ".tscanner";
-pub const CONFIG_FILE_NAME: &str = "config.jsonc";
+const CONSTANTS_JSON: &str = include_str!("../../../../../assets/constants.json");
 
-pub const LOG_BASENAME: &str = "tscannerlogs";
+lazy_static::lazy_static! {
+    static ref CONSTANTS: Constants = serde_json::from_str(CONSTANTS_JSON)
+        .expect("Failed to parse constants.json");
+}
+
+pub fn app_name() -> &'static str {
+    &CONSTANTS.package_name
+}
+
+pub fn app_display_name() -> &'static str {
+    &CONSTANTS.package_display_name
+}
+
+pub fn app_description() -> &'static str {
+    &CONSTANTS.package_description
+}
+
+pub fn config_dir_name() -> &'static str {
+    &CONSTANTS.config_dir_name
+}
+
+pub fn config_file_name() -> &'static str {
+    &CONSTANTS.config_file_name
+}
+
+pub fn default_target_branch() -> &'static str {
+    &CONSTANTS.default_target_branch
+}
+
+pub fn log_basename() -> &'static str {
+    &CONSTANTS.log_basename
+}
 
 pub fn is_dev_mode() -> bool {
     env::var("CI").is_err() && env::var("GITHUB_ACTIONS").is_err()
@@ -15,8 +54,8 @@ pub fn is_dev_mode() -> bool {
 
 pub fn get_log_filename() -> String {
     if is_dev_mode() {
-        format!("{}-dev.txt", LOG_BASENAME)
+        format!("{}-dev.txt", log_basename())
     } else {
-        format!("{}.txt", LOG_BASENAME)
+        format!("{}.txt", log_basename())
     }
 }

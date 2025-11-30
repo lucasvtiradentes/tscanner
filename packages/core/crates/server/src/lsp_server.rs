@@ -46,11 +46,23 @@ pub fn run_lsp_server() -> Result<(), LspError> {
 
     core::log_info(&format!("Workspace root: {:?}", workspace_root));
 
-    let config = TscannerConfig::load_from_workspace(&workspace_root).unwrap_or_default();
-    let config_hash = config.compute_hash();
-    let cache = Arc::new(FileCache::with_config_hash(config_hash));
-    let scanner = Scanner::with_cache(config.clone(), cache.clone(), workspace_root.clone())
-        .map_err(|e| -> LspError { e.to_string().into() })?;
+    let (config, scanner) = match TscannerConfig::load_from_workspace(&workspace_root) {
+        Ok(config) => {
+            let config_hash = config.compute_hash();
+            let cache = Arc::new(FileCache::with_config_hash(config_hash));
+            match Scanner::with_cache(config.clone(), cache, workspace_root.clone()) {
+                Ok(scanner) => (Some(config), Some(scanner)),
+                Err(e) => {
+                    core::log_error(&format!("Failed to create scanner: {}", e));
+                    (None, None)
+                }
+            }
+        }
+        Err(e) => {
+            core::log_error(&format!("Config error, LSP disabled: {}", e));
+            (None, None)
+        }
+    };
 
     let mut state = LspState {
         workspace_root,
@@ -69,8 +81,8 @@ pub fn run_lsp_server() -> Result<(), LspError> {
 
 struct LspState {
     workspace_root: PathBuf,
-    config: TscannerConfig,
-    scanner: Scanner,
+    config: Option<TscannerConfig>,
+    scanner: Option<Scanner>,
     open_files: HashMap<Url, String>,
     diagnostics: HashMap<Url, Vec<(Diagnostic, String)>>,
 }
@@ -108,6 +120,10 @@ fn handle_request(
 }
 
 fn handle_code_action(params: CodeActionParams, state: &LspState) -> Vec<CodeActionOrCommand> {
+    if state.scanner.is_none() {
+        return Vec::new();
+    }
+
     let uri = &params.text_document.uri;
     let mut actions: Vec<CodeActionOrCommand> = Vec::new();
 
@@ -307,23 +323,56 @@ fn handle_notification(
 fn handle_config_reload(connection: &Connection, state: &mut LspState) -> Result<(), LspError> {
     core::log_info("Config file changed, reloading...");
 
-    let new_config = TscannerConfig::load_from_workspace(&state.workspace_root).unwrap_or_default();
-    let config_hash = new_config.compute_hash();
+    match TscannerConfig::load_from_workspace(&state.workspace_root) {
+        Ok(new_config) => {
+            let config_hash = new_config.compute_hash();
+            let cache = Arc::new(FileCache::with_config_hash(config_hash));
 
-    let cache = Arc::new(FileCache::with_config_hash(config_hash));
-    let new_scanner = Scanner::with_cache(new_config.clone(), cache, state.workspace_root.clone())
-        .map_err(|e| -> LspError { e.to_string().into() })?;
+            match Scanner::with_cache(new_config.clone(), cache, state.workspace_root.clone()) {
+                Ok(new_scanner) => {
+                    state.config = Some(new_config);
+                    state.scanner = Some(new_scanner);
+                    core::log_info("Config reloaded successfully");
 
-    state.config = new_config;
-    state.scanner = new_scanner;
-
-    for (uri, content) in state.open_files.clone() {
-        if let Ok(path) = uri.to_file_path() {
-            publish_diagnostics(connection, &uri, &path, &content, state)?;
+                    for (uri, content) in state.open_files.clone() {
+                        if let Ok(path) = uri.to_file_path() {
+                            publish_diagnostics(connection, &uri, &path, &content, state)?;
+                        }
+                    }
+                }
+                Err(e) => {
+                    core::log_error(&format!("Failed to create scanner: {}", e));
+                    state.config = None;
+                    state.scanner = None;
+                    clear_all_diagnostics(connection, state)?;
+                }
+            }
+        }
+        Err(e) => {
+            core::log_error(&format!("Config error, LSP disabled: {}", e));
+            state.config = None;
+            state.scanner = None;
+            clear_all_diagnostics(connection, state)?;
         }
     }
 
-    core::log_info("Config reloaded and diagnostics refreshed");
+    Ok(())
+}
+
+fn clear_all_diagnostics(connection: &Connection, state: &mut LspState) -> Result<(), LspError> {
+    for uri in state.open_files.keys() {
+        let clear_params = PublishDiagnosticsParams {
+            uri: uri.clone(),
+            diagnostics: vec![],
+            version: None,
+        };
+        let notif = Notification {
+            method: "textDocument/publishDiagnostics".to_string(),
+            params: serde_json::to_value(clear_params)?,
+        };
+        connection.sender.send(Message::Notification(notif))?;
+    }
+    state.diagnostics.clear();
     Ok(())
 }
 
@@ -334,13 +383,20 @@ fn publish_diagnostics(
     content: &str,
     state: &mut LspState,
 ) -> Result<(), LspError> {
-    let issues: Vec<Issue> = state
-        .scanner
+    let Some(scanner) = &state.scanner else {
+        return Ok(());
+    };
+
+    let Some(config) = &state.config else {
+        return Ok(());
+    };
+
+    let issues: Vec<Issue> = scanner
         .scan_content(path, content)
         .map(|result| result.issues)
         .unwrap_or_default();
 
-    let lsp_config = state.config.lsp.as_ref();
+    let lsp_config = config.lsp.as_ref();
     let show_errors = lsp_config.map(|c| c.errors).unwrap_or(true);
     let show_warnings = lsp_config.map(|c| c.warnings).unwrap_or(true);
 

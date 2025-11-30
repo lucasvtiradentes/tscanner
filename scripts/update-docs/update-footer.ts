@@ -8,7 +8,7 @@ const rootDir = path.resolve(__dirname, '..', '..');
 export function updateFooter() {
   const getFooterContent = () => {
     return `<div width="100%" align="center">
-  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/lino@main/.github/image/divider.png" />
+  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/divider.png" />
 </div>
 
 <br />

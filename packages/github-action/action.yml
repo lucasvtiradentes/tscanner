@@ -25,16 +25,28 @@ inputs:
     description: 'TScanner version to use (e.g., "1.0.0", "latest")'
     required: false
     default: 'latest'
-  dev-mode:
-    description: 'Use local TScanner CLI from monorepo (internal development only)'
-    required: false
-    default: 'false'
   group-by:
     description: 'Group issues by "rule" or "file"'
     required: false
     default: 'file'
   continue-on-error:
     description: 'Continue execution even when errors are found'
+    required: false
+    default: 'false'
+  annotations:
+    description: 'Add GitHub annotations inline in PR diff'
+    required: false
+    default: 'true'
+  summary:
+    description: 'Write results to GitHub Step Summary'
+    required: false
+    default: 'true'
+  pr-comment:
+    description: 'Post or update PR comment with scan results'
+    required: false
+    default: 'true'
+  dev-mode:
+    description: 'Use local TScanner CLI from monorepo (internal development only)'
     required: false
     default: 'false'
 

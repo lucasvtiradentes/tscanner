@@ -37,7 +37,7 @@ is_valid = (entry.mtime == current_mtime) && (entry.config_hash == current_confi
 Deterministic hash of configuration state:
 
 ```rust
-fn compute_hash(config: &Config) -> u64 {
+fn compute_hash(config: &Config) → u64 {
     // BTreeMap ensures consistent ordering
     let mut rules: BTreeMap<String, _> = BTreeMap::new();
 

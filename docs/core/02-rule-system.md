@@ -8,8 +8,8 @@ All rules implement the `Rule` trait:
 
 ```rust
 pub trait Rule: Send + Sync {
-    fn name(&self) -> &str;
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue>;
+    fn name(&self) → &str;
+    fn check(&self, program: &Program, path: &Path, source: &str) → Vec<Issue>;
 }
 ```
 
@@ -74,11 +74,11 @@ use swc_ecma_visit::{Visit, VisitWith};
 pub struct MyRule;
 
 impl Rule for MyRule {
-    fn name(&self) -> &str {
+    fn name(&self) → &str {
         "my-rule"
     }
 
-    fn check(&self, program: &Program, path: &Path, source: &str) -> Vec<Issue> {
+    fn check(&self, program: &Program, path: &Path, source: &str) → Vec<Issue> {
         let mut visitor = MyRuleVisitor {
             issues: Vec::new(),
             source: source.to_string(),

@@ -35,7 +35,7 @@ const CORE_DIR = join(ROOT_DIR, 'packages', 'core');
 
 async function main() {
   if (process.env.CI || process.env.GITHUB_ACTIONS) {
-    logger.log('[VSCode] Skipping local installation in CI environment');
+    logger.log('Skipping local CODE EXTENSION installation in CI environment');
     process.exit(0);
   }
 

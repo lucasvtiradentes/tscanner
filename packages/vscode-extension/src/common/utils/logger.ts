@@ -1,4 +1,4 @@
-import { appendFileSync } from 'node:fs';
+import { appendFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { getLogFilename } from '../constants';
@@ -35,6 +35,10 @@ class Logger {
 
   debug(message: string) {
     this.write('DEBUG', message);
+  }
+
+  clear() {
+    writeFileSync(LOG_FILE_PATH, '');
   }
 }
 

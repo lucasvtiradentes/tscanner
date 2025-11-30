@@ -244,18 +244,6 @@
     "typescriptOnly": true
   },
   {
-    "category": "codequality",
-    "defaultEnabled": false,
-    "defaultSeverity": "warning",
-    "description": "Detects magic numbers in code (literals other than 0, 1, -1). Use named constants instead for better readability and maintainability.",
-    "displayName": "No Magic Numbers",
-    "equivalentEslintRule": "https://eslint.org/docs/latest/rules/no-magic-numbers",
-    "name": "no-magic-numbers",
-    "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_magic_numbers.rs",
-    "typescriptOnly": false
-  },
-  {
     "category": "imports",
     "defaultEnabled": false,
     "defaultSeverity": "warning",

@@ -1,9 +1,19 @@
+import * as fs from 'node:fs';
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as github from '@actions/github';
 
 export type Octokit = ReturnType<typeof github.getOctokit>;
 export type GithubContext = typeof github.context;
+
+export type AnnotationProperties = {
+  title?: string;
+  file?: string;
+  startLine?: number;
+  endLine?: number;
+  startColumn?: number;
+  endColumn?: number;
+};
 
 class ActionsHelper {
   getOctokit(token: string): Octokit {
@@ -53,6 +63,21 @@ class ActionsHelper {
       },
     });
     return output.trim();
+  }
+
+  addAnnotationError(message: string, properties?: AnnotationProperties): void {
+    core.error(message, properties);
+  }
+
+  addAnnotationWarning(message: string, properties?: AnnotationProperties): void {
+    core.warning(message, properties);
+  }
+
+  writeSummary(content: string): void {
+    const summaryFile = process.env.GITHUB_STEP_SUMMARY;
+    if (summaryFile) {
+      fs.appendFileSync(summaryFile, `${content}\n`);
+    }
   }
 }
 

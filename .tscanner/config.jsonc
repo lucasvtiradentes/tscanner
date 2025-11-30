@@ -4,14 +4,15 @@
     "consistent-return": {},
     "max-function-length": {},
     "max-params": {},
-    "no-alias-imports": {},
-    "no-any-type": { "severity": "error" },
+    // "no-absolute-imports": {},
+    // "no-alias-imports": {},
+    "no-any-type": {},
     "no-async-without-await": {},
-    "no-console-log": { "severity": "error" },
+    "no-console-log": {},
     "no-constant-condition": {},
     "no-default-export": {},
     "no-duplicate-imports": {},
-    "no-dynamic-import": { "severity": "error" },
+    "no-dynamic-import": {},
     "no-else-return": {},
     "no-empty-class": {},
     "no-empty-function": {},
@@ -20,12 +21,14 @@
     "no-forwarded-exports": {},
     "no-implicit-any": {},
     "no-inferrable-types": {},
-    "no-nested-require": { "severity": "error" },
+    "no-nested-require": {},
     "no-nested-ternary": {},
     "no-non-null-assertion": {},
+    // "no-relative-imports": {},
     "no-return-await": {},
     "no-shadow": {},
     "no-single-or-array-union": {},
+    "no-todo-comments": {},
     "no-unnecessary-type-assertion": {},
     "no-unreachable-code": {},
     "no-unused-vars": {},
@@ -34,33 +37,34 @@
     "prefer-const": {},
     "prefer-nullish-coalescing": {},
     "prefer-optional-chain": {},
+    // "prefer-interface-over-type": {},
     "prefer-type-over-interface": {}
   },
-  "customRules": {
-    "no-debug-log-calls": {
-      "type": "regex",
-      "pattern": "logger\\.debug",
-      "message": "logger calls should be removed before production"
-    },
-    "no-promise-void-return": {
-      "type": "regex",
-      "pattern": ": Promise<void>",
-      "message": "there's no need to return promise void"
-    }
+  "customRules": {},
+  "files": {
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/build/**",
+      ".git/**",
+      ".ignore/**",
+      "packages/vscode-extension/dist-dev/**",
+      "packages/vscode-extension/out/**",
+      "packages/core/crates/core/tests/**"
+    ]
   },
-  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
-  "exclude": [
-    "**/node_modules/**",
-    "**/dist/**",
-    "**/build/**",
-    ".git/**",
-    ".ignore/**",
-    "packages/vscode-extension/dist-dev/**",
-    "packages/vscode-extension/out/**",
-    "packages/core/crates/core/tests/**"
-  ],
   "lsp": {
     "errors": true,
-    "warnings": true
+    "warnings": false
+  },
+  "cli": {
+    "groupBy": "rule",
+    "noCache": false,
+    "showSeverity": true,
+    "showSourceLine": true,
+    "showRuleName": true,
+    "showDescription": false,
+    "showSummaryAtFooter": true
   }
 }

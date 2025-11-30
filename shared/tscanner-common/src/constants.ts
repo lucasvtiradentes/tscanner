@@ -1,7 +1,12 @@
-export const PACKAGE_NAME = 'tscanner';
-export const CONFIG_DIR_NAME = '.tscanner';
-export const CONFIG_FILE_NAME = 'config.jsonc';
-export const DEFAULT_TARGET_BRANCH = 'origin/main';
+import constants from '../../../assets/constants.json';
+
+export const PACKAGE_NAME = constants.packageName;
+export const PACKAGE_DISPLAY_NAME = constants.packageDisplayName;
+export const PACKAGE_DESCRIPTION = constants.packageDescription;
+export const CONFIG_DIR_NAME = constants.configDirName;
+export const CONFIG_FILE_NAME = constants.configFileName;
+export const DEFAULT_TARGET_BRANCH = constants.defaultTargetBranch;
+export const LOG_BASENAME = constants.logBasename;
 
 export enum Severity {
   Error = 'error',
