@@ -7,6 +7,8 @@ export const CONFIG_DIR_NAME = constants.configDirName;
 export const CONFIG_FILE_NAME = constants.configFileName;
 export const DEFAULT_TARGET_BRANCH = constants.defaultTargetBranch;
 export const LOG_BASENAME = constants.logBasename;
+export const DISABLE_FILE_COMMENT = constants.disableFileComment;
+export const DISABLE_NEXT_LINE_COMMENT = constants.disableNextLineComment;
 
 export enum Severity {
   Error = 'error',

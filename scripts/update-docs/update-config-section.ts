@@ -1,5 +1,12 @@
 import path from 'node:path';
 import { DynMarkdown, getJson } from 'markdown-helper';
+import {
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  DISABLE_FILE_COMMENT,
+  DISABLE_NEXT_LINE_COMMENT,
+  PACKAGE_NAME,
+} from 'tscanner-common';
 
 type TFields = 'COMMON_SECTION_CONFIG';
 
@@ -15,8 +22,8 @@ export function updateConfigSection() {
 To scan your code, you need to set up the rules in the TScanner config folder. Here's how to get started:
 
 1. **VSCode Extension**: TScanner icon in the status bar → \`Manage Rules\` → Select desired rules → \`Save\`
-2. **CLI**: Run \`tscanner init\` in your project root
-3. **Manual**: Copy the default config below to \`.tscanner/config.json\`
+2. **CLI**: Run \`${PACKAGE_NAME} init\` in your project root
+3. **Manual**: Copy the default config below to \`${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}\`
 
 The default configuration is:
 
@@ -27,10 +34,10 @@ ${defaultConfigContent}
 **Inline Disables:**
 
 \`\`\`typescript
-// tscanner-disable-next-line no-any-type
+// ${DISABLE_NEXT_LINE_COMMENT} no-any-type
 const data: any = fetchData();
 
-// tscanner-disable-file
+// ${DISABLE_FILE_COMMENT}
 // Entire file is skipped
 \`\`\`
 

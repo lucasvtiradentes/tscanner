@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { PLATFORM_PACKAGE_MAP, getBinaryName, getPlatformKey } from 'tscanner-common';
+import { PACKAGE_NAME, PLATFORM_PACKAGE_MAP, getBinaryName, getPlatformKey } from 'tscanner-common';
 
 export function getBinaryPath(): string {
   const platformKey = getPlatformKey();
@@ -23,7 +23,7 @@ export function getBinaryPath(): string {
   } catch (e) {
     const error = e as Error;
     throw new Error(
-      `Failed to find TScanner binary for ${platformKey}\nPlease try reinstalling: npm install tscanner\nError: ${error.message}`,
+      `Failed to find TScanner binary for ${platformKey}\nPlease try reinstalling: npm install ${PACKAGE_NAME}\nError: ${error.message}`,
     );
   }
 }

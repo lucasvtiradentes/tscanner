@@ -1,4 +1,4 @@
-import { type ScanResult, Severity } from 'tscanner-common';
+import { PACKAGE_NAME, type ScanResult, Severity } from 'tscanner-common';
 import type { CliGroupBy } from 'tscanner-common';
 import { DEFAULT_TARGET_BRANCH } from '../scripts-constants';
 import { type FolderNode, type IssueResult, NodeKind } from '../types';
@@ -32,7 +32,7 @@ class CopyScanContext {
     const filterArg = filter && filterValue ? ` --${filter} "${filterValue}"` : '';
     const groupByArg = ` --group-by ${groupBy}`;
     const branchArg = branch ? ` --branch ${branch}` : '';
-    return `tscanner check${filterArg}${groupByArg}${branchArg}`;
+    return `${PACKAGE_NAME} check${filterArg}${groupByArg}${branchArg}`;
   }
 }
 
