@@ -1,6 +1,5 @@
 import type * as vscode from 'vscode';
-import type { RustClient } from '../common/lib/rust-client';
-import type { ScanMode } from '../common/lib/vscode-utils';
+import type { CommandDependencies } from '../common/lib/extension-state';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
 import { createManageRulesCommand, createOpenSettingsMenuCommand } from '../settings-menu';
 import {
@@ -23,54 +22,43 @@ import { createGoToNextIssueCommand, createGoToPreviousIssueCommand, resetIssueI
 import { createScanWorkspaceCommand } from './public/scan-workspace';
 import { createShowLogsCommand } from './public/show-logs';
 
-export type CommandContext = {
-  panelContent: IssuesPanelContent;
-  context: vscode.ExtensionContext;
-  treeView: vscode.TreeView<any>;
-  updateBadge: () => void;
-  updateStatusBar: () => Promise<void>;
-  isSearchingRef: { current: boolean };
-  currentScanModeRef: { current: ScanMode };
-  currentCompareBranchRef: { current: string };
-  currentCustomConfigDirRef: { current: string | null };
-  getRustClient: () => RustClient | null;
-};
+export function registerAllCommands(deps: CommandDependencies, panelContent: IssuesPanelContent): vscode.Disposable[] {
+  const { context, treeView, stateRefs, updateBadge, updateStatusBar, getRustClient } = deps;
 
-export function registerAllCommands(ctx: CommandContext): vscode.Disposable[] {
-  setCopyRustClient(ctx.getRustClient);
-  setCopyScanContext(ctx.currentScanModeRef.current, ctx.currentCompareBranchRef.current);
+  setCopyRustClient(getRustClient);
+  setCopyScanContext(stateRefs.currentScanModeRef.current, stateRefs.currentCompareBranchRef.current);
 
   return [
     createScanWorkspaceCommand(
-      ctx.panelContent,
-      ctx.context,
-      ctx.treeView,
-      ctx.updateBadge,
-      ctx.updateStatusBar,
-      ctx.isSearchingRef,
-      ctx.currentScanModeRef,
-      ctx.currentCompareBranchRef,
-      ctx.currentCustomConfigDirRef,
+      panelContent,
+      context,
+      treeView,
+      updateBadge,
+      updateStatusBar,
+      stateRefs.isSearchingRef,
+      stateRefs.currentScanModeRef,
+      stateRefs.currentCompareBranchRef,
+      stateRefs.currentCustomConfigDirRef,
     ),
-    createHardScanCommand(ctx.isSearchingRef),
-    createGoToNextIssueCommand(ctx.panelContent),
-    createGoToPreviousIssueCommand(ctx.panelContent),
+    createHardScanCommand(stateRefs.isSearchingRef),
+    createGoToNextIssueCommand(panelContent),
+    createGoToPreviousIssueCommand(panelContent),
     createShowLogsCommand(),
     createRefreshCommand(),
-    createManageRulesCommand(ctx.updateStatusBar, ctx.context, ctx.currentCustomConfigDirRef),
+    createManageRulesCommand(updateStatusBar, context, stateRefs.currentCustomConfigDirRef),
     createOpenSettingsMenuCommand(
-      ctx.updateStatusBar,
-      ctx.updateBadge,
-      ctx.currentScanModeRef,
-      ctx.currentCompareBranchRef,
-      ctx.currentCustomConfigDirRef,
-      ctx.context,
-      ctx.panelContent,
+      updateStatusBar,
+      updateBadge,
+      stateRefs.currentScanModeRef,
+      stateRefs.currentCompareBranchRef,
+      stateRefs.currentCustomConfigDirRef,
+      context,
+      panelContent,
     ),
-    createCycleViewModeFileFlatViewCommand(ctx.panelContent, ctx.context),
-    createCycleViewModeFileTreeViewCommand(ctx.panelContent, ctx.context),
-    createCycleViewModeRuleFlatViewCommand(ctx.panelContent, ctx.context),
-    createCycleViewModeRuleTreeViewCommand(ctx.panelContent, ctx.context),
+    createCycleViewModeFileFlatViewCommand(panelContent, context),
+    createCycleViewModeFileTreeViewCommand(panelContent, context),
+    createCycleViewModeRuleFlatViewCommand(panelContent, context),
+    createCycleViewModeRuleTreeViewCommand(panelContent, context),
     createOpenFileCommand(),
     createCopyRuleIssuesCommand(),
     createCopyFileIssuesCommand(),

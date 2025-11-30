@@ -50,6 +50,20 @@ function showConfigErrorToast(configError: ConfigError) {
 let rustClient: RustClient | null = null;
 let lspClient: TscannerLspClient | null = null;
 
+async function ensureRustClient(): Promise<RustClient> {
+  const binaryPath = getRustBinaryPath();
+  if (!binaryPath) {
+    throw new Error('Rust binary not found');
+  }
+
+  if (!rustClient) {
+    rustClient = new RustClient(binaryPath);
+    await rustClient.start();
+  }
+
+  return rustClient;
+}
+
 export function getRustBinaryPath(): string | null {
   const extensionPath = getExtensionPath();
   if (!extensionPath) {
@@ -121,14 +135,10 @@ export async function scanWorkspace(
 
   try {
     logger.info('Using Rust backend for scanning');
-
-    if (!rustClient) {
-      rustClient = new RustClient(binaryPath);
-      await rustClient.start();
-    }
+    const client = await ensureRustClient();
 
     const scanStart = Date.now();
-    const results = await rustClient.scan(workspaceFolder.uri.fsPath, fileFilter, config, branch);
+    const results = await client.scan(workspaceFolder.uri.fsPath, fileFilter, config, branch);
     const scanTime = Date.now() - scanStart;
 
     logger.info(`scanWorkspace() took ${scanTime}ms to return ${results.length} results`);
@@ -163,18 +173,9 @@ export async function scanFile(filePath: string): Promise<IssueResult[]> {
     return [];
   }
 
-  const binaryPath = getRustBinaryPath();
-  if (!binaryPath) {
-    throw new Error('Rust binary not found');
-  }
-
   try {
-    if (!rustClient) {
-      rustClient = new RustClient(binaryPath);
-      await rustClient.start();
-    }
-
-    const results = await rustClient.scanFile(workspaceFolder.uri.fsPath, filePath);
+    const client = await ensureRustClient();
+    const results = await client.scanFile(workspaceFolder.uri.fsPath, filePath);
     logger.debug(`scanFile() returned ${results.length} results for ${filePath}`);
     return results;
   } catch (error) {
@@ -189,18 +190,9 @@ export async function scanContent(filePath: string, content: string, config?: Ts
     return [];
   }
 
-  const binaryPath = getRustBinaryPath();
-  if (!binaryPath) {
-    throw new Error('Rust binary not found');
-  }
-
   try {
-    if (!rustClient) {
-      rustClient = new RustClient(binaryPath);
-      await rustClient.start();
-    }
-
-    const results = await rustClient.scanContent(workspaceFolder.uri.fsPath, filePath, content, config);
+    const client = await ensureRustClient();
+    const results = await client.scanContent(workspaceFolder.uri.fsPath, filePath, content, config);
     logger.debug(`scanContent() returned ${results.length} results for ${filePath}`);
     return results;
   } catch (error) {
@@ -210,16 +202,8 @@ export async function scanContent(filePath: string, content: string, config?: Ts
 }
 
 export async function clearCache(): Promise<void> {
-  if (!rustClient) {
-    const binaryPath = getRustBinaryPath();
-    if (!binaryPath) {
-      throw new Error('Rust binary not found');
-    }
-    rustClient = new RustClient(binaryPath);
-    await rustClient.start();
-  }
-
-  await rustClient.clearCache();
+  const client = await ensureRustClient();
+  await client.clearCache();
   logger.info('Cache cleared via RPC');
 }
 

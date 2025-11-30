@@ -27,17 +27,60 @@ type RuleQuickPickItem = vscode.QuickPickItem & {
   isCustom: boolean;
 };
 
+enum CustomRuleType {
+  Regex = 'regex',
+  Script = 'script',
+  Ai = 'ai',
+}
+
+const CUSTOM_RULE_TYPE_CONFIG: Record<CustomRuleType, { icon: string; detailKey: 'pattern' | 'script' | 'prompt' }> = {
+  [CustomRuleType.Regex]: { icon: '$(regex)', detailKey: 'pattern' },
+  [CustomRuleType.Script]: { icon: '$(file-code)', detailKey: 'script' },
+  [CustomRuleType.Ai]: { icon: '$(sparkle)', detailKey: 'prompt' },
+};
+
+enum RuleCategory {
+  TypeSafety = 'typesafety',
+  Variables = 'variables',
+  Imports = 'imports',
+  CodeQuality = 'codequality',
+  BugPrevention = 'bugprevention',
+  Style = 'style',
+  Performance = 'performance',
+}
+
+const CATEGORY_ICONS: Record<RuleCategory, string> = {
+  [RuleCategory.TypeSafety]: 'shield',
+  [RuleCategory.Variables]: 'symbol-variable',
+  [RuleCategory.Imports]: 'package',
+  [RuleCategory.CodeQuality]: 'beaker',
+  [RuleCategory.BugPrevention]: 'bug',
+  [RuleCategory.Style]: 'symbol-color',
+  [RuleCategory.Performance]: 'dashboard',
+};
+
+const CATEGORY_LABELS: Record<RuleCategory, string> = {
+  [RuleCategory.TypeSafety]: 'Type Safety',
+  [RuleCategory.Variables]: 'Variables',
+  [RuleCategory.Imports]: 'Imports',
+  [RuleCategory.CodeQuality]: 'Code Quality',
+  [RuleCategory.BugPrevention]: 'Bug Prevention',
+  [RuleCategory.Style]: 'Style',
+  [RuleCategory.Performance]: 'Performance',
+};
+
+const CATEGORY_ORDER: RuleCategory[] = [
+  RuleCategory.TypeSafety,
+  RuleCategory.Variables,
+  RuleCategory.Imports,
+  RuleCategory.CodeQuality,
+  RuleCategory.BugPrevention,
+  RuleCategory.Style,
+  RuleCategory.Performance,
+];
+
 function getCategoryIcon(category: string): string {
-  const icons: Record<string, string> = {
-    typesafety: 'shield',
-    variables: 'symbol-variable',
-    imports: 'package',
-    codequality: 'beaker',
-    bugprevention: 'bug',
-    style: 'symbol-color',
-    performance: 'dashboard',
-  };
-  return icons[category] || 'circle-outline';
+  return CATEGORY_ICONS[category as RuleCategory] || 'circle-outline';
 }
 
 export function createManageRulesCommand(
@@ -71,17 +114,11 @@ export function createManageRulesCommand(
       const existingConfig = (await loadEffectiveConfig(context, workspacePath, customConfigDir)) || getDefaultConfig();
       logger.info(`Loaded config with ${Object.keys(existingConfig.builtinRules || {}).length} builtin rules`);
 
-      const customRuleTypeMap = {
-        regex: { icon: '$(regex)', detailKey: 'pattern' as const },
-        script: { icon: '$(file-code)', detailKey: 'script' as const },
-        ai: { icon: '$(sparkle)', detailKey: 'prompt' as const },
-      };
-
       const customRules: RuleQuickPickItem[] = [];
 
       if (existingConfig?.customRules) {
         for (const [ruleName, ruleConfig] of Object.entries(existingConfig.customRules)) {
-          const typeInfo = customRuleTypeMap[ruleConfig.type];
+          const typeInfo = CUSTOM_RULE_TYPE_CONFIG[ruleConfig.type as CustomRuleType];
           customRules.push({
             label: `${typeInfo.icon} ${ruleName}`,
             description: `[${ruleConfig.type.toUpperCase()}] custom`,
@@ -115,36 +152,17 @@ export function createManageRulesCommand(
         rulesByCategory.get(category)?.push(ruleItem);
       }
 
-      const categoryOrder = [
-        'typesafety',
-        'variables',
-        'imports',
-        'codequality',
-        'bugprevention',
-        'style',
-        'performance',
-      ];
-      const categoryLabels: Record<string, string> = {
-        typesafety: 'Type Safety',
-        variables: 'Variables',
-        imports: 'Imports',
-        codequality: 'Code Quality',
-        bugprevention: 'Bug Prevention',
-        style: 'Style',
-        performance: 'Performance',
-      };
-
       const items: RuleQuickPickItem[] = [
         ...(customRules.length > 0
           ? [{ label: 'Custom Rules', kind: vscode.QuickPickItemKind.Separator } as any, ...customRules]
           : []),
       ];
 
-      for (const category of categoryOrder) {
+      for (const category of CATEGORY_ORDER) {
         const categoryRules = rulesByCategory.get(category);
         if (categoryRules && categoryRules.length > 0) {
           items.push(
-            { label: categoryLabels[category], kind: vscode.QuickPickItemKind.Separator } as any,
+            { label: CATEGORY_LABELS[category], kind: vscode.QuickPickItemKind.Separator } as any,
             ...categoryRules,
           );
         }

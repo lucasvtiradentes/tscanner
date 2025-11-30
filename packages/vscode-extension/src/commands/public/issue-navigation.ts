@@ -1,63 +1,47 @@
 import * as vscode from 'vscode';
-import { Command, ToastKind, openTextDocument, registerCommand, showToastMessage } from '../../common/lib/vscode-utils';
+import {
+  Command,
+  ToastKind,
+  navigateToPosition,
+  registerCommand,
+  showToastMessage,
+} from '../../common/lib/vscode-utils';
 import { logger } from '../../common/utils/logger';
 import type { IssuesPanelContent } from '../../issues-panel/panel-content';
 
 let currentIssueIndex = -1;
 
-export function createGoToNextIssueCommand(panelContent: IssuesPanelContent) {
-  return registerCommand(Command.GoToNextIssue, async () => {
-    const results = panelContent.getResults();
+async function navigateToIssue(panelContent: IssuesPanelContent, direction: 'next' | 'previous'): Promise<void> {
+  const results = panelContent.getResults();
 
-    if (results.length === 0) {
-      showToastMessage(ToastKind.Info, 'No issues found');
-      return;
-    }
+  if (results.length === 0) {
+    showToastMessage(ToastKind.Info, 'No issues found');
+    return;
+  }
 
+  if (direction === 'next') {
     currentIssueIndex = (currentIssueIndex + 1) % results.length;
-    const issue = results[currentIssueIndex];
-
-    logger.debug(`Navigating to next issue: ${currentIssueIndex + 1}/${results.length}`);
-
-    const doc = await openTextDocument(issue.uri);
-    const editor = await vscode.window.showTextDocument(doc);
-
-    const position = new vscode.Position(issue.line, issue.column);
-    editor.selection = new vscode.Selection(position, position);
-    editor.revealRange(new vscode.Range(position, position), vscode.TextEditorRevealType.InCenter);
-
-    vscode.window.setStatusBarMessage(`Issue ${currentIssueIndex + 1}/${results.length}: ${issue.rule}`, 3000);
-  });
-}
-
-export function createGoToPreviousIssueCommand(panelContent: IssuesPanelContent) {
-  return registerCommand(Command.GoToPreviousIssue, async () => {
-    const results = panelContent.getResults();
-
-    if (results.length === 0) {
-      showToastMessage(ToastKind.Info, 'No issues found');
-      return;
-    }
-
+  } else {
     if (currentIssueIndex === -1) {
       currentIssueIndex = results.length - 1;
     } else {
       currentIssueIndex = (currentIssueIndex - 1 + results.length) % results.length;
     }
+  }
 
-    const issue = results[currentIssueIndex];
+  const issue = results[currentIssueIndex];
+  logger.debug(`Navigating to ${direction} issue: ${currentIssueIndex + 1}/${results.length}`);
 
-    logger.debug(`Navigating to previous issue: ${currentIssueIndex + 1}/${results.length}`);
+  await navigateToPosition(issue.uri, issue.line, issue.column);
+  vscode.window.setStatusBarMessage(`Issue ${currentIssueIndex + 1}/${results.length}: ${issue.rule}`, 3000);
+}
 
-    const doc = await openTextDocument(issue.uri);
-    const editor = await vscode.window.showTextDocument(doc);
+export function createGoToNextIssueCommand(panelContent: IssuesPanelContent) {
+  return registerCommand(Command.GoToNextIssue, () => navigateToIssue(panelContent, 'next'));
+}
 
-    const position = new vscode.Position(issue.line, issue.column);
-    editor.selection = new vscode.Selection(position, position);
-    editor.revealRange(new vscode.Range(position, position), vscode.TextEditorRevealType.InCenter);
-
-    vscode.window.setStatusBarMessage(`Issue ${currentIssueIndex + 1}/${results.length}: ${issue.rule}`, 3000);
-  });
+export function createGoToPreviousIssueCommand(panelContent: IssuesPanelContent) {
+  return registerCommand(Command.GoToPreviousIssue, () => navigateToIssue(panelContent, 'previous'));
 }
 
 export function resetIssueIndex() {

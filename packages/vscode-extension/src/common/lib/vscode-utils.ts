@@ -189,3 +189,11 @@ export type QuickPickItemWithId<T extends string = string> = {
 export function formatIssueCount(count: number): string {
   return `${count} ${count === 1 ? 'issue' : 'issues'}`;
 }
+
+export async function navigateToPosition(uri: vscode.Uri, line: number, column: number): Promise<void> {
+  const doc = await openTextDocument(uri);
+  const editor = await vscode.window.showTextDocument(doc);
+  const position = new vscode.Position(line, column);
+  editor.selection = new vscode.Selection(position, position);
+  editor.revealRange(new vscode.Range(position, position), vscode.TextEditorRevealType.InCenter);
+}

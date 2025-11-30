@@ -6,17 +6,44 @@ import { DEFAULT_TARGET_BRANCH } from '../../common/scripts-constants';
 import { type FolderNode, type IssueResult, NodeKind } from '../../common/types';
 import type { FileResultItem, FolderResultItem, RuleGroupItem } from '../../issues-panel/utils/tree-items';
 
-let currentScanMode: ScanMode = ScanMode.Codebase;
-let currentCompareBranch = DEFAULT_TARGET_BRANCH;
-let getRustClientFn: (() => RustClient | null) | null = null;
+class CopyScanContext {
+  private scanMode: ScanMode = ScanMode.Codebase;
+  private compareBranch = DEFAULT_TARGET_BRANCH;
+  private getRustClientFn: (() => RustClient | null) | null = null;
+
+  setRustClient(fn: () => RustClient | null) {
+    this.getRustClientFn = fn;
+  }
+
+  setScanContext(scanMode: ScanMode, compareBranch: string) {
+    this.scanMode = scanMode;
+    this.compareBranch = compareBranch;
+  }
+
+  getRustClient(): RustClient | null {
+    return this.getRustClientFn?.() ?? null;
+  }
+
+  getScanModeText(): string {
+    return this.scanMode === ScanMode.Branch ? 'branch mode' : 'codebase mode';
+  }
+
+  buildCliCommand(filter: string, filterValue: string): string {
+    const branch = this.scanMode === ScanMode.Branch ? this.compareBranch : undefined;
+    return branch
+      ? `tscanner check --${filter} "${filterValue}" --branch ${branch}`
+      : `tscanner check --${filter} "${filterValue}"`;
+  }
+}
+
+const copyScanContext = new CopyScanContext();
 
 export function setCopyRustClient(getRustClient: () => RustClient | null) {
-  getRustClientFn = getRustClient;
+  copyScanContext.setRustClient(getRustClient);
 }
 
 export function setCopyScanContext(scanMode: ScanMode, compareBranch: string) {
-  currentScanMode = scanMode;
-  currentCompareBranch = compareBranch;
+  copyScanContext.setScanContext(scanMode, compareBranch);
 }
 
 function convertToScanResult(results: IssueResult[]): ScanResult {
@@ -54,131 +81,6 @@ function convertToScanResult(results: IssueResult[]): ScanResult {
   };
 }
 
-export function createCopyRuleIssuesCommand() {
-  return registerCommand(Command.CopyRuleIssues, async (item: RuleGroupItem) => {
-    if (!item?.results || item.results.length === 0) {
-      showToastMessage(ToastKind.Error, 'No issues to copy');
-      return;
-    }
-
-    const rustClient = getRustClientFn?.();
-    if (!rustClient) {
-      showToastMessage(ToastKind.Error, 'Scanner not initialized');
-      return;
-    }
-
-    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-    if (!workspaceRoot) {
-      showToastMessage(ToastKind.Error, 'No workspace folder found');
-      return;
-    }
-
-    const scanResult = convertToScanResult(item.results);
-    const result = await rustClient.formatResults(workspaceRoot, scanResult, 'rule');
-
-    const scanModeText = currentScanMode === ScanMode.Branch ? 'branch mode' : 'codebase mode';
-    const branch = currentScanMode === ScanMode.Branch ? currentCompareBranch : undefined;
-    const cliCommand = branch
-      ? `tscanner check --rule "${item.rule}" --branch ${branch}`
-      : `tscanner check --rule "${item.rule}"`;
-
-    const header = `TScanner report searching for all the issues of the rule "${item.rule}" in the ${scanModeText}\n\ncli command: ${cliCommand}\nfound issues: ${result.summary.total_issues} issues\n`;
-
-    const summaryText = `\n\nIssues: ${result.summary.total_issues} (${result.summary.error_count} errors, ${result.summary.warning_count} warnings)\nFiles: ${result.summary.file_count}\nRules: ${result.summary.rule_count}`;
-
-    const finalText = header + result.output + summaryText;
-
-    await vscode.env.clipboard.writeText(finalText);
-    showToastMessage(ToastKind.Info, `Copied ${item.results.length} issues from "${item.rule}"`);
-  });
-}
-
-export function createCopyFileIssuesCommand() {
-  return registerCommand(Command.CopyFileIssues, async (item: FileResultItem) => {
-    if (!item?.results || item.results.length === 0) {
-      showToastMessage(ToastKind.Error, 'No issues to copy');
-      return;
-    }
-
-    const rustClient = getRustClientFn?.();
-    if (!rustClient) {
-      showToastMessage(ToastKind.Error, 'Scanner not initialized');
-      return;
-    }
-
-    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-    if (!workspaceRoot) {
-      showToastMessage(ToastKind.Error, 'No workspace folder found');
-      return;
-    }
-
-    const scanResult = convertToScanResult(item.results);
-    const result = await rustClient.formatResults(workspaceRoot, scanResult, 'file');
-
-    const relativePath = vscode.workspace.asRelativePath(item.filePath);
-    const scanModeText = currentScanMode === ScanMode.Branch ? 'branch mode' : 'codebase mode';
-    const branch = currentScanMode === ScanMode.Branch ? currentCompareBranch : undefined;
-    const cliCommand = branch
-      ? `tscanner check --glob "${relativePath}" --branch ${branch}`
-      : `tscanner check --glob "${relativePath}"`;
-
-    const header = `TScanner report searching for all the issues in file "${relativePath}" in the ${scanModeText}\n\ncli command: ${cliCommand}\nfound issues: ${result.summary.total_issues} issues\n`;
-
-    const summaryText = `\n\nIssues: ${result.summary.total_issues} (${result.summary.error_count} errors, ${result.summary.warning_count} warnings)\nFiles: ${result.summary.file_count}\nRules: ${result.summary.rule_count}`;
-
-    const finalText = header + result.output + summaryText;
-
-    await vscode.env.clipboard.writeText(finalText);
-    showToastMessage(ToastKind.Info, `Copied ${item.results.length} issues from "${relativePath}"`);
-  });
-}
-
-export function createCopyFolderIssuesCommand() {
-  return registerCommand(Command.CopyFolderIssues, async (item: FolderResultItem) => {
-    if (!item?.node) {
-      showToastMessage(ToastKind.Error, 'No folder data available');
-      return;
-    }
-
-    const allResults = collectFolderIssues(item.node);
-    if (allResults.length === 0) {
-      showToastMessage(ToastKind.Error, 'No issues to copy');
-      return;
-    }
-
-    const rustClient = getRustClientFn?.();
-    if (!rustClient) {
-      showToastMessage(ToastKind.Error, 'Scanner not initialized');
-      return;
-    }
-
-    const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
-    if (!workspaceRoot) {
-      showToastMessage(ToastKind.Error, 'No workspace folder found');
-      return;
-    }
-
-    const scanResult = convertToScanResult(allResults);
-    const result = await rustClient.formatResults(workspaceRoot, scanResult, 'file');
-
-    const relativeFolderPath = vscode.workspace.asRelativePath(item.node.path);
-    const scanModeText = currentScanMode === ScanMode.Branch ? 'branch mode' : 'codebase mode';
-    const branch = currentScanMode === ScanMode.Branch ? currentCompareBranch : undefined;
-    const cliCommand = branch
-      ? `tscanner check --glob "${relativeFolderPath}/**/*" --branch ${branch}`
-      : `tscanner check --glob "${relativeFolderPath}/**/*"`;
-
-    const header = `TScanner report searching for all the issues in folder "${item.node.name}" in the ${scanModeText}\n\ncli command: ${cliCommand}\nfound issues: ${result.summary.total_issues} issues\n`;
-
-    const summaryText = `\n\nIssues: ${result.summary.total_issues} (${result.summary.error_count} errors, ${result.summary.warning_count} warnings)\nFiles: ${result.summary.file_count}\nRules: ${result.summary.rule_count}`;
-
-    const finalText = header + result.output + summaryText;
-
-    await vscode.env.clipboard.writeText(finalText);
-    showToastMessage(ToastKind.Info, `Copied ${allResults.length} issues from folder "${item.node.name}"`);
-  });
-}
-
 function collectFolderIssues(node: FolderNode): IssueResult[] {
   const results: IssueResult[] = [];
 
@@ -191,4 +93,96 @@ function collectFolderIssues(node: FolderNode): IssueResult[] {
   }
 
   return results;
+}
+
+type CopyParams = {
+  results: IssueResult[];
+  groupMode: 'file' | 'rule';
+  buildHeader: (summary: { total_issues: number }) => string;
+  successMessage: string;
+};
+
+async function copyIssuesBase(params: CopyParams): Promise<void> {
+  if (params.results.length === 0) {
+    showToastMessage(ToastKind.Error, 'No issues to copy');
+    return;
+  }
+
+  const rustClient = copyScanContext.getRustClient();
+  if (!rustClient) {
+    showToastMessage(ToastKind.Error, 'Scanner not initialized');
+    return;
+  }
+
+  const workspaceRoot = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath;
+  if (!workspaceRoot) {
+    showToastMessage(ToastKind.Error, 'No workspace folder found');
+    return;
+  }
+
+  const scanResult = convertToScanResult(params.results);
+  const result = await rustClient.formatResults(workspaceRoot, scanResult, params.groupMode);
+
+  const header = params.buildHeader(result.summary);
+  const summaryText = `\n\nIssues: ${result.summary.total_issues} (${result.summary.error_count} errors, ${result.summary.warning_count} warnings)\nFiles: ${result.summary.file_count}\nRules: ${result.summary.rule_count}`;
+  const finalText = header + result.output + summaryText;
+
+  await vscode.env.clipboard.writeText(finalText);
+  showToastMessage(ToastKind.Info, params.successMessage);
+}
+
+export function createCopyRuleIssuesCommand() {
+  return registerCommand(Command.CopyRuleIssues, async (item: RuleGroupItem) => {
+    if (!item?.results) return;
+
+    await copyIssuesBase({
+      results: item.results,
+      groupMode: 'rule',
+      buildHeader: (summary) => {
+        const cliCommand = copyScanContext.buildCliCommand('rule', item.rule);
+        return `TScanner report searching for all the issues of the rule "${item.rule}" in the ${copyScanContext.getScanModeText()}\n\ncli command: ${cliCommand}\nfound issues: ${summary.total_issues} issues\n`;
+      },
+      successMessage: `Copied ${item.results.length} issues from "${item.rule}"`,
+    });
+  });
+}
+
+export function createCopyFileIssuesCommand() {
+  return registerCommand(Command.CopyFileIssues, async (item: FileResultItem) => {
+    if (!item?.results) return;
+
+    const relativePath = vscode.workspace.asRelativePath(item.filePath);
+
+    await copyIssuesBase({
+      results: item.results,
+      groupMode: 'file',
+      buildHeader: (summary) => {
+        const cliCommand = copyScanContext.buildCliCommand('glob', relativePath);
+        return `TScanner report searching for all the issues in file "${relativePath}" in the ${copyScanContext.getScanModeText()}\n\ncli command: ${cliCommand}\nfound issues: ${summary.total_issues} issues\n`;
+      },
+      successMessage: `Copied ${item.results.length} issues from "${relativePath}"`,
+    });
+  });
+}
+
+export function createCopyFolderIssuesCommand() {
+  return registerCommand(Command.CopyFolderIssues, async (item: FolderResultItem) => {
+    if (!item?.node) {
+      showToastMessage(ToastKind.Error, 'No folder data available');
+      return;
+    }
+
+    const allResults = collectFolderIssues(item.node);
+    const relativeFolderPath = vscode.workspace.asRelativePath(item.node.path);
+
+    await copyIssuesBase({
+      results: allResults,
+      groupMode: 'file',
+      buildHeader: (summary) => {
+        const cliCommand = copyScanContext.buildCliCommand('glob', `${relativeFolderPath}/**/*`);
+        return `TScanner report searching for all the issues in folder "${item.node.name}" in the ${copyScanContext.getScanModeText()}\n\ncli command: ${cliCommand}\nfound issues: ${summary.total_issues} issues\n`;
+      },
+      successMessage: `Copied ${allResults.length} issues from folder "${item.node.name}"`,
+    });
+  });
 }

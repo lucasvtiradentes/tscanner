@@ -1,5 +1,7 @@
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, PLATFORM_TARGET_MAP, getBinaryName } from 'tscanner-common';
+import { PLATFORM_TARGET_MAP, getBinaryName } from 'tscanner-common';
 import {
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
   CONTEXT_PREFIX,
   DEV_SUFFIX,
   EXTENSION_DISPLAY_NAME,

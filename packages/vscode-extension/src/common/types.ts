@@ -1,38 +1,23 @@
-import {
-  type BuiltinRuleConfig,
-  type ClearCacheParams,
-  type CustomRuleConfig,
-  type FileResult,
-  type GetRulesMetadataParams,
-  type Issue,
-  type ModifiedLineRange,
-  type RuleMetadata,
-  type ScanContentParams,
-  type ScanFileParams,
-  type ScanParams,
-  type ScanResult,
-  Severity,
-  type TscannerConfig,
-  hasConfiguredRules,
-} from 'tscanner-common';
+import { Severity } from 'tscanner-common';
 import type * as vscode from 'vscode';
 
-export {
-  type BuiltinRuleConfig,
-  type ClearCacheParams,
-  type CustomRuleConfig,
-  type FileResult,
-  type GetRulesMetadataParams,
-  type Issue,
-  type ModifiedLineRange,
-  type RuleMetadata,
-  type ScanContentParams,
-  type ScanFileParams,
-  type ScanParams,
-  type ScanResult,
-  type TscannerConfig,
-  hasConfiguredRules,
-};
+export type {
+  BuiltinRuleConfig,
+  ClearCacheParams,
+  CustomRuleConfig,
+  FileResult,
+  GetRulesMetadataParams,
+  Issue,
+  ModifiedLineRange,
+  RuleMetadata,
+  ScanContentParams,
+  ScanFileParams,
+  ScanParams,
+  ScanResult,
+  TscannerConfig,
+} from 'tscanner-common';
+
+export { Severity, hasConfiguredRules } from 'tscanner-common';
 
 export type IssueResult = {
   uri: vscode.Uri;
