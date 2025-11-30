@@ -7,6 +7,7 @@ import { updateFooter } from './update-footer';
 import { updateImages } from './update-images';
 import { updateInspirations } from './update-inspirations';
 import { updateMotivation } from './update-motivation';
+import { updateOverview } from './update-overview';
 import { updateQuickStart } from './update-quick-start';
 import { updateRules } from './update-rules';
 import { updateWaysToUseTscanner } from './update-ways-to-use-tscanner';
@@ -25,6 +26,7 @@ async function main() {
   }
 
   const updates: UpdateFn[] = [
+    { name: 'overview', fn: updateOverview },
     { name: 'rules', fn: updateRules },
     { name: 'images', fn: updateImages },
     { name: 'commands', fn: updateCommands },

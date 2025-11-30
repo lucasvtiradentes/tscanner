@@ -315,10 +315,6 @@
           "$ref": "#/definitions/BuiltinRuleConfig",
           "description": "Disallows explicit type annotations on variables initialized with literal values. TypeScript can infer these types automatically."
         },
-        "no-magic-numbers": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Detects magic numbers in code (literals other than 0, 1, -1). Use named constants instead for better readability and maintainability."
-        },
         "no-nested-require": {
           "$ref": "#/definitions/BuiltinRuleConfig",
           "description": "Disallows require() calls inside functions, blocks, or conditionals. Require statements should be at the top level for static analysis."

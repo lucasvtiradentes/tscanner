@@ -70,7 +70,7 @@ See code issues the moment you type, not after you commit. TScanner shows violat
 <!-- <DYNFIELD:FEATURES> -->
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-- **Your Rules, Enforced** - 39 built-in checks + define your own with regex, scripts, or AI
+- **Your Rules, Enforced** - 38 built-in checks + define your own with regex, scripts, or AI
 - **See Issues Instantly** - Real-time feedback in code editor as you type, no manual scan needed
 - **Focus on What Matters** - Scan your branch changes only, or audit the full codebase
 - **Copy for AI** - Export issues to clipboard, paste into chat for bulk fixes
@@ -388,7 +388,7 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 
 <div align="left">
 
-- **Manage Rules**: Multi-select UI for 39 built-in rules with enable/disable toggles
+- **Manage Rules**: Multi-select UI for all rules with enable/disable toggles
 - **Scan Settings**: Choose workspace or branch mode, select target branch
 - **Config Files**: Edit `.tscanner/config.jsonc` or create from template
 
@@ -568,7 +568,7 @@ Customize TScanner to validate what matters to your project while maintaining co
   </tr>
   <tr>
     <td><b><a href="packages/core/crates/core/src/rules">Built-in</a></b></td>
-    <td>39 ready-to-use AST rules</td>
+    <td>38 ready-to-use AST rules</td>
     <td><code>no-any-type</code>, <code>prefer-const</code>, <code>no-console-log</code></td>
   </tr>
   <tr>
@@ -593,7 +593,7 @@ Customize TScanner to validate what matters to your project while maintaining co
 <div align="center">
 
 <details>
-<summary>Built-in rules (39)</summary>
+<summary>Built-in rules (38)</summary>
 <br />
 
 <div align="left">
@@ -642,7 +642,7 @@ Customize TScanner to validate what matters to your project while maintaining co
 
 <div align="left">
 
-#### Code Quality (14)
+#### Code Quality (13)
 
 </div>
 
@@ -691,11 +691,6 @@ Customize TScanner to validate what matters to your project while maintaining co
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_empty_interface.rs"><code>no-empty-interface</code></a><br/><br/><img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only"></div></td>
     <td align="left">Disallows empty interface declarations. Empty interfaces are equivalent to {} and usually indicate incomplete code.</td>
     <td align="left"><a href="https://typescript-eslint.io/rules/no-empty-interface"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-empty-interface"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
-  </tr>
-  <tr>
-    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_magic_numbers.rs"><code>no-magic-numbers</code></a></div></td>
-    <td align="left">Detects magic numbers in code (literals other than 0, 1, -1). Use named constants instead for better readability and maintainability.</td>
-    <td align="left"><a href="https://eslint.org/docs/latest/rules/no-magic-numbers"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/core/crates/core/src/rules/no_nested_ternary.rs"><code>no-nested-ternary</code></a></div></td>

@@ -47,7 +47,6 @@ mod no_floating_promises;
 mod no_forwarded_exports;
 mod no_implicit_any;
 mod no_inferrable_types;
-mod no_magic_numbers;
 mod no_nested_require;
 mod no_nested_ternary;
 mod no_non_null_assertion;

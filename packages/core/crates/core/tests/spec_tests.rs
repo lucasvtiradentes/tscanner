@@ -168,7 +168,6 @@ generate_rule_tests!(no_var);
 generate_rule_tests!(prefer_const);
 generate_rule_tests!(no_empty_function);
 generate_rule_tests!(no_empty_class);
-generate_rule_tests!(no_magic_numbers);
 generate_rule_tests!(no_nested_ternary);
 generate_rule_tests!(no_unreachable_code);
 generate_rule_tests!(no_constant_condition);
