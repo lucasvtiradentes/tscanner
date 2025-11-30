@@ -62,6 +62,27 @@ pub fn get_changed_files(root: &Path, branch: &str) -> Result<HashSet<PathBuf>> 
     Ok(files)
 }
 
+pub fn get_staged_files(root: &Path) -> Result<HashSet<PathBuf>> {
+    let output = Command::new("git")
+        .args(["diff", "--cached", "--name-only", "--diff-filter=ACMR"])
+        .current_dir(root)
+        .output()
+        .context("Failed to execute git diff --cached")?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        anyhow::bail!("git diff --cached failed: {}", stderr);
+    }
+
+    let files = String::from_utf8_lossy(&output.stdout)
+        .lines()
+        .filter(|l| !l.is_empty())
+        .map(|l| root.join(l))
+        .collect();
+
+    Ok(files)
+}
+
 pub fn get_modified_lines(root: &Path, branch: &str) -> Result<HashMap<PathBuf, HashSet<usize>>> {
     let output = Command::new("git")
         .arg("diff")

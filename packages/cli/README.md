@@ -183,8 +183,8 @@ tscanner check --branch origin/main
     <th width="350">Flag description</th>
   </tr>
   <tr>
-    <td rowspan="8" align="left"><code>check [options] [path]</code></td>
-    <td rowspan="8" align="left">Scan code for issues and display results</td>
+    <td rowspan="9" align="left"><code>check [options] [path]</code></td>
+    <td rowspan="9" align="left">Scan code for issues and display results</td>
     <td align="left"><code>--branch <BRANCH></code></td>
     <td align="left">Only show issues in files changed compared to branch (e.g., origin/main)</td>
   </tr>
@@ -229,6 +229,12 @@ tscanner check --branch origin/main
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--rule <RULE_NAME></code></td>
     <td align="left">Filter results to specific rule (e.g., 'no-console-log')</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [path]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--staged</code></td>
+    <td align="left">Scan only git staged files</td>
   </tr>
   <tr>
     <td rowspan="1" align="left"><code>init [options] [path]</code></td>
@@ -519,9 +525,27 @@ jobs:
 ```bash
 #!/bin/sh
 if command -v tscanner &> /dev/null && [ -f .tscanner/config.jsonc ]; then
-  tscanner check --no-cache
+  tscanner check --staged
 fi
 ```
+
+</details>
+
+<details>
+<summary><b>Lint-staged Integration</b></summary>
+
+Add to your `.lintstagedrc.json`:
+
+```json
+{
+  "*.{ts,tsx,js,jsx}": ["tscanner check --staged"]
+}
+```
+
+The `--staged` flag:
+- Only scans files that are git staged
+- Respects `files.include` and `files.exclude` from config
+- Is mutually exclusive with `--branch`
 
 </details>
 

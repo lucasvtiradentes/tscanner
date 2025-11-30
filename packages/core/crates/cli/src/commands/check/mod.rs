@@ -27,19 +27,29 @@ pub fn cmd_check(
     group_by: Option<GroupMode>,
     format: Option<OutputFormat>,
     branch: Option<String>,
+    staged: bool,
     glob_filter: Option<String>,
     rule_filter: Option<String>,
     continue_on_error: bool,
     config_path: Option<PathBuf>,
 ) -> Result<()> {
+    if staged && branch.is_some() {
+        eprintln!(
+            "{}",
+            "Error: --staged and --branch are mutually exclusive".red()
+        );
+        std::process::exit(1);
+    }
+
     let output_format = format.unwrap_or_default();
 
     log_info(&format!(
-        "cmd_check: Starting at: {} (no_cache: {}, group_by: {:?}, format: {:?})",
+        "cmd_check: Starting at: {} (no_cache: {}, group_by: {:?}, format: {:?}, staged: {})",
         path.display(),
         no_cache,
         group_by,
-        output_format
+        output_format,
+        staged
     ));
 
     let root = fs::canonicalize(path).context("Failed to resolve path")?;
@@ -106,9 +116,28 @@ pub fn cmd_check(
     }
 
     let is_json = matches!(output_format, OutputFormat::Json);
-    let (changed_files, modified_lines) = get_branch_changes(&root, &branch, is_json)?;
 
-    let files_to_scan = filters::get_files_to_scan(&root, glob_filter.as_deref(), changed_files);
+    let (files_to_scan, modified_lines) = if staged {
+        let staged_files = git::get_staged_files(&root)?;
+        if !is_json {
+            println!(
+                "{}",
+                format!("Scanning {} staged files", staged_files.len())
+                    .cyan()
+                    .bold()
+            );
+        }
+        log_info(&format!(
+            "cmd_check: Found {} staged files",
+            staged_files.len()
+        ));
+        let files = filters::get_files_to_scan(&root, glob_filter.as_deref(), Some(staged_files));
+        (files, None)
+    } else {
+        let (changed_files, modified_lines) = get_branch_changes(&root, &branch, is_json)?;
+        let files = filters::get_files_to_scan(&root, glob_filter.as_deref(), changed_files);
+        (files, modified_lines)
+    };
 
     let mut result = scanner.scan(&root, files_to_scan.as_ref());
 

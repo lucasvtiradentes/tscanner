@@ -108,6 +108,19 @@
           "possibleValues": null,
           "defaultValue": null,
           "required": false
+        },
+        {
+          "name": "staged",
+          "short": null,
+          "description": "Scan only git staged files",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false
         }
       ]
     },

@@ -62,6 +62,9 @@ pub enum Commands {
         )]
         branch: Option<String>,
 
+        #[arg(long, help = "Scan only git staged files")]
+        staged: bool,
+
         #[arg(
             long,
             value_name = "GLOB_PATTERN",
