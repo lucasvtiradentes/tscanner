@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.23
+
+### Patch Changes
+
+- 2000937: add code editor configs
+
 ## 0.0.22
 
 ### Patch Changes

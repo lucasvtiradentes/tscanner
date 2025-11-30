@@ -1,5 +1,11 @@
 # @tscanner/cli-linux-arm64
 
+## 0.0.26
+
+### Patch Changes
+
+- 2000937: add code editor configs
+
 ## 0.0.25
 
 ### Patch Changes
