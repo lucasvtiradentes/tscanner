@@ -11,7 +11,7 @@ pub struct NoAsyncWithoutAwaitRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-async-without-await",
-    factory: || Arc::new(NoAsyncWithoutAwaitRule),
+    factory: |_| Arc::new(NoAsyncWithoutAwaitRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -26,6 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/require-await"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/use-await"),
+        allowed_options: &[],
     }
 });
 

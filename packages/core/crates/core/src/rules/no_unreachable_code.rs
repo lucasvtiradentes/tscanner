@@ -12,7 +12,7 @@ pub struct NoUnreachableCodeRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-unreachable-code",
-    factory: || Arc::new(NoUnreachableCodeRule),
+    factory: |_| Arc::new(NoUnreachableCodeRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-unreachable"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-unreachable"),
+        allowed_options: &[],
     }
 });
 

@@ -258,7 +258,7 @@ Customize TScanner to validate what matters to your project while maintaining co
   <tr>
     <td><b><a href="packages/core/crates/core/src/rules">Built-in</a></b></td>
     <td>38 ready-to-use AST rules</td>
-    <td><code>no-any-type</code>, <code>prefer-const</code>, <code>no-console-log</code></td>
+    <td><code>no-explicit-any</code>, <code>prefer-const</code>, <code>no-console</code></td>
   </tr>
   <tr>
     <td><b>Regex</b></td>
@@ -627,7 +627,7 @@ The default configuration is:
 {
   "$schema": "https://unpkg.com/tscanner@0.0.25/schema.json",
   "builtinRules": {
-    "no-any-type": {}
+    "no-explicit-any": {}
   },
   "customRules": {},
   "files": {
@@ -667,7 +667,7 @@ The default configuration is:
 **Inline Disables:**
 
 ```typescript
-// tscanner-disable-next-line no-any-type
+// tscanner-disable-next-line no-explicit-any
 const data: any = fetchData();
 
 // tscanner-disable-file
@@ -684,7 +684,7 @@ All configuration fields are **optional** with sensible defaults. The minimum re
 ```json
 {
   "builtinRules": {
-    "no-any-type": {}
+    "no-explicit-any": {}
   }
 }
 ```
@@ -701,8 +701,8 @@ Example with per-rule file patterns:
 ```json
 {
   "builtinRules": {
-    "no-any-type": {},
-    "no-console-log": {
+    "no-explicit-any": {},
+    "no-console": {
       "exclude": ["src/utils/logger.ts"]
     },
     "max-function-length": {
@@ -713,8 +713,8 @@ Example with per-rule file patterns:
 ```
 
 This config:
-- Runs `no-any-type` on all files (uses global `files` patterns)
-- Runs `no-console-log` on all files except `src/utils/logger.ts`
+- Runs `no-explicit-any` on all files (uses global `files` patterns)
+- Runs `no-console` on all files except `src/utils/logger.ts`
 - Runs `max-function-length` only on files inside `src/core/`
 
 </details>

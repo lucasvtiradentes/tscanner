@@ -224,7 +224,7 @@ tscanner check --branch origin/main
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--rule <RULE_NAME></code></td>
-    <td align="left">Filter results to specific rule (e.g., 'no-console-log')</td>
+    <td align="left">Filter results to specific rule (e.g., 'no-console')</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
@@ -308,11 +308,11 @@ tscanner check --group-by rule
 Scanning...
 
 src/index.ts
-  ✖ 5:10 Found ': any' type annotation [no-any-type]
+  ✖ 5:10 Found ': any' type annotation [no-explicit-any]
   ⚠ 10:7 'count' is never reassigned, use 'const' instead [prefer-const]
 
 src/utils.ts
-  ⚠ 15:3 console.log found [no-console-log]
+  ⚠ 15:3 console.log found [no-console]
 
 ✖ 2 errors, 2 warnings
 Scanned 2 files in 45ms
@@ -341,11 +341,11 @@ tscanner check --file "src/**/*.ts"
 tscanner check --file "components/**/*.tsx"
 
 # Filter by specific rule
-tscanner check --rule no-console-log
-tscanner check --rule no-any-type
+tscanner check --rule no-console
+tscanner check --rule no-explicit-any
 
 # Combine filters
-tscanner check --branch main --file "src/**" --rule no-console-log
+tscanner check --branch main --file "src/**" --rule no-console
 
 # Continue on error (don't exit with code 1)
 tscanner check --continue-on-error
@@ -401,7 +401,7 @@ The default configuration is:
 {
   "$schema": "https://unpkg.com/tscanner@0.0.25/schema.json",
   "builtinRules": {
-    "no-any-type": {}
+    "no-explicit-any": {}
   },
   "customRules": {},
   "files": {
@@ -441,7 +441,7 @@ The default configuration is:
 **Inline Disables:**
 
 ```typescript
-// tscanner-disable-next-line no-any-type
+// tscanner-disable-next-line no-explicit-any
 const data: any = fetchData();
 
 // tscanner-disable-file
@@ -458,7 +458,7 @@ All configuration fields are **optional** with sensible defaults. The minimum re
 ```json
 {
   "builtinRules": {
-    "no-any-type": {}
+    "no-explicit-any": {}
   }
 }
 ```
@@ -475,8 +475,8 @@ Example with per-rule file patterns:
 ```json
 {
   "builtinRules": {
-    "no-any-type": {},
-    "no-console-log": {
+    "no-explicit-any": {},
+    "no-console": {
       "exclude": ["src/utils/logger.ts"]
     },
     "max-function-length": {
@@ -487,8 +487,8 @@ Example with per-rule file patterns:
 ```
 
 This config:
-- Runs `no-any-type` on all files (uses global `files` patterns)
-- Runs `no-console-log` on all files except `src/utils/logger.ts`
+- Runs `no-explicit-any` on all files (uses global `files` patterns)
+- Runs `no-console` on all files except `src/utils/logger.ts`
 - Runs `max-function-length` only on files inside `src/core/`
 
 </details>
@@ -625,7 +625,7 @@ Customize TScanner to validate what matters to your project while maintaining co
   <tr>
     <td><b><a href="packages/core/crates/core/src/rules">Built-in</a></b></td>
     <td>38 ready-to-use AST rules</td>
-    <td><code>no-any-type</code>, <code>prefer-const</code>, <code>no-console-log</code></td>
+    <td><code>no-explicit-any</code>, <code>prefer-const</code>, <code>no-console</code></td>
   </tr>
   <tr>
     <td><b>Regex</b></td>

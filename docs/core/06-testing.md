@@ -124,7 +124,7 @@ fn test_rule_specific_include_intersects_with_global() {
         include: vec!["**/*.ts".to_string()],
         exclude: vec!["**/node_modules/**".to_string()],
         builtin_rules: [(
-            "no-any-type".to_string(),
+            "no-explicit-any".to_string(),
             BuiltinRuleConfig {
                 enabled: Some(true),
                 include: vec!["src/**".to_string()],
@@ -135,7 +135,7 @@ fn test_rule_specific_include_intersects_with_global() {
         ..Default::default()
     };
 
-    let compiled = config.compile_builtin_rule("no-any-type").unwrap();
+    let compiled = config.compile_builtin_rule("no-explicit-any").unwrap();
 
     assert!(compiled.matches(Path::new("src/index.ts")));
     assert!(!compiled.matches(Path::new("lib/utils.ts"))); // not in src/

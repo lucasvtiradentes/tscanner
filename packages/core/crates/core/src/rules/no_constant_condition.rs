@@ -12,7 +12,7 @@ pub struct NoConstantConditionRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-constant-condition",
-    factory: || Arc::new(NoConstantConditionRule),
+    factory: |_| Arc::new(NoConstantConditionRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-constant-condition"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-constant-condition"),
+        allowed_options: &[],
     }
 });
 

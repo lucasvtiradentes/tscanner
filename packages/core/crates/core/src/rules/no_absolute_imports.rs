@@ -11,7 +11,7 @@ pub struct NoAbsoluteImportsRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-absolute-imports",
-    factory: || Arc::new(NoAbsoluteImportsRule),
+    factory: |_| Arc::new(NoAbsoluteImportsRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: None,
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 

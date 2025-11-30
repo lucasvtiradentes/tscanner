@@ -12,7 +12,7 @@ pub struct NoSingleOrArrayUnionRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-single-or-array-union",
-    factory: || Arc::new(NoSingleOrArrayUnionRule),
+    factory: |_| Arc::new(NoSingleOrArrayUnionRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: true,
         equivalent_eslint_rule: None,
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 

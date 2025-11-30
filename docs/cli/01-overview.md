@@ -75,7 +75,7 @@ tscanner check --branch origin/main
 | `--by-rule` | Group issues by rule instead of file | `tscanner check --by-rule` |
 | `--branch <BRANCH>` | Only scan files changed vs branch | `tscanner check --branch main` |
 | `--file <PATTERN>` | Filter by file glob pattern | `tscanner check --file "src/**"` |
-| `--rule <RULE>` | Filter by specific rule | `tscanner check --rule no-any-type` |
+| `--rule <RULE>` | Filter by specific rule | `tscanner check --rule no-explicit-any` |
 | `--continue-on-error` | Don't exit with error code | `tscanner check --continue-on-error` |
 | `--config <DIR>` | Custom config directory | `tscanner check --config ./custom` |
 

@@ -238,7 +238,7 @@ CLI/Action: Executes git commands directly
 │                                                                         │
 │  // Compile-time registration with inventory crate                      │
 │  inventory::submit!(RuleRegistration {                                  │
-│      name: "no-any-type",                                               │
+│      name: "no-explicit-any",                                               │
 │      factory: || Arc::new(NoAnyTypeRule),                               │
 │  });                                                                    │
 │                                                                         │
@@ -251,7 +251,7 @@ CLI/Action: Executes git commands directly
 Rule Types:
 ┌─────────────┬────────────────────────────────────────────────────────────┐
 │ AST Rules   │ Use SWC visitor pattern to analyze TypeScript AST          │
-│             │ Examples: no-any-type, prefer-const, no-var                │
+│             │ Examples: no-explicit-any, prefer-const, no-var                │
 ├─────────────┼────────────────────────────────────────────────────────────┤
 │ Regex Rules │ Pattern matching on source text (custom rules)             │
 │             │ Defined in config with pattern + message                   │

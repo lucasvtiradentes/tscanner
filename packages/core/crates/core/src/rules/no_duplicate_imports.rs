@@ -12,7 +12,7 @@ pub struct NoDuplicateImportsRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-duplicate-imports",
-    factory: || Arc::new(NoDuplicateImportsRule),
+    factory: |_| Arc::new(NoDuplicateImportsRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-duplicate-imports"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-duplicate-json-keys"),
+        allowed_options: &[],
     }
 });
 

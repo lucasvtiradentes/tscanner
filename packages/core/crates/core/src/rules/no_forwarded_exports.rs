@@ -12,7 +12,7 @@ pub struct NoForwardedExportsRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-forwarded-exports",
-    factory: || Arc::new(NoForwardedExportsRule),
+    factory: |_| Arc::new(NoForwardedExportsRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: None,
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-re-export-all"),
+        allowed_options: &[],
     }
 });
 

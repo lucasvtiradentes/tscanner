@@ -11,7 +11,7 @@ pub struct PreferNullishCoalescingRule;
 
 inventory::submit!(RuleRegistration {
     name: "prefer-nullish-coalescing",
-    factory: || Arc::new(PreferNullishCoalescingRule),
+    factory: |_| Arc::new(PreferNullishCoalescingRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -26,6 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/prefer-nullish-coalescing"),
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 

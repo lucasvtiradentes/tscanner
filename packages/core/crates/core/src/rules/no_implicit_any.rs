@@ -11,7 +11,7 @@ pub struct NoImplicitAnyRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-implicit-any",
-    factory: || Arc::new(NoImplicitAnyRule),
+    factory: |_| Arc::new(NoImplicitAnyRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: true,
         equivalent_eslint_rule: None,
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 

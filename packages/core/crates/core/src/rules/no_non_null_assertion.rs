@@ -11,7 +11,7 @@ pub struct NoNonNullAssertionRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-non-null-assertion",
-    factory: || Arc::new(NoNonNullAssertionRule),
+    factory: |_| Arc::new(NoNonNullAssertionRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -26,6 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-non-null-assertion"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-non-null-assertion"),
+        allowed_options: &[],
     }
 });
 

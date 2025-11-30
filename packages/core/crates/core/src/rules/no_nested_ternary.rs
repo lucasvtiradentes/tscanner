@@ -12,7 +12,7 @@ pub struct NoNestedTernaryRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-nested-ternary",
-    factory: || Arc::new(NoNestedTernaryRule),
+    factory: |_| Arc::new(NoNestedTernaryRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -28,6 +28,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-nested-ternary"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-nested-ternary"),
+        allowed_options: &[],
     }
 });
 

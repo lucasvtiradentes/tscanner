@@ -12,7 +12,7 @@ pub struct NoVarRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-var",
-    factory: || Arc::new(NoVarRule),
+    factory: |_| Arc::new(NoVarRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-var"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-var"),
+        allowed_options: &[],
     }
 });
 

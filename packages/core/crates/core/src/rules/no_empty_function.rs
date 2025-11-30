@@ -12,7 +12,7 @@ pub struct NoEmptyFunctionRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-empty-function",
-    factory: || Arc::new(NoEmptyFunctionRule),
+    factory: |_| Arc::new(NoEmptyFunctionRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-empty-function"),
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 

@@ -137,13 +137,13 @@ Skips all rules for entire file.
 
 ### Line-level
 ```typescript
-const x: any = 1; // tscanner-disable-line no-any-type
+const x: any = 1; // tscanner-disable-line no-explicit-any
 ```
 Disables specific rule for current line.
 
 ### Next-line
 ```typescript
-// tscanner-disable-next-line no-any-type
+// tscanner-disable-next-line no-explicit-any
 const x: any = 1;
 ```
 Disables specific rule for next line.
@@ -166,7 +166,7 @@ TScanner uses `globset` crate for fast pattern matching. All paths are normalize
 ```json
 {
   "builtinRules": {
-    "no-any-type": {
+    "no-explicit-any": {
       "include": ["src/**"],
       "exclude": ["**/*.test.ts"]
     }

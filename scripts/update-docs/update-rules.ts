@@ -129,7 +129,7 @@ Customize TScanner to validate what matters to your project while maintaining co
   <tr>
     <td><b><a href="packages/core/crates/core/src/rules">Built-in</a></b></td>
     <td>${rulesJson.length} ready-to-use AST rules</td>
-    <td><code>no-any-type</code>, <code>prefer-const</code>, <code>no-console-log</code></td>
+    <td><code>no-explicit-any</code>, <code>prefer-const</code>, <code>no-console</code></td>
   </tr>
   <tr>
     <td><b>Regex</b></td>

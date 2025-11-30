@@ -15,7 +15,7 @@ impl RuleRegistry {
         let mut rules: HashMap<String, Arc<dyn Rule>> = HashMap::new();
 
         for registration in inventory::iter::<RuleRegistration> {
-            rules.insert(registration.name.to_string(), (registration.factory)());
+            rules.insert(registration.name.to_string(), (registration.factory)(None));
         }
 
         Self {
@@ -25,14 +25,23 @@ impl RuleRegistry {
     }
 
     pub fn with_config(config: &TscannerConfig) -> Result<Self, Box<dyn std::error::Error>> {
-        let mut registry = Self::new();
+        let mut rules: HashMap<String, Arc<dyn Rule>> = HashMap::new();
+        let mut compiled_configs: HashMap<String, CompiledRuleConfig> = HashMap::new();
 
         for rule_name in config.builtin_rules.keys() {
             if let Ok(compiled) = config.compile_builtin_rule(rule_name) {
-                registry
-                    .compiled_configs
-                    .insert(rule_name.clone(), compiled);
+                compiled_configs.insert(rule_name.clone(), compiled);
             }
+        }
+
+        for registration in inventory::iter::<RuleRegistration> {
+            let options = compiled_configs
+                .get(registration.name)
+                .and_then(|c| c.options.as_ref());
+            rules.insert(
+                registration.name.to_string(),
+                (registration.factory)(options),
+            );
         }
 
         for (rule_name, rule_config) in &config.custom_rules {
@@ -45,9 +54,7 @@ impl RuleRegistry {
                         rule_config.severity,
                     ) {
                         Ok(regex_rule) => {
-                            registry
-                                .rules
-                                .insert(rule_name.clone(), Arc::new(regex_rule));
+                            rules.insert(rule_name.clone(), Arc::new(regex_rule));
                         }
                         Err(e) => {
                             crate::utils::log_error(&format!(
@@ -61,24 +68,21 @@ impl RuleRegistry {
             }
 
             if let Ok(compiled) = config.compile_custom_rule(rule_name) {
-                registry
-                    .compiled_configs
-                    .insert(rule_name.clone(), compiled);
+                compiled_configs.insert(rule_name.clone(), compiled);
             }
         }
 
-        let enabled_count = registry
-            .compiled_configs
-            .values()
-            .filter(|c| c.enabled)
-            .count();
+        let enabled_count = compiled_configs.values().filter(|c| c.enabled).count();
         crate::utils::log_info(&format!(
             "Loaded {} rules ({} enabled)",
-            registry.rules.len(),
+            rules.len(),
             enabled_count
         ));
 
-        Ok(registry)
+        Ok(Self {
+            rules,
+            compiled_configs,
+        })
     }
 
     pub fn register_rule(&mut self, name: String, rule: Arc<dyn Rule>) {

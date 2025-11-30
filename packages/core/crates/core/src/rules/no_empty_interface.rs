@@ -12,7 +12,7 @@ pub struct NoEmptyInterfaceRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-empty-interface",
-    factory: || Arc::new(NoEmptyInterfaceRule),
+    factory: |_| Arc::new(NoEmptyInterfaceRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-empty-interface"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-empty-interface"),
+        allowed_options: &[],
     }
 });
 

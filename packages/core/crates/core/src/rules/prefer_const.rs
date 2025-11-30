@@ -13,7 +13,7 @@ pub struct PreferConstRule;
 
 inventory::submit!(RuleRegistration {
     name: "prefer-const",
-    factory: || Arc::new(PreferConstRule),
+    factory: |_| Arc::new(PreferConstRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -28,6 +28,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/prefer-const"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/use-const"),
+        allowed_options: &[],
     }
 });
 

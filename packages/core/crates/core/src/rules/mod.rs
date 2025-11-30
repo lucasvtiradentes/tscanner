@@ -21,7 +21,7 @@ pub trait Rule: Send + Sync {
 
 pub struct RuleRegistration {
     pub name: &'static str,
-    pub factory: fn() -> Arc<dyn Rule>,
+    pub factory: fn(Option<&serde_json::Value>) -> Arc<dyn Rule>,
 }
 
 inventory::collect!(RuleRegistration);
@@ -68,6 +68,7 @@ mod prefer_type_over_interface;
 mod regex_rule;
 
 pub use metadata::{
-    get_all_rule_metadata, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType,
+    get_all_rule_metadata, get_allowed_options_for_rule, RuleCategory, RuleMetadata,
+    RuleMetadataRegistration, RuleType,
 };
 pub use regex_rule::RegexRule;

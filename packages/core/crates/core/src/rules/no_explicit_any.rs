@@ -12,7 +12,7 @@ pub struct NoExplicitAnyRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-explicit-any",
-    factory: || Arc::new(NoExplicitAnyRule),
+    factory: |_| Arc::new(NoExplicitAnyRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-explicit-any"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-explicit-any"),
+        allowed_options: &[],
     }
 });
 
@@ -70,7 +71,7 @@ impl<'a> Visit for AnyTypeVisitor<'a> {
                 get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
             self.issues.push(Issue {
-                rule: "no-any-type".to_string(),
+                rule: "no-explicit-any".to_string(),
                 file: self.path.clone(),
                 line,
                 column,

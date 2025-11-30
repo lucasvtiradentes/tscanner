@@ -11,7 +11,7 @@ pub struct NoDynamicImportRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-dynamic-import",
-    factory: || Arc::new(NoDynamicImportRule),
+    factory: |_| Arc::new(NoDynamicImportRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -26,6 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: None,
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 

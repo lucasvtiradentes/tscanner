@@ -11,7 +11,7 @@ pub struct NoAliasImportsRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-alias-imports",
-    factory: || Arc::new(NoAliasImportsRule),
+    factory: |_| Arc::new(NoAliasImportsRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -26,6 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: None,
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 

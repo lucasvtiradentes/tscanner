@@ -12,7 +12,7 @@ pub struct PreferInterfaceOverTypeRule;
 
 inventory::submit!(RuleRegistration {
     name: "prefer-interface-over-type",
-    factory: || Arc::new(PreferInterfaceOverTypeRule),
+    factory: |_| Arc::new(PreferInterfaceOverTypeRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -29,6 +29,7 @@ inventory::submit!(RuleMetadataRegistration {
             "https://typescript-eslint.io/rules/consistent-type-definitions"
         ),
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 

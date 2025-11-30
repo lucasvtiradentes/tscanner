@@ -12,7 +12,7 @@ pub struct NoInferrableTypesRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-inferrable-types",
-    factory: || Arc::new(NoInferrableTypesRule),
+    factory: |_| Arc::new(NoInferrableTypesRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-inferrable-types"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-inferrable-types"),
+        allowed_options: &[],
     }
 });
 

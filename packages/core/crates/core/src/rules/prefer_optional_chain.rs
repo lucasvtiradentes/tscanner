@@ -11,7 +11,7 @@ pub struct PreferOptionalChainRule;
 
 inventory::submit!(RuleRegistration {
     name: "prefer-optional-chain",
-    factory: || Arc::new(PreferOptionalChainRule),
+    factory: |_| Arc::new(PreferOptionalChainRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -26,6 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/prefer-optional-chain"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/use-optional-chain"),
+        allowed_options: &[],
     }
 });
 

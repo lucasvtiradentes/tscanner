@@ -74,7 +74,7 @@ pub enum Commands {
         #[arg(
             long,
             value_name = "RULE_NAME",
-            help = "Filter results to specific rule (e.g., 'no-console-log')"
+            help = "Filter results to specific rule (e.g., 'no-console')"
         )]
         rule: Option<String>,
 

@@ -38,6 +38,1507 @@
       },
       "type": "object"
     },
+    "BuiltinRuleConfig_consistent_return": {
+      "description": "Requires consistent return behavior in functions. Either all code paths return a value or none do.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_max_function_length": {
+      "description": "Enforces a maximum number of statements in functions (default: 50). Long functions are harder to understand and maintain.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "maxLength": {
+          "default": 50,
+          "description": "Maximum number of statements allowed in a function",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_max_params": {
+      "description": "Limits the number of parameters in a function. Functions with many parameters should use an options object instead.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "maxParams": {
+          "default": 4,
+          "description": "Maximum number of parameters allowed in a function",
+          "minimum": 1,
+          "type": "integer"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_absolute_imports": {
+      "description": "Disallows absolute imports without alias. Prefer relative or aliased imports.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_alias_imports": {
+      "description": "Disallows aliased imports (starting with @). Prefer relative imports.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_async_without_await": {
+      "description": "Disallows async functions that don't use await. The async keyword is unnecessary if await is never used.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_console": {
+      "description": "Disallow the use of console methods. Console statements should be removed before committing to production.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "methods": {
+          "default": [
+            "log",
+            "warn",
+            "error",
+            "info",
+            "debug",
+            "trace",
+            "table",
+            "dir",
+            "dirxml",
+            "group",
+            "groupCollapsed",
+            "groupEnd",
+            "time",
+            "timeEnd",
+            "timeLog",
+            "assert",
+            "count",
+            "countReset",
+            "clear",
+            "profile",
+            "profileEnd"
+          ],
+          "description": "Console methods to disallow",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_constant_condition": {
+      "description": "Disallows constant expressions in conditions (if/while/for/ternary). Likely a programming error.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_default_export": {
+      "description": "Disallows default exports. Named exports are preferred for better refactoring support and explicit imports.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_duplicate_imports": {
+      "description": "Disallows multiple import statements from the same module. Merge them into a single import.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_dynamic_import": {
+      "description": "Disallows dynamic import() expressions. Dynamic imports make static analysis harder and can impact bundle optimization.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_else_return": {
+      "description": "Disallows else blocks after return statements. The else is unnecessary since the function already returned.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_empty_class": {
+      "description": "Disallows empty classes without methods or properties.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_empty_function": {
+      "description": "Disallows empty functions and methods. Empty functions are often leftovers from incomplete code.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_empty_interface": {
+      "description": "Disallows empty interface declarations. Empty interfaces are equivalent to {} and usually indicate incomplete code.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_explicit_any": {
+      "description": "Detects usage of TypeScript 'any' type (`: any` and `as any`). Using 'any' defeats the purpose of TypeScript's type system.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_floating_promises": {
+      "description": "Disallows floating promises (promises used as statements without await, .then(), or .catch()). Unhandled promises can lead to silent failures.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_forwarded_exports": {
+      "description": "Disallows re-exporting from other modules. This includes direct re-exports (export { X } from 'module'), star re-exports (export * from 'module'), and re-exporting imported values.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_implicit_any": {
+      "description": "Detects function parameters without type annotations that implicitly have 'any' type.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_inferrable_types": {
+      "description": "Disallows explicit type annotations on variables initialized with literal values. TypeScript can infer these types automatically.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_nested_require": {
+      "description": "Disallows require() calls inside functions, blocks, or conditionals. Require statements should be at the top level for static analysis.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_nested_ternary": {
+      "description": "Disallows nested ternary expressions. Nested ternaries are hard to read and should be replaced with if-else statements.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_non_null_assertion": {
+      "description": "Disallows the non-null assertion operator (!). Use proper null checks or optional chaining instead.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_relative_imports": {
+      "description": "Detects relative imports (starting with './' or '../'). Prefer absolute imports with @ prefix for better maintainability.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_return_await": {
+      "description": "Disallows redundant 'return await' in async functions. The await is unnecessary since the function already returns a Promise.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_shadow": {
+      "description": "Disallows variable declarations that shadow variables in outer scopes. Shadowing can lead to confusing code and subtle bugs.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_single_or_array_union": {
+      "description": "Disallows union types that combine a type with its array form (e.g., `string | string[]`, `number | number[]`). Prefer using a consistent type to avoid handling multiple cases in function implementations.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_todo_comments": {
+      "description": "Detects TODO, FIXME, and similar comment markers.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "keywords": {
+          "default": [
+            "TODO",
+            "FIXME",
+            "HACK",
+            "XXX",
+            "NOTE",
+            "BUG"
+          ],
+          "description": "Comment keywords to detect",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_unnecessary_type_assertion": {
+      "description": "Disallows type assertions on values that are already of the asserted type (e.g., \"hello\" as string, 123 as number).",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_unreachable_code": {
+      "description": "Detects code after return, throw, break, or continue statements. This code will never execute.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_unused_vars": {
+      "description": "Detects variables that are declared but never used in the code.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_useless_catch": {
+      "description": "Disallows catch blocks that only rethrow the caught error. Remove the try-catch or add meaningful error handling.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_no_var": {
+      "description": "Disallows the use of 'var' keyword. Use 'let' or 'const' instead for block-scoped variables.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_prefer_const": {
+      "description": "Suggests using 'const' instead of 'let' when variables are never reassigned.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_prefer_interface_over_type": {
+      "description": "Suggests using 'interface' keyword instead of 'type' for consistency.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_prefer_nullish_coalescing": {
+      "description": "Suggests using nullish coalescing (??) instead of logical OR (||) for default values. The || operator treats 0, \"\", and false as falsy, which may not be intended.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_prefer_optional_chain": {
+      "description": "Suggests using optional chaining (?.) instead of logical AND (&&) chains for null checks.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
+    "BuiltinRuleConfig_prefer_type_over_interface": {
+      "description": "Suggests using 'type' keyword instead of 'interface' for consistency. Type aliases are more flexible and composable.",
+      "properties": {
+        "enabled": {
+          "description": "Enable or disable this rule",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "exclude": {
+          "description": "File patterns to exclude for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include for this rule",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "severity": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Severity level for this rule"
+        }
+      },
+      "type": "object"
+    },
     "CliConfig": {
       "properties": {
         "groupBy": {
@@ -248,156 +1749,118 @@
       "description": "Built-in AST rules configuration",
       "properties": {
         "consistent-return": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Requires consistent return behavior in functions. Either all code paths return a value or none do."
+          "$ref": "#/definitions/BuiltinRuleConfig_consistent_return"
         },
         "max-function-length": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Enforces a maximum number of statements in functions (default: 50). Long functions are harder to understand and maintain."
+          "$ref": "#/definitions/BuiltinRuleConfig_max_function_length"
         },
         "max-params": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Limits the number of parameters in a function. Functions with many parameters should use an options object instead."
+          "$ref": "#/definitions/BuiltinRuleConfig_max_params"
         },
         "no-absolute-imports": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows absolute imports without alias. Prefer relative or aliased imports."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_absolute_imports"
         },
         "no-alias-imports": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows aliased imports (starting with @). Prefer relative imports."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_alias_imports"
         },
         "no-async-without-await": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows async functions that don't use await. The async keyword is unnecessary if await is never used."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_async_without_await"
         },
         "no-console": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallow the use of console methods. Console statements should be removed before committing to production."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_console"
         },
         "no-constant-condition": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows constant expressions in conditions (if/while/for/ternary). Likely a programming error."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_constant_condition"
         },
         "no-default-export": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows default exports. Named exports are preferred for better refactoring support and explicit imports."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_default_export"
         },
         "no-duplicate-imports": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows multiple import statements from the same module. Merge them into a single import."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_duplicate_imports"
         },
         "no-dynamic-import": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows dynamic import() expressions. Dynamic imports make static analysis harder and can impact bundle optimization."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_dynamic_import"
         },
         "no-else-return": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows else blocks after return statements. The else is unnecessary since the function already returned."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_else_return"
         },
         "no-empty-class": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows empty classes without methods or properties."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_empty_class"
         },
         "no-empty-function": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows empty functions and methods. Empty functions are often leftovers from incomplete code."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_empty_function"
         },
         "no-empty-interface": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows empty interface declarations. Empty interfaces are equivalent to {} and usually indicate incomplete code."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_empty_interface"
         },
         "no-explicit-any": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Detects usage of TypeScript 'any' type (`: any` and `as any`). Using 'any' defeats the purpose of TypeScript's type system."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_explicit_any"
         },
         "no-floating-promises": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows floating promises (promises used as statements without await, .then(), or .catch()). Unhandled promises can lead to silent failures."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_floating_promises"
         },
         "no-forwarded-exports": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows re-exporting from other modules. This includes direct re-exports (export { X } from 'module'), star re-exports (export * from 'module'), and re-exporting imported values."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_forwarded_exports"
         },
         "no-implicit-any": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Detects function parameters without type annotations that implicitly have 'any' type."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_implicit_any"
         },
         "no-inferrable-types": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows explicit type annotations on variables initialized with literal values. TypeScript can infer these types automatically."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_inferrable_types"
         },
         "no-nested-require": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows require() calls inside functions, blocks, or conditionals. Require statements should be at the top level for static analysis."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_nested_require"
         },
         "no-nested-ternary": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows nested ternary expressions. Nested ternaries are hard to read and should be replaced with if-else statements."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_nested_ternary"
         },
         "no-non-null-assertion": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows the non-null assertion operator (!). Use proper null checks or optional chaining instead."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_non_null_assertion"
         },
         "no-relative-imports": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Detects relative imports (starting with './' or '../'). Prefer absolute imports with @ prefix for better maintainability."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_relative_imports"
         },
         "no-return-await": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows redundant 'return await' in async functions. The await is unnecessary since the function already returns a Promise."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_return_await"
         },
         "no-shadow": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows variable declarations that shadow variables in outer scopes. Shadowing can lead to confusing code and subtle bugs."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_shadow"
         },
         "no-single-or-array-union": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows union types that combine a type with its array form (e.g., `string | string[]`, `number | number[]`). Prefer using a consistent type to avoid handling multiple cases in function implementations."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_single_or_array_union"
         },
         "no-todo-comments": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Detects TODO, FIXME, and similar comment markers."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_todo_comments"
         },
         "no-unnecessary-type-assertion": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows type assertions on values that are already of the asserted type (e.g., \"hello\" as string, 123 as number)."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_unnecessary_type_assertion"
         },
         "no-unreachable-code": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Detects code after return, throw, break, or continue statements. This code will never execute."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_unreachable_code"
         },
         "no-unused-vars": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Detects variables that are declared but never used in the code."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_unused_vars"
         },
         "no-useless-catch": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows catch blocks that only rethrow the caught error. Remove the try-catch or add meaningful error handling."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_useless_catch"
         },
         "no-var": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Disallows the use of 'var' keyword. Use 'let' or 'const' instead for block-scoped variables."
+          "$ref": "#/definitions/BuiltinRuleConfig_no_var"
         },
         "prefer-const": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Suggests using 'const' instead of 'let' when variables are never reassigned."
+          "$ref": "#/definitions/BuiltinRuleConfig_prefer_const"
         },
         "prefer-interface-over-type": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Suggests using 'interface' keyword instead of 'type' for consistency."
+          "$ref": "#/definitions/BuiltinRuleConfig_prefer_interface_over_type"
         },
         "prefer-nullish-coalescing": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Suggests using nullish coalescing (??) instead of logical OR (||) for default values. The || operator treats 0, \"\", and false as falsy, which may not be intended."
+          "$ref": "#/definitions/BuiltinRuleConfig_prefer_nullish_coalescing"
         },
         "prefer-optional-chain": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Suggests using optional chaining (?.) instead of logical AND (&&) chains for null checks."
+          "$ref": "#/definitions/BuiltinRuleConfig_prefer_optional_chain"
         },
         "prefer-type-over-interface": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Suggests using 'type' keyword instead of 'interface' for consistency. Type aliases are more flexible and composable."
+          "$ref": "#/definitions/BuiltinRuleConfig_prefer_type_over_interface"
         }
       },
       "type": "object"

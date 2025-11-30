@@ -12,7 +12,7 @@ pub struct NoUnnecessaryTypeAssertionRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-unnecessary-type-assertion",
-    factory: || Arc::new(NoUnnecessaryTypeAssertionRule),
+    factory: |_| Arc::new(NoUnnecessaryTypeAssertionRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-unnecessary-type-assertion"),
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 

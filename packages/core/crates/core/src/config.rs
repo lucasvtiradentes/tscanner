@@ -35,10 +35,26 @@ const ALLOWED_CODE_EDITOR: &[&str] = &[
     "highlightWarnings",
     "scanIntervalSeconds",
 ];
-const ALLOWED_BUILTIN_RULE: &[&str] = &["enabled", "severity", "include", "exclude"];
 const ALLOWED_CUSTOM_RULE: &[&str] = &[
     "type", "pattern", "script", "prompt", "message", "severity", "enabled", "include", "exclude",
 ];
+
+const ALLOWED_BUILTIN_RULE_BASE: &[&str] = &["enabled", "severity", "include", "exclude"];
+
+fn validate_builtin_rules(rules: &serde_json::Map<String, serde_json::Value>) -> Vec<String> {
+    use crate::rules::get_allowed_options_for_rule;
+
+    let mut invalid = Vec::new();
+    for (rule_name, rule_config) in rules {
+        if let Some(rule_obj) = rule_config.as_object() {
+            let mut allowed: Vec<&str> = ALLOWED_BUILTIN_RULE_BASE.to_vec();
+            allowed.extend(get_allowed_options_for_rule(rule_name));
+            let prefix = format!("builtinRules.{}", rule_name);
+            invalid.extend(collect_invalid_fields(rule_obj, &allowed, &prefix));
+        }
+    }
+    invalid
+}
 
 fn collect_invalid_fields(
     obj: &serde_json::Map<String, serde_json::Value>,
@@ -97,11 +113,7 @@ fn validate_json_fields(json: &serde_json::Value) -> Result<(), String> {
     }
 
     if let Some(builtin_rules) = obj.get("builtinRules").and_then(|v| v.as_object()) {
-        invalid_fields.extend(validate_nested_rules(
-            builtin_rules,
-            ALLOWED_BUILTIN_RULE,
-            "builtinRules",
-        ));
+        invalid_fields.extend(validate_builtin_rules(builtin_rules));
     }
 
     if let Some(custom_rules) = obj.get("customRules").and_then(|v| v.as_object()) {
@@ -369,6 +381,10 @@ pub struct BuiltinRuleConfig {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     #[schemars(description = "File patterns to exclude for this rule")]
     pub exclude: Vec<String>,
+
+    #[serde(flatten)]
+    #[schemars(skip)]
+    pub options: HashMap<String, serde_json::Value>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -431,6 +447,7 @@ pub struct CompiledRuleConfig {
     pub rule_exclude: Option<GlobSet>,
     pub message: Option<String>,
     pub pattern: Option<String>,
+    pub options: Option<serde_json::Value>,
 }
 
 impl CompiledRuleConfig {
@@ -587,6 +604,12 @@ impl TscannerConfig {
             .map(|m| m.default_severity)
             .unwrap_or(Severity::Warning);
 
+        let options = if rule_config.options.is_empty() {
+            None
+        } else {
+            Some(serde_json::to_value(&rule_config.options)?)
+        };
+
         Ok(CompiledRuleConfig {
             enabled: rule_config.enabled.unwrap_or(true),
             severity: rule_config.severity.unwrap_or(default_severity),
@@ -596,6 +619,7 @@ impl TscannerConfig {
             rule_exclude: compile_optional_globset(&rule_config.exclude)?,
             message: None,
             pattern: None,
+            options,
         })
     }
 
@@ -617,6 +641,7 @@ impl TscannerConfig {
             rule_exclude: compile_optional_globset(&rule_config.exclude)?,
             message: Some(rule_config.message.clone()),
             pattern: rule_config.pattern.clone(),
+            options: None,
         })
     }
 
@@ -681,6 +706,11 @@ impl TscannerConfig {
             }
             for pattern in &config.exclude {
                 pattern.hash(&mut hasher);
+            }
+            if !config.options.is_empty() {
+                if let Ok(json) = serde_json::to_string(&config.options) {
+                    json.hash(&mut hasher);
+                }
             }
         }
 

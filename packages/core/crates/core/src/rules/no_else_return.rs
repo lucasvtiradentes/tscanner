@@ -12,7 +12,7 @@ pub struct NoElseReturnRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-else-return",
-    factory: || Arc::new(NoElseReturnRule),
+    factory: |_| Arc::new(NoElseReturnRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-else-return"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-useless-else"),
+        allowed_options: &[],
     }
 });
 

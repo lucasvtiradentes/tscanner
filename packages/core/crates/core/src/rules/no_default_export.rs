@@ -11,7 +11,7 @@ pub struct NoDefaultExportRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-default-export",
-    factory: || Arc::new(NoDefaultExportRule),
+    factory: |_| Arc::new(NoDefaultExportRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -26,6 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: None,
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-default-export"),
+        allowed_options: &[],
     }
 });
 

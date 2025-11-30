@@ -24,7 +24,7 @@ fn run_rule_test(input_path: &str) {
     let rule = inventory::iter::<RuleRegistration>
         .into_iter()
         .find(|r| r.name == rule_name)
-        .map(|r| (r.factory)())
+        .map(|r| (r.factory)(None))
         .unwrap_or_else(|| panic!("rule '{rule_name}' not found"));
 
     let mut issues = rule.check(&program, input_file, &source, file_source);

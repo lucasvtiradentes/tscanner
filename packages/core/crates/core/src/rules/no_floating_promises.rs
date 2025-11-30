@@ -13,7 +13,7 @@ pub struct NoFloatingPromisesRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-floating-promises",
-    factory: || Arc::new(NoFloatingPromisesRule),
+    factory: |_| Arc::new(NoFloatingPromisesRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -28,6 +28,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-floating-promises"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-floating-promises"),
+        allowed_options: &[],
     }
 });
 

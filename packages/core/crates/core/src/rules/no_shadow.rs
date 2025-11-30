@@ -13,7 +13,7 @@ pub struct NoShadowRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-shadow",
-    factory: || Arc::new(NoShadowRule),
+    factory: |_| Arc::new(NoShadowRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -28,6 +28,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-shadow"),
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 

@@ -11,7 +11,7 @@ pub struct NoRelativeImportsRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-relative-imports",
-    factory: || Arc::new(NoRelativeImportsRule),
+    factory: |_| Arc::new(NoRelativeImportsRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -26,6 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: None,
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 

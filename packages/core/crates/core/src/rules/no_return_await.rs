@@ -12,7 +12,7 @@ pub struct NoReturnAwaitRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-return-await",
-    factory: || Arc::new(NoReturnAwaitRule),
+    factory: |_| Arc::new(NoReturnAwaitRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -27,6 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/return-await"),
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 

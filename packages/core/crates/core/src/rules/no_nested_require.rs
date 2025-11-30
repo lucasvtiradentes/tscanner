@@ -11,7 +11,7 @@ pub struct NoNestedRequireRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-nested-require",
-    factory: || Arc::new(NoNestedRequireRule),
+    factory: |_| Arc::new(NoNestedRequireRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -26,6 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/global-require"),
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 

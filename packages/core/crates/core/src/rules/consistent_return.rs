@@ -11,7 +11,7 @@ pub struct ConsistentReturnRule;
 
 inventory::submit!(RuleRegistration {
     name: "consistent-return",
-    factory: || Arc::new(ConsistentReturnRule),
+    factory: |_| Arc::new(ConsistentReturnRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -26,6 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/consistent-return"),
         equivalent_biome_rule: None,
+        allowed_options: &[],
     }
 });
 

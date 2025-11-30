@@ -2,15 +2,54 @@ use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
 use regex::Regex;
+use serde::Deserialize;
 use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::Program;
 
-pub struct NoTodoCommentsRule;
+const DEFAULT_KEYWORDS: [&str; 6] = ["TODO", "FIXME", "HACK", "XXX", "NOTE", "BUG"];
+
+#[derive(Debug, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct NoTodoCommentsOptions {
+    #[serde(default = "default_keywords")]
+    keywords: Vec<String>,
+}
+
+fn default_keywords() -> Vec<String> {
+    DEFAULT_KEYWORDS.iter().map(|s| s.to_string()).collect()
+}
+
+impl Default for NoTodoCommentsOptions {
+    fn default() -> Self {
+        Self {
+            keywords: default_keywords(),
+        }
+    }
+}
+
+pub struct NoTodoCommentsRule {
+    pattern: Regex,
+}
+
+impl NoTodoCommentsRule {
+    pub fn new(options: Option<&serde_json::Value>) -> Self {
+        let keywords = options
+            .and_then(|v| serde_json::from_value::<NoTodoCommentsOptions>(v.clone()).ok())
+            .map(|o| o.keywords)
+            .unwrap_or_else(default_keywords);
+
+        let pattern_str = format!(r"//\s*({})", keywords.join("|"));
+        let pattern = Regex::new(&pattern_str)
+            .unwrap_or_else(|_| Regex::new(r"//\s*(TODO|FIXME|HACK|XXX|NOTE|BUG)").unwrap());
+
+        Self { pattern }
+    }
+}
 
 inventory::submit!(RuleRegistration {
     name: "no-todo-comments",
-    factory: || Arc::new(NoTodoCommentsRule),
+    factory: |options| Arc::new(NoTodoCommentsRule::new(options)),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -25,6 +64,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-warning-comments"),
         equivalent_biome_rule: None,
+        allowed_options: &["keywords"],
     }
 });
 
@@ -40,11 +80,10 @@ impl Rule for NoTodoCommentsRule {
         source: &str,
         _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
-        let regex = Regex::new(r"//\s*(TODO|FIXME|HACK|XXX|NOTE|BUG)").unwrap();
         let mut issues = Vec::new();
 
         for (line_num, line) in source.lines().enumerate() {
-            if let Some(mat) = regex.find(line) {
+            if let Some(mat) = self.pattern.find(line) {
                 issues.push(Issue {
                     rule: self.name().to_string(),
                     file: path.to_path_buf(),

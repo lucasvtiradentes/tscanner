@@ -13,7 +13,7 @@ pub struct NoUnusedVarsRule;
 
 inventory::submit!(RuleRegistration {
     name: "no-unused-vars",
-    factory: || Arc::new(NoUnusedVarsRule),
+    factory: |_| Arc::new(NoUnusedVarsRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
@@ -28,6 +28,7 @@ inventory::submit!(RuleMetadataRegistration {
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-unused-vars"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-unused-variables"),
+        allowed_options: &[],
     }
 });
 

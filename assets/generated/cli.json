@@ -102,7 +102,7 @@
         {
           "name": "rule",
           "short": null,
-          "description": "Filter results to specific rule (e.g., 'no-console-log')",
+          "description": "Filter results to specific rule (e.g., 'no-console')",
           "takesValue": true,
           "valueName": "RULE_NAME",
           "possibleValues": null,
