@@ -418,7 +418,7 @@ async function showConfigLocationMenuLoop(
       const existingLocal = await hasLocalConfig(workspacePath);
       if (existingLocal) {
         const confirm = await vscode.window.showWarningMessage(
-          'A config already exists at ".tscanner". This will overwrite it.',
+          `A config already exists at "${CONFIG_DIR_NAME}". This will overwrite it.`,
           { modal: true },
           'Overwrite',
         );
@@ -442,7 +442,7 @@ async function showConfigLocationMenuLoop(
     const existingConfig = await hasCustomConfig(workspacePath, result);
     if (existingConfig) {
       const confirm = await vscode.window.showWarningMessage(
-        `A config already exists at "${result}/.tscanner". This will overwrite it.`,
+        `A config already exists at "${result}/${CONFIG_DIR_NAME}". This will overwrite it.`,
         { modal: true },
         'Overwrite',
       );
@@ -467,7 +467,7 @@ async function showConfigLocationMenuLoop(
     const existingLocal = await hasLocalConfig(workspacePath);
     if (existingLocal) {
       const confirm = await vscode.window.showWarningMessage(
-        'A config already exists at ".tscanner". This will overwrite it.',
+        `A config already exists at "${CONFIG_DIR_NAME}". This will overwrite it.`,
         { modal: true },
         'Overwrite',
       );

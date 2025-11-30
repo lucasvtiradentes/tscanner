@@ -1,3 +1,4 @@
+use core::{disable_file_comment, disable_next_line_comment};
 use lsp_types::{
     CodeAction, CodeActionKind, CodeActionOrCommand, CodeActionParams, Diagnostic, Position, Range,
     TextEdit, Url, WorkspaceEdit,
@@ -67,7 +68,12 @@ fn create_disable_line_action(
     indentation: &str,
     diagnostic: Diagnostic,
 ) -> CodeAction {
-    let comment = format!("{}// tscanner-disable-next-line {}\n", indentation, rule_id);
+    let comment = format!(
+        "{}// {} {}\n",
+        indentation,
+        disable_next_line_comment(),
+        rule_id
+    );
 
     let edit = TextEdit {
         range: Range {
@@ -100,7 +106,7 @@ fn create_disable_line_action(
 }
 
 fn create_disable_file_action(uri: Url, rule_id: &str, diagnostic: Diagnostic) -> CodeAction {
-    let comment = format!("// tscanner-disable-file {}\n", rule_id);
+    let comment = format!("// {} {}\n", disable_file_comment(), rule_id);
 
     let edit = TextEdit {
         range: Range {

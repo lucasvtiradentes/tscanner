@@ -1,6 +1,8 @@
 use crate::protocol::{Response, ScanParams};
 use crate::state::ServerState;
-use core::{get_changed_files, get_modified_lines, FileCache, Scanner, TscannerConfig};
+use core::{
+    config_dir_name, get_changed_files, get_modified_lines, FileCache, Scanner, TscannerConfig,
+};
 use std::sync::Arc;
 
 pub fn handle_scan(request_id: u64, params: ScanParams, state: &mut ServerState) -> Response {
@@ -12,7 +14,10 @@ pub fn handle_scan(request_id: u64, params: ScanParams, state: &mut ServerState)
     } else {
         match TscannerConfig::load_from_workspace(&params.root) {
             Ok(c) => {
-                core::log_info("Loaded configuration from workspace (.tscanner)");
+                core::log_info(&format!(
+                    "Loaded configuration from workspace ({})",
+                    config_dir_name()
+                ));
                 c
             }
             Err(e) => {

@@ -5,5 +5,7 @@
   "configDirName": ".tscanner",
   "configFileName": "config.jsonc",
   "defaultTargetBranch": "origin/main",
-  "logBasename": "tscannerlogs"
+  "logBasename": "tscannerlogs",
+  "disableFileComment": "tscanner-disable-file",
+  "disableNextLineComment": "tscanner-disable-next-line"
 }

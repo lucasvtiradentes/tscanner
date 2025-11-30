@@ -1,6 +1,6 @@
 use crate::protocol::{Response, ScanContentParams};
 use crate::state::ServerState;
-use core::{Scanner, TscannerConfig};
+use core::{config_dir_name, Scanner, TscannerConfig};
 
 pub fn handle_scan_content(
     request_id: u64,
@@ -15,7 +15,10 @@ pub fn handle_scan_content(
     } else {
         match TscannerConfig::load_from_workspace(&params.root) {
             Ok(c) => {
-                core::log_debug("Loaded configuration from workspace (.tscanner)");
+                core::log_debug(&format!(
+                    "Loaded configuration from workspace ({})",
+                    config_dir_name()
+                ));
                 c
             }
             Err(e) => {

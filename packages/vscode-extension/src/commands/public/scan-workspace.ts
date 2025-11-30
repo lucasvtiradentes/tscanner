@@ -1,4 +1,5 @@
 import { ScanMode, ViewMode } from 'tscanner-common';
+import { CONFIG_DIR_NAME } from '../../common/constants';
 import { getConfigState, loadEffectiveConfig } from '../../common/lib/config-manager';
 import type { CommandContext } from '../../common/lib/extension-state';
 import { scanWorkspace } from '../../common/lib/scanner';
@@ -65,7 +66,7 @@ export function createScanWorkspaceCommand(ctx: CommandContext, panelContent: Is
     if (configState.hasCustom) {
       logger.info(`Using custom config from ${customConfigDir}`);
     } else if (configState.hasLocal) {
-      logger.info('Using local config from .tscanner');
+      logger.info(`Using local config from ${CONFIG_DIR_NAME}`);
     } else {
       logger.info('Using global config from extension storage');
     }

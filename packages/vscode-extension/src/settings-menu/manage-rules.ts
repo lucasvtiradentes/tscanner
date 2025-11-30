@@ -1,5 +1,6 @@
 import { CustomRuleType, RuleCategory } from 'tscanner-common';
 import * as vscode from 'vscode';
+import { CONFIG_DIR_NAME } from '../common/constants';
 import {
   type TscannerConfig,
   getConfigState,
@@ -211,8 +212,8 @@ export function createManageRulesCommand(
           showToastMessage(ToastKind.Info, `Rules saved to ${customConfigDir}`);
         } else if (configState.hasLocal) {
           await saveLocalConfig(workspacePath, config);
-          logger.info('Updated local .tscanner config');
-          showToastMessage(ToastKind.Info, 'Rules saved to .tscanner');
+          logger.info(`Updated local ${CONFIG_DIR_NAME} config`);
+          showToastMessage(ToastKind.Info, `Rules saved to ${CONFIG_DIR_NAME}`);
         } else if (configState.hasGlobal) {
           await saveGlobalConfig(context, workspacePath, config);
           logger.info('Updated global config (extension storage)');
@@ -234,8 +235,8 @@ export function createManageRulesCommand(
             break;
           case ConfigLocation.ProjectFolder:
             await saveLocalConfig(workspacePath, config);
-            logger.info('Saved to local .tscanner config');
-            showToastMessage(ToastKind.Info, 'Rules saved to .tscanner');
+            logger.info(`Saved to local ${CONFIG_DIR_NAME} config`);
+            showToastMessage(ToastKind.Info, `Rules saved to ${CONFIG_DIR_NAME}`);
             break;
           case ConfigLocation.CustomPath:
             if (locationResult.customPath) {

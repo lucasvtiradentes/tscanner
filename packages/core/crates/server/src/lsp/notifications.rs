@@ -1,3 +1,4 @@
+use core::{config_dir_name, config_file_name};
 use lsp_server::{Connection, Notification};
 use lsp_types::{
     DidChangeTextDocumentParams, DidChangeWatchedFilesParams, DidCloseTextDocumentParams,
@@ -96,7 +97,17 @@ fn handle_watched_files_change(
 
     for change in params.changes {
         if let Ok(path) = change.uri.to_file_path() {
-            if path.ends_with(".tscanner/config.jsonc")
+            let is_config_file = path
+                .file_name()
+                .map(|n| n == config_file_name())
+                .unwrap_or(false)
+                && path
+                    .parent()
+                    .and_then(|p| p.file_name())
+                    .map(|n| n == config_dir_name())
+                    .unwrap_or(false);
+
+            if is_config_file
                 && (change.typ == FileChangeType::CREATED || change.typ == FileChangeType::CHANGED)
             {
                 handle_config_reload(connection, state)?;

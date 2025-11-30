@@ -11,6 +11,8 @@ struct Constants {
     config_file_name: String,
     default_target_branch: String,
     log_basename: String,
+    disable_file_comment: String,
+    disable_next_line_comment: String,
 }
 
 const CONSTANTS_JSON: &str = include_str!("../../../../../assets/constants.json");
@@ -58,4 +60,12 @@ pub fn get_log_filename() -> String {
     } else {
         format!("{}.txt", log_basename())
     }
+}
+
+pub fn disable_file_comment() -> &'static str {
+    &CONSTANTS.disable_file_comment
+}
+
+pub fn disable_next_line_comment() -> &'static str {
+    &CONSTANTS.disable_next_line_comment
 }
