@@ -12,6 +12,7 @@ const baseInputsSchema = z
     continueOnError: z.boolean(),
     annotations: z.boolean(),
     summary: z.boolean(),
+    prComment: z.boolean(),
   })
   .extend({
     devMode: z.boolean(),
@@ -49,6 +50,7 @@ export function getActionInputs(): ActionInputs {
   const continueOnError = githubHelper.getInput('continue-on-error') === 'true';
   const annotations = githubHelper.getInput('annotations') !== 'false';
   const summary = githubHelper.getInput('summary') !== 'false';
+  const prComment = githubHelper.getInput('pr-comment') !== 'false';
 
   const groupBy = groupByInput === GroupMode.Rule ? GroupMode.Rule : GroupMode.File;
 
@@ -64,6 +66,7 @@ export function getActionInputs(): ActionInputs {
     continueOnError,
     annotations,
     summary,
+    prComment,
     mode,
     ...(mode === ScanMode.Branch && { targetBranch: targetBranch || DEFAULT_INPUTS.targetBranch }),
   };

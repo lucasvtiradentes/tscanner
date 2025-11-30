@@ -29,7 +29,9 @@ class ActionRunner {
 
       const octokit = githubHelper.getOctokit(inputs.token);
 
-      await this.handlePRComment(inputs, octokit, scanResults);
+      if (inputs.prComment) {
+        await this.handlePRComment(inputs, octokit, scanResults);
+      }
 
       if (inputs.annotations && scanResults.totalIssues > 0) {
         await writeAnnotations(octokit, scanResults);
