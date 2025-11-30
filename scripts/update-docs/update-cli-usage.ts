@@ -39,7 +39,7 @@ type TFields = 'CLI_USAGE';
 const rootDir = path.resolve(__dirname, '..', '..');
 
 export function updateCliUsage() {
-  const cliJson: CliJson = getJson(path.join(rootDir, 'assets/cli.json'));
+  const cliJson: CliJson = getJson(path.join(rootDir, 'assets/generated/cli.json'));
 
   const headerContent = [
     { content: 'Command', width: 120 },

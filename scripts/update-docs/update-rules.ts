@@ -19,7 +19,7 @@ type TFields = 'RULES';
 const rootDir = path.resolve(__dirname, '..', '..');
 
 export function updateRules() {
-  const rulesJson: RuleMetadata[] = getJson(path.join(rootDir, 'assets/rules.json'));
+  const rulesJson: RuleMetadata[] = getJson(path.join(rootDir, 'assets/generated/rules.json'));
 
   const categoryMap: Record<string, string> = {
     typesafety: 'Type Safety',
