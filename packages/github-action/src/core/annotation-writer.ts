@@ -3,8 +3,21 @@ import { githubHelper } from '../lib/actions-helper';
 import type { ScanResult } from './scanner';
 
 export function writeAnnotations(scanResult: ScanResult): void {
-  for (const group of scanResult.ruleGroups) {
+  githubHelper.logInfo('');
+  githubHelper.logInfo('📝 Writing annotations...');
+  githubHelper.logInfo(`ruleGroups count: ${scanResult.ruleGroups.length}`);
+  githubHelper.logInfo(`ruleGroupsByRule count: ${scanResult.ruleGroupsByRule.length}`);
+
+  let annotationCount = 0;
+
+  for (const group of scanResult.ruleGroupsByRule) {
+    githubHelper.logInfo(
+      `Processing rule: ${group.ruleName} (${group.issueCount} issues, ${group.files.length} files)`,
+    );
+
     for (const file of group.files) {
+      githubHelper.logInfo(`  File: ${file.filePath} (${file.issues.length} issues)`);
+
       for (const issue of file.issues) {
         const ruleName = issue.ruleName ?? group.ruleName;
         const message = `[${ruleName}] ${issue.message}`;
@@ -15,12 +28,17 @@ export function writeAnnotations(scanResult: ScanResult): void {
           startColumn: issue.column,
         };
 
+        githubHelper.logInfo(`    -> Line ${issue.line}: ${ruleName}`);
+
         if (group.severity === Severity.Error) {
           githubHelper.addAnnotationError(message, properties);
         } else {
           githubHelper.addAnnotationWarning(message, properties);
         }
+        annotationCount++;
       }
     }
   }
+
+  githubHelper.logInfo(`Total annotations written: ${annotationCount}`);
 }
