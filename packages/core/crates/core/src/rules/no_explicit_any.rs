@@ -8,17 +8,17 @@ use swc_common::Spanned;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
 
-pub struct NoAnyTypeRule;
+pub struct NoExplicitAnyRule;
 
 inventory::submit!(RuleRegistration {
-    name: "no-any-type",
-    factory: || Arc::new(NoAnyTypeRule),
+    name: "no-explicit-any",
+    factory: || Arc::new(NoExplicitAnyRule),
 });
 
 inventory::submit!(RuleMetadataRegistration {
     metadata: RuleMetadata {
-        name: "no-any-type",
-        display_name: "No Any Type",
+        name: "no-explicit-any",
+        display_name: "No Explicit Any",
         description: "Detects usage of TypeScript 'any' type (`: any` and `as any`). Using 'any' defeats the purpose of TypeScript's type system.",
         rule_type: RuleType::Ast,
         default_severity: Severity::Warning,
@@ -30,9 +30,9 @@ inventory::submit!(RuleMetadataRegistration {
     }
 });
 
-impl Rule for NoAnyTypeRule {
+impl Rule for NoExplicitAnyRule {
     fn name(&self) -> &str {
-        "no-any-type"
+        "no-explicit-any"
     }
 
     fn is_typescript_only(&self) -> bool {
@@ -91,7 +91,7 @@ impl<'a> Visit for AnyTypeVisitor<'a> {
                     get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
                 self.issues.push(Issue {
-                    rule: "no-any-type".to_string(),
+                    rule: "no-explicit-any".to_string(),
                     file: self.path.clone(),
                     line,
                     column,

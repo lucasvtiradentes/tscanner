@@ -58,19 +58,6 @@
     "typescriptOnly": false
   },
   {
-    "category": "typesafety",
-    "defaultEnabled": false,
-    "defaultSeverity": "warning",
-    "description": "Detects usage of TypeScript 'any' type (`: any` and `as any`). Using 'any' defeats the purpose of TypeScript's type system.",
-    "displayName": "No Any Type",
-    "equivalentBiomeRule": "https://biomejs.dev/linter/rules/no-explicit-any",
-    "equivalentEslintRule": "https://typescript-eslint.io/rules/no-explicit-any",
-    "name": "no-any-type",
-    "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_any_type.rs",
-    "typescriptOnly": true
-  },
-  {
     "category": "codequality",
     "defaultEnabled": false,
     "defaultSeverity": "warning",
@@ -87,13 +74,13 @@
     "category": "codequality",
     "defaultEnabled": false,
     "defaultSeverity": "warning",
-    "description": "Finds console.log() statements in code. Console statements should be removed before committing to production.",
-    "displayName": "No Console Log",
+    "description": "Disallow the use of console methods. Console statements should be removed before committing to production.",
+    "displayName": "No Console",
     "equivalentBiomeRule": "https://biomejs.dev/linter/rules/no-console",
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/no-console",
-    "name": "no-console-log",
+    "name": "no-console",
     "ruleType": "regex",
-    "sourcePath": "packages/core/crates/core/src/rules/no_console_log.rs",
+    "sourcePath": "packages/core/crates/core/src/rules/no_console.rs",
     "typescriptOnly": false
   },
   {
@@ -192,6 +179,19 @@
     "name": "no-empty-interface",
     "ruleType": "ast",
     "sourcePath": "packages/core/crates/core/src/rules/no_empty_interface.rs",
+    "typescriptOnly": true
+  },
+  {
+    "category": "typesafety",
+    "defaultEnabled": false,
+    "defaultSeverity": "warning",
+    "description": "Detects usage of TypeScript 'any' type (`: any` and `as any`). Using 'any' defeats the purpose of TypeScript's type system.",
+    "displayName": "No Explicit Any",
+    "equivalentBiomeRule": "https://biomejs.dev/linter/rules/no-explicit-any",
+    "equivalentEslintRule": "https://typescript-eslint.io/rules/no-explicit-any",
+    "name": "no-explicit-any",
+    "ruleType": "ast",
+    "sourcePath": "packages/core/crates/core/src/rules/no_explicit_any.rs",
     "typescriptOnly": true
   },
   {

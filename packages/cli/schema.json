@@ -267,17 +267,13 @@
           "$ref": "#/definitions/BuiltinRuleConfig",
           "description": "Disallows aliased imports (starting with @). Prefer relative imports."
         },
-        "no-any-type": {
-          "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Detects usage of TypeScript 'any' type (`: any` and `as any`). Using 'any' defeats the purpose of TypeScript's type system."
-        },
         "no-async-without-await": {
           "$ref": "#/definitions/BuiltinRuleConfig",
           "description": "Disallows async functions that don't use await. The async keyword is unnecessary if await is never used."
         },
-        "no-console-log": {
+        "no-console": {
           "$ref": "#/definitions/BuiltinRuleConfig",
-          "description": "Finds console.log() statements in code. Console statements should be removed before committing to production."
+          "description": "Disallow the use of console methods. Console statements should be removed before committing to production."
         },
         "no-constant-condition": {
           "$ref": "#/definitions/BuiltinRuleConfig",
@@ -310,6 +306,10 @@
         "no-empty-interface": {
           "$ref": "#/definitions/BuiltinRuleConfig",
           "description": "Disallows empty interface declarations. Empty interfaces are equivalent to {} and usually indicate incomplete code."
+        },
+        "no-explicit-any": {
+          "$ref": "#/definitions/BuiltinRuleConfig",
+          "description": "Detects usage of TypeScript 'any' type (`: any` and `as any`). Using 'any' defeats the purpose of TypeScript's type system."
         },
         "no-floating-promises": {
           "$ref": "#/definitions/BuiltinRuleConfig",
