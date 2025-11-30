@@ -1,5 +1,6 @@
+import { GroupMode, ViewMode } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { GroupMode, ViewMode, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
+import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import { type IssueResult, NodeKind } from '../common/types';
 import { logger } from '../common/utils/logger';
 import { buildFolderTree } from './utils/tree-builder';
@@ -10,7 +11,7 @@ type PanelContentItem = RuleGroupItem | FolderResultItem | FileResultItem | Line
 export class IssuesPanelContent implements vscode.TreeDataProvider<PanelContentItem> {
   private results: IssueResult[] = [];
   private _viewMode: ViewMode = ViewMode.List;
-  private _groupMode: GroupMode = GroupMode.Default;
+  private _groupMode: GroupMode = GroupMode.File;
 
   private _onDidChangeTreeData = new vscode.EventEmitter<PanelContentItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;

@@ -19,8 +19,13 @@ export enum ScanMode {
 }
 
 export enum GroupMode {
-  Rule = 'rule',
   File = 'file',
+  Rule = 'rule',
+}
+
+export enum ViewMode {
+  List = 'list',
+  Tree = 'tree',
 }
 
 export enum CustomRuleType {

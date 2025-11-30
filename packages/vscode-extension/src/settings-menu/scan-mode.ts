@@ -1,13 +1,13 @@
+import { ScanMode } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { setCopyScanContext } from '../commands/internal/copy';
 import {
   Command,
   type QuickPickItemWithId,
-  ScanMode,
   ToastKind,
   WorkspaceStateKey,
   executeCommand,
-  getCurrentWorkspaceFolder,
+  requireWorkspaceOrNull,
   showToastMessage,
   updateState,
 } from '../common/lib/vscode-utils';
@@ -85,11 +85,8 @@ async function handleBranchScan(
   context: vscode.ExtensionContext,
   panelContent: IssuesPanelContent,
 ) {
-  const workspaceFolder = getCurrentWorkspaceFolder();
-  if (!workspaceFolder) {
-    showToastMessage(ToastKind.Error, 'No workspace folder open');
-    return;
-  }
+  const workspaceFolder = requireWorkspaceOrNull();
+  if (!workspaceFolder) return;
 
   const currentBranch = await getCurrentBranch(workspaceFolder.uri.fsPath);
   if (!currentBranch) {

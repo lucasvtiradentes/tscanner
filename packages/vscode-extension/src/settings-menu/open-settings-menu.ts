@@ -1,14 +1,12 @@
 import * as vscode from 'vscode';
 import { getConfigState } from '../common/lib/config-manager';
+import type { CommandContext } from '../common/lib/extension-state';
 import {
   Command,
   type QuickPickItemWithId,
-  type ScanMode,
-  ToastKind,
   executeCommand,
-  getCurrentWorkspaceFolder,
   registerCommand,
-  showToastMessage,
+  requireWorkspaceOrNull,
 } from '../common/lib/vscode-utils';
 import { logger } from '../common/utils/logger';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
@@ -22,23 +20,15 @@ enum SettingsMenuOption {
   OpenConfigFile = 'open-config-file',
 }
 
-export function createOpenSettingsMenuCommand(
-  updateStatusBar: () => Promise<void>,
-  updateBadge: () => void,
-  currentScanModeRef: { current: ScanMode },
-  currentCompareBranchRef: { current: string },
-  currentCustomConfigDirRef: { current: string | null },
-  context: vscode.ExtensionContext,
-  panelContent: IssuesPanelContent,
-) {
+export function createOpenSettingsMenuCommand(ctx: CommandContext, panelContent: IssuesPanelContent) {
+  const { context, stateRefs, updateBadge, updateStatusBar } = ctx;
+  const { currentScanModeRef, currentCompareBranchRef, currentCustomConfigDirRef } = stateRefs;
+
   return registerCommand(Command.OpenSettingsMenu, async () => {
     logger.info('openSettingsMenu command called');
 
-    const workspaceFolder = getCurrentWorkspaceFolder();
-    if (!workspaceFolder) {
-      showToastMessage(ToastKind.Error, 'No workspace folder open');
-      return;
-    }
+    const workspaceFolder = requireWorkspaceOrNull();
+    if (!workspaceFolder) return;
 
     const workspacePath = workspaceFolder.uri.fsPath;
     const customConfigDir = currentCustomConfigDirRef.current;

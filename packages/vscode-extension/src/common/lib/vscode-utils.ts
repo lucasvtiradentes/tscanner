@@ -1,22 +1,9 @@
+import { DEFAULT_TARGET_BRANCH, GroupMode, ScanMode, ViewMode } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { z } from 'zod';
 import { getCommandId, getContextKey } from '../constants';
-import { CONTEXT_PREFIX, DEFAULT_TARGET_BRANCH } from '../scripts-constants';
 
-export enum ViewMode {
-  List = 'list',
-  Tree = 'tree',
-}
-
-export enum GroupMode {
-  Default = 'default',
-  Rule = 'rule',
-}
-
-export enum ScanMode {
-  Codebase = 'codebase',
-  Branch = 'branch',
-}
+export { GroupMode, ScanMode, ViewMode };
 
 export enum WorkspaceStateKey {
   ViewMode = 'viewMode',
@@ -41,12 +28,14 @@ type WorkspaceStateKeyType = keyof WorkspaceStateSchema;
 
 const defaultValues: WorkspaceStateSchema = {
   [WorkspaceStateKey.ViewMode]: ViewMode.List,
-  [WorkspaceStateKey.GroupMode]: GroupMode.Default,
+  [WorkspaceStateKey.GroupMode]: GroupMode.File,
   [WorkspaceStateKey.ScanMode]: ScanMode.Codebase,
   [WorkspaceStateKey.CompareBranch]: DEFAULT_TARGET_BRANCH,
   [WorkspaceStateKey.CachedResults]: [],
   [WorkspaceStateKey.CustomConfigDir]: null,
 };
+
+const CONTEXT_PREFIX = 'tscanner';
 
 const keyMapping: Record<WorkspaceStateKeyType, string> = Object.fromEntries(
   Object.values(WorkspaceStateKey).map((key) => [key, `${CONTEXT_PREFIX}.${key}`]),
@@ -63,10 +52,7 @@ export enum Command {
   FindIssue = 'findIssue',
   ManageRules = 'manageRules',
   OpenSettingsMenu = 'openSettingsMenu',
-  CycleViewModeFileFlatView = 'cycleViewModeFileFlatView',
-  CycleViewModeFileTreeView = 'cycleViewModeFileTreeView',
-  CycleViewModeRuleFlatView = 'cycleViewModeRuleFlatView',
-  CycleViewModeRuleTreeView = 'cycleViewModeRuleTreeView',
+  CycleViewMode = 'cycleViewMode',
   OpenFile = 'openFile',
   CopyPath = 'copyPath',
   CopyRelativePath = 'copyRelativePath',
@@ -178,6 +164,15 @@ export function requireWorkspace(): vscode.WorkspaceFolder {
   if (!workspaceFolder) {
     showToastMessage(ToastKind.Error, 'No workspace folder open');
     throw new Error('No workspace folder open');
+  }
+  return workspaceFolder;
+}
+
+export function requireWorkspaceOrNull(): vscode.WorkspaceFolder | null {
+  const workspaceFolder = getCurrentWorkspaceFolder();
+  if (!workspaceFolder) {
+    showToastMessage(ToastKind.Error, 'No workspace folder open');
+    return null;
   }
   return workspaceFolder;
 }

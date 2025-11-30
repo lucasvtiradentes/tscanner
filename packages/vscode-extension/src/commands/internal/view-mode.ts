@@ -1,12 +1,6 @@
+import { GroupMode, ViewMode } from 'tscanner-common';
 import type * as vscode from 'vscode';
-import {
-  Command,
-  GroupMode,
-  ViewMode,
-  WorkspaceStateKey,
-  registerCommand,
-  updateState,
-} from '../../common/lib/vscode-utils';
+import { Command, WorkspaceStateKey, registerCommand, updateState } from '../../common/lib/vscode-utils';
 import type { IssuesPanelContent } from '../../issues-panel/panel-content';
 
 type ViewState = {
@@ -15,8 +9,8 @@ type ViewState = {
 };
 
 const VIEW_STATES: ViewState[] = [
-  { viewMode: ViewMode.List, groupMode: GroupMode.Default },
-  { viewMode: ViewMode.Tree, groupMode: GroupMode.Default },
+  { viewMode: ViewMode.List, groupMode: GroupMode.File },
+  { viewMode: ViewMode.Tree, groupMode: GroupMode.File },
   { viewMode: ViewMode.List, groupMode: GroupMode.Rule },
   { viewMode: ViewMode.Tree, groupMode: GroupMode.Rule },
 ];
@@ -39,30 +33,6 @@ function cycleToNextMode(panelContent: IssuesPanelContent, context: vscode.Exten
   updateState(context, WorkspaceStateKey.GroupMode, nextState.groupMode);
 }
 
-export function createCycleViewModeFileFlatViewCommand(
-  panelContent: IssuesPanelContent,
-  context: vscode.ExtensionContext,
-) {
-  return registerCommand(Command.CycleViewModeFileFlatView, () => cycleToNextMode(panelContent, context));
-}
-
-export function createCycleViewModeFileTreeViewCommand(
-  panelContent: IssuesPanelContent,
-  context: vscode.ExtensionContext,
-) {
-  return registerCommand(Command.CycleViewModeFileTreeView, () => cycleToNextMode(panelContent, context));
-}
-
-export function createCycleViewModeRuleFlatViewCommand(
-  panelContent: IssuesPanelContent,
-  context: vscode.ExtensionContext,
-) {
-  return registerCommand(Command.CycleViewModeRuleFlatView, () => cycleToNextMode(panelContent, context));
-}
-
-export function createCycleViewModeRuleTreeViewCommand(
-  panelContent: IssuesPanelContent,
-  context: vscode.ExtensionContext,
-) {
-  return registerCommand(Command.CycleViewModeRuleTreeView, () => cycleToNextMode(panelContent, context));
+export function createCycleViewModeCommand(panelContent: IssuesPanelContent, context: vscode.ExtensionContext) {
+  return registerCommand(Command.CycleViewMode, () => cycleToNextMode(panelContent, context));
 }

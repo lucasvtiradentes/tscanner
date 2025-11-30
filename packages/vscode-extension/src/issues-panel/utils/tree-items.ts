@@ -1,7 +1,8 @@
 import { basename } from 'node:path';
+import type { ViewMode } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { getCommandId } from '../../common/constants';
-import { Command, TreeItemContextValue, type ViewMode, formatIssueCount } from '../../common/lib/vscode-utils';
+import { Command, TreeItemContextValue, formatIssueCount } from '../../common/lib/vscode-utils';
 import { type FolderNode, type IssueResult, NodeKind } from '../../common/types';
 import { getFolderIssueCount } from './tree-builder';
 

@@ -1,6 +1,7 @@
+import type { ScanMode } from 'tscanner-common';
 import type * as vscode from 'vscode';
 import type { RustClient } from './rust-client';
-import { type ScanMode, WorkspaceStateKey, getWorkspaceState } from './vscode-utils';
+import { WorkspaceStateKey, getWorkspaceState } from './vscode-utils';
 
 export type ExtensionState = {
   isSearching: boolean;
@@ -25,7 +26,7 @@ export function createExtensionStateRefs(context: vscode.ExtensionContext): Exte
   };
 }
 
-export type CommandDependencies = {
+export type CommandContext = {
   context: vscode.ExtensionContext;
   treeView: vscode.TreeView<any>;
   stateRefs: ExtensionStateRefs;

@@ -4,6 +4,7 @@ import type * as vscode from 'vscode';
 export type {
   BuiltinRuleConfig,
   ClearCacheParams,
+  CliGroupBy,
   CustomRuleConfig,
   FileResult,
   GetRulesMetadataParams,
@@ -17,7 +18,15 @@ export type {
   TscannerConfig,
 } from 'tscanner-common';
 
-export { Severity, hasConfiguredRules } from 'tscanner-common';
+export {
+  CustomRuleType,
+  GroupMode,
+  RuleCategory,
+  ScanMode,
+  Severity,
+  ViewMode,
+  hasConfiguredRules,
+} from 'tscanner-common';
 
 export type IssueResult = {
   uri: vscode.Uri;

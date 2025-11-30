@@ -1,4 +1,5 @@
 import { type ScanResult, Severity } from 'tscanner-common';
+import type { CliGroupBy } from 'tscanner-common';
 import * as vscode from 'vscode';
 import type { RustClient } from '../../common/lib/rust-client';
 import { Command, ScanMode, ToastKind, registerCommand, showToastMessage } from '../../common/lib/vscode-utils';
@@ -97,7 +98,7 @@ function collectFolderIssues(node: FolderNode): IssueResult[] {
 
 type CopyParams = {
   results: IssueResult[];
-  groupMode: 'file' | 'rule';
+  groupMode: CliGroupBy;
   buildHeader: (summary: { total_issues: number }) => string;
   successMessage: string;
 };

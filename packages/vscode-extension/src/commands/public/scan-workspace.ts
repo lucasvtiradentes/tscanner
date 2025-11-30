@@ -1,12 +1,11 @@
-import type * as vscode from 'vscode';
+import { ScanMode, ViewMode } from 'tscanner-common';
 import { getConfigState, loadEffectiveConfig } from '../../common/lib/config-manager';
+import type { CommandContext } from '../../common/lib/extension-state';
 import { scanWorkspace } from '../../common/lib/scanner';
 import {
   Command,
   ContextKey,
-  ScanMode,
   ToastKind,
-  ViewMode,
   WorkspaceStateKey,
   executeCommand,
   getCurrentWorkspaceFolder,
@@ -16,23 +15,16 @@ import {
   showToastMessage,
   updateState,
 } from '../../common/lib/vscode-utils';
-import { type IssueResult, hasConfiguredRules, serializeResults } from '../../common/types';
+import { hasConfiguredRules, serializeResults } from '../../common/types';
 import { branchExists } from '../../common/utils/git-helper';
 import { logger } from '../../common/utils/logger';
 import type { IssuesPanelContent } from '../../issues-panel/panel-content';
 import { resetIssueIndex } from './issue-navigation';
 
-export function createScanWorkspaceCommand(
-  panelContent: IssuesPanelContent,
-  context: vscode.ExtensionContext,
-  treeView: vscode.TreeView<any>,
-  updateBadge: () => void,
-  updateStatusBar: () => Promise<void>,
-  isSearchingRef: { current: boolean },
-  currentScanModeRef: { current: ScanMode },
-  currentCompareBranchRef: { current: string },
-  currentCustomConfigDirRef: { current: string | null },
-) {
+export function createScanWorkspaceCommand(ctx: CommandContext, panelContent: IssuesPanelContent) {
+  const { context, treeView, stateRefs, updateBadge, updateStatusBar } = ctx;
+  const { isSearchingRef, currentScanModeRef, currentCompareBranchRef, currentCustomConfigDirRef } = stateRefs;
+
   return registerCommand(Command.FindIssue, async (options?: { silent?: boolean }) => {
     if (isSearchingRef.current) {
       if (!options?.silent) {
@@ -108,13 +100,10 @@ export function createScanWorkspaceCommand(
 
     try {
       const startTime = Date.now();
-      let results: IssueResult[];
-
-      if (currentScanModeRef.current === ScanMode.Branch) {
-        results = await scanWorkspace(undefined, configToPass, currentCompareBranchRef.current);
-      } else {
-        results = await scanWorkspace(undefined, configToPass);
-      }
+      const results =
+        currentScanModeRef.current === ScanMode.Branch
+          ? await scanWorkspace(undefined, configToPass, currentCompareBranchRef.current)
+          : await scanWorkspace(undefined, configToPass);
 
       const elapsed = Date.now() - startTime;
       logger.info(`Search completed in ${elapsed}ms, found ${results.length} results`);

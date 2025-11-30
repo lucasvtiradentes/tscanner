@@ -1,3 +1,4 @@
+import { CustomRuleType, RuleCategory } from 'tscanner-common';
 import * as vscode from 'vscode';
 import {
   type TscannerConfig,
@@ -14,8 +15,8 @@ import {
   Command,
   ToastKind,
   executeCommand,
-  getCurrentWorkspaceFolder,
   registerCommand,
+  requireWorkspaceOrNull,
   showToastMessage,
 } from '../common/lib/vscode-utils';
 import { logger } from '../common/utils/logger';
@@ -27,54 +28,29 @@ type RuleQuickPickItem = vscode.QuickPickItem & {
   isCustom: boolean;
 };
 
-enum CustomRuleType {
-  Regex = 'regex',
-  Script = 'script',
-  Ai = 'ai',
-}
-
 const CUSTOM_RULE_TYPE_CONFIG: Record<CustomRuleType, { icon: string; detailKey: 'pattern' | 'script' | 'prompt' }> = {
   [CustomRuleType.Regex]: { icon: '$(regex)', detailKey: 'pattern' },
   [CustomRuleType.Script]: { icon: '$(file-code)', detailKey: 'script' },
   [CustomRuleType.Ai]: { icon: '$(sparkle)', detailKey: 'prompt' },
 };
 
-enum RuleCategory {
-  TypeSafety = 'typesafety',
-  Variables = 'variables',
-  Imports = 'imports',
-  CodeQuality = 'codequality',
-  BugPrevention = 'bugprevention',
-  Style = 'style',
-  Performance = 'performance',
-}
-
 const CATEGORY_ICONS: Record<RuleCategory, string> = {
   [RuleCategory.TypeSafety]: 'shield',
-  [RuleCategory.Variables]: 'symbol-variable',
-  [RuleCategory.Imports]: 'package',
   [RuleCategory.CodeQuality]: 'beaker',
-  [RuleCategory.BugPrevention]: 'bug',
   [RuleCategory.Style]: 'symbol-color',
   [RuleCategory.Performance]: 'dashboard',
 };
 
 const CATEGORY_LABELS: Record<RuleCategory, string> = {
   [RuleCategory.TypeSafety]: 'Type Safety',
-  [RuleCategory.Variables]: 'Variables',
-  [RuleCategory.Imports]: 'Imports',
   [RuleCategory.CodeQuality]: 'Code Quality',
-  [RuleCategory.BugPrevention]: 'Bug Prevention',
   [RuleCategory.Style]: 'Style',
   [RuleCategory.Performance]: 'Performance',
 };
 
 const CATEGORY_ORDER: RuleCategory[] = [
   RuleCategory.TypeSafety,
-  RuleCategory.Variables,
-  RuleCategory.Imports,
   RuleCategory.CodeQuality,
-  RuleCategory.BugPrevention,
   RuleCategory.Style,
   RuleCategory.Performance,
 ];
@@ -83,17 +59,34 @@ function getCategoryIcon(category: string): string {
   return CATEGORY_ICONS[category as RuleCategory] || 'circle-outline';
 }
 
+function buildCustomRuleItems(existingConfig: TscannerConfig): RuleQuickPickItem[] {
+  const customRules: RuleQuickPickItem[] = [];
+
+  if (existingConfig?.customRules) {
+    for (const [ruleName, ruleConfig] of Object.entries(existingConfig.customRules)) {
+      const typeInfo = CUSTOM_RULE_TYPE_CONFIG[ruleConfig.type as CustomRuleType];
+      customRules.push({
+        label: `${typeInfo.icon} ${ruleName}`,
+        description: `[${ruleConfig.type.toUpperCase()}] custom`,
+        detail: ruleConfig.message || ruleConfig[typeInfo.detailKey] || '',
+        ruleName,
+        picked: ruleConfig.enabled ?? true,
+        isCustom: true,
+      });
+    }
+  }
+
+  return customRules;
+}
+
 export function createManageRulesCommand(
   updateStatusBar: () => Promise<void>,
   context: vscode.ExtensionContext,
   currentCustomConfigDirRef: { current: string | null },
 ) {
   return registerCommand(Command.ManageRules, async () => {
-    const workspaceFolder = getCurrentWorkspaceFolder();
-    if (!workspaceFolder) {
-      showToastMessage(ToastKind.Error, 'No workspace folder open');
-      return;
-    }
+    const workspaceFolder = requireWorkspaceOrNull();
+    if (!workspaceFolder) return;
 
     const workspacePath = workspaceFolder.uri.fsPath;
     const customConfigDir = currentCustomConfigDirRef.current;
@@ -114,22 +107,7 @@ export function createManageRulesCommand(
       const existingConfig = (await loadEffectiveConfig(context, workspacePath, customConfigDir)) || getDefaultConfig();
       logger.info(`Loaded config with ${Object.keys(existingConfig.builtinRules || {}).length} builtin rules`);
 
-      const customRules: RuleQuickPickItem[] = [];
-
-      if (existingConfig?.customRules) {
-        for (const [ruleName, ruleConfig] of Object.entries(existingConfig.customRules)) {
-          const typeInfo = CUSTOM_RULE_TYPE_CONFIG[ruleConfig.type as CustomRuleType];
-          customRules.push({
-            label: `${typeInfo.icon} ${ruleName}`,
-            description: `[${ruleConfig.type.toUpperCase()}] custom`,
-            detail: ruleConfig.message || ruleConfig[typeInfo.detailKey] || '',
-            ruleName,
-            picked: ruleConfig.enabled ?? true,
-            isCustom: true,
-          });
-        }
-      }
-
+      const customRules = buildCustomRuleItems(existingConfig);
       const rulesByCategory = new Map<string, RuleQuickPickItem[]>();
 
       for (const rule of rules) {

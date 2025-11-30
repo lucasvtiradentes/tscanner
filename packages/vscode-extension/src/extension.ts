@@ -1,13 +1,13 @@
+import { ScanMode } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { getViewId } from './common/constants';
 import { loadEffectiveConfig } from './common/lib/config-manager';
-import { type CommandDependencies, createExtensionStateRefs } from './common/lib/extension-state';
+import { type CommandContext, type ExtensionStateRefs, createExtensionStateRefs } from './common/lib/extension-state';
 import { dispose as disposeScanner, getRustClient, scanContent, startLspClient } from './common/lib/scanner';
 import {
   Command,
   ContextKey,
-  ScanMode,
   WorkspaceStateKey,
   executeCommand,
   getCurrentWorkspaceFolder,
@@ -44,7 +44,7 @@ function setupContextKeys(viewModeKey: string, groupModeKey: string, scanModeKey
 function createFileWatcher(
   context: vscode.ExtensionContext,
   panelContent: IssuesPanelContent,
-  stateRefs: CommandDependencies['stateRefs'],
+  stateRefs: ExtensionStateRefs,
   updateBadge: () => void,
 ): vscode.FileSystemWatcher {
   const updateSingleFile = async (uri: vscode.Uri) => {
@@ -184,7 +184,7 @@ export function activate(context: vscode.ExtensionContext) {
   };
   updateBadge();
 
-  const deps: CommandDependencies = {
+  const commandContext: CommandContext = {
     context,
     treeView,
     stateRefs,
@@ -193,7 +193,7 @@ export function activate(context: vscode.ExtensionContext) {
     getRustClient,
   };
 
-  const commands = registerAllCommands(deps, panelContent);
+  const commands = registerAllCommands(commandContext, panelContent);
   const fileWatcher = createFileWatcher(context, panelContent, stateRefs, updateBadge);
 
   context.subscriptions.push(...commands, fileWatcher, statusBarManager.getDisposable());
