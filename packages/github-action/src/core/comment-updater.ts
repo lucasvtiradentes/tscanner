@@ -2,16 +2,11 @@ import { COMMENT_MARKER } from '../constants';
 import { type Octokit, githubHelper } from '../lib/actions-helper';
 import { formatTimestamp } from '../utils/format-timestamp';
 import type { ScanResult } from './scanner';
-import { Alignment, alignSection, formatCommitInfo, getModeLabel } from './shared/formatting';
 import {
   type CommitHistoryEntry,
   buildCommitHistorySection,
-  buildIssuesByFileSection,
-  buildIssuesByRuleSection,
-  buildNoIssuesMessage,
-  buildNoIssuesTable,
-  buildScanHeader,
-  buildScanSummaryTable,
+  buildIssuesReport,
+  buildSuccessReport,
 } from './shared/sections';
 
 function parseCommitHistory(commentBody: string): CommitHistoryEntry[] {
@@ -53,48 +48,24 @@ function buildCommentBody(
   commitHistory: CommitHistoryEntry[],
 ): string {
   const timestamp = formatTimestamp(timezone);
-  const { totalIssues, totalErrors } = result;
   const historyData = serializeCommitHistory(commitHistory);
   const historySection = buildCommitHistorySection(commitHistory);
 
-  if (totalIssues === 0) {
-    const header = buildScanHeader(0, false);
-    const modeLabel = getModeLabel(targetBranch);
-    const commitInfo = formatCommitInfo(commitSha, commitMessage);
-    const table = buildNoIssuesTable(modeLabel, commitInfo, timestamp);
-
-    return `${COMMENT_MARKER}
-${historyData}
-${header}
-
-${table}
-
-${buildNoIssuesMessage()}
-${historySection}`;
-  }
-
-  const header = buildScanHeader(totalErrors, true);
-  const statsTable = buildScanSummaryTable({
+  const reportParams = {
     result,
     targetBranch,
     timestamp,
     commitSha,
     commitMessage,
-  });
-  const issuesByRule = buildIssuesByRuleSection({ result, owner, repo, prNumber });
-  const issuesByFile = buildIssuesByFileSection({ result, owner, repo, prNumber });
+    extraSection: historySection,
+    issuesViewParams: { result, owner, repo, prNumber },
+  };
+
+  const report = result.totalIssues === 0 ? buildSuccessReport(reportParams) : buildIssuesReport(reportParams);
 
   return `${COMMENT_MARKER}
 ${historyData}
-${header}
-
-${alignSection(Alignment.Center, statsTable)}
-
-<br />
-${historySection}
----
-${issuesByRule}
-${issuesByFile}`;
+${report}`;
 }
 
 const MAX_HISTORY_ENTRIES = 10;

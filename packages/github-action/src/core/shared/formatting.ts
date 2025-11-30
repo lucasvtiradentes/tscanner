@@ -69,11 +69,15 @@ export function buildMostTriggeredTable(rules: RuleSummary[], limit = 5): string
     rows += `<tr><td>${badge} <code>${rule.ruleName}</code></td><td>${rule.issueCount}</td></tr>\n`;
   }
 
-  const table = `**Most triggered rules:**
+  const details = `<details>
+<summary><strong>🎯 Most triggered rules</strong></summary>
+<br />
 
 <table>
 <tr><th>Rule</th><th>Issues</th></tr>
-${rows}</table>`;
+${rows}</table>
 
-  return `${alignSection(Alignment.Center, table)}\n`;
+</details>`;
+
+  return `${alignSection(Alignment.Center, details)}\n`;
 }

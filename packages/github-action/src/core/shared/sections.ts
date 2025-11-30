@@ -216,3 +216,57 @@ export function buildNoIssuesTable(modeLabel: string, commitInfo?: string, times
 ${rows}
 </table>`;
 }
+
+export type BuildReportParams = {
+  result: ScanResult;
+  targetBranch?: string;
+  timestamp?: string;
+  commitSha?: string;
+  commitMessage?: string;
+  extraSection?: string;
+  issuesViewParams?: IssuesViewParams;
+};
+
+export function buildSuccessReport(params: BuildReportParams): string {
+  const { targetBranch, timestamp, commitSha, commitMessage, extraSection } = params;
+  const header = buildScanHeader(0, false);
+  const modeLabel = getModeLabel(targetBranch);
+  const commitInfo = commitSha ? formatCommitInfo(commitSha, commitMessage) : undefined;
+  const table = buildNoIssuesTable(modeLabel, commitInfo, timestamp);
+
+  let report = `${header}
+
+${table}
+
+${buildNoIssuesMessage()}`;
+
+  if (extraSection) {
+    report += `\n${extraSection}`;
+  }
+
+  return report;
+}
+
+export function buildIssuesReport(params: BuildReportParams): string {
+  const { result, targetBranch, timestamp, commitSha, commitMessage, extraSection, issuesViewParams } = params;
+  const { totalErrors } = result;
+
+  const header = buildScanHeader(totalErrors, true);
+  const statsTable = buildScanSummaryTable({ result, targetBranch, timestamp, commitSha, commitMessage });
+
+  let report = `${header}
+
+${alignSection(Alignment.Center, statsTable)}
+
+<br />
+${extraSection || ''}
+---
+`;
+
+  if (issuesViewParams) {
+    report += buildIssuesByRuleSection(issuesViewParams);
+    report += buildIssuesByFileSection(issuesViewParams);
+  }
+
+  return report;
+}
