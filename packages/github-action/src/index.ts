@@ -31,7 +31,7 @@ class ActionRunner {
       await this.handlePRComment(inputs, octokit, scanResults);
 
       if (inputs.annotations && scanResults.totalIssues > 0) {
-        writeAnnotations(scanResults);
+        await writeAnnotations(octokit, scanResults);
       }
 
       if (inputs.summary) {
