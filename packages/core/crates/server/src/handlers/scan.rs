@@ -1,8 +1,7 @@
+use super::common::{create_scanner, error_response, success_response};
 use crate::protocol::{Response, ScanParams};
 use crate::state::ServerState;
-use core::{
-    config_dir_name, get_changed_files, get_modified_lines, FileCache, Scanner, TscannerConfig,
-};
+use core::{config_dir_name, get_changed_files, get_modified_lines, FileCache, TscannerConfig};
 use std::sync::Arc;
 
 pub fn handle_scan(request_id: u64, params: ScanParams, state: &mut ServerState) -> Response {
@@ -20,13 +19,7 @@ pub fn handle_scan(request_id: u64, params: ScanParams, state: &mut ServerState)
                 ));
                 c
             }
-            Err(e) => {
-                return Response {
-                    id: request_id,
-                    result: None,
-                    error: Some(e.to_string()),
-                };
-            }
+            Err(e) => return error_response(request_id, e.to_string()),
         }
     };
 
@@ -36,15 +29,9 @@ pub fn handle_scan(request_id: u64, params: ScanParams, state: &mut ServerState)
     let cache = Arc::new(FileCache::with_config_hash(config_hash));
     state.cache = cache.clone();
 
-    let scanner = match Scanner::with_cache(config, cache, params.root.clone()) {
+    let scanner = match create_scanner(config, cache, &params.root) {
         Ok(s) => s,
-        Err(e) => {
-            return Response {
-                id: request_id,
-                result: None,
-                error: Some(format!("Failed to create scanner: {}", e)),
-            }
-        }
+        Err(e) => return error_response(request_id, e),
     };
 
     let (changed_files, modified_lines) = if let Some(ref branch_name) = params.branch {
@@ -61,11 +48,7 @@ pub fn handle_scan(request_id: u64, params: ScanParams, state: &mut ServerState)
                 (Some(files), Some(lines))
             }
             (Err(e), _) | (_, Err(e)) => {
-                return Response {
-                    id: request_id,
-                    result: None,
-                    error: Some(format!("Failed to get changed files: {}", e)),
-                }
+                return error_response(request_id, format!("Failed to get changed files: {}", e))
             }
         }
     } else {
@@ -80,9 +63,5 @@ pub fn handle_scan(request_id: u64, params: ScanParams, state: &mut ServerState)
 
     state.scanner = Some(scanner);
 
-    Response {
-        id: request_id,
-        result: Some(serde_json::to_value(&result).unwrap()),
-        error: None,
-    }
+    success_response(request_id, serde_json::to_value(&result).unwrap())
 }
