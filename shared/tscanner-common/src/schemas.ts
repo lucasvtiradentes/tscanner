@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { CustomRuleType, GroupMode, RuleCategory, RuleType } from './constants';
+import { CustomRuleType, GroupMode, RuleCategory, RuleType, Severity } from './constants';
 
-export const severitySchema = z.enum(['error', 'warning']);
+export const severitySchema = z.enum(Severity);
 
 export const scanParamsSchema = z.object({
   root: z.string(),

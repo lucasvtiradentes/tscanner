@@ -132,8 +132,8 @@
       },
       {
         "command": "tscanner.refresh",
-        "title": "Scan Workspace",
-        "icon": "$(refresh)"
+        "title": "Hard Scan (Clear Cache)",
+        "icon": "$(debug-restart)"
       },
       {
         "command": "tscanner.openSettingsMenu",

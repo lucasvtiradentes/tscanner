@@ -1,4 +1,4 @@
-import { type GroupMode, PACKAGE_NAME, type ScanResult, Severity } from 'tscanner-common';
+import { type GroupMode, PACKAGE_NAME, type ScanResult } from 'tscanner-common';
 import { DEFAULT_TARGET_BRANCH } from '../scripts-constants';
 import { type FolderNode, type IssueResult, NodeKind } from '../types';
 import type { RustClient } from './rust-client';
@@ -65,7 +65,7 @@ function convertToScanResult(results: IssueResult[]): ScanResult {
       line: issue.line,
       column: issue.column,
       end_column: issue.endColumn,
-      severity: (issue.severity === Severity.Error ? 'error' : 'warning') as 'error' | 'warning',
+      severity: issue.severity,
       line_text: issue.text,
     })),
   }));

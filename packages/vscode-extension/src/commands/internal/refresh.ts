@@ -2,6 +2,6 @@ import { Command, executeCommand, registerCommand } from '../../common/lib/vscod
 
 export function createRefreshCommand() {
   return registerCommand(Command.Refresh, async () => {
-    await executeCommand(Command.FindIssue);
+    await executeCommand(Command.HardScan);
   });
 }
