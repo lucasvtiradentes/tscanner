@@ -97,11 +97,12 @@ export const cliGroupBySchema = z.enum(['file', 'rule']);
 export const cliConfigSchema = z.object({
   groupBy: cliGroupBySchema.optional(),
   noCache: z.boolean().optional(),
+  showSettings: z.boolean().optional(),
   showSeverity: z.boolean().optional(),
   showSourceLine: z.boolean().optional(),
   showRuleName: z.boolean().optional(),
   showDescription: z.boolean().optional(),
-  showSummaryAtFooter: z.boolean().optional(),
+  showSummary: z.boolean().optional(),
 });
 
 export const filesConfigSchema = z.object({

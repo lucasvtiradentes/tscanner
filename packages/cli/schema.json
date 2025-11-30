@@ -64,6 +64,11 @@
           "description": "Show rule name",
           "type": "boolean"
         },
+        "showSettings": {
+          "default": true,
+          "description": "Show check settings header",
+          "type": "boolean"
+        },
         "showSeverity": {
           "default": true,
           "description": "Show severity icon",
@@ -74,9 +79,9 @@
           "description": "Show source line text",
           "type": "boolean"
         },
-        "showSummaryAtFooter": {
+        "showSummary": {
           "default": true,
-          "description": "Show summary at footer",
+          "description": "Show summary footer",
           "type": "boolean"
         }
       },

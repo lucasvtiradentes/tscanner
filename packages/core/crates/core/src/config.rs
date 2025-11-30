@@ -22,11 +22,12 @@ const ALLOWED_TOP_LEVEL: &[&str] = &[
 const ALLOWED_CLI: &[&str] = &[
     "groupBy",
     "noCache",
+    "showSettings",
     "showSeverity",
     "showSourceLine",
     "showRuleName",
     "showDescription",
-    "showSummaryAtFooter",
+    "showSummary",
 ];
 const ALLOWED_FILES: &[&str] = &["include", "exclude"];
 const ALLOWED_LSP: &[&str] = &["errors", "warnings"];
@@ -193,12 +194,16 @@ fn default_cli_show_rule_name() -> bool {
     default_cli_config().show_rule_name
 }
 
+fn default_cli_show_settings() -> bool {
+    default_cli_config().show_settings
+}
+
 fn default_cli_show_description() -> bool {
     default_cli_config().show_description
 }
 
-fn default_cli_show_summary_at_footer() -> bool {
-    default_cli_config().show_summary_at_footer
+fn default_cli_show_summary() -> bool {
+    default_cli_config().show_summary
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -217,6 +222,13 @@ pub struct CliConfig {
         description = "Skip cache and force full scan"
     )]
     pub no_cache: bool,
+
+    #[serde(default = "default_cli_show_settings")]
+    #[schemars(
+        default = "default_cli_show_settings",
+        description = "Show check settings header"
+    )]
+    pub show_settings: bool,
 
     #[serde(default = "default_cli_show_severity")]
     #[schemars(
@@ -243,12 +255,12 @@ pub struct CliConfig {
     )]
     pub show_description: bool,
 
-    #[serde(default = "default_cli_show_summary_at_footer")]
+    #[serde(default = "default_cli_show_summary")]
     #[schemars(
-        default = "default_cli_show_summary_at_footer",
-        description = "Show summary at footer"
+        default = "default_cli_show_summary",
+        description = "Show summary footer"
     )]
-    pub show_summary_at_footer: bool,
+    pub show_summary: bool,
 }
 
 impl Default for CliConfig {

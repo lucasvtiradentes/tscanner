@@ -13,7 +13,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use crate::config_loader::load_config_with_custom;
-use crate::shared::SummaryStats;
+use crate::shared::{render_header, ScanConfig, ScanMode, SummaryStats};
 use cli::{GroupMode, OutputFormat};
 use context::CheckContext;
 use core::{
@@ -65,48 +65,49 @@ pub fn cmd_check(
         staged
     ));
 
-    let (config, cli_config) = match load_config_with_custom(&root, config_path)? {
-        Some((cfg, config_file_path)) => {
-            log_info(&format!(
-                "cmd_check: Config loaded successfully from: {}",
-                config_file_path
-            ));
-            let file_cli_config = cfg.cli.clone().unwrap_or_default();
-            (cfg, file_cli_config)
-        }
-        None => {
-            log_error("cmd_check: No config found");
-            eprintln!(
-                "{}",
-                format!("Error: No {} configuration found!", app_name())
-                    .red()
-                    .bold()
-            );
-            eprintln!();
-            eprintln!("Expected config at:");
-            eprintln!(
-                "  • {}",
-                format!(
-                    "{}/{}/{}",
-                    root.display(),
-                    config_dir_name(),
-                    config_file_name()
-                )
-                .yellow()
-            );
+    let (config, cli_config, resolved_config_path) =
+        match load_config_with_custom(&root, config_path)? {
+            Some((cfg, config_file_path)) => {
+                log_info(&format!(
+                    "cmd_check: Config loaded successfully from: {}",
+                    config_file_path
+                ));
+                let file_cli_config = cfg.cli.clone().unwrap_or_default();
+                (cfg, file_cli_config, config_file_path)
+            }
+            None => {
+                log_error("cmd_check: No config found");
+                eprintln!(
+                    "{}",
+                    format!("Error: No {} configuration found!", app_name())
+                        .red()
+                        .bold()
+                );
+                eprintln!();
+                eprintln!("Expected config at:");
+                eprintln!(
+                    "  • {}",
+                    format!(
+                        "{}/{}/{}",
+                        root.display(),
+                        config_dir_name(),
+                        config_file_name()
+                    )
+                    .yellow()
+                );
 
-            eprintln!();
-            eprintln!(
-                "Run {} to create a default configuration,",
-                format!("{} init", app_name()).cyan()
-            );
-            eprintln!(
-                "or use {} to specify a custom config directory.",
-                "--config <path>".cyan()
-            );
-            std::process::exit(1);
-        }
-    };
+                eprintln!();
+                eprintln!(
+                    "Run {} to create a default configuration,",
+                    format!("{} init", app_name()).cyan()
+                );
+                eprintln!(
+                    "or use {} to specify a custom config directory.",
+                    "--config <path>".cyan()
+                );
+                std::process::exit(1);
+            }
+        };
 
     let resolved_cli = apply_group_by_override(&cli_config, group_by);
     let effective_group_mode = resolve_group_mode(&resolved_cli);
@@ -123,39 +124,55 @@ pub fn cmd_check(
     let scanner = Scanner::with_cache(config, Arc::new(cache), root.clone())
         .map_err(|e| anyhow::anyhow!("{}", e))?;
 
-    if !matches!(output_format, OutputFormat::Json) {
-        print_scan_header(effective_no_cache, &effective_group_mode);
-    }
-
     let is_json = matches!(output_format, OutputFormat::Json);
 
-    let (files_to_scan, modified_lines) = if staged {
+    let (files_to_scan, modified_lines, scan_mode) = if staged {
         let staged_files = git::get_staged_files(&root)?;
         let staged_lines = git::get_staged_modified_lines(&root)?;
-        if !is_json {
-            println!(
-                "{}",
-                format!("Scanning {} staged files", staged_files.len())
-                    .cyan()
-                    .bold()
-            );
-        }
-        log_info(&format!(
-            "cmd_check: Found {} staged files",
-            staged_files.len()
-        ));
+        let file_count = staged_files.len();
+        log_info(&format!("cmd_check: Found {} staged files", file_count));
         let files = filters::get_files_to_scan_multi(
             &scan_paths,
             glob_filter.as_deref(),
             Some(staged_files),
         );
-        (files, Some(staged_lines))
-    } else {
-        let (changed_files, modified_lines) = get_branch_changes(&root, &branch, is_json)?;
+        (files, Some(staged_lines), ScanMode::Staged { file_count })
+    } else if let Some(ref branch_name) = branch {
+        let (changed_files, modified_lines) = get_branch_changes(&root, branch_name)?;
+        let file_count = changed_files.as_ref().map_or(0, |f| f.len());
         let files =
             filters::get_files_to_scan_multi(&scan_paths, glob_filter.as_deref(), changed_files);
-        (files, modified_lines)
+        (
+            files,
+            modified_lines,
+            ScanMode::Branch {
+                name: branch_name.clone(),
+                file_count,
+            },
+        )
+    } else {
+        let files = filters::get_files_to_scan_multi(&scan_paths, glob_filter.as_deref(), None);
+        (files, None, ScanMode::Codebase)
     };
+
+    if !is_json {
+        let relative_config_path = pathdiff::diff_paths(&resolved_config_path, &root)
+            .map(|p| p.display().to_string())
+            .unwrap_or(resolved_config_path.clone());
+        let scan_config = ScanConfig {
+            show_settings: resolved_cli.show_settings,
+            mode: scan_mode,
+            format: output_format.clone(),
+            group_by: effective_group_mode.clone(),
+            cache_enabled: !effective_no_cache,
+            continue_on_error,
+            config_path: relative_config_path,
+            glob_filter: glob_filter.clone(),
+            rule_filter: rule_filter.clone(),
+        };
+        render_header(&scan_config);
+        println!("{}", "Scanning...".cyan().bold());
+    }
 
     let mut result = scanner.scan_multi(&scan_paths, files_to_scan.as_ref());
 
@@ -176,7 +193,9 @@ pub fn cmd_check(
     let stats = SummaryStats::from_result(&result, total_enabled_rules);
 
     if result.files.is_empty() && !is_json {
+        println!();
         println!("{}", "✓ No issues found!".green().bold());
+        println!();
         return Ok(());
     }
 
@@ -217,45 +236,17 @@ fn resolve_group_mode(cli_config: &CliConfig) -> GroupMode {
     }
 }
 
-fn print_scan_header(no_cache: bool, group_mode: &GroupMode) {
-    println!("{}", "Scanning...".cyan().bold());
-    println!();
-    let group_by_str = match group_mode {
-        GroupMode::Rule => "rule",
-        GroupMode::File => "file",
-    };
-    println!(
-        "  {} {}",
-        "Cache:".dimmed(),
-        if no_cache { "disabled" } else { "enabled" }
-    );
-    println!("  {} {}", "Group by:".dimmed(), group_by_str);
-}
-
 type ModifiedLinesMap = std::collections::HashMap<PathBuf, std::collections::HashSet<usize>>;
 
 fn get_branch_changes(
     root: &Path,
-    branch: &Option<String>,
-    json_output: bool,
+    branch_name: &str,
 ) -> Result<(Option<HashSet<PathBuf>>, Option<ModifiedLinesMap>)> {
-    let Some(ref branch_name) = branch else {
-        return Ok((None, None));
-    };
-
     match (
         git::get_changed_files(root, branch_name),
         git::get_modified_lines(root, branch_name),
     ) {
         (Ok(files), Ok(lines)) => {
-            if !json_output {
-                println!(
-                    "{}",
-                    format!("Comparing with branch: {}", branch_name)
-                        .cyan()
-                        .bold()
-                );
-            }
             log_info(&format!(
                 "cmd_check: Found {} changed files vs {}",
                 files.len(),

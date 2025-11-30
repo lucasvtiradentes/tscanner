@@ -90,7 +90,7 @@ ${table}
 
 export function buildIssuesByRuleSection(params: IssuesViewParams): string {
   const { result, owner, repo, prNumber } = params;
-  const { ruleGroupsByRule, totalRules } = result;
+  const { ruleGroupsByRule } = result;
 
   let content = '';
   for (const group of ruleGroupsByRule) {
@@ -117,7 +117,7 @@ export function buildIssuesByRuleSection(params: IssuesViewParams): string {
   const innerContent = alignSection(Alignment.Left, content);
 
   const details = `<details>
-<summary><strong>${ICONS.RULE_ICON} Issues grouped by rule (${totalRules})</strong></summary>
+<summary><strong>${ICONS.RULE_ICON} Issues grouped by rule</strong></summary>
 <br />
 
 ${innerContent}
@@ -128,7 +128,6 @@ ${innerContent}
 
 export function buildIssuesByFileSection(params: IssuesViewParams): string {
   const { result, owner, repo, prNumber } = params;
-  const { filesWithIssues } = result;
 
   const fileMap = new Map<string, Map<string, Array<{ line: number; column: number; lineText: string }>>>();
 
@@ -178,7 +177,7 @@ export function buildIssuesByFileSection(params: IssuesViewParams): string {
   const innerContent = alignSection(Alignment.Left, content);
 
   const details = `<details>
-<summary><strong>${ICONS.FILE_ICON} Issues grouped by file (${filesWithIssues})</strong></summary>
+<summary><strong>${ICONS.FILE_ICON} Issues grouped by file</strong></summary>
 <br />
 
 ${innerContent}

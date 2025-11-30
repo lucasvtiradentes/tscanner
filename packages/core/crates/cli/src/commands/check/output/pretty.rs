@@ -1,6 +1,6 @@
-use super::{render_summary, OutputRenderer};
+use super::OutputRenderer;
 use crate::commands::check::context::CheckContext;
-use crate::shared::SummaryStats;
+use crate::shared::{render_summary, SummaryStats};
 use cli::GroupMode;
 use core::types::ScanResult;
 
@@ -20,7 +20,7 @@ impl OutputRenderer for PrettyRenderer {
             }
         }
 
-        if ctx.cli_config.show_summary_at_footer {
+        if ctx.cli_config.show_summary {
             println!();
             render_summary(result, stats);
         }
