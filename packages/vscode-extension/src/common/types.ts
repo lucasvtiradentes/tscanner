@@ -11,6 +11,7 @@ import {
   type ScanFileParams,
   type ScanParams,
   type ScanResult,
+  Severity,
   type TscannerConfig,
   hasConfiguredRules,
 } from 'tscanner-common';
@@ -40,7 +41,7 @@ export type IssueResult = {
   endColumn: number;
   text: string;
   rule: string;
-  severity: 'error' | 'warning';
+  severity: Severity;
   message: string;
 };
 
@@ -62,3 +63,16 @@ export type FileNode = {
   name: string;
   results: IssueResult[];
 };
+
+export function parseSeverity(severity: string): Severity {
+  return severity.toLowerCase() === 'error' ? Severity.Error : Severity.Warning;
+}
+
+export type SerializedIssueResult = Omit<IssueResult, 'uri'> & { uriString: string };
+
+export function serializeResults(results: IssueResult[]): SerializedIssueResult[] {
+  return results.map((r) => {
+    const { uri, ...rest } = r;
+    return { ...rest, uriString: uri.toString() };
+  });
+}

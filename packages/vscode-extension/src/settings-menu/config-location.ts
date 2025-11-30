@@ -1,9 +1,11 @@
 import * as path from 'node:path';
 import * as vscode from 'vscode';
 import {
+  type ConfigState,
   deleteCustomConfig,
   deleteGlobalConfig,
   deleteLocalConfig,
+  getConfigState,
   getCustomConfigPath,
   getGlobalConfigPath,
   getLocalConfigPath,
@@ -17,6 +19,7 @@ import {
 } from '../common/lib/config-manager';
 import {
   Command,
+  type QuickPickItemWithId,
   ToastKind,
   WorkspaceStateKey,
   executeCommand,
@@ -35,10 +38,6 @@ export enum ConfigLocation {
   ProjectFolder = 'project-folder',
   CustomPath = 'custom-path',
 }
-
-type QuickPickItemWithId = {
-  id: string;
-} & vscode.QuickPickItem;
 
 export function getCurrentLocationLabel(
   hasCustom: boolean,
@@ -122,14 +121,10 @@ export async function showConfigLocationMenu(
 
   const workspacePath = workspaceFolder.uri.fsPath;
   const customConfigDir = currentCustomConfigDirRef.current;
+  const configState = await getConfigState(context, workspacePath, customConfigDir);
+  const currentLocation = getCurrentConfigLocation(configState.hasCustom, configState.hasLocal, configState.hasGlobal);
 
-  const hasCustom = customConfigDir ? await hasCustomConfig(workspacePath, customConfigDir) : false;
-  const hasLocal = await hasLocalConfig(workspacePath);
-  const hasGlobal = await hasGlobalConfig(context, workspacePath);
-
-  const currentLocation = getCurrentConfigLocation(hasCustom, hasLocal, hasGlobal);
-
-  const menuItems: QuickPickItemWithId[] = [
+  const menuItems: QuickPickItemWithId<ConfigLocation>[] = [
     {
       id: ConfigLocation.ExtensionStorage,
       label: '$(cloud) Extension Storage',
@@ -169,9 +164,7 @@ export async function showConfigLocationMenu(
         updateStatusBar,
         updateBadge,
         currentLocation,
-        hasCustom,
-        hasLocal,
-        hasGlobal,
+        configState,
       );
     }
     return;
@@ -186,14 +179,12 @@ export async function showConfigLocationMenu(
       updateStatusBar,
       updateBadge,
       currentLocation,
-      hasCustom,
-      hasLocal,
-      hasGlobal,
+      configState,
     );
     return;
   }
 
-  if (currentLocation && (hasCustom || hasLocal || hasGlobal)) {
+  if (currentLocation && configState.hasAny) {
     await moveConfigToLocation(
       workspacePath,
       currentCustomConfigDirRef,
@@ -223,9 +214,7 @@ async function handleCustomPathSelection(
   updateStatusBar: () => Promise<void>,
   updateBadge: () => void,
   currentLocation: ConfigLocation | null,
-  hasCustom: boolean,
-  hasLocal: boolean,
-  hasGlobal: boolean,
+  configState: ConfigState,
 ) {
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (!workspaceFolder) return;
@@ -235,7 +224,7 @@ async function handleCustomPathSelection(
 
   if (result === 'cancelled' || result === null) return;
 
-  if (currentLocation && (hasCustom || hasLocal || hasGlobal)) {
+  if (currentLocation && configState.hasAny) {
     await moveConfigToLocation(
       workspacePath,
       currentCustomConfigDirRef,
@@ -358,7 +347,7 @@ async function showFolderPickerQuickPick(
   const subfolders = await getSubfolders(currentUri);
   const displayPath = currentRelativePath;
 
-  const items: QuickPickItemWithId[] = [];
+  const items: QuickPickItemWithId<string>[] = [];
 
   items.push({
     id: '__select__',
@@ -406,7 +395,7 @@ async function showFolderPickerQuickPick(
 async function showConfigLocationMenuLoop(
   workspaceFolder: vscode.WorkspaceFolder,
   workspacePath: string,
-  menuItems: QuickPickItemWithId[],
+  menuItems: QuickPickItemWithId<ConfigLocation>[],
   currentCustomConfigDirRef: { current: string | null },
   context: vscode.ExtensionContext,
 ): Promise<{ location: ConfigLocation; customPath: string | null } | null> {
@@ -532,7 +521,7 @@ export async function showConfigLocationMenuForFirstSetup(
 
   const workspacePath = workspaceFolder.uri.fsPath;
 
-  const menuItems: QuickPickItemWithId[] = [
+  const menuItems: QuickPickItemWithId<ConfigLocation>[] = [
     {
       id: ConfigLocation.ExtensionStorage,
       label: '$(cloud) Extension Storage',

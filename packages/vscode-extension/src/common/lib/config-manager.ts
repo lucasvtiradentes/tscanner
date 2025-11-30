@@ -261,3 +261,26 @@ export async function deleteCustomConfig(workspacePath: string, customConfigDir:
     logger.debug(`No custom config to delete: ${err}`);
   }
 }
+
+export type ConfigState = {
+  hasCustom: boolean;
+  hasLocal: boolean;
+  hasGlobal: boolean;
+  hasAny: boolean;
+};
+
+export async function getConfigState(
+  context: vscode.ExtensionContext,
+  workspacePath: string,
+  customConfigDir: string | null,
+): Promise<ConfigState> {
+  const hasCustom = customConfigDir ? await hasCustomConfig(workspacePath, customConfigDir) : false;
+  const hasLocal = await hasLocalConfig(workspacePath);
+  const hasGlobal = await hasGlobalConfig(context, workspacePath);
+  return {
+    hasCustom,
+    hasLocal,
+    hasGlobal,
+    hasAny: hasCustom || hasLocal || hasGlobal,
+  };
+}

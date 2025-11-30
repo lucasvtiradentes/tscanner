@@ -1,8 +1,9 @@
+import { type ScanResult, Severity } from 'tscanner-common';
 import * as vscode from 'vscode';
 import type { RustClient } from '../../common/lib/rust-client';
 import { Command, ScanMode, ToastKind, registerCommand, showToastMessage } from '../../common/lib/vscode-utils';
 import { DEFAULT_TARGET_BRANCH } from '../../common/scripts-constants';
-import { type FolderNode, type IssueResult, NodeKind, type ScanResult } from '../../common/types';
+import { type FolderNode, type IssueResult, NodeKind } from '../../common/types';
 import type { FileResultItem, FolderResultItem, RuleGroupItem } from '../../issues-panel/utils/tree-items';
 
 let currentScanMode: ScanMode = ScanMode.Codebase;
@@ -38,7 +39,7 @@ function convertToScanResult(results: IssueResult[]): ScanResult {
       line: issue.line,
       column: issue.column,
       end_column: issue.endColumn,
-      severity: issue.severity as 'error' | 'warning',
+      severity: (issue.severity === Severity.Error ? 'error' : 'warning') as 'error' | 'warning',
       line_text: issue.text,
     })),
   }));

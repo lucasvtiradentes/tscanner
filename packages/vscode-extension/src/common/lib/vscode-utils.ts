@@ -172,3 +172,20 @@ export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] | undef
 export function getCurrentWorkspaceFolder(): vscode.WorkspaceFolder | undefined {
   return vscode.workspace.workspaceFolders?.[0];
 }
+
+export function requireWorkspace(): vscode.WorkspaceFolder {
+  const workspaceFolder = getCurrentWorkspaceFolder();
+  if (!workspaceFolder) {
+    showToastMessage(ToastKind.Error, 'No workspace folder open');
+    throw new Error('No workspace folder open');
+  }
+  return workspaceFolder;
+}
+
+export type QuickPickItemWithId<T extends string = string> = {
+  id: T;
+} & vscode.QuickPickItem;
+
+export function formatIssueCount(count: number): string {
+  return `${count} ${count === 1 ? 'issue' : 'issues'}`;
+}

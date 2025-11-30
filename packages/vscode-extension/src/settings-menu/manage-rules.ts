@@ -1,10 +1,8 @@
 import * as vscode from 'vscode';
 import {
   type TscannerConfig,
+  getConfigState,
   getDefaultConfig,
-  hasCustomConfig,
-  hasGlobalConfig,
-  hasLocalConfig,
   loadEffectiveConfig,
   saveCustomConfig,
   saveGlobalConfig,
@@ -208,21 +206,18 @@ export function createManageRulesCommand(
         }
       }
 
-      const hasCustom = customConfigDir ? await hasCustomConfig(workspacePath, customConfigDir) : false;
-      const hasLocal = await hasLocalConfig(workspacePath);
-      const hasGlobal = await hasGlobalConfig(context, workspacePath);
-      const hasAnyConfig = hasCustom || hasLocal || hasGlobal;
+      const configState = await getConfigState(context, workspacePath, customConfigDir);
 
-      if (hasAnyConfig) {
-        if (hasCustom && customConfigDir) {
+      if (configState.hasAny) {
+        if (configState.hasCustom && customConfigDir) {
           await saveCustomConfig(workspacePath, customConfigDir, config);
           logger.info(`Updated custom config at ${customConfigDir}`);
           showToastMessage(ToastKind.Info, `Rules saved to ${customConfigDir}`);
-        } else if (hasLocal) {
+        } else if (configState.hasLocal) {
           await saveLocalConfig(workspacePath, config);
           logger.info('Updated local .tscanner config');
           showToastMessage(ToastKind.Info, 'Rules saved to .tscanner');
-        } else if (hasGlobal) {
+        } else if (configState.hasGlobal) {
           await saveGlobalConfig(context, workspacePath, config);
           logger.info('Updated global config (extension storage)');
           showToastMessage(ToastKind.Info, 'Rules saved to extension storage');

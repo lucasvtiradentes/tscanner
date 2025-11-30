@@ -1,20 +1,35 @@
 import { type ChildProcess, spawn } from 'node:child_process';
 import * as zlib from 'node:zlib';
 import * as vscode from 'vscode';
-import type {
-  ClearCacheParams,
-  FileResult,
-  GetRulesMetadataParams,
-  IssueResult,
-  RuleMetadata,
-  ScanContentParams,
-  ScanFileParams,
-  ScanParams,
-  ScanResult,
-  TscannerConfig,
+import {
+  type ClearCacheParams,
+  type FileResult,
+  type GetRulesMetadataParams,
+  type Issue,
+  type IssueResult,
+  type RuleMetadata,
+  type ScanContentParams,
+  type ScanFileParams,
+  type ScanParams,
+  type ScanResult,
+  type TscannerConfig,
+  parseSeverity,
 } from '../types';
 import { logger } from '../utils/logger';
 import { openTextDocument } from './vscode-utils';
+
+function mapIssueToResult(uri: vscode.Uri, issue: Issue, lineText?: string): IssueResult {
+  return {
+    uri,
+    line: issue.line - 1,
+    column: issue.column - 1,
+    endColumn: issue.end_column - 1,
+    text: (lineText ?? issue.line_text ?? '').trim(),
+    rule: issue.rule,
+    severity: parseSeverity(issue.severity),
+    message: issue.message,
+  };
+}
 
 enum RpcMethod {
   Scan = 'scan',
@@ -259,16 +274,7 @@ export class RustClient {
           }
         }
 
-        results.push({
-          uri,
-          line: issue.line - 1,
-          column: issue.column - 1,
-          endColumn: issue.end_column - 1,
-          text: lineText.trim(),
-          rule: issue.rule,
-          severity: issue.severity.toLowerCase() as 'error' | 'warning',
-          message: issue.message,
-        });
+        results.push(mapIssueToResult(uri, issue, lineText));
       }
     }
 
@@ -288,23 +294,8 @@ export class RustClient {
 
     logger.info(`Rust scan completed for single file: ${result.issues.length} issues`);
 
-    const results: IssueResult[] = [];
     const uri = vscode.Uri.file(result.file);
-
-    for (const issue of result.issues) {
-      results.push({
-        uri,
-        line: issue.line - 1,
-        column: issue.column - 1,
-        endColumn: issue.end_column - 1,
-        text: (issue.line_text || '').trim(),
-        rule: issue.rule,
-        severity: issue.severity.toLowerCase() as 'error' | 'warning',
-        message: issue.message,
-      });
-    }
-
-    return results;
+    return result.issues.map((issue) => mapIssueToResult(uri, issue));
   }
 
   async getRulesMetadata(): Promise<RuleMetadata[]> {
@@ -326,23 +317,8 @@ export class RustClient {
 
     logger.debug(`Rust scan completed for content: ${result.issues.length} issues`);
 
-    const results: IssueResult[] = [];
     const uri = vscode.Uri.file(result.file);
-
-    for (const issue of result.issues) {
-      results.push({
-        uri,
-        line: issue.line - 1,
-        column: issue.column - 1,
-        endColumn: issue.end_column - 1,
-        text: (issue.line_text || '').trim(),
-        rule: issue.rule,
-        severity: issue.severity.toLowerCase() as 'error' | 'warning',
-        message: issue.message,
-      });
-    }
-
-    return results;
+    return result.issues.map((issue) => mapIssueToResult(uri, issue));
   }
 
   async clearCache(): Promise<void> {

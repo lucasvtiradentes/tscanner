@@ -1,5 +1,5 @@
 import type * as vscode from 'vscode';
-import { hasCustomConfig, hasLocalConfig, loadEffectiveConfig } from '../../common/lib/config-manager';
+import { getConfigState, loadEffectiveConfig } from '../../common/lib/config-manager';
 import { scanWorkspace } from '../../common/lib/scanner';
 import {
   Command,
@@ -16,7 +16,7 @@ import {
   showToastMessage,
   updateState,
 } from '../../common/lib/vscode-utils';
-import { type IssueResult, hasConfiguredRules } from '../../common/types';
+import { type IssueResult, hasConfiguredRules, serializeResults } from '../../common/types';
 import { branchExists } from '../../common/utils/git-helper';
 import { logger } from '../../common/utils/logger';
 import type { IssuesPanelContent } from '../../issues-panel/panel-content';
@@ -51,8 +51,7 @@ export function createScanWorkspaceCommand(
 
     const customConfigDir = currentCustomConfigDirRef.current;
     const effectiveConfig = await loadEffectiveConfig(context, workspaceFolder.uri.fsPath, customConfigDir);
-    const hasLocal = await hasLocalConfig(workspaceFolder.uri.fsPath);
-    const hasCustom = customConfigDir ? await hasCustomConfig(workspaceFolder.uri.fsPath, customConfigDir) : false;
+    const configState = await getConfigState(context, workspaceFolder.uri.fsPath, customConfigDir);
 
     if (!hasConfiguredRules(effectiveConfig)) {
       panelContent.setResults([]);
@@ -70,10 +69,10 @@ export function createScanWorkspaceCommand(
       return;
     }
 
-    const configToPass = hasLocal && !hasCustom ? undefined : (effectiveConfig ?? undefined);
-    if (hasCustom) {
+    const configToPass = configState.hasLocal && !configState.hasCustom ? undefined : (effectiveConfig ?? undefined);
+    if (configState.hasCustom) {
       logger.info(`Using custom config from ${customConfigDir}`);
-    } else if (hasLocal) {
+    } else if (configState.hasLocal) {
       logger.info('Using local config from .tscanner');
     } else {
       logger.info('Using global config from extension storage');
@@ -122,15 +121,7 @@ export function createScanWorkspaceCommand(
 
       resetIssueIndex();
       panelContent.setResults(results);
-
-      const serializedResults = results.map((r) => {
-        const { uri, ...rest } = r;
-        return {
-          ...rest,
-          uriString: uri.toString(),
-        };
-      });
-      setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializedResults);
+      setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializeResults(results));
       updateBadge();
 
       if (panelContent.viewMode === ViewMode.Tree) {

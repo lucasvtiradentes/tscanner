@@ -1,7 +1,8 @@
 import * as vscode from 'vscode';
-import { hasCustomConfig, hasGlobalConfig, hasLocalConfig } from '../common/lib/config-manager';
+import { getConfigState } from '../common/lib/config-manager';
 import {
   Command,
+  type QuickPickItemWithId,
   type ScanMode,
   ToastKind,
   executeCommand,
@@ -20,10 +21,6 @@ enum SettingsMenuOption {
   ManageConfigLocation = 'manage-config-location',
   OpenConfigFile = 'open-config-file',
 }
-
-type QuickPickItemWithId = {
-  id: string;
-} & vscode.QuickPickItem;
 
 export function createOpenSettingsMenuCommand(
   updateStatusBar: () => Promise<void>,
@@ -45,15 +42,15 @@ export function createOpenSettingsMenuCommand(
 
     const workspacePath = workspaceFolder.uri.fsPath;
     const customConfigDir = currentCustomConfigDirRef.current;
+    const configState = await getConfigState(context, workspacePath, customConfigDir);
+    const currentLocationLabel = getCurrentLocationLabel(
+      configState.hasCustom,
+      configState.hasLocal,
+      configState.hasGlobal,
+      customConfigDir,
+    );
 
-    const hasCustom = customConfigDir ? await hasCustomConfig(workspacePath, customConfigDir) : false;
-    const hasLocal = await hasLocalConfig(workspacePath);
-    const hasGlobal = await hasGlobalConfig(context, workspacePath);
-    const hasAnyConfig = hasCustom || hasLocal || hasGlobal;
-
-    const currentLocationLabel = getCurrentLocationLabel(hasCustom, hasLocal, hasGlobal, customConfigDir);
-
-    const mainMenuItems: QuickPickItemWithId[] = [
+    const mainMenuItems: QuickPickItemWithId<SettingsMenuOption>[] = [
       {
         id: SettingsMenuOption.ManageRules,
         label: '$(checklist) Manage Rules',
@@ -61,7 +58,7 @@ export function createOpenSettingsMenuCommand(
       },
     ];
 
-    if (hasAnyConfig) {
+    if (configState.hasAny) {
       mainMenuItems.push({
         id: SettingsMenuOption.ManageScanMode,
         label: '$(gear) Manage Scan Mode',
@@ -75,7 +72,7 @@ export function createOpenSettingsMenuCommand(
       detail: currentLocationLabel,
     });
 
-    if (hasAnyConfig) {
+    if (configState.hasAny) {
       mainMenuItems.push({
         id: SettingsMenuOption.OpenConfigFile,
         label: '$(edit) Open Config File',

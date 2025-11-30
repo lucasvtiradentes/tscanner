@@ -15,6 +15,7 @@ import {
   setContextKey,
   setWorkspaceState,
 } from './common/lib/vscode-utils';
+import { serializeResults } from './common/types';
 import { getChangedFiles, getModifiedLineRanges, invalidateCache } from './common/utils/git-helper';
 import { getNewIssues } from './common/utils/issue-comparator';
 import { logger } from './common/utils/logger';
@@ -149,15 +150,7 @@ export function activate(context: vscode.ExtensionContext) {
       );
 
       panelContent.setResults(mergedResults);
-
-      const serializedResults = mergedResults.map((r) => {
-        const { uri, ...rest } = r;
-        return {
-          ...rest,
-          uriString: uri.toString(),
-        };
-      });
-      setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializedResults);
+      setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializeResults(mergedResults));
       updateBadge();
     } catch (error) {
       logger.error(`Failed to update single file: ${error}`);
@@ -184,15 +177,7 @@ export function activate(context: vscode.ExtensionContext) {
     if (filteredResults.length !== currentResults.length) {
       logger.debug(`Removed ${currentResults.length - filteredResults.length} issues from deleted file`);
       panelContent.setResults(filteredResults);
-
-      const serializedResults = filteredResults.map((r) => {
-        const { uri, ...rest } = r;
-        return {
-          ...rest,
-          uriString: uri.toString(),
-        };
-      });
-      setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializedResults);
+      setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializeResults(filteredResults));
       updateBadge();
     }
   });

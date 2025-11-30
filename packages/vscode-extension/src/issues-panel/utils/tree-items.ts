@@ -1,7 +1,7 @@
 import { basename } from 'node:path';
 import * as vscode from 'vscode';
 import { getCommandId } from '../../common/constants';
-import { Command, TreeItemContextValue, type ViewMode } from '../../common/lib/vscode-utils';
+import { Command, TreeItemContextValue, type ViewMode, formatIssueCount } from '../../common/lib/vscode-utils';
 import { type FolderNode, type IssueResult, NodeKind } from '../../common/types';
 import { getFolderIssueCount } from './tree-builder';
 
@@ -13,7 +13,7 @@ export class RuleGroupItem extends vscode.TreeItem {
   ) {
     super(rule, vscode.TreeItemCollapsibleState.Collapsed);
 
-    this.description = `${results.length} ${results.length === 1 ? 'issue' : 'issues'}`;
+    this.description = formatIssueCount(results.length);
     this.iconPath = new vscode.ThemeIcon('list-filter');
     this.contextValue = TreeItemContextValue.RuleGroup;
   }
@@ -23,8 +23,7 @@ export class FolderResultItem extends vscode.TreeItem {
   constructor(public readonly node: FolderNode) {
     super(node.name, vscode.TreeItemCollapsibleState.Collapsed);
 
-    const count = getFolderIssueCount(node);
-    this.description = `${count} ${count === 1 ? 'issue' : 'issues'}`;
+    this.description = formatIssueCount(getFolderIssueCount(node));
     this.iconPath = new vscode.ThemeIcon(NodeKind.Folder);
     this.contextValue = TreeItemContextValue.Folder;
   }
@@ -37,7 +36,7 @@ export class FileResultItem extends vscode.TreeItem {
   ) {
     super(basename(filePath), vscode.TreeItemCollapsibleState.Collapsed);
 
-    this.description = `${results.length} ${results.length === 1 ? 'issue' : 'issues'}`;
+    this.description = formatIssueCount(results.length);
     this.iconPath = new vscode.ThemeIcon(NodeKind.File);
     this.contextValue = TreeItemContextValue.File;
     this.resourceUri = vscode.Uri.file(filePath);

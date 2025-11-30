@@ -1,4 +1,5 @@
 import type * as vscode from 'vscode';
+import { formatIssueCount } from '../common/lib/vscode-utils';
 import type { IssuesPanelContent } from './panel-content';
 
 export class IssuesPanelIcon {
@@ -9,6 +10,6 @@ export class IssuesPanelIcon {
 
   update(): void {
     const count = this.panelContent.getResultCount();
-    this.treeView.badge = count > 0 ? { value: count, tooltip: `${count} issue${count === 1 ? '' : 's'}` } : undefined;
+    this.treeView.badge = count > 0 ? { value: count, tooltip: formatIssueCount(count) } : undefined;
   }
 }

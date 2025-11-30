@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import { setCopyScanContext } from '../commands/internal/copy';
 import {
   Command,
+  type QuickPickItemWithId,
   ScanMode,
   ToastKind,
   WorkspaceStateKey,
@@ -13,10 +14,6 @@ import {
 import { getAllBranches, getCurrentBranch, invalidateCache } from '../common/utils/git-helper';
 import { logger } from '../common/utils/logger';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
-
-type QuickPickItemWithId = {
-  id: string;
-} & vscode.QuickPickItem;
 
 enum BranchMenuOption {
   KeepCurrent = 'keep-current',
@@ -31,7 +28,7 @@ export async function showScanModeMenu(
   panelContent: IssuesPanelContent,
 ) {
   logger.info('showScanModeMenu called');
-  const scanModeItems: QuickPickItemWithId[] = [
+  const scanModeItems: QuickPickItemWithId<ScanMode>[] = [
     {
       id: ScanMode.Codebase,
       label: '$(file-directory) Codebase',
@@ -100,7 +97,7 @@ async function handleBranchScan(
     return;
   }
 
-  const branchOptions: QuickPickItemWithId[] = [
+  const branchOptions: QuickPickItemWithId<BranchMenuOption>[] = [
     {
       id: BranchMenuOption.KeepCurrent,
       label: `Current value: ${currentCompareBranchRef.current}`,
