@@ -13,7 +13,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use crate::config_loader::load_config_with_custom;
-use crate::shared::{render_header, ScanConfig, ScanMode, SummaryStats};
+use crate::shared::{render_header, render_summary, ScanConfig, ScanMode, SummaryStats};
 use cli::{GroupMode, OutputFormat};
 use context::CheckContext;
 use core::{
@@ -195,7 +195,9 @@ pub fn cmd_check(
     if result.files.is_empty() && !is_json {
         println!();
         println!("{}", "✓ No issues found!".green().bold());
-        println!();
+        if resolved_cli.show_summary {
+            render_summary(&result, &stats);
+        }
         return Ok(());
     }
 

@@ -56,7 +56,7 @@ impl TextRenderer {
 
                 let mut parts: Vec<String> = Vec::new();
 
-                if ctx.cli_config.show_severity {
+                if ctx.cli_config.show_issue_severity {
                     let icon = match issue.severity {
                         Severity::Error => "✖".red().to_string(),
                         Severity::Warning => "⚠".yellow().to_string(),
@@ -66,13 +66,13 @@ impl TextRenderer {
 
                 parts.push(location.to_string());
 
-                if ctx.cli_config.show_description {
+                if ctx.cli_config.show_issue_description {
                     parts.push(issue.message.clone());
                 }
 
                 println!("  {}", parts.join(" "));
 
-                if ctx.cli_config.show_source_line {
+                if ctx.cli_config.show_issue_source_line {
                     if let Some(line_text) = &issue.line_text {
                         let trimmed = line_text.trim();
                         if !trimmed.is_empty() {
@@ -104,7 +104,7 @@ impl TextRenderer {
 
                 let mut parts: Vec<String> = Vec::new();
 
-                if ctx.cli_config.show_severity {
+                if ctx.cli_config.show_issue_severity {
                     let icon = match issue.severity {
                         Severity::Error => "✖".red().to_string(),
                         Severity::Warning => "⚠".yellow().to_string(),
@@ -114,19 +114,19 @@ impl TextRenderer {
 
                 parts.push(location.to_string());
 
-                if ctx.cli_config.show_rule_name && ctx.cli_config.show_description {
+                if ctx.cli_config.show_issue_rule_name && ctx.cli_config.show_issue_description {
                     let rule_name = issue.rule.cyan().to_string();
                     parts.push(format!("{} {}", rule_name, issue.message.dimmed()));
-                } else if ctx.cli_config.show_rule_name {
+                } else if ctx.cli_config.show_issue_rule_name {
                     let rule_name = issue.rule.cyan().to_string();
                     parts.push(rule_name);
-                } else if ctx.cli_config.show_description {
+                } else if ctx.cli_config.show_issue_description {
                     parts.push(issue.message.clone());
                 }
 
                 println!("  {}", parts.join(" "));
 
-                if ctx.cli_config.show_source_line {
+                if ctx.cli_config.show_issue_source_line {
                     if let Some(line_text) = &issue.line_text {
                         let trimmed = line_text.trim();
                         if !trimmed.is_empty() {

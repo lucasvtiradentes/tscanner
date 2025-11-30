@@ -98,10 +98,10 @@ export const cliConfigSchema = z.object({
   groupBy: cliGroupBySchema.optional(),
   noCache: z.boolean().optional(),
   showSettings: z.boolean().optional(),
-  showSeverity: z.boolean().optional(),
-  showSourceLine: z.boolean().optional(),
-  showRuleName: z.boolean().optional(),
-  showDescription: z.boolean().optional(),
+  showIssueSeverity: z.boolean().optional(),
+  showIssueSourceLine: z.boolean().optional(),
+  showIssueRuleName: z.boolean().optional(),
+  showIssueDescription: z.boolean().optional(),
   showSummary: z.boolean().optional(),
 });
 

@@ -485,10 +485,10 @@ The default configuration is:
     "groupBy": "file",
     "noCache": false,
     "showSettings": true,
-    "showSeverity": true,
-    "showSourceLine": true,
-    "showRuleName": true,
-    "showDescription": false,
+    "showIssueSeverity": true,
+    "showIssueSourceLine": true,
+    "showIssueRuleName": true,
+    "showIssueDescription": false,
     "showSummary": true
   }
 }

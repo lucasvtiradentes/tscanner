@@ -23,10 +23,10 @@ const ALLOWED_CLI: &[&str] = &[
     "groupBy",
     "noCache",
     "showSettings",
-    "showSeverity",
-    "showSourceLine",
-    "showRuleName",
-    "showDescription",
+    "showIssueSeverity",
+    "showIssueSourceLine",
+    "showIssueRuleName",
+    "showIssueDescription",
     "showSummary",
 ];
 const ALLOWED_FILES: &[&str] = &["include", "exclude"];
@@ -182,24 +182,24 @@ fn default_cli_no_cache() -> bool {
     default_cli_config().no_cache
 }
 
-fn default_cli_show_severity() -> bool {
-    default_cli_config().show_severity
+fn default_cli_show_issue_severity() -> bool {
+    default_cli_config().show_issue_severity
 }
 
-fn default_cli_show_source_line() -> bool {
-    default_cli_config().show_source_line
+fn default_cli_show_issue_source_line() -> bool {
+    default_cli_config().show_issue_source_line
 }
 
-fn default_cli_show_rule_name() -> bool {
-    default_cli_config().show_rule_name
+fn default_cli_show_issue_rule_name() -> bool {
+    default_cli_config().show_issue_rule_name
 }
 
 fn default_cli_show_settings() -> bool {
     default_cli_config().show_settings
 }
 
-fn default_cli_show_description() -> bool {
-    default_cli_config().show_description
+fn default_cli_show_issue_description() -> bool {
+    default_cli_config().show_issue_description
 }
 
 fn default_cli_show_summary() -> bool {
@@ -226,39 +226,42 @@ pub struct CliConfig {
     #[serde(default = "default_cli_show_settings")]
     #[schemars(
         default = "default_cli_show_settings",
-        description = "Show check settings header"
+        description = "Show check settings"
     )]
     pub show_settings: bool,
 
-    #[serde(default = "default_cli_show_severity")]
+    #[serde(default = "default_cli_show_issue_severity")]
     #[schemars(
-        default = "default_cli_show_severity",
-        description = "Show severity icon"
+        default = "default_cli_show_issue_severity",
+        description = "Show issue severity icon"
     )]
-    pub show_severity: bool,
+    pub show_issue_severity: bool,
 
-    #[serde(default = "default_cli_show_source_line")]
+    #[serde(default = "default_cli_show_issue_source_line")]
     #[schemars(
-        default = "default_cli_show_source_line",
-        description = "Show source line text"
+        default = "default_cli_show_issue_source_line",
+        description = "Show issue source line text"
     )]
-    pub show_source_line: bool,
+    pub show_issue_source_line: bool,
 
-    #[serde(default = "default_cli_show_rule_name")]
-    #[schemars(default = "default_cli_show_rule_name", description = "Show rule name")]
-    pub show_rule_name: bool,
-
-    #[serde(default = "default_cli_show_description")]
+    #[serde(default = "default_cli_show_issue_rule_name")]
     #[schemars(
-        default = "default_cli_show_description",
-        description = "Show rule description/message"
+        default = "default_cli_show_issue_rule_name",
+        description = "Show issue rule name"
     )]
-    pub show_description: bool,
+    pub show_issue_rule_name: bool,
+
+    #[serde(default = "default_cli_show_issue_description")]
+    #[schemars(
+        default = "default_cli_show_issue_description",
+        description = "Show issue rule description/message"
+    )]
+    pub show_issue_description: bool,
 
     #[serde(default = "default_cli_show_summary")]
     #[schemars(
         default = "default_cli_show_summary",
-        description = "Show summary footer"
+        description = "Show check summary"
     )]
     pub show_summary: bool,
 }

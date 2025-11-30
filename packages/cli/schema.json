@@ -54,34 +54,34 @@
           "description": "Skip cache and force full scan",
           "type": "boolean"
         },
-        "showDescription": {
+        "showIssueDescription": {
           "default": false,
-          "description": "Show rule description/message",
+          "description": "Show issue rule description/message",
           "type": "boolean"
         },
-        "showRuleName": {
+        "showIssueRuleName": {
           "default": true,
-          "description": "Show rule name",
+          "description": "Show issue rule name",
+          "type": "boolean"
+        },
+        "showIssueSeverity": {
+          "default": true,
+          "description": "Show issue severity icon",
+          "type": "boolean"
+        },
+        "showIssueSourceLine": {
+          "default": true,
+          "description": "Show issue source line text",
           "type": "boolean"
         },
         "showSettings": {
           "default": true,
-          "description": "Show check settings header",
-          "type": "boolean"
-        },
-        "showSeverity": {
-          "default": true,
-          "description": "Show severity icon",
-          "type": "boolean"
-        },
-        "showSourceLine": {
-          "default": true,
-          "description": "Show source line text",
+          "description": "Show check settings",
           "type": "boolean"
         },
         "showSummary": {
           "default": true,
-          "description": "Show summary footer",
+          "description": "Show check summary",
           "type": "boolean"
         }
       },
