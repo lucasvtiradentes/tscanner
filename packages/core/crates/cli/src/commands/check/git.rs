@@ -42,9 +42,7 @@ pub fn parse_modified_lines(diff_output: &str) -> HashMap<String, HashSet<usize>
 
 pub fn get_changed_files(root: &Path, branch: &str) -> Result<HashSet<PathBuf>> {
     let output = Command::new("git")
-        .arg("diff")
-        .arg("--name-only")
-        .arg(branch)
+        .args(["diff", "-w", "--name-only", branch])
         .current_dir(root)
         .output()
         .context("Failed to execute git diff")?;
@@ -64,7 +62,13 @@ pub fn get_changed_files(root: &Path, branch: &str) -> Result<HashSet<PathBuf>> 
 
 pub fn get_staged_files(root: &Path) -> Result<HashSet<PathBuf>> {
     let output = Command::new("git")
-        .args(["diff", "--cached", "--name-only", "--diff-filter=ACMR"])
+        .args([
+            "diff",
+            "-w",
+            "--cached",
+            "--name-only",
+            "--diff-filter=ACMR",
+        ])
         .current_dir(root)
         .output()
         .context("Failed to execute git diff --cached")?;
@@ -85,8 +89,7 @@ pub fn get_staged_files(root: &Path) -> Result<HashSet<PathBuf>> {
 
 pub fn get_modified_lines(root: &Path, branch: &str) -> Result<HashMap<PathBuf, HashSet<usize>>> {
     let output = Command::new("git")
-        .arg("diff")
-        .arg(branch)
+        .args(["diff", "-w", branch])
         .current_dir(root)
         .output()
         .context("Failed to execute git diff")?;
@@ -109,7 +112,7 @@ pub fn get_modified_lines(root: &Path, branch: &str) -> Result<HashMap<PathBuf, 
 
 pub fn get_staged_modified_lines(root: &Path) -> Result<HashMap<PathBuf, HashSet<usize>>> {
     let output = Command::new("git")
-        .args(["diff", "--cached"])
+        .args(["diff", "-w", "--cached"])
         .current_dir(root)
         .output()
         .context("Failed to execute git diff --cached")?;
