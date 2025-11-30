@@ -27,9 +27,13 @@ pub fn publish_diagnostics(
         .map(|result| result.issues)
         .unwrap_or_default();
 
-    let lsp_config = config.lsp.as_ref();
-    let show_errors = lsp_config.map(|c| c.errors).unwrap_or(true);
-    let show_warnings = lsp_config.map(|c| c.warnings).unwrap_or(true);
+    let code_editor_config = config.code_editor.as_ref();
+    let show_errors = code_editor_config
+        .map(|c| c.highlight_errors)
+        .unwrap_or(true);
+    let show_warnings = code_editor_config
+        .map(|c| c.highlight_warnings)
+        .unwrap_or(true);
 
     let filtered_issues: Vec<&Issue> = issues
         .iter()

@@ -24,6 +24,7 @@ import { IssuesPanelIcon } from './issues-panel/panel-icon';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 
 let activationKey: string | undefined;
+let scanIntervalTimer: NodeJS.Timeout | null = null;
 
 function setupTreeView(panelContent: IssuesPanelContent): vscode.TreeView<any> {
   const viewId = getViewId();
@@ -203,9 +204,50 @@ export function activate(context: vscode.ExtensionContext) {
     await startLspClient();
     logger.info('Running initial scan after 2s delay...');
     executeCommand(Command.FindIssue, { silent: true });
+
+    await setupScanInterval(context, stateRefs);
   }, 2000);
 }
 
+async function setupScanInterval(context: vscode.ExtensionContext, stateRefs: ExtensionStateRefs): Promise<void> {
+  if (scanIntervalTimer) {
+    clearInterval(scanIntervalTimer);
+    scanIntervalTimer = null;
+  }
+
+  const workspaceFolder = getCurrentWorkspaceFolder();
+  if (!workspaceFolder) return;
+
+  const config = await loadEffectiveConfig(
+    context,
+    workspaceFolder.uri.fsPath,
+    stateRefs.currentCustomConfigDirRef.current,
+  );
+
+  const scanIntervalSeconds = config?.codeEditor?.scanIntervalSeconds ?? 0;
+
+  if (scanIntervalSeconds <= 0) {
+    logger.info('Auto-scan interval disabled (scanIntervalSeconds = 0)');
+    return;
+  }
+
+  const intervalMs = scanIntervalSeconds * 1000;
+  logger.info(`Setting up auto-scan interval: ${scanIntervalSeconds} seconds`);
+
+  scanIntervalTimer = setInterval(() => {
+    if (stateRefs.isSearchingRef.current) {
+      logger.debug('Auto-scan skipped: search in progress');
+      return;
+    }
+    logger.debug('Running auto-scan...');
+    executeCommand(Command.FindIssue, { silent: true });
+  }, intervalMs);
+}
+
 export function deactivate() {
+  if (scanIntervalTimer) {
+    clearInterval(scanIntervalTimer);
+    scanIntervalTimer = null;
+  }
   disposeScanner();
 }

@@ -1,11 +1,11 @@
 import { type ChildProcess, spawn } from 'node:child_process';
 import * as zlib from 'node:zlib';
-import type { CliGroupBy } from 'tscanner-common';
 import * as vscode from 'vscode';
 import {
   type ClearCacheParams,
   type FileResult,
   type GetRulesMetadataParams,
+  type GroupMode,
   type Issue,
   type IssueResult,
   type RuleMetadata,
@@ -55,7 +55,7 @@ type FormatPrettyResult = {
 type FormatResultsParams = {
   root: string;
   results: ScanResult;
-  group_mode: CliGroupBy;
+  group_mode: GroupMode;
 };
 
 type RpcRequestMap = {
@@ -327,7 +327,7 @@ export class RustClient {
     logger.info('Rust cache cleared');
   }
 
-  async formatResults(workspaceRoot: string, results: ScanResult, groupMode: CliGroupBy): Promise<FormatPrettyResult> {
+  async formatResults(workspaceRoot: string, results: ScanResult, groupMode: GroupMode): Promise<FormatPrettyResult> {
     const result = await this.sendRequest(RpcMethod.FormatResults, {
       root: workspaceRoot,
       results,

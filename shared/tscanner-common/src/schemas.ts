@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { CustomRuleType, RuleCategory, RuleType } from './constants';
+import { CustomRuleType, GroupMode, RuleCategory, RuleType } from './constants';
 
 export const severitySchema = z.enum(['error', 'warning']);
 
@@ -87,15 +87,14 @@ export const customRuleConfigSchema = z.object({
   exclude: z.array(z.string()).optional(),
 });
 
-export const lspConfigSchema = z.object({
-  errors: z.boolean().optional(),
-  warnings: z.boolean().optional(),
+export const codeEditorConfigSchema = z.object({
+  highlightErrors: z.boolean().optional(),
+  highlightWarnings: z.boolean().optional(),
+  scanIntervalSeconds: z.number().optional(),
 });
 
-export const cliGroupBySchema = z.enum(['file', 'rule']);
-
 export const cliConfigSchema = z.object({
-  groupBy: cliGroupBySchema.optional(),
+  groupBy: z.enum(GroupMode).optional(),
   noCache: z.boolean().optional(),
   showSettings: z.boolean().optional(),
   showIssueSeverity: z.boolean().optional(),
@@ -111,7 +110,7 @@ export const filesConfigSchema = z.object({
 });
 
 export const tscannerConfigSchema = z.object({
-  lsp: lspConfigSchema.optional(),
+  codeEditor: codeEditorConfigSchema.optional(),
   cli: cliConfigSchema.optional(),
   builtinRules: z.record(z.string(), builtinRuleConfigSchema).optional(),
   customRules: z.record(z.string(), customRuleConfigSchema).optional(),
@@ -130,8 +129,7 @@ export type RuleMetadata = z.infer<typeof ruleMetadataSchema>;
 export type ModifiedLineRange = z.infer<typeof modifiedLineRangeSchema>;
 export type BuiltinRuleConfig = z.infer<typeof builtinRuleConfigSchema>;
 export type CustomRuleConfig = z.infer<typeof customRuleConfigSchema>;
-export type LspConfig = z.infer<typeof lspConfigSchema>;
-export type CliGroupBy = z.infer<typeof cliGroupBySchema>;
+export type CodeEditorConfig = z.infer<typeof codeEditorConfigSchema>;
 export type CliConfig = z.infer<typeof cliConfigSchema>;
 export type FilesConfig = z.infer<typeof filesConfigSchema>;
 export type TscannerConfig = z.infer<typeof tscannerConfigSchema>;

@@ -54,9 +54,10 @@
       "packages/core/crates/core/tests/**"
     ]
   },
-  "lsp": {
-    "errors": true,
-    "warnings": false
+  "codeEditor": {
+    "highlightErrors": true,
+    "highlightWarnings": true,
+    "scanIntervalSeconds": 5
   },
   "cli": {
     "groupBy": "file",

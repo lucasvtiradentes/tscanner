@@ -406,9 +406,10 @@ The default configuration is:
       "**/.git/**"
     ]
   },
-  "lsp": {
-    "errors": true,
-    "warnings": false
+  "codeEditor": {
+    "highlightErrors": true,
+    "highlightWarnings": false,
+    "scanIntervalSeconds": 0
   },
   "cli": {
     "groupBy": "file",

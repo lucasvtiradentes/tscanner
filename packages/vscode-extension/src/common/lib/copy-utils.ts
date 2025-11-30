@@ -1,5 +1,4 @@
-import { PACKAGE_NAME, type ScanResult, Severity } from 'tscanner-common';
-import type { CliGroupBy } from 'tscanner-common';
+import { type GroupMode, PACKAGE_NAME, type ScanResult, Severity } from 'tscanner-common';
 import { DEFAULT_TARGET_BRANCH } from '../scripts-constants';
 import { type FolderNode, type IssueResult, NodeKind } from '../types';
 import type { RustClient } from './rust-client';
@@ -27,7 +26,7 @@ class CopyScanContext {
     return this.scanMode === ScanMode.Branch ? 'branch mode' : 'codebase mode';
   }
 
-  buildCliCommand(groupBy: CliGroupBy, filter?: string, filterValue?: string): string {
+  buildCliCommand(groupBy: GroupMode, filter?: string, filterValue?: string): string {
     const branch = this.scanMode === ScanMode.Branch ? this.compareBranch : undefined;
     const filterArg = filter && filterValue ? ` --${filter} "${filterValue}"` : '';
     const groupByArg = ` --group-by ${groupBy}`;
@@ -97,7 +96,7 @@ export function collectFolderIssues(node: FolderNode): IssueResult[] {
 
 export type CopyParams = {
   results: IssueResult[];
-  groupMode: CliGroupBy;
+  groupMode: GroupMode;
   buildHeader: (summary: { total_issues: number }) => string;
   successMessage: string;
 };

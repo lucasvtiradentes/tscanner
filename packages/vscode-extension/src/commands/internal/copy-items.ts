@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { collectFolderIssues, copyIssuesBase, copyScanContext } from '../../common/lib/copy-utils';
-import { Command, ToastKind, registerCommand, showToastMessage } from '../../common/lib/vscode-utils';
+import { Command, GroupMode, ToastKind, registerCommand, showToastMessage } from '../../common/lib/vscode-utils';
 import type { FileResultItem, FolderResultItem, RuleGroupItem } from '../../issues-panel/utils/tree-items';
 
 export function createCopyRuleIssuesCommand() {
@@ -9,9 +9,9 @@ export function createCopyRuleIssuesCommand() {
 
     await copyIssuesBase({
       results: item.results,
-      groupMode: 'rule',
+      groupMode: GroupMode.Rule,
       buildHeader: (summary) => {
-        const cliCommand = copyScanContext.buildCliCommand('rule', 'rule', item.rule);
+        const cliCommand = copyScanContext.buildCliCommand(GroupMode.Rule, 'rule', item.rule);
         return `TScanner report searching for all the issues of the rule "${item.rule}" in the ${copyScanContext.getScanModeText()}\n\ncli command: ${cliCommand}\nfound issues: ${summary.total_issues} issues\n`;
       },
       successMessage: `Copied ${item.results.length} issues from "${item.rule}"`,
@@ -27,9 +27,9 @@ export function createCopyFileIssuesCommand() {
 
     await copyIssuesBase({
       results: item.results,
-      groupMode: 'file',
+      groupMode: GroupMode.File,
       buildHeader: (summary) => {
-        const cliCommand = copyScanContext.buildCliCommand('file', 'glob', relativePath);
+        const cliCommand = copyScanContext.buildCliCommand(GroupMode.File, 'glob', relativePath);
         return `TScanner report searching for all the issues in file "${relativePath}" in the ${copyScanContext.getScanModeText()}\n\ncli command: ${cliCommand}\nfound issues: ${summary.total_issues} issues\n`;
       },
       successMessage: `Copied ${item.results.length} issues from "${relativePath}"`,
@@ -49,9 +49,9 @@ export function createCopyFolderIssuesCommand() {
 
     await copyIssuesBase({
       results: allResults,
-      groupMode: 'file',
+      groupMode: GroupMode.File,
       buildHeader: (summary) => {
-        const cliCommand = copyScanContext.buildCliCommand('file', 'glob', `${relativeFolderPath}/**/*`);
+        const cliCommand = copyScanContext.buildCliCommand(GroupMode.File, 'glob', `${relativeFolderPath}/**/*`);
         return `TScanner report searching for all the issues in folder "${item.node.name}" in the ${copyScanContext.getScanModeText()}\n\ncli command: ${cliCommand}\nfound issues: ${summary.total_issues} issues\n`;
       },
       successMessage: `Copied ${allResults.length} issues from folder "${item.node.name}"`,

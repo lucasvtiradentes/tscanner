@@ -13,7 +13,7 @@ pub const CONFIG_ERROR_PREFIX: &str = "TSCANNER_CONFIG_ERROR:";
 
 const ALLOWED_TOP_LEVEL: &[&str] = &[
     "$schema",
-    "lsp",
+    "codeEditor",
     "cli",
     "builtinRules",
     "customRules",
@@ -30,7 +30,11 @@ const ALLOWED_CLI: &[&str] = &[
     "showSummary",
 ];
 const ALLOWED_FILES: &[&str] = &["include", "exclude"];
-const ALLOWED_LSP: &[&str] = &["errors", "warnings"];
+const ALLOWED_CODE_EDITOR: &[&str] = &[
+    "highlightErrors",
+    "highlightWarnings",
+    "scanIntervalSeconds",
+];
 const ALLOWED_BUILTIN_RULE: &[&str] = &["enabled", "severity", "include", "exclude"];
 const ALLOWED_CUSTOM_RULE: &[&str] = &[
     "type", "pattern", "script", "prompt", "message", "severity", "enabled", "include", "exclude",
@@ -80,8 +84,12 @@ fn validate_json_fields(json: &serde_json::Value) -> Result<(), String> {
         invalid_fields.extend(collect_invalid_fields(files, ALLOWED_FILES, "files"));
     }
 
-    if let Some(lsp) = obj.get("lsp").and_then(|v| v.as_object()) {
-        invalid_fields.extend(collect_invalid_fields(lsp, ALLOWED_LSP, "lsp"));
+    if let Some(code_editor) = obj.get("codeEditor").and_then(|v| v.as_object()) {
+        invalid_fields.extend(collect_invalid_fields(
+            code_editor,
+            ALLOWED_CODE_EDITOR,
+            "codeEditor",
+        ));
     }
 
     if let Some(cli) = obj.get("cli").and_then(|v| v.as_object()) {
@@ -118,43 +126,54 @@ fn validate_json_fields(json: &serde_json::Value) -> Result<(), String> {
 
 const DEFAULT_CONFIG_JSON: &str = include_str!("../../../../../assets/default-config.json");
 
-fn default_lsp_config() -> LspConfig {
+fn default_code_editor_config() -> CodeEditorConfig {
     let config: TscannerConfig =
         serde_json::from_str(DEFAULT_CONFIG_JSON).expect("Failed to parse default-config.json");
     config
-        .lsp
-        .expect("default-config.json must have 'lsp' section")
+        .code_editor
+        .expect("default-config.json must have 'codeEditor' section")
 }
 
-fn default_lsp_errors() -> bool {
-    default_lsp_config().errors
+fn default_highlight_errors() -> bool {
+    default_code_editor_config().highlight_errors
 }
 
-fn default_lsp_warnings() -> bool {
-    default_lsp_config().warnings
+fn default_highlight_warnings() -> bool {
+    default_code_editor_config().highlight_warnings
+}
+
+fn default_scan_interval_seconds() -> u32 {
+    default_code_editor_config().scan_interval_seconds
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct LspConfig {
-    #[serde(default = "default_lsp_errors")]
+pub struct CodeEditorConfig {
+    #[serde(default = "default_highlight_errors")]
     #[schemars(
-        default = "default_lsp_errors",
-        description = "Show error diagnostics in LSP"
+        default = "default_highlight_errors",
+        description = "Highlight error issues in the code editor"
     )]
-    pub errors: bool,
+    pub highlight_errors: bool,
 
-    #[serde(default = "default_lsp_warnings")]
+    #[serde(default = "default_highlight_warnings")]
     #[schemars(
-        default = "default_lsp_warnings",
-        description = "Show warning diagnostics in LSP"
+        default = "default_highlight_warnings",
+        description = "Highlight warning issues in the code editor"
     )]
-    pub warnings: bool,
+    pub highlight_warnings: bool,
+
+    #[serde(default = "default_scan_interval_seconds")]
+    #[schemars(
+        default = "default_scan_interval_seconds",
+        description = "Auto-scan interval in seconds (0 = disabled, only manual/on-save scans)"
+    )]
+    pub scan_interval_seconds: u32,
 }
 
-impl Default for LspConfig {
+impl Default for CodeEditorConfig {
     fn default() -> Self {
-        default_lsp_config()
+        default_code_editor_config()
     }
 }
 
@@ -312,8 +331,8 @@ pub struct TscannerConfig {
     pub schema: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "LSP server configuration")]
-    pub lsp: Option<LspConfig>,
+    #[schemars(description = "Code editor configuration (highlighting, auto-scan)")]
+    pub code_editor: Option<CodeEditorConfig>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     #[schemars(description = "CLI output configuration")]

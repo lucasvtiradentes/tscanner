@@ -1,9 +1,8 @@
-import type { CliGroupBy } from 'tscanner-common';
 import { copyIssuesBase, copyScanContext } from '../../common/lib/copy-utils';
 import { Command, registerCommand } from '../../common/lib/vscode-utils';
-import type { IssueResult } from '../../common/types';
+import type { GroupMode, IssueResult } from '../../common/types';
 
-export function createCopyAllIssuesCommand(getResults: () => IssueResult[], getGroupMode: () => CliGroupBy) {
+export function createCopyAllIssuesCommand(getResults: () => IssueResult[], getGroupMode: () => GroupMode) {
   return registerCommand(Command.CopyAllIssues, async () => {
     const results = getResults();
     const groupMode = getGroupMode();

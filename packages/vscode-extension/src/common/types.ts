@@ -4,7 +4,6 @@ import type * as vscode from 'vscode';
 export type {
   BuiltinRuleConfig,
   ClearCacheParams,
-  CliGroupBy,
   CustomRuleConfig,
   FileResult,
   GetRulesMetadataParams,

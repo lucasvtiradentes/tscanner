@@ -94,6 +94,28 @@
       ],
       "type": "string"
     },
+    "CodeEditorConfig": {
+      "properties": {
+        "highlightErrors": {
+          "default": true,
+          "description": "Highlight error issues in the code editor",
+          "type": "boolean"
+        },
+        "highlightWarnings": {
+          "default": false,
+          "description": "Highlight warning issues in the code editor",
+          "type": "boolean"
+        },
+        "scanIntervalSeconds": {
+          "default": 0,
+          "description": "Auto-scan interval in seconds (0 = disabled, only manual/on-save scans)",
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
     "CustomRuleConfig": {
       "properties": {
         "enabled": {
@@ -201,21 +223,6 @@
             "type": "string"
           },
           "type": "array"
-        }
-      },
-      "type": "object"
-    },
-    "LspConfig": {
-      "properties": {
-        "errors": {
-          "default": true,
-          "description": "Show error diagnostics in LSP",
-          "type": "boolean"
-        },
-        "warnings": {
-          "default": false,
-          "description": "Show warning diagnostics in LSP",
-          "type": "boolean"
         }
       },
       "type": "object"
@@ -406,6 +413,17 @@
       ],
       "description": "CLI output configuration"
     },
+    "codeEditor": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/CodeEditorConfig"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Code editor configuration (highlighting, auto-scan)"
+    },
     "customRules": {
       "additionalProperties": {
         "$ref": "#/definitions/CustomRuleConfig"
@@ -436,17 +454,6 @@
         ]
       },
       "description": "File patterns configuration"
-    },
-    "lsp": {
-      "anyOf": [
-        {
-          "$ref": "#/definitions/LspConfig"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "LSP server configuration"
     }
   },
   "title": "TscannerConfig",
