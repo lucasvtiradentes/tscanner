@@ -107,10 +107,57 @@ export async function writeAnnotations(octokit: Octokit, scanResult: ScanResult)
 
     githubHelper.logInfo(`✅ All ${annotations.length} annotations written successfully`);
   } catch (error) {
-    githubHelper.logError(`Failed to create check run: ${error instanceof Error ? error.message : String(error)}`);
-    if (error instanceof Error && 'status' in error) {
-      githubHelper.logError(`Status: ${(error as { status: number }).status}`);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const status = error instanceof Error && 'status' in error ? (error as { status: number }).status : undefined;
+
+    githubHelper.logError(`Failed to create check run: ${errorMessage}`);
+    if (status) {
+      githubHelper.logError(`Status: ${status}`);
     }
+
+    if (status === 403) {
+      githubHelper.logWarning('');
+      githubHelper.logWarning('⚠️ Checks API permission denied. Falling back to workflow annotations...');
+      githubHelper.logWarning('To enable Checks API annotations, add this to your workflow:');
+      githubHelper.logWarning('');
+      githubHelper.logWarning('  permissions:');
+      githubHelper.logWarning('    checks: write');
+      githubHelper.logWarning('    pull-requests: write');
+      githubHelper.logWarning('');
+
+      writeFallbackAnnotations(scanResult);
+      return;
+    }
+
     throw error;
   }
+}
+
+function writeFallbackAnnotations(scanResult: ScanResult): void {
+  githubHelper.logInfo('📝 Writing fallback annotations via core.warning...');
+
+  let count = 0;
+  for (const group of scanResult.ruleGroupsByRule) {
+    for (const file of group.files) {
+      for (const issue of file.issues) {
+        const ruleName = issue.ruleName ?? group.ruleName;
+        const message = `[${ruleName}] ${issue.message}`;
+        const properties = {
+          title: ruleName,
+          file: file.filePath,
+          startLine: issue.line,
+          startColumn: issue.column,
+        };
+
+        if (group.severity === Severity.Error) {
+          githubHelper.addAnnotationError(message, properties);
+        } else {
+          githubHelper.addAnnotationWarning(message, properties);
+        }
+        count++;
+      }
+    }
+  }
+
+  githubHelper.logInfo(`Fallback annotations written: ${count}`);
 }

@@ -240,6 +240,27 @@ jobs:
 | `annotations` | - | `true` | Add GitHub annotations inline in PR diff |
 | `summary` | - | `true` | Write results to GitHub Step Summary |
 
+### Permissions
+
+To enable annotations on **all lines** (not just changed lines), add the `checks: write` permission:
+
+```yaml
+jobs:
+  tscanner:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      checks: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: lucasvtiradentes/tscanner-action@v0.0.19
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+Without `checks: write`, annotations will only appear on lines that are part of the PR diff (GitHub limitation).
+
 ### Examples
 
 <details>
