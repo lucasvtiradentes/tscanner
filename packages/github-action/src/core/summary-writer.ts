@@ -1,57 +1,34 @@
-import { Severity, pluralize } from 'tscanner-common';
 import { githubHelper } from '../lib/actions-helper';
 import type { ScanResult } from './scanner';
-
-const ICONS = {
-  SUCCESS: '✅',
-  ERROR: '❌',
-  WARNING: '⚠️',
-  ERROR_BADGE: '🔴',
-  WARNING_BADGE: '🟡',
-} as const;
+import { buildMostTriggeredTable, getModeLabel } from './shared/formatting';
+import { buildNoIssuesMessage, buildScanHeader, buildScanSummaryTable } from './shared/sections';
 
 export function writeSummary(scanResult: ScanResult, targetBranch?: string): void {
-  const { totalIssues, totalErrors, totalWarnings, totalFiles, totalRules, ruleGroupsByRule } = scanResult;
-
-  const modeLabel = targetBranch ? `branch (${targetBranch})` : 'codebase';
+  const { totalIssues, totalErrors, ruleGroupsByRule } = scanResult;
 
   if (totalIssues === 0) {
-    const summary = `## ${ICONS.SUCCESS} TScanner - No Issues Found
+    const header = buildScanHeader(0, false);
+    const modeLabel = getModeLabel(targetBranch);
+    const summary = `${header}
 
 | Metric | Value |
 |--------|-------|
 | Scan mode | ${modeLabel} |
 
-All files passed validation!`;
+${buildNoIssuesMessage()}`;
     githubHelper.writeSummary(summary);
     return;
   }
 
-  const icon = totalErrors > 0 ? ICONS.ERROR : ICONS.WARNING;
-  const title = totalErrors > 0 ? 'Errors Found' : 'Warnings Found';
+  const header = buildScanHeader(totalErrors, true);
+  const statsTable = buildScanSummaryTable({ result: scanResult, targetBranch });
+  const mostTriggered = buildMostTriggeredTable(ruleGroupsByRule);
 
-  const issuesBreakdown = ` (${ICONS.ERROR_BADGE} ${totalErrors}, ${ICONS.WARNING_BADGE} ${totalWarnings})`;
+  const summary = `${header}
 
-  let summary = `## ${icon} TScanner - ${title}
+${statsTable}
 
-| Metric | Value |
-|--------|-------|
-| Issues | ${totalIssues}${issuesBreakdown} |
-| Scanned files | ${totalFiles} |
-| Triggered rules | ${totalRules} |
-| Scan mode | ${modeLabel} |
-
-`;
-
-  const mostTriggered = [...ruleGroupsByRule].sort((a, b) => b.issueCount - a.issueCount).slice(0, 5);
-
-  if (mostTriggered.length > 0) {
-    summary += '**Most triggered rules:**\n';
-    for (const rule of mostTriggered) {
-      const badge = rule.severity === Severity.Error ? ICONS.ERROR_BADGE : ICONS.WARNING_BADGE;
-      summary += `- ${badge} \`${rule.ruleName}\` - ${rule.issueCount} ${pluralize(rule.issueCount, 'issue')}\n`;
-    }
-  }
+${mostTriggered}`;
 
   githubHelper.writeSummary(summary);
 }
