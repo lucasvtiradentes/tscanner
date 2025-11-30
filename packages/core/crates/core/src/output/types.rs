@@ -23,6 +23,40 @@ pub struct Issue {
     pub line_text: Option<String>,
 }
 
+impl Issue {
+    pub fn new(
+        rule: &str,
+        file: PathBuf,
+        line: usize,
+        column: usize,
+        end_column: usize,
+        message: String,
+    ) -> Self {
+        Self {
+            rule: rule.to_string(),
+            file,
+            line,
+            column,
+            end_column,
+            message,
+            severity: Severity::Error,
+            line_text: None,
+        }
+    }
+
+    pub fn from_span(
+        rule: &str,
+        file: PathBuf,
+        source: &str,
+        start: usize,
+        end: usize,
+        message: String,
+    ) -> Self {
+        let (line, column, end_column) = crate::utils::get_span_positions(source, start, end);
+        Self::new(rule, file, line, column, end_column, message)
+    }
+}
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct FileResult {
     pub file: PathBuf,

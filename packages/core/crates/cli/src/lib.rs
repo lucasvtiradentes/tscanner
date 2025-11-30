@@ -1,18 +1,18 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
 
-#[derive(Debug, Clone, ValueEnum)]
-pub enum GroupMode {
-    File,
-    Rule,
-}
-
 #[derive(Debug, Clone, Default, ValueEnum)]
 pub enum OutputFormat {
     #[default]
     Text,
     Json,
     Pretty,
+}
+
+#[derive(Debug, Clone, ValueEnum)]
+pub enum CliGroupMode {
+    File,
+    Rule,
 }
 
 #[derive(Parser)]
@@ -44,7 +44,7 @@ pub enum Commands {
             value_name = "MODE",
             help = "Group issues by file or rule"
         )]
-        group_by: Option<GroupMode>,
+        group_by: Option<CliGroupMode>,
 
         #[arg(
             long,

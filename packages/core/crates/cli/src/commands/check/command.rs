@@ -9,9 +9,10 @@ use std::sync::Arc;
 
 use crate::config_loader::load_config_with_custom;
 use crate::shared::{render_header, render_summary, ScanConfig, ScanMode, SummaryStats};
-use cli::{GroupMode, OutputFormat};
+use cli::{CliGroupMode, OutputFormat};
 use core::{
     app_name, config_dir_name, config_file_name, log_error, log_info, CliConfig, CliGroupBy,
+    GroupMode,
 };
 
 use super::context::CheckContext;
@@ -23,7 +24,7 @@ use super::output;
 pub fn cmd_check(
     paths: &[PathBuf],
     no_cache: bool,
-    group_by: Option<GroupMode>,
+    group_by: Option<CliGroupMode>,
     format: Option<OutputFormat>,
     branch: Option<String>,
     staged: bool,
@@ -218,13 +219,13 @@ pub fn cmd_check(
     Ok(())
 }
 
-fn apply_group_by_override(cli_config: &CliConfig, group_by: Option<GroupMode>) -> CliConfig {
+fn apply_group_by_override(cli_config: &CliConfig, group_by: Option<CliGroupMode>) -> CliConfig {
     CliConfig {
         group_by: group_by
             .as_ref()
             .map(|g| match g {
-                GroupMode::Rule => CliGroupBy::Rule,
-                GroupMode::File => CliGroupBy::File,
+                CliGroupMode::Rule => CliGroupBy::Rule,
+                CliGroupMode::File => CliGroupBy::File,
             })
             .unwrap_or(cli_config.group_by),
         ..cli_config.clone()

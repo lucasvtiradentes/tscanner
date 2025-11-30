@@ -1,5 +1,6 @@
-use cli::{GroupMode, OutputFormat};
+use cli::OutputFormat;
 use colored::*;
+use core::GroupMode;
 
 #[derive(Clone)]
 pub enum ScanMode {

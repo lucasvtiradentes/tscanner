@@ -4,6 +4,7 @@ use super::registry::RuleRegistry;
 use crate::config::{compile_globset, TscannerConfig};
 use crate::output::{FileResult, ScanResult};
 use crate::utils::{DisableDirectives, FileSource};
+use globset::GlobSet;
 use ignore::WalkBuilder;
 use rayon::prelude::*;
 use std::collections::HashSet;
@@ -17,17 +18,23 @@ pub struct Scanner {
     config: TscannerConfig,
     cache: Arc<FileCache>,
     root: PathBuf,
+    global_include: GlobSet,
+    global_exclude: GlobSet,
 }
 
 impl Scanner {
     pub fn new(config: TscannerConfig, root: PathBuf) -> Result<Self, Box<dyn std::error::Error>> {
         let registry = RuleRegistry::with_config(&config)?;
         let config_hash = config.compute_hash();
+        let global_include = compile_globset(&config.files.include)?;
+        let global_exclude = compile_globset(&config.files.exclude)?;
         Ok(Self {
             registry,
             config,
             cache: Arc::new(FileCache::with_config_hash(config_hash)),
             root,
+            global_include,
+            global_exclude,
         })
     }
 
@@ -37,11 +44,15 @@ impl Scanner {
         root: PathBuf,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         let registry = RuleRegistry::with_config(&config)?;
+        let global_include = compile_globset(&config.files.include)?;
+        let global_exclude = compile_globset(&config.files.exclude)?;
         Ok(Self {
             registry,
             config,
             cache,
             root,
+            global_include,
+            global_exclude,
         })
     }
 
@@ -57,19 +68,14 @@ impl Scanner {
         let start = Instant::now();
         crate::utils::log_info(&format!("Starting scan of {:?}", roots));
 
-        let global_include = compile_globset(&self.config.files.include)
-            .expect("Failed to compile global include patterns");
-        let global_exclude = compile_globset(&self.config.files.exclude)
-            .expect("Failed to compile global exclude patterns");
-
         let mut files: Vec<PathBuf> = Vec::new();
 
         for root in roots {
             let root_buf = root.to_path_buf();
-            let exclude_clone = global_exclude.clone();
+            let exclude_clone = self.global_exclude.clone();
             let root_clone = root_buf.clone();
-            let include_clone = global_include.clone();
-            let exclude_clone2 = global_exclude.clone();
+            let include_clone = self.global_include.clone();
+            let exclude_clone2 = self.global_exclude.clone();
 
             let root_files: Vec<PathBuf> = WalkBuilder::new(root)
                 .hidden(false)
@@ -158,66 +164,27 @@ impl Scanner {
     }
 
     pub fn scan_content(&self, path: &Path, content: &str) -> Option<FileResult> {
-        let directives = DisableDirectives::from_source(content);
-
-        if directives.file_disabled {
-            return None;
-        }
-
-        let file_source = FileSource::from_path(path);
-
-        let program = match parse_file(path, content) {
-            Ok(p) => p,
-            Err(e) => {
-                crate::utils::log_debug(&format!("Failed to parse {:?}: {}", path, e));
-                return None;
-            }
-        };
-
-        let enabled_rules = self
-            .registry
-            .get_enabled_rules(path, &self.root, &self.config);
-        let source_lines: Vec<&str> = content.lines().collect();
-
-        let issues: Vec<_> = enabled_rules
-            .iter()
-            .filter(|(rule, _)| !(rule.is_typescript_only() && file_source.is_javascript()))
-            .flat_map(|(rule, severity)| {
-                let mut rule_issues = rule.check(&program, path, content, file_source);
-                for issue in &mut rule_issues {
-                    issue.severity = *severity;
-                    if issue.line > 0 && issue.line <= source_lines.len() {
-                        issue.line_text = Some(source_lines[issue.line - 1].to_string());
-                    }
-                }
-                rule_issues
-            })
-            .filter(|issue| !directives.is_rule_disabled(issue.line, &issue.rule))
-            .collect();
-
-        if issues.is_empty() {
-            None
-        } else {
-            Some(FileResult {
-                file: path.to_path_buf(),
-                issues,
-            })
-        }
+        self.process_source(path, content, false)
     }
 
     fn analyze_file(&self, path: &Path) -> Option<FileResult> {
         let source = std::fs::read_to_string(path).ok()?;
+        self.process_source(path, &source, true)
+    }
 
-        let directives = DisableDirectives::from_source(&source);
+    fn process_source(&self, path: &Path, source: &str, use_cache: bool) -> Option<FileResult> {
+        let directives = DisableDirectives::from_source(source);
 
         if directives.file_disabled {
-            self.cache.insert(path.to_path_buf(), Vec::new());
+            if use_cache {
+                self.cache.insert(path.to_path_buf(), Vec::new());
+            }
             return None;
         }
 
         let file_source = FileSource::from_path(path);
 
-        let program = match parse_file(path, &source) {
+        let program = match parse_file(path, source) {
             Ok(p) => p,
             Err(e) => {
                 crate::utils::log_debug(&format!("Failed to parse {:?}: {}", path, e));
@@ -234,7 +201,7 @@ impl Scanner {
             .iter()
             .filter(|(rule, _)| !(rule.is_typescript_only() && file_source.is_javascript()))
             .flat_map(|(rule, severity)| {
-                let mut rule_issues = rule.check(&program, path, &source, file_source);
+                let mut rule_issues = rule.check(&program, path, source, file_source);
                 for issue in &mut rule_issues {
                     issue.severity = *severity;
                     if issue.line > 0 && issue.line <= source_lines.len() {
@@ -246,7 +213,9 @@ impl Scanner {
             .filter(|issue| !directives.is_rule_disabled(issue.line, &issue.rule))
             .collect();
 
-        self.cache.insert(path.to_path_buf(), issues.clone());
+        if use_cache {
+            self.cache.insert(path.to_path_buf(), issues.clone());
+        }
 
         if issues.is_empty() {
             None

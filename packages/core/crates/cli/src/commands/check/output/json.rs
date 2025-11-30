@@ -3,8 +3,7 @@ use super::CheckContext;
 use crate::shared::{
     JsonFileGroup, JsonIssue, JsonRuleGroup, JsonRuleIssue, JsonSummary, SummaryStats,
 };
-use cli::GroupMode;
-use core::{ScanResult, Severity};
+use core::{GroupMode, ScanResult, Severity};
 use serde::Serialize;
 use std::collections::HashMap;
 

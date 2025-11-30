@@ -1,8 +1,7 @@
 use super::renderer::OutputRenderer;
 use super::CheckContext;
 use crate::shared::{render_summary, SummaryStats};
-use cli::GroupMode;
-use core::ScanResult;
+use core::{GroupMode, ScanResult};
 
 pub struct PrettyRenderer;
 

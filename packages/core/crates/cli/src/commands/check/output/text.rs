@@ -1,9 +1,8 @@
 use super::renderer::OutputRenderer;
 use super::CheckContext;
 use crate::shared::{render_summary, SummaryStats};
-use cli::GroupMode;
 use colored::*;
-use core::{ScanResult, Severity};
+use core::{GroupMode, ScanResult, Severity};
 use std::collections::{HashMap, HashSet};
 
 pub struct TextRenderer;

@@ -1,7 +1,6 @@
 use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::utils::get_span_positions;
 use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
@@ -98,94 +97,58 @@ fn is_promise_constructor(callee: &Expr) -> bool {
 }
 
 impl<'a> ImplicitAnyVisitor<'a> {
-    fn check_param(&mut self, param: &Param) {
+    fn report_issue(&mut self, span: swc_common::Span, message: String) {
+        self.issues.push(Issue::from_span(
+            "no-implicit-any",
+            self.path.clone(),
+            self.source,
+            span.lo.0 as usize,
+            span.hi.0 as usize,
+            message,
+        ));
+    }
+
+    fn check_pat(&mut self, pat: &Pat) {
         if self.in_inferred_context {
             return;
         }
 
-        match &param.pat {
-            Pat::Ident(ident) => {
-                if ident.type_ann.is_none() {
-                    let span = ident.span();
-                    let (line, column, end_column) =
-                        get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
-
-                    self.issues.push(Issue {
-                        rule: "no-implicit-any".to_string(),
-                        file: self.path.clone(),
-                        line,
-                        column,
-                        end_column,
-                        message: format!(
-                            "Parameter '{}' implicitly has 'any' type. Add type annotation.",
-                            ident.id.sym
-                        ),
-                        severity: Severity::Error,
-                        line_text: None,
-                    });
-                }
+        match pat {
+            Pat::Ident(ident) if ident.type_ann.is_none() => {
+                self.report_issue(
+                    ident.span(),
+                    format!(
+                        "Parameter '{}' implicitly has 'any' type. Add type annotation.",
+                        ident.id.sym
+                    ),
+                );
             }
-            Pat::Array(arr) => {
-                if arr.type_ann.is_none() {
-                    let span = arr.span();
-                    let (line, column, end_column) =
-                        get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
-
-                    self.issues.push(Issue {
-                        rule: "no-implicit-any".to_string(),
-                        file: self.path.clone(),
-                        line,
-                        column,
-                        end_column,
-                        message:
-                            "Destructured parameter implicitly has 'any' type. Add type annotation."
-                                .to_string(),
-                        severity: Severity::Error,
-                        line_text: None,
-                    });
-                }
+            Pat::Array(arr) if arr.type_ann.is_none() => {
+                self.report_issue(
+                    arr.span(),
+                    "Destructured parameter implicitly has 'any' type. Add type annotation."
+                        .to_string(),
+                );
             }
-            Pat::Object(obj) => {
-                if obj.type_ann.is_none() {
-                    let span = obj.span();
-                    let (line, column, end_column) =
-                        get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
-
-                    self.issues.push(Issue {
-                        rule: "no-implicit-any".to_string(),
-                        file: self.path.clone(),
-                        line,
-                        column,
-                        end_column,
-                        message:
-                            "Destructured parameter implicitly has 'any' type. Add type annotation."
-                                .to_string(),
-                        severity: Severity::Error,
-                        line_text: None,
-                    });
-                }
+            Pat::Object(obj) if obj.type_ann.is_none() => {
+                self.report_issue(
+                    obj.span(),
+                    "Destructured parameter implicitly has 'any' type. Add type annotation."
+                        .to_string(),
+                );
             }
-            Pat::Rest(rest) => {
-                if rest.type_ann.is_none() {
-                    let span = rest.span();
-                    let (line, column, end_column) =
-                        get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
-
-                    self.issues.push(Issue {
-                        rule: "no-implicit-any".to_string(),
-                        file: self.path.clone(),
-                        line,
-                        column,
-                        end_column,
-                        message: "Rest parameter implicitly has 'any' type. Add type annotation."
-                            .to_string(),
-                        severity: Severity::Error,
-                        line_text: None,
-                    });
-                }
+            Pat::Rest(rest) if rest.type_ann.is_none() => {
+                self.report_issue(
+                    rest.span(),
+                    "Rest parameter implicitly has 'any' type. Add type annotation.".to_string(),
+                );
             }
             _ => {}
         }
+    }
+
+    fn check_param(&mut self, param: &Param) {
+        self.check_pat(&param.pat);
     }
 }
 
@@ -198,101 +161,8 @@ impl<'a> Visit for ImplicitAnyVisitor<'a> {
     }
 
     fn visit_arrow_expr(&mut self, n: &ArrowExpr) {
-        if !self.in_inferred_context {
-            for pat in &n.params {
-                match pat {
-                    Pat::Ident(ident) => {
-                        if ident.type_ann.is_none() {
-                            let span = ident.span();
-                            let (line, column, end_column) = get_span_positions(
-                                self.source,
-                                span.lo.0 as usize,
-                                span.hi.0 as usize,
-                            );
-
-                            self.issues.push(Issue {
-                                rule: "no-implicit-any".to_string(),
-                                file: self.path.clone(),
-                                line,
-                                column,
-                                end_column,
-                                message: format!(
-                                    "Parameter '{}' implicitly has 'any' type. Add type annotation.",
-                                    ident.id.sym
-                                ),
-                                severity: Severity::Error,
-                                line_text: None,
-                            });
-                        }
-                    }
-                    Pat::Array(arr) => {
-                        if arr.type_ann.is_none() {
-                            let span = arr.span();
-                            let (line, column, end_column) = get_span_positions(
-                                self.source,
-                                span.lo.0 as usize,
-                                span.hi.0 as usize,
-                            );
-
-                            self.issues.push(Issue {
-                                rule: "no-implicit-any".to_string(),
-                                file: self.path.clone(),
-                                line,
-                                column,
-                                end_column,
-                                message: "Destructured parameter implicitly has 'any' type. Add type annotation.".to_string(),
-                                severity: Severity::Error,
-                                line_text: None,
-                            });
-                        }
-                    }
-                    Pat::Object(obj) => {
-                        if obj.type_ann.is_none() {
-                            let span = obj.span();
-                            let (line, column, end_column) = get_span_positions(
-                                self.source,
-                                span.lo.0 as usize,
-                                span.hi.0 as usize,
-                            );
-
-                            self.issues.push(Issue {
-                                rule: "no-implicit-any".to_string(),
-                                file: self.path.clone(),
-                                line,
-                                column,
-                                end_column,
-                                message: "Destructured parameter implicitly has 'any' type. Add type annotation.".to_string(),
-                                severity: Severity::Error,
-                                line_text: None,
-                            });
-                        }
-                    }
-                    Pat::Rest(rest) => {
-                        if rest.type_ann.is_none() {
-                            let span = rest.span();
-                            let (line, column, end_column) = get_span_positions(
-                                self.source,
-                                span.lo.0 as usize,
-                                span.hi.0 as usize,
-                            );
-
-                            self.issues.push(Issue {
-                                rule: "no-implicit-any".to_string(),
-                                file: self.path.clone(),
-                                line,
-                                column,
-                                end_column,
-                                message:
-                                    "Rest parameter implicitly has 'any' type. Add type annotation."
-                                        .to_string(),
-                                severity: Severity::Error,
-                                line_text: None,
-                            });
-                        }
-                    }
-                    _ => {}
-                }
-            }
+        for pat in &n.params {
+            self.check_pat(pat);
         }
         n.visit_children_with(self);
     }
