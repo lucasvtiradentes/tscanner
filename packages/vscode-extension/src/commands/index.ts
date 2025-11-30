@@ -47,7 +47,10 @@ export function registerAllCommands(ctx: CommandContext, panelContent: IssuesPan
     createCopyRuleIssuesCommand(),
     createCopyFileIssuesCommand(),
     createCopyFolderIssuesCommand(),
-    createCopyAllIssuesCommand(() => panelContent.getResults()),
+    createCopyAllIssuesCommand(
+      () => panelContent.getResults(),
+      () => panelContent.groupMode,
+    ),
   ];
 }
 

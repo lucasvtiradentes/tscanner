@@ -27,11 +27,12 @@ class CopyScanContext {
     return this.scanMode === ScanMode.Branch ? 'branch mode' : 'codebase mode';
   }
 
-  buildCliCommand(filter: string, filterValue: string): string {
+  buildCliCommand(groupBy: CliGroupBy, filter?: string, filterValue?: string): string {
     const branch = this.scanMode === ScanMode.Branch ? this.compareBranch : undefined;
-    return branch
-      ? `tscanner check --${filter} "${filterValue}" --branch ${branch}`
-      : `tscanner check --${filter} "${filterValue}"`;
+    const filterArg = filter && filterValue ? ` --${filter} "${filterValue}"` : '';
+    const groupByArg = ` --group-by ${groupBy}`;
+    const branchArg = branch ? ` --branch ${branch}` : '';
+    return `tscanner check${filterArg}${groupByArg}${branchArg}`;
   }
 }
 

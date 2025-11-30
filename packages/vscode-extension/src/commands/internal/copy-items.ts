@@ -11,7 +11,7 @@ export function createCopyRuleIssuesCommand() {
       results: item.results,
       groupMode: 'rule',
       buildHeader: (summary) => {
-        const cliCommand = copyScanContext.buildCliCommand('rule', item.rule);
+        const cliCommand = copyScanContext.buildCliCommand('rule', 'rule', item.rule);
         return `TScanner report searching for all the issues of the rule "${item.rule}" in the ${copyScanContext.getScanModeText()}\n\ncli command: ${cliCommand}\nfound issues: ${summary.total_issues} issues\n`;
       },
       successMessage: `Copied ${item.results.length} issues from "${item.rule}"`,
@@ -29,7 +29,7 @@ export function createCopyFileIssuesCommand() {
       results: item.results,
       groupMode: 'file',
       buildHeader: (summary) => {
-        const cliCommand = copyScanContext.buildCliCommand('glob', relativePath);
+        const cliCommand = copyScanContext.buildCliCommand('file', 'glob', relativePath);
         return `TScanner report searching for all the issues in file "${relativePath}" in the ${copyScanContext.getScanModeText()}\n\ncli command: ${cliCommand}\nfound issues: ${summary.total_issues} issues\n`;
       },
       successMessage: `Copied ${item.results.length} issues from "${relativePath}"`,
@@ -51,7 +51,7 @@ export function createCopyFolderIssuesCommand() {
       results: allResults,
       groupMode: 'file',
       buildHeader: (summary) => {
-        const cliCommand = copyScanContext.buildCliCommand('glob', `${relativeFolderPath}/**/*`);
+        const cliCommand = copyScanContext.buildCliCommand('file', 'glob', `${relativeFolderPath}/**/*`);
         return `TScanner report searching for all the issues in folder "${item.node.name}" in the ${copyScanContext.getScanModeText()}\n\ncli command: ${cliCommand}\nfound issues: ${summary.total_issues} issues\n`;
       },
       successMessage: `Copied ${allResults.length} issues from folder "${item.node.name}"`,
