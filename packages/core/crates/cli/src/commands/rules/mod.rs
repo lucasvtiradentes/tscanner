@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 
 use crate::config_loader::load_config_with_custom;
 use core::types::Severity;
-use core::{log_error, log_info, APP_NAME};
+use core::{app_name, log_error, log_info};
 use types::RuleInfo;
 
 pub fn cmd_rules(path: &Path, config_path: Option<PathBuf>) -> Result<()> {
@@ -25,14 +25,14 @@ pub fn cmd_rules(path: &Path, config_path: Option<PathBuf>) -> Result<()> {
             log_error("cmd_rules: No config found");
             eprintln!(
                 "{}",
-                format!("Error: No {} configuration found!", APP_NAME)
+                format!("Error: No {} configuration found!", app_name())
                     .red()
                     .bold()
             );
             eprintln!();
             eprintln!(
                 "Run {} to create a default configuration.",
-                format!("{} init", APP_NAME).cyan()
+                format!("{} init", app_name()).cyan()
             );
             std::process::exit(1);
         }

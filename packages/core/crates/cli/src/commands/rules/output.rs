@@ -5,7 +5,7 @@ use core::types::Severity;
 pub fn print_header(config_file_path: &str) {
     println!(
         "{}",
-        format!("{} Rules Configuration", core::APP_DISPLAY_NAME)
+        format!("{} Rules Configuration", core::app_display_name())
             .cyan()
             .bold()
     );

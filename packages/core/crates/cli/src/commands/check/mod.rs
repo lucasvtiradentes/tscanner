@@ -17,7 +17,7 @@ use crate::shared::SummaryStats;
 use cli::{GroupMode, OutputFormat};
 use context::CheckContext;
 use core::{
-    log_error, log_info, CliConfig, CliGroupBy, APP_NAME, CONFIG_DIR_NAME, CONFIG_FILE_NAME,
+    app_name, config_dir_name, config_file_name, log_error, log_info, CliConfig, CliGroupBy,
 };
 
 #[allow(clippy::too_many_arguments)]
@@ -78,7 +78,7 @@ pub fn cmd_check(
             log_error("cmd_check: No config found");
             eprintln!(
                 "{}",
-                format!("Error: No {} configuration found!", APP_NAME)
+                format!("Error: No {} configuration found!", app_name())
                     .red()
                     .bold()
             );
@@ -89,8 +89,8 @@ pub fn cmd_check(
                 format!(
                     "{}/{}/{}",
                     root.display(),
-                    CONFIG_DIR_NAME,
-                    CONFIG_FILE_NAME
+                    config_dir_name(),
+                    config_file_name()
                 )
                 .yellow()
             );
@@ -98,7 +98,7 @@ pub fn cmd_check(
             eprintln!();
             eprintln!(
                 "Run {} to create a default configuration,",
-                format!("{} init", APP_NAME).cyan()
+                format!("{} init", app_name()).cyan()
             );
             eprintln!(
                 "or use {} to specify a custom config directory.",

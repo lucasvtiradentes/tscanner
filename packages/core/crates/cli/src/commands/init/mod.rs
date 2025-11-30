@@ -7,7 +7,7 @@ use std::path::Path;
 
 use config_generator::{get_all_rules_config, get_default_config};
 use core::rules::get_all_rule_metadata;
-use core::{log_error, log_info, CONFIG_DIR_NAME, CONFIG_FILE_NAME};
+use core::{config_dir_name, config_file_name, log_error, log_info};
 
 pub fn cmd_init(path: &Path, all_rules: bool) -> Result<()> {
     log_info(&format!(
@@ -17,8 +17,8 @@ pub fn cmd_init(path: &Path, all_rules: bool) -> Result<()> {
     ));
 
     let root = fs::canonicalize(path).context("Failed to resolve path")?;
-    let config_dir = root.join(CONFIG_DIR_NAME);
-    let config_path = config_dir.join(CONFIG_FILE_NAME);
+    let config_dir = root.join(config_dir_name());
+    let config_path = config_dir.join(config_file_name());
 
     if config_path.exists() {
         log_error(&format!(
@@ -31,7 +31,7 @@ pub fn cmd_init(path: &Path, all_rules: bool) -> Result<()> {
     }
 
     fs::create_dir_all(&config_dir)
-        .context(format!("Failed to create {} directory", CONFIG_DIR_NAME))?;
+        .context(format!("Failed to create {} directory", config_dir_name()))?;
 
     let config_content = if all_rules {
         get_all_rules_config()

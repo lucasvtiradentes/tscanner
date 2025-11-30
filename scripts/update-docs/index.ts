@@ -19,7 +19,7 @@ type UpdateFn = {
 
 const logger = console;
 
-async function main() {
+function main() {
   if (process.env.CI || process.env.GITHUB_ACTIONS) {
     logger.log('Skipping docs update in CI environment');
     process.exit(0);

@@ -2,7 +2,7 @@ use anyhow::Result;
 use core::config::TscannerConfig;
 use std::path::{Path, PathBuf};
 
-use core::{log_info, CONFIG_DIR_NAME, CONFIG_FILE_NAME};
+use core::{config_dir_name, config_file_name, log_info};
 
 pub fn load_config_with_custom(
     root: &Path,
@@ -22,7 +22,7 @@ pub fn load_config_with_custom(
             );
         }
 
-        let config_path = resolved_dir.join(CONFIG_FILE_NAME);
+        let config_path = resolved_dir.join(config_file_name());
 
         if config_path.exists() {
             log_info(&format!(
@@ -36,12 +36,12 @@ pub fn load_config_with_custom(
             anyhow::bail!(
                 "Config file not found: {} (expected {} in directory)",
                 config_path.display(),
-                CONFIG_FILE_NAME
+                config_file_name()
             );
         }
     }
 
-    let local_path = root.join(CONFIG_DIR_NAME).join(CONFIG_FILE_NAME);
+    let local_path = root.join(config_dir_name()).join(config_file_name());
     if local_path.exists() {
         log_info(&format!(
             "config_loader: Loading local config: {}",

@@ -524,9 +524,9 @@ impl TscannerConfig {
     }
 
     pub fn load_from_workspace(workspace: &Path) -> Result<Self, Box<dyn std::error::Error>> {
-        use crate::constants::{CONFIG_DIR_NAME, CONFIG_FILE_NAME};
+        use crate::constants::{config_dir_name, config_file_name};
 
-        let config_path = workspace.join(CONFIG_DIR_NAME).join(CONFIG_FILE_NAME);
+        let config_path = workspace.join(config_dir_name()).join(config_file_name());
 
         if config_path.exists() {
             Self::load_from_file(&config_path)

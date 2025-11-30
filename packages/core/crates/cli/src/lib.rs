@@ -1,8 +1,6 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
 
-use core::{APP_DESCRIPTION, APP_NAME};
-
 #[derive(Debug, Clone, ValueEnum)]
 pub enum GroupMode {
     File,
@@ -18,8 +16,8 @@ pub enum OutputFormat {
 }
 
 #[derive(Parser)]
-#[command(name = APP_NAME)]
-#[command(version, about = APP_DESCRIPTION, long_about = None)]
+#[command(name = "tscanner")]
+#[command(version, about = "Code quality scanner for the AI-generated code era", long_about = None)]
 pub struct Cli {
     #[command(subcommand)]
     pub command: Option<Commands>,

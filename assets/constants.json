@@ -1,0 +1,9 @@
+{
+  "packageName": "tscanner",
+  "packageDisplayName": "TScanner",
+  "packageDescription": "Code quality scanner for the AI-generated code era",
+  "configDirName": ".tscanner",
+  "configFileName": "config.jsonc",
+  "defaultTargetBranch": "origin/main",
+  "logBasename": "tscannerlogs"
+}
