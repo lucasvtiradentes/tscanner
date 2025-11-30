@@ -71,8 +71,8 @@ impl<'a> ShadowVisitor<'a> {
         self.scope_stack.pop();
     }
 
-    fn current_scope(&mut self) -> &mut HashSet<String> {
-        self.scope_stack.last_mut().unwrap()
+    fn current_scope(&mut self) -> Option<&mut HashSet<String>> {
+        self.scope_stack.last_mut()
     }
 
     fn is_shadowing(&self, name: &str) -> bool {
@@ -103,7 +103,9 @@ impl<'a> ShadowVisitor<'a> {
                 line_text: None,
             });
         }
-        self.current_scope().insert(name);
+        if let Some(scope) = self.current_scope() {
+            scope.insert(name);
+        }
     }
 
     fn add_param(&mut self, pat: &Pat) {

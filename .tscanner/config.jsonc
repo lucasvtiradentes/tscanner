@@ -3,7 +3,7 @@
   "builtinRules": {
     "consistent-return": {},
     "max-function-length": {},
-    "max-params": {"maxParams": 3},
+    "max-params": {},
     // "no-absolute-imports": {},
     // "no-absolute-imports": {},
     // "no-alias-imports": {},

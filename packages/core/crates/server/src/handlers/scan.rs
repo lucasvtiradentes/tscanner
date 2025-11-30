@@ -63,5 +63,11 @@ pub fn handle_scan(request_id: u64, params: ScanParams, state: &mut ServerState)
 
     state.scanner = Some(scanner);
 
-    success_response(request_id, serde_json::to_value(&result).unwrap())
+    match serde_json::to_value(&result) {
+        Ok(value) => success_response(request_id, value),
+        Err(e) => error_response(
+            request_id,
+            format!("Failed to serialize scan results: {}", e),
+        ),
+    }
 }

@@ -1,3 +1,4 @@
+use super::common::{error_response, success_response};
 use crate::protocol::{Response, WatchParams};
 use crate::state::ServerState;
 use core::FileWatcher;
@@ -8,16 +9,8 @@ pub fn handle_watch(request_id: u64, params: WatchParams, state: &mut ServerStat
     match FileWatcher::new(&params.root) {
         Ok(watcher) => {
             state.watcher = Some(watcher);
-            Response {
-                id: request_id,
-                result: Some(serde_json::json!({"status": "watching"})),
-                error: None,
-            }
+            success_response(request_id, serde_json::json!({"status": "watching"}))
         }
-        Err(e) => Response {
-            id: request_id,
-            result: None,
-            error: Some(format!("Failed to start watcher: {}", e)),
-        },
+        Err(e) => error_response(request_id, format!("Failed to start watcher: {}", e)),
     }
 }

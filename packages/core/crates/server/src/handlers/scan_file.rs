@@ -26,7 +26,13 @@ pub fn handle_scan_file(
         .as_ref()
         .and_then(|s| s.scan_single(&params.file))
     {
-        Some(result) => success_response(request_id, serde_json::to_value(&result).unwrap()),
+        Some(result) => match serde_json::to_value(&result) {
+            Ok(value) => success_response(request_id, value),
+            Err(e) => error_response(
+                request_id,
+                format!("Failed to serialize scan results: {}", e),
+            ),
+        },
         None => success_response(
             request_id,
             serde_json::json!({"file": params.file, "issues": []}),
