@@ -12,52 +12,30 @@ type CheckAnnotation = {
 };
 
 export async function writeAnnotations(octokit: Octokit, scanResult: ScanResult): Promise<void> {
-  githubHelper.logInfo('');
-  githubHelper.logInfo('📝 Writing annotations via Checks API...');
-  githubHelper.logInfo(`ruleGroups count: ${scanResult.ruleGroups.length}`);
-  githubHelper.logInfo(`ruleGroupsByRule count: ${scanResult.ruleGroupsByRule.length}`);
-
   const annotations: CheckAnnotation[] = [];
 
   for (const group of scanResult.ruleGroupsByRule) {
-    githubHelper.logInfo(
-      `Processing rule: ${group.ruleName} (${group.issueCount} issues, ${group.files.length} files)`,
-    );
-
     for (const file of group.files) {
-      githubHelper.logInfo(`  File: ${file.filePath} (${file.issues.length} issues)`);
-
       for (const issue of file.issues) {
-        const ruleName = issue.ruleName ?? group.ruleName;
-
-        githubHelper.logInfo(`    -> Line ${issue.line}: ${ruleName}`);
-
         annotations.push({
           path: file.filePath,
           start_line: issue.line,
           end_line: issue.line,
           annotation_level: group.severity === Severity.Error ? 'failure' : 'warning',
           message: issue.message,
-          title: ruleName,
+          title: issue.ruleName ?? group.ruleName,
         });
       }
     }
   }
 
-  githubHelper.logInfo(`Total annotations to write: ${annotations.length}`);
-
   if (annotations.length === 0) {
-    githubHelper.logInfo('No annotations to write');
     return;
   }
 
   const context = githubHelper.getContext();
   const { owner, repo } = context.repo;
-
   const headSha = context.payload.pull_request?.head.sha ?? context.sha;
-
-  githubHelper.logInfo(`Creating check run for SHA: ${headSha}`);
-  githubHelper.logInfo(`Owner: ${owner}, Repo: ${repo}`);
 
   const totalErrors = scanResult.totalErrors;
   const totalWarnings = scanResult.totalWarnings;
@@ -70,8 +48,6 @@ export async function writeAnnotations(octokit: Octokit, scanResult: ScanResult)
   for (let i = 0; i < annotations.length; i += MAX_ANNOTATIONS_PER_REQUEST) {
     chunks.push(annotations.slice(i, i + MAX_ANNOTATIONS_PER_REQUEST));
   }
-
-  githubHelper.logInfo(`Splitting ${annotations.length} annotations into ${chunks.length} chunk(s)`);
 
   try {
     const { data: checkRun } = await octokit.rest.checks.create({
@@ -88,11 +64,7 @@ export async function writeAnnotations(octokit: Octokit, scanResult: ScanResult)
       },
     });
 
-    githubHelper.logInfo(`Check run created with ID: ${checkRun.id}`);
-
     for (let i = 1; i < chunks.length; i++) {
-      githubHelper.logInfo(`Updating check run with chunk ${i + 1}/${chunks.length} (${chunks[i].length} annotations)`);
-
       await octokit.rest.checks.update({
         owner,
         repo,
@@ -105,7 +77,7 @@ export async function writeAnnotations(octokit: Octokit, scanResult: ScanResult)
       });
     }
 
-    githubHelper.logInfo(`✅ All ${annotations.length} annotations written successfully`);
+    githubHelper.logInfo(`Annotations written: ${annotations.length}`);
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const status = error instanceof Error && 'status' in error ? (error as { status: number }).status : undefined;
@@ -116,48 +88,19 @@ export async function writeAnnotations(octokit: Octokit, scanResult: ScanResult)
     }
 
     if (status === 403) {
-      githubHelper.logWarning('');
-      githubHelper.logWarning('⚠️ Checks API permission denied. Falling back to workflow annotations...');
-      githubHelper.logWarning('To enable Checks API annotations, add this to your workflow:');
-      githubHelper.logWarning('');
-      githubHelper.logWarning('  permissions:');
-      githubHelper.logWarning('    checks: write');
-      githubHelper.logWarning('    pull-requests: write');
-      githubHelper.logWarning('');
-
-      writeFallbackAnnotations(scanResult);
-      return;
+      githubHelper.logError('');
+      githubHelper.logError('❌ Checks API permission denied.');
+      githubHelper.logError('');
+      githubHelper.logError('To enable annotations, add "checks: write" permission to your workflow:');
+      githubHelper.logError('');
+      githubHelper.logError('  permissions:');
+      githubHelper.logError('    contents: read');
+      githubHelper.logError('    pull-requests: write');
+      githubHelper.logError('    checks: write');
+      githubHelper.logError('');
+      throw new Error('Missing "checks: write" permission. Add it to your workflow permissions.');
     }
 
     throw error;
   }
-}
-
-function writeFallbackAnnotations(scanResult: ScanResult): void {
-  githubHelper.logInfo('📝 Writing fallback annotations via core.warning...');
-
-  let count = 0;
-  for (const group of scanResult.ruleGroupsByRule) {
-    for (const file of group.files) {
-      for (const issue of file.issues) {
-        const ruleName = issue.ruleName ?? group.ruleName;
-        const message = `[${ruleName}] ${issue.message}`;
-        const properties = {
-          title: ruleName,
-          file: file.filePath,
-          startLine: issue.line,
-          startColumn: issue.column,
-        };
-
-        if (group.severity === Severity.Error) {
-          githubHelper.addAnnotationError(message, properties);
-        } else {
-          githubHelper.addAnnotationWarning(message, properties);
-        }
-        count++;
-      }
-    }
-  }
-
-  githubHelper.logInfo(`Fallback annotations written: ${count}`);
 }

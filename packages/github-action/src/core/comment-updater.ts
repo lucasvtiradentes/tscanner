@@ -79,19 +79,6 @@ function buildStatsTable(params: StatsTableParams): string {
 | Last updated | ${timestamp} |`;
 }
 
-function buildMostTriggeredRules(ruleGroups: RuleGroup[], limit = 5): string {
-  const sorted = [...ruleGroups].sort((a, b) => b.issueCount - a.issueCount).slice(0, limit);
-
-  if (sorted.length === 0) return '';
-
-  let output = '\n**Most triggered rules:**\n';
-  for (const rule of sorted) {
-    const badge = rule.severity === Severity.Error ? ICONS.ERROR_BADGE : ICONS.WARNING_BADGE;
-    output += `- ${badge} \`${rule.ruleName}\` - ${rule.issueCount} ${pluralize(rule.issueCount, 'issue')}\n`;
-  }
-  return output;
-}
-
 function buildCommitHistorySection(history: CommitHistory[]): string {
   if (history.length === 0) return '';
 
@@ -231,16 +218,13 @@ ${historySection}`;
   const icon = totalErrors > 0 ? ICONS.ERROR : ICONS.WARNING;
   const title = totalErrors > 0 ? 'Errors Found' : 'Warnings Found';
   const statsTable = buildStatsTable({ result, targetBranch, timestamp, commitSha, commitMessage });
-  const mostTriggered = buildMostTriggeredRules(ruleGroupsByRule);
 
   let comment = `${COMMENT_MARKER}
 ${serializeCommitHistory(commitHistory)}
 ## ${icon} TScanner - ${title}
 
 ${statsTable}
-${mostTriggered}
----
-
+<br />
 `;
 
   const { totalFiles, totalRules } = result;
@@ -248,9 +232,10 @@ ${mostTriggered}
   const groupedByFile = buildGroupedByFileView(result, owner, repo, prNumber);
   const historySection = buildCommitHistorySection(commitHistory);
 
-  comment += `<div align="center">\n\n<details>\n<summary><strong>${ICONS.RULE_ICON} Issues grouped by rule (${totalRules})</strong></summary>\n<br />\n\n<div align="left">\n${groupedByRule}\n</div></details>\n\n</div>\n\n---\n\n`;
-  comment += `<div align="center">\n\n<details>\n<summary><strong>${ICONS.FILE_ICON} Issues grouped by file (${totalFiles})</strong></summary>\n<br />\n\n<div align="left">\n${groupedByFile}\n</div></details>\n\n</div>\n\n`;
   comment += historySection;
+  comment += '\n---\n';
+  comment += `<div align="center">\n\n<details>\n<summary><strong>${ICONS.RULE_ICON} Issues grouped by rule (${totalRules})</strong></summary>\n<br />\n\n<div align="left">\n${groupedByRule}\n</div></details>\n\n</div>\n\n`;
+  comment += `<div align="center">\n\n<details>\n<summary><strong>${ICONS.FILE_ICON} Issues grouped by file (${totalFiles})</strong></summary>\n<br />\n\n<div align="left">\n${groupedByFile}\n</div></details>\n\n</div>\n\n`;
 
   return comment;
 }
