@@ -96,8 +96,9 @@ export class IssuesPanelContent implements vscode.TreeDataProvider<PanelContentI
     if (!element) {
       if (this._groupMode === GroupMode.Rule) {
         const grouped = this.groupByRule();
+        const sortedEntries = Array.from(grouped.entries()).sort((a, b) => a[0].localeCompare(b[0]));
         return Promise.resolve(
-          Array.from(grouped.entries()).map(([rule, results]) => new RuleGroupItem(rule, results, this._viewMode)),
+          sortedEntries.map(([rule, results]) => new RuleGroupItem(rule, results, this._viewMode)),
         );
       }
 
@@ -111,9 +112,8 @@ export class IssuesPanelContent implements vscode.TreeDataProvider<PanelContentI
           grouped.get(filePath)?.push(result);
         }
 
-        return Promise.resolve(
-          Array.from(grouped.entries()).map(([path, results]) => new FileResultItem(path, results)),
-        );
+        const sortedEntries = Array.from(grouped.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+        return Promise.resolve(sortedEntries.map(([path, results]) => new FileResultItem(path, results)));
       }
 
       const workspaceRoot = getCurrentWorkspaceFolder()?.uri.fsPath || '';
@@ -131,7 +131,12 @@ export class IssuesPanelContent implements vscode.TreeDataProvider<PanelContentI
     }
     if (element instanceof RuleGroupItem) {
       if (element.viewMode === ViewMode.List) {
-        return Promise.resolve(element.results.map((r) => new LineResultItem(r)));
+        const sortedResults = [...element.results].sort((a, b) => {
+          const pathCompare = a.uri.fsPath.localeCompare(b.uri.fsPath);
+          if (pathCompare !== 0) return pathCompare;
+          return a.line - b.line;
+        });
+        return Promise.resolve(sortedResults.map((r) => new LineResultItem(r)));
       }
       const workspaceRoot = getCurrentWorkspaceFolder()?.uri.fsPath || '';
       const tree = buildFolderTree(element.results, workspaceRoot);
@@ -158,7 +163,8 @@ export class IssuesPanelContent implements vscode.TreeDataProvider<PanelContentI
       return Promise.resolve(items);
     }
     if (element instanceof FileResultItem) {
-      return Promise.resolve(element.results.map((r) => new LineResultItem(r)));
+      const sortedResults = [...element.results].sort((a, b) => a.line - b.line);
+      return Promise.resolve(sortedResults.map((r) => new LineResultItem(r)));
     }
 
     return Promise.resolve([]);
