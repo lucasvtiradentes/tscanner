@@ -257,15 +257,15 @@ export function buildIssuesReport(params: BuildReportParams): string {
   let report = `${header}
 
 ${alignSection(Alignment.Center, statsTable)}
-
-<br />
-${extraSection || ''}
----
 `;
 
   if (issuesViewParams) {
     report += buildIssuesByRuleSection(issuesViewParams);
     report += buildIssuesByFileSection(issuesViewParams);
+  }
+
+  if (extraSection) {
+    report += extraSection;
   }
 
   return report;
