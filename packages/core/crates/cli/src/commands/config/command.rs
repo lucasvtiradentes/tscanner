@@ -4,6 +4,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::config_loader::load_config_with_custom;
+use core::config::{TscannerConfig, ValidationResult};
 use core::rules::get_all_rule_metadata;
 use core::Severity;
 use core::{app_display_name, app_name, log_error, log_info};
@@ -81,13 +82,57 @@ pub fn cmd_config(
 }
 
 fn cmd_validate(config_file_path: &str) -> Result<()> {
-    println!(
-        "{} {}",
-        "✓".green().bold(),
-        "Configuration is valid".green()
-    );
-    println!("  {}", config_file_path.dimmed());
+    let content = fs::read_to_string(config_file_path)
+        .context(format!("Failed to read config file: {}", config_file_path))?;
+
+    let (_, result) = match TscannerConfig::full_validate(&content) {
+        Ok(r) => r,
+        Err(e) => {
+            println!(
+                "{} {}",
+                "✗".red().bold(),
+                format!("Parse error: {}", e).red()
+            );
+            println!("  {}", config_file_path.dimmed());
+            std::process::exit(1);
+        }
+    };
+
+    print_validation_result(&result, config_file_path);
+
+    if !result.is_valid() {
+        std::process::exit(1);
+    }
+
     Ok(())
+}
+
+fn print_validation_result(result: &ValidationResult, config_file_path: &str) {
+    for error in &result.errors {
+        println!("{} {}", "✗".red().bold(), error.red());
+    }
+
+    for warning in &result.warnings {
+        println!("{} {}", "⚠".yellow().bold(), warning.yellow());
+    }
+
+    if result.is_valid() {
+        if result.has_warnings() {
+            println!(
+                "{} {}",
+                "✓".green().bold(),
+                "Configuration is valid (with warnings)".green()
+            );
+        } else {
+            println!(
+                "{} {}",
+                "✓".green().bold(),
+                "Configuration is valid".green()
+            );
+        }
+    }
+
+    println!("  {}", config_file_path.dimmed());
 }
 
 fn cmd_rules(config: &core::config::TscannerConfig, config_file_path: &str) -> Result<()> {

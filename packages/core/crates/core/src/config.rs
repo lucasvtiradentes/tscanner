@@ -11,6 +11,39 @@ const TSCANNER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 pub const CONFIG_ERROR_PREFIX: &str = "TSCANNER_CONFIG_ERROR:";
 
+#[derive(Debug, Default)]
+pub struct ValidationResult {
+    pub errors: Vec<String>,
+    pub warnings: Vec<String>,
+}
+
+impl ValidationResult {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn is_valid(&self) -> bool {
+        self.errors.is_empty()
+    }
+
+    pub fn has_warnings(&self) -> bool {
+        !self.warnings.is_empty()
+    }
+
+    pub fn add_error(&mut self, error: String) {
+        self.errors.push(error);
+    }
+
+    pub fn add_warning(&mut self, warning: String) {
+        self.warnings.push(warning);
+    }
+
+    pub fn merge(&mut self, other: ValidationResult) {
+        self.errors.extend(other.errors);
+        self.warnings.extend(other.warnings);
+    }
+}
+
 const ALLOWED_TOP_LEVEL: &[&str] = &[
     "$schema",
     "codeEditor",
@@ -89,9 +122,11 @@ fn validate_nested_rules(
     invalid
 }
 
-fn validate_json_fields(json: &serde_json::Value) -> Result<(), String> {
+pub fn validate_json_fields(json: &serde_json::Value) -> ValidationResult {
+    let mut result = ValidationResult::new();
+
     let Some(obj) = json.as_object() else {
-        return Ok(());
+        return result;
     };
 
     let mut invalid_fields = collect_invalid_fields(obj, ALLOWED_TOP_LEVEL, "");
@@ -124,16 +159,11 @@ fn validate_json_fields(json: &serde_json::Value) -> Result<(), String> {
         ));
     }
 
-    if invalid_fields.is_empty() {
-        Ok(())
-    } else {
-        Err(format!(
-            "{}invalid_fields=[{}];version={}",
-            CONFIG_ERROR_PREFIX,
-            invalid_fields.join(","),
-            TSCANNER_VERSION
-        ))
+    for field in invalid_fields {
+        result.add_error(format!("Invalid field: {}", field));
     }
+
+    result
 }
 
 const DEFAULT_CONFIG_JSON: &str = include_str!("../../../../../assets/default-config.json");
@@ -487,41 +517,86 @@ fn compile_optional_globset(
 }
 
 impl TscannerConfig {
-    pub fn load_from_file(path: &Path) -> Result<Self, Box<dyn std::error::Error>> {
-        let content = std::fs::read_to_string(path)?;
-
+    pub fn parse_json(content: &str) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
         let json_without_comments = json_comments::StripComments::new(content.as_bytes());
         let json_value: serde_json::Value = serde_json::from_reader(json_without_comments)?;
+        Ok(json_value)
+    }
 
-        validate_json_fields(&json_value)?;
+    pub fn full_validate(
+        content: &str,
+    ) -> Result<(Self, ValidationResult), Box<dyn std::error::Error>> {
+        let json_value = Self::parse_json(content)?;
+
+        let mut result = validate_json_fields(&json_value);
+        if !result.is_valid() {
+            return Ok((Self::default(), result));
+        }
 
         let config: Self = serde_json::from_value(json_value)?;
-        config.validate()?;
+        result.merge(config.validate());
+
+        Ok((config, result))
+    }
+
+    pub fn load_from_file(path: &Path) -> Result<Self, Box<dyn std::error::Error>> {
+        let content = std::fs::read_to_string(path)?;
+        let (config, result) = Self::full_validate(&content)?;
+
+        for warning in &result.warnings {
+            eprintln!("Warning: {}", warning);
+        }
+
+        if !result.is_valid() {
+            let invalid_fields: Vec<_> = result
+                .errors
+                .iter()
+                .filter_map(|e| e.strip_prefix("Invalid field: "))
+                .collect();
+
+            if !invalid_fields.is_empty() {
+                return Err(format!(
+                    "{}invalid_fields=[{}];version={}",
+                    CONFIG_ERROR_PREFIX,
+                    invalid_fields.join(","),
+                    TSCANNER_VERSION
+                )
+                .into());
+            }
+
+            return Err(format!(
+                "Config validation failed:\n  - {}",
+                result.errors.join("\n  - ")
+            )
+            .into());
+        }
+
         Ok(config)
     }
 
-    pub fn validate(&self) -> Result<(), Box<dyn std::error::Error>> {
-        let mut errors = Vec::new();
-        let mut warnings = Vec::new();
+    pub fn validate(&self) -> ValidationResult {
+        let mut result = ValidationResult::new();
 
         for (name, rule_config) in &self.custom_rules {
             match rule_config.rule_type {
                 CustomRuleType::Regex => {
                     if rule_config.pattern.is_none() {
-                        errors.push(format!(
+                        result.add_error(format!(
                             "Custom rule '{}' is type 'regex' but has no 'pattern' field",
                             name
                         ));
                     } else if let Some(pattern) = &rule_config.pattern {
                         if let Err(e) = regex::Regex::new(pattern) {
-                            errors
-                                .push(format!("Rule '{}' has invalid regex pattern: {}", name, e));
+                            result.add_error(format!(
+                                "Rule '{}' has invalid regex pattern: {}",
+                                name, e
+                            ));
                         }
                     }
                 }
                 CustomRuleType::Script => {
                     if rule_config.script.is_none() {
-                        errors.push(format!(
+                        result.add_error(format!(
                             "Custom rule '{}' is type 'script' but has no 'script' field",
                             name
                         ));
@@ -529,7 +604,7 @@ impl TscannerConfig {
                 }
                 CustomRuleType::Ai => {
                     if rule_config.prompt.is_none() {
-                        errors.push(format!(
+                        result.add_error(format!(
                             "Custom rule '{}' is type 'ai' but has no 'prompt' field",
                             name
                         ));
@@ -556,22 +631,14 @@ impl TscannerConfig {
                 .unwrap_or(false);
 
             if rule1_enabled && rule2_enabled {
-                warnings.push(format!(
-                    "Warning: Conflicting rules enabled: '{}' and '{}'. Both rules will run but contradict each other.",
+                result.add_warning(format!(
+                    "Conflicting rules enabled: '{}' and '{}'",
                     rule1, rule2
                 ));
             }
         }
 
-        if !warnings.is_empty() {
-            eprintln!("{}", warnings.join("\n"));
-        }
-
-        if !errors.is_empty() {
-            return Err(format!("Config validation failed:\n  - {}", errors.join("\n  - ")).into());
-        }
-
-        Ok(())
+        result
     }
 
     pub fn load_from_workspace(workspace: &Path) -> Result<Self, Box<dyn std::error::Error>> {

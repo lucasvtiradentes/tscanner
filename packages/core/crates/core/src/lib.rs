@@ -6,8 +6,8 @@ pub mod scanning;
 pub mod utils;
 
 pub use config::{
-    compile_globset, BuiltinRuleConfig, CliConfig, CliGroupBy, CompiledRuleConfig,
-    CustomRuleConfig, CustomRuleType, TscannerConfig,
+    compile_globset, validate_json_fields, BuiltinRuleConfig, CliConfig, CliGroupBy,
+    CompiledRuleConfig, CustomRuleConfig, CustomRuleType, TscannerConfig, ValidationResult,
 };
 pub use constants::*;
 pub use output::{FileResult, GroupMode, Issue, PrettyFormatter, ScanResult, Severity};
