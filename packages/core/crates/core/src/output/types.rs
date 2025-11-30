@@ -65,7 +65,7 @@ impl ScanResult {
         let filtered_count = self.files.iter().map(|f| f.issues.len()).sum::<usize>();
         self.total_issues = filtered_count;
 
-        crate::log_info(&format!(
+        crate::utils::log_info(&format!(
             "Filtered {} → {} issues (only modified lines)",
             original_count, filtered_count
         ));
@@ -90,7 +90,7 @@ impl ScanResult {
         let filtered_count = self.files.iter().map(|f| f.issues.len()).sum::<usize>();
         self.total_issues = filtered_count;
 
-        crate::log_info(&format!(
+        crate::utils::log_info(&format!(
             "Rule filter {} → {} issues (rule: {})",
             original_count, filtered_count, rule_name
         ));

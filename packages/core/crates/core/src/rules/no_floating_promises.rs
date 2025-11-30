@@ -1,6 +1,6 @@
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use crate::utils::get_span_positions;
 use std::collections::HashSet;
 use std::path::Path;
@@ -78,7 +78,7 @@ impl Rule for NoFloatingPromisesRule {
         program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let async_functions = collect_async_functions(program);
 

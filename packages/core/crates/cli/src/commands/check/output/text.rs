@@ -3,7 +3,7 @@ use super::CheckContext;
 use crate::shared::{render_summary, SummaryStats};
 use cli::GroupMode;
 use colored::*;
-use core::types::{ScanResult, Severity};
+use core::{ScanResult, Severity};
 use std::collections::{HashMap, HashSet};
 
 pub struct TextRenderer;

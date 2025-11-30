@@ -2,7 +2,7 @@ use super::renderer::OutputRenderer;
 use super::CheckContext;
 use crate::shared::{render_summary, SummaryStats};
 use cli::GroupMode;
-use core::types::ScanResult;
+use core::ScanResult;
 
 pub struct PrettyRenderer;
 

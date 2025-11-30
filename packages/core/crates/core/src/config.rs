@@ -1,4 +1,4 @@
-use crate::types::Severity;
+use crate::output::Severity;
 use globset::{Glob, GlobSet, GlobSetBuilder};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
@@ -691,7 +691,7 @@ impl Default for TscannerConfig {
     }
 }
 
-fn compile_globset(patterns: &[String]) -> Result<GlobSet, Box<dyn std::error::Error>> {
+pub fn compile_globset(patterns: &[String]) -> Result<GlobSet, Box<dyn std::error::Error>> {
     let mut builder = GlobSetBuilder::new();
 
     for pattern in patterns {

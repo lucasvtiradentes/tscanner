@@ -1,6 +1,6 @@
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use regex::Regex;
 use std::path::Path;
 use std::sync::Arc;
@@ -38,7 +38,7 @@ impl Rule for NoConsoleLogRule {
         _program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let regex = Regex::new(r"console\.log\(").unwrap();
         let mut issues = Vec::new();

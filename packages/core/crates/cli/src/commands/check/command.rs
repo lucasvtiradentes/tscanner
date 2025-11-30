@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use colored::*;
-use core::cache::FileCache;
-use core::scanner::Scanner;
+use core::FileCache;
+use core::Scanner;
 use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};

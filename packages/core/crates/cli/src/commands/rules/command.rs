@@ -4,7 +4,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::config_loader::load_config_with_custom;
-use core::types::Severity;
+use core::Severity;
 use core::{app_name, log_error, log_info};
 
 use super::output;

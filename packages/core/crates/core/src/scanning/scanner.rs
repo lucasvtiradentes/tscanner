@@ -1,11 +1,9 @@
-use crate::cache::FileCache;
-use crate::config::TscannerConfig;
-use crate::disable_comments::DisableDirectives;
-use crate::file_source::FileSource;
-use crate::parser::parse_file;
-use crate::registry::RuleRegistry;
-use crate::types::{FileResult, ScanResult};
-use globset::{Glob, GlobSet, GlobSetBuilder};
+use super::cache::FileCache;
+use super::parser::parse_file;
+use super::registry::RuleRegistry;
+use crate::config::{compile_globset, TscannerConfig};
+use crate::output::{FileResult, ScanResult};
+use crate::utils::{DisableDirectives, FileSource};
 use ignore::WalkBuilder;
 use rayon::prelude::*;
 use std::collections::HashSet;
@@ -13,15 +11,6 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
-
-fn compile_globset(patterns: &[String]) -> Result<GlobSet, Box<dyn std::error::Error>> {
-    let mut builder = GlobSetBuilder::new();
-    for pattern in patterns {
-        let glob = Glob::new(pattern)?;
-        builder.add(glob);
-    }
-    Ok(builder.build()?)
-}
 
 pub struct Scanner {
     registry: RuleRegistry,
@@ -66,7 +55,7 @@ impl Scanner {
         file_filter: Option<&HashSet<PathBuf>>,
     ) -> ScanResult {
         let start = Instant::now();
-        crate::log_info(&format!("Starting scan of {:?}", roots));
+        crate::utils::log_info(&format!("Starting scan of {:?}", roots));
 
         let global_include = compile_globset(&self.config.files.include)
             .expect("Failed to compile global include patterns");
@@ -111,7 +100,7 @@ impl Scanner {
 
         if let Some(filter) = file_filter {
             files.retain(|f| filter.contains(f));
-            crate::log_info(&format!(
+            crate::utils::log_info(&format!(
                 "Filtered to {} files (from {})",
                 files.len(),
                 filter.len()
@@ -119,7 +108,7 @@ impl Scanner {
         }
 
         let file_count = files.len();
-        crate::log_debug(&format!("Found {} TypeScript files", file_count));
+        crate::utils::log_debug(&format!("Found {} TypeScript files", file_count));
 
         let processed = AtomicUsize::new(0);
         let cache_hits = AtomicUsize::new(0);
@@ -180,7 +169,7 @@ impl Scanner {
         let program = match parse_file(path, content) {
             Ok(p) => p,
             Err(e) => {
-                crate::log_debug(&format!("Failed to parse {:?}: {}", path, e));
+                crate::utils::log_debug(&format!("Failed to parse {:?}: {}", path, e));
                 return None;
             }
         };
@@ -231,7 +220,7 @@ impl Scanner {
         let program = match parse_file(path, &source) {
             Ok(p) => p,
             Err(e) => {
-                crate::log_debug(&format!("Failed to parse {:?}: {}", path, e));
+                crate::utils::log_debug(&format!("Failed to parse {:?}: {}", path, e));
                 return None;
             }
         };

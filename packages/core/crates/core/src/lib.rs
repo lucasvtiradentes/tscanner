@@ -1,33 +1,19 @@
-pub mod ast_utils;
-pub mod cache;
 pub mod config;
 pub mod constants;
-pub mod disable_comments;
-pub mod file_source;
-pub mod formatter;
-pub mod git;
-pub mod logger;
-pub mod parser;
-pub mod registry;
+pub mod output;
 pub mod rules;
-pub mod scanner;
-pub mod types;
+pub mod scanning;
 pub mod utils;
-pub mod watcher;
 
-pub use cache::FileCache;
 pub use config::{
-    BuiltinRuleConfig, CliConfig, CliGroupBy, CompiledRuleConfig, CustomRuleConfig, CustomRuleType,
-    TscannerConfig,
+    compile_globset, BuiltinRuleConfig, CliConfig, CliGroupBy, CompiledRuleConfig,
+    CustomRuleConfig, CustomRuleType, TscannerConfig,
 };
 pub use constants::*;
-pub use file_source::FileSource;
-pub use formatter::PrettyFormatter;
-pub use git::{get_changed_files, get_modified_lines, get_staged_files, get_staged_modified_lines};
-pub use logger::{get_logger, init_logger, log_debug, log_error, log_info, log_warn};
-pub use parser::parse_file;
-pub use registry::RuleRegistry;
+pub use output::{FileResult, GroupMode, Issue, PrettyFormatter, ScanResult, Severity};
 pub use rules::{get_all_rule_metadata, RegexRule, Rule, RuleCategory, RuleMetadata};
-pub use scanner::Scanner;
-pub use types::{FileResult, Issue, ScanResult, Severity};
-pub use watcher::FileWatcher;
+pub use scanning::{parse_file, FileCache, FileEvent, FileWatcher, RuleRegistry, Scanner};
+pub use utils::{
+    get_changed_files, get_logger, get_modified_lines, get_staged_files, get_staged_modified_lines,
+    init_logger, log_debug, log_error, log_info, log_warn, DisableDirectives, FileSource,
+};

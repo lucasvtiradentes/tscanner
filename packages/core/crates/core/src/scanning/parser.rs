@@ -1,4 +1,4 @@
-use crate::file_source::FileSource;
+use crate::utils::FileSource;
 use anyhow::Result;
 use std::path::Path;
 use swc_common::{sync::Lrc, FileName, SourceMap};

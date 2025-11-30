@@ -1,4 +1,4 @@
-use crate::types::Severity;
+use crate::output::Severity;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]

@@ -1,5 +1,5 @@
 use colored::*;
-use core::types::{ScanResult, Severity};
+use core::{ScanResult, Severity};
 use serde::Serialize;
 
 #[derive(Serialize)]

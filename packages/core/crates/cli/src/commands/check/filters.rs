@@ -1,5 +1,5 @@
 use core::log_info;
-use core::types::ScanResult;
+use core::ScanResult;
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 

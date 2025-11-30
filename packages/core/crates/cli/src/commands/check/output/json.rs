@@ -4,7 +4,7 @@ use crate::shared::{
     JsonFileGroup, JsonIssue, JsonRuleGroup, JsonRuleIssue, JsonSummary, SummaryStats,
 };
 use cli::GroupMode;
-use core::types::{ScanResult, Severity};
+use core::{ScanResult, Severity};
 use serde::Serialize;
 use std::collections::HashMap;
 

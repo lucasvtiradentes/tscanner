@@ -5,6 +5,8 @@ use std::sync::Mutex;
 
 use crate::constants::get_log_filename;
 
+const TIMEZONE_OFFSET_HOURS: i8 = -3;
+
 static LOGGER: Mutex<Option<Logger>> = Mutex::new(None);
 
 pub struct Logger {
@@ -22,18 +24,19 @@ impl Logger {
         use time::OffsetDateTime;
 
         let now = OffsetDateTime::now_utc();
-        let utc_minus_3 = now.to_offset(time::UtcOffset::from_hms(-3, 0, 0).unwrap());
+        let local_time =
+            now.to_offset(time::UtcOffset::from_hms(TIMEZONE_OFFSET_HOURS, 0, 0).unwrap());
 
         let timestamp = format!(
             "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}{:+03}:{:02}",
-            utc_minus_3.year(),
-            utc_minus_3.month() as u8,
-            utc_minus_3.day(),
-            utc_minus_3.hour(),
-            utc_minus_3.minute(),
-            utc_minus_3.second(),
-            utc_minus_3.millisecond(),
-            -3,
+            local_time.year(),
+            local_time.month() as u8,
+            local_time.day(),
+            local_time.hour(),
+            local_time.minute(),
+            local_time.second(),
+            local_time.millisecond(),
+            TIMEZONE_OFFSET_HOURS,
             0
         );
 

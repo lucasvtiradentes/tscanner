@@ -1,4 +1,4 @@
-use crate::types::{Issue, ScanResult, Severity};
+use super::types::{Issue, ScanResult, Severity};
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::{Path, PathBuf};
 

@@ -1,4 +1,4 @@
-use core::types::Severity;
+use core::Severity;
 
 pub struct RuleInfo {
     pub name: String,

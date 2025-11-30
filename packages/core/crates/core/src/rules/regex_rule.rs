@@ -1,5 +1,5 @@
+use crate::output::{Issue, Severity};
 use crate::rules::Rule;
-use crate::types::{Issue, Severity};
 use regex::Regex;
 use std::path::Path;
 use swc_ecma_ast::Program;
@@ -37,7 +37,7 @@ impl Rule for RegexRule {
         _program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let mut issues = Vec::new();
 

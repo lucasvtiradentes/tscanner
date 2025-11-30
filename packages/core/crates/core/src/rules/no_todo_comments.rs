@@ -1,6 +1,6 @@
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use regex::Regex;
 use std::path::Path;
 use std::sync::Arc;
@@ -38,7 +38,7 @@ impl Rule for NoTodoCommentsRule {
         _program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let regex = Regex::new(r"//\s*(TODO|FIXME|HACK|XXX|NOTE|BUG)").unwrap();
         let mut issues = Vec::new();

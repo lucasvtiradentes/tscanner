@@ -1,6 +1,6 @@
+use crate::output::{Issue, Severity};
 use crate::rules::metadata::RuleType;
 use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
-use crate::types::{Issue, Severity};
 use crate::utils::get_span_positions;
 use std::collections::{HashMap, HashSet};
 use std::path::Path;
@@ -41,7 +41,7 @@ impl Rule for PreferConstRule {
         program: &Program,
         path: &Path,
         source: &str,
-        _file_source: crate::file_source::FileSource,
+        _file_source: crate::utils::FileSource,
     ) -> Vec<Issue> {
         let mut collector = VariableCollector {
             let_declarations: HashMap::new(),

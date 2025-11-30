@@ -1,6 +1,6 @@
 use super::types::RuleInfo;
 use colored::*;
-use core::types::Severity;
+use core::Severity;
 
 pub fn print_header(config_file_path: &str) {
     println!(

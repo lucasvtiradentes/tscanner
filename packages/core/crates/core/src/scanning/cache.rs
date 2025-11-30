@@ -1,4 +1,4 @@
-use crate::types::Issue;
+use crate::output::Issue;
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
 use std::fs;
@@ -93,11 +93,11 @@ impl FileCache {
                             loaded += 1;
                         }
                     }
-                    crate::log_debug(&format!("Loaded {} cache entries", loaded));
+                    crate::utils::log_debug(&format!("Loaded {} cache entries", loaded));
                 }
-                Err(e) => crate::log_debug(&format!("Failed to parse cache: {}", e)),
+                Err(e) => crate::utils::log_debug(&format!("Failed to parse cache: {}", e)),
             },
-            Err(e) => crate::log_debug(&format!("Failed to read cache: {}", e)),
+            Err(e) => crate::utils::log_debug(&format!("Failed to read cache: {}", e)),
         }
     }
 
@@ -113,9 +113,9 @@ impl FileCache {
 
             if let Ok(content) = serde_json::to_string(&entries) {
                 if let Err(e) = fs::write(&cache_file, &content) {
-                    crate::log_debug(&format!("Failed to save cache: {}", e));
+                    crate::utils::log_debug(&format!("Failed to save cache: {}", e));
                 } else {
-                    crate::log_debug(&format!("Saved {} cache entries", entries.len()));
+                    crate::utils::log_debug(&format!("Saved {} cache entries", entries.len()));
                 }
             }
         }

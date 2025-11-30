@@ -174,7 +174,7 @@ fn process_file_events(state: &ServerState, stdout: &mut io::Stdout) {
         while let Some(event) = watcher.try_recv() {
             core::log_debug(&format!("File event: {:?}", event));
 
-            use core::watcher::FileEvent;
+            use core::FileEvent;
             match event {
                 FileEvent::Modified(path) | FileEvent::Created(path) => {
                     if let Some(scanner) = &state.scanner {

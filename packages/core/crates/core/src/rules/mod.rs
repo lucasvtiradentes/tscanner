@@ -1,5 +1,5 @@
-use crate::file_source::FileSource;
-use crate::types::Issue;
+use crate::output::Issue;
+use crate::utils::FileSource;
 use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::Program;

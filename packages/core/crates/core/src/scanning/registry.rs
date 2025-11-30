@@ -1,6 +1,6 @@
 use crate::config::{CompiledRuleConfig, CustomRuleType, TscannerConfig};
+use crate::output::Severity;
 use crate::rules::{RegexRule, Rule, RuleRegistration};
-use crate::types::Severity;
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
@@ -50,7 +50,7 @@ impl RuleRegistry {
                                 .insert(rule_name.clone(), Arc::new(regex_rule));
                         }
                         Err(e) => {
-                            crate::log_error(&format!(
+                            crate::utils::log_error(&format!(
                                 "Failed to compile regex rule '{}': {}",
                                 rule_name, e
                             ));
@@ -72,7 +72,7 @@ impl RuleRegistry {
             .values()
             .filter(|c| c.enabled)
             .count();
-        crate::log_info(&format!(
+        crate::utils::log_info(&format!(
             "Loaded {} rules ({} enabled)",
             registry.rules.len(),
             enabled_count
