@@ -127,6 +127,25 @@ async function main() {
     }
   }
 
+  const tocAnchors = tocLinks.map((l) => l.anchor);
+  const headingAnchors = headings.map((h) => h.anchor);
+  const commonTocAnchors = tocAnchors.filter((a) => headingAnchors.includes(a));
+  const commonHeadingAnchors = headingAnchors.filter((a) => tocAnchors.includes(a));
+
+  for (let i = 0; i < commonTocAnchors.length; i++) {
+    if (commonTocAnchors[i] !== commonHeadingAnchors[i]) {
+      const tocLink = tocLinks.find((l) => l.anchor === commonTocAnchors[i])!;
+      const expectedHeading = headings.find((h) => h.anchor === commonHeadingAnchors[i])!;
+      addIssue(
+        issues,
+        readmeFile.path,
+        tocLink.line,
+        `TOC order mismatch: "${tocLink.name}" should come after "${expectedHeading.text}"`,
+      );
+      break;
+    }
+  }
+
   console.log(JSON.stringify({ issues }));
 }
 
