@@ -49,6 +49,16 @@
       "include": ["packages/github-action/action.yml", "packages/github-action/src/core/input-validator.ts"],
       "mode": "batch",
       "timeout": 15000
+    },
+    "readme-toc-match": {
+      "type": "script",
+      "script": "readme-toc-match.ts",
+      "message": "README TOC must match all document headings",
+      "severity": "warning",
+      "include": ["**/README.md"],
+      "exclude": [".changeset/README.md"],
+      "mode": "batch",
+      "timeout": 15000
     }
   },
   "files": {

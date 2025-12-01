@@ -95,15 +95,24 @@ export function activate(context: vscode.ExtensionContext) {
   };
 
   const commands = registerAllCommands(commandContext, panelContent);
+
+  let currentFileWatcher: vscode.FileSystemWatcher | null = null;
+
+  const recreateFileWatcher = async () => {
+    if (currentFileWatcher) {
+      currentFileWatcher.dispose();
+    }
+    currentFileWatcher = await createFileWatcher(context, panelContent, stateRefs, updateBadge);
+  };
+
   const configWatcher = createConfigWatcher(async () => {
     await setupScanInterval(context, stateRefs);
+    await recreateFileWatcher();
   });
 
   context.subscriptions.push(...commands, configWatcher, statusBarManager.getDisposable());
 
-  createFileWatcher(context, panelContent, stateRefs, updateBadge).then((fileWatcher) => {
-    context.subscriptions.push(fileWatcher);
-  });
+  recreateFileWatcher();
 
   setTimeout(async () => {
     logger.info('Starting LSP client...');

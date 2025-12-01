@@ -178,7 +178,7 @@ impl Scanner {
         }
     }
 
-    fn run_script_rules(&self, files: &[PathBuf]) -> Vec<Issue> {
+    fn run_script_rules(&self, _files: &[PathBuf]) -> Vec<Issue> {
         let script_rules: Vec<(String, ScriptRuleConfig)> = self
             .config
             .custom_rules
@@ -197,27 +197,45 @@ impl Scanner {
             return vec![];
         }
 
-        let needed_patterns: Vec<&str> = script_rules
+        let needed_patterns: HashSet<&str> = script_rules
             .iter()
             .flat_map(|(_, cfg)| cfg.base.include.iter().map(|s| s.as_str()))
             .collect();
 
-        let all_files: Vec<(PathBuf, String)> = files
+        if needed_patterns.is_empty() {
+            return vec![];
+        }
+
+        let exclude_patterns: HashSet<&str> = script_rules
             .iter()
-            .filter(|path| {
-                if needed_patterns.is_empty() {
-                    return true;
+            .flat_map(|(_, cfg)| cfg.base.exclude.iter().map(|s| s.as_str()))
+            .collect();
+
+        let all_files: Vec<(PathBuf, String)> = WalkBuilder::new(&self.root)
+            .hidden(false)
+            .git_ignore(true)
+            .build()
+            .flatten()
+            .filter(|entry| {
+                let path = entry.path();
+                if !path.is_file() {
+                    return false;
                 }
                 let relative = path.strip_prefix(&self.root).unwrap_or(path);
                 let relative_str = relative.to_string_lossy();
-                needed_patterns
+                let matches_include = needed_patterns
                     .iter()
-                    .any(|pattern| glob_match::glob_match(pattern, &relative_str))
+                    .any(|pattern| glob_match::glob_match(pattern, &relative_str));
+                let matches_exclude = exclude_patterns
+                    .iter()
+                    .any(|pattern| glob_match::glob_match(pattern, &relative_str));
+                matches_include && !matches_exclude
             })
-            .filter_map(|path| {
-                std::fs::read_to_string(path)
+            .filter_map(|entry| {
+                let path = entry.path().to_path_buf();
+                std::fs::read_to_string(&path)
                     .ok()
-                    .map(|content| (path.clone(), content))
+                    .map(|content| (path, content))
             })
             .collect();
 

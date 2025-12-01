@@ -10,12 +10,19 @@ import { getNewIssues } from '../common/utils/issue-comparator';
 import { logger } from '../common/utils/logger';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
 
+function normalizePattern(pattern: string): string {
+  if (pattern.startsWith('**/') || pattern.startsWith('{')) {
+    return pattern;
+  }
+  return `**/${pattern}`;
+}
+
 function buildWatchPattern(config: TscannerConfig | null): string {
   const patterns = new Set<string>();
 
   if (config?.files?.include) {
     for (const pattern of config.files.include) {
-      patterns.add(pattern);
+      patterns.add(normalizePattern(pattern));
     }
   }
 
@@ -23,7 +30,7 @@ function buildWatchPattern(config: TscannerConfig | null): string {
     for (const rule of Object.values(config.customRules)) {
       if (rule.include) {
         for (const pattern of rule.include) {
-          patterns.add(pattern);
+          patterns.add(normalizePattern(pattern));
         }
       }
     }
