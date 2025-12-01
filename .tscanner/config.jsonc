@@ -59,6 +59,15 @@
       "exclude": [".changeset/README.md"],
       "mode": "batch",
       "timeout": 15000
+    },
+    "config-schema-match": {
+      "type": "script",
+      "script": "config-schema-match.ts",
+      "message": "Rust config and TypeScript schema must be in sync",
+      "severity": "error",
+      "include": ["assets/generated/rust_config_fields.json", "shared/tscanner-common/src/schemas.ts"],
+      "mode": "batch",
+      "timeout": 15000
     }
   },
   "files": {
