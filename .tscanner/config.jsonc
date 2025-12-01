@@ -40,7 +40,17 @@
     // "prefer-interface-over-type": {},
     "prefer-type-over-interface": {}
   },
-  "customRules": {},
+  "customRules": {
+    "action-zod-match": {
+      "type": "script",
+      "script": "action-zod-match.ts",
+      "message": "Action inputs must match Zod validation schema",
+      "severity": "error",
+      "include": ["packages/github-action/action.yml", "packages/github-action/src/core/input-validator.ts"],
+      "mode": "batch",
+      "timeout": 15000
+    }
+  },
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
     "exclude": [
@@ -57,7 +67,7 @@
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": false,
-    "scanIntervalSeconds": 60
+    "scanIntervalSeconds": 0
   },
   "cli": {
     "groupBy": "file",
@@ -66,7 +76,7 @@
     "showIssueSeverity": true,
     "showIssueSourceLine": true,
     "showIssueRuleName": true,
-    "showIssueDescription": false,
+    "showIssueDescription": true,
     "showSummary": true
   }
 }

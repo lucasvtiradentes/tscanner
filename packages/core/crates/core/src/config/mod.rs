@@ -266,30 +266,29 @@ pub struct BuiltinRuleConfig {
     pub options: HashMap<String, serde_json::Value>,
 }
 
+fn default_script_timeout() -> u64 {
+    10000
+}
+
+fn default_script_mode() -> ScriptMode {
+    ScriptMode::Batch
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
+#[serde(rename_all = "lowercase")]
+pub enum ScriptMode {
+    Batch,
+    Single,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct CustomRuleConfig {
-    #[serde(rename = "type")]
-    #[schemars(description = "Type of custom rule")]
-    pub rule_type: CustomRuleType,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "Regex pattern (required for type: regex)")]
-    pub pattern: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "Path to script file (required for type: script)")]
-    pub script: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "Path to AI prompt markdown file (required for type: ai)")]
-    pub prompt: Option<String>,
-
+pub struct CustomRuleBase {
     #[schemars(description = "Error message to display when rule is violated")]
     pub message: String,
 
     #[serde(default = "default_severity")]
-    #[schemars(description = "Severity level (default: error)")]
+    #[schemars(description = "Severity level (default: warning)")]
     pub severity: Severity,
 
     #[serde(default = "default_true")]
@@ -305,12 +304,132 @@ pub struct CustomRuleConfig {
     pub exclude: Vec<String>,
 }
 
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "lowercase")]
-pub enum CustomRuleType {
-    Regex,
-    Script,
-    Ai,
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(tag = "type", rename_all = "lowercase")]
+pub enum CustomRuleConfig {
+    Regex(RegexRuleConfig),
+    Script(ScriptRuleConfig),
+    Ai(AiRuleConfig),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct RegexRuleConfig {
+    #[schemars(description = "Regex pattern to match")]
+    pub pattern: String,
+
+    #[serde(flatten)]
+    pub base: CustomRuleBase,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ScriptRuleConfig {
+    #[schemars(description = "Path to script file relative to .tscanner/scripts/")]
+    pub script: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[schemars(
+        description = "Custom runner command (e.g., 'npx tsx', 'python3'). Auto-detected from extension if not specified."
+    )]
+    pub runner: Option<String>,
+
+    #[serde(default = "default_script_mode")]
+    #[schemars(
+        description = "Script execution mode: 'batch' (all files at once) or 'single' (one file per invocation)"
+    )]
+    pub mode: ScriptMode,
+
+    #[serde(default = "default_script_timeout")]
+    #[schemars(description = "Script timeout in milliseconds (default: 10000)")]
+    pub timeout: u64,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schemars(description = "Additional options to pass to the script")]
+    pub options: Option<serde_json::Value>,
+
+    #[serde(flatten)]
+    pub base: CustomRuleBase,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct AiRuleConfig {
+    #[schemars(description = "Path to AI prompt markdown file")]
+    pub prompt: String,
+
+    #[serde(flatten)]
+    pub base: CustomRuleBase,
+}
+
+impl CustomRuleConfig {
+    pub fn base(&self) -> &CustomRuleBase {
+        match self {
+            CustomRuleConfig::Regex(c) => &c.base,
+            CustomRuleConfig::Script(c) => &c.base,
+            CustomRuleConfig::Ai(c) => &c.base,
+        }
+    }
+
+    pub fn message(&self) -> &str {
+        &self.base().message
+    }
+
+    pub fn severity(&self) -> Severity {
+        self.base().severity
+    }
+
+    pub fn enabled(&self) -> bool {
+        self.base().enabled
+    }
+
+    pub fn include(&self) -> &[String] {
+        &self.base().include
+    }
+
+    pub fn exclude(&self) -> &[String] {
+        &self.base().exclude
+    }
+
+    pub fn is_regex(&self) -> bool {
+        matches!(self, CustomRuleConfig::Regex(_))
+    }
+
+    pub fn is_script(&self) -> bool {
+        matches!(self, CustomRuleConfig::Script(_))
+    }
+
+    pub fn is_ai(&self) -> bool {
+        matches!(self, CustomRuleConfig::Ai(_))
+    }
+
+    pub fn pattern(&self) -> Option<&str> {
+        match self {
+            CustomRuleConfig::Regex(c) => Some(&c.pattern),
+            _ => None,
+        }
+    }
+
+    pub fn script(&self) -> Option<&str> {
+        match self {
+            CustomRuleConfig::Script(c) => Some(&c.script),
+            _ => None,
+        }
+    }
+
+    pub fn prompt(&self) -> Option<&str> {
+        match self {
+            CustomRuleConfig::Ai(c) => Some(&c.prompt),
+            _ => None,
+        }
+    }
+
+    pub fn script_config(&self) -> Option<&ScriptRuleConfig> {
+        match self {
+            CustomRuleConfig::Script(c) => Some(c),
+            _ => None,
+        }
+    }
 }
 
 fn default_true() -> bool {
@@ -374,6 +493,7 @@ impl TscannerConfig {
 
     pub fn full_validate(
         content: &str,
+        workspace: Option<&Path>,
     ) -> Result<(Self, ValidationResult), Box<dyn std::error::Error>> {
         let json_value = Self::parse_json(content)?;
 
@@ -383,14 +503,15 @@ impl TscannerConfig {
         }
 
         let config: Self = serde_json::from_value(json_value)?;
-        result.merge(config.validate());
+        result.merge(config.validate_with_workspace(workspace));
 
         Ok((config, result))
     }
 
     pub fn load_from_file(path: &Path) -> Result<Self, Box<dyn std::error::Error>> {
+        let workspace = path.parent().and_then(|p| p.parent());
         let content = std::fs::read_to_string(path)?;
-        let (config, result) = Self::full_validate(&content)?;
+        let (config, result) = Self::full_validate(&content, workspace)?;
 
         for warning in &result.warnings {
             eprintln!("Warning: {}", warning);
@@ -424,38 +545,31 @@ impl TscannerConfig {
     }
 
     pub fn validate(&self) -> ValidationResult {
+        self.validate_with_workspace(None)
+    }
+
+    pub fn validate_with_workspace(&self, workspace: Option<&Path>) -> ValidationResult {
+        use crate::constants::config_dir_name;
+
         let mut result = ValidationResult::new();
 
         for (name, rule_config) in &self.custom_rules {
-            match rule_config.rule_type {
-                CustomRuleType::Regex => {
-                    if rule_config.pattern.is_none() {
-                        result.add_error(format!(
-                            "Custom rule '{}' is type 'regex' but has no 'pattern' field",
-                            name
-                        ));
-                    } else if let Some(pattern) = &rule_config.pattern {
-                        if let Err(e) = regex::Regex::new(pattern) {
-                            result.add_error(format!(
-                                "Rule '{}' has invalid regex pattern: {}",
-                                name, e
-                            ));
-                        }
-                    }
+            if let CustomRuleConfig::Regex(regex_config) = rule_config {
+                if let Err(e) = regex::Regex::new(&regex_config.pattern) {
+                    result.add_error(format!("Rule '{}' has invalid regex pattern: {}", name, e));
                 }
-                CustomRuleType::Script => {
-                    if rule_config.script.is_none() {
+            }
+
+            if let CustomRuleConfig::Script(script_config) = rule_config {
+                if let Some(ws) = workspace {
+                    let script_path = ws
+                        .join(config_dir_name())
+                        .join("scripts")
+                        .join(&script_config.script);
+                    if !script_path.exists() {
                         result.add_error(format!(
-                            "Custom rule '{}' is type 'script' but has no 'script' field",
-                            name
-                        ));
-                    }
-                }
-                CustomRuleType::Ai => {
-                    if rule_config.prompt.is_none() {
-                        result.add_error(format!(
-                            "Custom rule '{}' is type 'ai' but has no 'prompt' field",
-                            name
+                            "Rule '{}' references non-existent script: {}",
+                            name, script_config.script
                         ));
                     }
                 }
@@ -549,14 +663,14 @@ impl TscannerConfig {
             .ok_or_else(|| format!("Custom rule '{}' not found in configuration", name))?;
 
         Ok(CompiledRuleConfig {
-            enabled: rule_config.enabled,
-            severity: rule_config.severity,
+            enabled: rule_config.enabled(),
+            severity: rule_config.severity(),
             global_include: compile_globset(&self.files.include)?,
             global_exclude: compile_globset(&self.files.exclude)?,
-            rule_include: compile_optional_globset(&rule_config.include)?,
-            rule_exclude: compile_optional_globset(&rule_config.exclude)?,
-            message: Some(rule_config.message.clone()),
-            pattern: rule_config.pattern.clone(),
+            rule_include: compile_optional_globset(rule_config.include())?,
+            rule_exclude: compile_optional_globset(rule_config.exclude())?,
+            message: Some(rule_config.message().to_string()),
+            pattern: rule_config.pattern().map(|s| s.to_string()),
             options: None,
         })
     }
@@ -595,7 +709,7 @@ impl TscannerConfig {
             })
             .count();
 
-        let enabled_custom = self.custom_rules.values().filter(|r| r.enabled).count();
+        let enabled_custom = self.custom_rules.values().filter(|r| r.enabled()).count();
 
         enabled_builtin + enabled_custom
     }
@@ -633,14 +747,14 @@ impl TscannerConfig {
         let sorted_custom: BTreeMap<_, _> = self.custom_rules.iter().collect();
         for (name, config) in sorted_custom {
             name.hash(&mut hasher);
-            config.enabled.hash(&mut hasher);
-            if let Some(pattern) = &config.pattern {
+            config.enabled().hash(&mut hasher);
+            if let Some(pattern) = config.pattern() {
                 pattern.hash(&mut hasher);
             }
-            for pattern in &config.include {
+            for pattern in config.include() {
                 pattern.hash(&mut hasher);
             }
-            for pattern in &config.exclude {
+            for pattern in config.exclude() {
                 pattern.hash(&mut hasher);
             }
         }

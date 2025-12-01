@@ -57,9 +57,12 @@ const ALLOWED_CODE_EDITOR: &[&str] = &[
     "highlightWarnings",
     "scanIntervalSeconds",
 ];
-const ALLOWED_CUSTOM_RULE: &[&str] = &[
-    "type", "pattern", "script", "prompt", "message", "severity", "enabled", "include", "exclude",
+const ALLOWED_CUSTOM_RULE_BASE: &[&str] = &[
+    "type", "message", "severity", "enabled", "include", "exclude",
 ];
+const ALLOWED_REGEX_RULE: &[&str] = &["pattern"];
+const ALLOWED_SCRIPT_RULE: &[&str] = &["script", "runner", "mode", "timeout", "options"];
+const ALLOWED_AI_RULE: &[&str] = &["prompt"];
 const ALLOWED_BUILTIN_RULE_BASE: &[&str] = &["enabled", "severity", "include", "exclude"];
 
 fn validate_builtin_rules(rules: &serde_json::Map<String, serde_json::Value>) -> Vec<String> {
@@ -95,16 +98,22 @@ fn collect_invalid_fields(
         .collect()
 }
 
-fn validate_nested_rules(
-    rules: &serde_json::Map<String, serde_json::Value>,
-    allowed: &[&str],
-    section_name: &str,
-) -> Vec<String> {
+fn validate_custom_rules(rules: &serde_json::Map<String, serde_json::Value>) -> Vec<String> {
     let mut invalid = Vec::new();
     for (rule_name, rule_config) in rules {
         if let Some(rule_obj) = rule_config.as_object() {
-            let prefix = format!("{}.{}", section_name, rule_name);
-            invalid.extend(collect_invalid_fields(rule_obj, allowed, &prefix));
+            let prefix = format!("customRules.{}", rule_name);
+            let rule_type = rule_obj.get("type").and_then(|v| v.as_str()).unwrap_or("");
+
+            let mut allowed: Vec<&str> = ALLOWED_CUSTOM_RULE_BASE.to_vec();
+            match rule_type {
+                "regex" => allowed.extend(ALLOWED_REGEX_RULE),
+                "script" => allowed.extend(ALLOWED_SCRIPT_RULE),
+                "ai" => allowed.extend(ALLOWED_AI_RULE),
+                _ => {}
+            }
+
+            invalid.extend(collect_invalid_fields(rule_obj, &allowed, &prefix));
         }
     }
     invalid
@@ -140,11 +149,7 @@ pub fn validate_json_fields(json: &serde_json::Value) -> ValidationResult {
     }
 
     if let Some(custom_rules) = obj.get("customRules").and_then(|v| v.as_object()) {
-        invalid_fields.extend(validate_nested_rules(
-            custom_rules,
-            ALLOWED_CUSTOM_RULE,
-            "customRules",
-        ));
+        invalid_fields.extend(validate_custom_rules(custom_rules));
     }
 
     for field in invalid_fields {

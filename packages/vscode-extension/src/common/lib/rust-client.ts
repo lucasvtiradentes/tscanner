@@ -3,6 +3,7 @@ import * as zlib from 'node:zlib';
 import * as vscode from 'vscode';
 import {
   type ClearCacheParams,
+  type ContentScanResult,
   type FileResult,
   type GetRulesMetadataParams,
   type GroupMode,
@@ -70,10 +71,15 @@ type RpcRequestMap = {
 type RpcResponseMap = {
   [RpcMethod.Scan]: ScanResult;
   [RpcMethod.ScanFile]: FileResult;
-  [RpcMethod.ScanContent]: FileResult;
+  [RpcMethod.ScanContent]: ContentScanResult;
   [RpcMethod.GetRulesMetadata]: RuleMetadata[];
   [RpcMethod.ClearCache]: undefined;
   [RpcMethod.FormatResults]: FormatPrettyResult;
+};
+
+export type ScanContentResult = {
+  issues: IssueResult[];
+  relatedFiles: string[];
 };
 
 type RpcRequest = {
@@ -308,7 +314,7 @@ export class RustClient {
     filePath: string,
     content: string,
     config?: TscannerConfig,
-  ): Promise<IssueResult[]> {
+  ): Promise<ScanContentResult> {
     const result = await this.sendRequest(RpcMethod.ScanContent, {
       root: workspaceRoot,
       file: filePath,
@@ -316,10 +322,20 @@ export class RustClient {
       config,
     });
 
-    logger.debug(`Rust scan completed for content: ${result.issues.length} issues`);
+    logger.debug(
+      `Rust scan completed for content: ${result.issues.length} issues, ${result.related_files?.length ?? 0} related files`,
+    );
 
-    const uri = vscode.Uri.file(result.file);
-    return result.issues.map((issue) => mapIssueToResult(uri, issue));
+    const issues = result.issues.map((issue) => {
+      const issueFile = issue.file || result.file;
+      const uri = vscode.Uri.file(issueFile);
+      return mapIssueToResult(uri, issue);
+    });
+
+    return {
+      issues,
+      relatedFiles: result.related_files ?? [],
+    };
   }
 
   async clearCache(): Promise<void> {

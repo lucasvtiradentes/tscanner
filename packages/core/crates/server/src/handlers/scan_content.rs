@@ -29,7 +29,7 @@ pub fn handle_scan_content(
         },
         None => success_response(
             request_id,
-            serde_json::json!({"file": params.file, "issues": []}),
+            serde_json::json!({"file": params.file, "issues": [], "related_files": []}),
         ),
     }
 }

@@ -60,16 +60,30 @@ function getCategoryIcon(category: string): string {
   return CATEGORY_ICONS[category as RuleCategory] || 'circle-outline';
 }
 
+function getCustomRuleDetail(ruleConfig: NonNullable<TscannerConfig['customRules']>[string]): string {
+  if (ruleConfig.message) return ruleConfig.message;
+  switch (ruleConfig.type) {
+    case CustomRuleType.Regex:
+      return ruleConfig.pattern;
+    case CustomRuleType.Script:
+      return ruleConfig.script;
+    case CustomRuleType.Ai:
+      return ruleConfig.prompt;
+    default:
+      return '';
+  }
+}
+
 function buildCustomRuleItems(existingConfig: TscannerConfig): RuleQuickPickItem[] {
   const customRules: RuleQuickPickItem[] = [];
 
   if (existingConfig?.customRules) {
     for (const [ruleName, ruleConfig] of Object.entries(existingConfig.customRules)) {
-      const typeInfo = CUSTOM_RULE_TYPE_CONFIG[ruleConfig.type as CustomRuleType];
+      const typeInfo = CUSTOM_RULE_TYPE_CONFIG[ruleConfig.type];
       customRules.push({
         label: `${typeInfo.icon} ${ruleName}`,
         description: `[${ruleConfig.type.toUpperCase()}] custom`,
-        detail: ruleConfig.message || ruleConfig[typeInfo.detailKey] || '',
+        detail: getCustomRuleDetail(ruleConfig),
         ruleName,
         picked: ruleConfig.enabled ?? true,
         isCustom: true,

@@ -1,4 +1,4 @@
-import { ScanMode } from 'tscanner-common';
+import { ScanMode, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { loadEffectiveConfig } from '../common/lib/config-manager';
 import type { ExtensionStateRefs } from '../common/lib/extension-state';
@@ -10,12 +10,43 @@ import { getNewIssues } from '../common/utils/issue-comparator';
 import { logger } from '../common/utils/logger';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
 
-export function createFileWatcher(
+function buildWatchPattern(config: TscannerConfig | null): string {
+  const patterns = new Set<string>();
+
+  if (config?.files?.include) {
+    for (const pattern of config.files.include) {
+      patterns.add(pattern);
+    }
+  }
+
+  if (config?.customRules) {
+    for (const rule of Object.values(config.customRules)) {
+      if (rule.include) {
+        for (const pattern of rule.include) {
+          patterns.add(pattern);
+        }
+      }
+    }
+  }
+
+  if (patterns.size === 0) {
+    return '**/*.{ts,tsx,js,jsx,mjs,cjs}';
+  }
+
+  const uniquePatterns = [...patterns];
+  if (uniquePatterns.length === 1) {
+    return uniquePatterns[0];
+  }
+
+  return `{${uniquePatterns.join(',')}}`;
+}
+
+export async function createFileWatcher(
   context: vscode.ExtensionContext,
   panelContent: IssuesPanelContent,
   stateRefs: ExtensionStateRefs,
   updateBadge: () => void,
-): vscode.FileSystemWatcher {
+): Promise<vscode.FileSystemWatcher> {
   const updateSingleFile = async (uri: vscode.Uri) => {
     if (stateRefs.isSearchingRef.current) return;
 
@@ -44,7 +75,8 @@ export function createFileWatcher(
         workspaceFolder.uri.fsPath,
         stateRefs.currentCustomConfigDirRef.current,
       );
-      let newResults = await scanContent(uri.fsPath, content, config ?? undefined);
+      const scanResult = await scanContent(uri.fsPath, content, config ?? undefined);
+      let newResults = scanResult.issues;
 
       if (stateRefs.currentScanModeRef.current === ScanMode.Branch) {
         const ranges = await getModifiedLineRanges(
@@ -58,14 +90,34 @@ export function createFileWatcher(
       }
 
       const currentResults = panelContent.getResults();
+
+      const relatedFilesSet = new Set<string>(scanResult.relatedFiles.map((f) => vscode.workspace.asRelativePath(f)));
+
+      const affectedRules = new Set<string>();
+      for (const r of newResults) {
+        const rPath = vscode.workspace.asRelativePath(r.uri);
+        if (rPath !== relativePath) {
+          affectedRules.add(r.rule);
+        }
+      }
+
       const filteredResults = currentResults.filter((r) => {
         const resultPath = vscode.workspace.asRelativePath(r.uri);
-        return resultPath !== relativePath;
+        if (resultPath === relativePath) {
+          return false;
+        }
+        if (relatedFilesSet.has(resultPath)) {
+          return false;
+        }
+        if (affectedRules.has(r.rule)) {
+          return false;
+        }
+        return true;
       });
 
       const mergedResults = [...filteredResults, ...newResults];
       logger.debug(
-        `Updated results: removed ${currentResults.length - filteredResults.length}, added ${newResults.length}, total ${mergedResults.length}`,
+        `Updated results: removed ${currentResults.length - filteredResults.length}, added ${newResults.length}, related files: ${scanResult.relatedFiles.length}, total ${mergedResults.length}`,
       );
 
       panelContent.setResults(mergedResults);
@@ -98,10 +150,25 @@ export function createFileWatcher(
     }
   };
 
-  const fileWatcher = vscode.workspace.createFileSystemWatcher('**/*.{ts,tsx,js,jsx}');
-  fileWatcher.onDidChange(updateSingleFile);
-  fileWatcher.onDidCreate(updateSingleFile);
-  fileWatcher.onDidDelete(handleFileDelete);
+  const workspaceFolder = getCurrentWorkspaceFolder();
+  let watchPattern = '**/*.{ts,tsx,js,jsx,mjs,cjs}';
 
-  return fileWatcher;
+  if (workspaceFolder) {
+    try {
+      const config = await loadEffectiveConfig(
+        context,
+        workspaceFolder.uri.fsPath,
+        stateRefs.currentCustomConfigDirRef.current,
+      );
+      watchPattern = buildWatchPattern(config);
+      logger.debug(`File watcher pattern: ${watchPattern}`);
+    } catch {}
+  }
+
+  const watcher = vscode.workspace.createFileSystemWatcher(watchPattern);
+  watcher.onDidChange(updateSingleFile);
+  watcher.onDidCreate(updateSingleFile);
+  watcher.onDidDelete(handleFileDelete);
+
+  return watcher;
 }

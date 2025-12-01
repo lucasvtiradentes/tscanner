@@ -15,7 +15,7 @@ repository = "https://github.com/lucasvtiradentes/tscanner"
 
 [workspace.dependencies]
 swc_ecma_parser = "27"
-swc_ecma_ast = "18"
+swc_ecma_ast = { version = "18", features = ["serde-impl"] }
 swc_ecma_visit = "18"
 swc_common = "17"
 rayon = "1.11"

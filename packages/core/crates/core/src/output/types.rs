@@ -64,6 +64,14 @@ pub struct FileResult {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+pub struct ContentScanResult {
+    pub file: PathBuf,
+    pub issues: Vec<Issue>,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub related_files: Vec<PathBuf>,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub struct ScanResult {
     pub files: Vec<FileResult>,
     pub total_issues: usize,

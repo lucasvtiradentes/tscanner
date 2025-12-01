@@ -6,7 +6,7 @@ import type { IssueResult, TscannerConfig } from '../types';
 import { getExtensionPath } from '../utils/extension-helper';
 import { LOG_FILE_PATH, logger } from '../utils/logger';
 import { TscannerLspClient } from './lsp-client';
-import { RustClient } from './rust-client';
+import { RustClient, type ScanContentResult } from './rust-client';
 import { getCurrentWorkspaceFolder, openTextDocument } from './vscode-utils';
 
 const CONFIG_ERROR_PREFIX = 'TSCANNER_CONFIG_ERROR:';
@@ -184,17 +184,21 @@ export async function scanFile(filePath: string): Promise<IssueResult[]> {
   }
 }
 
-export async function scanContent(filePath: string, content: string, config?: TscannerConfig): Promise<IssueResult[]> {
+export async function scanContent(
+  filePath: string,
+  content: string,
+  config?: TscannerConfig,
+): Promise<ScanContentResult> {
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (!workspaceFolder) {
-    return [];
+    return { issues: [], relatedFiles: [] };
   }
 
   try {
     const client = await ensureRustClient();
-    const results = await client.scanContent(workspaceFolder.uri.fsPath, filePath, content, config);
-    logger.debug(`scanContent() returned ${results.length} results for ${filePath}`);
-    return results;
+    const result = await client.scanContent(workspaceFolder.uri.fsPath, filePath, content, config);
+    logger.debug(`scanContent() returned ${result.issues.length} results for ${filePath}`);
+    return result;
   } catch (error) {
     logger.error(`Failed to scan content for ${filePath}: ${error}`);
     throw error;

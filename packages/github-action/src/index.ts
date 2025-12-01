@@ -27,7 +27,7 @@ class ActionRunner {
 
       const scanResults = await this.executeScan(inputs);
 
-      const octokit = githubHelper.getOctokit(inputs.token);
+      const octokit = githubHelper.getOctokit(inputs.githubToken);
 
       if (inputs.prComment) {
         await this.handlePRComment(inputs, octokit, scanResults);

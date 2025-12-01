@@ -85,7 +85,10 @@ fn cmd_validate(config_file_path: &str) -> Result<()> {
     let content = fs::read_to_string(config_file_path)
         .context(format!("Failed to read config file: {}", config_file_path))?;
 
-    let (_, result) = match TscannerConfig::full_validate(&content) {
+    let config_path = Path::new(config_file_path);
+    let workspace = config_path.parent().and_then(|p| p.parent());
+
+    let (_, result) = match TscannerConfig::full_validate(&content, workspace) {
         Ok(r) => r,
         Err(e) => {
             println!(
@@ -166,7 +169,7 @@ fn cmd_rules(config: &core::config::TscannerConfig, config_file_path: &str) -> R
     let mut custom_rules: Vec<_> = config
         .custom_rules
         .iter()
-        .map(|(name, cfg)| (name.as_str(), cfg.enabled, cfg.severity, true))
+        .map(|(name, cfg)| (name.as_str(), cfg.enabled(), cfg.severity(), true))
         .collect();
 
     custom_rules.sort_by(|a, b| a.0.cmp(b.0));
@@ -274,9 +277,17 @@ fn cmd_show(config: &core::config::TscannerConfig, config_file_path: &str) -> Re
         let mut sorted: Vec<_> = config.custom_rules.iter().collect();
         sorted.sort_by(|a, b| a.0.cmp(b.0));
         for (name, cfg) in sorted {
+            let type_name = match cfg {
+                core::CustomRuleConfig::Regex(_) => "regex",
+                core::CustomRuleConfig::Script(_) => "script",
+                core::CustomRuleConfig::Ai(_) => "ai",
+            };
             println!(
-                "  {}: type={:?}, enabled={}, severity={:?}",
-                name, cfg.rule_type, cfg.enabled, cfg.severity
+                "  {}: type={}, enabled={}, severity={:?}",
+                name,
+                type_name,
+                cfg.enabled(),
+                cfg.severity()
             );
         }
     }

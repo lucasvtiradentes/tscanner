@@ -2,28 +2,26 @@ import { CONFIG_DIR_NAME, GroupMode, ScanMode } from 'tscanner-common';
 import { z } from 'zod';
 import { githubHelper } from '../lib/actions-helper';
 
-const baseInputsSchema = z
-  .object({
-    token: z.string(),
-    timezone: z.string(),
-    configPath: z.string(),
-    tscannerVersion: z.string(),
-    groupBy: z.enum(GroupMode),
-    continueOnError: z.boolean(),
-    annotations: z.boolean(),
-    summary: z.boolean(),
-    prComment: z.boolean(),
-  })
-  .extend({
-    devMode: z.boolean(),
-  });
+const actionYmlInputsSchema = z.object({
+  githubToken: z.string(),
+  targetBranch: z.string().optional(),
+  timezone: z.string(),
+  configPath: z.string(),
+  tscannerVersion: z.string(),
+  groupBy: z.enum(GroupMode),
+  continueOnError: z.boolean(),
+  annotations: z.boolean(),
+  summary: z.boolean(),
+  prComment: z.boolean(),
+  devMode: z.boolean(),
+});
 
-const branchScannerSchema = baseInputsSchema.extend({
+const branchScannerSchema = actionYmlInputsSchema.extend({
   mode: z.literal(ScanMode.Branch),
   targetBranch: z.string(),
 });
 
-const codebaseScannerSchema = baseInputsSchema.extend({
+const codebaseScannerSchema = actionYmlInputsSchema.extend({
   mode: z.literal(ScanMode.Codebase),
 });
 
@@ -40,7 +38,7 @@ const DEFAULT_INPUTS = {
 } as const;
 
 export function getActionInputs(): ActionInputs {
-  const token = githubHelper.getInput('github-token', { required: true });
+  const githubToken = githubHelper.getInput('github-token', { required: true });
   const timezone = githubHelper.getInput('timezone') || DEFAULT_INPUTS.timezone;
   const configPath = githubHelper.getInput('config-path') || DEFAULT_INPUTS.configPath;
   const tscannerVersion = githubHelper.getInput('tscanner-version') || DEFAULT_INPUTS.tscannerVersion;
@@ -57,7 +55,7 @@ export function getActionInputs(): ActionInputs {
   const mode = targetBranch ? ScanMode.Branch : ScanMode.Codebase;
 
   const rawInputs = {
-    token,
+    githubToken,
     timezone,
     configPath,
     tscannerVersion,

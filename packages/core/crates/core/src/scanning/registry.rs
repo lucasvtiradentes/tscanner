@@ -1,4 +1,4 @@
-use crate::config::{CompiledRuleConfig, CustomRuleType, TscannerConfig};
+use crate::config::{CompiledRuleConfig, CustomRuleConfig, TscannerConfig};
 use crate::output::Severity;
 use crate::rules::{RegexRule, Rule, RuleRegistration};
 use std::collections::HashMap;
@@ -45,24 +45,22 @@ impl RuleRegistry {
         }
 
         for (rule_name, rule_config) in &config.custom_rules {
-            if rule_config.rule_type == CustomRuleType::Regex {
-                if let Some(pattern) = &rule_config.pattern {
-                    match RegexRule::new(
-                        rule_name.clone(),
-                        pattern.clone(),
-                        rule_config.message.clone(),
-                        rule_config.severity,
-                    ) {
-                        Ok(regex_rule) => {
-                            rules.insert(rule_name.clone(), Arc::new(regex_rule));
-                        }
-                        Err(e) => {
-                            crate::utils::log_error(&format!(
-                                "Failed to compile regex rule '{}': {}",
-                                rule_name, e
-                            ));
-                            continue;
-                        }
+            if let CustomRuleConfig::Regex(regex_config) = rule_config {
+                match RegexRule::new(
+                    rule_name.clone(),
+                    regex_config.pattern.clone(),
+                    regex_config.base.message.clone(),
+                    regex_config.base.severity,
+                ) {
+                    Ok(regex_rule) => {
+                        rules.insert(rule_name.clone(), Arc::new(regex_rule));
+                    }
+                    Err(e) => {
+                        crate::utils::log_error(&format!(
+                            "Failed to compile regex rule '{}': {}",
+                            rule_name, e
+                        ));
+                        continue;
                     }
                 }
             }
