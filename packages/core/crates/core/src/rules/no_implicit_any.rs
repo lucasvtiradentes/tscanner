@@ -1,6 +1,7 @@
+use super::metadata::RuleType;
+use super::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
 use crate::output::{Issue, Severity};
-use crate::rules::metadata::RuleType;
-use crate::rules::{Rule, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleRegistration};
+use crate::rule::{Rule, RuleRegistration};
 use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;

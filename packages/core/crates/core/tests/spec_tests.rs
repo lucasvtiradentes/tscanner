@@ -1,5 +1,4 @@
-use core::rules::RuleRegistration;
-use core::{parse_file, FileSource, Issue};
+use core::{parse_file, FileSource, Issue, RuleRegistration};
 use std::fs;
 use std::path::Path;
 

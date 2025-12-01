@@ -1,5 +1,5 @@
 use crate::output::{Issue, Severity};
-use crate::rules::Rule;
+use crate::rule::Rule;
 use regex::Regex;
 use std::path::Path;
 use swc_ecma_ast::Program;
