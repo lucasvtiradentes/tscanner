@@ -68,6 +68,15 @@
       "include": ["assets/generated/rust_config_fields.json", "shared/tscanner-common/src/schemas.ts"],
       "mode": "batch",
       "timeout": 15000
+    },
+    "rust-mod-simple": {
+      "type": "script",
+      "script": "rust-mod-simple.ts",
+      "message": "mod.rs should only contain module declarations and re-exports",
+      "severity": "warning",
+      "include": ["**/mod.rs"],
+      "mode": "batch",
+      "timeout": 10000
     }
   },
   "files": {
