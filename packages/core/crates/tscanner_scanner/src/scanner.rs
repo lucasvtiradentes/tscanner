@@ -1,7 +1,5 @@
-use crate::ai_executor::AiExecutor;
-use crate::builtin_executor::{BuiltinExecutor, ExecuteResult};
 use crate::config_ext::ConfigExt;
-use crate::script_executor::ScriptExecutor;
+use crate::executors::{AiExecutor, BuiltinExecutor, ExecuteResult, ScriptExecutor};
 use globset::GlobSet;
 use ignore::WalkBuilder;
 use rayon::prelude::*;
