@@ -9,6 +9,6 @@
     "lint:fix": "cargo clippy --fix --allow-dirty --allow-staged -- -D warnings",
     "format": "cargo fmt",
     "typecheck": "cargo check",
-    "test": "cargo test -p core"
+    "test": "cargo test -p tscanner_rules"
   }
 }
