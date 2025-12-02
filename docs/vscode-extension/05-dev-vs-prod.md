@@ -31,11 +31,11 @@ export function getRustBinaryPath(): string | null {
   if (existsSync(bundledBinary)) return bundledBinary;
 
   // 2. Check dev release binary
-  const devRelease = join(extensionPath, '..', '..', 'core', 'target', 'release', binaryName);
+  const devRelease = join(extensionPath, '..', '..', 'rust-core', 'target', 'release', binaryName);
   if (existsSync(devRelease)) return devRelease;
 
   // 3. Check dev debug binary
-  const devDebug = join(extensionPath, '..', '..', 'core', 'target', 'debug', binaryName);
+  const devDebug = join(extensionPath, '..', '..', 'rust-core', 'target', 'debug', binaryName);
   if (existsSync(devDebug)) return devDebug;
 
   return null;
@@ -58,7 +58,7 @@ export function getRustBinaryPath(): string | null {
 
 ```bash
 # Build Rust binary first
-cd packages/core
+cd packages/rust-core
 cargo build --release
 ```
 
@@ -67,7 +67,7 @@ cargo build --release
 1. Open monorepo in VSCode
 2. Press F5 (launches Extension Development Host)
 3. New VSCode window opens with extension loaded
-4. Extension uses dev binary from `packages/core/target/release/`
+4. Extension uses dev binary from `packages/rust-core/target/release/`
 
 ### Dev Build Flag
 
@@ -138,7 +138,7 @@ out/
 Cross-compile for all platforms:
 
 ```bash
-cd packages/core
+cd packages/rust-core
 
 # Linux x64
 cargo build --release --target x86_64-unknown-linux-gnu
@@ -214,7 +214,7 @@ ovsx publish tscanner-vscode-0.0.x.vsix
 
 ### Testing Rust Changes
 
-1. Make changes in `packages/core`
+1. Make changes in `packages/rust-core`
 2. Rebuild: `cargo build --release`
 3. Reload Extension Development Host (Ctrl+R in debug window)
 4. Extension automatically uses updated binary

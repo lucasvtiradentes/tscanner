@@ -7,11 +7,11 @@
 Build the CLI binary for your platform:
 
 ```bash
-cd packages/core
+cd packages/rust-core
 cargo build --release
 ```
 
-The binary is created at `packages/core/target/release/tscanner` (or `tscanner.exe` on Windows).
+The binary is created at `packages/rust-core/target/release/tscanner` (or `tscanner.exe` on Windows).
 
 ### How CLI Finds the Binary
 
@@ -79,7 +79,7 @@ cat > .cargo/config.toml << EOF
 linker = "aarch64-linux-gnu-gcc"
 EOF
 
-cd packages/core
+cd packages/rust-core
 cargo build --release --target aarch64-unknown-linux-gnu
 ```
 
@@ -182,7 +182,7 @@ pnpm run build
 ### Rust only
 
 ```bash
-cd packages/core
+cd packages/rust-core
 cargo build --release
 ```
 

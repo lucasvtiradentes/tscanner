@@ -46,7 +46,7 @@
       "pattern": "allow\\(deprecated\\)",
       "message": "No deprecated methods",
       "severity": "warning",
-      "include": ["packages/core/**/*.rs"]
+      "include": ["packages/rust-core/**/*.rs"]
     },
     "action-zod-match": {
       "type": "script",
@@ -96,7 +96,7 @@
       ".ignore/**",
       "packages/vscode-extension/dist-dev/**",
       "packages/vscode-extension/out/**",
-      "packages/core/crates/tscanner_rules/tests/**"
+      "packages/rust-core/crates/tscanner_rules/tests/**"
     ]
   },
   "codeEditor": {

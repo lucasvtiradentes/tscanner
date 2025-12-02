@@ -20,7 +20,7 @@
       "pnpm-lock.yaml",
       "packages/cli/schema.json",
       "packages/github-action/dist/**",
-      "packages/core/crates/tscanner_rules/tests/specs/**"
+      "packages/rust-core/crates/tscanner_rules/tests/specs/**"
     ]
   },
   "formatter": {

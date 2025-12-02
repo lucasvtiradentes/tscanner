@@ -31,7 +31,7 @@ const logger = console;
 const SCRIPT_DIR = __dirname;
 const ROOT_DIR = join(SCRIPT_DIR, '..', '..');
 const EXTENSION_DIR = join(ROOT_DIR, 'packages', 'vscode-extension');
-const CORE_DIR = join(ROOT_DIR, 'packages', 'core');
+const CORE_DIR = join(ROOT_DIR, 'packages', 'rust-core');
 
 async function main() {
   if (process.env.CI || process.env.GITHUB_ACTIONS) {

@@ -71,8 +71,6 @@ importers:
 
   packages/cli/npm/cli-win32-x64: {}
 
-  packages/core: {}
-
   packages/github-action:
     dependencies:
       '@actions/core':
@@ -103,6 +101,8 @@ importers:
       typescript:
         specifier: ^5.7.2
         version: 5.9.3
+
+  packages/rust-core: {}
 
   packages/vscode-extension:
     dependencies:

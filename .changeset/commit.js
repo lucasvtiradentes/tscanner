@@ -7,7 +7,8 @@ function log(message) {
 }
 
 function updateRustWorkspaceVersion(newVersion) {
-  const cargoTomlPath = join(process.cwd(), 'packages', 'core', 'Cargo.toml');
+  const rustCoreFolder = join(process.cwd(), 'packages', 'rust-core');
+  const cargoTomlPath = join(rustCoreFolder, 'Cargo.toml');
 
   try {
     let cargoToml = readFileSync(cargoTomlPath, 'utf-8');
@@ -20,11 +21,11 @@ function updateRustWorkspaceVersion(newVersion) {
 
       log('Updating Cargo.lock...');
       execSync('cargo update --workspace', {
-        cwd: join(process.cwd(), 'packages', 'core'),
+        cwd: rustCoreFolder,
         stdio: 'inherit',
       });
 
-      execSync('git add packages/core/Cargo.toml packages/core/Cargo.lock', { stdio: 'inherit' });
+      execSync('git add packages/rust-core/Cargo.toml packages/rust-core/Cargo.lock', { stdio: 'inherit' });
       log('Added Cargo.toml and Cargo.lock to git staging');
     }
   } catch (error) {

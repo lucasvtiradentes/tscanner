@@ -87,21 +87,7 @@ export function getRustBinaryPath(): string | null {
     return bundledBinary;
   }
 
-  const devBinaryRelease = join(extensionPath, '..', '..', 'core', 'target', 'release', getServerBinaryName());
-  logger.debug(`Checking dev release binary: ${devBinaryRelease}`);
-  if (existsSync(devBinaryRelease)) {
-    logger.info(`Found dev release binary: ${devBinaryRelease}`);
-    return devBinaryRelease;
-  }
-
-  const devBinaryDebug = join(extensionPath, '..', '..', 'core', 'target', 'debug', binaryName);
-  logger.debug(`Checking dev debug binary: ${devBinaryDebug}`);
-  if (existsSync(devBinaryDebug)) {
-    logger.info(`Found dev debug binary: ${devBinaryDebug}`);
-    return devBinaryDebug;
-  }
-
-  logger.error(`Rust binary not found. Searched: ${bundledBinary}, ${devBinaryRelease}, ${devBinaryDebug}`);
+  logger.error(`Rust binary not found. Searched: ${bundledBinary}`);
   return null;
 }
 
@@ -120,7 +106,7 @@ export async function scanWorkspace(
     logger.error('Rust binary not found');
     vscode.window
       .showErrorMessage(
-        `TScanner: Rust binary not found. Please build the Rust core:\n\ncd packages/core && cargo build --release\n\nCheck logs at ${LOG_FILE_PATH} for details.`,
+        `TScanner: Rust binary not found. Please build the Rust core:\n\ncd packages/rust-core && cargo build --release\n\nCheck logs at ${LOG_FILE_PATH} for details.`,
         'Open Logs',
       )
       .then((selection) => {

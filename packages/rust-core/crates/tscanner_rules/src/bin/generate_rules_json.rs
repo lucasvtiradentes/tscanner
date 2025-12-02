@@ -29,7 +29,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             map.insert(
                 "sourcePath".to_string(),
                 serde_json::Value::String(format!(
-                    "packages/core/crates/tscanner_rules/src/builtin/{}/{}.rs",
+                    "packages/rust-core/crates/tscanner_rules/src/builtin/{}/{}.rs",
                     category_path, snake_name
                 )),
             );

@@ -11,7 +11,7 @@ Step-by-step guide for creating and testing a new rule in TScanner.
 
 **Helpful commands:**
 ```bash
-cd packages/core/crates/core
+cd packages/rust-core/crates/core
 cargo test -p core        # Run all tests
 cargo insta review        # Review/accept snapshots
 ```
@@ -199,7 +199,7 @@ Note: Use underscores, not hyphens (converts automatically).
 **Generate snapshots:**
 
 ```bash
-cd packages/core/crates/core
+cd packages/rust-core/crates/core
 cargo test -p core
 ```
 

@@ -5,7 +5,7 @@
 The Rust core is organized as a Cargo workspace with three crates:
 
 ```
-packages/core/
+packages/rust-core/
 ├── crates/
 │   ├── core/      # Core library (scanner, parser, rules, cache)
 │   ├── server/    # JSON-RPC server for VSCode extension

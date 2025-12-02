@@ -225,7 +225,7 @@ this.process.on('exit', (code) => {
 ```typescript
 if (!binaryPath) {
   vscode.window.showErrorMessage(
-    'TScanner: Rust binary not found. Build with: cd packages/core && cargo build --release'
+    'TScanner: Rust binary not found. Build with: cd packages/rust-core && cargo build --release'
   );
   throw new Error('Rust binary not found');
 }

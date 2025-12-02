@@ -61,7 +61,7 @@ Add failing case to test spec:
 
 ```bash
 # Edit the test file
-vim packages/core/crates/core/tests/specs/my-rule/invalid.ts
+vim packages/rust-core/crates/core/tests/specs/my-rule/invalid.ts
 
 # Add minimal code that demonstrates the bug
 ```

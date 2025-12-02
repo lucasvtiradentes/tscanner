@@ -19,7 +19,7 @@ pnpm run build
 
 ```
 packages/
-├── core/               # Rust scanner engine (SWC parser, 39+ rules)
+├── rust-core/          # Rust scanner engine (SWC parser, 39+ rules)
 ├── cli/                # TypeScript CLI wrapper + platform binaries
 ├── vscode-extension/   # VSCode/Cursor/VSCodium extension
 └── github-action/      # CI/CD integration
@@ -83,7 +83,7 @@ All packages share types via `tscanner-common`.
 
 ## Adding Rules
 
-Rules live in `packages/core/crates/core/src/rules/`. Each rule:
+Rules live in `packages/rust-core/crates/tscanner_rules/src/`. Each rule:
 
 1. Implements the `Rule` trait
 2. Registers via `inventory::submit!`
@@ -104,4 +104,4 @@ See existing rules for examples.
 
 **Extension not updating**: Run `pnpm run clean && pnpm install && pnpm run build`, then reload VSCode
 
-**Binary not found**: Check `packages/core/target/release/` for compiled binaries
+**Binary not found**: Check `packages/rust-core/target/release/` for compiled binaries
