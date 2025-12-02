@@ -264,7 +264,7 @@ impl ScriptExecutor {
 
         let output = self.spawn_script(rule_config, script_path, &input_json, workspace_root)?;
 
-        self.parse_output(rule_name, rule_config, &output, workspace_root)
+        self.parse_output(rule_name, rule_config, &output, workspace_root, files)
     }
 
     fn execute_single_parallel(
@@ -416,6 +416,7 @@ impl ScriptExecutor {
         rule_config: &ScriptRuleConfig,
         output: &[u8],
         workspace_root: &Path,
+        files: &[&(PathBuf, String)],
     ) -> Result<Vec<Issue>, ScriptError> {
         let output_str = String::from_utf8_lossy(output);
 
@@ -441,11 +442,28 @@ impl ScriptExecutor {
             ))
         })?;
 
+        use std::collections::HashMap;
+        let file_lines: HashMap<PathBuf, Vec<&str>> = files
+            .iter()
+            .map(|(path, content)| {
+                let relative = path.strip_prefix(workspace_root).unwrap_or(path);
+                (relative.to_path_buf(), content.lines().collect())
+            })
+            .collect();
+
         Ok(script_output
             .issues
             .into_iter()
             .map(|issue| {
                 let file_path = workspace_root.join(&issue.file);
+                let relative_path = PathBuf::from(&issue.file);
+                let line_text = file_lines.get(&relative_path).and_then(|lines| {
+                    if issue.line > 0 && issue.line <= lines.len() {
+                        Some(lines[issue.line - 1].to_string())
+                    } else {
+                        None
+                    }
+                });
                 Issue {
                     rule: rule_name.to_string(),
                     file: file_path,
@@ -458,7 +476,7 @@ impl ScriptExecutor {
                     },
                     message: issue.message,
                     severity: rule_config.base.severity,
-                    line_text: None,
+                    line_text,
                 }
             })
             .collect())

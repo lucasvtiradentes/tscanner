@@ -104,12 +104,6 @@ export function buildIssuesByRuleSection(params: IssuesViewParams): string {
       content += `<strong>${file.filePath}</strong> - ${fileIssueCount} ${pluralize(fileIssueCount, 'issue')}\n\n`;
 
       for (const issue of file.issues) {
-        if (issue.lineText === undefined) {
-          console.log('[DEBUG buildIssuesByRuleSection] issue.lineText is undefined');
-          console.log('[DEBUG buildIssuesByRuleSection] issue:', JSON.stringify(issue, null, 2));
-          console.log('[DEBUG buildIssuesByRuleSection] file:', JSON.stringify(file, null, 2));
-          console.log('[DEBUG buildIssuesByRuleSection] group.ruleName:', group.ruleName);
-        }
         const fileUrl = buildPrFileUrl(owner, repo, prNumber, file.filePath, issue.line);
         content += `- <a href="${fileUrl}">${issue.line}:${issue.column}</a> - <code>${escapeHtml(issue.lineText.trim())}</code>\n`;
       }
@@ -170,12 +164,6 @@ export function buildIssuesByFileSection(params: IssuesViewParams): string {
       content += `<strong>${ruleName}</strong> - ${issues.length} ${pluralize(issues.length, 'issue')}\n\n`;
 
       for (const issue of issues) {
-        if (issue.lineText === undefined) {
-          console.log('[DEBUG buildIssuesByFileSection] issue.lineText is undefined');
-          console.log('[DEBUG buildIssuesByFileSection] issue:', JSON.stringify(issue, null, 2));
-          console.log('[DEBUG buildIssuesByFileSection] filePath:', filePath);
-          console.log('[DEBUG buildIssuesByFileSection] ruleName:', ruleName);
-        }
         const fileUrl = buildPrFileUrl(owner, repo, prNumber, filePath, issue.line);
         content += `- <a href="${fileUrl}">${issue.line}:${issue.column}</a> - <code>${escapeHtml(issue.lineText.trim())}</code>\n`;
       }
