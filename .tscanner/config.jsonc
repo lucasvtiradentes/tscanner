@@ -41,6 +41,13 @@
     "prefer-type-over-interface": {}
   },
   "customRules": {
+    "no-rust-deprecated": {
+      "type": "regex",
+      "pattern": "allow(deprecated",
+      "message": "No deprecated methods",
+      "severity": "warning",
+      "include": ["packages/core/**.rs"]
+    },
     "action-zod-match": {
       "type": "script",
       "script": "action-zod-match.ts",

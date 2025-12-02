@@ -40,7 +40,8 @@ pub fn handle_scan(request_id: u64, params: ScanParams, state: &mut ServerState)
         (None, None)
     };
 
-    let mut result = scanner.scan(&params.root, changed_files.as_ref());
+    let mut result = scanner
+        .scan_codebase_with_filter(std::slice::from_ref(&params.root), changed_files.as_ref());
 
     if let Some(ref line_filter) = modified_lines {
         result.filter_by_modified_lines(line_filter);

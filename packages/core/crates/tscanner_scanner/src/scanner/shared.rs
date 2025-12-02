@@ -1,0 +1,357 @@
+use super::Scanner;
+use crate::executors::{BuiltinExecutor, ExecuteResult};
+use ignore::WalkBuilder;
+use std::collections::{HashMap, HashSet};
+use std::path::{Path, PathBuf};
+use tscanner_config::{
+    compile_globset, AiRuleConfig, CustomRuleConfig, ScriptMode, ScriptRuleConfig,
+};
+use tscanner_diagnostics::{FileResult, Issue};
+
+impl Scanner {
+    pub(crate) fn run_builtin_executor(&self, path: &Path) -> Option<FileResult> {
+        let source = std::fs::read_to_string(path).ok()?;
+        let executor =
+            BuiltinExecutor::with_logger(&self.registry, &self.config, &self.root, self.log_debug);
+
+        match executor.execute(path, &source) {
+            ExecuteResult::Skip => None,
+            ExecuteResult::ParseError => None,
+            ExecuteResult::Disabled | ExecuteResult::Empty => {
+                self.cache.insert(path.to_path_buf(), Vec::new());
+                None
+            }
+            ExecuteResult::Ok(file_result) => {
+                self.cache
+                    .insert(path.to_path_buf(), file_result.issues.clone());
+                Some(file_result)
+            }
+        }
+    }
+
+    pub(crate) fn run_builtin_executor_no_cache(
+        &self,
+        path: &Path,
+        content: &str,
+    ) -> Option<FileResult> {
+        let executor =
+            BuiltinExecutor::with_logger(&self.registry, &self.config, &self.root, self.log_debug);
+
+        match executor.execute(path, content) {
+            ExecuteResult::Skip => None,
+            ExecuteResult::ParseError => None,
+            ExecuteResult::Disabled | ExecuteResult::Empty => None,
+            ExecuteResult::Ok(file_result) => Some(file_result),
+        }
+    }
+
+    pub(crate) fn collect_script_rules(&self) -> Vec<(String, ScriptRuleConfig)> {
+        self.config
+            .custom_rules
+            .iter()
+            .filter_map(|(name, config)| {
+                if let CustomRuleConfig::Script(script_config) = config {
+                    if script_config.base.enabled {
+                        return Some((name.clone(), script_config.clone()));
+                    }
+                }
+                None
+            })
+            .collect()
+    }
+
+    pub(crate) fn collect_ai_rules(&self) -> Vec<(String, AiRuleConfig)> {
+        self.config
+            .custom_rules
+            .iter()
+            .filter_map(|(name, config)| {
+                if let CustomRuleConfig::Ai(ai_config) = config {
+                    if ai_config.base.enabled {
+                        return Some((name.clone(), ai_config.clone()));
+                    }
+                }
+                None
+            })
+            .collect()
+    }
+
+    pub(crate) fn run_script_rules(&self, _files: &[PathBuf]) -> Vec<Issue> {
+        let script_rules = self.collect_script_rules();
+        if script_rules.is_empty() {
+            return vec![];
+        }
+
+        let all_files = self.collect_script_files(&script_rules);
+        if all_files.is_empty() {
+            return vec![];
+        }
+
+        self.script_executor
+            .execute_rules(&script_rules, &all_files, &self.root)
+    }
+
+    pub(crate) fn collect_script_files(
+        &self,
+        script_rules: &[(String, ScriptRuleConfig)],
+    ) -> Vec<(PathBuf, String)> {
+        let needed_patterns: HashSet<&str> = script_rules
+            .iter()
+            .flat_map(|(_, cfg)| cfg.base.include.iter().map(|s| s.as_str()))
+            .collect();
+
+        if needed_patterns.is_empty() {
+            return vec![];
+        }
+
+        let exclude_patterns: HashSet<&str> = script_rules
+            .iter()
+            .flat_map(|(_, cfg)| cfg.base.exclude.iter().map(|s| s.as_str()))
+            .collect();
+
+        WalkBuilder::new(&self.root)
+            .hidden(false)
+            .git_ignore(true)
+            .build()
+            .flatten()
+            .filter(|entry| {
+                let path = entry.path();
+                if !path.is_file() {
+                    return false;
+                }
+                let relative = path.strip_prefix(&self.root).unwrap_or(path);
+                let relative_str = relative.to_string_lossy();
+                let matches_include = needed_patterns
+                    .iter()
+                    .any(|pattern| glob_match::glob_match(pattern, &relative_str));
+                let matches_exclude = exclude_patterns
+                    .iter()
+                    .any(|pattern| glob_match::glob_match(pattern, &relative_str));
+                matches_include && !matches_exclude
+            })
+            .filter_map(|entry| {
+                let path = entry.path().to_path_buf();
+                std::fs::read_to_string(&path)
+                    .ok()
+                    .map(|content| (path, content))
+            })
+            .collect()
+    }
+
+    pub(crate) fn run_ai_rules(&self, _files: &[PathBuf]) -> Vec<Issue> {
+        let ai_rules = self.collect_ai_rules();
+        if ai_rules.is_empty() {
+            return vec![];
+        }
+
+        self.ai_executor.execute_rules(&ai_rules, &[], &self.root)
+    }
+
+    pub(crate) fn merge_issues(&self, results: &mut Vec<FileResult>, issues: Vec<Issue>) {
+        if issues.is_empty() {
+            return;
+        }
+
+        let mut issues_by_file: HashMap<PathBuf, Vec<Issue>> = HashMap::new();
+        for issue in issues {
+            issues_by_file
+                .entry(issue.file.clone())
+                .or_default()
+                .push(issue);
+        }
+
+        for (file, file_issues) in issues_by_file {
+            if let Some(file_result) = results.iter_mut().find(|r| r.file == file) {
+                file_result.issues.extend(file_issues);
+            } else {
+                results.push(FileResult {
+                    file,
+                    issues: file_issues,
+                });
+            }
+        }
+    }
+
+    pub(crate) fn collect_files_with_filter(
+        &self,
+        roots: &[PathBuf],
+        file_filter: Option<&HashSet<PathBuf>>,
+    ) -> Vec<PathBuf> {
+        let mut files: Vec<PathBuf> = Vec::new();
+
+        for root in roots {
+            let root_buf = root.to_path_buf();
+            let exclude_clone = self.global_exclude.clone();
+            let root_clone = root_buf.clone();
+            let include_clone = self.global_include.clone();
+            let exclude_clone2 = self.global_exclude.clone();
+
+            let root_files: Vec<PathBuf> = WalkBuilder::new(root)
+                .hidden(false)
+                .git_ignore(true)
+                .filter_entry(move |e| {
+                    let path = e.path();
+                    if path.is_dir() {
+                        let relative = path.strip_prefix(&root_clone).unwrap_or(path);
+                        return !exclude_clone.is_match(relative);
+                    }
+                    true
+                })
+                .build()
+                .filter_map(|e| e.ok())
+                .filter(|e| {
+                    let path = e.path();
+                    if !path.is_file() {
+                        return false;
+                    }
+                    let relative = path.strip_prefix(&root_buf).unwrap_or(path);
+                    include_clone.is_match(relative) && !exclude_clone2.is_match(relative)
+                })
+                .map(|e| e.path().to_path_buf())
+                .collect();
+
+            files.extend(root_files);
+        }
+
+        if let Some(filter) = file_filter {
+            files.retain(|f| filter.contains(f));
+            (self.log_info)(&format!(
+                "Filtered to {} files (from {})",
+                files.len(),
+                filter.len()
+            ));
+        }
+
+        files
+    }
+
+    pub(crate) fn run_script_rules_for_content(
+        &self,
+        path: &Path,
+        content: &str,
+    ) -> (Vec<Issue>, Vec<PathBuf>) {
+        let script_rules = self.collect_script_rules();
+        if script_rules.is_empty() {
+            return (vec![], vec![]);
+        }
+
+        let has_batch_rules = script_rules
+            .iter()
+            .any(|(_, cfg)| cfg.mode == ScriptMode::Batch && cfg.base.include.len() > 1);
+
+        let all_related_files_cache: HashMap<PathBuf, String> = if has_batch_rules {
+            self.collect_all_related_files(path, content, &script_rules)
+        } else {
+            HashMap::new()
+        };
+
+        let mut all_issues = Vec::new();
+        let mut all_related_files = HashSet::new();
+
+        for (rule_name, script_config) in &script_rules {
+            let rule_include = compile_globset(&script_config.base.include).ok();
+            let rule_exclude = compile_globset(&script_config.base.exclude).ok();
+
+            let relative_path = path.strip_prefix(&self.root).unwrap_or(path);
+            let matches_include = rule_include
+                .as_ref()
+                .map(|g| g.is_match(relative_path))
+                .unwrap_or(true);
+            let matches_exclude = rule_exclude
+                .as_ref()
+                .map(|g| g.is_match(relative_path))
+                .unwrap_or(false);
+
+            if !matches_include || matches_exclude {
+                continue;
+            }
+
+            let is_batch_with_multiple =
+                script_config.mode == ScriptMode::Batch && script_config.base.include.len() > 1;
+
+            let files: Vec<(PathBuf, String)> = if is_batch_with_multiple {
+                all_related_files_cache
+                    .iter()
+                    .filter(|(p, _)| {
+                        let rel = p.strip_prefix(&self.root).unwrap_or(p);
+                        let matches_inc = rule_include
+                            .as_ref()
+                            .map(|g| g.is_match(rel))
+                            .unwrap_or(true);
+                        let matches_exc = rule_exclude
+                            .as_ref()
+                            .map(|g| g.is_match(rel))
+                            .unwrap_or(false);
+                        matches_inc && !matches_exc
+                    })
+                    .map(|(p, c)| (p.clone(), c.clone()))
+                    .collect()
+            } else {
+                vec![(path.to_path_buf(), content.to_string())]
+            };
+
+            if is_batch_with_multiple {
+                for (file_path, _) in &files {
+                    if file_path != path {
+                        all_related_files.insert(file_path.clone());
+                    }
+                }
+            }
+
+            let issues = self.script_executor.execute_rules(
+                &[(rule_name.clone(), script_config.clone())],
+                &files,
+                &self.root,
+            );
+            all_issues.extend(issues);
+        }
+
+        (all_issues, all_related_files.into_iter().collect())
+    }
+
+    pub(crate) fn collect_all_related_files(
+        &self,
+        changed_path: &Path,
+        changed_content: &str,
+        rules: &[(String, ScriptRuleConfig)],
+    ) -> HashMap<PathBuf, String> {
+        let all_patterns: HashSet<&str> = rules
+            .iter()
+            .filter(|(_, cfg)| cfg.mode == ScriptMode::Batch && cfg.base.include.len() > 1)
+            .flat_map(|(_, cfg)| cfg.base.include.iter().map(|s| s.as_str()))
+            .collect();
+
+        if all_patterns.is_empty() {
+            return HashMap::new();
+        }
+
+        let mut files = HashMap::new();
+        files.insert(changed_path.to_path_buf(), changed_content.to_string());
+
+        for entry in WalkBuilder::new(&self.root)
+            .hidden(false)
+            .git_ignore(true)
+            .build()
+            .flatten()
+        {
+            let entry_path = entry.path();
+            if !entry_path.is_file() || entry_path == changed_path {
+                continue;
+            }
+
+            let relative = entry_path.strip_prefix(&self.root).unwrap_or(entry_path);
+            let relative_str = relative.to_string_lossy();
+
+            let matches = all_patterns
+                .iter()
+                .any(|pattern| glob_match::glob_match(pattern, &relative_str));
+
+            if matches {
+                if let Ok(file_content) = std::fs::read_to_string(entry_path) {
+                    files.insert(entry_path.to_path_buf(), file_content);
+                }
+            }
+        }
+
+        files
+    }
+}

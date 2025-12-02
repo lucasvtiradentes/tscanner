@@ -11,5 +11,5 @@ pub use executors::{
     ScriptFile, ScriptInput, ScriptOutput,
 };
 pub use parser::parse_file;
-pub use scanner::Scanner;
+pub use scanner::{BranchScanResult, Scanner, StagedScanResult};
 pub use tscanner_config::{disable_file_comment, disable_next_line_comment};

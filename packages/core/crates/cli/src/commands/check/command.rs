@@ -173,7 +173,7 @@ pub fn cmd_check(
         println!("{}", "Scanning...".cyan().bold());
     }
 
-    let mut result = scanner.scan_multi(&scan_paths, files_to_scan.as_ref());
+    let mut result = scanner.scan_codebase_with_filter(&scan_paths, files_to_scan.as_ref());
 
     if let Some(ref line_filter) = modified_lines {
         filters::apply_line_filter(&mut result, line_filter);
