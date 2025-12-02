@@ -4,7 +4,7 @@ use lsp_types::{
     TextEdit, Url, WorkspaceEdit,
 };
 use std::collections::HashMap;
-use tscanner_scanner::{DISABLE_FILE_COMMENT, DISABLE_NEXT_LINE_COMMENT};
+use tscanner_scanner::{disable_file_comment, disable_next_line_comment};
 
 pub fn handle_code_action(params: CodeActionParams, session: &Session) -> Vec<CodeActionOrCommand> {
     if !session.is_initialized() {
@@ -69,7 +69,9 @@ fn create_disable_line_action(
 ) -> CodeAction {
     let comment = format!(
         "{}// {} {}\n",
-        indentation, DISABLE_NEXT_LINE_COMMENT, rule_id
+        indentation,
+        disable_next_line_comment(),
+        rule_id
     );
 
     let edit = TextEdit {
@@ -103,7 +105,7 @@ fn create_disable_line_action(
 }
 
 fn create_disable_file_action(uri: Url, rule_id: &str, diagnostic: Diagnostic) -> CodeAction {
-    let comment = format!("// {} {}\n", DISABLE_FILE_COMMENT, rule_id);
+    let comment = format!("// {} {}\n", disable_file_comment(), rule_id);
 
     let edit = TextEdit {
         range: Range {

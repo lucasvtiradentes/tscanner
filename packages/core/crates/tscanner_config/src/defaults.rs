@@ -13,6 +13,8 @@ const CONSTANTS_JSON: &str = include_str!("../../../../../assets/constants.json"
 struct Constants {
     config_dir_name: String,
     config_file_name: String,
+    disable_file_comment: String,
+    disable_next_line_comment: String,
 }
 
 fn get_constants() -> Constants {
@@ -29,6 +31,14 @@ pub fn config_dir_name() -> &'static str {
 
 pub fn config_file_name() -> &'static str {
     &CONSTANTS.config_file_name
+}
+
+pub fn disable_file_comment() -> &'static str {
+    &CONSTANTS.disable_file_comment
+}
+
+pub fn disable_next_line_comment() -> &'static str {
+    &CONSTANTS.disable_next_line_comment
 }
 
 pub fn default_code_editor_config() -> CodeEditorConfig {

@@ -1,16 +1,14 @@
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
 use std::sync::LazyLock;
-
-pub const DISABLE_FILE_COMMENT: &str = "tscanner-disable-file";
-pub const DISABLE_NEXT_LINE_COMMENT: &str = "tscanner-disable-next-line";
+use tscanner_config::{disable_file_comment, disable_next_line_comment};
 
 static DISABLE_FILE_RE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(&format!(r"//\s*{}", DISABLE_FILE_COMMENT)).unwrap());
+    LazyLock::new(|| Regex::new(&format!(r"//\s*{}", disable_file_comment())).unwrap());
 static DISABLE_LINE_RE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(r"//\s*tscanner-disable(?:-line)?\s+(.+)").unwrap());
 static DISABLE_NEXT_LINE_RE: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(&format!(r"//\s*{}\s+(.+)", DISABLE_NEXT_LINE_COMMENT)).unwrap());
+    LazyLock::new(|| Regex::new(&format!(r"//\s*{}\s+(.+)", disable_next_line_comment())).unwrap());
 
 #[derive(Debug, Clone)]
 pub struct DisableDirectives {
