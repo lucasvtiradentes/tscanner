@@ -55,7 +55,7 @@ impl<'a> BuiltinExecutor<'a> {
 
     pub fn execute(&self, path: &Path, source: &str) -> ExecuteResult {
         if !is_js_ts_file(path) {
-            return ExecuteResult::Skip;
+            return self.execute_regex_only(path, source);
         }
 
         let directives = DisableDirectives::from_source(source);
@@ -98,6 +98,52 @@ impl<'a> BuiltinExecutor<'a> {
                 rule_issues
             })
             .filter(|issue| !directives.is_rule_disabled(issue.line, &issue.rule))
+            .collect();
+
+        if issues.is_empty() {
+            ExecuteResult::Empty
+        } else {
+            ExecuteResult::Ok(FileResult {
+                file: path.to_path_buf(),
+                issues,
+            })
+        }
+    }
+
+    fn execute_regex_only(&self, path: &Path, source: &str) -> ExecuteResult {
+        let enabled_rules = self.registry.get_enabled_regex_rules(
+            path,
+            self.root,
+            |file_path: &Path, root: &Path, compiled: &CompiledRuleConfig| {
+                self.config
+                    .matches_file_with_root(file_path, root, compiled)
+            },
+        );
+
+        if enabled_rules.is_empty() {
+            return ExecuteResult::Skip;
+        }
+
+        let source_lines: Vec<&str> = source.lines().collect();
+        let file_source = FileSource::from_path(path);
+        let empty_program = swc_ecma_ast::Program::Script(swc_ecma_ast::Script {
+            span: swc_common::DUMMY_SP,
+            body: vec![],
+            shebang: None,
+        });
+
+        let issues: Vec<Issue> = enabled_rules
+            .iter()
+            .flat_map(|(rule, severity)| {
+                let mut rule_issues = rule.check(&empty_program, path, source, file_source);
+                for issue in &mut rule_issues {
+                    issue.severity = *severity;
+                    if issue.line > 0 && issue.line <= source_lines.len() {
+                        issue.line_text = Some(source_lines[issue.line - 1].to_string());
+                    }
+                }
+                rule_issues
+            })
             .collect();
 
         if issues.is_empty() {

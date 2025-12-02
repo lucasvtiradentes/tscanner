@@ -118,6 +118,22 @@ impl TscannerConfig {
         let relative_path = path.strip_prefix(root).unwrap_or(path);
         rule_config.matches(relative_path)
     }
+
+    pub fn get_rule_specific_include_patterns(&self) -> Vec<String> {
+        let builtin_patterns = self
+            .builtin_rules
+            .values()
+            .filter(|rule| rule.enabled.unwrap_or(true))
+            .flat_map(|rule| rule.include.clone());
+
+        let custom_patterns = self
+            .custom_rules
+            .values()
+            .filter(|rule| rule.base().enabled)
+            .flat_map(|rule| rule.base().include.clone());
+
+        builtin_patterns.chain(custom_patterns).collect()
+    }
 }
 
 impl Default for TscannerConfig {

@@ -125,6 +125,31 @@ impl RuleRegistry {
             .collect()
     }
 
+    pub fn get_enabled_regex_rules<F>(
+        &self,
+        file_path: &Path,
+        root: &Path,
+        matches_file: F,
+    ) -> Vec<(Arc<dyn Rule>, Severity)>
+    where
+        F: Fn(&Path, &Path, &CompiledRuleConfig) -> bool,
+    {
+        self.rules
+            .iter()
+            .filter_map(|(name, rule)| {
+                if !rule.is_regex_only() {
+                    return None;
+                }
+                if let Some(compiled) = self.compiled_configs.get(name) {
+                    if compiled.enabled && matches_file(file_path, root, compiled) {
+                        return Some((rule.clone(), compiled.severity));
+                    }
+                }
+                None
+            })
+            .collect()
+    }
+
     pub fn list_rules(&self) -> Vec<String> {
         self.rules.keys().cloned().collect()
     }

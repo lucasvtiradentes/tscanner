@@ -43,10 +43,10 @@
   "customRules": {
     "no-rust-deprecated": {
       "type": "regex",
-      "pattern": "allow(deprecated",
+      "pattern": "allow\\(deprecated\\)",
       "message": "No deprecated methods",
       "severity": "warning",
-      "include": ["packages/core/**.rs"]
+      "include": ["packages/core/**/*.rs"]
     },
     "action-zod-match": {
       "type": "script",

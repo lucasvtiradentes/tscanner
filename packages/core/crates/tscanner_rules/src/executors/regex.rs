@@ -60,6 +60,10 @@ impl Rule for RegexExecutor {
 
         issues
     }
+
+    fn is_regex_only(&self) -> bool {
+        true
+    }
 }
 
 pub type RegexRule = RegexExecutor;

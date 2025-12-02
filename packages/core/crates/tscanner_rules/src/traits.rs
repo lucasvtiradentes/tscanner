@@ -18,6 +18,10 @@ pub trait Rule: Send + Sync {
     fn is_typescript_only(&self) -> bool {
         false
     }
+
+    fn is_regex_only(&self) -> bool {
+        false
+    }
 }
 
 pub struct RuleRegistration {

@@ -22,6 +22,7 @@ pub struct Scanner {
     pub(crate) root: PathBuf,
     pub(crate) global_include: GlobSet,
     pub(crate) global_exclude: GlobSet,
+    pub(crate) custom_include: Option<GlobSet>,
     pub(crate) script_executor: ScriptExecutor,
     pub(crate) ai_executor: AiExecutor,
     pub(crate) log_info: fn(&str),
@@ -74,6 +75,12 @@ impl Scanner {
         )?;
         let global_include = compile_globset(&config.files.include)?;
         let global_exclude = compile_globset(&config.files.exclude)?;
+        let custom_patterns = config.get_rule_specific_include_patterns();
+        let custom_include = if custom_patterns.is_empty() {
+            None
+        } else {
+            Some(compile_globset(&custom_patterns)?)
+        };
         let script_executor = ScriptExecutor::with_logger(&root, log_error, log_debug);
         let ai_executor = AiExecutor::with_logger(&root, log_warn, log_debug);
         Ok(Self {
@@ -83,6 +90,7 @@ impl Scanner {
             root,
             global_include,
             global_exclude,
+            custom_include,
             script_executor,
             ai_executor,
             log_info,

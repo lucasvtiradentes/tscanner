@@ -362,16 +362,16 @@ pub struct CompiledRuleConfig {
 
 impl CompiledRuleConfig {
     pub fn matches(&self, relative_path: &Path) -> bool {
-        if !self.global_include.is_match(relative_path) {
+        let matches_include = if let Some(ref rule_include) = self.rule_include {
+            rule_include.is_match(relative_path)
+        } else {
+            self.global_include.is_match(relative_path)
+        };
+        if !matches_include {
             return false;
         }
         if self.global_exclude.is_match(relative_path) {
             return false;
-        }
-        if let Some(ref rule_include) = self.rule_include {
-            if !rule_include.is_match(relative_path) {
-                return false;
-            }
         }
         if let Some(ref rule_exclude) = self.rule_exclude {
             if rule_exclude.is_match(relative_path) {

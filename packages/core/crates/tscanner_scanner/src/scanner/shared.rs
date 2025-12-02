@@ -183,6 +183,7 @@ impl Scanner {
             let exclude_clone = self.global_exclude.clone();
             let root_clone = root_buf.clone();
             let include_clone = self.global_include.clone();
+            let custom_include_clone = self.custom_include.clone();
             let exclude_clone2 = self.global_exclude.clone();
 
             let root_files: Vec<PathBuf> = WalkBuilder::new(root)
@@ -204,7 +205,15 @@ impl Scanner {
                         return false;
                     }
                     let relative = path.strip_prefix(&root_buf).unwrap_or(path);
-                    include_clone.is_match(relative) && !exclude_clone2.is_match(relative)
+                    if exclude_clone2.is_match(relative) {
+                        return false;
+                    }
+                    let matches_global = include_clone.is_match(relative);
+                    let matches_custom = custom_include_clone
+                        .as_ref()
+                        .map(|g| g.is_match(relative))
+                        .unwrap_or(false);
+                    matches_global || matches_custom
                 })
                 .map(|e| e.path().to_path_buf())
                 .collect();
