@@ -1,6 +1,6 @@
 use colored::*;
-use core::{ScanResult, Severity};
 use serde::Serialize;
+use tscanner_diagnostics::{ScanResult, Severity};
 
 #[derive(Serialize)]
 pub struct JsonSummary {

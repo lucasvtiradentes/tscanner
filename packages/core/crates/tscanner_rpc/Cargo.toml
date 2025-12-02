@@ -1,0 +1,20 @@
+[package]
+name = "tscanner_rpc"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+tscanner_diagnostics = { path = "../tscanner_diagnostics" }
+tscanner_config = { path = "../tscanner_config" }
+tscanner_cache = { path = "../tscanner_cache" }
+tscanner_fs = { path = "../tscanner_fs" }
+tscanner_rules = { path = "../tscanner_rules" }
+tscanner_scanner = { path = "../tscanner_scanner" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+pathdiff = { workspace = true }
+flate2 = "1.0"
+base64 = "0.21"

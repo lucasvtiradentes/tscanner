@@ -15,7 +15,13 @@ name = "generate_cli_json"
 path = "src/bin/generate_cli_json.rs"
 
 [dependencies]
-core = { path = "../core" }
+tscanner_diagnostics = { path = "../tscanner_diagnostics" }
+tscanner_config = { path = "../tscanner_config" }
+tscanner_rules = { path = "../tscanner_rules" }
+tscanner_fs = { path = "../tscanner_fs" }
+tscanner_cache = { path = "../tscanner_cache" }
+tscanner_scanner = { path = "../tscanner_scanner" }
+tscanner_service = { path = "../tscanner_service" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 anyhow = { workspace = true }

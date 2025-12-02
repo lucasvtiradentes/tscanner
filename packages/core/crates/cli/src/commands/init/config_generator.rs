@@ -1,5 +1,5 @@
-use core::rules::get_all_rule_metadata;
 use serde_json::Value;
+use tscanner_rules::get_all_rule_metadata;
 
 const DEFAULT_CONFIG_JSON: &str = include_str!("../../../../../../../assets/default-config.json");
 const TSCANNER_VERSION: &str = env!("CARGO_PKG_VERSION");

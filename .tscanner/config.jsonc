@@ -89,7 +89,7 @@
       ".ignore/**",
       "packages/vscode-extension/dist-dev/**",
       "packages/vscode-extension/out/**",
-      "packages/core/crates/core/tests/**"
+      "packages/core/crates/tscanner_rules/tests/**"
     ]
   },
   "codeEditor": {

@@ -1,7 +1,15 @@
 [workspace]
 resolver = "2"
 members = [
-  "crates/core",
+  "crates/tscanner_diagnostics",
+  "crates/tscanner_config",
+  "crates/tscanner_rules",
+  "crates/tscanner_fs",
+  "crates/tscanner_cache",
+  "crates/tscanner_scanner",
+  "crates/tscanner_service",
+  "crates/tscanner_lsp",
+  "crates/tscanner_rpc",
   "crates/cli",
   "crates/server",
 ]

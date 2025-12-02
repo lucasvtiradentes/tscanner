@@ -1,5 +1,6 @@
-use core::{CliConfig, GroupMode};
 use std::path::PathBuf;
+use tscanner_config::CliConfig;
+use tscanner_diagnostics::GroupMode;
 
 #[derive(Clone)]
 pub struct CheckContext {

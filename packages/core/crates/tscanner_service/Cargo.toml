@@ -1,0 +1,19 @@
+[package]
+name = "tscanner_service"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+tscanner_diagnostics = { path = "../tscanner_diagnostics" }
+tscanner_config = { path = "../tscanner_config" }
+tscanner_rules = { path = "../tscanner_rules" }
+tscanner_cache = { path = "../tscanner_cache" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+thiserror = { workspace = true }
+time = { workspace = true }
+lazy_static = "1.4"
+parking_lot = "0.12"

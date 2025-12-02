@@ -1,6 +1,6 @@
 use crate::shared::SummaryStats;
 use cli::OutputFormat;
-use core::ScanResult;
+use tscanner_diagnostics::ScanResult;
 
 use super::json::JsonRenderer;
 use super::pretty::PrettyRenderer;

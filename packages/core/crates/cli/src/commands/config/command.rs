@@ -4,10 +4,10 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::config_loader::load_config_with_custom;
-use core::config::{TscannerConfig, ValidationResult};
-use core::rules::get_all_rule_metadata;
-use core::Severity;
-use core::{app_display_name, app_name, log_error, log_info};
+use tscanner_config::{TscannerConfig, ValidationResult};
+use tscanner_diagnostics::Severity;
+use tscanner_rules::{get_all_rule_metadata, get_allowed_options_for_rule};
+use tscanner_service::{app_display_name, app_name, log_error, log_info};
 
 pub fn cmd_config(
     path: &Path,
@@ -88,7 +88,13 @@ fn cmd_validate(config_file_path: &str) -> Result<()> {
     let config_path = Path::new(config_file_path);
     let workspace = config_path.parent().and_then(|p| p.parent());
 
-    let (_, result) = match TscannerConfig::full_validate(&content, workspace) {
+    let config_dir_name = tscanner_config::config_dir_name();
+    let (_, result) = match TscannerConfig::full_validate(
+        &content,
+        workspace,
+        config_dir_name,
+        Some(get_allowed_options_for_rule),
+    ) {
         Ok(r) => r,
         Err(e) => {
             println!(
@@ -138,7 +144,7 @@ fn print_validation_result(result: &ValidationResult, config_file_path: &str) {
     println!("  {}", config_file_path.dimmed());
 }
 
-fn cmd_rules(config: &core::config::TscannerConfig, config_file_path: &str) -> Result<()> {
+fn cmd_rules(config: &TscannerConfig, config_file_path: &str) -> Result<()> {
     println!(
         "{}",
         format!("{} Rules Configuration", app_display_name())
@@ -213,7 +219,7 @@ fn print_rule(name: &str, severity: Severity, is_custom: bool) {
     println!("{}", severity_badge);
 }
 
-fn cmd_show(config: &core::config::TscannerConfig, config_file_path: &str) -> Result<()> {
+fn cmd_show(config: &TscannerConfig, config_file_path: &str) -> Result<()> {
     println!(
         "{}",
         format!("{} Resolved Configuration", app_display_name())
@@ -278,9 +284,9 @@ fn cmd_show(config: &core::config::TscannerConfig, config_file_path: &str) -> Re
         sorted.sort_by(|a, b| a.0.cmp(b.0));
         for (name, cfg) in sorted {
             let type_name = match cfg {
-                core::CustomRuleConfig::Regex(_) => "regex",
-                core::CustomRuleConfig::Script(_) => "script",
-                core::CustomRuleConfig::Ai(_) => "ai",
+                tscanner_config::CustomRuleConfig::Regex(_) => "regex",
+                tscanner_config::CustomRuleConfig::Script(_) => "script",
+                tscanner_config::CustomRuleConfig::Ai(_) => "ai",
             };
             println!(
                 "  {}: type={}, enabled={}, severity={:?}",

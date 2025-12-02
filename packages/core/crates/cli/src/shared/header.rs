@@ -1,6 +1,6 @@
 use cli::OutputFormat;
 use colored::*;
-use core::GroupMode;
+use tscanner_diagnostics::GroupMode;
 
 #[derive(Clone)]
 pub enum ScanMode {

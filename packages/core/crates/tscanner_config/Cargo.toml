@@ -1,0 +1,17 @@
+[package]
+name = "tscanner_config"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+tscanner_diagnostics = { path = "../tscanner_diagnostics" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+schemars = { workspace = true }
+globset = { workspace = true }
+json_comments = { workspace = true }
+regex = { workspace = true }
+lazy_static = "1.4"

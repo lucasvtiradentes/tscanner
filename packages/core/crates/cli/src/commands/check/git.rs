@@ -1,3 +1,3 @@
-pub use core::{
+pub use tscanner_fs::{
     get_changed_files, get_modified_lines, get_staged_files, get_staged_modified_lines,
 };

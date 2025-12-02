@@ -1,7 +1,5 @@
 use anyhow::{Context, Result};
 use colored::*;
-use core::FileCache;
-use core::Scanner;
 use std::collections::HashSet;
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -10,10 +8,11 @@ use std::sync::Arc;
 use crate::config_loader::load_config_with_custom;
 use crate::shared::{render_header, render_summary, ScanConfig, ScanMode, SummaryStats};
 use cli::{CliGroupMode, OutputFormat};
-use core::{
-    app_name, config_dir_name, config_file_name, log_error, log_info, CliConfig, CliGroupBy,
-    GroupMode,
-};
+use tscanner_cache::FileCache;
+use tscanner_config::{CliConfig, CliGroupBy};
+use tscanner_diagnostics::GroupMode;
+use tscanner_scanner::{ConfigExt, Scanner};
+use tscanner_service::{app_name, config_dir_name, config_file_name, log_error, log_info};
 
 use super::context::CheckContext;
 use super::filters;

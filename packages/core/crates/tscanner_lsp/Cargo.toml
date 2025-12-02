@@ -1,0 +1,17 @@
+[package]
+name = "tscanner_lsp"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+tscanner_diagnostics = { path = "../tscanner_diagnostics" }
+tscanner_config = { path = "../tscanner_config" }
+tscanner_service = { path = "../tscanner_service" }
+tscanner_scanner = { path = "../tscanner_scanner" }
+lsp-types = "0.95"
+lsp-server = "0.7"
+serde = { workspace = true }
+serde_json = { workspace = true }

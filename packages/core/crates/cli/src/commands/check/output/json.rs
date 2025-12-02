@@ -3,9 +3,9 @@ use super::CheckContext;
 use crate::shared::{
     JsonFileGroup, JsonIssue, JsonRuleGroup, JsonRuleIssue, JsonSummary, SummaryStats,
 };
-use core::{GroupMode, ScanResult, Severity};
 use serde::Serialize;
 use std::collections::HashMap;
+use tscanner_diagnostics::{GroupMode, ScanResult, Severity};
 
 #[derive(Serialize)]
 #[serde(untagged)]

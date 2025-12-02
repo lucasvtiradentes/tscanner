@@ -3,8 +3,9 @@ use colored::*;
 use std::fs;
 use std::path::Path;
 
-use core::rules::get_all_rule_metadata;
-use core::{config_dir_name, config_file_name, log_error, log_info};
+use tscanner_config::{config_dir_name, config_file_name};
+use tscanner_rules::get_all_rule_metadata;
+use tscanner_service::{log_error, log_info};
 
 use super::config_generator::{get_all_rules_config, get_default_config};
 

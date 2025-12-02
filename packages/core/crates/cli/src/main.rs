@@ -9,7 +9,7 @@ mod shared;
 
 use cli::{Cli, Commands};
 use commands::{cmd_check, cmd_config, cmd_init};
-use core::init_logger;
+use tscanner_service::init_logger;
 
 fn main() -> Result<()> {
     if std::env::var("TSCANNER").map(|v| v == "0").unwrap_or(false) {

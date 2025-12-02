@@ -1,8 +1,9 @@
 use anyhow::Result;
-use core::config::TscannerConfig;
 use std::path::{Path, PathBuf};
 
-use core::{config_dir_name, config_file_name, log_info};
+use tscanner_config::{config_dir_name, config_file_name, TscannerConfig};
+use tscanner_scanner::load_config;
+use tscanner_service::log_info;
 
 pub fn load_config_with_custom(
     root: &Path,
@@ -29,7 +30,7 @@ pub fn load_config_with_custom(
                 "config_loader: Loading custom config: {}",
                 config_path.display()
             ));
-            let config = TscannerConfig::load_from_file(&config_path)
+            let config = load_config(&config_path, config_dir_name(), config_file_name())
                 .map_err(|e| anyhow::anyhow!("{}", e))?;
             return Ok(Some((config, config_path.display().to_string())));
         } else {
@@ -47,8 +48,8 @@ pub fn load_config_with_custom(
             "config_loader: Loading local config: {}",
             local_path.display()
         ));
-        let config =
-            TscannerConfig::load_from_file(&local_path).map_err(|e| anyhow::anyhow!("{}", e))?;
+        let config = load_config(&local_path, config_dir_name(), config_file_name())
+            .map_err(|e| anyhow::anyhow!("{}", e))?;
         return Ok(Some((config, local_path.display().to_string())));
     }
 

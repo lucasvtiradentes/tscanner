@@ -233,11 +233,17 @@ dependencies = [
  "anyhow",
  "clap",
  "colored",
- "core",
  "glob",
  "pathdiff",
  "serde",
  "serde_json",
+ "tscanner_cache",
+ "tscanner_config",
+ "tscanner_diagnostics",
+ "tscanner_fs",
+ "tscanner_rules",
+ "tscanner_scanner",
+ "tscanner_service",
  "walkdir",
 ]
 
@@ -267,37 +273,6 @@ dependencies = [
  "libc",
  "once_cell",
  "windows-sys 0.59.0",
-]
-
-[[package]]
-name = "core"
-version = "0.0.26"
-dependencies = [
- "anyhow",
- "dashmap",
- "dirs",
- "glob",
- "glob-match",
- "globset",
- "ignore",
- "insta",
- "inventory",
- "json_comments",
- "lazy_static",
- "notify",
- "pathdiff",
- "rayon",
- "regex",
- "schemars",
- "serde",
- "serde_json",
- "swc_common",
- "swc_ecma_ast",
- "swc_ecma_parser",
- "swc_ecma_visit",
- "thiserror 2.0.17",
- "time",
- "walkdir",
 ]
 
 [[package]]
@@ -666,16 +641,13 @@ dependencies = [
 
 [[package]]
 name = "insta"
-version = "1.44.1"
+version = "1.44.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e8732d3774162a0851e3f2b150eb98f31a9885dd75985099421d393385a01dfd"
+checksum = "b5c943d4415edd8153251b6f197de5eb1640e56d84e8d9159bea190421c73698"
 dependencies = [
  "console",
- "globset",
  "once_cell",
- "serde",
  "similar",
- "walkdir",
 ]
 
 [[package]]
@@ -925,6 +897,16 @@ name = "option-ext"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "04744f49eae99ab78e0d5c0b603ab218f515ea8cfe5a456d7629ad883a3b6e7d"
+
+[[package]]
+name = "parking_lot"
+version = "0.12.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "93857453250e3077bd71ff98b6a65ea6621a19bb0f559a85248955ac12c45a1a"
+dependencies = [
+ "lock_api",
+ "parking_lot_core",
+]
 
 [[package]]
 name = "parking_lot_core"
@@ -1264,17 +1246,9 @@ dependencies = [
 name = "server"
 version = "0.0.26"
 dependencies = [
- "anyhow",
- "base64",
- "core",
- "flate2",
- "glob",
- "lsp-server",
- "lsp-types",
- "pathdiff",
- "serde",
- "serde_json",
- "walkdir",
+ "tscanner_lsp",
+ "tscanner_rpc",
+ "tscanner_service",
 ]
 
 [[package]]
@@ -1633,6 +1607,139 @@ checksum = "dd69c5aa8f924c7519d6372789a74eac5b94fb0f8fcf0d4a97eb0bfc3e785f39"
 dependencies = [
  "serde",
  "stable_deref_trait",
+]
+
+[[package]]
+name = "tscanner_cache"
+version = "0.0.26"
+dependencies = [
+ "dashmap",
+ "dirs",
+ "serde",
+ "serde_json",
+ "tscanner_diagnostics",
+]
+
+[[package]]
+name = "tscanner_config"
+version = "0.0.26"
+dependencies = [
+ "globset",
+ "json_comments",
+ "lazy_static",
+ "regex",
+ "schemars",
+ "serde",
+ "serde_json",
+ "tscanner_diagnostics",
+]
+
+[[package]]
+name = "tscanner_diagnostics"
+version = "0.0.26"
+dependencies = [
+ "schemars",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
+name = "tscanner_fs"
+version = "0.0.26"
+dependencies = [
+ "anyhow",
+ "notify",
+ "tracing",
+]
+
+[[package]]
+name = "tscanner_lsp"
+version = "0.0.26"
+dependencies = [
+ "lsp-server",
+ "lsp-types",
+ "serde",
+ "serde_json",
+ "tscanner_config",
+ "tscanner_diagnostics",
+ "tscanner_scanner",
+ "tscanner_service",
+]
+
+[[package]]
+name = "tscanner_rpc"
+version = "0.0.26"
+dependencies = [
+ "base64",
+ "flate2",
+ "pathdiff",
+ "serde",
+ "serde_json",
+ "tscanner_cache",
+ "tscanner_config",
+ "tscanner_diagnostics",
+ "tscanner_fs",
+ "tscanner_rules",
+ "tscanner_scanner",
+]
+
+[[package]]
+name = "tscanner_rules"
+version = "0.0.26"
+dependencies = [
+ "dashmap",
+ "glob-match",
+ "insta",
+ "inventory",
+ "rayon",
+ "regex",
+ "serde",
+ "serde_json",
+ "swc_common",
+ "swc_ecma_ast",
+ "swc_ecma_parser",
+ "swc_ecma_visit",
+ "tscanner_config",
+ "tscanner_diagnostics",
+ "tscanner_scanner",
+]
+
+[[package]]
+name = "tscanner_scanner"
+version = "0.0.26"
+dependencies = [
+ "anyhow",
+ "dashmap",
+ "glob-match",
+ "globset",
+ "ignore",
+ "rayon",
+ "regex",
+ "serde",
+ "serde_json",
+ "swc_common",
+ "swc_ecma_ast",
+ "swc_ecma_parser",
+ "tscanner_cache",
+ "tscanner_config",
+ "tscanner_diagnostics",
+ "tscanner_rules",
+]
+
+[[package]]
+name = "tscanner_service"
+version = "0.0.26"
+dependencies = [
+ "lazy_static",
+ "parking_lot",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.17",
+ "time",
+ "tscanner_cache",
+ "tscanner_config",
+ "tscanner_diagnostics",
+ "tscanner_rules",
 ]
 
 [[package]]

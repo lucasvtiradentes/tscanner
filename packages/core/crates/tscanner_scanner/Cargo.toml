@@ -1,0 +1,25 @@
+[package]
+name = "tscanner_scanner"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+tscanner_diagnostics = { path = "../tscanner_diagnostics" }
+tscanner_config = { path = "../tscanner_config" }
+tscanner_rules = { path = "../tscanner_rules" }
+tscanner_cache = { path = "../tscanner_cache" }
+swc_ecma_parser = { workspace = true }
+swc_ecma_ast = { workspace = true }
+swc_common = { workspace = true }
+rayon = { workspace = true }
+ignore = { workspace = true }
+globset = { workspace = true }
+anyhow = { workspace = true }
+regex = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+dashmap = { workspace = true }
+glob-match = "0.2"
