@@ -8,7 +8,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/consistent-return",
     "name": "consistent-return",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/consistent_return.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/bug_prevention/consistent_return.rs",
     "typescriptOnly": false
   },
   {
@@ -20,7 +20,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/max-lines-per-function",
     "name": "max-function-length",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/max_function_length.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/code_quality/max_function_length.rs",
     "typescriptOnly": false
   },
   {
@@ -32,7 +32,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/max-params",
     "name": "max-params",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/max_params.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/code_quality/max_params.rs",
     "typescriptOnly": false
   },
   {
@@ -43,7 +43,7 @@
     "displayName": "No Absolute Imports",
     "name": "no-absolute-imports",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_absolute_imports.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/imports/no_absolute_imports.rs",
     "typescriptOnly": false
   },
   {
@@ -54,7 +54,7 @@
     "displayName": "No Alias Imports",
     "name": "no-alias-imports",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_alias_imports.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/imports/no_alias_imports.rs",
     "typescriptOnly": false
   },
   {
@@ -67,7 +67,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/require-await",
     "name": "no-async-without-await",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_async_without_await.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/code_quality/no_async_without_await.rs",
     "typescriptOnly": false
   },
   {
@@ -80,7 +80,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/no-console",
     "name": "no-console",
     "ruleType": "regex",
-    "sourcePath": "packages/core/crates/core/src/rules/no_console.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/code_quality/no_console.rs",
     "typescriptOnly": false
   },
   {
@@ -93,7 +93,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/no-constant-condition",
     "name": "no-constant-condition",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_constant_condition.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/bug_prevention/no_constant_condition.rs",
     "typescriptOnly": false
   },
   {
@@ -105,7 +105,7 @@
     "equivalentBiomeRule": "https://biomejs.dev/linter/rules/no-default-export",
     "name": "no-default-export",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_default_export.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/imports/no_default_export.rs",
     "typescriptOnly": false
   },
   {
@@ -118,7 +118,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/no-duplicate-imports",
     "name": "no-duplicate-imports",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_duplicate_imports.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/imports/no_duplicate_imports.rs",
     "typescriptOnly": false
   },
   {
@@ -129,7 +129,7 @@
     "displayName": "No Dynamic Import",
     "name": "no-dynamic-import",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_dynamic_import.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/imports/no_dynamic_import.rs",
     "typescriptOnly": false
   },
   {
@@ -142,7 +142,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/no-else-return",
     "name": "no-else-return",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_else_return.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/code_quality/no_else_return.rs",
     "typescriptOnly": false
   },
   {
@@ -153,7 +153,7 @@
     "displayName": "No Empty Class",
     "name": "no-empty-class",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_empty_class.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/code_quality/no_empty_class.rs",
     "typescriptOnly": false
   },
   {
@@ -165,7 +165,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/no-empty-function",
     "name": "no-empty-function",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_empty_function.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/code_quality/no_empty_function.rs",
     "typescriptOnly": false
   },
   {
@@ -178,7 +178,7 @@
     "equivalentEslintRule": "https://typescript-eslint.io/rules/no-empty-interface",
     "name": "no-empty-interface",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_empty_interface.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/code_quality/no_empty_interface.rs",
     "typescriptOnly": true
   },
   {
@@ -191,7 +191,7 @@
     "equivalentEslintRule": "https://typescript-eslint.io/rules/no-explicit-any",
     "name": "no-explicit-any",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_explicit_any.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/type_safety/no_explicit_any.rs",
     "typescriptOnly": true
   },
   {
@@ -204,7 +204,7 @@
     "equivalentEslintRule": "https://typescript-eslint.io/rules/no-floating-promises",
     "name": "no-floating-promises",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_floating_promises.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/bug_prevention/no_floating_promises.rs",
     "typescriptOnly": true
   },
   {
@@ -216,7 +216,7 @@
     "equivalentBiomeRule": "https://biomejs.dev/linter/rules/no-re-export-all",
     "name": "no-forwarded-exports",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_forwarded_exports.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/imports/no_forwarded_exports.rs",
     "typescriptOnly": false
   },
   {
@@ -227,7 +227,7 @@
     "displayName": "No Implicit Any",
     "name": "no-implicit-any",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_implicit_any.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/type_safety/no_implicit_any.rs",
     "typescriptOnly": true
   },
   {
@@ -240,7 +240,7 @@
     "equivalentEslintRule": "https://typescript-eslint.io/rules/no-inferrable-types",
     "name": "no-inferrable-types",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_inferrable_types.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/type_safety/no_inferrable_types.rs",
     "typescriptOnly": true
   },
   {
@@ -252,7 +252,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/global-require",
     "name": "no-nested-require",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_nested_require.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/imports/no_nested_require.rs",
     "typescriptOnly": false
   },
   {
@@ -265,7 +265,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/no-nested-ternary",
     "name": "no-nested-ternary",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_nested_ternary.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/code_quality/no_nested_ternary.rs",
     "typescriptOnly": false
   },
   {
@@ -278,7 +278,7 @@
     "equivalentEslintRule": "https://typescript-eslint.io/rules/no-non-null-assertion",
     "name": "no-non-null-assertion",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_non_null_assertion.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/type_safety/no_non_null_assertion.rs",
     "typescriptOnly": true
   },
   {
@@ -289,7 +289,7 @@
     "displayName": "No Relative Imports",
     "name": "no-relative-imports",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_relative_imports.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/imports/no_relative_imports.rs",
     "typescriptOnly": false
   },
   {
@@ -301,7 +301,7 @@
     "equivalentEslintRule": "https://typescript-eslint.io/rules/return-await",
     "name": "no-return-await",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_return_await.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/code_quality/no_return_await.rs",
     "typescriptOnly": false
   },
   {
@@ -313,7 +313,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/no-shadow",
     "name": "no-shadow",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_shadow.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/variables/no_shadow.rs",
     "typescriptOnly": false
   },
   {
@@ -324,7 +324,7 @@
     "displayName": "No Single Or Array Union",
     "name": "no-single-or-array-union",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_single_or_array_union.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/type_safety/no_single_or_array_union.rs",
     "typescriptOnly": true
   },
   {
@@ -336,7 +336,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/no-warning-comments",
     "name": "no-todo-comments",
     "ruleType": "regex",
-    "sourcePath": "packages/core/crates/core/src/rules/no_todo_comments.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/code_quality/no_todo_comments.rs",
     "typescriptOnly": false
   },
   {
@@ -348,7 +348,7 @@
     "equivalentEslintRule": "https://typescript-eslint.io/rules/no-unnecessary-type-assertion",
     "name": "no-unnecessary-type-assertion",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_unnecessary_type_assertion.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/type_safety/no_unnecessary_type_assertion.rs",
     "typescriptOnly": true
   },
   {
@@ -361,7 +361,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/no-unreachable",
     "name": "no-unreachable-code",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_unreachable_code.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/bug_prevention/no_unreachable_code.rs",
     "typescriptOnly": false
   },
   {
@@ -374,7 +374,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/no-unused-vars",
     "name": "no-unused-vars",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_unused_vars.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/code_quality/no_unused_vars.rs",
     "typescriptOnly": false
   },
   {
@@ -387,7 +387,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/no-useless-catch",
     "name": "no-useless-catch",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_useless_catch.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/code_quality/no_useless_catch.rs",
     "typescriptOnly": false
   },
   {
@@ -400,7 +400,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/no-var",
     "name": "no-var",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/no_var.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/variables/no_var.rs",
     "typescriptOnly": false
   },
   {
@@ -413,7 +413,7 @@
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/prefer-const",
     "name": "prefer-const",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/prefer_const.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/variables/prefer_const.rs",
     "typescriptOnly": false
   },
   {
@@ -425,7 +425,7 @@
     "equivalentEslintRule": "https://typescript-eslint.io/rules/consistent-type-definitions",
     "name": "prefer-interface-over-type",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/prefer_interface_over_type.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/style/prefer_interface_over_type.rs",
     "typescriptOnly": true
   },
   {
@@ -437,7 +437,7 @@
     "equivalentEslintRule": "https://typescript-eslint.io/rules/prefer-nullish-coalescing",
     "name": "prefer-nullish-coalescing",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/prefer_nullish_coalescing.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/style/prefer_nullish_coalescing.rs",
     "typescriptOnly": false
   },
   {
@@ -450,7 +450,7 @@
     "equivalentEslintRule": "https://typescript-eslint.io/rules/prefer-optional-chain",
     "name": "prefer-optional-chain",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/prefer_optional_chain.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/style/prefer_optional_chain.rs",
     "typescriptOnly": false
   },
   {
@@ -462,7 +462,7 @@
     "equivalentEslintRule": "https://typescript-eslint.io/rules/consistent-type-definitions",
     "name": "prefer-type-over-interface",
     "ruleType": "ast",
-    "sourcePath": "packages/core/crates/core/src/rules/prefer_type_over_interface.rs",
+    "sourcePath": "packages/core/crates/tscanner_rules/src/builtin/style/prefer_type_over_interface.rs",
     "typescriptOnly": true
   }
 ]

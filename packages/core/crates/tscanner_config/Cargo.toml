@@ -6,6 +6,10 @@ authors.workspace = true
 license.workspace = true
 repository.workspace = true
 
+[[bin]]
+name = "generate_config_fields"
+path = "src/bin/generate_config_fields.rs"
+
 [dependencies]
 tscanner_diagnostics = { path = "../tscanner_diagnostics" }
 serde = { workspace = true }

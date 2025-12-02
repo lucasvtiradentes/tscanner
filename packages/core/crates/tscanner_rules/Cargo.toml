@@ -6,6 +6,10 @@ authors.workspace = true
 license.workspace = true
 repository.workspace = true
 
+[[bin]]
+name = "generate_rules_json"
+path = "src/bin/generate_rules_json.rs"
+
 [dependencies]
 tscanner_diagnostics = { path = "../tscanner_diagnostics" }
 tscanner_config = { path = "../tscanner_config" }

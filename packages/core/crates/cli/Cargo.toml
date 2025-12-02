@@ -14,6 +14,10 @@ path = "src/main.rs"
 name = "generate_cli_json"
 path = "src/bin/generate_cli_json.rs"
 
+[[bin]]
+name = "generate_schema"
+path = "src/bin/generate_schema.rs"
+
 [dependencies]
 tscanner_diagnostics = { path = "../tscanner_diagnostics" }
 tscanner_config = { path = "../tscanner_config" }
@@ -24,6 +28,7 @@ tscanner_scanner = { path = "../tscanner_scanner" }
 tscanner_service = { path = "../tscanner_service" }
 serde = { workspace = true }
 serde_json = { workspace = true }
+schemars = { workspace = true }
 anyhow = { workspace = true }
 clap = { version = "4.5", features = ["derive"] }
 colored = "2.1"

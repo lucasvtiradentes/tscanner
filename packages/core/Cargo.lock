@@ -235,6 +235,7 @@ dependencies = [
  "colored",
  "glob",
  "pathdiff",
+ "schemars",
  "serde",
  "serde_json",
  "tscanner_cache",
