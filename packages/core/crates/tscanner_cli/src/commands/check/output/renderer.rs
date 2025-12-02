@@ -1,5 +1,5 @@
 use crate::shared::SummaryStats;
-use cli::OutputFormat;
+use tscanner_cli::OutputFormat;
 use tscanner_diagnostics::ScanResult;
 
 use super::json::JsonRenderer;

@@ -7,8 +7,8 @@ use std::sync::Arc;
 
 use crate::config_loader::load_config_with_custom;
 use crate::shared::{render_header, render_summary, ScanConfig, ScanMode, SummaryStats};
-use cli::{CliGroupMode, OutputFormat};
 use tscanner_cache::FileCache;
+use tscanner_cli::{CliGroupMode, OutputFormat};
 use tscanner_config::{CliConfig, CliGroupBy};
 use tscanner_diagnostics::GroupMode;
 use tscanner_scanner::{ConfigExt, Scanner};

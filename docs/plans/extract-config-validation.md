@@ -73,8 +73,8 @@ This does nothing - validation already happened in `load_config_with_custom()`.
 | File | Changes |
 |------|---------|
 | `packages/core/crates/core/src/config.rs` | Add `load_without_validation()`, make `validate_json_fields()` public, refactor `validate()` to return structured result |
-| `packages/core/crates/cli/src/commands/config/command.rs` | Update `cmd_validate()` to run validation explicitly and show detailed output |
-| `packages/core/crates/cli/src/config_loader.rs` | Maybe add variant that skips validation |
+| `packages/core/crates/tscanner_cli/src/commands/config/command.rs` | Update `cmd_validate()` to run validation explicitly and show detailed output |
+| `packages/core/crates/tscanner_cli/src/config_loader.rs` | Maybe add variant that skips validation |
 
 ## Implementation Steps
 

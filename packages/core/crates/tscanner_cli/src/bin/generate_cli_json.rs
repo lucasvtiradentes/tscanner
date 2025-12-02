@@ -1,8 +1,8 @@
 use clap::CommandFactory;
-use cli::Cli;
 use serde::Serialize;
 use std::fs;
 use std::path::PathBuf;
+use tscanner_cli::Cli;
 
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]

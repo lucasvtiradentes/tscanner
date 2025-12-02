@@ -180,7 +180,7 @@ stdout
 
 **File structure:**
 ```
-crates/server/src/handlers/
+crates/tscanner_server/src/handlers/
 ├── scan.rs                 - Full workspace scan
 ├── scan_file.rs            - Single file scan
 ├── scan_content.rs         - In-memory content scan

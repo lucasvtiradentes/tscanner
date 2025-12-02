@@ -4,7 +4,7 @@
   "description": "Code quality scanner for the AI-generated code era",
   "scripts": {
     "build": "cargo build --release",
-    "postbuild": "cargo run -p cli --bin generate_cli_json && cargo run -p tscanner_config --bin generate_config_fields && cargo run -p tscanner_rules --bin generate_rules_json && cargo run -p cli --bin generate_schema",
+    "postbuild": "cargo run -p tscanner_cli --bin generate_cli_json && cargo run -p tscanner_config --bin generate_config_fields && cargo run -p tscanner_rules --bin generate_rules_json && cargo run -p tscanner_cli --bin generate_schema",
     "lint": "cargo clippy -- -D warnings && cargo fmt -- --check",
     "lint:fix": "cargo clippy --fix --allow-dirty --allow-staged -- -D warnings",
     "format": "cargo fmt",

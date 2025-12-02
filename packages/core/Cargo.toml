@@ -10,8 +10,8 @@ members = [
   "crates/tscanner_service",
   "crates/tscanner_lsp",
   "crates/tscanner_rpc",
-  "crates/cli",
-  "crates/server",
+  "crates/tscanner_cli",
+  "crates/tscanner_server",
 ]
 
 [workspace.package]

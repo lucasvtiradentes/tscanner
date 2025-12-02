@@ -1,5 +1,5 @@
-use cli::OutputFormat;
 use colored::*;
+use tscanner_cli::OutputFormat;
 use tscanner_diagnostics::GroupMode;
 
 #[derive(Clone)]

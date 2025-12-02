@@ -7,8 +7,8 @@ mod commands;
 mod config_loader;
 mod shared;
 
-use cli::{Cli, Commands};
 use commands::{cmd_check, cmd_config, cmd_init};
+use tscanner_cli::{Cli, Commands};
 use tscanner_service::init_logger;
 
 fn main() -> Result<()> {
