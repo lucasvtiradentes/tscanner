@@ -1,10 +1,8 @@
 use super::cache::FileCache;
-use super::parser::parse_file;
 use super::registry::RuleRegistry;
-use super::script_executor::ScriptExecutor;
 use crate::config::{compile_globset, CustomRuleConfig, ScriptRuleConfig, TscannerConfig};
+use crate::executors::{AiExecutor, BuiltinExecutor, ScriptExecutor};
 use crate::output::{ContentScanResult, FileResult, Issue, ScanResult};
-use crate::utils::{DisableDirectives, FileSource};
 use globset::GlobSet;
 use ignore::WalkBuilder;
 use rayon::prelude::*;
@@ -14,15 +12,6 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::Instant;
 
-const JS_TS_EXTENSIONS: &[&str] = &["ts", "tsx", "js", "jsx", "mjs", "cjs", "mts", "cts"];
-
-fn is_js_ts_file(path: &Path) -> bool {
-    path.extension()
-        .and_then(|ext| ext.to_str())
-        .map(|ext| JS_TS_EXTENSIONS.contains(&ext))
-        .unwrap_or(false)
-}
-
 pub struct Scanner {
     registry: RuleRegistry,
     config: TscannerConfig,
@@ -31,6 +20,7 @@ pub struct Scanner {
     global_include: GlobSet,
     global_exclude: GlobSet,
     script_executor: ScriptExecutor,
+    ai_executor: AiExecutor,
 }
 
 impl Scanner {
@@ -40,6 +30,7 @@ impl Scanner {
         let global_include = compile_globset(&config.files.include)?;
         let global_exclude = compile_globset(&config.files.exclude)?;
         let script_executor = ScriptExecutor::new(&root);
+        let ai_executor = AiExecutor::new(&root);
         Ok(Self {
             registry,
             config,
@@ -48,6 +39,7 @@ impl Scanner {
             global_include,
             global_exclude,
             script_executor,
+            ai_executor,
         })
     }
 
@@ -60,6 +52,7 @@ impl Scanner {
         let global_include = compile_globset(&config.files.include)?;
         let global_exclude = compile_globset(&config.files.exclude)?;
         let script_executor = ScriptExecutor::new(&root);
+        let ai_executor = AiExecutor::new(&root);
         Ok(Self {
             registry,
             config,
@@ -68,6 +61,7 @@ impl Scanner {
             global_include,
             global_exclude,
             script_executor,
+            ai_executor,
         })
     }
 
@@ -83,6 +77,64 @@ impl Scanner {
         let start = Instant::now();
         crate::utils::log_info(&format!("Starting scan of {:?}", roots));
 
+        let files = self.collect_files(roots, file_filter);
+        let file_count = files.len();
+        crate::utils::log_debug(&format!("Found {} files to scan", file_count));
+
+        let processed = AtomicUsize::new(0);
+        let cache_hits = AtomicUsize::new(0);
+
+        let results: Vec<FileResult> = files
+            .par_iter()
+            .filter_map(|path| {
+                processed.fetch_add(1, Ordering::Relaxed);
+
+                if let Some(cached_issues) = self.cache.get(path) {
+                    cache_hits.fetch_add(1, Ordering::Relaxed);
+                    if cached_issues.is_empty() {
+                        return None;
+                    }
+                    return Some(FileResult {
+                        file: path.clone(),
+                        issues: cached_issues,
+                    });
+                }
+
+                self.run_builtin_executor(path)
+            })
+            .filter(|r| !r.issues.is_empty())
+            .collect();
+
+        let script_issues = self.run_script_rules(&files);
+        let ai_issues = self.run_ai_rules(&files);
+
+        let mut all_results = results;
+        self.merge_issues(&mut all_results, script_issues);
+        self.merge_issues(&mut all_results, ai_issues);
+
+        let total_issues: usize = all_results.iter().map(|r| r.issues.len()).sum();
+        let duration = start.elapsed();
+
+        self.cache.flush();
+
+        let cached = cache_hits.load(Ordering::Relaxed);
+        let scanned = file_count - cached;
+
+        ScanResult {
+            files: all_results,
+            total_issues,
+            duration_ms: duration.as_millis(),
+            total_files: file_count,
+            cached_files: cached,
+            scanned_files: scanned,
+        }
+    }
+
+    fn collect_files(
+        &self,
+        roots: &[PathBuf],
+        file_filter: Option<&HashSet<PathBuf>>,
+    ) -> Vec<PathBuf> {
         let mut files: Vec<PathBuf> = Vec::new();
 
         for root in roots {
@@ -128,53 +180,27 @@ impl Scanner {
             ));
         }
 
-        let file_count = files.len();
-        crate::utils::log_debug(&format!("Found {} files to scan", file_count));
+        files
+    }
 
-        let processed = AtomicUsize::new(0);
-        let cache_hits = AtomicUsize::new(0);
+    fn run_builtin_executor(&self, path: &Path) -> Option<FileResult> {
+        use crate::executors::ExecuteResult;
 
-        let results: Vec<FileResult> = files
-            .par_iter()
-            .filter_map(|path| {
-                processed.fetch_add(1, Ordering::Relaxed);
+        let source = std::fs::read_to_string(path).ok()?;
+        let executor = BuiltinExecutor::new(&self.registry, &self.config, &self.root);
 
-                if let Some(cached_issues) = self.cache.get(path) {
-                    cache_hits.fetch_add(1, Ordering::Relaxed);
-                    if cached_issues.is_empty() {
-                        return None;
-                    }
-                    return Some(FileResult {
-                        file: path.clone(),
-                        issues: cached_issues,
-                    });
-                }
-
-                self.analyze_file(path)
-            })
-            .filter(|r| !r.issues.is_empty())
-            .collect();
-
-        let script_issues = self.run_script_rules(&files);
-
-        let mut all_results = results;
-        self.merge_script_issues(&mut all_results, script_issues);
-
-        let total_issues: usize = all_results.iter().map(|r| r.issues.len()).sum();
-        let duration = start.elapsed();
-
-        self.cache.flush();
-
-        let cached = cache_hits.load(Ordering::Relaxed);
-        let scanned = file_count - cached;
-
-        ScanResult {
-            files: all_results,
-            total_issues,
-            duration_ms: duration.as_millis(),
-            total_files: file_count,
-            cached_files: cached,
-            scanned_files: scanned,
+        match executor.execute(path, &source) {
+            ExecuteResult::Skip => None,
+            ExecuteResult::ParseError => None,
+            ExecuteResult::Disabled | ExecuteResult::Empty => {
+                self.cache.insert(path.to_path_buf(), Vec::new());
+                None
+            }
+            ExecuteResult::Ok(file_result) => {
+                self.cache
+                    .insert(path.to_path_buf(), file_result.issues.clone());
+                Some(file_result)
+            }
         }
     }
 
@@ -197,6 +223,19 @@ impl Scanner {
             return vec![];
         }
 
+        let all_files = self.collect_script_files(&script_rules);
+        if all_files.is_empty() {
+            return vec![];
+        }
+
+        self.script_executor
+            .execute_rules(&script_rules, &all_files, &self.root)
+    }
+
+    fn collect_script_files(
+        &self,
+        script_rules: &[(String, ScriptRuleConfig)],
+    ) -> Vec<(PathBuf, String)> {
         let needed_patterns: HashSet<&str> = script_rules
             .iter()
             .flat_map(|(_, cfg)| cfg.base.include.iter().map(|s| s.as_str()))
@@ -211,7 +250,7 @@ impl Scanner {
             .flat_map(|(_, cfg)| cfg.base.exclude.iter().map(|s| s.as_str()))
             .collect();
 
-        let all_files: Vec<(PathBuf, String)> = WalkBuilder::new(&self.root)
+        WalkBuilder::new(&self.root)
             .hidden(false)
             .git_ignore(true)
             .build()
@@ -237,48 +276,74 @@ impl Scanner {
                     .ok()
                     .map(|content| (path, content))
             })
+            .collect()
+    }
+
+    fn run_ai_rules(&self, _files: &[PathBuf]) -> Vec<Issue> {
+        use crate::config::AiRuleConfig;
+
+        let ai_rules: Vec<(String, AiRuleConfig)> = self
+            .config
+            .custom_rules
+            .iter()
+            .filter_map(|(name, config)| {
+                if let CustomRuleConfig::Ai(ai_config) = config {
+                    if ai_config.base.enabled {
+                        return Some((name.clone(), ai_config.clone()));
+                    }
+                }
+                None
+            })
             .collect();
 
-        if all_files.is_empty() {
+        if ai_rules.is_empty() {
             return vec![];
         }
 
-        self.script_executor
-            .execute_rules(&script_rules, &all_files, &self.root)
+        self.ai_executor.execute_rules(&ai_rules, &[], &self.root)
     }
 
-    fn merge_script_issues(&self, results: &mut Vec<FileResult>, script_issues: Vec<Issue>) {
-        if script_issues.is_empty() {
+    fn merge_issues(&self, results: &mut Vec<FileResult>, issues: Vec<Issue>) {
+        if issues.is_empty() {
             return;
         }
 
         let mut issues_by_file: HashMap<PathBuf, Vec<Issue>> = HashMap::new();
-        for issue in script_issues {
+        for issue in issues {
             issues_by_file
                 .entry(issue.file.clone())
                 .or_default()
                 .push(issue);
         }
 
-        for (file, issues) in issues_by_file {
+        for (file, file_issues) in issues_by_file {
             if let Some(file_result) = results.iter_mut().find(|r| r.file == file) {
-                file_result.issues.extend(issues);
+                file_result.issues.extend(file_issues);
             } else {
-                results.push(FileResult { file, issues });
+                results.push(FileResult {
+                    file,
+                    issues: file_issues,
+                });
             }
         }
     }
 
     pub fn scan_single(&self, path: &Path) -> Option<FileResult> {
         self.cache.invalidate(path);
-        self.analyze_file(path)
+        self.run_builtin_executor(path)
     }
 
     pub fn scan_content(&self, path: &Path, content: &str) -> Option<ContentScanResult> {
-        let builtin_result = self.process_source(path, content, false);
+        use crate::executors::ExecuteResult;
+
+        let executor = BuiltinExecutor::new(&self.registry, &self.config, &self.root);
+        let builtin_result = executor.execute(path, content);
         let (script_issues, related_files) = self.run_script_rules_for_content(path, content);
 
-        let mut all_issues = builtin_result.map(|r| r.issues).unwrap_or_default();
+        let mut all_issues = match builtin_result {
+            ExecuteResult::Ok(r) => r.issues,
+            _ => Vec::new(),
+        };
         all_issues.extend(script_issues);
 
         if all_issues.is_empty() && related_files.is_empty() {
@@ -431,80 +496,13 @@ impl Scanner {
                 .any(|pattern| glob_match::glob_match(pattern, &relative_str));
 
             if matches {
-                if let Ok(content) = std::fs::read_to_string(entry_path) {
-                    files.insert(entry_path.to_path_buf(), content);
+                if let Ok(file_content) = std::fs::read_to_string(entry_path) {
+                    files.insert(entry_path.to_path_buf(), file_content);
                 }
             }
         }
 
         files
-    }
-
-    fn analyze_file(&self, path: &Path) -> Option<FileResult> {
-        if !is_js_ts_file(path) {
-            return None;
-        }
-        let source = std::fs::read_to_string(path).ok()?;
-        self.process_source(path, &source, true)
-    }
-
-    fn process_source(&self, path: &Path, source: &str, use_cache: bool) -> Option<FileResult> {
-        if !is_js_ts_file(path) {
-            return None;
-        }
-
-        let directives = DisableDirectives::from_source(source);
-
-        if directives.file_disabled {
-            if use_cache {
-                self.cache.insert(path.to_path_buf(), Vec::new());
-            }
-            return None;
-        }
-
-        let file_source = FileSource::from_path(path);
-
-        let program = match parse_file(path, source) {
-            Ok(p) => p,
-            Err(e) => {
-                crate::utils::log_debug(&format!("Failed to parse {:?}: {}", path, e));
-                return None;
-            }
-        };
-
-        let enabled_rules = self
-            .registry
-            .get_enabled_rules(path, &self.root, &self.config);
-        let source_lines: Vec<&str> = source.lines().collect();
-
-        let issues: Vec<_> = enabled_rules
-            .iter()
-            .filter(|(rule, _)| !(rule.is_typescript_only() && file_source.is_javascript()))
-            .flat_map(|(rule, severity)| {
-                let mut rule_issues = rule.check(&program, path, source, file_source);
-                for issue in &mut rule_issues {
-                    issue.severity = *severity;
-                    if issue.line > 0 && issue.line <= source_lines.len() {
-                        issue.line_text = Some(source_lines[issue.line - 1].to_string());
-                    }
-                }
-                rule_issues
-            })
-            .filter(|issue| !directives.is_rule_disabled(issue.line, &issue.rule))
-            .collect();
-
-        if use_cache {
-            self.cache.insert(path.to_path_buf(), issues.clone());
-        }
-
-        if issues.is_empty() {
-            None
-        } else {
-            Some(FileResult {
-                file: path.to_path_buf(),
-                issues,
-            })
-        }
     }
 
     pub fn cache(&self) -> Arc<FileCache> {

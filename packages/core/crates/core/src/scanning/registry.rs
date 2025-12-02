@@ -1,7 +1,7 @@
 use crate::config::{CompiledRuleConfig, CustomRuleConfig, TscannerConfig};
+use crate::executors::RegexExecutor;
 use crate::output::Severity;
 use crate::rule::{Rule, RuleRegistration};
-use crate::rules::RegexRule;
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
@@ -47,14 +47,14 @@ impl RuleRegistry {
 
         for (rule_name, rule_config) in &config.custom_rules {
             if let CustomRuleConfig::Regex(regex_config) = rule_config {
-                match RegexRule::new(
+                match RegexExecutor::new(
                     rule_name.clone(),
                     regex_config.pattern.clone(),
                     regex_config.base.message.clone(),
                     regex_config.base.severity,
                 ) {
-                    Ok(regex_rule) => {
-                        rules.insert(rule_name.clone(), Arc::new(regex_rule));
+                    Ok(regex_executor) => {
+                        rules.insert(rule_name.clone(), Arc::new(regex_executor));
                     }
                     Err(e) => {
                         crate::utils::log_error(&format!(

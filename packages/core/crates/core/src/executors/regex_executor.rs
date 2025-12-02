@@ -4,14 +4,14 @@ use regex::Regex;
 use std::path::Path;
 use swc_ecma_ast::Program;
 
-pub struct RegexRule {
+pub struct RegexExecutor {
     name: String,
     pattern: Regex,
     message: String,
     severity: Severity,
 }
 
-impl RegexRule {
+impl RegexExecutor {
     pub fn new(
         name: String,
         pattern: String,
@@ -27,7 +27,7 @@ impl RegexRule {
     }
 }
 
-impl Rule for RegexRule {
+impl Rule for RegexExecutor {
     fn name(&self) -> &str {
         &self.name
     }
@@ -59,3 +59,5 @@ impl Rule for RegexRule {
         issues
     }
 }
+
+pub type RegexRule = RegexExecutor;

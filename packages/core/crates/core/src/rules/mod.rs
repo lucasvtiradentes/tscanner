@@ -37,10 +37,8 @@ mod prefer_interface_over_type;
 mod prefer_nullish_coalescing;
 mod prefer_optional_chain;
 mod prefer_type_over_interface;
-mod regex_rule;
 
 pub use metadata::{
     get_all_rule_metadata, get_allowed_options_for_rule, RuleCategory, RuleMetadata,
     RuleMetadataRegistration, RuleType,
 };
-pub use regex_rule::RegexRule;
