@@ -1,10 +1,10 @@
 mod defaults;
-mod globset_utils;
+mod globset;
 mod loader;
 mod types;
 mod validation;
 
-pub use globset_utils::compile_globset;
+pub use globset::compile_globset;
 pub use loader::CONFIG_ERROR_PREFIX;
 pub use types::{
     AiRuleConfig, BuiltinRuleConfig, CliConfig, CliGroupBy, CodeEditorConfig, CompiledRuleConfig,

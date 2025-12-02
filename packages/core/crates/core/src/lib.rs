@@ -2,7 +2,6 @@ pub mod config;
 pub mod constants;
 pub mod executors;
 pub mod output;
-pub mod rule;
 pub mod rules;
 pub mod scanning;
 pub mod utils;
@@ -15,8 +14,7 @@ pub use config::{
 pub use constants::*;
 pub use executors::{AiExecutor, BuiltinExecutor, RegexExecutor, RegexRule, ScriptExecutor};
 pub use output::{FileResult, GroupMode, Issue, PrettyFormatter, ScanResult, Severity};
-pub use rule::{Rule, RuleRegistration};
-pub use rules::{get_all_rule_metadata, RuleCategory, RuleMetadata};
+pub use rules::{get_all_rule_metadata, Rule, RuleCategory, RuleMetadata, RuleRegistration};
 pub use scanning::{parse_file, FileCache, FileEvent, FileWatcher, RuleRegistry, Scanner};
 pub use utils::{
     get_changed_files, get_logger, get_modified_lines, get_staged_files, get_staged_modified_lines,

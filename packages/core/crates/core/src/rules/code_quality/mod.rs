@@ -1,0 +1,13 @@
+mod max_function_length;
+mod max_params;
+mod no_async_without_await;
+mod no_console;
+mod no_else_return;
+mod no_empty_class;
+mod no_empty_function;
+mod no_empty_interface;
+mod no_nested_ternary;
+mod no_return_await;
+mod no_todo_comments;
+mod no_unused_vars;
+mod no_useless_catch;

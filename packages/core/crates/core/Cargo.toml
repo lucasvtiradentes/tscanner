@@ -8,7 +8,15 @@ repository.workspace = true
 
 [[bin]]
 name = "generate_schema"
-path = "src/bin/generate_schema.rs"
+path = "scripts/generate_schema.rs"
+
+[[bin]]
+name = "generate_rules_json"
+path = "scripts/generate_rules_json.rs"
+
+[[bin]]
+name = "generate_config_fields"
+path = "scripts/generate_config_fields.rs"
 
 [dependencies]
 swc_ecma_parser = { workspace = true }

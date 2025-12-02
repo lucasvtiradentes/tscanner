@@ -6,7 +6,7 @@ use std::path::Path;
 use crate::output::Severity;
 
 use super::defaults::get_default_config_json;
-use super::globset_utils::{compile_globset, compile_optional_globset};
+use super::globset::{compile_globset, compile_optional_globset};
 use super::types::{CompiledRuleConfig, CustomRuleConfig, TscannerConfig};
 use super::validation::{validate_json_fields, ValidationResult};
 

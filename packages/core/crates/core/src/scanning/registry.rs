@@ -1,7 +1,7 @@
 use crate::config::{CompiledRuleConfig, CustomRuleConfig, TscannerConfig};
 use crate::executors::RegexExecutor;
 use crate::output::Severity;
-use crate::rule::{Rule, RuleRegistration};
+use crate::rules::{Rule, RuleRegistration};
 use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
