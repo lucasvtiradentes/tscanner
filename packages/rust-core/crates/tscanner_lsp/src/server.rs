@@ -27,18 +27,11 @@ pub fn run_lsp_server() -> Result<(), LspError> {
     Ok(())
 }
 
-#[allow(deprecated)]
 fn extract_workspace_root(params: &InitializeParams) -> Option<PathBuf> {
     params
-        .root_uri
+        .workspace_folders
         .as_ref()
-        .and_then(|uri| uri.to_file_path().ok())
-        .or_else(|| {
-            params
-                .workspace_folders
-                .as_ref()
-                .and_then(|folders| folders.first().and_then(|f| f.uri.to_file_path().ok()))
-        })
+        .and_then(|folders| folders.first().and_then(|f| f.uri.to_file_path().ok()))
 }
 
 fn main_loop(connection: &Connection, session: &mut Session) -> Result<(), LspError> {
