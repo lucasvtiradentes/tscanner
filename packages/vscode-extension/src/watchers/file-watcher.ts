@@ -3,9 +3,8 @@ import * as vscode from 'vscode';
 import { loadEffectiveConfig } from '../common/lib/config-manager';
 import { WorkspaceStateKey, getCurrentWorkspaceFolder, setWorkspaceState } from '../common/lib/vscode-utils';
 import type { ExtensionStateRefs } from '../common/state/extension-state';
-import { serializeResults } from '../common/types';
+import { type IssueResult, type ModifiedLineRange, serializeResults } from '../common/types';
 import { getChangedFiles, getModifiedLineRanges, invalidateCache } from '../common/utils/git-helper';
-import { getNewIssues } from '../common/utils/issue-comparator';
 import { logger } from '../common/utils/logger';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
 import { scanContent } from '../scanner';
@@ -15,6 +14,26 @@ function normalizePattern(pattern: string): string {
     return pattern;
   }
   return `**/${pattern}`;
+}
+
+function isLineInRanges(line: number, ranges: ModifiedLineRange[]): boolean {
+  return ranges.some((range) => {
+    const endLine = range.startLine + range.lineCount - 1;
+    return line >= range.startLine && line <= endLine;
+  });
+}
+
+function getNewIssues(
+  currentIssues: IssueResult[],
+  modifiedRangesByFile: Map<string, ModifiedLineRange[]>,
+): IssueResult[] {
+  return currentIssues.filter((issue) => {
+    const ranges = modifiedRangesByFile.get(issue.uri.fsPath);
+    if (!ranges || ranges.length === 0) {
+      return true;
+    }
+    return isLineInRanges(issue.line + 1, ranges);
+  });
 }
 
 function buildWatchPattern(config: TscannerConfig | null): string {
