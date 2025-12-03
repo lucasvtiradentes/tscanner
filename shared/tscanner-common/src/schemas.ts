@@ -101,8 +101,7 @@ export const regexRuleConfigSchema = z
 export const scriptRuleConfigSchema = z
   .object({
     type: z.literal(CustomRuleType.Script),
-    script: z.string(),
-    runner: z.string().optional(),
+    command: z.string(),
     mode: scriptModeSchema.optional(),
     timeout: z.number().optional(),
     options: z.any().optional(),

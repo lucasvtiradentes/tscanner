@@ -38,8 +38,8 @@ impl TscannerConfig {
 
     pub fn validate_with_workspace(
         &self,
-        workspace: Option<&Path>,
-        config_dir_name: &str,
+        _workspace: Option<&Path>,
+        _config_dir_name: &str,
     ) -> ValidationResult {
         let mut result = ValidationResult::new();
 
@@ -51,17 +51,8 @@ impl TscannerConfig {
             }
 
             if let CustomRuleConfig::Script(script_config) = rule_config {
-                if let Some(ws) = workspace {
-                    let script_path = ws
-                        .join(config_dir_name)
-                        .join("scripts")
-                        .join(&script_config.script);
-                    if !script_path.exists() {
-                        result.add_error(format!(
-                            "Rule '{}' references non-existent script: {}",
-                            name, script_config.script
-                        ));
-                    }
+                if script_config.command.trim().is_empty() {
+                    result.add_error(format!("Rule '{}' has empty command", name));
                 }
             }
         }

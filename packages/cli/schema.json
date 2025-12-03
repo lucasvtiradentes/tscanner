@@ -1673,6 +1673,10 @@
         },
         {
           "properties": {
+            "command": {
+              "description": "Full command to execute the script (e.g., 'npx tsx scripts/my-script.ts --arg'). Path is relative to .tscanner/ directory.",
+              "type": "string"
+            },
             "enabled": {
               "default": true,
               "description": "Enable or disable this rule (default: true)",
@@ -1708,17 +1712,6 @@
             "options": {
               "description": "Additional options to pass to the script"
             },
-            "runner": {
-              "description": "Custom runner command (e.g., 'npx tsx', 'python3'). Auto-detected from extension if not specified.",
-              "type": [
-                "string",
-                "null"
-              ]
-            },
-            "script": {
-              "description": "Path to script file relative to .tscanner/scripts/",
-              "type": "string"
-            },
             "severity": {
               "allOf": [
                 {
@@ -1743,8 +1736,8 @@
             }
           },
           "required": [
+            "command",
             "message",
-            "script",
             "type"
           ],
           "type": "object"

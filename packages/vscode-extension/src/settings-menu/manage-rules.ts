@@ -66,7 +66,7 @@ function getCustomRuleDetail(ruleConfig: NonNullable<TscannerConfig['customRules
     case CustomRuleType.Regex:
       return ruleConfig.pattern;
     case CustomRuleType.Script:
-      return ruleConfig.script;
+      return ruleConfig.command;
     case CustomRuleType.Ai:
       return ruleConfig.prompt;
     default:
