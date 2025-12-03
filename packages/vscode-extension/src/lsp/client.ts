@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import * as vscode from 'vscode';
 import { LanguageClient, type LanguageClientOptions, type ServerOptions, Trace } from 'vscode-languageclient/node';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../common/constants';
+import { ensureBinaryExecutable } from '../common/lib/binary-utils';
 import { ExtensionConfigKey, TraceLevel, getExtensionConfig } from '../common/state/extension-config';
 import type {
   ContentScanResult,
@@ -35,6 +36,8 @@ export class TscannerLspClient {
     if (!existsSync(this.binaryPath)) {
       throw new Error(`Binary not found: ${this.binaryPath}`);
     }
+
+    ensureBinaryExecutable(this.binaryPath);
 
     const trace = getExtensionConfig(ExtensionConfigKey.TraceServer);
 
