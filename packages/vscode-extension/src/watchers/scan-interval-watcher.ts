@@ -1,7 +1,7 @@
 import type * as vscode from 'vscode';
 import { loadEffectiveConfig } from '../common/lib/config-manager';
-import type { ExtensionStateRefs } from '../common/lib/extension-state';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
+import type { ExtensionStateRefs } from '../common/state/extension-state';
 import { logger } from '../common/utils/logger';
 
 let scanIntervalTimer: NodeJS.Timeout | null = null;

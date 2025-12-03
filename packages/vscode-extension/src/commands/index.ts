@@ -1,6 +1,6 @@
 import type * as vscode from 'vscode';
 import { setCopyLspClient, setCopyScanContext } from '../common/lib/copy-utils';
-import type { CommandContext } from '../common/lib/extension-state';
+import type { CommandContext } from '../common/state/extension-state';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
 import { createManageRulesCommand, createOpenSettingsMenuCommand } from '../settings-menu';
 import { createCopyAllIssuesCommand } from './internal/copy-all';

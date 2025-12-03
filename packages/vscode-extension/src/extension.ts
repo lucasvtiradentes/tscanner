@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { getViewId } from './common/constants';
-import { type CommandContext, createExtensionStateRefs } from './common/lib/extension-state';
 import {
   Command,
   ContextKey,
@@ -11,6 +10,7 @@ import {
   getWorkspaceState,
   setContextKey,
 } from './common/lib/vscode-utils';
+import { type CommandContext, createExtensionStateRefs } from './common/state/extension-state';
 import { logger } from './common/utils/logger';
 import { IssuesPanelContent } from './issues-panel/panel-content';
 import { IssuesPanelIcon } from './issues-panel/panel-icon';

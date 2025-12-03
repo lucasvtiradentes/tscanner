@@ -1,7 +1,6 @@
 import { ScanMode, ViewMode } from 'tscanner-common';
 import { CONFIG_DIR_NAME } from '../../common/constants';
 import { getConfigState, loadEffectiveConfig } from '../../common/lib/config-manager';
-import type { CommandContext } from '../../common/lib/extension-state';
 import {
   Command,
   ContextKey,
@@ -15,6 +14,7 @@ import {
   showToastMessage,
   updateState,
 } from '../../common/lib/vscode-utils';
+import type { CommandContext } from '../../common/state/extension-state';
 import { hasConfiguredRules, serializeResults } from '../../common/types';
 import { branchExists } from '../../common/utils/git-helper';
 import { logger } from '../../common/utils/logger';

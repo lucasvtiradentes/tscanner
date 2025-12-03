@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import { getConfigState } from '../common/lib/config-manager';
-import type { CommandContext } from '../common/lib/extension-state';
 import {
   Command,
   type QuickPickItemWithId,
@@ -8,6 +7,7 @@ import {
   registerCommand,
   requireWorkspaceOrNull,
 } from '../common/lib/vscode-utils';
+import type { CommandContext } from '../common/state/extension-state';
 import { logger } from '../common/utils/logger';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
 import { getCurrentLocationLabel, openConfigFile, showConfigLocationMenu } from './config-location';
