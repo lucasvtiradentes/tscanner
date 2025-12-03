@@ -3,6 +3,7 @@ import { homedir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
 import * as vscode from 'vscode';
 import { IS_DEV } from '../common/constants';
+import { ExtensionConfigKey, getExtensionConfig } from '../common/state/extension-config';
 import { findInGlobalModules } from './global-modules';
 import { findInNodeModules } from './node-modules';
 import { findInPath } from './path';
@@ -64,8 +65,7 @@ export class Locator {
   }
 
   private getSettingsPath(): string | null {
-    const config = vscode.workspace.getConfiguration('tscanner');
-    const binPath = config.get<string>('lsp.bin');
+    const binPath = getExtensionConfig(ExtensionConfigKey.LspBin);
 
     if (!binPath || binPath.trim() === '') {
       return null;

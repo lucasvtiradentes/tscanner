@@ -2,6 +2,7 @@ import { existsSync } from 'node:fs';
 import * as vscode from 'vscode';
 import { LanguageClient, type LanguageClientOptions, type ServerOptions, Trace } from 'vscode-languageclient/node';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../common/constants';
+import { ExtensionConfigKey, TraceLevel, getExtensionConfig } from '../common/state/extension-config';
 import type {
   ContentScanResult,
   FileResult,
@@ -35,8 +36,7 @@ export class TscannerLspClient {
       throw new Error(`Binary not found: ${this.binaryPath}`);
     }
 
-    const config = vscode.workspace.getConfiguration('tscanner');
-    const trace = config.get<string>('trace.server') ?? 'off';
+    const trace = getExtensionConfig(ExtensionConfigKey.TraceServer);
 
     const serverOptions: ServerOptions = {
       command: this.binaryPath,
@@ -58,13 +58,14 @@ export class TscannerLspClient {
           vscode.workspace.createFileSystemWatcher(`**/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`),
         ],
       },
-      traceOutputChannel: trace !== 'off' ? vscode.window.createOutputChannel('TScanner LSP Trace') : undefined,
+      traceOutputChannel:
+        trace !== TraceLevel.Off ? vscode.window.createOutputChannel('TScanner LSP Trace') : undefined,
     };
 
     this.client = new LanguageClient('tscanner', 'TScanner LSP', serverOptions, clientOptions);
 
-    if (trace !== 'off') {
-      await this.client.setTrace(trace === 'verbose' ? Trace.Verbose : Trace.Messages);
+    if (trace !== TraceLevel.Off) {
+      await this.client.setTrace(trace === TraceLevel.Verbose ? Trace.Verbose : Trace.Messages);
     }
 
     await this.client.start();
