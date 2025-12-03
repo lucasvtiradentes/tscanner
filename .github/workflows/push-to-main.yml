@@ -99,7 +99,7 @@ jobs:
 
   release_vscode:
     name: 'Release VSCode Extension'
-    needs: [push_to_main_ci, build_rust_binaries, prepare_release]
+    needs: [push_to_main_ci, prepare_release]
     if: needs.prepare_release.outputs.has_changesets == 'false' && needs.push_to_main_ci.outputs.should_release_vscode == 'true'
     runs-on: ubuntu-latest
     env:

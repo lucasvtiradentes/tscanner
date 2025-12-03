@@ -42,7 +42,8 @@ pub struct ScriptOutput {
 #[derive(Debug, Clone)]
 struct CachedResult {
     issues: Vec<Issue>,
-    script_mtime: SystemTime,
+    #[allow(dead_code)]
+    cached_at: SystemTime,
 }
 
 #[derive(Debug)]
@@ -51,7 +52,6 @@ pub enum ScriptError {
     Timeout(u64),
     NonZeroExit { code: Option<i32>, stderr: String },
     InvalidOutput(String),
-    ScriptNotFound(PathBuf),
     RunnerNotFound(String),
 }
 
@@ -59,17 +59,14 @@ impl std::fmt::Display for ScriptError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ScriptError::IoError(e) => write!(f, "IO error: {}", e),
-            ScriptError::Timeout(ms) => write!(f, "Script timed out after {}ms", ms),
+            ScriptError::Timeout(ms) => write!(f, "Command timed out after {}ms", ms),
             ScriptError::NonZeroExit { code, stderr } => {
-                write!(f, "Script exited with code {:?}: {}", code, stderr)
+                write!(f, "Command exited with code {:?}: {}", code, stderr)
             }
-            ScriptError::InvalidOutput(msg) => write!(f, "Invalid script output: {}", msg),
-            ScriptError::ScriptNotFound(path) => write!(f, "Script not found: {:?}", path),
-            ScriptError::RunnerNotFound(runner) => write!(
-                f,
-                "Runner '{}' not found. Install it or specify a custom runner in the rule config.",
-                runner
-            ),
+            ScriptError::InvalidOutput(msg) => write!(f, "Invalid output: {}", msg),
+            ScriptError::RunnerNotFound(cmd) => {
+                write!(f, "Command '{}' not found", cmd)
+            }
         }
     }
 }
@@ -82,7 +79,7 @@ impl From<std::io::Error> for ScriptError {
 
 pub struct ScriptExecutor {
     cache: DashMap<u64, CachedResult>,
-    scripts_dir: PathBuf,
+    config_dir: PathBuf,
     log_error: fn(&str),
     log_debug: fn(&str),
 }
@@ -91,7 +88,7 @@ impl ScriptExecutor {
     pub fn new(workspace_root: &Path) -> Self {
         Self {
             cache: DashMap::new(),
-            scripts_dir: workspace_root.join(".tscanner").join("scripts"),
+            config_dir: workspace_root.join(".tscanner"),
             log_error: |_| {},
             log_debug: |_| {},
         }
@@ -100,7 +97,7 @@ impl ScriptExecutor {
     pub fn with_logger(workspace_root: &Path, log_error: fn(&str), log_debug: fn(&str)) -> Self {
         Self {
             cache: DashMap::new(),
-            scripts_dir: workspace_root.join(".tscanner").join("scripts"),
+            config_dir: workspace_root.join(".tscanner"),
             log_error,
             log_debug,
         }
@@ -130,7 +127,7 @@ impl ScriptExecutor {
                         (self.log_error)(&format!("Script rule '{}' failed: {}", rule_name, e));
                         vec![Issue {
                             rule: rule_name.clone(),
-                            file: self.scripts_dir.join(&rule_config.script),
+                            file: self.config_dir.clone(),
                             line: 0,
                             column: 0,
                             end_column: 0,
@@ -189,44 +186,27 @@ impl ScriptExecutor {
         files: &[&(PathBuf, String)],
         workspace_root: &Path,
     ) -> Result<Vec<Issue>, ScriptError> {
-        let script_path = self.scripts_dir.join(&rule_config.script);
-
-        if !script_path.exists() {
-            return Err(ScriptError::ScriptNotFound(script_path));
-        }
-
-        let script_mtime = script_path
-            .metadata()
-            .and_then(|m| m.modified())
-            .unwrap_or(SystemTime::UNIX_EPOCH);
-
-        let cache_key = self.compute_cache_key(rule_name, &script_path, files);
+        let cache_key = self.compute_cache_key(rule_name, &rule_config.command, files);
 
         if let Some(cached) = self.cache.get(&cache_key) {
-            if cached.script_mtime == script_mtime {
-                (self.log_debug)(&format!("Script rule '{}' cache hit", rule_name));
-                return Ok(cached.issues.clone());
-            }
+            (self.log_debug)(&format!("Script rule '{}' cache hit", rule_name));
+            return Ok(cached.issues.clone());
         }
 
         let issues = match rule_config.mode {
             ScriptMode::Batch => {
-                self.execute_batch(rule_name, rule_config, &script_path, files, workspace_root)?
+                self.execute_batch(rule_name, rule_config, files, workspace_root)?
             }
-            ScriptMode::Single => self.execute_single_parallel(
-                rule_name,
-                rule_config,
-                &script_path,
-                files,
-                workspace_root,
-            )?,
+            ScriptMode::Single => {
+                self.execute_single_parallel(rule_name, rule_config, files, workspace_root)?
+            }
         };
 
         self.cache.insert(
             cache_key,
             CachedResult {
                 issues: issues.clone(),
-                script_mtime,
+                cached_at: SystemTime::now(),
             },
         );
 
@@ -237,7 +217,6 @@ impl ScriptExecutor {
         &self,
         rule_name: &str,
         rule_config: &ScriptRuleConfig,
-        script_path: &Path,
         files: &[&(PathBuf, String)],
         workspace_root: &Path,
     ) -> Result<Vec<Issue>, ScriptError> {
@@ -262,7 +241,7 @@ impl ScriptExecutor {
         let input_json = serde_json::to_vec(&input)
             .map_err(|e| ScriptError::InvalidOutput(format!("Failed to serialize input: {}", e)))?;
 
-        let output = self.spawn_script(rule_config, script_path, &input_json, workspace_root)?;
+        let output = self.spawn_command(rule_config, &input_json)?;
 
         self.parse_output(rule_name, rule_config, &output, workspace_root, files)
     }
@@ -271,21 +250,12 @@ impl ScriptExecutor {
         &self,
         rule_name: &str,
         rule_config: &ScriptRuleConfig,
-        script_path: &Path,
         files: &[&(PathBuf, String)],
         workspace_root: &Path,
     ) -> Result<Vec<Issue>, ScriptError> {
         let results: Vec<Result<Vec<Issue>, ScriptError>> = files
             .par_iter()
-            .map(|file| {
-                self.execute_batch(
-                    rule_name,
-                    rule_config,
-                    script_path,
-                    &[*file],
-                    workspace_root,
-                )
-            })
+            .map(|file| self.execute_batch(rule_name, rule_config, &[*file], workspace_root))
             .collect();
 
         let mut all_issues = Vec::new();
@@ -298,31 +268,34 @@ impl ScriptExecutor {
         Ok(all_issues)
     }
 
-    fn spawn_script(
+    fn spawn_command(
         &self,
         rule_config: &ScriptRuleConfig,
-        script_path: &Path,
         input: &[u8],
-        cwd: &Path,
     ) -> Result<Vec<u8>, ScriptError> {
-        let (program, args) = self.resolve_runner(rule_config, script_path)?;
+        let parts: Vec<&str> = rule_config.command.split_whitespace().collect();
+        if parts.is_empty() {
+            return Err(ScriptError::RunnerNotFound(rule_config.command.clone()));
+        }
+
+        let program = parts[0];
+        let args = &parts[1..];
 
         (self.log_debug)(&format!(
-            "Running script: {} {:?} {:?}",
-            program, args, script_path
+            "Running command: {} {:?} (cwd: {:?})",
+            program, args, self.config_dir
         ));
 
-        let mut child = Command::new(&program)
-            .args(&args)
-            .arg(script_path)
+        let mut child = Command::new(program)
+            .args(args)
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
-            .current_dir(cwd)
+            .current_dir(&self.config_dir)
             .spawn()
             .map_err(|e| {
                 if e.kind() == std::io::ErrorKind::NotFound {
-                    ScriptError::RunnerNotFound(program.clone())
+                    ScriptError::RunnerNotFound(program.to_string())
                 } else {
                     ScriptError::IoError(e)
                 }
@@ -369,45 +342,6 @@ impl ScriptExecutor {
                 Err(e) => return Err(ScriptError::IoError(e)),
             }
         }
-    }
-
-    fn resolve_runner(
-        &self,
-        rule_config: &ScriptRuleConfig,
-        script_path: &Path,
-    ) -> Result<(String, Vec<String>), ScriptError> {
-        if let Some(runner) = &rule_config.runner {
-            let parts: Vec<&str> = runner.split_whitespace().collect();
-            if parts.is_empty() {
-                return Err(ScriptError::RunnerNotFound(runner.clone()));
-            }
-            return Ok((
-                parts[0].to_string(),
-                parts[1..].iter().map(|s| s.to_string()).collect(),
-            ));
-        }
-
-        let ext = script_path
-            .extension()
-            .and_then(|e| e.to_str())
-            .unwrap_or("");
-
-        let (program, args): (&str, &[&str]) = match ext {
-            "js" | "mjs" | "cjs" => ("node", &[]),
-            "ts" | "mts" | "cts" => ("npx", &["tsx"]),
-            "py" => ("python3", &[]),
-            "sh" => ("bash", &[]),
-            "rb" => ("ruby", &[]),
-            "pl" => ("perl", &[]),
-            "php" => ("php", &[]),
-            "lua" => ("lua", &[]),
-            _ => ("bash", &[]),
-        };
-
-        Ok((
-            program.to_string(),
-            args.iter().map(|s| s.to_string()).collect(),
-        ))
     }
 
     fn parse_output(
@@ -485,17 +419,13 @@ impl ScriptExecutor {
     fn compute_cache_key(
         &self,
         rule_name: &str,
-        script_path: &Path,
+        command: &str,
         files: &[&(PathBuf, String)],
     ) -> u64 {
         let mut hasher = DefaultHasher::new();
 
         rule_name.hash(&mut hasher);
-        script_path.hash(&mut hasher);
-
-        if let Ok(script_content) = std::fs::read_to_string(script_path) {
-            script_content.hash(&mut hasher);
-        }
+        command.hash(&mut hasher);
 
         let mut sorted: Vec<_> = files.iter().map(|(p, c)| (p, c)).collect();
         sorted.sort_by_key(|(p, _)| *p);

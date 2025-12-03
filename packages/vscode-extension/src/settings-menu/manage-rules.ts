@@ -19,8 +19,8 @@ import {
   requireWorkspaceOrNull,
   showToastMessage,
 } from '../common/lib/vscode-utils';
+import { Locator } from '../locator';
 import { TscannerLspClient } from '../lsp/client';
-import { getRustBinaryPath } from '../scanner/utils';
 import { ConfigLocation, showConfigLocationMenuForFirstSetup } from './config-location';
 
 type RuleQuickPickItem = vscode.QuickPickItem & {
@@ -66,7 +66,7 @@ function getCustomRuleDetail(ruleConfig: NonNullable<TscannerConfig['customRules
     case CustomRuleType.Regex:
       return ruleConfig.pattern;
     case CustomRuleType.Script:
-      return ruleConfig.script;
+      return ruleConfig.command;
     case CustomRuleType.Ai:
       return ruleConfig.prompt;
     default:
@@ -106,13 +106,15 @@ export function createManageRulesCommand(
     const workspacePath = workspaceFolder.uri.fsPath;
     const customConfigDir = currentCustomConfigDirRef.current;
 
-    const binaryPath = getRustBinaryPath();
-    if (!binaryPath) {
-      showToastMessage(ToastKind.Error, 'TScanner: Rust binary not found. Please build the Rust core first.');
+    const locator = new Locator(workspacePath);
+    const result = await locator.locate();
+
+    if (!result) {
+      showToastMessage(ToastKind.Error, 'TScanner binary not found. Install with: npm install -g tscanner');
       return;
     }
 
-    const client = new TscannerLspClient(binaryPath);
+    const client = new TscannerLspClient(result.path, ['lsp']);
     await client.start(workspacePath);
 
     try {

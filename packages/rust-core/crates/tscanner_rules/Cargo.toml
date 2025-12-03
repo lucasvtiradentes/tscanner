@@ -8,7 +8,7 @@ repository.workspace = true
 
 [[bin]]
 name = "generate_rules_json"
-path = "src/bin/generate_rules_json.rs"
+path = "../../scripts/generate_rules_json.rs"
 
 [dependencies]
 tscanner_diagnostics = { path = "../tscanner_diagnostics" }

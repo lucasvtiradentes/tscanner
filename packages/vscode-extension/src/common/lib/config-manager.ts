@@ -88,11 +88,9 @@ export async function getEffectiveConfigPath(
 
   const hasLocal = await hasLocalConfig(workspacePath);
   if (hasLocal) {
-    logger.info(`Using local config for workspace: ${workspacePath}`);
     return getLocalConfigPath(workspacePath);
   }
 
-  logger.info(`Using global config for workspace: ${workspacePath}`);
   return getGlobalConfigPath(context, workspacePath);
 }
 

@@ -9,10 +9,10 @@ use crate::config_loader::load_config_with_custom;
 use crate::shared::{render_header, render_summary, ScanConfig, ScanMode, SummaryStats};
 use tscanner_cache::FileCache;
 use tscanner_cli::{CliGroupMode, OutputFormat};
-use tscanner_config::{CliConfig, CliGroupBy};
+use tscanner_config::{app_name, config_dir_name, config_file_name, CliConfig, CliGroupBy};
 use tscanner_diagnostics::GroupMode;
 use tscanner_scanner::{ConfigExt, Scanner};
-use tscanner_service::{app_name, config_dir_name, config_file_name, log_error, log_info};
+use tscanner_service::{log_error, log_info};
 
 use super::context::CheckContext;
 use super::filters;

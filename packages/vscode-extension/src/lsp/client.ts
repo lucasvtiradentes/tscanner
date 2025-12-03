@@ -1,12 +1,8 @@
+import { existsSync } from 'node:fs';
 import * as vscode from 'vscode';
-import {
-  LanguageClient,
-  type LanguageClientOptions,
-  type ServerOptions,
-  TransportKind,
-} from 'vscode-languageclient/node';
+import { LanguageClient, type LanguageClientOptions, type ServerOptions, Trace } from 'vscode-languageclient/node';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../common/constants';
-import { logger } from '../common/lib/logger';
+import { ExtensionConfigKey, TraceLevel, getExtensionConfig } from '../common/state/extension-config';
 import type {
   ContentScanResult,
   FileResult,
@@ -26,20 +22,26 @@ import type { FormatPrettyResult } from './requests/types';
 export class TscannerLspClient {
   private client: LanguageClient | null = null;
 
-  constructor(private binaryPath: string) {}
+  constructor(
+    private binaryPath: string,
+    private args: string[] = [],
+  ) {}
 
   async start(workspaceRoot: string): Promise<void> {
     if (this.client) {
-      logger.info('LSP client already running');
       return;
     }
 
-    logger.info(`Starting LSP client: ${this.binaryPath}`);
+    if (!existsSync(this.binaryPath)) {
+      throw new Error(`Binary not found: ${this.binaryPath}`);
+    }
+
+    const trace = getExtensionConfig(ExtensionConfigKey.TraceServer);
 
     const serverOptions: ServerOptions = {
       command: this.binaryPath,
-      args: [],
-      transport: TransportKind.stdio,
+      args: this.args,
+      options: { cwd: workspaceRoot },
     };
 
     const clientOptions: LanguageClientOptions = {
@@ -56,25 +58,23 @@ export class TscannerLspClient {
           vscode.workspace.createFileSystemWatcher(`**/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`),
         ],
       },
+      traceOutputChannel:
+        trace !== TraceLevel.Off ? vscode.window.createOutputChannel('TScanner LSP Trace') : undefined,
     };
 
     this.client = new LanguageClient('tscanner', 'TScanner LSP', serverOptions, clientOptions);
 
-    try {
-      await this.client.start();
-      logger.info('LSP client started successfully');
-    } catch (error) {
-      logger.error(`Failed to start LSP client: ${error}`);
-      throw error;
+    if (trace !== TraceLevel.Off) {
+      await this.client.setTrace(trace === TraceLevel.Verbose ? Trace.Verbose : Trace.Messages);
     }
+
+    await this.client.start();
   }
 
   async stop(): Promise<void> {
     if (this.client) {
-      logger.info('Stopping LSP client');
       await this.client.stop();
       this.client = null;
-      logger.info('LSP client stopped\n\n\n');
     }
   }
 

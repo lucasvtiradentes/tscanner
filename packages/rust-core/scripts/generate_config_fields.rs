@@ -40,7 +40,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         builtin_rule_config: vec!["enabled", "severity", "include", "exclude"],
         custom_rule_base: vec!["message", "severity", "enabled", "include", "exclude"],
         regex_rule_config: vec!["type", "pattern"],
-        script_rule_config: vec!["type", "script", "runner", "mode", "timeout", "options"],
+        script_rule_config: vec!["type", "command", "mode", "timeout", "options"],
         ai_rule_config: vec!["type", "prompt"],
         script_mode: vec!["batch", "single"],
         custom_rule_types: vec!["regex", "script", "ai"],

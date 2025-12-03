@@ -8,7 +8,7 @@ repository.workspace = true
 
 [[bin]]
 name = "generate_config_fields"
-path = "src/bin/generate_config_fields.rs"
+path = "../../scripts/generate_config_fields.rs"
 
 [dependencies]
 tscanner_diagnostics = { path = "../tscanner_diagnostics" }

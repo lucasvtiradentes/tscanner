@@ -116,4 +116,7 @@ pub enum Commands {
         #[arg(long, help = "Initialize with all built-in rules enabled")]
         all_rules: bool,
     },
+
+    #[command(about = "Start the LSP server (Language Server Protocol)")]
+    Lsp,
 }

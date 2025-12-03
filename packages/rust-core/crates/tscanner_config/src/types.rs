@@ -241,14 +241,10 @@ pub struct RegexRuleConfig {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct ScriptRuleConfig {
-    #[schemars(description = "Path to script file relative to .tscanner/scripts/")]
-    pub script: String,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
     #[schemars(
-        description = "Custom runner command (e.g., 'npx tsx', 'python3'). Auto-detected from extension if not specified."
+        description = "Full command to execute the script (e.g., 'npx tsx scripts/my-script.ts --arg'). Path is relative to .tscanner/ directory."
     )]
-    pub runner: Option<String>,
+    pub command: String,
 
     #[serde(default = "default_script_mode")]
     #[schemars(
@@ -326,9 +322,9 @@ impl CustomRuleConfig {
         }
     }
 
-    pub fn script(&self) -> Option<&str> {
+    pub fn command(&self) -> Option<&str> {
         match self {
-            CustomRuleConfig::Script(c) => Some(&c.script),
+            CustomRuleConfig::Script(c) => Some(&c.command),
             _ => None,
         }
     }

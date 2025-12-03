@@ -3,7 +3,7 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::sync::Mutex;
 
-use crate::constants::get_log_filename;
+use tscanner_config::get_log_filename;
 
 const TIMEZONE_OFFSET_HOURS: i8 = -3;
 

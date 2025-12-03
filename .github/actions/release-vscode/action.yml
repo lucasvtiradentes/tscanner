@@ -1,5 +1,5 @@
 name: 'Release VSCode Extension'
-description: 'Downloads binaries, organizes them for extension, and publishes to VS Code Marketplace and Open VSX'
+description: 'Builds and publishes VSCode extension to VS Code Marketplace and Open VSX'
 
 inputs:
   azure-pat:
@@ -12,23 +12,14 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Download all binaries
-      uses: actions/download-artifact@v4
-      with:
-        path: artifacts
-
     - name: Build shared dependencies
       shell: bash
       run: pnpm turbo run build --filter=tscanner-common
 
-    - name: Organize binaries for extension
+    - name: Build extension
       shell: bash
-      run: |
-        mkdir -p packages/vscode-extension/out/binaries
-        find artifacts -type f -name 'tscanner-server-*' -exec cp {} packages/vscode-extension/out/binaries/ \;
-        chmod +x packages/vscode-extension/out/binaries/tscanner-server-* 2>/dev/null || true
-        echo "📦 Binaries ready for extension:"
-        ls -lah packages/vscode-extension/out/binaries/
+      working-directory: packages/vscode-extension
+      run: pnpm run build
 
     - name: Get version
       id: version
@@ -62,4 +53,6 @@ runs:
 
     - name: Summary
       shell: bash
-      run: echo "✅ VSCode extension v${{ steps.version.outputs.current }} published to both marketplaces!"
+      run: |
+        echo "✅ VSCode extension v${{ steps.version.outputs.current }} published!"
+        echo "📦 Extension no longer bundles binaries - users install via npm"

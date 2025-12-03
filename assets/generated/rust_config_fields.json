@@ -50,8 +50,7 @@
   ],
   "script_rule_config": [
     "type",
-    "script",
-    "runner",
+    "command",
     "mode",
     "timeout",
     "options"

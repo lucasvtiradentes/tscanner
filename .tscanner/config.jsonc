@@ -19,7 +19,7 @@
     "no-empty-function": {},
     "no-empty-interface": {},
     "no-floating-promises": {},
-    "no-forwarded-exports": { "exclude": ["shared/tscanner-common/src/index.ts"]},
+    "no-forwarded-exports": { "exclude": ["**/index.ts"]},
     "no-implicit-any": {},
     "no-inferrable-types": {},
     "no-nested-require": {},
@@ -50,7 +50,7 @@
     },
     "action-zod-match": {
       "type": "script",
-      "script": "action-zod-match.ts",
+      "command": "npx tsx scripts/action-zod-match.ts",
       "message": "Action inputs must match Zod validation schema",
       "severity": "error",
       "include": ["packages/github-action/action.yml", "packages/github-action/src/core/input-validator.ts"],
@@ -59,7 +59,7 @@
     },
     "readme-toc-match": {
       "type": "script",
-      "script": "readme-toc-match.ts",
+      "command": "npx tsx scripts/readme-toc-match.ts",
       "message": "README TOC must match all document headings",
       "severity": "warning",
       "include": ["**/README.md"],
@@ -69,7 +69,7 @@
     },
     "config-schema-match": {
       "type": "script",
-      "script": "config-schema-match.ts",
+      "command": "npx tsx scripts/config-schema-match.ts",
       "message": "Rust config and TypeScript schema must be in sync",
       "severity": "error",
       "include": ["assets/generated/rust_config_fields.json", "shared/tscanner-common/src/schemas.ts"],
@@ -78,7 +78,7 @@
     },
     "rust-mod-simple": {
       "type": "script",
-      "script": "rust-mod-simple.ts",
+      "command": "npx tsx scripts/rust-mod-simple.ts",
       "message": "mod.rs should only contain module declarations and re-exports",
       "severity": "error",
       "include": ["**/mod.rs"],
