@@ -195,10 +195,6 @@ export function buildScanHeader(totalErrors: number, hasIssues: boolean): string
   return `## ${icon} TScanner - ${title}`;
 }
 
-export function buildNoIssuesMessage(): string {
-  return 'All files passed validation!';
-}
-
 export function buildNoIssuesTable(modeLabel: string, commitInfo?: string, timestamp?: string): string {
   let rows = `<tr><td>Issues</td><td>0</td></tr>
 <tr><td>Scan mode</td><td>${modeLabel}</td></tr>`;
@@ -236,9 +232,7 @@ export function buildSuccessReport(params: BuildReportParams): string {
 
   let report = `${header}
 
-${table}
-
-${buildNoIssuesMessage()}`;
+${alignSection(Alignment.Center, table)}`;
 
   if (extraSection) {
     report += `\n${extraSection}`;
