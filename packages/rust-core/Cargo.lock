@@ -1660,14 +1660,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "tscanner_server"
-version = "0.0.26"
-dependencies = [
- "tscanner_lsp",
- "tscanner_service",
-]
-
-[[package]]
 name = "tscanner_service"
 version = "0.0.26"
 dependencies = [
