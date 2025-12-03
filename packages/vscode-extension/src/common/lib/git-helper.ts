@@ -30,9 +30,6 @@ type Change = {
 };
 
 let gitApi: GitAPI | null = null;
-const changedFilesCache: Map<string, Set<string>> = new Map();
-const lastCacheUpdate: Map<string, number> = new Map();
-const CACHE_TTL = 30000;
 
 function getGitAPI(): GitAPI | null {
   if (!gitApi) {
@@ -110,15 +107,6 @@ export async function getAllBranches(workspaceRoot: string): Promise<string[]> {
 }
 
 export async function getChangedFiles(workspaceRoot: string, compareBranch: string): Promise<Set<string>> {
-  const cacheKey = `${workspaceRoot}:${compareBranch}`;
-  const now = Date.now();
-  const lastUpdate = lastCacheUpdate.get(cacheKey) || 0;
-
-  if (now - lastUpdate < CACHE_TTL && changedFilesCache.has(cacheKey)) {
-    logger.debug(`Using cached changed files (${now - lastUpdate}ms old)`);
-    return changedFilesCache.get(cacheKey)!;
-  }
-
   const repo = getRepository(workspaceRoot);
   if (!repo) {
     logger.error('Git repository not found');
@@ -129,18 +117,13 @@ export async function getChangedFiles(workspaceRoot: string, compareBranch: stri
     const startTime = Date.now();
 
     const changedFromHead = await repo.diffWithHEAD();
-
     const uncommittedFiles = new Set(changedFromHead.map((change) => vscode.workspace.asRelativePath(change.uri)));
 
     const currentBranch = repo.state.HEAD?.name || 'HEAD';
     const committedChanges = await repo.diffBetween(compareBranch, currentBranch);
-
     const committedFiles = new Set(committedChanges.map((change) => vscode.workspace.asRelativePath(change.uri)));
 
     const allFiles = new Set([...uncommittedFiles, ...committedFiles]);
-
-    changedFilesCache.set(cacheKey, allFiles);
-    lastCacheUpdate.set(cacheKey, now);
 
     const elapsed = Date.now() - startTime;
     logger.debug(
@@ -151,21 +134,6 @@ export async function getChangedFiles(workspaceRoot: string, compareBranch: stri
   } catch (error) {
     logger.error(`Failed to get changed files vs ${compareBranch}: ${error}`);
     return new Set();
-  }
-}
-
-export function invalidateCache(workspaceRoot?: string) {
-  if (workspaceRoot) {
-    const keys = Array.from(changedFilesCache.keys()).filter((k) => k.startsWith(workspaceRoot));
-    keys.forEach((k) => {
-      changedFilesCache.delete(k);
-      lastCacheUpdate.delete(k);
-    });
-    logger.debug(`Invalidated cache for workspace: ${workspaceRoot}`);
-  } else {
-    changedFilesCache.clear();
-    lastCacheUpdate.clear();
-    logger.debug('Invalidated all cache');
   }
 }
 

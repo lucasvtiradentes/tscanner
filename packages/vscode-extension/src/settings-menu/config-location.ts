@@ -17,7 +17,6 @@ import {
   saveGlobalConfig,
   saveLocalConfig,
 } from '../common/lib/config-manager';
-import { invalidateCache } from '../common/lib/git-helper';
 import { logger } from '../common/lib/logger';
 import {
   Command,
@@ -309,7 +308,6 @@ async function moveConfigToLocation(
 
   panelContent.setResults([]);
   updateBadge();
-  invalidateCache();
   await updateStatusBar();
 
   logger.info(`Moved config from ${fromLabel} to ${toLabel}`);

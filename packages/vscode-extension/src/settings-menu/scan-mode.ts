@@ -1,7 +1,7 @@
 import { ScanMode } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { setCopyScanContext } from '../common/lib/copy-utils';
-import { getAllBranches, getCurrentBranch, invalidateCache } from '../common/lib/git-helper';
+import { getAllBranches, getCurrentBranch } from '../common/lib/git-helper';
 import { logger } from '../common/lib/logger';
 import {
   Command,
@@ -73,7 +73,6 @@ async function handleCodebaseScan(
   currentScanModeRef.current = ScanMode.Codebase;
   updateState(context, WorkspaceStateKey.ScanMode, ScanMode.Codebase);
   setCopyScanContext(ScanMode.Codebase, currentCompareBranchRef.current);
-  invalidateCache();
   await updateStatusBar();
   executeCommand(Command.FindIssue);
 }
@@ -170,7 +169,6 @@ async function handleBranchScan(
   currentScanModeRef.current = ScanMode.Branch;
   updateState(context, WorkspaceStateKey.ScanMode, ScanMode.Branch);
   setCopyScanContext(ScanMode.Branch, currentCompareBranchRef.current);
-  invalidateCache();
   await updateStatusBar();
   executeCommand(Command.FindIssue);
 }

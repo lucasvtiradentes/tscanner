@@ -1,4 +1,3 @@
-import { invalidateCache } from '../../common/lib/git-helper';
 import { logger } from '../../common/lib/logger';
 import {
   Command,
@@ -28,7 +27,6 @@ export function createHardScanCommand(isSearchingRef: { current: boolean }) {
 
     try {
       await clearCache();
-      invalidateCache();
       if (shouldShowToast) showToastMessage(ToastKind.Info, 'Cache cleared, rescanning...');
       await executeCommand(Command.FindIssue);
     } catch (error) {
