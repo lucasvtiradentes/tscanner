@@ -27,7 +27,7 @@ export async function scanContent(
     logger.debug(`scanContent() returned ${result.issues.length} results for ${filePath}`);
 
     const issues = result.issues.map((issue) => {
-      const issueFile = issue.file || result.file;
+      const issueFile = issue.file ?? result.file;
       const uri = vscode.Uri.file(issueFile);
       return mapIssueToResult(uri, issue);
     });

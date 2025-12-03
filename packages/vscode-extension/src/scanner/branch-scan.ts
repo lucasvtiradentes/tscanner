@@ -61,7 +61,7 @@ export async function scanBranch(
       const uri = vscode.Uri.file(fileResult.file);
 
       for (const issue of fileResult.issues) {
-        let lineText = issue.line_text || '';
+        let lineText = issue.line_text ?? '';
 
         if (!lineText && fileFilter && fileFilter.has(vscode.workspace.asRelativePath(uri))) {
           try {

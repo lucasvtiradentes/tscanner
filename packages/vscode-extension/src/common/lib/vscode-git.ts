@@ -43,9 +43,9 @@ export class VscodeGit {
     const workspaceUri = vscode.Uri.file(workspaceRoot);
     return (
       api.repositories.find((repo) => {
-        return workspaceUri.fsPath.startsWith(repo.state.HEAD?.commit || '');
-      }) ||
-      api.repositories[0] ||
+        return workspaceUri.fsPath.startsWith(repo.state.HEAD?.commit ?? '');
+      }) ??
+      api.repositories[0] ??
       null
     );
   }
@@ -57,7 +57,7 @@ export class VscodeGit {
       return null;
     }
 
-    return repo.state.HEAD?.name || null;
+    return repo.state.HEAD?.name ?? null;
   }
 
   static async getChangedFiles(workspaceRoot: string, compareBranch: string): Promise<Set<string>> {
@@ -73,7 +73,7 @@ export class VscodeGit {
       const changedFromHead = await repo.diffWithHEAD();
       const uncommittedFiles = new Set(changedFromHead.map((change) => vscode.workspace.asRelativePath(change.uri)));
 
-      const currentBranch = repo.state.HEAD?.name || 'HEAD';
+      const currentBranch = repo.state.HEAD?.name ?? 'HEAD';
       const committedChanges = await repo.diffBetween(compareBranch, currentBranch);
       const committedFiles = new Set(committedChanges.map((change) => vscode.workspace.asRelativePath(change.uri)));
 
