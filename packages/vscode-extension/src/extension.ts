@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { getViewId } from './common/constants';
 import { type CommandContext, createExtensionStateRefs } from './common/lib/extension-state';
-import { dispose as disposeScanner, getLspClient, startLspClient } from './common/lib/scanner';
 import {
   Command,
   ContextKey,
@@ -15,6 +14,7 @@ import {
 import { logger } from './common/utils/logger';
 import { IssuesPanelContent } from './issues-panel/panel-content';
 import { IssuesPanelIcon } from './issues-panel/panel-icon';
+import { dispose as disposeScanner, getLspClient, startLspClient } from './scanner';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { createConfigWatcher } from './watchers/config-watcher';
 import { createFileWatcher } from './watchers/file-watcher';

@@ -2,13 +2,13 @@ import { ScanMode, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { loadEffectiveConfig } from '../common/lib/config-manager';
 import type { ExtensionStateRefs } from '../common/lib/extension-state';
-import { scanContent } from '../common/lib/scanner';
 import { WorkspaceStateKey, getCurrentWorkspaceFolder, setWorkspaceState } from '../common/lib/vscode-utils';
 import { serializeResults } from '../common/types';
 import { getChangedFiles, getModifiedLineRanges, invalidateCache } from '../common/utils/git-helper';
 import { getNewIssues } from '../common/utils/issue-comparator';
 import { logger } from '../common/utils/logger';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
+import { scanContent } from '../scanner';
 
 function normalizePattern(pattern: string): string {
   if (pattern.startsWith('**/') || pattern.startsWith('{')) {

@@ -1,4 +1,3 @@
-import { clearCache } from '../../common/lib/scanner';
 import {
   Command,
   ToastKind,
@@ -9,6 +8,7 @@ import {
 } from '../../common/lib/vscode-utils';
 import { invalidateCache } from '../../common/utils/git-helper';
 import { logger } from '../../common/utils/logger';
+import { clearCache } from '../../scanner';
 
 export function createHardScanCommand(isSearchingRef: { current: boolean }) {
   return registerCommand(Command.HardScan, async (options?: { showToastMessage?: boolean }) => {

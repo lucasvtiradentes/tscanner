@@ -1,0 +1,43 @@
+import * as vscode from 'vscode';
+import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
+import type { IssueResult, TscannerConfig } from '../common/types';
+import { logger } from '../common/utils/logger';
+import { ensureLspClient } from './client';
+import { mapIssueToResult } from './utils';
+
+export type ScanContentResult = {
+  issues: IssueResult[];
+  relatedFiles: string[];
+};
+
+export async function scanContent(
+  filePath: string,
+  content: string,
+  config?: TscannerConfig,
+): Promise<ScanContentResult> {
+  const workspaceFolder = getCurrentWorkspaceFolder();
+  if (!workspaceFolder) {
+    return { issues: [], relatedFiles: [] };
+  }
+
+  try {
+    const client = await ensureLspClient();
+    const result = await client.scanContent(workspaceFolder.uri.fsPath, filePath, content, config);
+
+    logger.debug(`scanContent() returned ${result.issues.length} results for ${filePath}`);
+
+    const issues = result.issues.map((issue) => {
+      const issueFile = issue.file || result.file;
+      const uri = vscode.Uri.file(issueFile);
+      return mapIssueToResult(uri, issue);
+    });
+
+    return {
+      issues,
+      relatedFiles: result.related_files ?? [],
+    };
+  } catch (error) {
+    logger.error(`Failed to scan content for ${filePath}: ${error}`);
+    throw error;
+  }
+}

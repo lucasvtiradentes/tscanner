@@ -2,7 +2,6 @@ import { ScanMode, ViewMode } from 'tscanner-common';
 import { CONFIG_DIR_NAME } from '../../common/constants';
 import { getConfigState, loadEffectiveConfig } from '../../common/lib/config-manager';
 import type { CommandContext } from '../../common/lib/extension-state';
-import { scanWorkspace } from '../../common/lib/scanner';
 import {
   Command,
   ContextKey,
@@ -20,6 +19,7 @@ import { hasConfiguredRules, serializeResults } from '../../common/types';
 import { branchExists } from '../../common/utils/git-helper';
 import { logger } from '../../common/utils/logger';
 import type { IssuesPanelContent } from '../../issues-panel/panel-content';
+import { scanBranch, scanCodebase } from '../../scanner';
 import { resetIssueIndex } from './issue-navigation';
 
 export function createScanWorkspaceCommand(ctx: CommandContext, panelContent: IssuesPanelContent) {
@@ -103,8 +103,8 @@ export function createScanWorkspaceCommand(ctx: CommandContext, panelContent: Is
       const startTime = Date.now();
       const results =
         currentScanModeRef.current === ScanMode.Branch
-          ? await scanWorkspace(undefined, configToPass, currentCompareBranchRef.current)
-          : await scanWorkspace(undefined, configToPass);
+          ? await scanBranch(currentCompareBranchRef.current, undefined, configToPass)
+          : await scanCodebase(undefined, configToPass);
 
       const elapsed = Date.now() - startTime;
       logger.info(`Search completed in ${elapsed}ms, found ${results.length} results`);
