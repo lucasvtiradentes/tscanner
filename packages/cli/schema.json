@@ -1618,82 +1618,183 @@
       "type": "object"
     },
     "CustomRuleConfig": {
-      "properties": {
-        "enabled": {
-          "default": true,
-          "description": "Enable or disable this rule (default: true)",
-          "type": "boolean"
-        },
-        "exclude": {
-          "description": "File patterns to exclude",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "include": {
-          "description": "File patterns to include",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "message": {
-          "description": "Error message to display when rule is violated",
-          "type": "string"
-        },
-        "pattern": {
-          "description": "Regex pattern (required for type: regex)",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "prompt": {
-          "description": "Path to AI prompt markdown file (required for type: ai)",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "script": {
-          "description": "Path to script file (required for type: script)",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "severity": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Severity"
+      "oneOf": [
+        {
+          "properties": {
+            "enabled": {
+              "default": true,
+              "description": "Enable or disable this rule (default: true)",
+              "type": "boolean"
+            },
+            "exclude": {
+              "description": "File patterns to exclude",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "include": {
+              "description": "File patterns to include",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "message": {
+              "description": "Error message to display when rule is violated",
+              "type": "string"
+            },
+            "pattern": {
+              "description": "Regex pattern to match",
+              "type": "string"
+            },
+            "severity": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Severity"
+                }
+              ],
+              "default": "warning",
+              "description": "Severity level (default: warning)"
+            },
+            "type": {
+              "enum": [
+                "regex"
+              ],
+              "type": "string"
             }
+          },
+          "required": [
+            "message",
+            "pattern",
+            "type"
           ],
-          "default": "warning",
-          "description": "Severity level (default: error)"
+          "type": "object"
         },
-        "type": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/CustomRuleType"
+        {
+          "properties": {
+            "command": {
+              "description": "Full command to execute the script (e.g., 'npx tsx scripts/my-script.ts --arg'). Path is relative to .tscanner/ directory.",
+              "type": "string"
+            },
+            "enabled": {
+              "default": true,
+              "description": "Enable or disable this rule (default: true)",
+              "type": "boolean"
+            },
+            "exclude": {
+              "description": "File patterns to exclude",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "include": {
+              "description": "File patterns to include",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "message": {
+              "description": "Error message to display when rule is violated",
+              "type": "string"
+            },
+            "mode": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/ScriptMode"
+                }
+              ],
+              "default": "batch",
+              "description": "Script execution mode: 'batch' (all files at once) or 'single' (one file per invocation)"
+            },
+            "options": {
+              "description": "Additional options to pass to the script"
+            },
+            "severity": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Severity"
+                }
+              ],
+              "default": "warning",
+              "description": "Severity level (default: warning)"
+            },
+            "timeout": {
+              "default": 10000,
+              "description": "Script timeout in milliseconds (default: 10000)",
+              "format": "uint64",
+              "minimum": 0.0,
+              "type": "integer"
+            },
+            "type": {
+              "enum": [
+                "script"
+              ],
+              "type": "string"
             }
+          },
+          "required": [
+            "command",
+            "message",
+            "type"
           ],
-          "description": "Type of custom rule"
+          "type": "object"
+        },
+        {
+          "properties": {
+            "enabled": {
+              "default": true,
+              "description": "Enable or disable this rule (default: true)",
+              "type": "boolean"
+            },
+            "exclude": {
+              "description": "File patterns to exclude",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "include": {
+              "description": "File patterns to include",
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            "message": {
+              "description": "Error message to display when rule is violated",
+              "type": "string"
+            },
+            "prompt": {
+              "description": "Path to AI prompt markdown file",
+              "type": "string"
+            },
+            "severity": {
+              "allOf": [
+                {
+                  "$ref": "#/definitions/Severity"
+                }
+              ],
+              "default": "warning",
+              "description": "Severity level (default: warning)"
+            },
+            "type": {
+              "enum": [
+                "ai"
+              ],
+              "type": "string"
+            }
+          },
+          "required": [
+            "message",
+            "prompt",
+            "type"
+          ],
+          "type": "object"
         }
-      },
-      "required": [
-        "message",
-        "type"
-      ],
-      "type": "object"
-    },
-    "CustomRuleType": {
-      "enum": [
-        "regex",
-        "script",
-        "ai"
-      ],
-      "type": "string"
+      ]
     },
     "FilesConfig": {
       "properties": {
@@ -1727,6 +1828,13 @@
         }
       },
       "type": "object"
+    },
+    "ScriptMode": {
+      "enum": [
+        "batch",
+        "single"
+      ],
+      "type": "string"
     },
     "Severity": {
       "enum": [

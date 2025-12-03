@@ -1,6 +1,7 @@
 import { GroupMode, ViewMode } from 'tscanner-common';
 import type * as vscode from 'vscode';
-import { Command, WorkspaceStateKey, registerCommand, updateState } from '../../common/lib/vscode-utils';
+import { Command, registerCommand } from '../../common/lib/vscode-utils';
+import { WorkspaceStateKey, updateState } from '../../common/state/workspace-state';
 import type { IssuesPanelContent } from '../../issues-panel/panel-content';
 
 type ViewState = {

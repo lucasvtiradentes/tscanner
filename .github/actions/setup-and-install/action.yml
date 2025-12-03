@@ -19,7 +19,7 @@ runs:
       if: inputs.install-rust == 'true'
       uses: Swatinem/rust-cache@v2
       with:
-        workspaces: packages/core
+        workspaces: packages/rust-core
         shared-key: rust-cache
 
     - name: Install pnpm

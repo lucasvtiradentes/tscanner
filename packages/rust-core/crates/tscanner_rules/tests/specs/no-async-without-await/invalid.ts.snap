@@ -1,0 +1,98 @@
+---
+source: crates/tscanner_rules/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+async function foo() {
+  const x = 1;
+}
+
+async function bar() {
+  console.log('hello');
+}
+
+const baz = async () => {
+  const x = 2;
+};
+
+const qux = async () => console.log('world');
+
+class MyClass {
+  async method() {
+    const x = 3;
+  }
+}
+
+const obj = {
+  async method() {
+    const x = 4;
+  }
+};
+```
+
+# Diagnostics
+```
+invalid.ts:1:1 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Async function does not use await. Remove 'async' keyword if await is not needed.
+
+  > 1 │ async function foo() {
+    2 │   const x = 1;
+
+```
+
+```
+invalid.ts:5:1 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Async function does not use await. Remove 'async' keyword if await is not needed.
+
+    4 │ 
+  > 5 │ async function bar() {
+    6 │   console.log('hello');
+
+```
+
+```
+invalid.ts:9:13 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Async function does not use await. Remove 'async' keyword if await is not needed.
+
+    8 │ 
+  > 9 │ const baz = async () => {
+    10 │   const x = 2;
+
+```
+
+```
+invalid.ts:13:13 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Async function does not use await. Remove 'async' keyword if await is not needed.
+
+    12 │ 
+  > 13 │ const qux = async () => console.log('world');
+    14 │ 
+
+```
+
+```
+invalid.ts:16:3 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Async function does not use await. Remove 'async' keyword if await is not needed.
+
+    15 │ class MyClass {
+  > 16 │   async method() {
+    17 │     const x = 3;
+
+```
+
+```
+invalid.ts:22:3 no-async-without-await ━━━━━━━━━━━━━━━━━━━━
+
+  ! Async function does not use await. Remove 'async' keyword if await is not needed.
+
+    21 │ const obj = {
+  > 22 │   async method() {
+    23 │     const x = 4;
+
+```

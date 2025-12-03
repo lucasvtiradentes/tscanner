@@ -59,7 +59,7 @@ Each platform package follows a minimal structure:
 - `tscanner` - Compiled Rust CLI binary for target platform
 - `CHANGELOG.md` - Version history (optional)
 
-The binary is the standalone executable compiled from `packages/core/crates/cli/`.
+The binary is the standalone executable compiled from `packages/rust-core/crates/tscanner_cli/`.
 
 ## Binary Resolution
 

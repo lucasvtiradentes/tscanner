@@ -4,7 +4,7 @@
 
 ```
                                     ┌─────────────────────────────────────┐
-                                    │          Rust Core (packages/core)  │
+                                    │          Rust Core (packages/rust-core)  │
                                     │  ┌─────────────────────────────────┐│
 ┌──────────────────────┐            │  │ Scanner    - Rayon parallel     ││
 │   VSCode Extension   │  JSON-RPC  │  │ Parser     - SWC TypeScript AST ││

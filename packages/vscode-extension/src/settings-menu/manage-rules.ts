@@ -10,8 +10,7 @@ import {
   saveGlobalConfig,
   saveLocalConfig,
 } from '../common/lib/config-manager';
-import { RustClient } from '../common/lib/rust-client';
-import { getRustBinaryPath } from '../common/lib/scanner';
+import { logger } from '../common/lib/logger';
 import {
   Command,
   ToastKind,
@@ -20,7 +19,8 @@ import {
   requireWorkspaceOrNull,
   showToastMessage,
 } from '../common/lib/vscode-utils';
-import { logger } from '../common/utils/logger';
+import { Locator } from '../locator';
+import { TscannerLspClient } from '../lsp/client';
 import { ConfigLocation, showConfigLocationMenuForFirstSetup } from './config-location';
 
 type RuleQuickPickItem = vscode.QuickPickItem & {
@@ -60,16 +60,30 @@ function getCategoryIcon(category: string): string {
   return CATEGORY_ICONS[category as RuleCategory] || 'circle-outline';
 }
 
+function getCustomRuleDetail(ruleConfig: NonNullable<TscannerConfig['customRules']>[string]): string {
+  if (ruleConfig.message) return ruleConfig.message;
+  switch (ruleConfig.type) {
+    case CustomRuleType.Regex:
+      return ruleConfig.pattern;
+    case CustomRuleType.Script:
+      return ruleConfig.command;
+    case CustomRuleType.Ai:
+      return ruleConfig.prompt;
+    default:
+      return '';
+  }
+}
+
 function buildCustomRuleItems(existingConfig: TscannerConfig): RuleQuickPickItem[] {
   const customRules: RuleQuickPickItem[] = [];
 
   if (existingConfig?.customRules) {
     for (const [ruleName, ruleConfig] of Object.entries(existingConfig.customRules)) {
-      const typeInfo = CUSTOM_RULE_TYPE_CONFIG[ruleConfig.type as CustomRuleType];
+      const typeInfo = CUSTOM_RULE_TYPE_CONFIG[ruleConfig.type];
       customRules.push({
         label: `${typeInfo.icon} ${ruleName}`,
         description: `[${ruleConfig.type.toUpperCase()}] custom`,
-        detail: ruleConfig.message || ruleConfig[typeInfo.detailKey] || '',
+        detail: getCustomRuleDetail(ruleConfig),
         ruleName,
         picked: ruleConfig.enabled ?? true,
         isCustom: true,
@@ -92,14 +106,16 @@ export function createManageRulesCommand(
     const workspacePath = workspaceFolder.uri.fsPath;
     const customConfigDir = currentCustomConfigDirRef.current;
 
-    const binaryPath = getRustBinaryPath();
-    if (!binaryPath) {
-      showToastMessage(ToastKind.Error, 'TScanner: Rust binary not found. Please build the Rust core first.');
+    const locator = new Locator(workspacePath);
+    const result = await locator.locate();
+
+    if (!result) {
+      showToastMessage(ToastKind.Error, 'TScanner binary not found. Install with: npm install -g tscanner');
       return;
     }
 
-    const client = new RustClient(binaryPath);
-    await client.start();
+    const client = new TscannerLspClient(result.path, ['lsp']);
+    await client.start(workspacePath);
 
     try {
       const rules = await client.getRulesMetadata();

@@ -44,7 +44,7 @@ jobs:
       - name: Copy Rust binary for CLI
         run: |
           mkdir -p packages/cli/npm/cli-linux-x64
-          cp packages/core/target/release/tscanner packages/cli/npm/cli-linux-x64/tscanner
+          cp packages/rust-core/target/release/tscanner packages/cli/npm/cli-linux-x64/tscanner
           chmod +x packages/cli/npm/cli-linux-x64/tscanner
 
       - uses: ./packages/github-action

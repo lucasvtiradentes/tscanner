@@ -41,6 +41,12 @@ export const fileResultSchema = z.object({
   issues: z.array(issueSchema),
 });
 
+export const contentScanResultSchema = z.object({
+  file: z.string(),
+  issues: z.array(issueSchema),
+  related_files: z.array(z.string()).optional().default([]),
+});
+
 export const scanResultSchema = z.object({
   files: z.array(fileResultSchema),
   total_issues: z.number(),
@@ -75,17 +81,45 @@ export const builtinRuleConfigSchema = z.object({
   exclude: z.array(z.string()).optional(),
 });
 
-export const customRuleConfigSchema = z.object({
-  type: z.enum([CustomRuleType.Regex, CustomRuleType.Script, CustomRuleType.Ai]),
-  pattern: z.string().optional(),
-  script: z.string().optional(),
-  prompt: z.string().optional(),
+export const scriptModeSchema = z.enum(['batch', 'single']);
+
+const customRuleBaseSchema = z.object({
   message: z.string(),
   severity: severitySchema.optional(),
   enabled: z.boolean().optional(),
   include: z.array(z.string()).optional(),
   exclude: z.array(z.string()).optional(),
 });
+
+export const regexRuleConfigSchema = z
+  .object({
+    type: z.literal(CustomRuleType.Regex),
+    pattern: z.string(),
+  })
+  .extend(customRuleBaseSchema.shape);
+
+export const scriptRuleConfigSchema = z
+  .object({
+    type: z.literal(CustomRuleType.Script),
+    command: z.string(),
+    mode: scriptModeSchema.optional(),
+    timeout: z.number().optional(),
+    options: z.any().optional(),
+  })
+  .extend(customRuleBaseSchema.shape);
+
+export const aiRuleConfigSchema = z
+  .object({
+    type: z.literal(CustomRuleType.Ai),
+    prompt: z.string(),
+  })
+  .extend(customRuleBaseSchema.shape);
+
+export const customRuleConfigSchema = z.discriminatedUnion('type', [
+  regexRuleConfigSchema,
+  scriptRuleConfigSchema,
+  aiRuleConfigSchema,
+]);
 
 export const codeEditorConfigSchema = z.object({
   highlightErrors: z.boolean().optional(),
@@ -124,10 +158,15 @@ export type GetRulesMetadataParams = z.infer<typeof getRulesMetadataParamsSchema
 export type ClearCacheParams = z.infer<typeof clearCacheParamsSchema>;
 export type Issue = z.infer<typeof issueSchema>;
 export type FileResult = z.infer<typeof fileResultSchema>;
+export type ContentScanResult = z.infer<typeof contentScanResultSchema>;
 export type ScanResult = z.infer<typeof scanResultSchema>;
 export type RuleMetadata = z.infer<typeof ruleMetadataSchema>;
 export type ModifiedLineRange = z.infer<typeof modifiedLineRangeSchema>;
 export type BuiltinRuleConfig = z.infer<typeof builtinRuleConfigSchema>;
+export type ScriptMode = z.infer<typeof scriptModeSchema>;
+export type RegexRuleConfig = z.infer<typeof regexRuleConfigSchema>;
+export type ScriptRuleConfig = z.infer<typeof scriptRuleConfigSchema>;
+export type AiRuleConfig = z.infer<typeof aiRuleConfigSchema>;
 export type CustomRuleConfig = z.infer<typeof customRuleConfigSchema>;
 export type CodeEditorConfig = z.infer<typeof codeEditorConfigSchema>;
 export type CliConfig = z.infer<typeof cliConfigSchema>;

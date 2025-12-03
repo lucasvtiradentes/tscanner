@@ -20,7 +20,7 @@
       "pnpm-lock.yaml",
       "packages/cli/schema.json",
       "packages/github-action/dist/**",
-      "packages/core/crates/core/tests/specs/**"
+      "packages/rust-core/crates/tscanner_rules/tests/specs/**"
     ]
   },
   "formatter": {
@@ -46,7 +46,8 @@
         "noNonNullAssertion": "off"
       },
       "complexity": {
-        "noForEach": "off"
+        "noForEach": "off",
+        "noStaticOnlyClass": "off"
       }
     }
   },

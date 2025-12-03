@@ -1,18 +1,17 @@
-import { ScanMode } from 'tscanner-common';
+import { GitHelper, ScanMode } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { setCopyScanContext } from '../common/lib/copy-utils';
+import { logger } from '../common/lib/logger';
+import { VscodeGit } from '../common/lib/vscode-git';
 import {
   Command,
   type QuickPickItemWithId,
   ToastKind,
-  WorkspaceStateKey,
   executeCommand,
   requireWorkspaceOrNull,
   showToastMessage,
-  updateState,
 } from '../common/lib/vscode-utils';
-import { getAllBranches, getCurrentBranch, invalidateCache } from '../common/utils/git-helper';
-import { logger } from '../common/utils/logger';
+import { WorkspaceStateKey, updateState } from '../common/state/workspace-state';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
 
 enum BranchMenuOption {
@@ -73,7 +72,6 @@ async function handleCodebaseScan(
   currentScanModeRef.current = ScanMode.Codebase;
   updateState(context, WorkspaceStateKey.ScanMode, ScanMode.Codebase);
   setCopyScanContext(ScanMode.Codebase, currentCompareBranchRef.current);
-  invalidateCache();
   await updateStatusBar();
   executeCommand(Command.FindIssue);
 }
@@ -88,7 +86,7 @@ async function handleBranchScan(
   const workspaceFolder = requireWorkspaceOrNull();
   if (!workspaceFolder) return;
 
-  const currentBranch = await getCurrentBranch(workspaceFolder.uri.fsPath);
+  const currentBranch = await VscodeGit.getCurrentBranch(workspaceFolder.uri.fsPath);
   if (!currentBranch) {
     showToastMessage(ToastKind.Error, 'Not in a git repository');
     return;
@@ -116,7 +114,7 @@ async function handleBranchScan(
   if (!branchSelected) return;
 
   if (branchSelected.id === BranchMenuOption.ChooseAnother) {
-    const branches = await getAllBranches(workspaceFolder.uri.fsPath);
+    const branches = await GitHelper.getAllBranches(workspaceFolder.uri.fsPath);
 
     if (branches.length === 0) {
       showToastMessage(ToastKind.Error, 'No branches found');
@@ -170,7 +168,6 @@ async function handleBranchScan(
   currentScanModeRef.current = ScanMode.Branch;
   updateState(context, WorkspaceStateKey.ScanMode, ScanMode.Branch);
   setCopyScanContext(ScanMode.Branch, currentCompareBranchRef.current);
-  invalidateCache();
   await updateStatusBar();
   executeCommand(Command.FindIssue);
 }

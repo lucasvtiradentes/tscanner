@@ -1,20 +1,13 @@
 import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { getViewId } from './common/constants';
-import { type CommandContext, createExtensionStateRefs } from './common/lib/extension-state';
-import { dispose as disposeScanner, getRustClient, startLspClient } from './common/lib/scanner';
-import {
-  Command,
-  ContextKey,
-  WorkspaceStateKey,
-  executeCommand,
-  getCurrentWorkspaceFolder,
-  getWorkspaceState,
-  setContextKey,
-} from './common/lib/vscode-utils';
-import { logger } from './common/utils/logger';
+import { logger } from './common/lib/logger';
+import { Command, executeCommand, getCurrentWorkspaceFolder } from './common/lib/vscode-utils';
+import { type CommandContext, createExtensionStateRefs } from './common/state/extension-state';
+import { ContextKey, WorkspaceStateKey, getWorkspaceState, setContextKey } from './common/state/workspace-state';
 import { IssuesPanelContent } from './issues-panel/panel-content';
 import { IssuesPanelIcon } from './issues-panel/panel-icon';
+import { dispose as disposeScanner, getLspClient, startLspClient } from './scanner/client';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { createConfigWatcher } from './watchers/config-watcher';
 import { createFileWatcher } from './watchers/file-watcher';
@@ -91,16 +84,46 @@ export function activate(context: vscode.ExtensionContext) {
     stateRefs,
     updateBadge,
     updateStatusBar,
-    getRustClient,
+    getLspClient,
   };
 
   const commands = registerAllCommands(commandContext, panelContent);
-  const fileWatcher = createFileWatcher(context, panelContent, stateRefs, updateBadge);
+
+  let currentFileWatcher: vscode.FileSystemWatcher | null = null;
+
+  const recreateFileWatcher = async () => {
+    if (currentFileWatcher) {
+      currentFileWatcher.dispose();
+    }
+    currentFileWatcher = await createFileWatcher(context, panelContent, stateRefs, updateBadge);
+  };
+
   const configWatcher = createConfigWatcher(async () => {
     await setupScanInterval(context, stateRefs);
+    await recreateFileWatcher();
   });
 
-  context.subscriptions.push(...commands, fileWatcher, configWatcher, statusBarManager.getDisposable());
+  context.subscriptions.push(...commands, configWatcher, statusBarManager.getDisposable());
+
+  void recreateFileWatcher();
+
+  const settingsWatcher = vscode.workspace.onDidChangeConfiguration(async (e) => {
+    if (e.affectsConfiguration('tscanner.lsp.bin')) {
+      const restart = await vscode.window.showInformationMessage(
+        'TScanner binary path changed. Restart LSP server?',
+        'Restart',
+        'Later',
+      );
+
+      if (restart === 'Restart') {
+        await disposeScanner();
+        await startLspClient();
+        executeCommand(Command.FindIssue, { silent: true });
+      }
+    }
+  });
+
+  context.subscriptions.push(settingsWatcher);
 
   setTimeout(async () => {
     logger.info('Starting LSP client...');

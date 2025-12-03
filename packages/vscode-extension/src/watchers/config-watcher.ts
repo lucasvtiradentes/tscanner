@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { CONFIG_FILE_NAME } from '../common/constants';
+import { logger } from '../common/lib/logger';
 import { Command, executeCommand } from '../common/lib/vscode-utils';
-import { logger } from '../common/utils/logger';
 
 export function createConfigWatcher(onConfigChange: () => Promise<void>): vscode.FileSystemWatcher {
   const configWatcher = vscode.workspace.createFileSystemWatcher(`**/${CONFIG_FILE_NAME}`);

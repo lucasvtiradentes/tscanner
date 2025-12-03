@@ -1,0 +1,4 @@
+mod prefer_interface_over_type;
+mod prefer_nullish_coalescing;
+mod prefer_optional_chain;
+mod prefer_type_over_interface;

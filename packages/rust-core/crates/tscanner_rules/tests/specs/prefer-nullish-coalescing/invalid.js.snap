@@ -1,0 +1,144 @@
+---
+source: crates/tscanner_rules/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```js
+const x = a || b;
+
+const y = foo || "default";
+
+const z = value || 0;
+
+const result = data || {};
+
+const name = user.name || "Unknown";
+
+const count = items.length || 10;
+
+const branch = repo.state.HEAD?.name || 'HEAD';
+const file = issue.file || result.file;
+const text = issue.line_text || '';
+const item = array.find(x => x.id === id) || defaultItem;
+const first = list[0] || fallback;
+```
+
+# Diagnostics
+```
+invalid.js:1:11 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
+
+  > 1 │ const x = a || b;
+    2 │ 
+
+```
+
+```
+invalid.js:3:11 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
+
+    2 │ 
+  > 3 │ const y = foo || "default";
+    4 │ 
+
+```
+
+```
+invalid.js:5:11 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
+
+    4 │ 
+  > 5 │ const z = value || 0;
+    6 │ 
+
+```
+
+```
+invalid.js:7:16 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
+
+    6 │ 
+  > 7 │ const result = data || {};
+    8 │ 
+
+```
+
+```
+invalid.js:9:14 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
+
+    8 │ 
+  > 9 │ const name = user.name || "Unknown";
+    10 │ 
+
+```
+
+```
+invalid.js:11:15 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
+
+    10 │ 
+  > 11 │ const count = items.length || 10;
+    12 │ 
+
+```
+
+```
+invalid.js:13:16 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
+
+    12 │ 
+  > 13 │ const branch = repo.state.HEAD?.name || 'HEAD';
+    14 │ const file = issue.file || result.file;
+
+```
+
+```
+invalid.js:14:14 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
+
+    13 │ const branch = repo.state.HEAD?.name || 'HEAD';
+  > 14 │ const file = issue.file || result.file;
+    15 │ const text = issue.line_text || '';
+
+```
+
+```
+invalid.js:15:14 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
+
+    14 │ const file = issue.file || result.file;
+  > 15 │ const text = issue.line_text || '';
+    16 │ const item = array.find(x => x.id === id) || defaultItem;
+
+```
+
+```
+invalid.js:16:14 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
+
+    15 │ const text = issue.line_text || '';
+  > 16 │ const item = array.find(x => x.id === id) || defaultItem;
+    17 │ const first = list[0] || fallback;
+
+```
+
+```
+invalid.js:17:15 prefer-nullish-coalescing ━━━━━━━━━━━━━━━━━━━━
+
+  ! Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
+
+    16 │ const item = array.find(x => x.id === id) || defaultItem;
+  > 17 │ const first = list[0] || fallback;
+
+```

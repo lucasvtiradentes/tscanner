@@ -1,0 +1,166 @@
+use crate::errors::WorkspaceError;
+use crate::types::*;
+use crate::workspace::Workspace;
+use parking_lot::RwLock;
+use std::path::PathBuf;
+use std::sync::Arc;
+use tscanner_cache::FileCache;
+use tscanner_config::TscannerConfig;
+use tscanner_diagnostics::{ContentScanResult, FileResult, Issue, ScanResult};
+use tscanner_rules::{get_all_rule_metadata, RuleMetadata};
+
+struct ProjectState {
+    root: PathBuf,
+    config: TscannerConfig,
+}
+
+struct OpenFile {
+    path: PathBuf,
+    content: String,
+    diagnostics: Vec<Issue>,
+}
+
+pub struct WorkspaceServer {
+    project: RwLock<Option<ProjectState>>,
+    open_files: RwLock<Vec<OpenFile>>,
+    cache: Arc<FileCache>,
+}
+
+impl WorkspaceServer {
+    pub fn new() -> Self {
+        Self {
+            project: RwLock::new(None),
+            open_files: RwLock::new(Vec::new()),
+            cache: Arc::new(FileCache::new()),
+        }
+    }
+
+    pub fn with_cache(cache: Arc<FileCache>) -> Self {
+        Self {
+            project: RwLock::new(None),
+            open_files: RwLock::new(Vec::new()),
+            cache,
+        }
+    }
+
+    pub fn cache(&self) -> Arc<FileCache> {
+        self.cache.clone()
+    }
+
+    pub fn get_config(&self) -> Option<TscannerConfig> {
+        self.project.read().as_ref().map(|p| p.config.clone())
+    }
+
+    pub fn get_root(&self) -> Option<PathBuf> {
+        self.project.read().as_ref().map(|p| p.root.clone())
+    }
+}
+
+impl Default for WorkspaceServer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Workspace for WorkspaceServer {
+    fn open_project(&self, params: OpenProjectParams) -> Result<(), WorkspaceError> {
+        let config = params.config.unwrap_or_default();
+
+        *self.project.write() = Some(ProjectState {
+            root: params.root,
+            config,
+        });
+
+        Ok(())
+    }
+
+    fn close_project(&self) -> Result<(), WorkspaceError> {
+        *self.project.write() = None;
+        self.open_files.write().clear();
+        Ok(())
+    }
+
+    fn open_file(&self, params: OpenFileParams) -> Result<(), WorkspaceError> {
+        let content = match params.content {
+            Some(c) => c,
+            None => std::fs::read_to_string(&params.path)
+                .map_err(|_| WorkspaceError::FileNotFound(params.path.display().to_string()))?,
+        };
+
+        let mut files = self.open_files.write();
+        files.retain(|f| f.path != params.path);
+        files.push(OpenFile {
+            path: params.path,
+            content,
+            diagnostics: Vec::new(),
+        });
+
+        Ok(())
+    }
+
+    fn close_file(&self, params: CloseFileParams) -> Result<(), WorkspaceError> {
+        self.open_files.write().retain(|f| f.path != params.path);
+        Ok(())
+    }
+
+    fn change_file(&self, params: ChangeFileParams) -> Result<(), WorkspaceError> {
+        let mut files = self.open_files.write();
+        if let Some(file) = files.iter_mut().find(|f| f.path == params.path) {
+            file.content = params.content;
+            file.diagnostics.clear();
+            Ok(())
+        } else {
+            Err(WorkspaceError::FileNotOpen(
+                params.path.display().to_string(),
+            ))
+        }
+    }
+
+    fn pull_diagnostics(
+        &self,
+        params: PullDiagnosticsParams,
+    ) -> Result<PullDiagnosticsResult, WorkspaceError> {
+        let _project = self.project.read();
+        let _project = _project.as_ref().ok_or(WorkspaceError::NoProjectOpen)?;
+
+        let files = self.open_files.read();
+        let file = files
+            .iter()
+            .find(|f| f.path == params.path)
+            .ok_or_else(|| WorkspaceError::FileNotOpen(params.path.display().to_string()))?;
+
+        Ok(PullDiagnosticsResult {
+            diagnostics: file.diagnostics.clone(),
+        })
+    }
+
+    fn scan(&self, _params: ScanParams) -> Result<ScanResult, WorkspaceError> {
+        Err(WorkspaceError::Internal(
+            "scan() not yet implemented - use core::Scanner directly".to_string(),
+        ))
+    }
+
+    fn scan_file(&self, _params: ScanFileParams) -> Result<FileResult, WorkspaceError> {
+        Err(WorkspaceError::Internal(
+            "scan_file() not yet implemented - use core::Scanner directly".to_string(),
+        ))
+    }
+
+    fn scan_content(
+        &self,
+        _params: ScanContentParams,
+    ) -> Result<ContentScanResult, WorkspaceError> {
+        Err(WorkspaceError::Internal(
+            "scan_content() not yet implemented - use core::Scanner directly".to_string(),
+        ))
+    }
+
+    fn get_rules_metadata(&self) -> Result<Vec<RuleMetadata>, WorkspaceError> {
+        Ok(get_all_rule_metadata())
+    }
+
+    fn clear_cache(&self) -> Result<(), WorkspaceError> {
+        self.cache.clear();
+        Ok(())
+    }
+}

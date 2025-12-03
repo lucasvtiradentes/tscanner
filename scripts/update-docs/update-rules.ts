@@ -127,7 +127,7 @@ Customize TScanner to validate what matters to your project while maintaining co
     <th width="400">Example</th>
   </tr>
   <tr>
-    <td><b><a href="packages/core/crates/core/src/rules">Built-in</a></b></td>
+    <td><b><a href="packages/rust-core/crates/core/src/rules">Built-in</a></b></td>
     <td>${rulesJson.length} ready-to-use AST rules</td>
     <td><code>no-explicit-any</code>, <code>prefer-const</code>, <code>no-console</code></td>
   </tr>

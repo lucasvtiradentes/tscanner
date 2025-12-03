@@ -1,5 +1,5 @@
 name: 'Build Rust Binary'
-description: 'Builds tscanner-server binary for a specific target platform'
+description: 'Builds tscanner binary for a specific target platform'
 
 inputs:
   target:
@@ -20,7 +20,7 @@ runs:
     - name: Setup Rust cache
       uses: Swatinem/rust-cache@v2
       with:
-        workspaces: packages/core
+        workspaces: packages/rust-core
         shared-key: ${{ inputs.target }}
 
     - name: Install cross-compilation tools (Linux ARM64)
@@ -42,45 +42,29 @@ runs:
 
     - name: Build binary
       shell: bash
-      working-directory: packages/core
+      working-directory: packages/rust-core
       run: cargo build --release --target ${{ inputs.target }}
 
     - name: Prepare binaries
       shell: bash
       run: |
-        cd packages/core/target/${{ inputs.target }}/release
+        cd packages/rust-core/target/${{ inputs.target }}/release
         if [[ "${{ inputs.os }}" == "windows-latest" ]]; then
-          cp tscanner-server.exe tscanner-server-${{ inputs.target }}.exe
           cp tscanner.exe tscanner-${{ inputs.target }}.exe
         else
-          cp tscanner-server tscanner-server-${{ inputs.target }}
           cp tscanner tscanner-${{ inputs.target }}
         fi
-
-    - name: Upload server binary (Unix)
-      if: inputs.os != 'windows-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: binary-server-${{ inputs.target }}
-        path: packages/core/target/${{ inputs.target }}/release/tscanner-server-${{ inputs.target }}
-
-    - name: Upload server binary (Windows)
-      if: inputs.os == 'windows-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: binary-server-${{ inputs.target }}
-        path: packages/core/target/${{ inputs.target }}/release/tscanner-server-${{ inputs.target }}.exe
 
     - name: Upload CLI binary (Unix)
       if: inputs.os != 'windows-latest'
       uses: actions/upload-artifact@v4
       with:
         name: binary-cli-${{ inputs.target }}
-        path: packages/core/target/${{ inputs.target }}/release/tscanner-${{ inputs.target }}
+        path: packages/rust-core/target/${{ inputs.target }}/release/tscanner-${{ inputs.target }}
 
     - name: Upload CLI binary (Windows)
       if: inputs.os == 'windows-latest'
       uses: actions/upload-artifact@v4
       with:
         name: binary-cli-${{ inputs.target }}
-        path: packages/core/target/${{ inputs.target }}/release/tscanner-${{ inputs.target }}.exe
+        path: packages/rust-core/target/${{ inputs.target }}/release/tscanner-${{ inputs.target }}.exe

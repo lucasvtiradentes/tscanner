@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { logger } from '../../common/lib/logger';
 import {
   Command,
   ToastKind,
@@ -6,7 +7,6 @@ import {
   registerCommand,
   showToastMessage,
 } from '../../common/lib/vscode-utils';
-import { logger } from '../../common/utils/logger';
 import type { IssuesPanelContent } from '../../issues-panel/panel-content';
 
 let currentIssueIndex = -1;

@@ -10,12 +10,7 @@ import {
 } from 'node:fs';
 import { homedir } from 'node:os';
 import { join } from 'node:path';
-import {
-  BINARY_BASE_NAME,
-  EXTENSION_ID_DEV,
-  PLATFORM_TARGET_MAP,
-  getBinaryName,
-} from '../../packages/vscode-extension/src/common/constants';
+import { EXTENSION_ID_DEV } from '../../packages/vscode-extension/src/common/constants';
 import {
   CONTEXT_PREFIX,
   DEV_SUFFIX,
@@ -31,7 +26,6 @@ const logger = console;
 const SCRIPT_DIR = __dirname;
 const ROOT_DIR = join(SCRIPT_DIR, '..', '..');
 const EXTENSION_DIR = join(ROOT_DIR, 'packages', 'vscode-extension');
-const CORE_DIR = join(ROOT_DIR, 'packages', 'core');
 
 async function main() {
   if (process.env.CI || process.env.GITHUB_ACTIONS) {
@@ -41,7 +35,6 @@ async function main() {
 
   await setupLocalDistDirectory();
   await copyExtensionFiles();
-  await copyBinaries();
   await patchExtensionCode();
   await writePackageJson();
   await copyMetaFiles();
@@ -52,54 +45,20 @@ async function main() {
 main();
 
 async function setupLocalDistDirectory() {
-  logger.log('[VSCode] Step 1/7 - Setting up local dist directory...');
   const targetDir = getLocalDistDirectory();
-
   if (existsSync(targetDir)) {
     rmSync(targetDir, { recursive: true });
   }
-
   mkdirSync(targetDir, { recursive: true });
 }
 
 async function copyExtensionFiles() {
-  logger.log('[VSCode] Step 2/7 - Copying extension files...');
   const targetDir = getLocalDistDirectory();
-
   copyRecursive(join(EXTENSION_DIR, 'out'), join(targetDir, 'out'));
   copyRecursive(join(EXTENSION_DIR, 'resources'), join(targetDir, 'resources'));
 }
 
-async function copyBinaries() {
-  logger.log('[VSCode] Step 3/7 - Copying Rust binary...');
-  const targetDir = getLocalDistDirectory();
-  const coreTargetDir = join(CORE_DIR, 'target', 'release');
-  const outBinariesDir = join(targetDir, 'out', 'binaries');
-
-  const platformInfo = getPlatformInfo();
-  if (!platformInfo) {
-    logger.log('[VSCode]    ⚠️  Unsupported platform - skipping');
-    return;
-  }
-
-  const { platform, npmPlatform } = platformInfo;
-  const sourcePath = join(coreTargetDir, getBinaryName(BINARY_BASE_NAME));
-
-  if (!existsSync(sourcePath)) {
-    logger.log('[VSCode]    ⚠️  Binary not found - skipping (not built yet)');
-    return;
-  }
-
-  mkdirSync(outBinariesDir, { recursive: true });
-
-  const targetBinary = join(outBinariesDir, `${BINARY_BASE_NAME}-${npmPlatform}${platform === 'win32' ? '.exe' : ''}`);
-
-  copyFileSync(sourcePath, targetBinary);
-  logger.log(`[VSCode]    ✅ Copied binary for ${npmPlatform}`);
-}
-
 async function patchExtensionCode() {
-  logger.log('[VSCode] Step 4/7 - Patching extension code...');
   const targetDir = getLocalDistDirectory();
   const extensionJsPath = join(targetDir, 'out', 'extension.js');
 
@@ -123,24 +82,19 @@ async function patchExtensionCode() {
 }
 
 async function writePackageJson() {
-  logger.log('[VSCode] Step 5/7 - Writing package.json...');
   const targetDir = getLocalDistDirectory();
   const packageJsonPath = join(EXTENSION_DIR, 'package.json');
   const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf8'));
   const modifiedPackageJson = applyDevTransformations(packageJson);
-
   writeFileSync(join(targetDir, 'package.json'), JSON.stringify(modifiedPackageJson, null, 2));
 }
 
 async function copyMetaFiles() {
-  logger.log('[VSCode] Step 6/7 - Copying meta files...');
   const targetDir = getLocalDistDirectory();
-
   const licensePath = join(EXTENSION_DIR, 'LICENSE');
   if (existsSync(licensePath)) {
     copyFileSync(licensePath, join(targetDir, 'LICENSE'));
   }
-
   const readmePath = join(EXTENSION_DIR, 'README.md');
   if (existsSync(readmePath)) {
     copyFileSync(readmePath, join(targetDir, 'README.md'));
@@ -148,7 +102,6 @@ async function copyMetaFiles() {
 }
 
 async function copyToVSCodeExtensions() {
-  logger.log('[VSCode] Step 7/7 - Installing to all detected editors...');
   const sourceDir = getLocalDistDirectory();
   const installedEditors: string[] = [];
 
@@ -157,28 +110,23 @@ async function copyToVSCodeExtensions() {
     if (!existsSync(extensionsPath)) continue;
 
     const targetDir = join(extensionsPath, EXTENSION_ID_DEV);
-
     if (existsSync(targetDir)) {
       rmSync(targetDir, { recursive: true });
     }
-
     mkdirSync(targetDir, { recursive: true });
     copyRecursive(sourceDir, targetDir);
     installedEditors.push(EDITOR_DISPLAY_NAMES[editor]);
   }
 
   if (installedEditors.length === 0) {
-    logger.log('[VSCode]    ⚠️  No editors found');
+    logger.log('[VSCode] ⚠️  No editors found');
   } else {
-    logger.log(`[VSCode]    ✅ Installed to: ${installedEditors.join(', ')}`);
+    logger.log(`[VSCode] ✅ Installed to: ${installedEditors.join(', ')}`);
   }
 }
 
 async function printSuccessMessage() {
-  logger.log(`\n[VSCode] ✅ Extension ID: ${EXTENSION_ID_DEV}`);
-  logger.log('\n[VSCode] 🔄 Reload your editor(s) to activate the extension:');
-  logger.log('[VSCode]    - Press Ctrl+Shift+P');
-  logger.log(`[VSCode]    - Type "Reload Window" and press Enter\n`);
+  logger.log(`[VSCode] ✅ ID: ${EXTENSION_ID_DEV} - Reload editor to activate`);
 }
 
 function getLocalDistDirectory(): string {
@@ -210,19 +158,6 @@ function getEditorExtensionsPath(editor: Editor): string {
         : join(homedir(), '.config', 'VSCodium', 'extensions'),
   };
   return paths[editor];
-}
-
-function getPlatformInfo(): { platform: string; npmPlatform: string } | null {
-  const platform = process.platform;
-  const arch = process.arch;
-  const key = `${platform}-${arch}`;
-  const npmPlatform = PLATFORM_TARGET_MAP[key];
-
-  if (!npmPlatform) {
-    return null;
-  }
-
-  return { platform, npmPlatform };
 }
 
 function copyRecursive(src: string, dest: string): void {

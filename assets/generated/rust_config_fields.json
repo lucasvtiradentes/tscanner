@@ -1,0 +1,65 @@
+{
+  "ai_rule_config": [
+    "type",
+    "prompt"
+  ],
+  "builtin_rule_config": [
+    "enabled",
+    "severity",
+    "include",
+    "exclude"
+  ],
+  "cli_config": [
+    "groupBy",
+    "noCache",
+    "showSettings",
+    "showIssueSeverity",
+    "showIssueSourceLine",
+    "showIssueRuleName",
+    "showIssueDescription",
+    "showSummary"
+  ],
+  "code_editor_config": [
+    "highlightErrors",
+    "highlightWarnings",
+    "scanIntervalSeconds"
+  ],
+  "custom_rule_base": [
+    "message",
+    "severity",
+    "enabled",
+    "include",
+    "exclude"
+  ],
+  "custom_rule_types": [
+    "regex",
+    "script",
+    "ai"
+  ],
+  "files_config": [
+    "include",
+    "exclude"
+  ],
+  "regex_rule_config": [
+    "type",
+    "pattern"
+  ],
+  "script_mode": [
+    "batch",
+    "single"
+  ],
+  "script_rule_config": [
+    "type",
+    "command",
+    "mode",
+    "timeout",
+    "options"
+  ],
+  "tscanner_config": [
+    "codeEditor",
+    "cli",
+    "builtinRules",
+    "customRules",
+    "files"
+  ]
+}

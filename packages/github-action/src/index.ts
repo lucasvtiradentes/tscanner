@@ -1,11 +1,10 @@
-import { ScanMode } from 'tscanner-common';
+import { GitHelper, ScanMode } from 'tscanner-common';
 import { writeAnnotations } from './core/annotation-writer';
 import { updateOrCreateComment } from './core/comment-updater';
 import { type ActionInputs, getActionInputs } from './core/input-validator';
 import { type ScanOptions, type ScanResult, scanChangedFiles } from './core/scanner';
 import { writeSummary } from './core/summary-writer';
 import { type Octokit, githubHelper } from './lib/actions-helper';
-import { gitHelper } from './lib/git-helper';
 import { validateConfigFiles } from './utils/config-validator';
 import { formatTimestamp } from './utils/format-timestamp';
 
@@ -27,7 +26,7 @@ class ActionRunner {
 
       const scanResults = await this.executeScan(inputs);
 
-      const octokit = githubHelper.getOctokit(inputs.token);
+      const octokit = githubHelper.getOctokit(inputs.githubToken);
 
       if (inputs.prComment) {
         await this.handlePRComment(inputs, octokit, scanResults);
@@ -81,7 +80,7 @@ class ActionRunner {
     } satisfies ScanOptions;
 
     if (inputs.mode === ScanMode.Branch) {
-      await gitHelper.fetchBranch(inputs.targetBranch);
+      GitHelper.fetchBranch(inputs.targetBranch, process.cwd());
       return scanChangedFiles({
         ...commonParams,
         targetBranch: inputs.targetBranch,

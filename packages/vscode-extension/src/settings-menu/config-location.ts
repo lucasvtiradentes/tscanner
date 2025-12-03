@@ -17,20 +17,18 @@ import {
   saveGlobalConfig,
   saveLocalConfig,
 } from '../common/lib/config-manager';
+import { logger } from '../common/lib/logger';
 import {
   Command,
   type QuickPickItemWithId,
   ToastKind,
-  WorkspaceStateKey,
   executeCommand,
   getCurrentWorkspaceFolder,
   openTextDocument,
   showToastMessage,
-  updateState,
 } from '../common/lib/vscode-utils';
 import { CONFIG_DIR_NAME } from '../common/scripts-constants';
-import { invalidateCache } from '../common/utils/git-helper';
-import { logger } from '../common/utils/logger';
+import { WorkspaceStateKey, updateState } from '../common/state/workspace-state';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
 
 export enum ConfigLocation {
@@ -309,7 +307,6 @@ async function moveConfigToLocation(
 
   panelContent.setResults([]);
   updateBadge();
-  invalidateCache();
   await updateStatusBar();
 
   logger.info(`Moved config from ${fromLabel} to ${toLabel}`);

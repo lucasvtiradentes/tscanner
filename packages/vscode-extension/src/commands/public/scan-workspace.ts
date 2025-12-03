@@ -1,25 +1,27 @@
-import { ScanMode, ViewMode } from 'tscanner-common';
+import { GitHelper, ScanMode, ViewMode } from 'tscanner-common';
 import { CONFIG_DIR_NAME } from '../../common/constants';
 import { getConfigState, loadEffectiveConfig } from '../../common/lib/config-manager';
-import type { CommandContext } from '../../common/lib/extension-state';
-import { scanWorkspace } from '../../common/lib/scanner';
+import { logger } from '../../common/lib/logger';
 import {
   Command,
-  ContextKey,
   ToastKind,
-  WorkspaceStateKey,
   executeCommand,
   getCurrentWorkspaceFolder,
   registerCommand,
+  showToastMessage,
+} from '../../common/lib/vscode-utils';
+import type { CommandContext } from '../../common/state/extension-state';
+import {
+  ContextKey,
+  WorkspaceStateKey,
   setContextKey,
   setWorkspaceState,
-  showToastMessage,
   updateState,
-} from '../../common/lib/vscode-utils';
+} from '../../common/state/workspace-state';
 import { hasConfiguredRules, serializeResults } from '../../common/types';
-import { branchExists } from '../../common/utils/git-helper';
-import { logger } from '../../common/utils/logger';
 import type { IssuesPanelContent } from '../../issues-panel/panel-content';
+import { scanBranch } from '../../scanner/branch-scan';
+import { scanCodebase } from '../../scanner/codebase-scan';
 import { resetIssueIndex } from './issue-navigation';
 
 export function createScanWorkspaceCommand(ctx: CommandContext, panelContent: IssuesPanelContent) {
@@ -72,7 +74,10 @@ export function createScanWorkspaceCommand(ctx: CommandContext, panelContent: Is
     }
 
     if (currentScanModeRef.current === ScanMode.Branch) {
-      const branchExistsCheck = await branchExists(workspaceFolder.uri.fsPath, currentCompareBranchRef.current);
+      const branchExistsCheck = await GitHelper.branchExists(
+        workspaceFolder.uri.fsPath,
+        currentCompareBranchRef.current,
+      );
       if (!branchExistsCheck) {
         logger.warn(`Branch does not exist: ${currentCompareBranchRef.current}`);
         const action = await showToastMessage(
@@ -103,8 +108,8 @@ export function createScanWorkspaceCommand(ctx: CommandContext, panelContent: Is
       const startTime = Date.now();
       const results =
         currentScanModeRef.current === ScanMode.Branch
-          ? await scanWorkspace(undefined, configToPass, currentCompareBranchRef.current)
-          : await scanWorkspace(undefined, configToPass);
+          ? await scanBranch(currentCompareBranchRef.current, undefined, configToPass)
+          : await scanCodebase(undefined, configToPass);
 
       const elapsed = Date.now() - startTime;
       logger.info(`Search completed in ${elapsed}ms, found ${results.length} results`);

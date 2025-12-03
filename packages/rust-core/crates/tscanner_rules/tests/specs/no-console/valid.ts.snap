@@ -1,0 +1,44 @@
+---
+source: crates/tscanner_rules/tests/spec_tests.rs
+expression: snapshot
+---
+# Input
+```ts
+console.error('error');
+console.warn('warning');
+console.info('info');
+const log = (msg: string) => msg;
+```
+
+# Diagnostics
+```
+valid.ts:1:1 no-console ━━━━━━━━━━━━━━━━━━━━
+
+  ! Unexpected call to console.error
+
+  > 1 │ console.error('error');
+    2 │ console.warn('warning');
+
+```
+
+```
+valid.ts:2:1 no-console ━━━━━━━━━━━━━━━━━━━━
+
+  ! Unexpected call to console.warn
+
+    1 │ console.error('error');
+  > 2 │ console.warn('warning');
+    3 │ console.info('info');
+
+```
+
+```
+valid.ts:3:1 no-console ━━━━━━━━━━━━━━━━━━━━
+
+  ! Unexpected call to console.info
+
+    2 │ console.warn('warning');
+  > 3 │ console.info('info');
+    4 │ const log = (msg: string) => msg;
+
+```

@@ -1,6 +1,7 @@
+import { GroupMode } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { collectFolderIssues, copyIssuesBase, copyScanContext } from '../../common/lib/copy-utils';
-import { Command, GroupMode, ToastKind, registerCommand, showToastMessage } from '../../common/lib/vscode-utils';
+import { Command, ToastKind, registerCommand, showToastMessage } from '../../common/lib/vscode-utils';
 import type { FileResultItem, FolderResultItem, RuleGroupItem } from '../../issues-panel/utils/tree-items';
 
 export function createCopyRuleIssuesCommand() {

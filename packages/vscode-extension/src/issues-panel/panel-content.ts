@@ -1,8 +1,8 @@
 import { GroupMode, ViewMode } from 'tscanner-common';
 import * as vscode from 'vscode';
+import { logger } from '../common/lib/logger';
 import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import { type IssueResult, NodeKind } from '../common/types';
-import { logger } from '../common/utils/logger';
 import { buildFolderTree } from './utils/tree-builder';
 import { FileResultItem, FolderResultItem, LineResultItem, RuleGroupItem } from './utils/tree-items';
 
