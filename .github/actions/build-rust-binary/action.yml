@@ -1,5 +1,5 @@
 name: 'Build Rust Binary'
-description: 'Builds tscanner-server binary for a specific target platform'
+description: 'Builds tscanner binary for a specific target platform'
 
 inputs:
   target:
@@ -50,26 +50,10 @@ runs:
       run: |
         cd packages/rust-core/target/${{ inputs.target }}/release
         if [[ "${{ inputs.os }}" == "windows-latest" ]]; then
-          cp tscanner-server.exe tscanner-server-${{ inputs.target }}.exe
           cp tscanner.exe tscanner-${{ inputs.target }}.exe
         else
-          cp tscanner-server tscanner-server-${{ inputs.target }}
           cp tscanner tscanner-${{ inputs.target }}
         fi
-
-    - name: Upload server binary (Unix)
-      if: inputs.os != 'windows-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: binary-server-${{ inputs.target }}
-        path: packages/rust-core/target/${{ inputs.target }}/release/tscanner-server-${{ inputs.target }}
-
-    - name: Upload server binary (Windows)
-      if: inputs.os == 'windows-latest'
-      uses: actions/upload-artifact@v4
-      with:
-        name: binary-server-${{ inputs.target }}
-        path: packages/rust-core/target/${{ inputs.target }}/release/tscanner-server-${{ inputs.target }}.exe
 
     - name: Upload CLI binary (Unix)
       if: inputs.os != 'windows-latest'

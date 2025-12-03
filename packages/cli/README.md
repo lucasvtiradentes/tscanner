@@ -277,6 +277,13 @@ tscanner check --branch origin/main
     <td align="center">-</td>
     <td align="left">Initialize with all built-in rules enabled</td>
   </tr>
+  <tr>
+    <td rowspan="1" align="left"><code>lsp</code></td>
+    <td rowspan="1" align="left">Start the LSP server (Language Server Protocol)</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+  </tr>
 </table>
 
 </div>

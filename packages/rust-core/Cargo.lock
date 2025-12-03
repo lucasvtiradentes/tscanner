@@ -1559,6 +1559,7 @@ dependencies = [
  "tscanner_config",
  "tscanner_diagnostics",
  "tscanner_fs",
+ "tscanner_lsp",
  "tscanner_rules",
  "tscanner_scanner",
  "tscanner_service",

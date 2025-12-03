@@ -201,6 +201,13 @@
           "required": false
         }
       ]
+    },
+    {
+      "name": "lsp",
+      "description": "Start the LSP server (Language Server Protocol)",
+      "usage": "tscanner lsp [options]",
+      "arguments": [],
+      "flags": []
     }
   ]
 }
