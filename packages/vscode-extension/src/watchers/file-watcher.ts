@@ -1,8 +1,9 @@
 import { ScanMode, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { loadEffectiveConfig } from '../common/lib/config-manager';
-import { getChangedFiles, getModifiedLineRanges } from '../common/lib/git-helper';
+import { GitHelper } from '../common/lib/git-helper';
 import { logger } from '../common/lib/logger';
+import { VscodeGit } from '../common/lib/vscode-git';
 import { WorkspaceStateKey, getCurrentWorkspaceFolder, setWorkspaceState } from '../common/lib/vscode-utils';
 import type { ExtensionStateRefs } from '../common/state/extension-state';
 import { type IssueResult, type ModifiedLineRange, serializeResults } from '../common/types';
@@ -83,7 +84,10 @@ export async function createFileWatcher(
     logger.debug(`File changed: ${relativePath}`);
 
     if (stateRefs.currentScanModeRef.current === ScanMode.Branch) {
-      const changedFiles = await getChangedFiles(workspaceFolder.uri.fsPath, stateRefs.currentCompareBranchRef.current);
+      const changedFiles = await VscodeGit.getChangedFiles(
+        workspaceFolder.uri.fsPath,
+        stateRefs.currentCompareBranchRef.current,
+      );
       if (!changedFiles.has(relativePath)) {
         logger.debug(`File not in changed files set, skipping: ${relativePath}`);
         return;
@@ -104,7 +108,7 @@ export async function createFileWatcher(
       let newResults = scanResult.issues;
 
       if (stateRefs.currentScanModeRef.current === ScanMode.Branch) {
-        const ranges = await getModifiedLineRanges(
+        const ranges = await GitHelper.getModifiedLineRanges(
           workspaceFolder.uri.fsPath,
           relativePath,
           stateRefs.currentCompareBranchRef.current,

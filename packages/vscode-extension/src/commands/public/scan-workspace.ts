@@ -1,7 +1,7 @@
 import { ScanMode, ViewMode } from 'tscanner-common';
 import { CONFIG_DIR_NAME } from '../../common/constants';
 import { getConfigState, loadEffectiveConfig } from '../../common/lib/config-manager';
-import { branchExists } from '../../common/lib/git-helper';
+import { GitHelper } from '../../common/lib/git-helper';
 import { logger } from '../../common/lib/logger';
 import {
   Command,
@@ -72,7 +72,10 @@ export function createScanWorkspaceCommand(ctx: CommandContext, panelContent: Is
     }
 
     if (currentScanModeRef.current === ScanMode.Branch) {
-      const branchExistsCheck = await branchExists(workspaceFolder.uri.fsPath, currentCompareBranchRef.current);
+      const branchExistsCheck = await GitHelper.branchExists(
+        workspaceFolder.uri.fsPath,
+        currentCompareBranchRef.current,
+      );
       if (!branchExistsCheck) {
         logger.warn(`Branch does not exist: ${currentCompareBranchRef.current}`);
         const action = await showToastMessage(

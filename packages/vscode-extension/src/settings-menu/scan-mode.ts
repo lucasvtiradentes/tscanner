@@ -1,8 +1,9 @@
 import { ScanMode } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { setCopyScanContext } from '../common/lib/copy-utils';
-import { getAllBranches, getCurrentBranch } from '../common/lib/git-helper';
+import { GitHelper } from '../common/lib/git-helper';
 import { logger } from '../common/lib/logger';
+import { VscodeGit } from '../common/lib/vscode-git';
 import {
   Command,
   type QuickPickItemWithId,
@@ -87,7 +88,7 @@ async function handleBranchScan(
   const workspaceFolder = requireWorkspaceOrNull();
   if (!workspaceFolder) return;
 
-  const currentBranch = await getCurrentBranch(workspaceFolder.uri.fsPath);
+  const currentBranch = await VscodeGit.getCurrentBranch(workspaceFolder.uri.fsPath);
   if (!currentBranch) {
     showToastMessage(ToastKind.Error, 'Not in a git repository');
     return;
@@ -115,7 +116,7 @@ async function handleBranchScan(
   if (!branchSelected) return;
 
   if (branchSelected.id === BranchMenuOption.ChooseAnother) {
-    const branches = await getAllBranches(workspaceFolder.uri.fsPath);
+    const branches = await GitHelper.getAllBranches(workspaceFolder.uri.fsPath);
 
     if (branches.length === 0) {
       showToastMessage(ToastKind.Error, 'No branches found');

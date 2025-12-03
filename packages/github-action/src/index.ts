@@ -5,7 +5,7 @@ import { type ActionInputs, getActionInputs } from './core/input-validator';
 import { type ScanOptions, type ScanResult, scanChangedFiles } from './core/scanner';
 import { writeSummary } from './core/summary-writer';
 import { type Octokit, githubHelper } from './lib/actions-helper';
-import { gitHelper } from './lib/git-helper';
+import { GitHelper } from './lib/git-helper';
 import { validateConfigFiles } from './utils/config-validator';
 import { formatTimestamp } from './utils/format-timestamp';
 
@@ -81,7 +81,7 @@ class ActionRunner {
     } satisfies ScanOptions;
 
     if (inputs.mode === ScanMode.Branch) {
-      await gitHelper.fetchBranch(inputs.targetBranch);
+      GitHelper.fetchBranch(inputs.targetBranch, process.cwd());
       return scanChangedFiles({
         ...commonParams,
         targetBranch: inputs.targetBranch,
