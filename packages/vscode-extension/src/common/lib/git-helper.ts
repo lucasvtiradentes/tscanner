@@ -7,6 +7,15 @@ function toGitPath(filePath: string): string {
   return filePath.replace(/\\/g, '/');
 }
 
+function execGit(cmd: string, cwd: string): [string | null, Error | null] {
+  try {
+    const output = execSync(cmd, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] });
+    return [output, null];
+  } catch (error) {
+    return [null, error as Error];
+  }
+}
+
 type GitExtension = {
   getAPI(version: 1): GitAPI;
 };
@@ -66,44 +75,31 @@ export async function getCurrentBranch(workspaceRoot: string): Promise<string | 
 }
 
 export async function branchExists(workspaceRoot: string, branchName: string): Promise<boolean> {
-  try {
-    execSync(`git rev-parse --verify "${branchName}"`, {
-      cwd: workspaceRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'pipe'],
-    });
-    return true;
-  } catch {
-    return false;
-  }
+  const [, error] = execGit(`git rev-parse --verify "${branchName}"`, workspaceRoot);
+  return error === null;
 }
 
 export async function getAllBranches(workspaceRoot: string): Promise<string[]> {
-  try {
-    const output = execSync('git branch -a', {
-      cwd: workspaceRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'ignore'],
-    });
-
-    const branches = output
-      .split('\n')
-      .map((line: string) => line.trim())
-      .filter((line: string) => line && !line.includes('HEAD'))
-      .map((line: string) => line.replace(/^\*\s+/, ''))
-      .map((line: string) => {
-        if (line.startsWith('remotes/origin/')) {
-          return `origin/${line.replace('remotes/origin/', '')}`;
-        }
-        return line;
-      });
-
-    logger.debug(`Found ${branches.length} branches: ${branches.join(', ')}`);
-    return branches;
-  } catch (error) {
+  const [output, error] = execGit('git branch -a', workspaceRoot);
+  if (error || !output) {
     logger.error(`Failed to get branches: ${error}`);
     return [];
   }
+
+  const branches = output
+    .split('\n')
+    .map((line: string) => line.trim())
+    .filter((line: string) => line && !line.includes('HEAD'))
+    .map((line: string) => line.replace(/^\*\s+/, ''))
+    .map((line: string) => {
+      if (line.startsWith('remotes/origin/')) {
+        return `origin/${line.replace('remotes/origin/', '')}`;
+      }
+      return line;
+    });
+
+  logger.debug(`Found ${branches.length} branches: ${branches.join(', ')}`);
+  return branches;
 }
 
 export async function getChangedFiles(workspaceRoot: string, compareBranch: string): Promise<Set<string>> {
@@ -142,18 +138,58 @@ export async function getFileContentAtRef(
   filePath: string,
   ref: string,
 ): Promise<string | null> {
-  try {
-    const gitPath = toGitPath(filePath);
-    const content = execSync(`git show "${ref}:${gitPath}"`, {
-      cwd: workspaceRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'ignore'],
-    });
-    return content;
-  } catch (error) {
+  const gitPath = toGitPath(filePath);
+  const [content, error] = execGit(`git show "${ref}:${gitPath}"`, workspaceRoot);
+  if (error) {
     logger.debug(`Failed to get ${filePath} at ${ref}: ${error}`);
-    return null;
   }
+  return content;
+}
+
+function parseDiffToLines(diff: string): Set<number> {
+  const addedLines = new Set<number>();
+  const lines = diff.split('\n');
+  let currentLine = 0;
+
+  for (const line of lines) {
+    const hunkMatch = line.match(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
+    if (hunkMatch) {
+      currentLine = Number.parseInt(hunkMatch[1], 10);
+      continue;
+    }
+
+    if (line.startsWith('+') && !line.startsWith('+++')) {
+      addedLines.add(currentLine);
+      currentLine++;
+    } else if (!line.startsWith('-')) {
+      currentLine++;
+    }
+  }
+
+  return addedLines;
+}
+
+function linesToRanges(lines: Set<number>): ModifiedLineRange[] {
+  const sortedLines = Array.from(lines).sort((a, b) => a - b);
+  const ranges: ModifiedLineRange[] = [];
+
+  if (sortedLines.length > 0) {
+    let rangeStart = sortedLines[0];
+    let rangeCount = 1;
+
+    for (let i = 1; i < sortedLines.length; i++) {
+      if (sortedLines[i] === sortedLines[i - 1] + 1) {
+        rangeCount++;
+      } else {
+        ranges.push({ startLine: rangeStart, lineCount: rangeCount });
+        rangeStart = sortedLines[i];
+        rangeCount = 1;
+      }
+    }
+    ranges.push({ startLine: rangeStart, lineCount: rangeCount });
+  }
+
+  return ranges;
 }
 
 export async function getModifiedLineRanges(
@@ -161,58 +197,11 @@ export async function getModifiedLineRanges(
   filePath: string,
   compareBranch: string,
 ): Promise<ModifiedLineRange[]> {
-  try {
-    const currentBranch = await getCurrentBranch(workspaceRoot);
-    if (!currentBranch) return [];
-
-    const gitPath = toGitPath(filePath);
-    const diff = execSync(`git diff "${compareBranch}...${currentBranch}" -- "${gitPath}"`, {
-      cwd: workspaceRoot,
-      encoding: 'utf-8',
-      stdio: ['pipe', 'pipe', 'ignore'],
-    });
-
-    const addedLines = new Set<number>();
-    const lines = diff.split('\n');
-    let currentLine = 0;
-
-    for (const line of lines) {
-      const hunkMatch = line.match(/^@@ -\d+(?:,\d+)? \+(\d+)(?:,\d+)? @@/);
-      if (hunkMatch) {
-        currentLine = Number.parseInt(hunkMatch[1], 10);
-        continue;
-      }
-
-      if (line.startsWith('+') && !line.startsWith('+++')) {
-        addedLines.add(currentLine);
-        currentLine++;
-      } else if (!line.startsWith('-')) {
-        currentLine++;
-      }
-    }
-
-    const sortedLines = Array.from(addedLines).sort((a, b) => a - b);
-    const ranges: ModifiedLineRange[] = [];
-
-    if (sortedLines.length > 0) {
-      let rangeStart = sortedLines[0];
-      let rangeCount = 1;
-
-      for (let i = 1; i < sortedLines.length; i++) {
-        if (sortedLines[i] === sortedLines[i - 1] + 1) {
-          rangeCount++;
-        } else {
-          ranges.push({ startLine: rangeStart, lineCount: rangeCount });
-          rangeStart = sortedLines[i];
-          rangeCount = 1;
-        }
-      }
-      ranges.push({ startLine: rangeStart, lineCount: rangeCount });
-    }
-
-    return ranges;
-  } catch (error) {
+  const gitPath = toGitPath(filePath);
+  const [diff, error] = execGit(`git diff -w "${compareBranch}" -- "${gitPath}"`, workspaceRoot);
+  if (error || !diff) {
     logger.debug(`Failed to get modified lines for ${filePath}: ${error}`);
     return [];
   }
+  return linesToRanges(parseDiffToLines(diff));
 }
