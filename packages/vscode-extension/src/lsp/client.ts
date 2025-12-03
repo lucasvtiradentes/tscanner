@@ -2,60 +2,22 @@ import * as vscode from 'vscode';
 import {
   LanguageClient,
   type LanguageClientOptions,
-  RequestType,
-  RequestType0,
   type ServerOptions,
   TransportKind,
 } from 'vscode-languageclient/node';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../constants';
-import type { ContentScanResult, FileResult, GroupMode, RuleMetadata, ScanResult, TscannerConfig } from '../types';
-import { logger } from '../utils/logger';
-
-type ScanParams = {
-  root: string;
-  config?: TscannerConfig;
-  branch?: string;
-};
-
-type ScanFileParams = {
-  root: string;
-  file: string;
-};
-
-type ScanContentParams = {
-  root: string;
-  file: string;
-  content: string;
-  config?: TscannerConfig;
-};
-
-type FormatResultsParams = {
-  root: string;
-  results: ScanResult;
-  group_mode: GroupMode;
-};
-
-type FormatPrettyResult = {
-  output: string;
-  summary: {
-    total_issues: number;
-    error_count: number;
-    warning_count: number;
-    file_count: number;
-    rule_count: number;
-  };
-};
-
-const ScanRequestType = new RequestType<ScanParams, ScanResult, void>('tscanner/scan');
-const ScanFileRequestType = new RequestType<ScanFileParams, FileResult, void>('tscanner/scanFile');
-const ScanContentRequestType = new RequestType<ScanContentParams, ContentScanResult, void>('tscanner/scanContent');
-const ClearCacheRequestType = new RequestType0<{ cleared: boolean }, void>('tscanner/clearCache');
-const GetRulesMetadataRequestType = new RequestType0<RuleMetadata[], void>('tscanner/getRulesMetadata');
-const FormatResultsRequestType = new RequestType<FormatResultsParams, FormatPrettyResult, void>(
-  'tscanner/formatResults',
-);
-
-export type { FormatPrettyResult };
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../common/constants';
+import type { ContentScanResult, FileResult, GroupMode, ScanResult, TscannerConfig } from '../common/types';
+import { logger } from '../common/utils/logger';
+import {
+  ClearCacheRequestType,
+  type FormatPrettyResult,
+  FormatResultsRequestType,
+  GetRulesMetadataRequestType,
+  type RuleMetadata,
+  ScanContentRequestType,
+  ScanFileRequestType,
+  ScanRequestType,
+} from './requests';
 
 export class TscannerLspClient {
   private client: LanguageClient | null = null;

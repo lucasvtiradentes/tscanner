@@ -1,12 +1,12 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import * as vscode from 'vscode';
+import { TscannerLspClient } from '../../lsp';
 import { BINARY_BASE_NAME, PLATFORM_TARGET_MAP, getServerBinaryName } from '../constants';
 import type { Issue, IssueResult, TscannerConfig } from '../types';
 import { parseSeverity } from '../types';
 import { getExtensionPath } from '../utils/extension-helper';
 import { LOG_FILE_PATH, logger } from '../utils/logger';
-import { TscannerLspClient } from './lsp-client';
 import { getCurrentWorkspaceFolder, openTextDocument } from './vscode-utils';
 
 const CONFIG_ERROR_PREFIX = 'TSCANNER_CONFIG_ERROR:';

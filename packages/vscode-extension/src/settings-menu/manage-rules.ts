@@ -10,7 +10,6 @@ import {
   saveGlobalConfig,
   saveLocalConfig,
 } from '../common/lib/config-manager';
-import { TscannerLspClient } from '../common/lib/lsp-client';
 import { getRustBinaryPath } from '../common/lib/scanner';
 import {
   Command,
@@ -21,6 +20,7 @@ import {
   showToastMessage,
 } from '../common/lib/vscode-utils';
 import { logger } from '../common/utils/logger';
+import { TscannerLspClient } from '../lsp';
 import { ConfigLocation, showConfigLocationMenuForFirstSetup } from './config-location';
 
 type RuleQuickPickItem = vscode.QuickPickItem & {
