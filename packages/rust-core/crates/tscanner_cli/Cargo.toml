@@ -12,11 +12,11 @@ path = "src/main.rs"
 
 [[bin]]
 name = "generate_cli_json"
-path = "src/bin/generate_cli_json.rs"
+path = "../../scripts/generate_cli_json.rs"
 
 [[bin]]
 name = "generate_schema"
-path = "src/bin/generate_schema.rs"
+path = "../../scripts/generate_schema.rs"
 
 [dependencies]
 tscanner_diagnostics = { path = "../tscanner_diagnostics" }
