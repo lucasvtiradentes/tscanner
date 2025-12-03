@@ -26,7 +26,10 @@ import type { FormatPrettyResult } from './requests/types';
 export class TscannerLspClient {
   private client: LanguageClient | null = null;
 
-  constructor(private binaryPath: string) {}
+  constructor(
+    private binaryPath: string,
+    private args: string[] = [],
+  ) {}
 
   async start(workspaceRoot: string): Promise<void> {
     if (this.client) {
@@ -34,11 +37,11 @@ export class TscannerLspClient {
       return;
     }
 
-    logger.info(`Starting LSP client: ${this.binaryPath}`);
+    logger.info(`Starting LSP: ${this.binaryPath} ${this.args.join(' ')}`);
 
     const serverOptions: ServerOptions = {
       command: this.binaryPath,
-      args: [],
+      args: this.args,
       transport: TransportKind.stdio,
     };
 

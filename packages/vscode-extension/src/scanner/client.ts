@@ -1,7 +1,7 @@
 import { logger } from '../common/lib/logger';
 import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
+import { Locator, promptInstall } from '../locator';
 import { TscannerLspClient } from '../lsp/client';
-import { getRustBinaryPath } from './utils';
 
 let lspClient: TscannerLspClient | null = null;
 
@@ -12,12 +12,29 @@ export async function ensureLspClient(): Promise<TscannerLspClient> {
   }
 
   if (!lspClient) {
-    const binaryPath = getRustBinaryPath();
-    if (!binaryPath) {
-      throw new Error('Rust binary not found');
+    const locator = new Locator(workspaceFolder.uri.fsPath);
+    const result = await locator.locate();
+
+    if (!result) {
+      const installed = await promptInstall();
+      if (installed) {
+        const retryResult = await locator.locate();
+        if (!retryResult) {
+          throw new Error('TScanner binary not found after installation. Please restart VSCode.');
+        }
+        lspClient = new TscannerLspClient(retryResult.path, ['lsp']);
+      } else {
+        throw new Error(
+          'TScanner binary not found.\n\n' +
+            'Install with: npm install -g tscanner\n' +
+            'Or add as dev dependency: npm install -D tscanner',
+        );
+      }
+    } else {
+      logger.info(`Using tscanner from: ${result.source} (${result.path})`);
+      lspClient = new TscannerLspClient(result.path, ['lsp']);
     }
 
-    lspClient = new TscannerLspClient(binaryPath);
     await lspClient.start(workspaceFolder.uri.fsPath);
   }
 

@@ -3,26 +3,12 @@ import { logger } from '../common/lib/logger';
 import { getCurrentWorkspaceFolder, openTextDocument } from '../common/lib/vscode-utils';
 import type { IssueResult, TscannerConfig } from '../common/types';
 import { ensureLspClient } from './client';
-import {
-  getRustBinaryPath,
-  mapIssueToResult,
-  parseConfigError,
-  showBinaryNotFoundError,
-  showConfigErrorToast,
-  showScanErrorToast,
-} from './utils';
+import { mapIssueToResult, parseConfigError, showConfigErrorToast, showScanErrorToast } from './utils';
 
 export async function scanCodebase(fileFilter?: Set<string>, config?: TscannerConfig): Promise<IssueResult[]> {
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (!workspaceFolder) {
     return [];
-  }
-
-  const binaryPath = getRustBinaryPath();
-  if (!binaryPath) {
-    logger.error('Rust binary not found');
-    showBinaryNotFoundError();
-    throw new Error('Rust binary not found');
   }
 
   try {
