@@ -1,5 +1,5 @@
 async function foo() {
-  return 1;
+  const x = 1;
 }
 
 async function bar() {
@@ -7,23 +7,19 @@ async function bar() {
 }
 
 const baz = async () => {
-  return 2;
+  const x = 2;
 };
 
 const qux = async () => console.log('world');
 
-async function withPromise() {
-  return Promise.resolve(1);
-}
-
 class MyClass {
   async method() {
-    return 3;
+    const x = 3;
   }
 }
 
 const obj = {
   async method() {
-    return 4;
+    const x = 4;
   }
 };

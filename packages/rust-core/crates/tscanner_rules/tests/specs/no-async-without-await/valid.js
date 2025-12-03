@@ -45,3 +45,27 @@ async function multipleAwaits() {
   await second();
   return await third();
 }
+
+async function returnsPromise() {
+  return somePromiseFunction();
+}
+
+async function returnsPromiseFromMember() {
+  return this.client.sendRequest();
+}
+
+const returnsPromiseArrow = async () => {
+  return fetchData();
+};
+
+const returnsPromiseArrowImplicit = async () => somePromise();
+
+async function returnsPromiseChain() {
+  return promise.then(x => x);
+}
+
+class MyAsyncClass {
+  async scan() {
+    return this.client.sendRequest({ root });
+  }
+}

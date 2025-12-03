@@ -65,10 +65,13 @@ impl<'a> AsyncWithoutAwaitVisitor<'a> {
             return;
         }
 
-        let mut await_checker = AwaitChecker { has_await: false };
+        let mut await_checker = AwaitChecker {
+            has_await: false,
+            returns_promise: false,
+        };
         body.visit_with(&mut await_checker);
 
-        if !await_checker.has_await {
+        if !await_checker.has_await && !await_checker.returns_promise {
             let (line, column, end_column) =
                 get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
@@ -95,10 +98,18 @@ impl<'a> AsyncWithoutAwaitVisitor<'a> {
             return;
         }
 
-        let mut await_checker = AwaitChecker { has_await: false };
+        let mut await_checker = AwaitChecker {
+            has_await: false,
+            returns_promise: false,
+        };
         body.visit_with(&mut await_checker);
 
-        if !await_checker.has_await {
+        let returns_promise_expr = match body {
+            BlockStmtOrExpr::Expr(expr) => is_promise_returning_expr(expr),
+            BlockStmtOrExpr::BlockStmt(_) => await_checker.returns_promise,
+        };
+
+        if !await_checker.has_await && !returns_promise_expr {
             let (line, column, end_column) =
                 get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
@@ -132,11 +143,45 @@ impl<'a> Visit for AsyncWithoutAwaitVisitor<'a> {
 
 struct AwaitChecker {
     has_await: bool,
+    returns_promise: bool,
+}
+
+fn is_likely_void_call(call: &CallExpr) -> bool {
+    if let Callee::Expr(callee_expr) = &call.callee {
+        if let Expr::Member(member) = callee_expr.as_ref() {
+            if let MemberProp::Ident(ident) = &member.prop {
+                let method = ident.sym.as_ref();
+                return matches!(method, "log" | "warn" | "error" | "info" | "debug");
+            }
+        }
+    }
+    false
+}
+
+fn is_promise_returning_expr(expr: &Expr) -> bool {
+    match expr {
+        Expr::Call(call) => !is_likely_void_call(call),
+        Expr::Member(_) => true,
+        Expr::Await(_) => true,
+        Expr::OptChain(_) => true,
+        Expr::Ident(_) => true,
+        Expr::Paren(paren) => is_promise_returning_expr(&paren.expr),
+        _ => false,
+    }
 }
 
 impl Visit for AwaitChecker {
     fn visit_await_expr(&mut self, _n: &AwaitExpr) {
         self.has_await = true;
+    }
+
+    fn visit_return_stmt(&mut self, n: &ReturnStmt) {
+        if let Some(arg) = &n.arg {
+            if is_promise_returning_expr(arg) {
+                self.returns_promise = true;
+            }
+        }
+        n.visit_children_with(self);
     }
 
     fn visit_function(&mut self, _n: &Function) {}
