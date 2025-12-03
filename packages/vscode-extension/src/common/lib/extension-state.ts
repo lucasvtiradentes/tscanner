@@ -1,6 +1,6 @@
 import type { ScanMode } from 'tscanner-common';
 import type * as vscode from 'vscode';
-import type { RustClient } from './rust-client';
+import type { TscannerLspClient } from './lsp-client';
 import { WorkspaceStateKey, getWorkspaceState } from './vscode-utils';
 
 export type ExtensionState = {
@@ -32,5 +32,5 @@ export type CommandContext = {
   stateRefs: ExtensionStateRefs;
   updateBadge: () => void;
   updateStatusBar: () => Promise<void>;
-  getRustClient: () => RustClient | null;
+  getLspClient: () => TscannerLspClient | null;
 };

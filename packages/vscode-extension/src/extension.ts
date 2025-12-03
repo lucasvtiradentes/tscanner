@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { getViewId } from './common/constants';
 import { type CommandContext, createExtensionStateRefs } from './common/lib/extension-state';
-import { dispose as disposeScanner, getRustClient, startLspClient } from './common/lib/scanner';
+import { dispose as disposeScanner, getLspClient, startLspClient } from './common/lib/scanner';
 import {
   Command,
   ContextKey,
@@ -91,7 +91,7 @@ export function activate(context: vscode.ExtensionContext) {
     stateRefs,
     updateBadge,
     updateStatusBar,
-    getRustClient,
+    getLspClient,
   };
 
   const commands = registerAllCommands(commandContext, panelContent);

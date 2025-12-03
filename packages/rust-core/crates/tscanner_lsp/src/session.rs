@@ -1,6 +1,9 @@
 use lsp_types::{Diagnostic, Url};
 use std::collections::HashMap;
 use std::path::PathBuf;
+use std::sync::Arc;
+use tscanner_cache::FileCache;
+use tscanner_scanner::Scanner;
 use tscanner_service::{OpenProjectParams, Workspace, WorkspaceServer};
 
 pub struct Session {
@@ -8,6 +11,8 @@ pub struct Session {
     root: Option<PathBuf>,
     pub open_files: HashMap<Url, String>,
     pub diagnostics: HashMap<Url, Vec<(Diagnostic, String)>>,
+    pub scanner: Option<Scanner>,
+    pub cache: Arc<FileCache>,
 }
 
 impl Session {
@@ -17,6 +22,8 @@ impl Session {
             root: None,
             open_files: HashMap::new(),
             diagnostics: HashMap::new(),
+            scanner: None,
+            cache: Arc::new(FileCache::new()),
         }
     }
 

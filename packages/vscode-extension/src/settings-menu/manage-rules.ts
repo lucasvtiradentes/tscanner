@@ -10,7 +10,7 @@ import {
   saveGlobalConfig,
   saveLocalConfig,
 } from '../common/lib/config-manager';
-import { RustClient } from '../common/lib/rust-client';
+import { TscannerLspClient } from '../common/lib/lsp-client';
 import { getRustBinaryPath } from '../common/lib/scanner';
 import {
   Command,
@@ -112,8 +112,8 @@ export function createManageRulesCommand(
       return;
     }
 
-    const client = new RustClient(binaryPath);
-    await client.start();
+    const client = new TscannerLspClient(binaryPath);
+    await client.start(workspacePath);
 
     try {
       const rules = await client.getRulesMetadata();

@@ -1,4 +1,5 @@
 mod code_actions;
+pub mod custom;
 mod diagnostics;
 mod notifications;
 

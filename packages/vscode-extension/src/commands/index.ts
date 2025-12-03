@@ -1,5 +1,5 @@
 import type * as vscode from 'vscode';
-import { setCopyRustClient, setCopyScanContext } from '../common/lib/copy-utils';
+import { setCopyLspClient, setCopyScanContext } from '../common/lib/copy-utils';
 import type { CommandContext } from '../common/lib/extension-state';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
 import { createManageRulesCommand, createOpenSettingsMenuCommand } from '../settings-menu';
@@ -23,9 +23,9 @@ import { createScanWorkspaceCommand } from './public/scan-workspace';
 import { createShowLogsCommand } from './public/show-logs';
 
 export function registerAllCommands(ctx: CommandContext, panelContent: IssuesPanelContent): vscode.Disposable[] {
-  const { context, stateRefs, updateBadge, updateStatusBar, getRustClient } = ctx;
+  const { context, stateRefs, updateBadge, updateStatusBar, getLspClient } = ctx;
 
-  setCopyRustClient(getRustClient);
+  setCopyLspClient(getLspClient);
   setCopyScanContext(stateRefs.currentScanModeRef.current, stateRefs.currentCompareBranchRef.current);
 
   void updateBadge;

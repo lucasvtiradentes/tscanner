@@ -9,7 +9,6 @@ members = [
   "crates/tscanner_scanner",
   "crates/tscanner_service",
   "crates/tscanner_lsp",
-  "crates/tscanner_rpc",
   "crates/tscanner_cli",
   "crates/tscanner_server",
 ]

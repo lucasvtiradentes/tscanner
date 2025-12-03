@@ -2,11 +2,11 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import * as vscode from 'vscode';
 import { BINARY_BASE_NAME, PLATFORM_TARGET_MAP, getServerBinaryName } from '../constants';
-import type { IssueResult, TscannerConfig } from '../types';
+import type { Issue, IssueResult, TscannerConfig } from '../types';
+import { parseSeverity } from '../types';
 import { getExtensionPath } from '../utils/extension-helper';
 import { LOG_FILE_PATH, logger } from '../utils/logger';
 import { TscannerLspClient } from './lsp-client';
-import { RustClient, type ScanContentResult } from './rust-client';
 import { getCurrentWorkspaceFolder, openTextDocument } from './vscode-utils';
 
 const CONFIG_ERROR_PREFIX = 'TSCANNER_CONFIG_ERROR:';
@@ -47,22 +47,20 @@ function showConfigErrorToast(configError: ConfigError) {
   });
 }
 
-let rustClient: RustClient | null = null;
-let lspClient: TscannerLspClient | null = null;
-
-async function ensureRustClient(): Promise<RustClient> {
-  const binaryPath = getRustBinaryPath();
-  if (!binaryPath) {
-    throw new Error('Rust binary not found');
-  }
-
-  if (!rustClient) {
-    rustClient = new RustClient(binaryPath);
-    await rustClient.start();
-  }
-
-  return rustClient;
+function mapIssueToResult(uri: vscode.Uri, issue: Issue, lineText?: string): IssueResult {
+  return {
+    uri,
+    line: issue.line - 1,
+    column: issue.column - 1,
+    endColumn: issue.end_column - 1,
+    text: (lineText ?? issue.line_text ?? '').trim(),
+    rule: issue.rule,
+    severity: parseSeverity(issue.severity),
+    message: issue.message,
+  };
 }
+
+let lspClient: TscannerLspClient | null = null;
 
 export function getRustBinaryPath(): string | null {
   const extensionPath = getExtensionPath();
@@ -89,6 +87,25 @@ export function getRustBinaryPath(): string | null {
 
   logger.error(`Rust binary not found. Searched: ${bundledBinary}`);
   return null;
+}
+
+async function ensureLspClient(): Promise<TscannerLspClient> {
+  const workspaceFolder = getCurrentWorkspaceFolder();
+  if (!workspaceFolder) {
+    throw new Error('No workspace folder found');
+  }
+
+  if (!lspClient) {
+    const binaryPath = getRustBinaryPath();
+    if (!binaryPath) {
+      throw new Error('Rust binary not found');
+    }
+
+    lspClient = new TscannerLspClient(binaryPath);
+    await lspClient.start(workspaceFolder.uri.fsPath);
+  }
+
+  return lspClient;
 }
 
 export async function scanWorkspace(
@@ -120,17 +137,59 @@ export async function scanWorkspace(
   }
 
   try {
-    logger.info('Using Rust backend for scanning');
-    const client = await ensureRustClient();
+    const client = await ensureLspClient();
 
     const scanStart = Date.now();
-    const results = await client.scan(workspaceFolder.uri.fsPath, fileFilter, config, branch);
+    const result = await client.scan(workspaceFolder.uri.fsPath, config, branch);
     const scanTime = Date.now() - scanStart;
 
-    logger.info(`scanWorkspace() took ${scanTime}ms to return ${results.length} results`);
+    logger.info(`Scan completed: ${result.total_issues} issues in ${result.duration_ms}ms (client: ${scanTime}ms)`);
+
+    const processStart = Date.now();
+
+    let filesToLoad = [...new Set(result.files.map((f) => f.file))];
+
+    if (fileFilter && fileFilter.size > 0) {
+      filesToLoad = filesToLoad.filter((filePath) => {
+        const relativePath = vscode.workspace.asRelativePath(vscode.Uri.file(filePath));
+        return fileFilter.has(relativePath);
+      });
+
+      logger.debug(
+        `Filtered ${result.files.length} → ${filesToLoad.length} files to load (fileFilter has ${fileFilter.size} entries)`,
+      );
+    }
+
+    const results: IssueResult[] = [];
+
+    for (const fileResult of result.files) {
+      const uri = vscode.Uri.file(fileResult.file);
+
+      for (const issue of fileResult.issues) {
+        let lineText = issue.line_text || '';
+
+        if (!lineText && fileFilter && fileFilter.has(vscode.workspace.asRelativePath(uri))) {
+          try {
+            const document = await openTextDocument(uri);
+            lineText = document.lineAt(issue.line - 1).text;
+          } catch (_error) {
+            logger.error(`Failed to load line text for: ${fileResult.file}`);
+            lineText = '';
+          }
+        }
+
+        results.push(mapIssueToResult(uri, issue, lineText));
+      }
+    }
+
+    const processTime = Date.now() - processStart;
+    logger.debug(
+      `Post-processing ${result.total_issues} issues from ${filesToLoad.length} files took ${processTime}ms total`,
+    );
+
     return results;
   } catch (error) {
-    logger.error(`Rust backend failed: ${error}`);
+    logger.error(`Scan failed: ${error}`);
 
     const errorMessage = String(error);
     const configError = parseConfigError(errorMessage);
@@ -139,7 +198,7 @@ export async function scanWorkspace(
       showConfigErrorToast(configError);
     } else {
       vscode.window
-        .showErrorMessage(`TScanner: Rust backend error: ${error}\n\nCheck logs at ${LOG_FILE_PATH}`, 'Open Logs')
+        .showErrorMessage(`TScanner: Scan error: ${error}\n\nCheck logs at ${LOG_FILE_PATH}`, 'Open Logs')
         .then((selection) => {
           if (selection === 'Open Logs') {
             openTextDocument(vscode.Uri.file(LOG_FILE_PATH)).then((doc) => {
@@ -160,15 +219,23 @@ export async function scanFile(filePath: string): Promise<IssueResult[]> {
   }
 
   try {
-    const client = await ensureRustClient();
-    const results = await client.scanFile(workspaceFolder.uri.fsPath, filePath);
-    logger.debug(`scanFile() returned ${results.length} results for ${filePath}`);
-    return results;
+    const client = await ensureLspClient();
+    const result = await client.scanFile(workspaceFolder.uri.fsPath, filePath);
+
+    logger.debug(`scanFile() returned ${result.issues.length} results for ${filePath}`);
+
+    const uri = vscode.Uri.file(result.file);
+    return result.issues.map((issue) => mapIssueToResult(uri, issue));
   } catch (error) {
     logger.error(`Failed to scan file ${filePath}: ${error}`);
     throw error;
   }
 }
+
+export type ScanContentResult = {
+  issues: IssueResult[];
+  relatedFiles: string[];
+};
 
 export async function scanContent(
   filePath: string,
@@ -181,10 +248,21 @@ export async function scanContent(
   }
 
   try {
-    const client = await ensureRustClient();
+    const client = await ensureLspClient();
     const result = await client.scanContent(workspaceFolder.uri.fsPath, filePath, content, config);
+
     logger.debug(`scanContent() returned ${result.issues.length} results for ${filePath}`);
-    return result;
+
+    const issues = result.issues.map((issue) => {
+      const issueFile = issue.file || result.file;
+      const uri = vscode.Uri.file(issueFile);
+      return mapIssueToResult(uri, issue);
+    });
+
+    return {
+      issues,
+      relatedFiles: result.related_files ?? [],
+    };
   } catch (error) {
     logger.error(`Failed to scan content for ${filePath}: ${error}`);
     throw error;
@@ -192,45 +270,20 @@ export async function scanContent(
 }
 
 export async function clearCache(): Promise<void> {
-  const client = await ensureRustClient();
+  const client = await ensureLspClient();
   await client.clearCache();
-  logger.info('Cache cleared via RPC');
+  logger.info('Cache cleared via LSP');
 }
 
-export function getRustClient(): RustClient | null {
-  return rustClient;
+export function getLspClient(): TscannerLspClient | null {
+  return lspClient;
 }
 
 export async function startLspClient(): Promise<void> {
-  const workspaceFolder = getCurrentWorkspaceFolder();
-  if (!workspaceFolder) {
-    logger.warn('No workspace folder found, cannot start LSP client');
-    return;
-  }
-
-  const binaryPath = getRustBinaryPath();
-  if (!binaryPath) {
-    logger.error('Rust binary not found, cannot start LSP client');
-    return;
-  }
-
-  if (!lspClient) {
-    lspClient = new TscannerLspClient(binaryPath);
-    try {
-      await lspClient.start(workspaceFolder.uri.fsPath);
-      logger.info('LSP client started successfully');
-    } catch (error) {
-      logger.error(`Failed to start LSP client: ${error}`);
-      lspClient = null;
-    }
-  }
+  await ensureLspClient();
 }
 
 export function dispose() {
-  if (rustClient) {
-    rustClient.stop();
-    rustClient = null;
-  }
   if (lspClient) {
     lspClient.stop();
     lspClient = null;

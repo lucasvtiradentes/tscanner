@@ -1,16 +1,16 @@
 import { type GroupMode, PACKAGE_NAME, type ScanResult } from 'tscanner-common';
 import { DEFAULT_TARGET_BRANCH } from '../scripts-constants';
 import { type FolderNode, type IssueResult, NodeKind } from '../types';
-import type { RustClient } from './rust-client';
+import type { TscannerLspClient } from './lsp-client';
 import { ScanMode, ToastKind, copyToClipboard, getCurrentWorkspaceFolder, showToastMessage } from './vscode-utils';
 
 class CopyScanContext {
   private scanMode: ScanMode = ScanMode.Codebase;
   private compareBranch = DEFAULT_TARGET_BRANCH;
-  private getRustClientFn: (() => RustClient | null) | null = null;
+  private getLspClientFn: (() => TscannerLspClient | null) | null = null;
 
-  setRustClient(fn: () => RustClient | null) {
-    this.getRustClientFn = fn;
+  setLspClient(fn: () => TscannerLspClient | null) {
+    this.getLspClientFn = fn;
   }
 
   setScanContext(scanMode: ScanMode, compareBranch: string) {
@@ -18,8 +18,8 @@ class CopyScanContext {
     this.compareBranch = compareBranch;
   }
 
-  getRustClient(): RustClient | null {
-    return this.getRustClientFn?.() ?? null;
+  getLspClient(): TscannerLspClient | null {
+    return this.getLspClientFn?.() ?? null;
   }
 
   getScanModeText(): string {
@@ -37,8 +37,8 @@ class CopyScanContext {
 
 export const copyScanContext = new CopyScanContext();
 
-export function setCopyRustClient(getRustClient: () => RustClient | null) {
-  copyScanContext.setRustClient(getRustClient);
+export function setCopyLspClient(getLspClient: () => TscannerLspClient | null) {
+  copyScanContext.setLspClient(getLspClient);
 }
 
 export function setCopyScanContext(scanMode: ScanMode, compareBranch: string) {
@@ -107,8 +107,8 @@ export async function copyIssuesBase(params: CopyParams): Promise<void> {
     return;
   }
 
-  const rustClient = copyScanContext.getRustClient();
-  if (!rustClient) {
+  const lspClient = copyScanContext.getLspClient();
+  if (!lspClient) {
     showToastMessage(ToastKind.Error, 'Scanner not initialized');
     return;
   }
@@ -121,7 +121,7 @@ export async function copyIssuesBase(params: CopyParams): Promise<void> {
   const workspaceRoot = workspaceFolder.uri.fsPath;
 
   const scanResult = convertToScanResult(params.results);
-  const result = await rustClient.formatResults(workspaceRoot, scanResult, params.groupMode);
+  const result = await lspClient.formatResults(workspaceRoot, scanResult, params.groupMode);
 
   const header = params.buildHeader(result.summary);
   const summaryText = `\n\nIssues: ${result.summary.total_issues} (${result.summary.error_count} errors, ${result.summary.warning_count} warnings)\nFiles: ${result.summary.file_count}\nRules: ${result.summary.rule_count}`;

@@ -1,4 +1,8 @@
 use crate::capabilities::server_capabilities;
+use crate::handlers::custom::{
+    handle_clear_cache, handle_format_results, handle_get_rules_metadata, handle_scan,
+    handle_scan_content, handle_scan_file,
+};
 use crate::handlers::{handle_code_action, handle_notification};
 use crate::session::Session;
 use lsp_server::{Connection, Message, Request, Response};
@@ -57,11 +61,32 @@ fn handle_request(
     req: Request,
     session: &mut Session,
 ) -> Result<(), LspError> {
-    if req.method == "textDocument/codeAction" {
-        let params: CodeActionParams = serde_json::from_value(req.params)?;
-        let actions = handle_code_action(params, session);
-        let response = Response::new_ok(req.id, actions);
-        connection.sender.send(Message::Response(response))?;
+    match req.method.as_str() {
+        "textDocument/codeAction" => {
+            let params: CodeActionParams = serde_json::from_value(req.params.clone())?;
+            let actions = handle_code_action(params, session);
+            let response = Response::new_ok(req.id, actions);
+            connection.sender.send(Message::Response(response))?;
+        }
+        "tscanner/scan" => {
+            handle_scan(connection, req, session)?;
+        }
+        "tscanner/scanFile" => {
+            handle_scan_file(connection, req, session)?;
+        }
+        "tscanner/scanContent" => {
+            handle_scan_content(connection, req, session)?;
+        }
+        "tscanner/clearCache" => {
+            handle_clear_cache(connection, req, session)?;
+        }
+        "tscanner/getRulesMetadata" => {
+            handle_get_rules_metadata(connection, req)?;
+        }
+        "tscanner/formatResults" => {
+            handle_format_results(connection, req)?;
+        }
+        _ => {}
     }
     Ok(())
 }

@@ -13,4 +13,3 @@ path = "src/main.rs"
 [dependencies]
 tscanner_service = { path = "../tscanner_service" }
 tscanner_lsp = { path = "../tscanner_lsp" }
-tscanner_rpc = { path = "../tscanner_rpc" }
