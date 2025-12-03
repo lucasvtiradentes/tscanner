@@ -2,7 +2,6 @@ import { ScanMode } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { getCommandId, getStatusBarName } from '../common/constants';
 import { loadEffectiveConfig } from '../common/lib/config-manager';
-import { logger } from '../common/lib/logger';
 import { Command, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import { hasConfiguredRules } from '../common/types';
 
@@ -30,26 +29,36 @@ export class StatusBarManager {
     const config = await loadEffectiveConfig(this.context, workspaceFolder.uri.fsPath, customConfigDir);
     const hasConfig = hasConfiguredRules(config);
 
-    let finalText: string;
     if (hasConfig) {
-      const icon = '$(shield)';
-      const modeText =
-        this.currentScanModeRef.current === ScanMode.Codebase
-          ? 'Codebase'
-          : `Branch (${this.currentCompareBranchRef.current})`;
-      finalText = `${icon} ${modeText}`;
+      this.showConfigured(customConfigDir);
     } else {
-      finalText = '$(warning) [No rules]';
+      this.showUnconfigured();
     }
-    logger.info(`Status bar text updated to: "${finalText}"`);
-
-    this.statusBarItem.text = finalText;
-    const displayName = getStatusBarName();
-    this.statusBarItem.tooltip = hasConfig
-      ? `${displayName} - Click to change settings${customConfigDir ? `\nConfig: ${customConfigDir}` : ''}`
-      : `${displayName} - No rules configured. Click to set up.`;
 
     this.statusBarItem.show();
+  }
+
+  private showConfigured(customConfigDir: string | null): void {
+    const icon = '$(shield)';
+    const modeText =
+      this.currentScanModeRef.current === ScanMode.Codebase
+        ? 'Codebase'
+        : `Branch (${this.currentCompareBranchRef.current})`;
+    const finalText = `${icon} ${modeText}`;
+
+    this.statusBarItem.text = finalText;
+
+    const displayName = getStatusBarName();
+    this.statusBarItem.tooltip = `${displayName} - Click to change settings${customConfigDir ? `\nConfig: ${customConfigDir}` : ''}`;
+  }
+
+  private showUnconfigured(): void {
+    const finalText = '$(warning) [No rules]';
+
+    this.statusBarItem.text = finalText;
+
+    const displayName = getStatusBarName();
+    this.statusBarItem.tooltip = `${displayName} - No rules configured. Click to set up.`;
   }
 
   getDisposable(): vscode.Disposable {
