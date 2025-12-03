@@ -1,4 +1,4 @@
-import type { GroupMode, RuleMetadata, ScanResult, TscannerConfig } from '../../common/types';
+import type { GroupMode, ScanResult, TscannerConfig } from '../../common/types';
 
 export type ScanParams = {
   root: string;
@@ -38,5 +38,3 @@ export type FormatPrettyResult = {
 export type ClearCacheResult = {
   cleared: boolean;
 };
-
-export type { RuleMetadata };

@@ -2,19 +2,12 @@ import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { getViewId } from './common/constants';
 import { logger } from './common/lib/logger';
-import {
-  Command,
-  ContextKey,
-  WorkspaceStateKey,
-  executeCommand,
-  getCurrentWorkspaceFolder,
-  getWorkspaceState,
-  setContextKey,
-} from './common/lib/vscode-utils';
+import { Command, executeCommand, getCurrentWorkspaceFolder } from './common/lib/vscode-utils';
 import { type CommandContext, createExtensionStateRefs } from './common/state/extension-state';
+import { ContextKey, WorkspaceStateKey, getWorkspaceState, setContextKey } from './common/state/workspace-state';
 import { IssuesPanelContent } from './issues-panel/panel-content';
 import { IssuesPanelIcon } from './issues-panel/panel-icon';
-import { dispose as disposeScanner, getLspClient, startLspClient } from './scanner';
+import { dispose as disposeScanner, getLspClient, startLspClient } from './scanner/client';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import { createConfigWatcher } from './watchers/config-watcher';
 import { createFileWatcher } from './watchers/file-watcher';
@@ -112,7 +105,7 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(...commands, configWatcher, statusBarManager.getDisposable());
 
-  recreateFileWatcher();
+  void recreateFileWatcher();
 
   setTimeout(async () => {
     logger.info('Starting LSP client...');

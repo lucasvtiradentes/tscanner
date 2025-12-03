@@ -7,17 +7,21 @@ import {
 } from 'vscode-languageclient/node';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../common/constants';
 import { logger } from '../common/lib/logger';
-import type { ContentScanResult, FileResult, GroupMode, ScanResult, TscannerConfig } from '../common/types';
-import {
-  ClearCacheRequestType,
-  type FormatPrettyResult,
-  FormatResultsRequestType,
-  GetRulesMetadataRequestType,
-  type RuleMetadata,
-  ScanContentRequestType,
-  ScanFileRequestType,
-  ScanRequestType,
-} from './requests';
+import type {
+  ContentScanResult,
+  FileResult,
+  GroupMode,
+  RuleMetadata,
+  ScanResult,
+  TscannerConfig,
+} from '../common/types';
+import { ClearCacheRequestType } from './requests/clear-cache';
+import { FormatResultsRequestType } from './requests/format-results';
+import { GetRulesMetadataRequestType } from './requests/get-rules-metadata';
+import { ScanRequestType } from './requests/scan';
+import { ScanContentRequestType } from './requests/scan-content';
+import { ScanFileRequestType } from './requests/scan-file';
+import type { FormatPrettyResult } from './requests/types';
 
 export class TscannerLspClient {
   private client: LanguageClient | null = null;

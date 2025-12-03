@@ -1,8 +1,8 @@
-import { type GroupMode, PACKAGE_NAME, type ScanResult } from 'tscanner-common';
-import type { TscannerLspClient } from '../../lsp';
+import { type GroupMode, PACKAGE_NAME, ScanMode, type ScanResult } from 'tscanner-common';
+import type { TscannerLspClient } from '../../lsp/client';
 import { DEFAULT_TARGET_BRANCH } from '../scripts-constants';
 import { type FolderNode, type IssueResult, NodeKind } from '../types';
-import { ScanMode, ToastKind, copyToClipboard, getCurrentWorkspaceFolder, showToastMessage } from './vscode-utils';
+import { ToastKind, copyToClipboard, getCurrentWorkspaceFolder, showToastMessage } from './vscode-utils';
 
 class CopyScanContext {
   private scanMode: ScanMode = ScanMode.Codebase;

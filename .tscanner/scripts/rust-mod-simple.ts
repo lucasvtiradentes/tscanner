@@ -2,24 +2,24 @@
 
 import { stdin } from 'node:process';
 
-interface ScriptFile {
+type ScriptFile = {
   path: string;
   content: string;
   lines: string[];
-}
+};
 
-interface ScriptInput {
+type ScriptInput = {
   files: ScriptFile[];
   options?: Record<string, unknown>;
   workspaceRoot: string;
-}
+};
 
-interface ScriptIssue {
+type ScriptIssue = {
   file: string;
   line: number;
   column?: number;
   message: string;
-}
+};
 
 function addIssue(issues: ScriptIssue[], file: string, line: number, message: string): void {
   issues.push({ file, line, message });

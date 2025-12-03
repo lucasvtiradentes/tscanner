@@ -1,18 +1,6 @@
 import * as vscode from 'vscode';
 import { getCommandId } from '../constants';
 
-export {
-  ContextKey,
-  getWorkspaceState,
-  GroupMode,
-  ScanMode,
-  setContextKey,
-  setWorkspaceState,
-  updateState,
-  ViewMode,
-  WorkspaceStateKey,
-} from '../state/workspace-state';
-
 export enum Command {
   FindIssue = 'findIssue',
   ManageRules = 'manageRules',

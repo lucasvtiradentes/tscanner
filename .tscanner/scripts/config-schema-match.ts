@@ -2,26 +2,26 @@
 
 import { stdin } from 'node:process';
 
-interface ScriptFile {
+type ScriptFile = {
   path: string;
   content: string;
   lines: string[];
-}
+};
 
-interface ScriptInput {
+type ScriptInput = {
   files: ScriptFile[];
   options?: Record<string, unknown>;
   workspaceRoot: string;
-}
+};
 
-interface ScriptIssue {
+type ScriptIssue = {
   file: string;
   line: number;
   column?: number;
   message: string;
-}
+};
 
-interface RustConfigFields {
+type RustConfigFields = {
   tscanner_config: string[];
   code_editor_config: string[];
   cli_config: string[];
@@ -33,7 +33,7 @@ interface RustConfigFields {
   ai_rule_config: string[];
   script_mode: string[];
   custom_rule_types: string[];
-}
+};
 
 function extractZodObjectFields(content: string, schemaName: string): string[] {
   const regex = new RegExp(`(?:export )?const ${schemaName}\\s*=\\s*z\\s*\\.object\\(\\{([\\s\\S]*?)\\}\\)`, 'm');

@@ -22,14 +22,13 @@ import {
   Command,
   type QuickPickItemWithId,
   ToastKind,
-  WorkspaceStateKey,
   executeCommand,
   getCurrentWorkspaceFolder,
   openTextDocument,
   showToastMessage,
-  updateState,
 } from '../common/lib/vscode-utils';
 import { CONFIG_DIR_NAME } from '../common/scripts-constants';
+import { WorkspaceStateKey, updateState } from '../common/state/workspace-state';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
 
 export enum ConfigLocation {

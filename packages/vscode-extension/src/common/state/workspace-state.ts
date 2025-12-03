@@ -3,8 +3,6 @@ import * as vscode from 'vscode';
 import { z } from 'zod';
 import { getContextKey } from '../constants';
 
-export { GroupMode, ScanMode, ViewMode };
-
 export enum WorkspaceStateKey {
   ViewMode = 'viewMode',
   GroupMode = 'groupMode',

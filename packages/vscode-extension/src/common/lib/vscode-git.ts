@@ -50,7 +50,7 @@ export class VscodeGit {
     );
   }
 
-  static async getCurrentBranch(workspaceRoot: string): Promise<string | null> {
+  static getCurrentBranch(workspaceRoot: string) {
     const repo = VscodeGit.getRepository(workspaceRoot);
     if (!repo) {
       logger.error('Git repository not found');

@@ -7,7 +7,7 @@ import {
   registerCommand,
   showToastMessage,
 } from '../../common/lib/vscode-utils';
-import { clearCache } from '../../scanner';
+import { clearCache } from '../../scanner/client';
 
 export function createHardScanCommand(isSearchingRef: { current: boolean }) {
   return registerCommand(Command.HardScan, async (options?: { showToastMessage?: boolean }) => {

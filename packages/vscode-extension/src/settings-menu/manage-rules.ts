@@ -19,8 +19,8 @@ import {
   requireWorkspaceOrNull,
   showToastMessage,
 } from '../common/lib/vscode-utils';
-import { TscannerLspClient } from '../lsp';
-import { getRustBinaryPath } from '../scanner';
+import { TscannerLspClient } from '../lsp/client';
+import { getRustBinaryPath } from '../scanner/utils';
 import { ConfigLocation, showConfigLocationMenuForFirstSetup } from './config-location';
 
 type RuleQuickPickItem = vscode.QuickPickItem & {

@@ -1,6 +1,6 @@
 import type { ScanMode } from 'tscanner-common';
 import type * as vscode from 'vscode';
-import type { TscannerLspClient } from '../../lsp';
+import type { TscannerLspClient } from '../../lsp/client';
 import { WorkspaceStateKey, getWorkspaceState } from './workspace-state';
 
 export type ExtensionState = {

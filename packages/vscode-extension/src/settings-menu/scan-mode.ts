@@ -1,19 +1,17 @@
-import { ScanMode } from 'tscanner-common';
+import { GitHelper, ScanMode } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { setCopyScanContext } from '../common/lib/copy-utils';
-import { GitHelper } from '../common/lib/git-helper';
 import { logger } from '../common/lib/logger';
 import { VscodeGit } from '../common/lib/vscode-git';
 import {
   Command,
   type QuickPickItemWithId,
   ToastKind,
-  WorkspaceStateKey,
   executeCommand,
   requireWorkspaceOrNull,
   showToastMessage,
-  updateState,
 } from '../common/lib/vscode-utils';
+import { WorkspaceStateKey, updateState } from '../common/state/workspace-state';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
 
 enum BranchMenuOption {

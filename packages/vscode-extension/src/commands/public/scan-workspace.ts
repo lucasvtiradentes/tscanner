@@ -1,25 +1,27 @@
-import { ScanMode, ViewMode } from 'tscanner-common';
+import { GitHelper, ScanMode, ViewMode } from 'tscanner-common';
 import { CONFIG_DIR_NAME } from '../../common/constants';
 import { getConfigState, loadEffectiveConfig } from '../../common/lib/config-manager';
-import { GitHelper } from '../../common/lib/git-helper';
 import { logger } from '../../common/lib/logger';
 import {
   Command,
-  ContextKey,
   ToastKind,
-  WorkspaceStateKey,
   executeCommand,
   getCurrentWorkspaceFolder,
   registerCommand,
-  setContextKey,
-  setWorkspaceState,
   showToastMessage,
-  updateState,
 } from '../../common/lib/vscode-utils';
 import type { CommandContext } from '../../common/state/extension-state';
+import {
+  ContextKey,
+  WorkspaceStateKey,
+  setContextKey,
+  setWorkspaceState,
+  updateState,
+} from '../../common/state/workspace-state';
 import { hasConfiguredRules, serializeResults } from '../../common/types';
 import type { IssuesPanelContent } from '../../issues-panel/panel-content';
-import { scanBranch, scanCodebase } from '../../scanner';
+import { scanBranch } from '../../scanner/branch-scan';
+import { scanCodebase } from '../../scanner/codebase-scan';
 import { resetIssueIndex } from './issue-navigation';
 
 export function createScanWorkspaceCommand(ctx: CommandContext, panelContent: IssuesPanelContent) {

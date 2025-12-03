@@ -5,8 +5,7 @@ import { BINARY_BASE_NAME, PLATFORM_TARGET_MAP, getServerBinaryName } from '../c
 import { getExtensionPath } from '../common/lib/extension-helper';
 import { LOG_FILE_PATH, logger } from '../common/lib/logger';
 import { openTextDocument } from '../common/lib/vscode-utils';
-import type { Issue, IssueResult } from '../common/types';
-import { parseSeverity } from '../common/types';
+import { type Issue, type IssueResult, parseSeverity } from '../common/types';
 
 const CONFIG_ERROR_PREFIX = 'TSCANNER_CONFIG_ERROR:';
 

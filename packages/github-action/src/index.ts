@@ -1,11 +1,10 @@
-import { ScanMode } from 'tscanner-common';
+import { GitHelper, ScanMode } from 'tscanner-common';
 import { writeAnnotations } from './core/annotation-writer';
 import { updateOrCreateComment } from './core/comment-updater';
 import { type ActionInputs, getActionInputs } from './core/input-validator';
 import { type ScanOptions, type ScanResult, scanChangedFiles } from './core/scanner';
 import { writeSummary } from './core/summary-writer';
 import { type Octokit, githubHelper } from './lib/actions-helper';
-import { GitHelper } from './lib/git-helper';
 import { validateConfigFiles } from './utils/config-validator';
 import { formatTimestamp } from './utils/format-timestamp';
 
