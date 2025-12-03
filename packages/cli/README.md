@@ -383,7 +383,7 @@ The default configuration is:
 
 ```json
 {
-  "$schema": "https://unpkg.com/tscanner@0.0.27/schema.json",
+  "$schema": "https://unpkg.com/tscanner@0.0.28/schema.json",
   "builtinRules": {
     "no-explicit-any": {}
   },
