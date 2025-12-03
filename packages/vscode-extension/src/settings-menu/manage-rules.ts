@@ -10,6 +10,7 @@ import {
   saveGlobalConfig,
   saveLocalConfig,
 } from '../common/lib/config-manager';
+import { logger } from '../common/lib/logger';
 import {
   Command,
   ToastKind,
@@ -18,7 +19,6 @@ import {
   requireWorkspaceOrNull,
   showToastMessage,
 } from '../common/lib/vscode-utils';
-import { logger } from '../common/utils/logger';
 import { TscannerLspClient } from '../lsp';
 import { getRustBinaryPath } from '../scanner';
 import { ConfigLocation, showConfigLocationMenuForFirstSetup } from './config-location';

@@ -2,9 +2,9 @@ import { ScanMode } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { getCommandId, getStatusBarName } from '../common/constants';
 import { loadEffectiveConfig } from '../common/lib/config-manager';
+import { logger } from '../common/lib/logger';
 import { Command, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import { hasConfiguredRules } from '../common/types';
-import { logger } from '../common/utils/logger';
 
 export class StatusBarManager {
   private statusBarItem: vscode.StatusBarItem;

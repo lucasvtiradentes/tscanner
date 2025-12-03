@@ -1,6 +1,8 @@
 import { ScanMode } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { setCopyScanContext } from '../common/lib/copy-utils';
+import { getAllBranches, getCurrentBranch, invalidateCache } from '../common/lib/git-helper';
+import { logger } from '../common/lib/logger';
 import {
   Command,
   type QuickPickItemWithId,
@@ -11,8 +13,6 @@ import {
   showToastMessage,
   updateState,
 } from '../common/lib/vscode-utils';
-import { getAllBranches, getCurrentBranch, invalidateCache } from '../common/utils/git-helper';
-import { logger } from '../common/utils/logger';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
 
 enum BranchMenuOption {

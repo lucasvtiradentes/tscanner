@@ -1,11 +1,11 @@
 import { ScanMode, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { loadEffectiveConfig } from '../common/lib/config-manager';
+import { getChangedFiles, getModifiedLineRanges, invalidateCache } from '../common/lib/git-helper';
+import { logger } from '../common/lib/logger';
 import { WorkspaceStateKey, getCurrentWorkspaceFolder, setWorkspaceState } from '../common/lib/vscode-utils';
 import type { ExtensionStateRefs } from '../common/state/extension-state';
 import { type IssueResult, type ModifiedLineRange, serializeResults } from '../common/types';
-import { getChangedFiles, getModifiedLineRanges, invalidateCache } from '../common/utils/git-helper';
-import { logger } from '../common/utils/logger';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
 import { scanContent } from '../scanner';
 

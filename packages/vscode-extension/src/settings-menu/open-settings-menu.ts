@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { getConfigState } from '../common/lib/config-manager';
+import { logger } from '../common/lib/logger';
 import {
   Command,
   type QuickPickItemWithId,
@@ -8,7 +9,6 @@ import {
   requireWorkspaceOrNull,
 } from '../common/lib/vscode-utils';
 import type { CommandContext } from '../common/state/extension-state';
-import { logger } from '../common/utils/logger';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
 import { getCurrentLocationLabel, openConfigFile, showConfigLocationMenu } from './config-location';
 import { showScanModeMenu } from './scan-mode';

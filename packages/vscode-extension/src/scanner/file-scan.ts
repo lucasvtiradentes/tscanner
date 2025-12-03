@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
+import { logger } from '../common/lib/logger';
 import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import type { IssueResult } from '../common/types';
-import { logger } from '../common/utils/logger';
 import { ensureLspClient } from './client';
 import { mapIssueToResult } from './utils';
 

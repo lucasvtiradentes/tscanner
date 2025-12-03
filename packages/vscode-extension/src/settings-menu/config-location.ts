@@ -17,6 +17,8 @@ import {
   saveGlobalConfig,
   saveLocalConfig,
 } from '../common/lib/config-manager';
+import { invalidateCache } from '../common/lib/git-helper';
+import { logger } from '../common/lib/logger';
 import {
   Command,
   type QuickPickItemWithId,
@@ -29,8 +31,6 @@ import {
   updateState,
 } from '../common/lib/vscode-utils';
 import { CONFIG_DIR_NAME } from '../common/scripts-constants';
-import { invalidateCache } from '../common/utils/git-helper';
-import { logger } from '../common/utils/logger';
 import type { IssuesPanelContent } from '../issues-panel/panel-content';
 
 export enum ConfigLocation {

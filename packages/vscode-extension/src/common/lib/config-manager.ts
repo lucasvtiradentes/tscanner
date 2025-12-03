@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 import defaultConfig from '../../../../../assets/default-config.json';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../constants';
 import { TscannerConfig } from '../types';
-import { logger } from '../utils/logger';
+import { logger } from './logger';
 
 export { TscannerConfig };
 

@@ -6,8 +6,8 @@ import {
   TransportKind,
 } from 'vscode-languageclient/node';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../common/constants';
+import { logger } from '../common/lib/logger';
 import type { ContentScanResult, FileResult, GroupMode, ScanResult, TscannerConfig } from '../common/types';
-import { logger } from '../common/utils/logger';
 import {
   ClearCacheRequestType,
   type FormatPrettyResult,

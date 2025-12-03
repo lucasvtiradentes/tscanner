@@ -1,3 +1,5 @@
+import { invalidateCache } from '../../common/lib/git-helper';
+import { logger } from '../../common/lib/logger';
 import {
   Command,
   ToastKind,
@@ -6,8 +8,6 @@ import {
   registerCommand,
   showToastMessage,
 } from '../../common/lib/vscode-utils';
-import { invalidateCache } from '../../common/utils/git-helper';
-import { logger } from '../../common/utils/logger';
 import { clearCache } from '../../scanner';
 
 export function createHardScanCommand(isSearchingRef: { current: boolean }) {

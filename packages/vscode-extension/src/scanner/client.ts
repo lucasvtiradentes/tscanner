@@ -1,5 +1,5 @@
+import { logger } from '../common/lib/logger';
 import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
-import { logger } from '../common/utils/logger';
 import { TscannerLspClient } from '../lsp';
 import { getRustBinaryPath } from './utils';
 

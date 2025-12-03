@@ -2,11 +2,11 @@ import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 import * as vscode from 'vscode';
 import { BINARY_BASE_NAME, PLATFORM_TARGET_MAP, getServerBinaryName } from '../common/constants';
+import { getExtensionPath } from '../common/lib/extension-helper';
+import { LOG_FILE_PATH, logger } from '../common/lib/logger';
 import { openTextDocument } from '../common/lib/vscode-utils';
 import type { Issue, IssueResult } from '../common/types';
 import { parseSeverity } from '../common/types';
-import { getExtensionPath } from '../common/utils/extension-helper';
-import { LOG_FILE_PATH, logger } from '../common/utils/logger';
 
 const CONFIG_ERROR_PREFIX = 'TSCANNER_CONFIG_ERROR:';
 
