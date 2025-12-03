@@ -107,6 +107,24 @@ export function activate(context: vscode.ExtensionContext) {
 
   void recreateFileWatcher();
 
+  const settingsWatcher = vscode.workspace.onDidChangeConfiguration(async (e) => {
+    if (e.affectsConfiguration('tscanner.lsp.bin')) {
+      const restart = await vscode.window.showInformationMessage(
+        'TScanner binary path changed. Restart LSP server?',
+        'Restart',
+        'Later',
+      );
+
+      if (restart === 'Restart') {
+        await disposeScanner();
+        await startLspClient();
+        executeCommand(Command.FindIssue, { silent: true });
+      }
+    }
+  });
+
+  context.subscriptions.push(settingsWatcher);
+
   setTimeout(async () => {
     logger.info('Starting LSP client...');
     await startLspClient();

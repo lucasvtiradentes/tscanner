@@ -1,4 +1,4 @@
-import { existsSync } from 'node:fs';
+import { constants, accessSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import * as vscode from 'vscode';
 import { findInGlobalModules } from './global-modules';
@@ -43,14 +43,28 @@ export class Locator {
     const config = vscode.workspace.getConfiguration('tscanner');
     const binPath = config.get<string>('lsp.bin');
 
-    if (binPath && binPath.trim() !== '') {
-      const resolvedPath = this.resolvePath(binPath);
-      if (existsSync(resolvedPath)) {
-        return resolvedPath;
-      }
+    if (!binPath || binPath.trim() === '') {
+      return null;
     }
 
-    return null;
+    const resolvedPath = this.resolvePath(binPath);
+
+    if (!existsSync(resolvedPath)) {
+      vscode.window.showWarningMessage(
+        `TScanner: Configured binary path does not exist: ${resolvedPath}\n\nFalling back to auto-detection.`,
+      );
+      return null;
+    }
+
+    try {
+      accessSync(resolvedPath, constants.X_OK);
+    } catch {
+      vscode.window.showWarningMessage(
+        `TScanner: Configured binary is not executable: ${resolvedPath}\n\nTry: chmod +x "${resolvedPath}"`,
+      );
+    }
+
+    return resolvedPath;
   }
 
   private resolvePath(binPath: string): string {

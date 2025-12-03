@@ -3,6 +3,7 @@ import {
   LanguageClient,
   type LanguageClientOptions,
   type ServerOptions,
+  Trace,
   TransportKind,
 } from 'vscode-languageclient/node';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../common/constants';
@@ -39,6 +40,9 @@ export class TscannerLspClient {
 
     logger.info(`Starting LSP: ${this.binaryPath} ${this.args.join(' ')}`);
 
+    const config = vscode.workspace.getConfiguration('tscanner');
+    const trace = config.get<string>('trace.server') || 'off';
+
     const serverOptions: ServerOptions = {
       command: this.binaryPath,
       args: this.args,
@@ -59,9 +63,14 @@ export class TscannerLspClient {
           vscode.workspace.createFileSystemWatcher(`**/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`),
         ],
       },
+      traceOutputChannel: trace !== 'off' ? vscode.window.createOutputChannel('TScanner LSP Trace') : undefined,
     };
 
     this.client = new LanguageClient('tscanner', 'TScanner LSP', serverOptions, clientOptions);
+
+    if (trace !== 'off') {
+      await this.client.setTrace(trace === 'verbose' ? Trace.Verbose : Trace.Messages);
+    }
 
     try {
       await this.client.start();
