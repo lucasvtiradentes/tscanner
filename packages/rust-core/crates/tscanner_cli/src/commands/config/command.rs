@@ -4,10 +4,10 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::config_loader::load_config_with_custom;
-use tscanner_config::{TscannerConfig, ValidationResult};
+use tscanner_config::{app_display_name, app_name, TscannerConfig, ValidationResult};
 use tscanner_diagnostics::Severity;
 use tscanner_rules::{get_all_rule_metadata, get_allowed_options_for_rule};
-use tscanner_service::{app_display_name, app_name, log_error, log_info};
+use tscanner_service::{log_error, log_info};
 
 pub fn cmd_config(
     path: &Path,

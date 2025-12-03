@@ -19,7 +19,7 @@
     "no-empty-function": {},
     "no-empty-interface": {},
     "no-floating-promises": {},
-    "no-forwarded-exports": { "exclude": ["shared/tscanner-common/src/index.ts"]},
+    "no-forwarded-exports": { "exclude": ["**/index.ts"]},
     "no-implicit-any": {},
     "no-inferrable-types": {},
     "no-nested-require": {},

@@ -36,7 +36,7 @@ export class TscannerLspClient {
     }
 
     const config = vscode.workspace.getConfiguration('tscanner');
-    const trace = config.get<string>('trace.server') || 'off';
+    const trace = config.get<string>('trace.server') ?? 'off';
 
     const serverOptions: ServerOptions = {
       command: this.binaryPath,
