@@ -1,5 +1,11 @@
 # @tscanner/cli-darwin-arm64
 
+## 0.0.28
+
+### Patch Changes
+
+- d5be289: fix pnpm permission
+
 ## 0.0.27
 
 ### Patch Changes

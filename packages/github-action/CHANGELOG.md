@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.25
+
+### Patch Changes
+
+- d5be289: fix pnpm permission
+
 ## 0.0.24
 
 ### Patch Changes
