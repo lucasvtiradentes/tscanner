@@ -1,5 +1,11 @@
 # @tscanner/cli-linux-x64
 
+## 0.0.27
+
+### Patch Changes
+
+- 10d9336: add custom script rules
+
 ## 0.0.26
 
 ### Patch Changes

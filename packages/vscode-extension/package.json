@@ -3,7 +3,7 @@
   "private": true,
   "displayName": "TScanner",
   "description": "Code quality scanner for the AI-generated code era",
-  "version": "0.0.26",
+  "version": "0.0.27",
   "publisher": "lucasvtiradentes",
   "license": "MIT",
   "icon": "resources/icon.png",
@@ -336,7 +336,11 @@
         },
         "tscanner.trace.server": {
           "type": "string",
-          "enum": ["off", "messages", "verbose"],
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ],
           "default": "off",
           "description": "Traces the communication between VS Code and the TScanner language server."
         }
