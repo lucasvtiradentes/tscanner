@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.24
+
+### Patch Changes
+
+- 10d9336: add custom script rules
+
 ## 0.0.23
 
 ### Patch Changes

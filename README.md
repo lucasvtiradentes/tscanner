@@ -176,7 +176,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: lucasvtiradentes/tscanner-action@v0.0.23
+      - uses: lucasvtiradentes/tscanner-action@v0.0.24
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -569,7 +569,7 @@ The default configuration is:
 
 ```json
 {
-  "$schema": "https://unpkg.com/tscanner@0.0.26/schema.json",
+  "$schema": "https://unpkg.com/tscanner@0.0.27/schema.json",
   "builtinRules": {
     "no-explicit-any": {}
   },
