@@ -6,7 +6,6 @@
 node_modules/**
 src/**
 scripts/**
-binaries/**
 
 # FILES ========================================================================
 
@@ -17,9 +16,8 @@ esbuild.config.ts
 *.vsix
 **/*.map
 
-# OUT FOLDER (exclude all except extension.js and binaries) ====================
+# OUT FOLDER (exclude all except extension.js) =================================
 
 out/**/*.ts
 out/**/*.js
 !out/extension.js
-!out/binaries/**
