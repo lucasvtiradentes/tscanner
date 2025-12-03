@@ -9,3 +9,13 @@ const result = data ?? {};
 const name = user.name ?? "Unknown";
 
 const count = items.length ?? 10;
+
+if (error || !output) { }
+if (pattern.startsWith('**/') || pattern.startsWith('{')) { }
+if (!ranges || ranges.length === 0) { }
+if (x > 10 || y < 5) { }
+if (a === b || c !== d) { }
+const isValid = arr.includes(x) || arr.includes(y);
+const found = str.startsWith('a') || str.endsWith('b');
+if (map.has(key) || set.has(key)) { }
+const matches = regex.test(str) || str.match(pattern);

@@ -53,6 +53,67 @@ impl Rule for PreferNullishCoalescingRule {
     }
 }
 
+fn is_likely_fallback_value(expr: &Expr) -> bool {
+    match expr {
+        Expr::Lit(_) => true,
+        Expr::Array(arr) => arr.elems.is_empty(),
+        Expr::Object(obj) => obj.props.is_empty(),
+        Expr::Ident(_) => true,
+        Expr::Member(_) => true,
+        Expr::Call(_) => true,
+        Expr::OptChain(_) => true,
+        _ => false,
+    }
+}
+
+fn is_likely_boolean_method(call: &CallExpr) -> bool {
+    if let Callee::Expr(expr) = &call.callee {
+        if let Expr::Member(member) = expr.as_ref() {
+            if let MemberProp::Ident(ident) = &member.prop {
+                let method_name = ident.sym.as_ref();
+                return matches!(
+                    method_name,
+                    "startsWith"
+                        | "endsWith"
+                        | "includes"
+                        | "has"
+                        | "hasOwnProperty"
+                        | "some"
+                        | "every"
+                        | "test"
+                        | "match"
+                        | "isArray"
+                        | "isNaN"
+                );
+            }
+        }
+    }
+    false
+}
+
+fn is_boolean_expression(expr: &Expr) -> bool {
+    match expr {
+        Expr::Unary(unary) if matches!(unary.op, UnaryOp::Bang) => true,
+        Expr::Bin(bin)
+            if matches!(
+                bin.op,
+                BinaryOp::EqEq
+                    | BinaryOp::NotEq
+                    | BinaryOp::EqEqEq
+                    | BinaryOp::NotEqEq
+                    | BinaryOp::Lt
+                    | BinaryOp::LtEq
+                    | BinaryOp::Gt
+                    | BinaryOp::GtEq
+            ) =>
+        {
+            true
+        }
+        Expr::Call(call) => is_likely_boolean_method(call),
+        _ => false,
+    }
+}
+
 struct NullishCoalescingVisitor<'a> {
     issues: Vec<Issue>,
     path: std::path::PathBuf,
@@ -62,19 +123,24 @@ struct NullishCoalescingVisitor<'a> {
 impl<'a> Visit for NullishCoalescingVisitor<'a> {
     fn visit_bin_expr(&mut self, n: &BinExpr) {
         if matches!(n.op, BinaryOp::LogicalOr) {
-            let (line, column, end_column) =
-                get_span_positions(self.source, n.span.lo.0 as usize, n.span.hi.0 as usize);
+            let right_is_fallback = is_likely_fallback_value(&n.right);
+            let left_is_boolean = is_boolean_expression(&n.left);
 
-            self.issues.push(Issue {
-                rule: "prefer-nullish-coalescing".to_string(),
-                file: self.path.clone(),
-                line,
-                column,
-                end_column,
-                message: "Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, \"\", and false as falsy, while ?? only checks for null/undefined.".to_string(),
-                severity: Severity::Warning,
-                line_text: None,
-            });
+            if right_is_fallback && !left_is_boolean {
+                let (line, column, end_column) =
+                    get_span_positions(self.source, n.span.lo.0 as usize, n.span.hi.0 as usize);
+
+                self.issues.push(Issue {
+                    rule: "prefer-nullish-coalescing".to_string(),
+                    file: self.path.clone(),
+                    line,
+                    column,
+                    end_column,
+                    message: "Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, \"\", and false as falsy, while ?? only checks for null/undefined.".to_string(),
+                    severity: Severity::Warning,
+                    line_text: None,
+                });
+            }
         }
 
         n.visit_children_with(self);
