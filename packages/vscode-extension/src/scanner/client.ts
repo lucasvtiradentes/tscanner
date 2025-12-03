@@ -1,4 +1,3 @@
-import { logger } from '../common/lib/logger';
 import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import { Locator, promptInstall } from '../locator';
 import { TscannerLspClient } from '../lsp/client';
@@ -22,7 +21,8 @@ export async function ensureLspClient(): Promise<TscannerLspClient> {
         if (!retryResult) {
           throw new Error('TScanner binary not found after installation. Please restart VSCode.');
         }
-        lspClient = new TscannerLspClient(retryResult.path, ['lsp']);
+        const args = [...(retryResult.args ?? []), 'lsp'];
+        lspClient = new TscannerLspClient(retryResult.path, args);
       } else {
         throw new Error(
           'TScanner binary not found.\n\n' +
@@ -31,8 +31,8 @@ export async function ensureLspClient(): Promise<TscannerLspClient> {
         );
       }
     } else {
-      logger.info(`Using tscanner from: ${result.source} (${result.path})`);
-      lspClient = new TscannerLspClient(result.path, ['lsp']);
+      const args = [...(result.args ?? []), 'lsp'];
+      lspClient = new TscannerLspClient(result.path, args);
     }
 
     await lspClient.start(workspaceFolder.uri.fsPath);
@@ -52,7 +52,6 @@ export async function startLspClient(): Promise<void> {
 export async function clearCache(): Promise<void> {
   const client = await ensureLspClient();
   await client.clearCache();
-  logger.info('Cache cleared via LSP');
 }
 
 export function dispose() {

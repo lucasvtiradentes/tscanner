@@ -1,19 +1,27 @@
 import { constants, accessSync, existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { homedir } from 'node:os';
+import { isAbsolute, join } from 'node:path';
 import * as vscode from 'vscode';
+import { IS_DEV } from '../common/constants';
 import { findInGlobalModules } from './global-modules';
 import { findInNodeModules } from './node-modules';
 import { findInPath } from './path';
 
 export type LocatorResult = {
   path: string;
-  source: 'settings' | 'node_modules' | 'global' | 'path';
+  args?: string[];
+  source: 'dev' | 'settings' | 'node_modules' | 'global' | 'path';
 } | null;
 
 export class Locator {
   constructor(private workspaceRoot: string | undefined) {}
 
   async locate(): Promise<LocatorResult> {
+    const devResult = this.findDevBinary();
+    if (devResult) {
+      return devResult;
+    }
+
     const settingsPath = this.getSettingsPath();
     if (settingsPath) {
       return { path: settingsPath, source: 'settings' };
@@ -34,6 +42,22 @@ export class Locator {
     const pathBinary = await findInPath();
     if (pathBinary) {
       return { path: pathBinary, source: 'path' };
+    }
+
+    return null;
+  }
+
+  private findDevBinary(): LocatorResult {
+    if (!IS_DEV || !this.workspaceRoot) {
+      return null;
+    }
+
+    const ext = process.platform === 'win32' ? '.exe' : '';
+    const binaryName = `tscanner${ext}`;
+
+    const rustBinaryPath = join(this.workspaceRoot, 'packages', 'rust-core', 'target', 'release', binaryName);
+    if (existsSync(rustBinaryPath)) {
+      return { path: rustBinaryPath, source: 'dev' };
     }
 
     return null;
@@ -69,9 +93,9 @@ export class Locator {
 
   private resolvePath(binPath: string): string {
     if (binPath.startsWith('~')) {
-      return binPath.replace('~', process.env.HOME ?? '');
+      return binPath.replace('~', homedir());
     }
-    if (!binPath.startsWith('/') && this.workspaceRoot) {
+    if (!isAbsolute(binPath) && this.workspaceRoot) {
       return join(this.workspaceRoot, binPath);
     }
     return binPath;

@@ -1,6 +1,7 @@
 import { execSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
+import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { PLATFORM_PACKAGE_MAP, getBinaryName, getPlatformKey } from 'tscanner-common';
 
@@ -56,7 +57,7 @@ async function getGlobalNodeModulesPaths(): Promise<string[]> {
     // pnpm global not found
   }
 
-  const bunPath = join(process.env.HOME ?? '', '.bun', 'install', 'global', 'node_modules');
+  const bunPath = join(homedir(), '.bun', 'install', 'global', 'node_modules');
   if (existsSync(bunPath)) {
     paths.push(bunPath);
   }

@@ -1,13 +1,7 @@
+import { existsSync } from 'node:fs';
 import * as vscode from 'vscode';
-import {
-  LanguageClient,
-  type LanguageClientOptions,
-  type ServerOptions,
-  Trace,
-  TransportKind,
-} from 'vscode-languageclient/node';
+import { LanguageClient, type LanguageClientOptions, type ServerOptions, Trace } from 'vscode-languageclient/node';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../common/constants';
-import { logger } from '../common/lib/logger';
 import type {
   ContentScanResult,
   FileResult,
@@ -34,11 +28,12 @@ export class TscannerLspClient {
 
   async start(workspaceRoot: string): Promise<void> {
     if (this.client) {
-      logger.info('LSP client already running');
       return;
     }
 
-    logger.info(`Starting LSP: ${this.binaryPath} ${this.args.join(' ')}`);
+    if (!existsSync(this.binaryPath)) {
+      throw new Error(`Binary not found: ${this.binaryPath}`);
+    }
 
     const config = vscode.workspace.getConfiguration('tscanner');
     const trace = config.get<string>('trace.server') || 'off';
@@ -46,7 +41,7 @@ export class TscannerLspClient {
     const serverOptions: ServerOptions = {
       command: this.binaryPath,
       args: this.args,
-      transport: TransportKind.stdio,
+      options: { cwd: workspaceRoot },
     };
 
     const clientOptions: LanguageClientOptions = {
@@ -72,21 +67,13 @@ export class TscannerLspClient {
       await this.client.setTrace(trace === 'verbose' ? Trace.Verbose : Trace.Messages);
     }
 
-    try {
-      await this.client.start();
-      logger.info('LSP client started successfully');
-    } catch (error) {
-      logger.error(`Failed to start LSP client: ${error}`);
-      throw error;
-    }
+    await this.client.start();
   }
 
   async stop(): Promise<void> {
     if (this.client) {
-      logger.info('Stopping LSP client');
       await this.client.stop();
       this.client = null;
-      logger.info('LSP client stopped\n\n\n');
     }
   }
 
