@@ -80,7 +80,7 @@
       "type": "script",
       "script": "rust-mod-simple.ts",
       "message": "mod.rs should only contain module declarations and re-exports",
-      "severity": "warning",
+      "severity": "error",
       "include": ["**/mod.rs"],
       "mode": "batch",
       "timeout": 10000
