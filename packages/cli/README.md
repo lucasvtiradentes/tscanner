@@ -82,62 +82,6 @@ Scan your codebase from the terminal. Run before commits, in CI pipelines, or as
 AI generates code fast, but it doesn't know your project's conventions, preferred patterns, or forbidden shortcuts. You end up reviewing the same issues over and over.
 
 TScanner lets you define those rules once. Every AI-generated file, every PR, every save: automatically checked against your standards. Stop repeating yourself in code reviews.
-
-<br />
-
-<div align="center">
-
-
-<details>
-<summary>Understand why TScanner is not just for AI generated code</summary>
-<br />
-
-<div align="left">
-
-We highlight AI in our messaging because it attracts attention, but TScanner solves a problem as old as programming itself.
-
-Developers forget conventions. Teams struggle to maintain consistency. Code reviews become repetitive. These issues exist whether you use Copilot or type every character yourself.
-
-TScanner automates the enforcement of your standards, freeing you from being the "pattern police" in every pull request.
-
-</div>
-
-</details>
-
-<details>
-<summary>How I put the pieces together to build TScanner?</summary>
-<br />
-
-<div align="left">
-
-I'm a heavy user of AI coding tools, always testing the latest and building personal projects that make my life easier at home and at work. I realized that despite going incredibly fast, AI never followed the patterns I care about: named components in array functions for React, types over interfaces, and so on.
-
-Even with a lot of working code, I wanted something fast to answer "what patterns and conventions are broken in this project?" or "what code smells should I fix in my PR before merging to main?".
-
-One day I was reflecting on why Rust-based tools for the TypeScript ecosystem are so ridiculously fast (<a href="https://github.com/oven-sh/bun">Bun</a>, <a href="https://github.com/vercel/turborepo">Turborepo</a>, <a href="https://github.com/biomejs/biome">Biome</a>). Then I had this crazy idea: build a tool as fast as <a href="https://github.com/biomejs/biome">Biome</a> but focused on code quality, my way, for my needs. And that's how TScanner was born.
-
-</div>
-
-</details>
-
-<details>
-<summary>Why not just push PRs to some industry open source linters?</summary>
-<br />
-
-<div align="left">
-
-Because not everything can be solved with regex or AST rules. Sometimes we need more flexibility to ensure our project is correct.
-
-Maybe you need a script rule to verify that every React component has a corresponding test file, or that route definitions match your actual folder structure. Or maybe you want an AI rule to ensure your team is following the agreed-upon patterns for data fetching with React Query, or that error boundaries are implemented correctly in critical paths.
-
-Regex doesn't solve everything. TScanner was built to support multiple rule types: AST, regex, scripts, and even AI-powered validations. This flexibility is what makes it different.
-
-</div>
-
-</details>
-
-</div>
-
 <!-- </DYNFIELD:MOTIVATION> -->
 
 ## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
