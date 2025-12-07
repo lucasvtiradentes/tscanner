@@ -77,36 +77,38 @@ export function transformToRuleGroupsByFile(byFile: CliOutputByFile): RuleGroup[
 }
 
 export function transformToRuleGroupsByRule(byRule: CliOutputByRule): RuleGroup[] {
-  const ruleGroups: RuleGroup[] = byRule.rules.map((ruleData) => {
-    const fileMap = new Map<string, DisplayIssue[]>();
+  const ruleGroups: RuleGroup[] = (byRule.rules ?? [])
+    .filter((ruleData) => ruleData.issues?.length > 0)
+    .map((ruleData) => {
+      const fileMap = new Map<string, DisplayIssue[]>();
 
-    for (const issue of ruleData.issues) {
-      if (!fileMap.has(issue.file)) {
-        fileMap.set(issue.file, []);
+      for (const issue of ruleData.issues) {
+        if (!fileMap.has(issue.file)) {
+          fileMap.set(issue.file, []);
+        }
+        fileMap.get(issue.file)!.push({
+          line: issue.line,
+          column: issue.column,
+          message: issue.message,
+          lineText: issue.line_text,
+        });
       }
-      fileMap.get(issue.file)!.push({
-        line: issue.line,
-        column: issue.column,
-        message: issue.message,
-        lineText: issue.line_text,
-      });
-    }
 
-    const files: FileIssues[] = Array.from(fileMap.entries()).map(([filePath, issues]) => ({
-      filePath,
-      issues,
-    }));
+      const files: FileIssues[] = Array.from(fileMap.entries()).map(([filePath, issues]) => ({
+        filePath,
+        issues,
+      }));
 
-    const severity = ruleData.issues[0]?.severity === 'error' ? Severity.Error : Severity.Warning;
+      const severity = ruleData.issues[0]?.severity === 'error' ? Severity.Error : Severity.Warning;
 
-    return {
-      ruleName: ruleData.rule,
-      severity,
-      issueCount: ruleData.count,
-      fileCount: fileMap.size,
-      files,
-    };
-  });
+      return {
+        ruleName: ruleData.rule,
+        severity,
+        issueCount: ruleData.count,
+        fileCount: fileMap.size,
+        files,
+      };
+    });
 
   ruleGroups.sort((a, b) => {
     if (a.severity !== b.severity) {
