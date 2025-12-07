@@ -1,5 +1,5 @@
 import { githubHelper } from '../lib/actions-helper';
-import type { ActionScanResult } from './scanner';
+import type { ActionScanResult } from './scanner/scanner';
 import { buildIssuesReport, buildSuccessReport } from './shared/sections';
 
 type WriteSummaryParams = {

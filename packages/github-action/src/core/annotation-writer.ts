@@ -1,6 +1,6 @@
 import { PACKAGE_DISPLAY_NAME, Severity } from 'tscanner-common';
 import { type Octokit, githubHelper } from '../lib/actions-helper';
-import type { ActionScanResult } from './scanner';
+import type { ActionScanResult } from './scanner/scanner';
 
 enum AnnotationLevel {
   Notice = 'notice',

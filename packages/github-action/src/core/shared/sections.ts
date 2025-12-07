@@ -1,6 +1,6 @@
 import { PACKAGE_DISPLAY_NAME, pluralize } from 'tscanner-common';
 import { buildPrFileUrl } from '../../utils/url-builder';
-import type { ActionScanResult } from '../scanner';
+import type { ActionScanResult } from '../scanner/scanner';
 import {
   Alignment,
   ICONS,

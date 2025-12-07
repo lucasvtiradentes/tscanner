@@ -1,7 +1,7 @@
 import { COMMENT_MARKER } from '../constants';
 import { type Octokit, githubHelper } from '../lib/actions-helper';
 import { formatTimestamp } from '../utils/format-timestamp';
-import type { ActionScanResult } from './scanner';
+import type { ActionScanResult } from './scanner/scanner';
 import {
   type CommitHistoryEntry,
   buildCommitHistorySection,

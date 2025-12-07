@@ -2,7 +2,7 @@ import { GitHelper, ScanMode } from 'tscanner-common';
 import { writeAnnotations } from './core/annotation-writer';
 import { updateOrCreateComment } from './core/comment-updater';
 import { type ActionInputs, getActionInputs } from './core/input-validator';
-import { type ActionScanResult, type ScanOptions, scanChangedFiles } from './core/scanner';
+import { type ActionScanResult, type ScanOptions, scanChangedFiles } from './core/scanner/scanner';
 import { writeSummary } from './core/summary-writer';
 import { type Octokit, githubHelper } from './lib/actions-helper';
 import { validateConfigFiles } from './utils/config-validator';
