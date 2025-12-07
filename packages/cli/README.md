@@ -86,11 +86,11 @@ TScanner lets you define those rules once. Every AI-generated file, every PR, ev
 
 ## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-<!-- <DYNFIELD:QUICK_START_CLI> -->
-1. Install globally
+<!-- <DYNFIELD:QUICK_START_INSTALL> -->
+1. Install locally
 
 ```bash
-npm install -g tscanner
+npm install -D tscanner
 ```
 
 2. Initialize configuration
@@ -99,7 +99,13 @@ npm install -g tscanner
 tscanner init
 ```
 
-3. Use it
+> **Tip:** Use `tscanner init --full` for a complete config with example regex, script, and AI rules.
+<!-- </DYNFIELD:QUICK_START_INSTALL> -->
+
+After that you can already use the CLI:
+
+<!-- <DYNFIELD:QUICK_START_CLI> -->
+3. Check via terminal
 
 ```bash
 # Scan workspace
@@ -107,6 +113,14 @@ tscanner check
 
 # Scan only changed files vs branch
 tscanner check --branch origin/main
+```
+
+4. Integrate with lint-staged
+
+```json
+{
+  "*": ["npx tscanner check --staged"]
+}
 ```
 <!-- </DYNFIELD:QUICK_START_CLI> -->
 

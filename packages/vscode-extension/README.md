@@ -87,8 +87,26 @@ TScanner lets you define those rules once. Every AI-generated file, every PR, ev
 
 ## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
+<!-- <DYNFIELD:QUICK_START_INSTALL> -->
+1. Install locally
+
+```bash
+npm install -D tscanner
+```
+
+2. Initialize configuration
+
+```bash
+tscanner init
+```
+
+> **Tip:** Use `tscanner init --full` for a complete config with example regex, script, and AI rules.
+<!-- </DYNFIELD:QUICK_START_INSTALL> -->
+
+After that you can already install the extension:
+
 <!-- <DYNFIELD:QUICK_START_VSCODE_EXTENSION> -->
-1. Install the extension:
+3. Install the extension:
 
 <div align="center">
 
@@ -109,10 +127,9 @@ TScanner lets you define those rules once. Every AI-generated file, every PR, ev
 </table>
 </div>
 
-2. Click TScanner icon in activity bar
-3. Go to Settings Menu → "Manage Rules" → enable desired rules → click "Save"
-4. Issues appear automatically in the sidebar (if any)
-5. Click any issue to jump to its location
+4. Click TScanner icon in activity bar
+5. Issues appear automatically in the sidebar (if any)
+6. Click any issue to jump to its location
 <!-- </DYNFIELD:QUICK_START_VSCODE_EXTENSION> -->
 
 ## 📖 Usage<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>

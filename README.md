@@ -103,6 +103,24 @@ TScanner lets you define those rules once. Every AI-generated file, every PR, ev
 
 TScanner is available as a [VSCode Extension](packages/vscode-extension#readme), [CLI](packages/cli#readme), and [GitHub Action](packages/github-action#readme).
 
+<!-- <DYNFIELD:QUICK_START_INSTALL> -->
+1. Install locally
+
+```bash
+npm install -D tscanner
+```
+
+2. Initialize configuration
+
+```bash
+tscanner init
+```
+
+> **Tip:** Use `tscanner init --full` for a complete config with example regex, script, and AI rules.
+<!-- </DYNFIELD:QUICK_START_INSTALL> -->
+
+After that you can use it in the three modes below:
+
 ### [VSCode Extension](packages/vscode-extension#readme)
 
 <!-- <DYNFIELD:QUICK_START_VSCODE_EXTENSION> -->
@@ -128,27 +146,14 @@ TScanner is available as a [VSCode Extension](packages/vscode-extension#readme),
 </div>
 
 2. Click TScanner icon in activity bar
-3. Go to Settings Menu → "Manage Rules" → enable desired rules → click "Save"
-4. Issues appear automatically in the sidebar (if any)
-5. Click any issue to jump to its location
+3. Issues appear automatically in the sidebar (if any)
+4. Click any issue to jump to its location
 <!-- </DYNFIELD:QUICK_START_VSCODE_EXTENSION> -->
 
 ### [CLI](packages/cli#readme) <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/v/tscanner?label=npm&logo=npm&logoColor=white&labelColor=CB3837&color=374151" alt="npm"></a>
 
 <!-- <DYNFIELD:QUICK_START_CLI> -->
-1. Install globally
-
-```bash
-npm install -g tscanner
-```
-
-2. Initialize configuration
-
-```bash
-tscanner init
-```
-
-3. Use it
+1. Check via terminal
 
 ```bash
 # Scan workspace
@@ -156,6 +161,14 @@ tscanner check
 
 # Scan only changed files vs branch
 tscanner check --branch origin/main
+```
+
+2. Integrate with lint-staged
+
+```json
+{
+  "*": ["npx tscanner check --staged"]
+}
 ```
 <!-- </DYNFIELD:QUICK_START_CLI> -->
 
@@ -166,10 +179,7 @@ tscanner check --branch origin/main
 
 ```yaml
 name: Code Quality
-
-on:
-  pull_request:
-    branches: [main]
+on: [pull_request]
 
 jobs:
   tscanner:
@@ -181,8 +191,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-2. Add TScanner config to your repo (run `tscanner init` or create `.tscanner/config.jsonc`)
-3. Open a PR and watch the magic happen!
+2. Open a PR to see it in action
 <!-- </DYNFIELD:QUICK_START_GITHUB_ACTION> -->
 
 

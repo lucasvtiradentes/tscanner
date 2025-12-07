@@ -104,15 +104,30 @@ TScanner lets you define those rules once. Every AI-generated file, every PR, ev
 
 ## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
+<!-- <DYNFIELD:QUICK_START_INSTALL> -->
+1. Install locally
+
+```bash
+npm install -D tscanner
+```
+
+2. Initialize configuration
+
+```bash
+tscanner init
+```
+
+> **Tip:** Use `tscanner init --full` for a complete config with example regex, script, and AI rules.
+<!-- </DYNFIELD:QUICK_START_INSTALL> -->
+
+After that you can already setup the GitHub Action:
+
 <!-- <DYNFIELD:QUICK_START_GITHUB_ACTION> -->
-1. Create `.github/workflows/tscanner.yml`:
+3. Create `.github/workflows/tscanner.yml`:
 
 ```yaml
 name: Code Quality
-
-on:
-  pull_request:
-    branches: [main]
+on: [pull_request]
 
 jobs:
   tscanner:
@@ -124,8 +139,7 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-2. Add TScanner config to your repo (run `tscanner init` or create `.tscanner/config.jsonc`)
-3. Open a PR and watch the magic happen!
+4. Open a PR to see it in action
 <!-- </DYNFIELD:QUICK_START_GITHUB_ACTION> -->
 
 ## 📖 Usage<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
