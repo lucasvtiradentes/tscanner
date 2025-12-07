@@ -15,9 +15,9 @@ type AnyAlias = any;
 
 # Diagnostics
 ```
-invalid.ts:1:15 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:14 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
 
-  ! Found `: any` type annotation
+  ! Found ": any" type annotation
 
   > 1 │ const value: any = 'hello';
     2 │ let data: any;
@@ -25,9 +25,9 @@ invalid.ts:1:15 no-explicit-any ━━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:2:12 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:2:11 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
 
-  ! Found `: any` type annotation
+  ! Found ": any" type annotation
 
     1 │ const value: any = 'hello';
   > 2 │ let data: any;
@@ -36,20 +36,9 @@ invalid.ts:2:12 no-explicit-any ━━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:3:26 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:3:25 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
 
-  ! Found `: any` type annotation
-
-    2 │ let data: any;
-  > 3 │ function process(input: any): any {
-    4 │   return input;
-
-```
-
-```
-invalid.ts:3:32 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
-
-  ! Found `: any` type annotation
+  ! Found ": any" type annotation
 
     2 │ let data: any;
   > 3 │ function process(input: any): any {
@@ -58,9 +47,20 @@ invalid.ts:3:32 no-explicit-any ━━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:6:26 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:3:31 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
 
-  ! Found `as any` type assertion
+  ! Found ": any" type annotation
+
+    2 │ let data: any;
+  > 3 │ function process(input: any): any {
+    4 │   return input;
+
+```
+
+```
+invalid.ts:6:25 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
+
+  ! Found "as any" type assertion
 
     5 │ }
   > 6 │ const result = value as any;
@@ -69,20 +69,9 @@ invalid.ts:6:26 no-explicit-any ━━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:6:26 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:7:17 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
 
-  ! Found `: any` type annotation
-
-    5 │ }
-  > 6 │ const result = value as any;
-    7 │ type AnyAlias = any;
-
-```
-
-```
-invalid.ts:7:18 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
-
-  ! Found `: any` type annotation
+  ! Found ": any" type annotation
 
     6 │ const result = value as any;
   > 7 │ type AnyAlias = any;
