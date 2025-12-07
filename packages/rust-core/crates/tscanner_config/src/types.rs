@@ -44,8 +44,9 @@ pub enum AiExecutionMode {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct AiConfig {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     #[schemars(description = "AI provider to use (claude, gemini, custom)")]
-    pub provider: AiProvider,
+    pub provider: Option<AiProvider>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[schemars(description = "Custom command path (required only for 'custom' provider)")]

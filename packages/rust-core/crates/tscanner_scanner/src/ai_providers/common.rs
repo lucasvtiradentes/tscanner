@@ -9,13 +9,14 @@ pub trait AiProviderImpl {
 }
 
 pub fn resolve_provider_command(
-    provider: &AiProvider,
+    provider: Option<&AiProvider>,
     custom_command: Option<&str>,
 ) -> Result<(String, Vec<String>), String> {
     match provider {
-        AiProvider::Claude => ClaudeProvider.get_command(custom_command),
-        AiProvider::Gemini => GeminiProvider.get_command(custom_command),
-        AiProvider::Custom => CustomProvider.get_command(custom_command),
+        Some(AiProvider::Claude) => ClaudeProvider.get_command(custom_command),
+        Some(AiProvider::Gemini) => GeminiProvider.get_command(custom_command),
+        Some(AiProvider::Custom) => CustomProvider.get_command(custom_command),
+        None => Err("AI provider not configured. Add 'ai.provider' to your config.".to_string()),
     }
 }
 

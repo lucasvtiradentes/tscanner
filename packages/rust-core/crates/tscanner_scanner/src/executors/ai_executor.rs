@@ -418,7 +418,7 @@ impl AiExecutor {
 
         let timeout = rule_config.timeout.unwrap_or(ai_config.timeout);
         let (program, args) =
-            resolve_provider_command(&ai_config.provider, ai_config.command.as_deref())
+            resolve_provider_command(ai_config.provider.as_ref(), ai_config.command.as_deref())
                 .map_err(AiError::InvalidOutput)?;
 
         let mode_str = match rule_config.mode {

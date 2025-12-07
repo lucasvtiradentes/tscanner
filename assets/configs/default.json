@@ -8,6 +8,7 @@
     "script": {}
   },
   "aiRules": {},
+  "ai": {},
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
     "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]

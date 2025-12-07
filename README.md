@@ -632,6 +632,7 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
     "script": {}
   },
   "aiRules": {},
+  "ai": {},
   "files": {
     "include": [
       "**/*.ts",
@@ -648,7 +649,6 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
       "**/.git/**"
     ]
   },
-  "ai": {},
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": false,

@@ -11,9 +11,12 @@
           ]
         },
         "provider": {
-          "allOf": [
+          "anyOf": [
             {
               "$ref": "#/definitions/AiProvider"
+            },
+            {
+              "type": "null"
             }
           ],
           "description": "AI provider to use (claude, gemini, custom)"
@@ -26,9 +29,6 @@
           "type": "integer"
         }
       },
-      "required": [
-        "provider"
-      ],
       "type": "object"
     },
     "AiExecutionMode": {
