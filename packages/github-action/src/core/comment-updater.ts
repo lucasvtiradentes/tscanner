@@ -1,5 +1,5 @@
 import { COMMENT_MARKER } from '../constants';
-import { type Octokit, githubHelper } from '../lib/actions-helper';
+import { type Octokit, githubHelper, tmpLog } from '../lib/actions-helper';
 import { formatTimestamp } from '../utils/format-timestamp';
 import type { ActionScanResult } from './scanner';
 import {
@@ -71,15 +71,19 @@ ${report}`;
 const MAX_HISTORY_ENTRIES = 10;
 
 export async function updateOrCreateComment(params: CommentUpdateParams) {
+  tmpLog('updateOrCreateComment() started');
   const { octokit, owner, repo, prNumber, scanResult, timezone, commitSha, commitMessage, targetBranch } = params;
 
+  tmpLog('fetching existing comments');
   const existingComments = await octokit.rest.issues.listComments({
     owner,
     repo,
     issue_number: prNumber,
   });
+  tmpLog(`found ${existingComments.data.length} comments`);
 
   const botComment = existingComments.data.find((c) => c.user?.type === 'Bot' && c.body?.includes(COMMENT_MARKER));
+  tmpLog(`bot comment exists: ${!!botComment}`);
 
   let commitHistory: CommitHistoryEntry[] = [];
   if (botComment?.body) {
@@ -98,6 +102,7 @@ export async function updateOrCreateComment(params: CommentUpdateParams) {
     commitHistory = commitHistory.slice(0, MAX_HISTORY_ENTRIES);
   }
 
+  tmpLog('building comment body');
   const comment = buildCommentBody(
     scanResult,
     timezone,
@@ -109,8 +114,10 @@ export async function updateOrCreateComment(params: CommentUpdateParams) {
     targetBranch,
     commitHistory,
   );
+  tmpLog(`comment body built (${comment.length} chars)`);
 
   if (botComment) {
+    tmpLog('updating existing comment');
     await octokit.rest.issues.updateComment({
       owner,
       repo,
@@ -119,6 +126,7 @@ export async function updateOrCreateComment(params: CommentUpdateParams) {
     });
     githubHelper.logInfo(`Updated existing comment #${botComment.id}`);
   } else {
+    tmpLog('creating new comment');
     await octokit.rest.issues.createComment({
       owner,
       repo,
@@ -127,4 +135,5 @@ export async function updateOrCreateComment(params: CommentUpdateParams) {
     });
     githubHelper.logInfo('Created new comment');
   }
+  tmpLog('updateOrCreateComment() done');
 }

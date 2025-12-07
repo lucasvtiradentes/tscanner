@@ -82,3 +82,9 @@ class ActionsHelper {
 }
 
 export const githubHelper = new ActionsHelper();
+
+const tmpLogStartTime = Date.now();
+export function tmpLog(message: string): void {
+  const elapsed = ((Date.now() - tmpLogStartTime) / 1000).toFixed(2);
+  core.info(`[TMP +${elapsed}s] ${message}`);
+}

@@ -105,7 +105,8 @@ function buildIssuesByRuleSection(params: IssuesViewParams): string {
 
       for (const issue of file.issues) {
         const fileUrl = buildPrFileUrl(owner, repo, prNumber, file.filePath, issue.line);
-        content += `- <a href="${fileUrl}">${issue.line}:${issue.column}</a> - <code>${escapeHtml(issue.lineText.trim())}</code>\n`;
+        const lineText = issue.lineText?.trim() || '';
+        content += `- <a href="${fileUrl}">${issue.line}:${issue.column}</a> - <code>${escapeHtml(lineText)}</code>\n`;
       }
 
       content += '\n';
