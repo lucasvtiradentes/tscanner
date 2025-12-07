@@ -413,7 +413,8 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 2. **VSCode Extension**: TScanner icon in the status bar → `Manage Rules` → Select desired rules → `Save`
 3. **Manual**: Copy the default config below to `.tscanner/config.jsonc`
 
-The default configuration is:
+<details>
+<summary><strong>Default configuration</strong></summary>
 
 ```json
 {
@@ -442,6 +443,7 @@ The default configuration is:
       "**/.git/**"
     ]
   },
+  "ai": {},
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": false,
@@ -461,6 +463,8 @@ The default configuration is:
   }
 }
 ```
+
+</details>
 
 **Inline Disables:**
 

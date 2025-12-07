@@ -32,11 +32,14 @@ To scan your code, you need to set up the rules in the ${PACKAGE_DISPLAY_NAME} c
 2. **VSCode Extension**: ${PACKAGE_DISPLAY_NAME} icon in the status bar → \`Manage Rules\` → Select desired rules → \`Save\`
 3. **Manual**: Copy the default config below to \`${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}\`
 
-The default configuration is:
+<details>
+<summary><strong>Default configuration</strong></summary>
 
 \`\`\`json
 ${defaultConfigContent}
 \`\`\`
+
+</details>
 
 **Inline Disables:**
 
