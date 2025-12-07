@@ -47,6 +47,14 @@ jobs:
           cp packages/rust-core/target/release/tscanner packages/cli/npm/cli-linux-x64/tscanner
           chmod +x packages/cli/npm/cli-linux-x64/tscanner
 
+      - name: Setup Claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Setup Claude credentials
+        run: |
+          mkdir -p ~/.claude
+          echo '${{ secrets.CLAUDE_CREDENTIALS }}' > ~/.claude/.credentials.json
+
       - uses: ./packages/github-action
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -57,3 +65,4 @@ jobs:
           summary: 'true'
           annotations: 'true'
           pr-comment: 'true'
+          ai-mode: 'include'
