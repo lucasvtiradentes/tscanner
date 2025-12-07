@@ -80,32 +80,43 @@ ${rows}
     path: string;
     useFullGithubLink: boolean;
     hiddenPackages: TPackage[];
-    wrapInDetails: boolean;
+    detailsTitle: string | null;
   };
 
   const readmeConfigs: TReadmeConfig[] = [
-    { path: 'packages/cli/README.md', useFullGithubLink: true, hiddenPackages: ['cli'], wrapInDetails: true },
+    {
+      path: 'README.md',
+      useFullGithubLink: false,
+      hiddenPackages: [],
+      detailsTitle: `Ways to use ${PACKAGE_DISPLAY_NAME}`,
+    },
+    {
+      path: 'packages/cli/README.md',
+      useFullGithubLink: true,
+      hiddenPackages: ['cli'],
+      detailsTitle: `Other ways to use ${PACKAGE_DISPLAY_NAME}`,
+    },
     {
       path: 'packages/github-action/README.md',
       useFullGithubLink: true,
       hiddenPackages: ['github-action'],
-      wrapInDetails: true,
+      detailsTitle: `Other ways to use ${PACKAGE_DISPLAY_NAME}`,
     },
     {
       path: 'packages/vscode-extension/README.md',
       useFullGithubLink: true,
       hiddenPackages: ['vscode-extension'],
-      wrapInDetails: true,
+      detailsTitle: `Other ways to use ${PACKAGE_DISPLAY_NAME}`,
     },
   ];
 
-  readmeConfigs.forEach(({ path: filePath, useFullGithubLink, hiddenPackages, wrapInDetails }) => {
+  readmeConfigs.forEach(({ path: filePath, useFullGithubLink, hiddenPackages, detailsTitle }) => {
     const readme = new DynMarkdown<TFields>(path.join(rootDir, filePath));
     let content = getWaysToUseTscannerContent({ useFullGithubLink, hiddenPackages });
 
-    if (wrapInDetails) {
+    if (detailsTitle) {
       content = `<details>
-<summary>Other ways to use ${PACKAGE_DISPLAY_NAME}</summary>
+<summary>${detailsTitle}</summary>
 <br />
 
 ${content}

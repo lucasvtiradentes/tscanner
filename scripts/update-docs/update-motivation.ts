@@ -20,10 +20,14 @@ ${PACKAGE_DISPLAY_NAME} lets you define those rules once. Every AI-generated fil
 <summary>Use cases for this project</summary>
 <br />
 
+<div align="left">
+
 - **Project Consistency** - Enforce import styles, naming conventions, and code organization rules
 - **PR Quality Gates** - Auto-comment violations before merge so reviewers focus on logic
 - **AI Code Validation** - Real-time feedback on AI-generated code before accepting
 - **Flexible Customization** - Built-in rules + custom scripts and AI rules for complex logic 
+
+</div>
 
 </details>
 
