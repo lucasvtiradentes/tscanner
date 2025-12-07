@@ -63,9 +63,10 @@ ${PACKAGE_NAME} check
 ${PACKAGE_NAME} check --branch origin/main
 \`\`\`
 
-${startStep + 1}. Integrate with lint-staged
+${startStep + 1}. Integrate with [lint-staged](https://github.com/lint-staged/lint-staged) (optional)
 
-\`\`\`json
+\`\`\`jsonc
+// .lintstagedrc.json
 {
   "*": ["npx ${PACKAGE_NAME} check --staged"]
 }

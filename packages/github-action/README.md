@@ -146,17 +146,70 @@ jobs:
 
 ### Inputs
 
-| Input | Required | Default | Description |
-|-------|----------|---------|-------------|
-| `github-token` | Yes | - | GitHub token for posting PR comments |
-| `target-branch` | - | - | Branch to compare (enables diff mode). Example: `origin/main` |
-| `config-path` | - | `.tscanner` | Path to tscanner config directory |
-| `tscanner-version` | - | `latest` | NPM version of tscanner CLI |
-| `group-by` | - | `file` | Grouping mode: `file` or `rule` |
-| `continue-on-error` | - | `false` | Continue workflow even if errors found |
-| `timezone` | - | `UTC` | Timezone for PR comment timestamps |
-| `annotations` | - | `true` | Add inline annotations in PR diff |
-| `summary` | - | `true` | Write results to GitHub Step Summary |
+<div align="center">
+<table>
+  <tr>
+    <th>Input</th>
+    <th>Required</th>
+    <th>Default</th>
+    <th>Description</th>
+  </tr>
+  <tr>
+    <td><code>github-token</code></td>
+    <td>Yes</td>
+    <td>-</td>
+    <td>GitHub token for posting PR comments</td>
+  </tr>
+  <tr>
+    <td><code>target-branch</code></td>
+    <td>-</td>
+    <td>-</td>
+    <td>Branch to compare (enables diff mode). Example: <code>origin/main</code></td>
+  </tr>
+  <tr>
+    <td><code>config-path</code></td>
+    <td>-</td>
+    <td><code>.tscanner</code></td>
+    <td>Path to tscanner config directory</td>
+  </tr>
+  <tr>
+    <td><code>tscanner-version</code></td>
+    <td>-</td>
+    <td><code>latest</code></td>
+    <td>NPM version of tscanner CLI</td>
+  </tr>
+  <tr>
+    <td><code>group-by</code></td>
+    <td>-</td>
+    <td><code>file</code></td>
+    <td>Grouping mode: <code>file</code> or <code>rule</code></td>
+  </tr>
+  <tr>
+    <td><code>continue-on-error</code></td>
+    <td>-</td>
+    <td><code>false</code></td>
+    <td>Continue workflow even if errors found</td>
+  </tr>
+  <tr>
+    <td><code>timezone</code></td>
+    <td>-</td>
+    <td><code>UTC</code></td>
+    <td>Timezone for PR comment timestamps</td>
+  </tr>
+  <tr>
+    <td><code>annotations</code></td>
+    <td>-</td>
+    <td><code>true</code></td>
+    <td>Add inline annotations in PR diff</td>
+  </tr>
+  <tr>
+    <td><code>summary</code></td>
+    <td>-</td>
+    <td><code>true</code></td>
+    <td>Write results to GitHub Step Summary</td>
+  </tr>
+</table>
+</div>
 
 ### Permissions
 
@@ -173,10 +226,25 @@ Without it, annotations only appear on lines in the PR diff (GitHub limitation).
 
 ### Scan Modes
 
-| Mode | When to use | Config |
-|------|-------------|--------|
-| **Changed files** | Recommended for PRs | `target-branch: 'origin/main'` |
-| **Full codebase** | Audit entire repo | Omit `target-branch` |
+<div align="center">
+<table>
+  <tr>
+    <th>Mode</th>
+    <th>When to use</th>
+    <th>Config</th>
+  </tr>
+  <tr>
+    <td><b>Changed files</b></td>
+    <td>Recommended for PRs</td>
+    <td><code>target-branch: 'origin/main'</code></td>
+  </tr>
+  <tr>
+    <td><b>Full codebase</b></td>
+    <td>Audit entire repo</td>
+    <td>Omit <code>target-branch</code></td>
+  </tr>
+</table>
+</div>
 
 ### Full Configuration
 

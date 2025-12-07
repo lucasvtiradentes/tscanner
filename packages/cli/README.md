@@ -115,9 +115,10 @@ tscanner check
 tscanner check --branch origin/main
 ```
 
-4. Integrate with lint-staged
+4. Integrate with [lint-staged](https://github.com/lint-staged/lint-staged) (optional)
 
-```json
+```jsonc
+// .lintstagedrc.json
 {
   "*": ["npx tscanner check --staged"]
 }
