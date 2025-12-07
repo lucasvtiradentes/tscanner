@@ -1,4 +1,13 @@
-import { AiExecutionMode, type CliOutputByFile, type CliOutputByRule, type GroupMode, Severity } from 'tscanner-common';
+import {
+  AiExecutionMode,
+  type CliOutputByFile,
+  type CliOutputByRule,
+  type DisplayIssue,
+  type FileIssues,
+  type GroupMode,
+  type RuleGroup,
+  Severity,
+} from 'tscanner-common';
 import { githubHelper } from '../lib/actions-helper';
 import { type CliExecutor, createDevModeExecutor, createProdModeExecutor } from './cli-executor';
 
@@ -89,27 +98,6 @@ export type ActionScanResult = {
   ruleGroupsByRule: RuleGroup[];
 };
 
-type RuleGroup = {
-  ruleName: string;
-  severity: Severity;
-  issueCount: number;
-  fileCount: number;
-  files: FileIssues[];
-};
-
-type FileIssues = {
-  filePath: string;
-  issues: Issue[];
-};
-
-type Issue = {
-  line: number;
-  column: number;
-  message: string;
-  lineText: string;
-  ruleName?: string;
-};
-
 export type ScanOptions = {
   targetBranch?: string;
   devMode: boolean;
@@ -198,7 +186,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
   githubHelper.logInfo('');
   logFormattedResults(scanDataFile, scanDataRule);
 
-  const fileGroups: Array<{ file: string; issues: Issue[]; severity: Severity }> = scanDataFile.files.map(
+  const fileGroups: Array<{ file: string; issues: DisplayIssue[]; severity: Severity }> = scanDataFile.files.map(
     (fileData) => ({
       file: fileData.file,
       issues: fileData.issues.map((issue) => ({
@@ -233,7 +221,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
   }));
 
   const ruleGroupsByRule: RuleGroup[] = scanDataRule.rules.map((ruleData) => {
-    const fileMap = new Map<string, Issue[]>();
+    const fileMap = new Map<string, DisplayIssue[]>();
 
     for (const issue of ruleData.issues) {
       if (!fileMap.has(issue.file)) {
