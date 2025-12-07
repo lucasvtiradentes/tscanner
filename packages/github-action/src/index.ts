@@ -77,6 +77,7 @@ class ActionRunner {
       tscannerVersion: inputs.tscannerVersion,
       groupBy: inputs.groupBy,
       configPath: inputs.configPath,
+      aiMode: inputs.aiMode,
     } satisfies ScanOptions;
 
     if (inputs.mode === ScanMode.Branch) {

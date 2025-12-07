@@ -49,6 +49,10 @@ inputs:
     description: 'Use local TScanner CLI from monorepo (internal development only)'
     required: false
     default: 'false'
+  ai-mode:
+    description: 'AI rules mode: ignore (skip AI rules), include (run all rules), only (run only AI rules)'
+    required: false
+    default: 'ignore'
 
 runs:
   using: 'node20'

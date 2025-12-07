@@ -228,8 +228,153 @@ jobs:
     <td><code>true</code></td>
     <td>Write results to GitHub Step Summary</td>
   </tr>
+  <tr>
+    <td><code>ai-mode</code></td>
+    <td>-</td>
+    <td><code>ignore</code></td>
+    <td>AI rules: <code>ignore</code>, <code>include</code>, <code>only</code></td>
+  </tr>
 </table>
 </div>
+
+### AI Rules Setup
+
+To enable AI-powered rules in your workflow, you need:
+
+1. **AI provider CLI installed** (`claude` or `gemini`)
+2. **OAuth credentials** from your local machine
+
+**AI Mode Options:**
+| Mode | Description |
+|------|-------------|
+| `ignore` | Skip AI rules (default) |
+| `include` | Run all rules (builtin + regex + script + AI) |
+| `only` | Run only AI rules (useful for testing) |
+
+<details>
+<summary><strong>Claude Setup (Claude Max subscription)</strong></summary>
+
+<br/>
+
+1. **Local setup** - Run in your terminal:
+```bash
+npm install -g @anthropic-ai/claude-code
+claude  # Login with your Claude Max account
+```
+
+2. **Copy credentials** - Get the content of `~/.claude/.credentials.json`
+
+3. **Add GitHub Secret** - Go to repo Settings → Secrets → Actions → New secret:
+   - Name: `CLAUDE_CREDENTIALS`
+   - Value: paste the JSON content
+
+4. **Workflow**:
+```yaml
+name: Code Quality
+on: [pull_request]
+
+jobs:
+  tscanner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Setup Claude credentials
+        run: |
+          mkdir -p ~/.claude
+          echo '${{ secrets.CLAUDE_CREDENTIALS }}' > ~/.claude/.credentials.json
+
+      - uses: lucasvtiradentes/tscanner-action@v0.0.25
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          ai-mode: include
+```
+
+</details>
+
+<details>
+<summary><strong>Gemini Setup (FREE - 1000 req/day)</strong></summary>
+
+<br/>
+
+1. **Local setup** - Run in your terminal:
+```bash
+npm install -g @google-gemini/gemini-cli
+gemini  # Login with your Google account
+```
+
+2. **Copy credentials** - Get the content of `~/.gemini/oauth_creds.json`
+
+3. **Add GitHub Secret** - Go to repo Settings → Secrets → Actions → New secret:
+   - Name: `GEMINI_CREDENTIALS`
+   - Value: paste the JSON content
+
+4. **Workflow**:
+```yaml
+name: Code Quality
+on: [pull_request]
+
+jobs:
+  tscanner:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Gemini CLI
+        run: npm install -g @google-gemini/gemini-cli
+
+      - name: Setup Gemini credentials
+        run: |
+          mkdir -p ~/.gemini
+          echo '${{ secrets.GEMINI_CREDENTIALS }}' > ~/.gemini/oauth_creds.json
+
+      - uses: lucasvtiradentes/tscanner-action@v0.0.25
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          ai-mode: include
+```
+
+</details>
+
+<details>
+<summary><strong>Manual Dispatch (AI rules only)</strong></summary>
+
+<br/>
+
+Useful for testing AI rules without running all other checks:
+
+```yaml
+name: AI Rules Test
+on:
+  workflow_dispatch:
+
+jobs:
+  ai-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Claude CLI
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Setup Claude credentials
+        run: |
+          mkdir -p ~/.claude
+          echo '${{ secrets.CLAUDE_CREDENTIALS }}' > ~/.claude/.credentials.json
+
+      - uses: lucasvtiradentes/tscanner-action@v0.0.25
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          ai-mode: only
+          continue-on-error: true
+```
+
+</details>
+
+> **Note:** OAuth tokens have refresh tokens that auto-renew. You only need to update the secret if authentication stops working.
 
 ### Permissions
 

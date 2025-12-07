@@ -1,4 +1,4 @@
-import { type CliOutputByFile, type CliOutputByRule, type GroupMode, Severity } from 'tscanner-common';
+import { AiExecutionMode, type CliOutputByFile, type CliOutputByRule, type GroupMode, Severity } from 'tscanner-common';
 import { githubHelper } from '../lib/actions-helper';
 import { type CliExecutor, createDevModeExecutor, createProdModeExecutor } from './cli-executor';
 
@@ -42,12 +42,35 @@ export type ScanOptions = {
   tscannerVersion: string;
   groupBy: GroupMode;
   configPath: string;
+  aiMode: AiExecutionMode;
 };
 
+function getAiModeArgs(aiMode: AiExecutionMode): string[] {
+  switch (aiMode) {
+    case AiExecutionMode.Include:
+      return ['--include-ai'];
+    case AiExecutionMode.Only:
+      return ['--only-ai'];
+    default:
+      return [];
+  }
+}
+
+function getAiModeLabel(aiMode: AiExecutionMode): string {
+  switch (aiMode) {
+    case AiExecutionMode.Include:
+      return ' (with AI rules)';
+    case AiExecutionMode.Only:
+      return ' (AI rules only)';
+    default:
+      return '';
+  }
+}
+
 export async function scanChangedFiles(options: ScanOptions): Promise<ActionScanResult> {
-  const { targetBranch, devMode, tscannerVersion, groupBy, configPath } = options;
+  const { targetBranch, devMode, tscannerVersion, groupBy, configPath, aiMode } = options;
   const scanMode = targetBranch ? `changed files vs ${targetBranch}` : 'entire codebase';
-  githubHelper.logInfo(`Scanning [${scanMode}] group by: [${groupBy}]`);
+  githubHelper.logInfo(`Scanning [${scanMode}] group by: [${groupBy}]${getAiModeLabel(aiMode)}`);
 
   const executor: CliExecutor = devMode ? createDevModeExecutor() : createProdModeExecutor(tscannerVersion);
 
@@ -58,6 +81,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
     '--config-path',
     configPath,
     ...(targetBranch ? ['--branch', targetBranch] : []),
+    ...getAiModeArgs(aiMode),
   ];
   const argsFile = [...baseArgs, '--group-by=file'];
   const argsRule = [...baseArgs, '--group-by=rule'];

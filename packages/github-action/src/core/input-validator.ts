@@ -1,4 +1,4 @@
-import { CONFIG_DIR_NAME, GroupMode, ScanMode } from 'tscanner-common';
+import { AiExecutionMode, CONFIG_DIR_NAME, GroupMode, ScanMode } from 'tscanner-common';
 import { z } from 'zod';
 import { githubHelper } from '../lib/actions-helper';
 
@@ -14,6 +14,7 @@ const actionYmlInputsSchema = z.object({
   summary: z.boolean(),
   prComment: z.boolean(),
   devMode: z.boolean(),
+  aiMode: z.enum(AiExecutionMode),
 });
 
 const branchScannerSchema = actionYmlInputsSchema.extend({
@@ -49,6 +50,10 @@ export function getActionInputs(): ActionInputs {
   const annotations = githubHelper.getInput('annotations') !== 'false';
   const summary = githubHelper.getInput('summary') !== 'false';
   const prComment = githubHelper.getInput('pr-comment') !== 'false';
+  const aiModeInput = githubHelper.getInput('ai-mode') || AiExecutionMode.Ignore;
+  const aiMode = Object.values(AiExecutionMode).includes(aiModeInput as AiExecutionMode)
+    ? (aiModeInput as AiExecutionMode)
+    : AiExecutionMode.Ignore;
 
   const groupBy = groupByInput === GroupMode.Rule ? GroupMode.Rule : GroupMode.File;
 
@@ -65,6 +70,7 @@ export function getActionInputs(): ActionInputs {
     annotations,
     summary,
     prComment,
+    aiMode,
     mode,
     ...(mode === ScanMode.Branch && { targetBranch: targetBranch || DEFAULT_INPUTS.targetBranch }),
   };
