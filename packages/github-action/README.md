@@ -357,10 +357,12 @@ The default configuration is:
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": false,
-    "scanIntervalSeconds": 0
+    "scanIntervalSeconds": 0,
+    "aiScanIntervalSeconds": 0
   },
   "cli": {
     "groupBy": "file",
+    "aiMode": "ignore",
     "noCache": false,
     "showSettings": true,
     "showIssueSeverity": true,

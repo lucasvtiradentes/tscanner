@@ -67,7 +67,7 @@ fn main() -> Result<()> {
             show,
             Some(config_path),
         ),
-        Some(Commands::Init { all_rules }) => cmd_init(&PathBuf::from("."), all_rules),
+        Some(Commands::Init { full }) => cmd_init(&PathBuf::from("."), full),
         Some(Commands::Lsp) => {
             tscanner_lsp::run_lsp_server().map_err(|e| anyhow::anyhow!("{}", e))?;
             Ok(())

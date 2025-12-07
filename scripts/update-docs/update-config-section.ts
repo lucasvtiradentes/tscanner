@@ -13,9 +13,15 @@ type TFields = 'COMMON_SECTION_CONFIG';
 
 const rootDir = path.resolve(__dirname, '..', '..');
 
+function getSchemaUrl(): string {
+  const pkgJson = getJson(path.join(rootDir, 'packages/cli/package.json')) as { version: string };
+  return `https://unpkg.com/tscanner@${pkgJson.version}/schema.json`;
+}
+
 export function updateConfigSection() {
   const getConfigSectionContent = () => {
-    const defaultConfigJson = getJson(path.join(rootDir, 'assets/default-config.json'));
+    const defaultConfigJson = getJson(path.join(rootDir, 'assets/configs/default.json')) as Record<string, unknown>;
+    defaultConfigJson.$schema = getSchemaUrl();
     const defaultConfigContent = JSON.stringify(defaultConfigJson, null, 2);
 
     return `## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>

@@ -211,9 +211,9 @@
       "arguments": [],
       "flags": [
         {
-          "name": "all-rules",
+          "name": "full",
           "short": null,
-          "description": "Initialize with all built-in rules enabled",
+          "description": "Initialize with all built-in rules, example regex/script/AI rules, and sample files",
           "takesValue": false,
           "valueName": null,
           "possibleValues": [

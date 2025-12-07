@@ -3,7 +3,7 @@ import { isAbsolute } from 'node:path';
 import * as jsonc from 'jsonc-parser';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
-import defaultConfig from '../../../../../assets/default-config.json';
+import defaultConfig from '../../../../../assets/configs/default.json';
 import { logger } from './logger';
 
 function getWorkspaceHash(workspacePath: string): string {

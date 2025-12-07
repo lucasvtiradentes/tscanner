@@ -1,0 +1,89 @@
+{
+  "$schema": "../../packages/cli/schema.json",
+  "rules": {
+    "builtin": {
+      "consistent-return": {},
+      "max-function-length": {},
+      "max-params": {},
+      "no-absolute-imports": {},
+      "no-alias-imports": {},
+      "no-async-without-await": {},
+      "no-console": {},
+      "no-constant-condition": {},
+      "no-default-export": {},
+      "no-duplicate-imports": {},
+      "no-dynamic-import": {},
+      "no-else-return": {},
+      "no-empty-class": {},
+      "no-empty-function": {},
+      "no-empty-interface": {},
+      "no-explicit-any": {},
+      "no-floating-promises": {},
+      "no-forwarded-exports": {},
+      "no-implicit-any": {},
+      "no-inferrable-types": {},
+      "no-nested-require": {},
+      "no-nested-ternary": {},
+      "no-non-null-assertion": {},
+      "no-relative-imports": {},
+      "no-return-await": {},
+      "no-shadow": {},
+      "no-single-or-array-union": {},
+      "no-todo-comments": {},
+      "no-unnecessary-type-assertion": {},
+      "no-unreachable-code": {},
+      "no-unused-vars": {},
+      "no-useless-catch": {},
+      "no-var": {},
+      "prefer-const": {},
+      "prefer-interface-over-type": {},
+      "prefer-nullish-coalescing": {},
+      "prefer-optional-chain": {},
+      "prefer-type-over-interface": {}
+    },
+    "regex": {
+      "example-no-console-log": {
+        "pattern": "console\\.log",
+        "message": "Remove console.log before committing",
+        "severity": "warning"
+      }
+    },
+    "script": {
+      "example-no-debug-comments": {
+        "command": "npx tsx scripts/example-no-debug-comments.ts",
+        "message": "Debug comments should be removed",
+        "severity": "warning"
+      }
+    }
+  },
+  "aiRules": {
+    "example-find-complexity": {
+      "prompt": "example-find-complexity.md",
+      "mode": "content",
+      "message": "Function is too complex, consider refactoring",
+      "severity": "warning",
+      "enabled": false
+    }
+  },
+  "files": {
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
+  },
+  "codeEditor": {
+    "highlightErrors": true,
+    "highlightWarnings": false,
+    "scanIntervalSeconds": 0,
+    "aiScanIntervalSeconds": 0
+  },
+  "cli": {
+    "groupBy": "file",
+    "aiMode": "ignore",
+    "noCache": false,
+    "showSettings": true,
+    "showIssueSeverity": true,
+    "showIssueSourceLine": true,
+    "showIssueRuleName": true,
+    "showIssueDescription": false,
+    "showSummary": true
+  }
+}

@@ -231,9 +231,9 @@ tscanner check --branch origin/main
   <tr>
     <td rowspan="1" align="left"><code>init [options]</code></td>
     <td rowspan="1" align="left">Create a default configuration file</td>
-    <td align="left"><code>--all-rules</code></td>
+    <td align="left"><code>--full</code></td>
     <td align="center">-</td>
-    <td align="left">Initialize with all built-in rules enabled</td>
+    <td align="left">Initialize with all built-in rules, example regex/script/AI rules, and sample files</td>
   </tr>
   <tr>
     <td rowspan="1" align="left"><code>lsp</code></td>
@@ -425,10 +425,12 @@ The default configuration is:
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": false,
-    "scanIntervalSeconds": 0
+    "scanIntervalSeconds": 0,
+    "aiScanIntervalSeconds": 0
   },
   "cli": {
     "groupBy": "file",
+    "aiMode": "ignore",
     "noCache": false,
     "showSettings": true,
     "showIssueSeverity": true,

@@ -1,5 +1,5 @@
 {
-  "$schema": "https://unpkg.com/tscanner@0.0.28/schema.json",
+  "$schema": "../../packages/cli/schema.json",
   "rules": {
     "builtin": {
       "no-explicit-any": {}
@@ -15,10 +15,12 @@
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": false,
-    "scanIntervalSeconds": 0
+    "scanIntervalSeconds": 0,
+    "aiScanIntervalSeconds": 0
   },
   "cli": {
     "groupBy": "file",
+    "aiMode": "ignore",
     "noCache": false,
     "showSettings": true,
     "showIssueSeverity": true,

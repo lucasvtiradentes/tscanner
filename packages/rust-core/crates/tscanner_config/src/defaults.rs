@@ -6,7 +6,7 @@ use crate::types::{
     AiExecutionMode, CliConfig, CliGroupBy, CodeEditorConfig, FilesConfig, TscannerConfig,
 };
 
-const DEFAULT_CONFIG_JSON: &str = include_str!("../../../../../assets/default-config.json");
+const DEFAULT_CONFIG_JSON: &str = include_str!("../../../../../assets/configs/default.json");
 const CONSTANTS_JSON: &str = include_str!("../../../../../assets/constants.json");
 
 #[derive(Deserialize)]

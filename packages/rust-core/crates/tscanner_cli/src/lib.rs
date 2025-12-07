@@ -119,8 +119,11 @@ pub enum Commands {
 
     #[command(about = "Create a default configuration file")]
     Init {
-        #[arg(long, help = "Initialize with all built-in rules enabled")]
-        all_rules: bool,
+        #[arg(
+            long,
+            help = "Initialize with all built-in rules, example regex/script/AI rules, and sample files"
+        )]
+        full: bool,
     },
 
     #[command(about = "Start the LSP server (Language Server Protocol)")]
