@@ -62,9 +62,20 @@ function generateGitHubAnchor(headingText: string): string {
 function extractMainHeadings(content: string): { text: string; anchor: string; line: number }[] {
   const headings: { text: string; anchor: string; line: number }[] = [];
   const lines = content.split('\n');
+  let inCodeBlock = false;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
+
+    if (line.trim().startsWith('```')) {
+      inCodeBlock = !inCodeBlock;
+      continue;
+    }
+
+    if (inCodeBlock) {
+      continue;
+    }
+
     const headingMatch = line.match(/^##\s+(.+)/);
 
     if (headingMatch) {
