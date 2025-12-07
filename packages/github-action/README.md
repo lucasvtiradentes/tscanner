@@ -237,6 +237,42 @@ jobs:
 </table>
 </div>
 
+### Permissions
+
+For annotations on **all lines** (not just changed lines), add `checks: write`:
+
+```yaml
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+```
+
+Without it, annotations only appear on lines in the PR diff (GitHub limitation).
+
+### Scan Modes
+
+<div align="center">
+<table>
+  <tr>
+    <th>Mode</th>
+    <th>When to use</th>
+    <th>Config</th>
+  </tr>
+  <tr>
+    <td><b>Changed files</b></td>
+    <td>Recommended for PRs</td>
+    <td><code>target-branch: 'origin/main'</code></td>
+  </tr>
+  <tr>
+    <td><b>Full codebase</b></td>
+    <td>Audit entire repo</td>
+    <td>Omit <code>target-branch</code></td>
+  </tr>
+</table>
+</div>
+
+
 ### AI Rules Setup
 
 To enable AI-powered rules in your workflow, you need:
@@ -244,17 +280,17 @@ To enable AI-powered rules in your workflow, you need:
 1. **AI provider CLI installed** (`claude` or `gemini`)
 2. **OAuth credentials** from your local machine
 
-**AI Mode Options:**
-| Mode | Description |
-|------|-------------|
-| `ignore` | Skip AI rules (default) |
-| `include` | Run all rules (builtin + regex + script + AI) |
-| `only` | Run only AI rules (useful for testing) |
+> **Note:** OAuth tokens have refresh tokens that auto-renew. You only need to update the secret if authentication stops working.
+
+<div align="center">
 
 <details>
 <summary><strong>Claude Setup (Claude Max subscription)</strong></summary>
 
 <br/>
+
+<div align="left">
+
 
 1. **Local setup** - Run in your terminal:
 ```bash
@@ -293,12 +329,16 @@ jobs:
           ai-mode: include
 ```
 
+</div>
+
 </details>
 
 <details>
 <summary><strong>Gemini Setup (FREE - 1000 req/day)</strong></summary>
 
 <br/>
+
+<div align="left">
 
 1. **Local setup** - Run in your terminal:
 ```bash
@@ -337,12 +377,16 @@ jobs:
           ai-mode: include
 ```
 
+</div>
+
 </details>
 
 <details>
 <summary><strong>Manual Dispatch (AI rules only)</strong></summary>
 
 <br/>
+
+<div align="left">
 
 Useful for testing AI rules without running all other checks:
 
@@ -372,44 +416,12 @@ jobs:
           continue-on-error: true
 ```
 
+</div>
+
 </details>
 
-> **Note:** OAuth tokens have refresh tokens that auto-renew. You only need to update the secret if authentication stops working.
-
-### Permissions
-
-For annotations on **all lines** (not just changed lines), add `checks: write`:
-
-```yaml
-permissions:
-  contents: read
-  pull-requests: write
-  checks: write
-```
-
-Without it, annotations only appear on lines in the PR diff (GitHub limitation).
-
-### Scan Modes
-
-<div align="center">
-<table>
-  <tr>
-    <th>Mode</th>
-    <th>When to use</th>
-    <th>Config</th>
-  </tr>
-  <tr>
-    <td><b>Changed files</b></td>
-    <td>Recommended for PRs</td>
-    <td><code>target-branch: 'origin/main'</code></td>
-  </tr>
-  <tr>
-    <td><b>Full codebase</b></td>
-    <td>Audit entire repo</td>
-    <td>Omit <code>target-branch</code></td>
-  </tr>
-</table>
 </div>
+
 
 ### Full Configuration
 
@@ -447,6 +459,7 @@ jobs:
           timezone: 'UTC'
           annotations: 'true'
           summary: 'true'
+          ai-mode: 'ignore'                 # or 'include', 'only'
 ```
 
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
