@@ -614,8 +614,8 @@ Soon!
 
 To scan your code, you need to set up the rules in the TScanner config folder. Here's how to get started:
 
-1. **VSCode Extension**: TScanner icon in the status bar → `Manage Rules` → Select desired rules → `Save`
-2. **CLI**: Run `tscanner init` in your project root
+1. **CLI**: Run `tscanner init` in your project root (**Recommended**)
+2. **VSCode Extension**: TScanner icon in the status bar → `Manage Rules` → Select desired rules → `Save`
 3. **Manual**: Copy the default config below to `.tscanner/config.jsonc`
 
 The default configuration is:

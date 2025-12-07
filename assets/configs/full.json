@@ -65,6 +65,10 @@
       "enabled": false
     }
   },
+  "ai": {
+    "provider": "claude",
+    "timeout": 120000
+  },
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
     "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]

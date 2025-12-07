@@ -125,7 +125,7 @@ impl Scanner {
 
         self.filter_to_modified_lines(&mut all_results, modified_lines);
 
-        let ai_issues = self.run_ai_rules_with_context(&files, Some(modified_lines));
+        let (ai_issues, ai_warning) = self.run_ai_rules_with_context(&files, Some(modified_lines));
         self.merge_issues(&mut all_results, ai_issues);
 
         let total_issues: usize = all_results.iter().map(|r| r.issues.len()).sum();
@@ -136,6 +136,8 @@ impl Scanner {
         let cached = cache_hits.load(Ordering::Relaxed);
         let scanned = file_count - cached;
 
+        let warnings = ai_warning.into_iter().collect();
+
         ScanResult {
             files: all_results,
             total_issues,
@@ -143,6 +145,7 @@ impl Scanner {
             total_files: file_count,
             cached_files: cached,
             scanned_files: scanned,
+            warnings,
         }
     }
 

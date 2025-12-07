@@ -92,8 +92,8 @@ impl Scanner {
             self.run_script_rules(&files)
         };
 
-        let ai_issues = if ai_mode == AiExecutionMode::Ignore {
-            Vec::new()
+        let (ai_issues, ai_warning) = if ai_mode == AiExecutionMode::Ignore {
+            (Vec::new(), None)
         } else {
             self.run_ai_rules_with_context_and_progress(&files, changed_lines, ai_progress_callback)
         };
@@ -110,6 +110,8 @@ impl Scanner {
         let cached = cache_hits.load(Ordering::Relaxed);
         let scanned = file_count - cached;
 
+        let warnings = ai_warning.into_iter().collect();
+
         ScanResult {
             files: all_results,
             total_issues,
@@ -117,6 +119,7 @@ impl Scanner {
             total_files: file_count,
             cached_files: cached,
             scanned_files: scanned,
+            warnings,
         }
     }
 

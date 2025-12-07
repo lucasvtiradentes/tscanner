@@ -141,7 +141,7 @@ impl Scanner {
         &self,
         _files: &[PathBuf],
         changed_lines: Option<&HashMap<PathBuf, HashSet<usize>>>,
-    ) -> Vec<Issue> {
+    ) -> (Vec<Issue>, Option<String>) {
         self.run_ai_rules_with_context_and_progress(_files, changed_lines, None)
     }
 
@@ -150,15 +150,15 @@ impl Scanner {
         _files: &[PathBuf],
         changed_lines: Option<&HashMap<PathBuf, HashSet<usize>>>,
         progress_callback: Option<AiProgressCallback>,
-    ) -> Vec<Issue> {
+    ) -> (Vec<Issue>, Option<String>) {
         let ai_rules = self.collect_ai_rules();
         if ai_rules.is_empty() {
-            return vec![];
+            return (vec![], None);
         }
 
         let all_files = self.collect_ai_files(&ai_rules);
         if all_files.is_empty() {
-            return vec![];
+            return (vec![], None);
         }
 
         self.ai_executor.execute_rules_with_progress(

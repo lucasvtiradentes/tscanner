@@ -159,7 +159,7 @@ impl AiExecutor {
         files: &[(PathBuf, String)],
         workspace_root: &Path,
         changed_lines: Option<&ChangedLinesMap>,
-    ) -> Vec<Issue> {
+    ) -> (Vec<Issue>, Option<String>) {
         self.execute_rules_with_progress(rules, files, workspace_root, changed_lines, None)
     }
 
@@ -170,16 +170,20 @@ impl AiExecutor {
         workspace_root: &Path,
         changed_lines: Option<&ChangedLinesMap>,
         progress_callback: Option<AiProgressCallback>,
-    ) -> Vec<Issue> {
+    ) -> (Vec<Issue>, Option<String>) {
         if rules.is_empty() {
-            return vec![];
+            return (vec![], None);
         }
 
         let ai_config = match &self.ai_config {
             Some(config) => config,
             None => {
-                (self.log_warn)("AI rules configured but no 'ai' config section found");
-                return vec![];
+                let warning = format!(
+                    "AI rules configured ({} rules) but 'ai' config section is missing. Add 'ai.provider' to your config.",
+                    rules.len()
+                );
+                (self.log_warn)(&warning);
+                return (vec![], Some(warning));
             }
         };
 
@@ -197,7 +201,7 @@ impl AiExecutor {
             }
         }
 
-        rules
+        let all_issues: Vec<Issue> = rules
             .par_iter()
             .enumerate()
             .flat_map(|(idx, (rule_name, rule_config))| {
@@ -281,7 +285,9 @@ impl AiExecutor {
                     }
                 }
             })
-            .collect()
+            .collect();
+
+        (all_issues, None)
     }
 
     fn file_matches_rule(

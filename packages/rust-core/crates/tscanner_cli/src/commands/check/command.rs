@@ -263,6 +263,13 @@ pub fn cmd_check(
         result.duration_ms
     ));
 
+    if !is_json && !result.warnings.is_empty() {
+        println!();
+        for warning in &result.warnings {
+            println!("{} {}", "⚠".yellow(), warning.yellow());
+        }
+    }
+
     let stats = SummaryStats::from_result(&result, total_enabled_rules, rules_breakdown);
 
     if result.files.is_empty() && !is_json {
