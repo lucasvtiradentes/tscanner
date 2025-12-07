@@ -92,8 +92,14 @@ function buildIssuesByRuleSection(params: IssuesViewParams): string {
   const { result, owner, repo, prNumber } = params;
   const { ruleGroupsByRule } = result;
 
+  console.log('[DEBUG] buildIssuesByRuleSection - ruleGroupsByRule count:', ruleGroupsByRule?.length ?? 'undefined');
+
   let content = '';
-  for (const group of ruleGroupsByRule) {
+  for (const group of ruleGroupsByRule ?? []) {
+    console.log(
+      '[DEBUG] group:',
+      JSON.stringify({ ruleName: group.ruleName, files: group.files?.length ?? 'undefined' }),
+    );
     if (!group.files?.length) continue;
 
     const badge = getSeverityBadge(group.severity);
@@ -134,9 +140,15 @@ ${innerContent}
 function buildIssuesByFileSection(params: IssuesViewParams): string {
   const { result, owner, repo, prNumber } = params;
 
+  console.log('[DEBUG] buildIssuesByFileSection - ruleGroups count:', result.ruleGroups?.length ?? 'undefined');
+
   const fileMap = new Map<string, Map<string, Array<{ line: number; column: number; lineText: string }>>>();
 
-  for (const group of result.ruleGroups) {
+  for (const group of result.ruleGroups ?? []) {
+    console.log(
+      '[DEBUG] group:',
+      JSON.stringify({ ruleName: group.ruleName, files: group.files?.length ?? 'undefined' }),
+    );
     if (!group.files?.length) continue;
 
     for (const file of group.files) {
