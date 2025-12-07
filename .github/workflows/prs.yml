@@ -47,6 +47,14 @@ jobs:
           cp packages/rust-core/target/release/tscanner packages/cli/npm/cli-linux-x64/tscanner
           chmod +x packages/cli/npm/cli-linux-x64/tscanner
 
+      - name: Setup Gemini CLI
+        run: npm install -g @google-gemini/gemini-cli
+
+      - name: Setup Gemini credentials
+        run: |
+          mkdir -p ~/.gemini
+          echo '${{ secrets.GEMINI_CREDENTIALS }}' > ~/.gemini/oauth_creds.json
+
       - name: Setup Claude CLI
         run: npm install -g @anthropic-ai/claude-code
 
