@@ -2,6 +2,47 @@ import { AiExecutionMode, type CliOutputByFile, type CliOutputByRule, type Group
 import { githubHelper, tmpLog } from '../lib/actions-helper';
 import { type CliExecutor, createDevModeExecutor, createProdModeExecutor } from './cli-executor';
 
+function logFormattedResults(byFile: CliOutputByFile, byRule: CliOutputByRule): void {
+  githubHelper.logInfo('Rules triggered:');
+  githubHelper.logInfo('');
+  for (const rule of byRule.rules) {
+    const firstMessage = rule.issues[0]?.message || '';
+    const truncatedMessage = firstMessage.length > 80 ? `${firstMessage.substring(0, 77)}...` : firstMessage;
+    githubHelper.logInfo(`  ${rule.rule.padEnd(25)}: ${truncatedMessage}`);
+  }
+  githubHelper.logInfo('');
+  githubHelper.logInfo('Issues grouped by file:');
+  githubHelper.logInfo('');
+  for (const file of byFile.files) {
+    const ruleCount = new Set(file.issues.map((i) => i.rule)).size;
+    githubHelper.logInfo(`${file.file} - ${file.issues.length} issues - ${ruleCount} rules`);
+    githubHelper.logInfo('');
+    const issuesByRule = new Map<string, typeof file.issues>();
+    for (const issue of file.issues) {
+      if (!issuesByRule.has(issue.rule)) {
+        issuesByRule.set(issue.rule, []);
+      }
+      issuesByRule.get(issue.rule)!.push(issue);
+    }
+    for (const [ruleName, issues] of issuesByRule) {
+      githubHelper.logInfo(`  ${ruleName} (${issues.length} issues)`);
+      for (const issue of issues) {
+        const severity = issue.severity === 'error' ? '✖' : '⚠';
+        const lineText = issue.line_text.length > 60 ? `${issue.line_text.substring(0, 57)}...` : issue.line_text;
+        githubHelper.logInfo(`    ${severity} ${issue.line}:${issue.column} -> ${lineText}`);
+      }
+      githubHelper.logInfo('');
+    }
+  }
+  githubHelper.logInfo('Check summary:');
+  githubHelper.logInfo('');
+  githubHelper.logInfo(
+    `  Issues: ${byFile.summary.total_issues} (${byFile.summary.errors} errors, ${byFile.summary.warnings} warnings)`,
+  );
+  githubHelper.logInfo(`  Files with issues: ${byFile.files.length}/${byFile.summary.total_files}`);
+  githubHelper.logInfo(`  Triggered rules: ${byRule.rules.length}/${byFile.summary.total_enabled_rules}`);
+}
+
 function deriveOutputByRule(byFile: CliOutputByFile): CliOutputByRule {
   const ruleMap = new Map<string, { count: number; issues: CliOutputByRule['rules'][0]['issues'] }>();
 
@@ -163,12 +204,9 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
   githubHelper.logInfo('');
   githubHelper.logInfo('📊 Scan Results:');
   githubHelper.logInfo('');
-  tmpLog('displayResults() starting');
-  const displayArgs = baseArgs
-    .map((arg) => (arg === '--format=json' ? '--format=pretty' : arg))
-    .filter((arg) => arg !== '--include-ai' && arg !== '--only-ai');
-  await executor.displayResults(displayArgs);
-  tmpLog('displayResults() done');
+  tmpLog('formatting results in TypeScript');
+  logFormattedResults(scanDataFile, scanDataRule);
+  tmpLog('formatting done');
 
   const fileGroups: Array<{ file: string; issues: Issue[]; severity: Severity }> = scanDataFile.files.map(
     (fileData) => ({
