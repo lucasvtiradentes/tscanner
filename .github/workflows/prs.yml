@@ -48,7 +48,7 @@ jobs:
           chmod +x packages/cli/npm/cli-linux-x64/tscanner
 
       - name: Setup Gemini CLI
-        run: npm install -g @google-gemini/gemini-cli
+        run: npm install -g @google/gemini-cli
 
       - name: Setup Gemini credentials
         run: |

@@ -342,7 +342,7 @@ jobs:
 
 1. **Local setup** - Run in your terminal:
 ```bash
-npm install -g @google-gemini/gemini-cli
+npm install -g @google/gemini-cli
 gemini  # Login with your Google account
 ```
 
@@ -364,7 +364,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Setup Gemini CLI
-        run: npm install -g @google-gemini/gemini-cli
+        run: npm install -g @google/gemini-cli
 
       - name: Setup Gemini credentials
         run: |
