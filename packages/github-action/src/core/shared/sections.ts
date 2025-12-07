@@ -94,18 +94,22 @@ function buildIssuesByRuleSection(params: IssuesViewParams): string {
 
   let content = '';
   for (const group of ruleGroupsByRule) {
+    if (!group.files?.length) continue;
+
     const badge = getSeverityBadge(group.severity);
     const summary = `${badge} <strong>${group.ruleName}</strong> - ${group.issueCount} ${pluralize(group.issueCount, 'issue')} - ${group.fileCount} ${pluralize(group.fileCount, 'file')}`;
 
     content += `<details>\n<summary>${summary}</summary>\n<br />\n\n`;
 
     for (const file of group.files) {
+      if (!file.issues?.length) continue;
+
       const fileIssueCount = file.issues.length;
       content += `<strong>${file.filePath}</strong> - ${fileIssueCount} ${pluralize(fileIssueCount, 'issue')}\n\n`;
 
       for (const issue of file.issues) {
         const fileUrl = buildPrFileUrl(owner, repo, prNumber, file.filePath, issue.line);
-        const lineText = issue.lineText?.trim() || '';
+        const lineText = issue.lineText?.trim() ?? '';
         content += `- <a href="${fileUrl}">${issue.line}:${issue.column}</a> - <code>${escapeHtml(lineText)}</code>\n`;
       }
 
@@ -133,13 +137,17 @@ function buildIssuesByFileSection(params: IssuesViewParams): string {
   const fileMap = new Map<string, Map<string, Array<{ line: number; column: number; lineText: string }>>>();
 
   for (const group of result.ruleGroups) {
+    if (!group.files?.length) continue;
+
     for (const file of group.files) {
+      if (!file.issues?.length) continue;
+
       if (!fileMap.has(file.filePath)) {
         fileMap.set(file.filePath, new Map());
       }
       const ruleMap = fileMap.get(file.filePath)!;
 
-      const ruleName = file.issues[0]?.ruleName || group.ruleName;
+      const ruleName = file.issues[0]?.ruleName ?? group.ruleName;
       if (!ruleMap.has(ruleName)) {
         ruleMap.set(ruleName, []);
       }

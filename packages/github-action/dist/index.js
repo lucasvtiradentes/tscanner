@@ -106,13 +106,13 @@ ${t}</table>`}
 
 </details>`;return`
 ${cA("center",n)}
-`}function vH(e){let{result:t,owner:A,repo:n,prNumber:r}=e,{ruleGroupsByRule:o}=t,i="";for(let c of o){let l=`${tS(c.severity)} <strong>${c.ruleName}</strong> - ${c.issueCount} ${hA(c.issueCount,"issue")} - ${c.fileCount} ${hA(c.fileCount,"file")}`;i+=`<details>
+`}function vH(e){let{result:t,owner:A,repo:n,prNumber:r}=e,{ruleGroupsByRule:o}=t,i="";for(let c of o){if(!c.files?.length)continue;let l=`${tS(c.severity)} <strong>${c.ruleName}</strong> - ${c.issueCount} ${hA(c.issueCount,"issue")} - ${c.fileCount} ${hA(c.fileCount,"file")}`;i+=`<details>
 <summary>${l}</summary>
 <br />
 
-`;for(let E of c.files){let d=E.issues.length;i+=`<strong>${E.filePath}</strong> - ${d} ${hA(d,"issue")}
+`;for(let E of c.files){if(!E.issues?.length)continue;let d=E.issues.length;i+=`<strong>${E.filePath}</strong> - ${d} ${hA(d,"issue")}
 
-`;for(let g of E.issues){let h=dI(A,n,r,E.filePath,g.line),p=g.lineText?.trim()||"";i+=`- <a href="${h}">${g.line}:${g.column}</a> - <code>${fI(p)}</code>
+`;for(let g of E.issues){let h=dI(A,n,r,E.filePath,g.line),p=g.lineText?.trim()??"";i+=`- <a href="${h}">${g.line}:${g.column}</a> - <code>${fI(p)}</code>
 `}i+=`
 `}i+=`</details>
 
@@ -123,7 +123,7 @@ ${cA("center",n)}
 ${s}
 </details>`;return`${cA("center",a)}
 
-`}function DH(e){let{result:t,owner:A,repo:n,prNumber:r}=e,o=new Map;for(let c of t.ruleGroups)for(let u of c.files){o.has(u.filePath)||o.set(u.filePath,new Map);let l=o.get(u.filePath),E=u.issues[0]?.ruleName||c.ruleName;l.has(E)||l.set(E,[]);for(let d of u.issues)l.get(E).push({line:d.line,column:d.column,lineText:d.lineText})}let i="";for(let[c,u]of o){let l=Array.from(u.values()).reduce((g,h)=>g+h.length,0),E=u.size,d=`<strong>${c}</strong> - ${l} ${hA(l,"issue")} - ${E} ${hA(E,"rule")}`;i+=`<details>
+`}function DH(e){let{result:t,owner:A,repo:n,prNumber:r}=e,o=new Map;for(let c of t.ruleGroups)if(c.files?.length)for(let u of c.files){if(!u.issues?.length)continue;o.has(u.filePath)||o.set(u.filePath,new Map);let l=o.get(u.filePath),E=u.issues[0]?.ruleName??c.ruleName;l.has(E)||l.set(E,[]);for(let d of u.issues)l.get(E).push({line:d.line,column:d.column,lineText:d.lineText})}let i="";for(let[c,u]of o){let l=Array.from(u.values()).reduce((g,h)=>g+h.length,0),E=u.size,d=`<strong>${c}</strong> - ${l} ${hA(l,"issue")} - ${E} ${hA(E,"rule")}`;i+=`<details>
 <summary>${d}</summary>
 <br />
 
