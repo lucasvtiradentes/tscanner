@@ -2,6 +2,39 @@ import { AiExecutionMode, type CliOutputByFile, type CliOutputByRule, type Group
 import { githubHelper, tmpLog } from '../lib/actions-helper';
 import { type CliExecutor, createDevModeExecutor, createProdModeExecutor } from './cli-executor';
 
+function deriveOutputByRule(byFile: CliOutputByFile): CliOutputByRule {
+  const ruleMap = new Map<string, { count: number; issues: CliOutputByRule['rules'][0]['issues'] }>();
+
+  for (const fileEntry of byFile.files) {
+    for (const issue of fileEntry.issues) {
+      if (!ruleMap.has(issue.rule)) {
+        ruleMap.set(issue.rule, { count: 0, issues: [] });
+      }
+      const ruleData = ruleMap.get(issue.rule)!;
+      ruleData.count++;
+      ruleData.issues.push({
+        file: fileEntry.file,
+        line: issue.line,
+        column: issue.column,
+        message: issue.message,
+        severity: issue.severity,
+        line_text: issue.line_text,
+      });
+    }
+  }
+
+  const rules: CliOutputByRule['rules'] = Array.from(ruleMap.entries()).map(([rule, data]) => ({
+    rule,
+    count: data.count,
+    issues: data.issues,
+  }));
+
+  return {
+    rules,
+    summary: byFile.summary,
+  };
+}
+
 export type ActionScanResult = {
   totalIssues: number;
   totalErrors: number;
@@ -85,12 +118,11 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
     configPath,
     ...(targetBranch ? ['--branch', targetBranch] : []),
     ...getAiModeArgs(aiMode),
+    '--group-by=file',
   ];
-  const argsFile = [...baseArgs, '--group-by=file'];
-  const argsRule = [...baseArgs, '--group-by=rule'];
 
-  tmpLog('starting CLI execution (parallel)');
-  const [scanOutputFile, scanOutputRule] = await Promise.all([executor.execute(argsFile), executor.execute(argsRule)]);
+  tmpLog('starting CLI execution (single run)');
+  const scanOutputFile = await executor.execute(baseArgs);
   tmpLog('CLI execution done');
 
   let scanDataFile: CliOutputByFile;
@@ -98,7 +130,8 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
 
   try {
     scanDataFile = JSON.parse(scanOutputFile) as CliOutputByFile;
-    scanDataRule = JSON.parse(scanOutputRule) as CliOutputByRule;
+    tmpLog('deriving ByRule from ByFile');
+    scanDataRule = deriveOutputByRule(scanDataFile);
   } catch (err) {
     githubHelper.logError(`Failed to parse scan output: ${err instanceof Error ? err.message : String(err)}`);
     githubHelper.logDebug(`Raw output: ${scanOutputFile.substring(0, 500)}`);
@@ -131,7 +164,10 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
   githubHelper.logInfo('📊 Scan Results:');
   githubHelper.logInfo('');
   tmpLog('displayResults() starting');
-  await executor.displayResults(argsFile.map((arg) => (arg === '--format=json' ? '--format=pretty' : arg)));
+  const displayArgs = baseArgs
+    .map((arg) => (arg === '--format=json' ? '--format=pretty' : arg))
+    .filter((arg) => arg !== '--include-ai' && arg !== '--only-ai');
+  await executor.displayResults(displayArgs);
   tmpLog('displayResults() done');
 
   const fileGroups: Array<{ file: string; issues: Issue[]; severity: Severity }> = scanDataFile.files.map(
