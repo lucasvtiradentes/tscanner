@@ -1067,15 +1067,33 @@ Run custom scripts that receive file data via stdin and output issues as JSON:
 **Script** (`.tscanner/scripts/no-debug-comments.ts`):
 ```typescript
 #!/usr/bin/env npx tsx
+
 import { stdin } from 'node:process';
 
-type ScriptFile = { path: string; content: string; lines: string[] };
-type ScriptInput = { files: ScriptFile[]; options?: Record<string, unknown>; workspaceRoot: string };
-type ScriptIssue = { file: string; line: number; column?: number; message: string };
+type ScriptFile = {
+  path: string;
+  content: string;
+  lines: string[];
+};
+
+type ScriptInput = {
+  files: ScriptFile[];
+  options?: Record<string, unknown>;
+  workspaceRoot: string;
+};
+
+type ScriptIssue = {
+  file: string;
+  line: number;
+  column?: number;
+  message: string;
+};
 
 async function main() {
   let data = '';
-  for await (const chunk of stdin) data += chunk;
+  for await (const chunk of stdin) {
+    data += chunk;
+  }
 
   const input: ScriptInput = JSON.parse(data);
   const issues: ScriptIssue[] = [];
@@ -1087,7 +1105,7 @@ async function main() {
         issues.push({
           file: file.path,
           line: i + 1,
-          message: \`Debug comment found: "${line.trim().substring(0, 50)}"\`,
+          message: `Debug comment found: "${line.trim().substring(0, 50)}"`,
         });
       }
     }
@@ -1096,7 +1114,10 @@ async function main() {
   console.log(JSON.stringify({ issues }));
 }
 
-main().catch((err) => { console.error(err); process.exit(1); });
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
 ```
 
 > 💡 See a real example in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.

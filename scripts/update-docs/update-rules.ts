@@ -1,3 +1,4 @@
+import fs from 'node:fs';
 import path from 'node:path';
 import { DynMarkdown, MarkdownTable, type TRowContent, getJson } from 'markdown-helper';
 import { PACKAGE_DISPLAY_NAME } from 'tscanner-common';
@@ -177,6 +178,11 @@ Customize ${PACKAGE_DISPLAY_NAME} to validate what matters to your project while
 
 `;
 
+  const scriptRuleExample = fs
+    .readFileSync(path.join(rootDir, 'assets/configs/script-rule-example.ts'), 'utf-8')
+    .trim();
+  const aiRuleExample = fs.readFileSync(path.join(rootDir, 'assets/configs/ai-rule-example.md'), 'utf-8').trim();
+
   const customRulesContent = `<details>
 <summary>Regex rules examples</summary>
 <br />
@@ -234,37 +240,7 @@ Run custom scripts that receive file data via stdin and output issues as JSON:
 
 **Script** (\`.tscanner/scripts/no-debug-comments.ts\`):
 \`\`\`typescript
-#!/usr/bin/env npx tsx
-import { stdin } from 'node:process';
-
-type ScriptFile = { path: string; content: string; lines: string[] };
-type ScriptInput = { files: ScriptFile[]; options?: Record<string, unknown>; workspaceRoot: string };
-type ScriptIssue = { file: string; line: number; column?: number; message: string };
-
-async function main() {
-  let data = '';
-  for await (const chunk of stdin) data += chunk;
-
-  const input: ScriptInput = JSON.parse(data);
-  const issues: ScriptIssue[] = [];
-
-  for (const file of input.files) {
-    for (let i = 0; i < file.lines.length; i++) {
-      const line = file.lines[i];
-      if (/\\/\\/\\s*(DEBUG|HACK|XXX|TEMP)\\b/i.test(line)) {
-        issues.push({
-          file: file.path,
-          line: i + 1,
-          message: \\\`Debug comment found: "\${line.trim().substring(0, 50)}"\\\`,
-        });
-      }
-    }
-  }
-
-  console.log(JSON.stringify({ issues }));
-}
-
-main().catch((err) => { console.error(err); process.exit(1); });
+${scriptRuleExample}
 \`\`\`
 
 > 💡 See a real example in the [\`.tscanner/\`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
@@ -300,25 +276,7 @@ Use AI prompts to perform semantic code analysis:
 
 **Prompt** (\`.tscanner/prompts/find-complexity.md\`):
 \`\`\`markdown
-# Find Complex Functions
-
-Analyze the provided code and identify functions that are overly complex.
-
-## What to look for
-
-1. Functions with high cyclomatic complexity (many branches/loops)
-2. Deeply nested code blocks (3+ levels)
-3. Functions doing too many things (violating single responsibility)
-4. Long parameter lists that should be objects
-
-## Output format
-
-Report each complex function with:
-- The function name
-- Why it's complex
-- A brief suggestion for improvement
-
-{{FILES}}
+${aiRuleExample}
 \`\`\`
 
 > 💡 See a real example in the [\`.tscanner/\`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
