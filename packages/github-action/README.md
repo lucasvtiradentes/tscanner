@@ -144,61 +144,46 @@ jobs:
 
 ## 📖 Usage<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-### Scan Modes
-
-<div align="center">
-<table>
-  <tr>
-    <th>Full Codebase</th>
-    <th>Changed Files Only (Recommended)</th>
-  </tr>
-  <tr>
-    <td>Scan all files in the repository</td>
-    <td>Scan only files changed in the PR</td>
-  </tr>
-  <tr>
-    <td>
-
-```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.25
-  with:
-    github-token: ${{ secrets.GITHUB_TOKEN }}
-```
-
-</td>
-    <td>
-
-```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.25
-  with:
-    github-token: ${{ secrets.GITHUB_TOKEN }}
-    target-branch: 'origin/main'
-```
-
-</td>
-  </tr>
-</table>
-</div>
-
 ### Inputs
 
 | Input | Required | Default | Description |
 |-------|----------|---------|-------------|
-| `github-token` | Yes | - | GitHub token for posting PR comments (`${{ secrets.GITHUB_TOKEN }}`) |
-| `target-branch` | - | - | Target branch to compare (enables branch mode). Example: `origin/main` |
-| `config-path` | - | `.tscanner` | Path to tscanner config directory containing `config.json` |
-| `tscanner-version` | - | `latest` | NPM version of tscanner CLI to install |
-| `group-by` | - | `file` | Primary grouping mode: `file` or `rule` |
-| `continue-on-error` | - | `false` | Continue workflow even if errors found (`true`/`false`) |
-| `timezone` | - | `UTC` | Timezone for timestamps in PR comments. Example: `America/New_York` |
-| `annotations` | - | `true` | Add GitHub annotations inline in PR diff |
+| `github-token` | Yes | - | GitHub token for posting PR comments |
+| `target-branch` | - | - | Branch to compare (enables diff mode). Example: `origin/main` |
+| `config-path` | - | `.tscanner` | Path to tscanner config directory |
+| `tscanner-version` | - | `latest` | NPM version of tscanner CLI |
+| `group-by` | - | `file` | Grouping mode: `file` or `rule` |
+| `continue-on-error` | - | `false` | Continue workflow even if errors found |
+| `timezone` | - | `UTC` | Timezone for PR comment timestamps |
+| `annotations` | - | `true` | Add inline annotations in PR diff |
 | `summary` | - | `true` | Write results to GitHub Step Summary |
 
 ### Permissions
 
-To enable annotations on **all lines** (not just changed lines), add the `checks: write` permission:
+For annotations on **all lines** (not just changed lines), add `checks: write`:
 
 ```yaml
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+```
+
+Without it, annotations only appear on lines in the PR diff (GitHub limitation).
+
+### Scan Modes
+
+| Mode | When to use | Config |
+|------|-------------|--------|
+| **Changed files** | Recommended for PRs | `target-branch: 'origin/main'` |
+| **Full codebase** | Audit entire repo | Omit `target-branch` |
+
+### Full Configuration
+
+```yaml
+name: Code Quality
+on: [pull_request]
+
 jobs:
   tscanner:
     runs-on: ubuntu-latest
@@ -208,127 +193,28 @@ jobs:
       checks: write
     steps:
       - uses: actions/checkout@v4
+
+      # Optional: cache for faster runs
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
       - uses: lucasvtiradentes/tscanner-action@v0.0.25
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          target-branch: 'origin/main'        # omit to scan full codebase
+          config-path: '.tscanner'
+          tscanner-version: 'latest'
+          group-by: 'file'                    # or 'rule'
+          continue-on-error: 'false'
+          timezone: 'UTC'
+          annotations: 'true'
+          summary: 'true'
 ```
-
-Without `checks: write`, annotations will only appear on lines that are part of the PR diff (GitHub limitation).
-
-### Examples
-
-<details>
-<summary><b>Continue on Errors</b></summary>
-
-Scan but don't fail the workflow:
-
-```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.25
-  with:
-    github-token: ${{ secrets.GITHUB_TOKEN }}
-    continue-on-error: 'true'
-```
-
-</details>
-
-<details>
-<summary><b>Group by Rule</b></summary>
-
-Primary grouping by rule instead of file:
-
-```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.25
-  with:
-    github-token: ${{ secrets.GITHUB_TOKEN }}
-    group-by: 'rule'
-```
-
-</details>
-
-<details>
-<summary><b>Custom Config Path</b></summary>
-
-Use non-standard config location:
-
-```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.25
-  with:
-    github-token: ${{ secrets.GITHUB_TOKEN }}
-    config-path: 'config/tscanner'
-```
-
-</details>
-
-<details>
-<summary><b>Specific tscanner Version</b></summary>
-
-Pin to exact CLI version:
-
-```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.25
-  with:
-    github-token: ${{ secrets.GITHUB_TOKEN }}
-    tscanner-version: '0.1.5'
-```
-
-</details>
-
-<details>
-<summary><b>Disable Annotations</b></summary>
-
-Skip inline annotations in PR diff:
-
-```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.25
-  with:
-    github-token: ${{ secrets.GITHUB_TOKEN }}
-    annotations: 'false'
-```
-
-</details>
-
-<details>
-<summary><b>With Cache (Faster Runs)</b></summary>
-
-Cache pnpm store for faster subsequent runs:
-
-```yaml
-- uses: pnpm/action-setup@v4
-  with:
-    version: 9
-
-- uses: actions/setup-node@v4
-  with:
-    node-version: '20'
-    cache: 'pnpm'
-
-- uses: lucasvtiradentes/tscanner-action@v0.0.25
-  with:
-    github-token: ${{ secrets.GITHUB_TOKEN }}
-```
-
-</details>
-
-<details>
-<summary><b>Full Configuration</b></summary>
-
-All options:
-
-```yaml
-- uses: lucasvtiradentes/tscanner-action@v0.0.25
-  with:
-    github-token: ${{ secrets.GITHUB_TOKEN }}
-    target-branch: 'origin/develop'
-    timezone: 'America/Sao_Paulo'
-    config-path: '.tscanner'
-    tscanner-version: 'latest'
-    continue-on-error: 'false'
-    group-by: 'rule'
-    annotations: 'true'
-    summary: 'true'
-```
-
-</details>
 
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
 ## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
