@@ -4,8 +4,8 @@ import { githubHelper } from '../../lib/actions-helper';
 export function logFormattedResults(byFile: CliOutputByFile, byRule: CliOutputByRule): void {
   githubHelper.logInfo('Rules triggered:');
   githubHelper.logInfo('');
-  for (const rule of byRule.rules) {
-    const firstMessage = rule.issues[0]?.message || '';
+  for (const rule of byRule.rules ?? []) {
+    const firstMessage = rule.issues?.[0]?.message ?? '';
     const truncatedMessage = firstMessage.length > 80 ? `${firstMessage.substring(0, 77)}...` : firstMessage;
     githubHelper.logInfo(`  ${rule.rule.padEnd(25)}: ${truncatedMessage}`);
   }
@@ -27,7 +27,8 @@ export function logFormattedResults(byFile: CliOutputByFile, byRule: CliOutputBy
       githubHelper.logInfo(`  ${ruleName} (${issues.length} issues)`);
       for (const issue of issues) {
         const severity = issue.severity === 'error' ? '✖' : '⚠';
-        const lineText = issue.line_text.length > 60 ? `${issue.line_text.substring(0, 57)}...` : issue.line_text;
+        const rawLineText = issue.line_text ?? '';
+        const lineText = rawLineText.length > 60 ? `${rawLineText.substring(0, 57)}...` : rawLineText;
         githubHelper.logInfo(`    ${severity} ${issue.line}:${issue.column} -> ${lineText}`);
       }
       githubHelper.logInfo('');
