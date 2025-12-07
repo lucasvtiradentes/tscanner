@@ -339,8 +339,13 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 2. **VSCode Extension**: TScanner icon in the status bar → `Manage Rules` → Select desired rules → `Save`
 3. **Manual**: Copy the default config below to `.tscanner/config.jsonc`
 
+<div align="center">
 <details>
 <summary><strong>Default configuration</strong></summary>
+
+<br/>
+
+<div align="left">
 
 ```json
 {
@@ -390,7 +395,57 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 }
 ```
 
+</div>
 </details>
+
+<details>
+<summary><strong>Additional info about configuration</strong></summary>
+
+<br/>
+
+<div align="left">
+
+All configuration fields are **optional** with sensible defaults. The minimum required config is just enabling the rules you want:
+
+```json
+{
+  "rules": {
+    "builtin": {
+      "no-explicit-any": {}
+    }
+  }
+}
+```
+
+With this minimal config, TScanner will scan all `.ts/.tsx/.js/.jsx/.mjs/.cjs` files, excluding `node_modules/`, `dist/`, `build/`, and `.git/` directories.
+
+**Understanding `files.include` and `files.exclude`:**
+
+- `files.include`: Glob patterns for files to scan (default: `["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"]`)
+- `files.exclude`: Glob patterns for files/folders to ignore (default: `["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]`)
+
+Example with per-rule file patterns:
+
+```json
+{
+  "rules": {
+    "builtin": {
+      "no-explicit-any": {},
+      "no-console": {
+        "exclude": ["src/utils/logger.ts"]
+      },
+      "max-function-length": {
+        "include": ["src/core/**/*.ts"]
+      }
+    }
+  }
+}
+```
+
+This config:
+- Runs `no-explicit-any` on all files (uses global `files` patterns)
+- Runs `no-console` on all files except `src/utils/logger.ts`
+- Runs `max-function-length` only on files inside `src/core/`
 
 **Inline Disables:**
 
@@ -402,50 +457,10 @@ const data: any = fetchData();
 // Entire file is skipped
 ```
 
-<details>
-<summary><strong>Additional info about configuration</strong></summary>
-
-<br/>
-
-All configuration fields are **optional** with sensible defaults. The minimum required config is just enabling the rules you want:
-
-```json
-{
-  "builtinRules": {
-    "no-explicit-any": {}
-  }
-}
-```
-
-With this minimal config, TScanner will scan all `.ts/.tsx/.js/.jsx/.mjs/.cjs` files, excluding `node_modules/`, `dist/`, `build/`, and `.git/` directories.
-
-**Understanding `files.include` and `files.exclude`:**
-
-- `files.include`: Glob patterns for files to scan (default: `["**/*.{ts,tsx,js,jsx,mjs,cjs}"]`)
-- `files.exclude`: Glob patterns for files/folders to ignore (default: `["node_modules/**", "dist/**", "build/**", ".git/**"]`)
-
-Example with per-rule file patterns:
-
-```json
-{
-  "builtinRules": {
-    "no-explicit-any": {},
-    "no-console": {
-      "exclude": ["src/utils/logger.ts"]
-    },
-    "max-function-length": {
-      "include": ["src/core/**/*.ts"]
-    }
-  }
-}
-```
-
-This config:
-- Runs `no-explicit-any` on all files (uses global `files` patterns)
-- Runs `no-console` on all files except `src/utils/logger.ts`
-- Runs `max-function-length` only on files inside `src/core/`
-
+</div>
 </details>
+
+</div>
 <!-- </DYNFIELD:COMMON_SECTION_CONFIG> -->
 
 <!-- <DYNFIELD:RULES> -->
@@ -818,22 +833,28 @@ Customize TScanner to validate what matters to your project while maintaining co
 
 Define patterns to match in your code using regular expressions:
 
+**Config** (`.tscanner/config.jsonc`):
 ```json
 {
-  "customRules": {
-    "no-todos": {
-      "type": "regex",
-      "pattern": "TODO:|FIXME:",
-      "message": "Remove TODO comments before merging"
-    },
-    "no-debug-logs": {
-      "type": "regex",
-      "pattern": "console\\.(log|debug|info)",
-      "message": "Remove debug statements"
+  "rules": {
+    "regex": {
+      "no-todos": {
+        "pattern": "TODO:|FIXME:",
+        "message": "Remove TODO comments before merging",
+        "severity": "warning"
+      },
+      "no-debug-logs": {
+        "pattern": "console\\.(log|debug|info)",
+        "message": "Remove debug statements",
+        "severity": "warning",
+        "exclude": ["**/*.test.ts"]
+      }
     }
   }
 }
 ```
+
+> 💡 See a real example in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
 
 </div>
 </details>
@@ -843,7 +864,59 @@ Define patterns to match in your code using regular expressions:
 <br />
 <div align="left">
 
-Soon!
+Run custom scripts that receive file data via stdin and output issues as JSON:
+
+**Config** (`.tscanner/config.jsonc`):
+```json
+{
+  "rules": {
+    "script": {
+      "no-debug-comments": {
+        "command": "npx tsx .tscanner/scripts/no-debug-comments.ts",
+        "message": "Debug comments should be removed",
+        "severity": "warning"
+      }
+    }
+  }
+}
+```
+
+**Script** (`.tscanner/scripts/no-debug-comments.ts`):
+```typescript
+#!/usr/bin/env npx tsx
+import { stdin } from 'node:process';
+
+type ScriptFile = { path: string; content: string; lines: string[] };
+type ScriptInput = { files: ScriptFile[]; options?: Record<string, unknown>; workspaceRoot: string };
+type ScriptIssue = { file: string; line: number; column?: number; message: string };
+
+async function main() {
+  let data = '';
+  for await (const chunk of stdin) data += chunk;
+
+  const input: ScriptInput = JSON.parse(data);
+  const issues: ScriptIssue[] = [];
+
+  for (const file of input.files) {
+    for (let i = 0; i < file.lines.length; i++) {
+      const line = file.lines[i];
+      if (/\/\/\s*(DEBUG|HACK|XXX|TEMP)\b/i.test(line)) {
+        issues.push({
+          file: file.path,
+          line: i + 1,
+          message: \`Debug comment found: "${line.trim().substring(0, 50)}"\`,
+        });
+      }
+    }
+  }
+
+  console.log(JSON.stringify({ issues }));
+}
+
+main().catch((err) => { console.error(err); process.exit(1); });
+```
+
+> 💡 See a real example in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
 
 </div>
 </details>
@@ -853,7 +926,51 @@ Soon!
 <br />
 <div align="left">
 
-Soon!
+Use AI prompts to perform semantic code analysis:
+
+**Config** (`.tscanner/config.jsonc`):
+```json
+{
+  "aiRules": {
+    "find-complexity": {
+      "prompt": "find-complexity.md",
+      "mode": "content",
+      "message": "Function is too complex, consider refactoring",
+      "severity": "warning",
+      "enabled": true
+    }
+  },
+  "ai": {
+    "provider": "claude",
+    "timeout": 120000
+  }
+}
+```
+
+**Prompt** (`.tscanner/prompts/find-complexity.md`):
+```markdown
+# Find Complex Functions
+
+Analyze the provided code and identify functions that are overly complex.
+
+## What to look for
+
+1. Functions with high cyclomatic complexity (many branches/loops)
+2. Deeply nested code blocks (3+ levels)
+3. Functions doing too many things (violating single responsibility)
+4. Long parameter lists that should be objects
+
+## Output format
+
+Report each complex function with:
+- The function name
+- Why it's complex
+- A brief suggestion for improvement
+
+{{FILES}}
+```
+
+> 💡 See a real example in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
 
 </div>
 </details>
