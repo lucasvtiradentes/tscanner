@@ -1,5 +1,5 @@
 import { AiExecutionMode, type CliOutputByFile, type CliOutputByRule, type GroupMode, Severity } from 'tscanner-common';
-import { githubHelper, tmpLog } from '../lib/actions-helper';
+import { githubHelper } from '../lib/actions-helper';
 import { type CliExecutor, createDevModeExecutor, createProdModeExecutor } from './cli-executor';
 
 function logFormattedResults(byFile: CliOutputByFile, byRule: CliOutputByRule): void {
@@ -142,14 +142,11 @@ function getAiModeLabel(aiMode: AiExecutionMode): string {
 }
 
 export async function scanChangedFiles(options: ScanOptions): Promise<ActionScanResult> {
-  tmpLog('scanChangedFiles() started');
   const { targetBranch, devMode, tscannerVersion, groupBy, configPath, aiMode } = options;
   const scanMode = targetBranch ? `changed files vs ${targetBranch}` : 'entire codebase';
   githubHelper.logInfo(`Scanning [${scanMode}] group by: [${groupBy}]${getAiModeLabel(aiMode)}`);
 
-  tmpLog(`creating executor (devMode=${devMode})`);
   const executor: CliExecutor = devMode ? createDevModeExecutor() : createProdModeExecutor(tscannerVersion);
-  tmpLog('executor created');
 
   const baseArgs = [
     'check',
@@ -162,16 +159,13 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
     '--group-by=file',
   ];
 
-  tmpLog('starting CLI execution (single run)');
   const scanOutputFile = await executor.execute(baseArgs);
-  tmpLog('CLI execution done');
 
   let scanDataFile: CliOutputByFile;
   let scanDataRule: CliOutputByRule;
 
   try {
     scanDataFile = JSON.parse(scanOutputFile) as CliOutputByFile;
-    tmpLog('deriving ByRule from ByFile');
     scanDataRule = deriveOutputByRule(scanDataFile);
   } catch (err) {
     githubHelper.logError(`Failed to parse scan output: ${err instanceof Error ? err.message : String(err)}`);
@@ -180,13 +174,11 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
   }
 
   githubHelper.logInfo(`Scan completed: ${scanDataFile.summary?.total_issues || 0} issues found`);
-  tmpLog('JSON parsing done');
 
   const hasIssues = scanDataFile.files.length > 0;
 
   if (!hasIssues) {
     githubHelper.logInfo('No issues found');
-    tmpLog('scanChangedFiles() returning (no issues)');
     return {
       totalIssues: 0,
       totalErrors: 0,
@@ -204,9 +196,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
   githubHelper.logInfo('');
   githubHelper.logInfo('📊 Scan Results:');
   githubHelper.logInfo('');
-  tmpLog('formatting results in TypeScript');
   logFormattedResults(scanDataFile, scanDataRule);
-  tmpLog('formatting done');
 
   const fileGroups: Array<{ file: string; issues: Issue[]; severity: Severity }> = scanDataFile.files.map(
     (fileData) => ({
@@ -280,7 +270,6 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
     return b.issueCount - a.issueCount;
   });
 
-  tmpLog('scanChangedFiles() returning');
   return {
     totalIssues: scanDataFile.summary.total_issues,
     totalErrors: scanDataFile.summary.errors,

@@ -4,19 +4,16 @@ import { updateOrCreateComment } from './core/comment-updater';
 import { type ActionInputs, getActionInputs } from './core/input-validator';
 import { type ActionScanResult, type ScanOptions, scanChangedFiles } from './core/scanner';
 import { writeSummary } from './core/summary-writer';
-import { type Octokit, githubHelper, tmpLog } from './lib/actions-helper';
+import { type Octokit, githubHelper } from './lib/actions-helper';
 import { validateConfigFiles } from './utils/config-validator';
 import { formatTimestamp } from './utils/format-timestamp';
 
 class ActionRunner {
   async run() {
     try {
-      tmpLog('ActionRunner.run() started');
       const inputs = getActionInputs();
-      tmpLog('getActionInputs() done');
 
       validateConfigFiles(inputs.configPath);
-      tmpLog('validateConfigFiles() done');
 
       if (inputs.mode === ScanMode.Branch) {
         const prInfo = githubHelper.getContext().payload.pull_request;
@@ -27,26 +24,19 @@ class ActionRunner {
         }
       }
 
-      tmpLog('executeScan() starting');
       const scanResults = await this.executeScan(inputs);
-      tmpLog(`executeScan() done - ${scanResults.totalIssues} issues found`);
 
       const octokit = githubHelper.getOctokit(inputs.githubToken);
 
       if (inputs.prComment) {
-        tmpLog('handlePRComment() starting');
         await this.handlePRComment(inputs, octokit, scanResults);
-        tmpLog('handlePRComment() done');
       }
 
       if (inputs.annotations && scanResults.totalIssues > 0) {
-        tmpLog('writeAnnotations() starting');
         await writeAnnotations(octokit, scanResults);
-        tmpLog('writeAnnotations() done');
       }
 
       if (inputs.summary) {
-        tmpLog('writeSummary() starting');
         const context = githubHelper.getContext();
         const prInfo = context.payload.pull_request;
         const { owner, repo } = context.repo;
@@ -67,11 +57,9 @@ class ActionRunner {
           commitMessage,
           timestamp,
         });
-        tmpLog('writeSummary() done');
       }
 
       this.handleScanResults(scanResults, inputs);
-      tmpLog('ActionRunner.run() completed');
     } catch (error) {
       const errorData = {
         message: error instanceof Error ? error.message : String(error),
