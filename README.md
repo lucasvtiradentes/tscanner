@@ -4,7 +4,7 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-rules">Rules</a><br /><a href="#-configuration">Configuration</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-configuration">Configuration</a><br /><a href="#-rules">Rules</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
 </div>
 
 <div width="100%" align="center">
@@ -194,6 +194,139 @@ jobs:
 2. Open a PR to see it in action
 <!-- </DYNFIELD:QUICK_START_GITHUB_ACTION> -->
 
+
+<!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
+## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+
+To scan your code, you need to set up the rules in the TScanner config folder. Here's how to get started:
+
+1. **CLI**: Run `tscanner init` in your project root (**Recommended**)
+2. **VSCode Extension**: TScanner icon in the status bar → `Manage Rules` → Select desired rules → `Save`
+3. **Manual**: Copy the default config below to `.tscanner/config.jsonc`
+
+<div align="center">
+<details>
+<summary><strong>Default configuration</strong></summary>
+
+<br/>
+
+<div align="left">
+
+```json
+{
+  "$schema": "https://unpkg.com/tscanner@0.0.28/schema.json",
+  "rules": {
+    "builtin": {
+      "no-explicit-any": {}
+    },
+    "regex": {},
+    "script": {}
+  },
+  "aiRules": {},
+  "ai": {},
+  "files": {
+    "include": [
+      "**/*.ts",
+      "**/*.tsx",
+      "**/*.js",
+      "**/*.jsx",
+      "**/*.mjs",
+      "**/*.cjs"
+    ],
+    "exclude": [
+      "**/node_modules/**",
+      "**/dist/**",
+      "**/build/**",
+      "**/.git/**"
+    ]
+  },
+  "codeEditor": {
+    "highlightErrors": true,
+    "highlightWarnings": false,
+    "scanIntervalSeconds": 0,
+    "aiScanIntervalSeconds": 0
+  },
+  "cli": {
+    "groupBy": "file",
+    "aiMode": "ignore",
+    "noCache": false,
+    "showSettings": true,
+    "showIssueSeverity": true,
+    "showIssueSourceLine": true,
+    "showIssueRuleName": true,
+    "showIssueDescription": false,
+    "showSummary": true
+  }
+}
+```
+
+</div>
+</details>
+
+<details>
+<summary><strong>Additional info about configuration</strong></summary>
+
+<br/>
+
+<div align="left">
+
+All configuration fields are **optional** with sensible defaults. The minimum required config is just enabling the rules you want:
+
+```json
+{
+  "rules": {
+    "builtin": {
+      "no-explicit-any": {}
+    }
+  }
+}
+```
+
+With this minimal config, TScanner will scan all `.ts/.tsx/.js/.jsx/.mjs/.cjs` files, excluding `node_modules/`, `dist/`, `build/`, and `.git/` directories.
+
+**Understanding `files.include` and `files.exclude`:**
+
+- `files.include`: Glob patterns for files to scan (default: `["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"]`)
+- `files.exclude`: Glob patterns for files/folders to ignore (default: `["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]`)
+
+Example with per-rule file patterns:
+
+```json
+{
+  "rules": {
+    "builtin": {
+      "no-explicit-any": {},
+      "no-console": {
+        "exclude": ["src/utils/logger.ts"]
+      },
+      "max-function-length": {
+        "include": ["src/core/**/*.ts"]
+      }
+    }
+  }
+}
+```
+
+This config:
+- Runs `no-explicit-any` on all files (uses global `files` patterns)
+- Runs `no-console` on all files except `src/utils/logger.ts`
+- Runs `max-function-length` only on files inside `src/core/`
+
+**Inline Disables:**
+
+```typescript
+// tscanner-ignore-next-line no-explicit-any
+const data: any = fetchData();
+
+// tscanner-ignore
+// Entire file is skipped
+```
+
+</div>
+</details>
+
+</div>
+<!-- </DYNFIELD:COMMON_SECTION_CONFIG> -->
 
 <!-- <DYNFIELD:RULES> -->
 ## 📋 Rules<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
@@ -709,140 +842,6 @@ Report each complex function with:
 
 </div>
 <!-- </DYNFIELD:RULES> -->
-
-
-<!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
-## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
-
-To scan your code, you need to set up the rules in the TScanner config folder. Here's how to get started:
-
-1. **CLI**: Run `tscanner init` in your project root (**Recommended**)
-2. **VSCode Extension**: TScanner icon in the status bar → `Manage Rules` → Select desired rules → `Save`
-3. **Manual**: Copy the default config below to `.tscanner/config.jsonc`
-
-<div align="center">
-<details>
-<summary><strong>Default configuration</strong></summary>
-
-<br/>
-
-<div align="left">
-
-```json
-{
-  "$schema": "https://unpkg.com/tscanner@0.0.28/schema.json",
-  "rules": {
-    "builtin": {
-      "no-explicit-any": {}
-    },
-    "regex": {},
-    "script": {}
-  },
-  "aiRules": {},
-  "ai": {},
-  "files": {
-    "include": [
-      "**/*.ts",
-      "**/*.tsx",
-      "**/*.js",
-      "**/*.jsx",
-      "**/*.mjs",
-      "**/*.cjs"
-    ],
-    "exclude": [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/build/**",
-      "**/.git/**"
-    ]
-  },
-  "codeEditor": {
-    "highlightErrors": true,
-    "highlightWarnings": false,
-    "scanIntervalSeconds": 0,
-    "aiScanIntervalSeconds": 0
-  },
-  "cli": {
-    "groupBy": "file",
-    "aiMode": "ignore",
-    "noCache": false,
-    "showSettings": true,
-    "showIssueSeverity": true,
-    "showIssueSourceLine": true,
-    "showIssueRuleName": true,
-    "showIssueDescription": false,
-    "showSummary": true
-  }
-}
-```
-
-</div>
-</details>
-
-<details>
-<summary><strong>Additional info about configuration</strong></summary>
-
-<br/>
-
-<div align="left">
-
-All configuration fields are **optional** with sensible defaults. The minimum required config is just enabling the rules you want:
-
-```json
-{
-  "rules": {
-    "builtin": {
-      "no-explicit-any": {}
-    }
-  }
-}
-```
-
-With this minimal config, TScanner will scan all `.ts/.tsx/.js/.jsx/.mjs/.cjs` files, excluding `node_modules/`, `dist/`, `build/`, and `.git/` directories.
-
-**Understanding `files.include` and `files.exclude`:**
-
-- `files.include`: Glob patterns for files to scan (default: `["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"]`)
-- `files.exclude`: Glob patterns for files/folders to ignore (default: `["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]`)
-
-Example with per-rule file patterns:
-
-```json
-{
-  "rules": {
-    "builtin": {
-      "no-explicit-any": {},
-      "no-console": {
-        "exclude": ["src/utils/logger.ts"]
-      },
-      "max-function-length": {
-        "include": ["src/core/**/*.ts"]
-      }
-    }
-  }
-}
-```
-
-This config:
-- Runs `no-explicit-any` on all files (uses global `files` patterns)
-- Runs `no-console` on all files except `src/utils/logger.ts`
-- Runs `max-function-length` only on files inside `src/core/`
-
-**Inline Disables:**
-
-```typescript
-// tscanner-ignore-next-line no-explicit-any
-const data: any = fetchData();
-
-// tscanner-ignore
-// Entire file is skipped
-```
-
-</div>
-</details>
-
-</div>
-<!-- </DYNFIELD:COMMON_SECTION_CONFIG> -->
 
 <!-- <DYNFIELD:INSPIRATIONS> -->
 ## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
