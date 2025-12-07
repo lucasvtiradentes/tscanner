@@ -4,8 +4,8 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner - CLI</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-usage">Usage</a> • <a href="#-configuration">Configuration</a><br />
-  <a href="#-use-cases">Use Cases</a> • <a href="#-rules">Rules</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-usage">Usage</a><br />
+  <a href="#-configuration">Configuration</a> • <a href="#-rules">Rules</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
 </div>
 
 <div width="100%" align="center">
@@ -530,121 +530,6 @@ const data: any = fetchData();
 
 </div>
 <!-- </DYNFIELD:COMMON_SECTION_CONFIG> -->
-
-## 🎯 Use Cases<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
-
-<details>
-<summary><b>CI/CD Pipeline</b></summary>
-
-It is recommended to use [TScanner GitHub action](https://github.com/lucasvtiradentes/tscanner/tree/main/packages/github-action), but you can also set up your own workflow:
-
-```yaml
-name: Code Quality
-
-on: [push, pull_request]
-
-jobs:
-  tscanner:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - name: Install TScanner
-        run: npm install -g tscanner
-      - name: Run TScanner validation
-        run: tscanner check
-```
-
-</details>
-
-<details>
-<summary><b>Pre-commit Hook</b></summary>
-
-```bash
-#!/bin/sh
-if command -v tscanner &> /dev/null && [ -f .tscanner/config.jsonc ]; then
-  tscanner check --staged
-fi
-```
-
-</details>
-
-<details>
-<summary><b>Lint-staged Integration</b></summary>
-
-Add to your `.lintstagedrc.json`:
-
-```json
-{
-  "*.{ts,tsx,js,jsx}": ["tscanner check --staged"]
-}
-```
-
-The `--staged` flag:
-- Only scans files that are git staged
-- Respects `files.include` and `files.exclude` from config
-- Is mutually exclusive with `--branch`
-
-</details>
-
-<details>
-<summary><b>Git Pre-push Hook</b></summary>
-
-```bash
-#!/bin/sh
-if command -v tscanner &> /dev/null && [ -f .tscanner/config.jsonc ]; then
-  tscanner check --branch origin/main --no-cache
-fi
-```
-
-</details>
-
-<details>
-<summary><b>VS Code Tasks</b></summary>
-
-```json
-{
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "tscanner: Check",
-      "type": "shell",
-      "command": "tscanner check"
-    },
-    {
-      "label": "tscanner: Check (No Cache)",
-      "type": "shell",
-      "command": "tscanner check --no-cache"
-    },
-    {
-      "label": "tscanner: Check (Branch Changes)",
-      "type": "shell",
-      "command": "tscanner check --branch origin/main"
-    }
-  ]
-}
-```
-
-</details>
-
-<details>
-<summary><b>Package.json Scripts</b></summary>
-
-```json
-{
-  "scripts": {
-    "lint": "tscanner check",
-    "lint:nocache": "tscanner check --no-cache",
-    "lint:branch": "tscanner check --branch origin/main",
-    "lint:json": "tscanner check --json > lint-results.json"
-  }
-}
-```
-
-</details>
 
 <!-- <DYNFIELD:RULES> -->
 ## 📋 Rules<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
