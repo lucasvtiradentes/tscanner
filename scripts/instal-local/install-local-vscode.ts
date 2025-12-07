@@ -12,6 +12,7 @@ import { homedir } from 'node:os';
 import { join } from 'node:path';
 import { EXTENSION_ID_DEV } from '../../packages/vscode-extension/src/common/constants';
 import {
+  CONFIG_SECTION,
   CONTEXT_PREFIX,
   DEV_SUFFIX,
   EXTENSION_DISPLAY_NAME,
@@ -243,6 +244,9 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
     const viewsWelcome = contributes.viewsWelcome as Array<{ view: string; contents: string; when?: string }>;
     for (const welcome of viewsWelcome) {
       welcome.view = addDevSuffix(welcome.view);
+      if (welcome.when) {
+        welcome.when = transformContextKey(welcome.when);
+      }
     }
   }
 
@@ -283,6 +287,21 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
       if (binding.command) {
         binding.command = transformCommand(binding.command);
       }
+    }
+  }
+
+  if (contributes.configuration) {
+    const configuration = contributes.configuration as { title?: string; properties?: Record<string, unknown> };
+    if (configuration.title) {
+      configuration.title = addDevLabel(configuration.title);
+    }
+    if (configuration.properties) {
+      const newProperties: Record<string, unknown> = {};
+      for (const [key, value] of Object.entries(configuration.properties)) {
+        const newKey = key.replace(`${CONFIG_SECTION}.`, `${addDevSuffix(CONFIG_SECTION)}.`);
+        newProperties[newKey] = value;
+      }
+      configuration.properties = newProperties;
     }
   }
 

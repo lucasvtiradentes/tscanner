@@ -10,9 +10,8 @@ export enum Command {
   CycleViewModeRuleFlatView = 'cycleViewModeRuleFlatView',
   CycleViewModeRuleTreeView = 'cycleViewModeRuleTreeView',
   OpenFile = 'openFile',
-  CopyPath = 'copyPath',
-  CopyRelativePath = 'copyRelativePath',
   Refresh = 'refresh',
+  RefreshAiIssues = 'refreshAiIssues',
   HardScan = 'hardScan',
   GoToNextIssue = 'goToNextIssue',
   GoToPreviousIssue = 'goToPreviousIssue',
@@ -21,6 +20,10 @@ export enum Command {
   CopyFileIssues = 'copyFileIssues',
   CopyFolderIssues = 'copyFolderIssues',
   CopyAllIssues = 'copyAllIssues',
+  CopyAiRuleIssues = 'copyAiRuleIssues',
+  CopyAiFileIssues = 'copyAiFileIssues',
+  CopyAiFolderIssues = 'copyAiFolderIssues',
+  CopyAllAiIssues = 'copyAllAiIssues',
 }
 
 export enum TreeItemContextValue {
@@ -59,21 +62,8 @@ export function openTextDocument(uri: vscode.Uri): Thenable<vscode.TextDocument>
   return vscode.workspace.openTextDocument(uri);
 }
 
-export function getWorkspaceFolders(): readonly vscode.WorkspaceFolder[] | undefined {
-  return vscode.workspace.workspaceFolders;
-}
-
 export function getCurrentWorkspaceFolder(): vscode.WorkspaceFolder | undefined {
   return vscode.workspace.workspaceFolders?.[0];
-}
-
-export function requireWorkspace(): vscode.WorkspaceFolder {
-  const workspaceFolder = getCurrentWorkspaceFolder();
-  if (!workspaceFolder) {
-    showToastMessage(ToastKind.Error, 'No workspace folder open');
-    throw new Error('No workspace folder open');
-  }
-  return workspaceFolder;
 }
 
 export function requireWorkspaceOrNull(): vscode.WorkspaceFolder | null {
@@ -89,8 +79,9 @@ export type QuickPickItemWithId<T extends string = string> = {
   id: T;
 } & vscode.QuickPickItem;
 
-export function formatIssueCount(count: number): string {
-  return `${count} ${count === 1 ? 'issue' : 'issues'}`;
+export function formatIssueCount(count: number, prefix?: string): string {
+  const label = `${count} ${count === 1 ? 'issue' : 'issues'}`;
+  return prefix ? `${prefix}: ${label}` : label;
 }
 
 export async function navigateToPosition(uri: vscode.Uri, line: number, column: number): Promise<void> {

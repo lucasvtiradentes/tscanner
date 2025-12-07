@@ -1,5 +1,6 @@
 use colored::*;
 use tscanner_cli::OutputFormat;
+use tscanner_config::AiExecutionMode;
 use tscanner_diagnostics::GroupMode;
 
 #[derive(Clone)]
@@ -14,6 +15,7 @@ pub struct ScanConfig {
     pub mode: ScanMode,
     pub format: OutputFormat,
     pub group_by: GroupMode,
+    pub ai_mode: AiExecutionMode,
     pub cache_enabled: bool,
     pub continue_on_error: bool,
     pub config_path: String,
@@ -40,6 +42,11 @@ pub fn render_header(config: &ScanConfig) {
             GroupMode::Rule => "rule",
             GroupMode::File => "file",
         };
+        let ai_mode_str = match config.ai_mode {
+            AiExecutionMode::Ignore => "ignore",
+            AiExecutionMode::Include => "include",
+            AiExecutionMode::Only => "only",
+        };
         let cache_str = if config.cache_enabled {
             "enabled"
         } else {
@@ -60,6 +67,7 @@ pub fn render_header(config: &ScanConfig) {
 
         println!("  {} {}", "Format:".dimmed(), format_str);
         println!("  {} {}", "Group by:".dimmed(), group_str);
+        println!("  {} {}", "AI mode:".dimmed(), ai_mode_str);
         println!("  {} {}", "Cache:".dimmed(), cache_str);
         println!(
             "  {} {}",

@@ -1,28 +1,53 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use std::sync::Arc;
-use tscanner_config::{CompiledRuleConfig, CustomRuleConfig, TscannerConfig};
+use tscanner_config::{CompiledRuleConfig, TscannerConfig};
 use tscanner_diagnostics::Severity;
 
 use crate::executors::RegexExecutor;
-use crate::traits::{Rule, RuleRegistration};
+use crate::metadata::{get_all_rule_metadata, RuleCategory};
+use crate::traits::{DynRule, RuleRegistration};
+
+fn category_to_folder(category: RuleCategory) -> &'static str {
+    match category {
+        RuleCategory::TypeSafety => "type_safety",
+        RuleCategory::CodeQuality => "code_quality",
+        RuleCategory::Style => "style",
+        RuleCategory::Performance => "performance",
+        RuleCategory::BugPrevention => "bug_prevention",
+        RuleCategory::Variables => "variables",
+        RuleCategory::Imports => "imports",
+    }
+}
 
 pub struct RuleRegistry {
-    rules: HashMap<String, Arc<dyn Rule>>,
+    rules: HashMap<String, Arc<dyn DynRule>>,
     compiled_configs: HashMap<String, CompiledRuleConfig>,
+    rule_categories: HashMap<String, String>,
+    custom_regex_rules: HashSet<String>,
 }
 
 impl RuleRegistry {
     pub fn new() -> Self {
-        let mut rules: HashMap<String, Arc<dyn Rule>> = HashMap::new();
+        let mut rules: HashMap<String, Arc<dyn DynRule>> = HashMap::new();
+        let mut rule_categories: HashMap<String, String> = HashMap::new();
 
         for registration in inventory::iter::<RuleRegistration> {
             rules.insert(registration.name.to_string(), (registration.factory)(None));
         }
 
+        for metadata in get_all_rule_metadata() {
+            rule_categories.insert(
+                metadata.name.to_string(),
+                category_to_folder(metadata.category).to_string(),
+            );
+        }
+
         Self {
             rules,
             compiled_configs: HashMap::new(),
+            rule_categories,
+            custom_regex_rules: HashSet::new(),
         }
     }
 
@@ -37,12 +62,21 @@ impl RuleRegistry {
         F: Fn(&TscannerConfig, &str) -> Result<CompiledRuleConfig, Box<dyn std::error::Error>>,
         G: Fn(&TscannerConfig, &str) -> Result<CompiledRuleConfig, Box<dyn std::error::Error>>,
     {
-        let mut rules: HashMap<String, Arc<dyn Rule>> = HashMap::new();
+        let mut rules: HashMap<String, Arc<dyn DynRule>> = HashMap::new();
         let mut compiled_configs: HashMap<String, CompiledRuleConfig> = HashMap::new();
+        let mut rule_categories: HashMap<String, String> = HashMap::new();
+        let mut custom_regex_rules: HashSet<String> = HashSet::new();
 
-        for rule_name in config.builtin_rules.keys() {
+        for metadata in get_all_rule_metadata() {
+            rule_categories.insert(
+                metadata.name.to_string(),
+                category_to_folder(metadata.category).to_string(),
+            );
+        }
+
+        for rule_name in config.rules.builtin.keys() {
             if let Ok(compiled) = compile_builtin(config, rule_name) {
-                compiled_configs.insert(rule_name.clone(), compiled);
+                compiled_configs.insert(rule_name.to_string(), compiled);
             }
         }
 
@@ -56,27 +90,32 @@ impl RuleRegistry {
             );
         }
 
-        for (rule_name, rule_config) in &config.custom_rules {
-            if let CustomRuleConfig::Regex(regex_config) = rule_config {
-                match RegexExecutor::new(
-                    rule_name.clone(),
-                    regex_config.pattern.clone(),
-                    regex_config.base.message.clone(),
-                    regex_config.base.severity,
-                ) {
-                    Ok(regex_executor) => {
-                        rules.insert(rule_name.clone(), Arc::new(regex_executor));
-                    }
-                    Err(e) => {
-                        log_error(&format!(
-                            "Failed to compile regex rule '{}': {}",
-                            rule_name, e
-                        ));
-                        continue;
-                    }
+        for (rule_name, regex_config) in &config.rules.regex {
+            match RegexExecutor::new(
+                rule_name.clone(),
+                regex_config.pattern.clone(),
+                regex_config.message.clone(),
+                regex_config.severity,
+            ) {
+                Ok(regex_executor) => {
+                    rules.insert(rule_name.clone(), Arc::new(regex_executor));
+                    custom_regex_rules.insert(rule_name.clone());
+                }
+                Err(e) => {
+                    log_error(&format!(
+                        "Failed to compile regex rule '{}': {}",
+                        rule_name, e
+                    ));
+                    continue;
                 }
             }
 
+            if let Ok(compiled) = compile_custom(config, rule_name) {
+                compiled_configs.insert(rule_name.clone(), compiled);
+            }
+        }
+
+        for rule_name in config.rules.script.keys() {
             if let Ok(compiled) = compile_custom(config, rule_name) {
                 compiled_configs.insert(rule_name.clone(), compiled);
             }
@@ -92,15 +131,25 @@ impl RuleRegistry {
         Ok(Self {
             rules,
             compiled_configs,
+            rule_categories,
+            custom_regex_rules,
         })
     }
 
-    pub fn register_rule(&mut self, name: String, rule: Arc<dyn Rule>) {
+    pub fn is_custom_regex_rule(&self, name: &str) -> bool {
+        self.custom_regex_rules.contains(name)
+    }
+
+    pub fn register_rule(&mut self, name: String, rule: Arc<dyn DynRule>) {
         self.rules.insert(name, rule);
     }
 
-    pub fn get_rule(&self, name: &str) -> Option<Arc<dyn Rule>> {
+    pub fn get_rule(&self, name: &str) -> Option<Arc<dyn DynRule>> {
         self.rules.get(name).cloned()
+    }
+
+    pub fn get_rule_category(&self, name: &str) -> Option<&str> {
+        self.rule_categories.get(name).map(|s| s.as_str())
     }
 
     pub fn get_enabled_rules<F>(
@@ -108,7 +157,7 @@ impl RuleRegistry {
         file_path: &Path,
         root: &Path,
         matches_file: F,
-    ) -> Vec<(Arc<dyn Rule>, Severity)>
+    ) -> Vec<(Arc<dyn DynRule>, Severity)>
     where
         F: Fn(&Path, &Path, &CompiledRuleConfig) -> bool,
     {
@@ -130,7 +179,7 @@ impl RuleRegistry {
         file_path: &Path,
         root: &Path,
         matches_file: F,
-    ) -> Vec<(Arc<dyn Rule>, Severity)>
+    ) -> Vec<(Arc<dyn DynRule>, Severity)>
     where
         F: Fn(&Path, &Path, &CompiledRuleConfig) -> bool,
     {

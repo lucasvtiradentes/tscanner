@@ -1,8 +1,19 @@
-import { type GroupMode, PACKAGE_NAME, ScanMode, type ScanResult } from 'tscanner-common';
+import {
+  DEFAULT_TARGET_BRANCH,
+  type GroupMode,
+  IssueRuleType,
+  PACKAGE_NAME,
+  ScanMode,
+  type ScanResult,
+} from 'tscanner-common';
 import type { TscannerLspClient } from '../../lsp/client';
-import { DEFAULT_TARGET_BRANCH } from '../scripts-constants';
 import { type FolderNode, type IssueResult, NodeKind } from '../types';
 import { ToastKind, copyToClipboard, getCurrentWorkspaceFolder, showToastMessage } from './vscode-utils';
+
+declare const __AI_FIX_PROMPT__: string;
+
+const CONTENT_PLACEHOLDER = '{{CONTENT}}';
+const [AI_FIX_PROMPT_HEADER, AI_FIX_PROMPT_FOOTER] = __AI_FIX_PROMPT__.split(CONTENT_PLACEHOLDER);
 
 class CopyScanContext {
   private scanMode: ScanMode = ScanMode.Codebase;
@@ -26,12 +37,13 @@ class CopyScanContext {
     return this.scanMode === ScanMode.Branch ? 'branch mode' : 'codebase mode';
   }
 
-  buildCliCommand(groupBy: GroupMode, filter?: string, filterValue?: string): string {
+  buildCliCommand(groupBy: GroupMode, filter?: string, filterValue?: string, onlyAi?: boolean): string {
     const branch = this.scanMode === ScanMode.Branch ? this.compareBranch : undefined;
     const filterArg = filter && filterValue ? ` --${filter} "${filterValue}"` : '';
     const groupByArg = ` --group-by ${groupBy}`;
     const branchArg = branch ? ` --branch ${branch}` : '';
-    return `${PACKAGE_NAME} check${filterArg}${groupByArg}${branchArg}`;
+    const onlyAiArg = onlyAi ? ' --only-ai' : '';
+    return `${PACKAGE_NAME} check${filterArg}${groupByArg}${branchArg}${onlyAiArg}`;
   }
 }
 
@@ -67,6 +79,7 @@ function convertToScanResult(results: IssueResult[]): ScanResult {
       end_column: issue.endColumn,
       severity: issue.severity,
       line_text: issue.text,
+      rule_type: issue.ruleType ?? IssueRuleType.Builtin,
     })),
   }));
 
@@ -94,12 +107,27 @@ export function collectFolderIssues(node: FolderNode): IssueResult[] {
   return results;
 }
 
-export type CopyParams = {
+type CopyParams = {
   results: IssueResult[];
   groupMode: GroupMode;
-  buildHeader: (summary: { total_issues: number }) => string;
+  filterType: string;
+  filterValue?: string;
+  cliFilter?: string;
+  cliFilterValue?: string;
+  onlyAi?: boolean;
   successMessage: string;
 };
+
+function buildContext(params: CopyParams, totalIssues: number): string {
+  const cliCommand = copyScanContext.buildCliCommand(
+    params.groupMode,
+    params.cliFilter,
+    params.cliFilterValue,
+    params.onlyAi,
+  );
+  const filterDisplay = params.filterValue ? `${params.filterType} "${params.filterValue}"` : params.filterType;
+  return `Filter: ${filterDisplay} | Mode: ${copyScanContext.getScanModeText()} | Issues: ${totalIssues}\nCLI: ${cliCommand}\n`;
+}
 
 export async function copyIssuesBase(params: CopyParams): Promise<void> {
   if (params.results.length === 0) {
@@ -123,9 +151,9 @@ export async function copyIssuesBase(params: CopyParams): Promise<void> {
   const scanResult = convertToScanResult(params.results);
   const result = await lspClient.formatResults(workspaceRoot, scanResult, params.groupMode);
 
-  const header = params.buildHeader(result.summary);
+  const context = buildContext(params, result.summary.total_issues);
   const summaryText = `\n\nIssues: ${result.summary.total_issues} (${result.summary.error_count} errors, ${result.summary.warning_count} warnings)\nFiles: ${result.summary.file_count}\nRules: ${result.summary.rule_count}`;
-  const finalText = header + result.output + summaryText;
+  const finalText = AI_FIX_PROMPT_HEADER + context + result.output + summaryText + AI_FIX_PROMPT_FOOTER;
 
   await copyToClipboard(finalText);
   showToastMessage(ToastKind.Info, params.successMessage);

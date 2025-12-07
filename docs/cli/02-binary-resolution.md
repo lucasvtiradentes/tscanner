@@ -203,11 +203,11 @@ Platform packages declared as `optionalDependencies` in `package.json`:
 ```json
 {
   "optionalDependencies": {
-    "@tscanner/cli-darwin-arm64": "0.0.20",
-    "@tscanner/cli-darwin-x64": "0.0.20",
-    "@tscanner/cli-linux-arm64": "0.0.20",
-    "@tscanner/cli-linux-x64": "0.0.20",
-    "@tscanner/cli-win32-x64": "0.0.20"
+    "@tscanner/cli-darwin-arm64": "x.x.x",
+    "@tscanner/cli-darwin-x64": "x.x.x",
+    "@tscanner/cli-linux-arm64": "x.x.x",
+    "@tscanner/cli-linux-x64": "x.x.x",
+    "@tscanner/cli-win32-x64": "x.x.x"
   }
 }
 ```
@@ -217,7 +217,7 @@ npm installs only the package matching the current platform, reducing installati
 ## Execution Flow
 
 ```
-User runs: tscanner scan
+User runs: tscanner check
     |
     +---> main.ts: getBinaryPath()
     |       |

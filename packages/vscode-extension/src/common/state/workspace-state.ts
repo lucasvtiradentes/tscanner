@@ -44,6 +44,9 @@ export enum ContextKey {
   GroupMode = 'tscannerGroupMode',
   ScanMode = 'tscannerScanMode',
   Searching = 'tscannerSearching',
+  AiSearching = 'tscannerAiSearching',
+  HasScanned = 'tscannerHasScanned',
+  HasAiScanned = 'tscannerHasAiScanned',
 }
 
 const contextKeyMapping: Partial<Record<WorkspaceStateKeyType, ContextKey>> = {

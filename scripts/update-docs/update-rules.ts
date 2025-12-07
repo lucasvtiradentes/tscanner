@@ -1,5 +1,15 @@
 import path from 'node:path';
 import { DynMarkdown, MarkdownTable, type TRowContent, getJson } from 'markdown-helper';
+import { PACKAGE_DISPLAY_NAME } from 'tscanner-common';
+
+type RuleOption = {
+  name: string;
+  description: string;
+  type: 'integer' | 'boolean' | 'string' | 'array';
+  default: unknown;
+  minimum?: number;
+  items?: string;
+};
 
 type RuleMetadata = {
   displayName: string;
@@ -12,6 +22,7 @@ type RuleMetadata = {
   typescriptOnly?: boolean;
   equivalentEslintRule?: string;
   equivalentBiomeRule?: string;
+  options?: RuleOption[];
 };
 
 type TFields = 'RULES';
@@ -55,7 +66,8 @@ export function updateRules() {
 
     const headerContent = [
       { content: 'Rule', width: 250 },
-      { content: 'Description', width: 450 },
+      { content: 'Description', width: 400 },
+      { content: 'Options', width: 150 },
       { content: 'Also in', width: 100 },
     ] as const satisfies TRowContent;
 
@@ -77,6 +89,9 @@ export function updateRules() {
       if (rule.ruleType === 'regex') {
         ruleBadges.push('<img src="https://img.shields.io/badge/regex--rule-6C757D" alt="Regex rule">');
       }
+      if (rule.options && rule.options.length > 0) {
+        ruleBadges.push('<img src="https://img.shields.io/badge/configurable-green" alt="Configurable">');
+      }
       const badgesHtml = ruleBadges.length > 0 ? `<br/><br/>${ruleBadges.join(' ')}` : '';
       const ruleLink = rule.sourcePath
         ? `<a href="https://github.com/lucasvtiradentes/tscanner/blob/main/${rule.sourcePath}"><code>${ruleName}</code></a>`
@@ -96,9 +111,19 @@ export function updateRules() {
       }
       const equivalentCell = equivalentBadges.join(' ');
 
+      let optionsCell = '';
+      if (rule.options && rule.options.length > 0) {
+        const optionsList = rule.options.map((opt) => {
+          const defaultVal = Array.isArray(opt.default) ? `[${opt.default.length} items]` : String(opt.default);
+          return `<code>${opt.name}</code>: ${defaultVal}`;
+        });
+        optionsCell = optionsList.join('<br/>');
+      }
+
       table.addBodyRow([
         { content: ruleCell, align: 'left' },
         { content: description, align: 'left' },
+        { content: optionsCell, align: 'left' },
         { content: equivalentCell, align: 'left' },
       ]);
     }
@@ -116,7 +141,7 @@ ${builtInRulesTableContent.trim()}
 
   const rulesIntroTable = `## 📋 Rules<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-Customize TScanner to validate what matters to your project while maintaining consistency.
+Customize ${PACKAGE_DISPLAY_NAME} to validate what matters to your project while maintaining consistency.
 
 <div align="center">
 
@@ -127,7 +152,7 @@ Customize TScanner to validate what matters to your project while maintaining co
     <th width="400">Example</th>
   </tr>
   <tr>
-    <td><b><a href="packages/rust-core/crates/core/src/rules">Built-in</a></b></td>
+    <td>Built-in</td>
     <td>${rulesJson.length} ready-to-use AST rules</td>
     <td><code>no-explicit-any</code>, <code>prefer-const</code>, <code>no-console</code></td>
   </tr>

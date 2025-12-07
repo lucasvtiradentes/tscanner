@@ -3,8 +3,9 @@ import { DynMarkdown, getJson } from 'markdown-helper';
 import {
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
-  DISABLE_FILE_COMMENT,
-  DISABLE_NEXT_LINE_COMMENT,
+  IGNORE_COMMENT,
+  IGNORE_NEXT_LINE_COMMENT,
+  PACKAGE_DISPLAY_NAME,
   PACKAGE_NAME,
 } from 'tscanner-common';
 
@@ -19,9 +20,9 @@ export function updateConfigSection() {
 
     return `## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-To scan your code, you need to set up the rules in the TScanner config folder. Here's how to get started:
+To scan your code, you need to set up the rules in the ${PACKAGE_DISPLAY_NAME} config folder. Here's how to get started:
 
-1. **VSCode Extension**: TScanner icon in the status bar → \`Manage Rules\` → Select desired rules → \`Save\`
+1. **VSCode Extension**: ${PACKAGE_DISPLAY_NAME} icon in the status bar → \`Manage Rules\` → Select desired rules → \`Save\`
 2. **CLI**: Run \`${PACKAGE_NAME} init\` in your project root
 3. **Manual**: Copy the default config below to \`${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}\`
 
@@ -34,10 +35,10 @@ ${defaultConfigContent}
 **Inline Disables:**
 
 \`\`\`typescript
-// ${DISABLE_NEXT_LINE_COMMENT} no-explicit-any
+// ${IGNORE_NEXT_LINE_COMMENT} no-explicit-any
 const data: any = fetchData();
 
-// ${DISABLE_FILE_COMMENT}
+// ${IGNORE_COMMENT}
 // Entire file is skipped
 \`\`\`
 
@@ -56,7 +57,7 @@ All configuration fields are **optional** with sensible defaults. The minimum re
 }
 \`\`\`
 
-With this minimal config, TScanner will scan all \`.ts/.tsx/.js/.jsx/.mjs/.cjs\` files, excluding \`node_modules/\`, \`dist/\`, \`build/\`, and \`.git/\` directories.
+With this minimal config, ${PACKAGE_DISPLAY_NAME} will scan all \`.ts/.tsx/.js/.jsx/.mjs/.cjs\` files, excluding \`node_modules/\`, \`dist/\`, \`build/\`, and \`.git/\` directories.
 
 **Understanding \`files.include\` and \`files.exclude\`:**
 

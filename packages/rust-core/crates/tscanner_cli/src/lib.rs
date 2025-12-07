@@ -82,6 +82,12 @@ pub enum Commands {
         #[arg(long, help = "Continue execution even when errors are found")]
         continue_on_error: bool,
 
+        #[arg(long, help = "Include AI rules in the scan (slower)")]
+        include_ai: bool,
+
+        #[arg(long, help = "Run only AI rules, skip all other rules")]
+        only_ai: bool,
+
         #[arg(
             long,
             value_name = "CONFIG_DIR",

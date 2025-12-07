@@ -7,9 +7,6 @@ use tscanner_cli::Cli;
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
 struct CliOutput {
-    name: String,
-    version: String,
-    description: String,
     commands: Vec<CommandInfo>,
 }
 
@@ -47,11 +44,6 @@ struct FlagInfo {
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cmd = Cli::command();
-
-    let name = cmd.get_name().to_string();
-    let version = cmd.get_version().unwrap_or("unknown").to_string();
-    let description = cmd.get_about().map(|s| s.to_string()).unwrap_or_default();
-
     let mut commands = Vec::new();
 
     for subcmd in cmd.get_subcommands() {
@@ -118,8 +110,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         flags.sort_by(|a, b| a.name.cmp(&b.name));
 
         let usage = format!(
-            "{} {} [options]{}",
-            name,
+            "tscanner {} [options]{}",
             subcmd.get_name(),
             if arguments.is_empty() {
                 String::new()
@@ -155,12 +146,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let command_count = commands.len();
 
-    let output = CliOutput {
-        name,
-        version,
-        description,
-        commands,
-    };
+    let output = CliOutput { commands };
 
     let json = serde_json::to_string_pretty(&output)?;
 

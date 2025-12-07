@@ -1,32 +1,5 @@
-import { Severity } from 'tscanner-common';
+import { type IssueRuleType, Severity } from 'tscanner-common';
 import type * as vscode from 'vscode';
-
-export type {
-  BuiltinRuleConfig,
-  ClearCacheParams,
-  ContentScanResult,
-  CustomRuleConfig,
-  FileResult,
-  GetRulesMetadataParams,
-  Issue,
-  ModifiedLineRange,
-  RuleMetadata,
-  ScanContentParams,
-  ScanFileParams,
-  ScanParams,
-  ScanResult,
-  TscannerConfig,
-} from 'tscanner-common';
-
-export {
-  CustomRuleType,
-  GroupMode,
-  RuleCategory,
-  ScanMode,
-  Severity,
-  ViewMode,
-  hasConfiguredRules,
-} from 'tscanner-common';
 
 export type IssueResult = {
   uri: vscode.Uri;
@@ -37,6 +10,8 @@ export type IssueResult = {
   rule: string;
   severity: Severity;
   message: string;
+  isAi?: boolean;
+  ruleType?: IssueRuleType;
 };
 
 export enum NodeKind {
@@ -62,7 +37,7 @@ export function parseSeverity(severity: string): Severity {
   return severity.toLowerCase() === 'error' ? Severity.Error : Severity.Warning;
 }
 
-export type SerializedIssueResult = Omit<IssueResult, 'uri'> & { uriString: string };
+type SerializedIssueResult = Omit<IssueResult, 'uri'> & { uriString: string };
 
 export function serializeResults(results: IssueResult[]): SerializedIssueResult[] {
   return results.map((r) => {

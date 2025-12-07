@@ -1,12 +1,11 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
-use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
 
 pub struct ConsistentReturnRule;
 
@@ -21,41 +20,47 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "Consistent Return",
         description: "Requires consistent return behavior in functions. Either all code paths return a value or none do.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::BugPrevention,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/consistent-return"),
         equivalent_biome_rule: None,
-        allowed_options: &[],
+        ..RuleMetadata::defaults()
     }
 });
 
+pub struct InconsistentReturnState {
+    pub line: usize,
+    pub column: usize,
+    pub end_column: usize,
+}
+
 impl Rule for ConsistentReturnRule {
-    fn name(&self) -> &str {
+    type State = InconsistentReturnState;
+
+    fn name(&self) -> &'static str {
         "consistent-return"
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut visitor = ConsistentReturnVisitor {
-            issues: Vec::new(),
-            path: path.to_path_buf(),
-            source,
+            states: Vec::new(),
+            source: ctx.source(),
         };
-        program.visit_with(&mut visitor);
-        visitor.issues
+        ctx.program().visit_with(&mut visitor);
+        visitor.states
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.column, state.end_column),
+            "Function has inconsistent return statements. Some return values, others don't."
+                .to_string(),
+        )
     }
 }
 
 struct ConsistentReturnVisitor<'a> {
-    issues: Vec<Issue>,
-    path: std::path::PathBuf,
+    states: Vec<InconsistentReturnState>,
     source: &'a str,
 }
 
@@ -91,17 +96,10 @@ impl<'a> ConsistentReturnVisitor<'a> {
                 func_span.hi.0 as usize,
             );
 
-            self.issues.push(Issue {
-                rule: "consistent-return".to_string(),
-                file: self.path.clone(),
+            self.states.push(InconsistentReturnState {
                 line,
                 column,
                 end_column,
-                message:
-                    "Function has inconsistent return statements. Some return values, others don't."
-                        .to_string(),
-                severity: Severity::Warning,
-                line_text: None,
             });
         }
     }

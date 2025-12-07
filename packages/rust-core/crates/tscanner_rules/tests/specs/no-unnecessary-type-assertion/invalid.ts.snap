@@ -1,5 +1,5 @@
 ---
-source: crates/core/tests/spec_tests.rs
+source: crates/tscanner_rules/tests/spec_tests.rs
 expression: snapshot
 ---
 # Input
@@ -11,7 +11,7 @@ const z = true as boolean;
 
 # Diagnostics
 ```
-invalid.ts:1:11 no-unnecessary-type-assertion ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:12 no-unnecessary-type-assertion ━━━━━━━━━━━━━━━━━━━━
 
   ! Unnecessary type assertion: string literal is already of type string
 
@@ -21,7 +21,7 @@ invalid.ts:1:11 no-unnecessary-type-assertion ━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:2:11 no-unnecessary-type-assertion ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:2:12 no-unnecessary-type-assertion ━━━━━━━━━━━━━━━━━━━━
 
   ! Unnecessary type assertion: number literal is already of type number
 
@@ -32,7 +32,7 @@ invalid.ts:2:11 no-unnecessary-type-assertion ━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:3:11 no-unnecessary-type-assertion ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:3:12 no-unnecessary-type-assertion ━━━━━━━━━━━━━━━━━━━━
 
   ! Unnecessary type assertion: boolean literal is already of type boolean
 

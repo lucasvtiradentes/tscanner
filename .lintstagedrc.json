@@ -1,6 +1,6 @@
 {
   "*.{ts,tsx,js,jsx}": ["biome check --write --no-errors-on-unmatched"],
   "*.json": ["biome check --write --no-errors-on-unmatched"],
-  "packages/rust-core/crates/**/*.rs": ["sh -c 'cd packages/rust-core && cargo fmt && cargo clippy --fix --allow-dirty'"],
-  "*": ["npx tsx ./packages/cli/src/main.ts check --staged"]
+  "*": ["npx tsx ./packages/cli/src/main.ts check --staged"],
+  "packages/rust-core/crates/**/*.rs": ["sh -c 'cd packages/rust-core && cargo fmt'"]
 }

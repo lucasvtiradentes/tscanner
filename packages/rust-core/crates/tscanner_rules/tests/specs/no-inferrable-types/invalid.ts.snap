@@ -1,5 +1,5 @@
 ---
-source: crates/core/tests/spec_tests.rs
+source: crates/tscanner_rules/tests/spec_tests.rs
 expression: snapshot
 ---
 # Input
@@ -14,7 +14,7 @@ let c: boolean = false;
 
 # Diagnostics
 ```
-invalid.ts:1:8 no-inferrable-types ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:9 no-inferrable-types ━━━━━━━━━━━━━━━━━━━━
 
   ! Type annotation on variable 'x' is redundant. TypeScript can infer this type from the literal value.
 
@@ -24,7 +24,7 @@ invalid.ts:1:8 no-inferrable-types ━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:2:8 no-inferrable-types ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:2:9 no-inferrable-types ━━━━━━━━━━━━━━━━━━━━
 
   ! Type annotation on variable 'y' is redundant. TypeScript can infer this type from the literal value.
 
@@ -35,7 +35,7 @@ invalid.ts:2:8 no-inferrable-types ━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:3:8 no-inferrable-types ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:3:9 no-inferrable-types ━━━━━━━━━━━━━━━━━━━━
 
   ! Type annotation on variable 'z' is redundant. TypeScript can infer this type from the literal value.
 
@@ -46,7 +46,7 @@ invalid.ts:3:8 no-inferrable-types ━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:4:6 no-inferrable-types ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:4:7 no-inferrable-types ━━━━━━━━━━━━━━━━━━━━
 
   ! Type annotation on variable 'a' is redundant. TypeScript can infer this type from the literal value.
 
@@ -57,7 +57,7 @@ invalid.ts:4:6 no-inferrable-types ━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:5:6 no-inferrable-types ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:5:7 no-inferrable-types ━━━━━━━━━━━━━━━━━━━━
 
   ! Type annotation on variable 'b' is redundant. TypeScript can infer this type from the literal value.
 
@@ -68,7 +68,7 @@ invalid.ts:5:6 no-inferrable-types ━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:6:6 no-inferrable-types ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:6:7 no-inferrable-types ━━━━━━━━━━━━━━━━━━━━
 
   ! Type annotation on variable 'c' is redundant. TypeScript can infer this type from the literal value.
 

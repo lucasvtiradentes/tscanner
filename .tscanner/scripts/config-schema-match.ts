@@ -21,21 +21,42 @@ type ScriptIssue = {
   message: string;
 };
 
-type RustConfigFields = {
-  tscanner_config: string[];
-  code_editor_config: string[];
-  cli_config: string[];
-  files_config: string[];
-  builtin_rule_config: string[];
-  custom_rule_base: string[];
-  regex_rule_config: string[];
-  script_rule_config: string[];
-  ai_rule_config: string[];
-  script_mode: string[];
-  custom_rule_types: string[];
+type JsonSchema = {
+  properties?: Record<string, unknown>;
+  definitions?: Record<string, { properties?: Record<string, unknown> }>;
 };
 
+function extractSchemaFields(schema: JsonSchema, definitionName: string): string[] {
+  const definition = schema.definitions?.[definitionName];
+  if (!definition?.properties) return [];
+  return Object.keys(definition.properties);
+}
+
+function extractTopLevelFields(schema: JsonSchema): string[] {
+  if (!schema.properties) return [];
+  return Object.keys(schema.properties);
+}
+
 function extractZodObjectFields(content: string, schemaName: string): string[] {
+  const baseSchemaMatch = content.match(
+    new RegExp(
+      `(?:export )?const ${schemaName}\\s*=\\s*baseRuleConfigSchema\\s*\\.extend\\(\\{([\\s\\S]*?)\\}\\)`,
+      'm',
+    ),
+  );
+  if (baseSchemaMatch) {
+    const fieldsStr = baseSchemaMatch[1];
+    const fieldMatches = fieldsStr.matchAll(/^\s*(\w+):/gm);
+    return [...fieldMatches].map((m) => m[1]);
+  }
+
+  const assignMatch = content.match(
+    new RegExp(`(?:export )?const ${schemaName}\\s*=\\s*baseRuleConfigSchema\\s*;`, 'm'),
+  );
+  if (assignMatch) {
+    return [];
+  }
+
   const regex = new RegExp(`(?:export )?const ${schemaName}\\s*=\\s*z\\s*\\.object\\(\\{([\\s\\S]*?)\\}\\)`, 'm');
   const match = content.match(regex);
   if (!match) return [];
@@ -45,14 +66,14 @@ function extractZodObjectFields(content: string, schemaName: string): string[] {
   return [...fieldMatches].map((m) => m[1]);
 }
 
-function extractZodEnumValues(content: string, schemaName: string): string[] {
-  const regex = new RegExp(`export const ${schemaName}\\s*=\\s*z\\.enum\\(\\[([^\\]]+)\\]`);
+function extractBaseRuleFields(content: string): string[] {
+  const regex = /const baseRuleConfigSchema\s*=\s*z\s*\.object\(\{([\s\S]*?)\}\)/m;
   const match = content.match(regex);
   if (!match) return [];
 
-  const valuesStr = match[1];
-  const valueMatches = valuesStr.matchAll(/['"]([^'"]+)['"]/g);
-  return [...valueMatches].map((m) => m[1]);
+  const fieldsStr = match[1];
+  const fieldMatches = fieldsStr.matchAll(/^\s*(\w+):/gm);
+  return [...fieldMatches].map((m) => m[1]);
 }
 
 function findLineNumber(content: string, schemaName: string): number {
@@ -81,7 +102,7 @@ function compareFields(
       issues.push({
         file,
         line,
-        message: `${schemaName}: field "${field}" exists in Rust but missing in TypeScript schema`,
+        message: `${schemaName}: field "${field}" exists in Rust schema but missing in TypeScript`,
       });
     }
   }
@@ -91,7 +112,7 @@ function compareFields(
       issues.push({
         file,
         line,
-        message: `${schemaName}: field "${field}" exists in TypeScript but missing in Rust config`,
+        message: `${schemaName}: field "${field}" exists in TypeScript but missing in Rust schema`,
       });
     }
   }
@@ -106,32 +127,33 @@ async function main() {
   const input: ScriptInput = JSON.parse(data);
   const issues: ScriptIssue[] = [];
 
-  const rustConfigFile = input.files.find((f) => f.path.endsWith('rust_config_fields.json'));
+  const jsonSchemaFile = input.files.find((f) => f.path.endsWith('schema.json'));
   const schemasFile = input.files.find((f) => f.path.endsWith('schemas.ts'));
 
-  if (!rustConfigFile || !schemasFile) {
+  if (!jsonSchemaFile || !schemasFile) {
     console.log(JSON.stringify({ issues }));
     return;
   }
 
-  let rustConfig: RustConfigFields;
+  let jsonSchema: JsonSchema;
   try {
-    rustConfig = JSON.parse(rustConfigFile.content);
+    jsonSchema = JSON.parse(jsonSchemaFile.content);
   } catch {
     issues.push({
-      file: rustConfigFile.path,
+      file: jsonSchemaFile.path,
       line: 1,
-      message: 'Failed to parse rust_config_fields.json',
+      message: 'Failed to parse schema.json',
     });
     console.log(JSON.stringify({ issues }));
     return;
   }
 
   const tsContent = schemasFile.content;
+  const baseRuleFields = extractBaseRuleFields(tsContent);
 
   const tscannerConfigFields = extractZodObjectFields(tsContent, 'tscannerConfigSchema');
   compareFields(
-    rustConfig.tscanner_config,
+    extractTopLevelFields(jsonSchema).filter((f) => f !== '$schema'),
     tscannerConfigFields,
     'tscannerConfigSchema',
     schemasFile.path,
@@ -139,9 +161,19 @@ async function main() {
     issues,
   );
 
+  const aiConfigFields = extractZodObjectFields(tsContent, 'aiConfigSchema');
+  compareFields(
+    extractSchemaFields(jsonSchema, 'AiConfig'),
+    aiConfigFields,
+    'aiConfigSchema',
+    schemasFile.path,
+    findLineNumber(tsContent, 'aiConfigSchema'),
+    issues,
+  );
+
   const codeEditorFields = extractZodObjectFields(tsContent, 'codeEditorConfigSchema');
   compareFields(
-    rustConfig.code_editor_config,
+    extractSchemaFields(jsonSchema, 'CodeEditorConfig'),
     codeEditorFields,
     'codeEditorConfigSchema',
     schemasFile.path,
@@ -151,7 +183,7 @@ async function main() {
 
   const cliConfigFields = extractZodObjectFields(tsContent, 'cliConfigSchema');
   compareFields(
-    rustConfig.cli_config,
+    extractSchemaFields(jsonSchema, 'CliConfig'),
     cliConfigFields,
     'cliConfigSchema',
     schemasFile.path,
@@ -161,7 +193,7 @@ async function main() {
 
   const filesConfigFields = extractZodObjectFields(tsContent, 'filesConfigSchema');
   compareFields(
-    rustConfig.files_config,
+    extractSchemaFields(jsonSchema, 'FilesConfig'),
     filesConfigFields,
     'filesConfigSchema',
     schemasFile.path,
@@ -169,30 +201,32 @@ async function main() {
     issues,
   );
 
-  const builtinRuleFields = extractZodObjectFields(tsContent, 'builtinRuleConfigSchema');
+  const rulesConfigFields = extractZodObjectFields(tsContent, 'rulesConfigSchema');
   compareFields(
-    rustConfig.builtin_rule_config,
-    builtinRuleFields,
+    extractSchemaFields(jsonSchema, 'RulesConfig'),
+    rulesConfigFields,
+    'rulesConfigSchema',
+    schemasFile.path,
+    findLineNumber(tsContent, 'rulesConfigSchema'),
+    issues,
+  );
+
+  const builtinRuleFields = extractZodObjectFields(tsContent, 'builtinRuleConfigSchema');
+  const allBuiltinFields = [...baseRuleFields, ...builtinRuleFields];
+  compareFields(
+    extractSchemaFields(jsonSchema, 'BuiltinRuleConfig'),
+    allBuiltinFields,
     'builtinRuleConfigSchema',
     schemasFile.path,
     findLineNumber(tsContent, 'builtinRuleConfigSchema'),
     issues,
   );
 
-  const customRuleBaseFields = extractZodObjectFields(tsContent, 'customRuleBaseSchema');
-  compareFields(
-    rustConfig.custom_rule_base,
-    customRuleBaseFields,
-    'customRuleBaseSchema',
-    schemasFile.path,
-    findLineNumber(tsContent, 'customRuleBaseSchema'),
-    issues,
-  );
-
   const regexRuleOwnFields = extractZodObjectFields(tsContent, 'regexRuleConfigSchema');
+  const allRegexFields = [...baseRuleFields, ...regexRuleOwnFields];
   compareFields(
-    rustConfig.regex_rule_config,
-    regexRuleOwnFields,
+    extractSchemaFields(jsonSchema, 'RegexRuleConfig'),
+    allRegexFields,
     'regexRuleConfigSchema',
     schemasFile.path,
     findLineNumber(tsContent, 'regexRuleConfigSchema'),
@@ -200,9 +234,10 @@ async function main() {
   );
 
   const scriptRuleOwnFields = extractZodObjectFields(tsContent, 'scriptRuleConfigSchema');
+  const allScriptFields = [...baseRuleFields, ...scriptRuleOwnFields];
   compareFields(
-    rustConfig.script_rule_config,
-    scriptRuleOwnFields,
+    extractSchemaFields(jsonSchema, 'ScriptRuleConfig'),
+    allScriptFields,
     'scriptRuleConfigSchema',
     schemasFile.path,
     findLineNumber(tsContent, 'scriptRuleConfigSchema'),
@@ -210,22 +245,13 @@ async function main() {
   );
 
   const aiRuleOwnFields = extractZodObjectFields(tsContent, 'aiRuleConfigSchema');
+  const allAiRuleFields = [...baseRuleFields, ...aiRuleOwnFields];
   compareFields(
-    rustConfig.ai_rule_config,
-    aiRuleOwnFields,
+    extractSchemaFields(jsonSchema, 'AiRuleConfig'),
+    allAiRuleFields,
     'aiRuleConfigSchema',
     schemasFile.path,
     findLineNumber(tsContent, 'aiRuleConfigSchema'),
-    issues,
-  );
-
-  const scriptModeValues = extractZodEnumValues(tsContent, 'scriptModeSchema');
-  compareFields(
-    rustConfig.script_mode,
-    scriptModeValues,
-    'scriptModeSchema',
-    schemasFile.path,
-    findLineNumber(tsContent, 'scriptModeSchema'),
     issues,
   );
 

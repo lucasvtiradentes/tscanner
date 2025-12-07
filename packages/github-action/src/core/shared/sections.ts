@@ -1,6 +1,6 @@
-import { pluralize } from 'tscanner-common';
+import { PACKAGE_DISPLAY_NAME, pluralize } from 'tscanner-common';
 import { buildPrFileUrl } from '../../utils/url-builder';
-import type { ScanResult } from '../scanner';
+import type { ActionScanResult } from '../scanner';
 import {
   Alignment,
   ICONS,
@@ -22,22 +22,22 @@ export type CommitHistoryEntry = {
   warnings: number;
 };
 
-export type ScanSummaryParams = {
-  result: ScanResult;
+type ScanSummaryParams = {
+  result: ActionScanResult;
   targetBranch?: string;
   timestamp?: string;
   commitSha?: string;
   commitMessage?: string;
 };
 
-export type IssuesViewParams = {
-  result: ScanResult;
+type IssuesViewParams = {
+  result: ActionScanResult;
   owner: string;
   repo: string;
   prNumber: number;
 };
 
-export function buildScanSummaryTable(params: ScanSummaryParams): string {
+function buildScanSummaryTable(params: ScanSummaryParams): string {
   const { result, targetBranch, timestamp, commitSha, commitMessage } = params;
   const { totalIssues, totalErrors, totalWarnings, totalFiles, filesWithIssues, totalRules, totalEnabledRules } =
     result;
@@ -88,7 +88,7 @@ ${table}
   return `\n${alignSection(Alignment.Center, details)}\n`;
 }
 
-export function buildIssuesByRuleSection(params: IssuesViewParams): string {
+function buildIssuesByRuleSection(params: IssuesViewParams): string {
   const { result, owner, repo, prNumber } = params;
   const { ruleGroupsByRule } = result;
 
@@ -126,7 +126,7 @@ ${innerContent}
   return `${alignSection(Alignment.Center, details)}\n\n`;
 }
 
-export function buildIssuesByFileSection(params: IssuesViewParams): string {
+function buildIssuesByFileSection(params: IssuesViewParams): string {
   const { result, owner, repo, prNumber } = params;
 
   const fileMap = new Map<string, Map<string, Array<{ line: number; column: number; lineText: string }>>>();
@@ -186,16 +186,16 @@ ${innerContent}
   return `${alignSection(Alignment.Center, details)}\n\n`;
 }
 
-export function buildScanHeader(totalErrors: number, hasIssues: boolean): string {
+function buildScanHeader(totalErrors: number, hasIssues: boolean): string {
   if (!hasIssues) {
-    return `## ${ICONS.SUCCESS} TScanner - No Issues Found`;
+    return `## ${ICONS.SUCCESS} ${PACKAGE_DISPLAY_NAME} - No Issues Found`;
   }
   const icon = getStatusIcon(totalErrors);
   const title = getStatusTitle(totalErrors);
-  return `## ${icon} TScanner - ${title}`;
+  return `## ${icon} ${PACKAGE_DISPLAY_NAME} - ${title}`;
 }
 
-export function buildNoIssuesTable(modeLabel: string, commitInfo?: string, timestamp?: string): string {
+function buildNoIssuesTable(modeLabel: string, commitInfo?: string, timestamp?: string): string {
   let rows = `<tr><td>Issues</td><td>0</td></tr>
 <tr><td>Scan mode</td><td>${modeLabel}</td></tr>`;
 
@@ -213,8 +213,8 @@ ${rows}
 </table>`;
 }
 
-export type BuildReportParams = {
-  result: ScanResult;
+type BuildReportParams = {
+  result: ActionScanResult;
   targetBranch?: string;
   timestamp?: string;
   commitSha?: string;

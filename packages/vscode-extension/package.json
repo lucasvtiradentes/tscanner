@@ -89,18 +89,53 @@
           "id": "tscannerExplorer",
           "name": "Issues",
           "icon": "resources/icon.svg"
+        },
+        {
+          "id": "tscannerAiExplorer",
+          "name": "AI Issues",
+          "icon": "$(hubot)"
         }
       ]
     },
     "viewsWelcome": [
       {
         "view": "tscannerExplorer",
+        "contents": "Searching for issues...",
+        "when": "workbenchState != empty && tscannerSearching"
+      },
+      {
+        "view": "tscannerExplorer",
+        "contents": "Click the refresh button to run scan.",
+        "when": "workbenchState != empty && !tscannerSearching && !tscannerHasScanned"
+      },
+      {
+        "view": "tscannerExplorer",
         "contents": "No issues found.",
-        "when": "workbenchState != empty"
+        "when": "workbenchState != empty && !tscannerSearching && tscannerHasScanned"
       },
       {
         "view": "tscannerExplorer",
         "contents": "Open a folder to start scanning for issues.\n[Open Folder](command:vscode.openFolder)",
+        "when": "workbenchState == empty"
+      },
+      {
+        "view": "tscannerAiExplorer",
+        "contents": "Searching for AI issues...",
+        "when": "workbenchState != empty && tscannerAiSearching"
+      },
+      {
+        "view": "tscannerAiExplorer",
+        "contents": "Click the refresh button to run AI scan.",
+        "when": "workbenchState != empty && !tscannerAiSearching && !tscannerHasAiScanned"
+      },
+      {
+        "view": "tscannerAiExplorer",
+        "contents": "No AI issues found.",
+        "when": "workbenchState != empty && !tscannerAiSearching && tscannerHasAiScanned"
+      },
+      {
+        "view": "tscannerAiExplorer",
+        "contents": "Open a folder to start scanning for AI issues.\n[Open Folder](command:vscode.openFolder)",
         "when": "workbenchState == empty"
       }
     ],
@@ -164,15 +199,6 @@
         "title": "Open File"
       },
       {
-        "command": "tscanner.copyPath",
-        "title": "Copy Path",
-        "icon": "$(files)"
-      },
-      {
-        "command": "tscanner.copyRelativePath",
-        "title": "Copy Relative Path"
-      },
-      {
         "command": "tscanner.copyRuleIssues",
         "title": "Copy Rule Issues",
         "icon": "$(copy)"
@@ -190,6 +216,31 @@
       {
         "command": "tscanner.copyAllIssues",
         "title": "Copy All Issues",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "tscanner.refreshAiIssues",
+        "title": "Refresh AI Issues",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "tscanner.copyAiRuleIssues",
+        "title": "Copy AI Rule Issues",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "tscanner.copyAiFileIssues",
+        "title": "Copy AI File Issues",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "tscanner.copyAiFolderIssues",
+        "title": "Copy AI Folder Issues",
+        "icon": "$(copy)"
+      },
+      {
+        "command": "tscanner.copyAllAiIssues",
+        "title": "Copy All AI Issues",
         "icon": "$(copy)"
       }
     ],
@@ -236,24 +287,39 @@
           "command": "tscanner.cycleViewModeRuleTreeView",
           "when": "view == tscannerExplorer && tscannerViewMode == tree && tscannerGroupMode == rule",
           "group": "navigation@20"
+        },
+        {
+          "command": "tscanner.copyAllAiIssues",
+          "when": "view == tscannerAiExplorer",
+          "group": "navigation@5"
+        },
+        {
+          "command": "tscanner.refreshAiIssues",
+          "when": "view == tscannerAiExplorer && !tscannerAiSearching",
+          "group": "navigation@1"
+        },
+        {
+          "command": "tscanner.cycleViewModeFileFlatView",
+          "when": "view == tscannerAiExplorer && tscannerViewMode == list && tscannerGroupMode == file",
+          "group": "navigation@20"
+        },
+        {
+          "command": "tscanner.cycleViewModeFileTreeView",
+          "when": "view == tscannerAiExplorer && tscannerViewMode == tree && tscannerGroupMode == file",
+          "group": "navigation@20"
+        },
+        {
+          "command": "tscanner.cycleViewModeRuleFlatView",
+          "when": "view == tscannerAiExplorer && tscannerViewMode == list && tscannerGroupMode == rule",
+          "group": "navigation@20"
+        },
+        {
+          "command": "tscanner.cycleViewModeRuleTreeView",
+          "when": "view == tscannerAiExplorer && tscannerViewMode == tree && tscannerGroupMode == rule",
+          "group": "navigation@20"
         }
       ],
       "view/item/context": [
-        {
-          "command": "tscanner.copyPath",
-          "when": "view == tscannerExplorer && viewItem == tscannerNodeFile",
-          "group": "navigation"
-        },
-        {
-          "command": "tscanner.copyPath",
-          "when": "view == tscannerExplorer && viewItem == tscannerNodeFile",
-          "group": "inline"
-        },
-        {
-          "command": "tscanner.copyRelativePath",
-          "when": "view == tscannerExplorer && viewItem == tscannerNodeFile",
-          "group": "9_cutcopypaste"
-        },
         {
           "command": "tscanner.copyRuleIssues",
           "when": "view == tscannerExplorer && viewItem == TscannerNodeRuleGroup",
@@ -267,6 +333,21 @@
         {
           "command": "tscanner.copyFolderIssues",
           "when": "view == tscannerExplorer && viewItem == TscannerNodeFolder && tscannerGroupMode == file",
+          "group": "inline"
+        },
+        {
+          "command": "tscanner.copyAiRuleIssues",
+          "when": "view == tscannerAiExplorer && viewItem == TscannerNodeRuleGroup",
+          "group": "inline"
+        },
+        {
+          "command": "tscanner.copyAiFileIssues",
+          "when": "view == tscannerAiExplorer && viewItem == TscannerNodeFile && tscannerGroupMode == file",
+          "group": "inline"
+        },
+        {
+          "command": "tscanner.copyAiFolderIssues",
+          "when": "view == tscannerAiExplorer && viewItem == TscannerNodeFolder && tscannerGroupMode == file",
           "group": "inline"
         }
       ],
@@ -300,14 +381,6 @@
           "when": "false"
         },
         {
-          "command": "tscanner.copyPath",
-          "when": "false"
-        },
-        {
-          "command": "tscanner.copyRelativePath",
-          "when": "false"
-        },
-        {
           "command": "tscanner.copyRuleIssues",
           "when": "false"
         },
@@ -322,6 +395,26 @@
         {
           "command": "tscanner.copyAllIssues",
           "when": "false"
+        },
+        {
+          "command": "tscanner.refreshAiIssues",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.copyAiRuleIssues",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.copyAiFileIssues",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.copyAiFolderIssues",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.copyAllAiIssues",
+          "when": "false"
         }
       ]
     },
@@ -334,15 +427,10 @@
           "markdownDescription": "Path to the `tscanner` binary. Leave empty to auto-detect from `node_modules` or global installation.\n\nExamples:\n- `/usr/local/bin/tscanner`\n- `~/bin/tscanner`\n- `./node_modules/.bin/tscanner` (relative to workspace)",
           "scope": "machine-overridable"
         },
-        "tscanner.trace.server": {
-          "type": "string",
-          "enum": [
-            "off",
-            "messages",
-            "verbose"
-          ],
-          "default": "off",
-          "description": "Traces the communication between VS Code and the TScanner language server."
+        "tscanner.logs.enabled": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable logging to an output channel for debugging purposes (restart required)."
         }
       }
     }

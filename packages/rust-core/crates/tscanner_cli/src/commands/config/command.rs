@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use crate::config_loader::load_config_with_custom;
 use tscanner_config::{app_display_name, app_name, TscannerConfig, ValidationResult};
 use tscanner_diagnostics::Severity;
-use tscanner_rules::{get_all_rule_metadata, get_allowed_options_for_rule};
+use tscanner_rules::get_all_rule_metadata;
 use tscanner_service::{log_error, log_info};
 
 pub fn cmd_config(
@@ -89,12 +89,7 @@ fn cmd_validate(config_file_path: &str) -> Result<()> {
     let workspace = config_path.parent().and_then(|p| p.parent());
 
     let config_dir_name = tscanner_config::config_dir_name();
-    let (_, result) = match TscannerConfig::full_validate(
-        &content,
-        workspace,
-        config_dir_name,
-        Some(get_allowed_options_for_rule),
-    ) {
+    let (_, result) = match TscannerConfig::full_validate(&content, workspace, config_dir_name) {
         Ok(r) => r,
         Err(e) => {
             println!(
@@ -158,7 +153,7 @@ fn cmd_rules(config: &TscannerConfig, config_file_path: &str) -> Result<()> {
     let mut builtin_rules: Vec<_> = all_metadata
         .iter()
         .map(|meta| {
-            let user_config = config.builtin_rules.get(meta.name);
+            let user_config = config.rules.builtin.get(meta.name);
             let enabled = match user_config {
                 Some(cfg) => cfg.enabled.unwrap_or(true),
                 None => meta.default_enabled,
@@ -166,33 +161,61 @@ fn cmd_rules(config: &TscannerConfig, config_file_path: &str) -> Result<()> {
             let severity = user_config
                 .and_then(|c| c.severity)
                 .unwrap_or(meta.default_severity);
-            (meta.name, enabled, severity, false)
+            (meta.name, enabled, severity, "builtin")
         })
         .collect();
 
     builtin_rules.sort_by(|a, b| a.0.cmp(b.0));
 
-    let mut custom_rules: Vec<_> = config
-        .custom_rules
+    let mut regex_rules: Vec<_> = config
+        .rules
+        .regex
         .iter()
-        .map(|(name, cfg)| (name.as_str(), cfg.enabled(), cfg.severity(), true))
+        .map(|(name, cfg)| (name.as_str(), cfg.enabled, cfg.severity, "regex"))
         .collect();
 
-    custom_rules.sort_by(|a, b| a.0.cmp(b.0));
+    regex_rules.sort_by(|a, b| a.0.cmp(b.0));
+
+    let mut script_rules: Vec<_> = config
+        .rules
+        .script
+        .iter()
+        .map(|(name, cfg)| (name.as_str(), cfg.enabled, cfg.severity, "script"))
+        .collect();
+
+    script_rules.sort_by(|a, b| a.0.cmp(b.0));
+
+    let mut ai_rules: Vec<_> = config
+        .ai_rules
+        .iter()
+        .map(|(name, cfg)| (name.as_str(), cfg.enabled, cfg.severity, "ai"))
+        .collect();
+
+    ai_rules.sort_by(|a, b| a.0.cmp(b.0));
 
     let enabled_builtin: Vec<_> = builtin_rules.iter().filter(|r| r.1).collect();
-    let enabled_custom: Vec<_> = custom_rules.iter().filter(|r| r.1).collect();
+    let enabled_regex: Vec<_> = regex_rules.iter().filter(|r| r.1).collect();
+    let enabled_script: Vec<_> = script_rules.iter().filter(|r| r.1).collect();
+    let enabled_ai: Vec<_> = ai_rules.iter().filter(|r| r.1).collect();
 
-    let total_enabled = enabled_builtin.len() + enabled_custom.len();
+    let total_enabled =
+        enabled_builtin.len() + enabled_regex.len() + enabled_script.len() + enabled_ai.len();
     println!("{} enabled rules:\n", total_enabled);
 
-    for (name, _, severity, is_custom) in enabled_builtin.iter().chain(enabled_custom.iter()) {
-        print_rule(name, *severity, *is_custom);
+    for (name, _, severity, rule_type) in enabled_builtin
+        .iter()
+        .chain(enabled_regex.iter())
+        .chain(enabled_script.iter())
+        .chain(enabled_ai.iter())
+    {
+        print_rule(name, *severity, rule_type);
     }
 
     let disabled_builtin = builtin_rules.iter().filter(|r| !r.1).count();
-    let disabled_custom = custom_rules.iter().filter(|r| !r.1).count();
-    let total_disabled = disabled_builtin + disabled_custom;
+    let disabled_regex = regex_rules.iter().filter(|r| !r.1).count();
+    let disabled_script = script_rules.iter().filter(|r| !r.1).count();
+    let disabled_ai = ai_rules.iter().filter(|r| !r.1).count();
+    let total_disabled = disabled_builtin + disabled_regex + disabled_script + disabled_ai;
 
     if total_disabled > 0 {
         println!("\n{} disabled rules", total_disabled.to_string().dimmed());
@@ -201,21 +224,23 @@ fn cmd_rules(config: &TscannerConfig, config_file_path: &str) -> Result<()> {
     Ok(())
 }
 
-fn print_rule(name: &str, severity: Severity, is_custom: bool) {
+fn print_rule(name: &str, severity: Severity, rule_type: &str) {
     let severity_badge = match severity {
         Severity::Error => "ERROR".red(),
         Severity::Warning => "WARN".yellow(),
     };
 
-    let rule_type = if is_custom {
-        "CUSTOM".magenta()
-    } else {
-        "AST".cyan()
+    let type_badge = match rule_type {
+        "builtin" => "AST".cyan(),
+        "regex" => "REGEX".blue(),
+        "script" => "SCRIPT".magenta(),
+        "ai" => "AI".green(),
+        _ => rule_type.normal(),
     };
 
     print!("  {} ", "•".cyan());
     print!("{} ", name.bold());
-    print!("[{}] ", rule_type);
+    print!("[{}] ", type_badge);
     println!("{}", severity_badge);
 }
 
@@ -254,9 +279,9 @@ fn cmd_show(config: &TscannerConfig, config_file_path: &str) -> Result<()> {
         );
     }
 
-    if !config.builtin_rules.is_empty() {
+    if !config.rules.builtin.is_empty() {
         println!("\n{}", "Builtin Rules (configured):".bold());
-        let mut sorted: Vec<_> = config.builtin_rules.iter().collect();
+        let mut sorted: Vec<_> = config.rules.builtin.iter().collect();
         sorted.sort_by(|a, b| a.0.cmp(b.0));
         for (name, cfg) in sorted {
             let enabled_str = cfg
@@ -278,22 +303,38 @@ fn cmd_show(config: &TscannerConfig, config_file_path: &str) -> Result<()> {
         }
     }
 
-    if !config.custom_rules.is_empty() {
-        println!("\n{}", "Custom Rules:".bold());
-        let mut sorted: Vec<_> = config.custom_rules.iter().collect();
+    if !config.rules.regex.is_empty() {
+        println!("\n{}", "Regex Rules:".bold());
+        let mut sorted: Vec<_> = config.rules.regex.iter().collect();
         sorted.sort_by(|a, b| a.0.cmp(b.0));
         for (name, cfg) in sorted {
-            let type_name = match cfg {
-                tscanner_config::CustomRuleConfig::Regex(_) => "regex",
-                tscanner_config::CustomRuleConfig::Script(_) => "script",
-                tscanner_config::CustomRuleConfig::Ai(_) => "ai",
-            };
             println!(
-                "  {}: type={}, enabled={}, severity={:?}",
-                name,
-                type_name,
-                cfg.enabled(),
-                cfg.severity()
+                "  {}: enabled={}, severity={:?}",
+                name, cfg.enabled, cfg.severity
+            );
+        }
+    }
+
+    if !config.rules.script.is_empty() {
+        println!("\n{}", "Script Rules:".bold());
+        let mut sorted: Vec<_> = config.rules.script.iter().collect();
+        sorted.sort_by(|a, b| a.0.cmp(b.0));
+        for (name, cfg) in sorted {
+            println!(
+                "  {}: enabled={}, severity={:?}",
+                name, cfg.enabled, cfg.severity
+            );
+        }
+    }
+
+    if !config.ai_rules.is_empty() {
+        println!("\n{}", "AI Rules:".bold());
+        let mut sorted: Vec<_> = config.ai_rules.iter().collect();
+        sorted.sort_by(|a, b| a.0.cmp(b.0));
+        for (name, cfg) in sorted {
+            println!(
+                "  {}: enabled={}, severity={:?}, mode={:?}",
+                name, cfg.enabled, cfg.severity, cfg.mode
             );
         }
     }

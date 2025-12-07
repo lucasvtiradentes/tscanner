@@ -1,14 +1,13 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
 use std::collections::HashSet;
-use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
 
 pub struct NoShadowRule;
 
@@ -23,42 +22,51 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Shadow",
         description: "Disallows variable declarations that shadow variables in outer scopes. Shadowing can lead to confusing code and subtle bugs.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::Variables,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-shadow"),
         equivalent_biome_rule: None,
-        allowed_options: &[],
+        ..RuleMetadata::defaults()
     }
 });
 
+pub struct ShadowState {
+    pub line: usize,
+    pub start_col: usize,
+    pub end_col: usize,
+    pub variable_name: String,
+}
+
 impl Rule for NoShadowRule {
-    fn name(&self) -> &str {
+    type State = ShadowState;
+
+    fn name(&self) -> &'static str {
         "no-shadow"
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut visitor = ShadowVisitor {
-            issues: Vec::new(),
-            path: path.to_path_buf(),
-            source,
+            states: Vec::new(),
+            source: ctx.source(),
             scope_stack: vec![HashSet::new()],
         };
-        program.visit_with(&mut visitor);
-        visitor.issues
+        ctx.program().visit_with(&mut visitor);
+        visitor.states
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.start_col, state.end_col),
+            format!(
+                "Variable '{}' shadows a variable in an outer scope.",
+                state.variable_name
+            ),
+        )
     }
 }
 
 struct ShadowVisitor<'a> {
-    issues: Vec<Issue>,
-    path: std::path::PathBuf,
+    states: Vec<ShadowState>,
     source: &'a str,
     scope_stack: Vec<HashSet<String>>,
 }
@@ -93,15 +101,11 @@ impl<'a> ShadowVisitor<'a> {
         if self.is_shadowing(&name) {
             let (line, column, end_column) =
                 get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
-            self.issues.push(Issue {
-                rule: "no-shadow".to_string(),
-                file: self.path.clone(),
+            self.states.push(ShadowState {
                 line,
-                column,
-                end_column,
-                message: format!("Variable '{}' shadows a variable in an outer scope.", name),
-                severity: Severity::Warning,
-                line_text: None,
+                start_col: column,
+                end_col: end_column,
+                variable_name: name.clone(),
             });
         }
         if let Some(scope) = self.current_scope() {

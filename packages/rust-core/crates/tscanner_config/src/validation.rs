@@ -1,5 +1,5 @@
-use serde::Deserialize;
-use std::collections::HashSet;
+use serde_json::Value;
+use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Default)]
 pub struct ValidationResult {
@@ -34,25 +34,91 @@ impl ValidationResult {
     }
 }
 
-const CONFIG_FIELDS_JSON: &str =
-    include_str!("../../../../../assets/generated/rust_config_fields.json");
+const SCHEMA_JSON: &str = include_str!("../../../../cli/schema.json");
 
-#[derive(Deserialize)]
-struct ConfigFields {
+struct SchemaFields {
     tscanner_config: Vec<String>,
+    ai_config: Vec<String>,
     code_editor_config: Vec<String>,
     cli_config: Vec<String>,
     files_config: Vec<String>,
-    builtin_rule_config: Vec<String>,
-    custom_rule_base: Vec<String>,
+    rules_config: Vec<String>,
     regex_rule_config: Vec<String>,
     script_rule_config: Vec<String>,
     ai_rule_config: Vec<String>,
+    builtin_rule_base: Vec<String>,
+    builtin_rule_options: HashMap<String, Vec<String>>,
+}
+
+fn extract_properties(schema: &Value, path: &str) -> Vec<String> {
+    let parts: Vec<&str> = path.split('.').collect();
+    let mut current = schema;
+
+    for part in parts {
+        current = match current.get(part) {
+            Some(v) => v,
+            None => return vec![],
+        };
+    }
+
+    current
+        .as_object()
+        .map(|obj| obj.keys().cloned().collect())
+        .unwrap_or_default()
+}
+
+fn extract_definition_properties(schema: &Value, definition_name: &str) -> Vec<String> {
+    extract_properties(
+        schema,
+        &format!("definitions.{}.properties", definition_name),
+    )
+}
+
+fn build_schema_fields(schema: &Value) -> SchemaFields {
+    let mut tscanner_config = extract_properties(schema, "properties");
+    tscanner_config.push("$schema".to_string());
+
+    let builtin_rule_base = extract_definition_properties(schema, "BuiltinRuleConfig");
+
+    let mut builtin_rule_options: HashMap<String, Vec<String>> = HashMap::new();
+    if let Some(definitions) = schema.get("definitions").and_then(|d| d.as_object()) {
+        for (name, _) in definitions {
+            if name.starts_with("BuiltinRuleConfig_") {
+                let rule_name = name
+                    .strip_prefix("BuiltinRuleConfig_")
+                    .unwrap()
+                    .replace('_', "-");
+                let props = extract_definition_properties(schema, name);
+                let extra: Vec<String> = props
+                    .into_iter()
+                    .filter(|p| !builtin_rule_base.contains(p))
+                    .collect();
+                if !extra.is_empty() {
+                    builtin_rule_options.insert(rule_name, extra);
+                }
+            }
+        }
+    }
+
+    SchemaFields {
+        tscanner_config,
+        ai_config: extract_definition_properties(schema, "AiConfig"),
+        code_editor_config: extract_definition_properties(schema, "CodeEditorConfig"),
+        cli_config: extract_definition_properties(schema, "CliConfig"),
+        files_config: extract_definition_properties(schema, "FilesConfig"),
+        rules_config: extract_definition_properties(schema, "RulesConfig"),
+        regex_rule_config: extract_definition_properties(schema, "RegexRuleConfig"),
+        script_rule_config: extract_definition_properties(schema, "ScriptRuleConfig"),
+        ai_rule_config: extract_definition_properties(schema, "AiRuleConfig"),
+        builtin_rule_base,
+        builtin_rule_options,
+    }
 }
 
 lazy_static::lazy_static! {
-    static ref FIELDS: ConfigFields = serde_json::from_str(CONFIG_FIELDS_JSON)
-        .expect("Failed to parse rust_config_fields.json");
+    static ref SCHEMA: Value = serde_json::from_str(SCHEMA_JSON)
+        .expect("Failed to parse schema.json");
+    static ref FIELDS: SchemaFields = build_schema_fields(&SCHEMA);
 }
 
 fn collect_invalid_fields(
@@ -73,46 +139,77 @@ fn collect_invalid_fields(
         .collect()
 }
 
-fn validate_custom_rules(rules: &serde_json::Map<String, serde_json::Value>) -> Vec<String> {
+fn validate_builtin_rules(
+    rules: &serde_json::Map<String, serde_json::Value>,
+    prefix: &str,
+) -> Vec<String> {
     let mut invalid = Vec::new();
     for (rule_name, rule_config) in rules {
         if let Some(rule_obj) = rule_config.as_object() {
-            let prefix = format!("customRules.{}", rule_name);
-            let rule_type = rule_obj.get("type").and_then(|v| v.as_str()).unwrap_or("");
-
-            let mut allowed: Vec<String> = FIELDS.custom_rule_base.clone();
-            match rule_type {
-                "regex" => allowed.extend(FIELDS.regex_rule_config.clone()),
-                "script" => allowed.extend(FIELDS.script_rule_config.clone()),
-                "ai" => allowed.extend(FIELDS.ai_rule_config.clone()),
-                _ => {}
+            let mut allowed = FIELDS.builtin_rule_base.clone();
+            if let Some(extra) = FIELDS.builtin_rule_options.get(rule_name) {
+                allowed.extend(extra.clone());
             }
-
-            invalid.extend(collect_invalid_fields(rule_obj, &allowed, &prefix));
+            let rule_prefix = format!("{}.{}", prefix, rule_name);
+            invalid.extend(collect_invalid_fields(rule_obj, &allowed, &rule_prefix));
         }
     }
     invalid
 }
 
-pub type AllowedOptionsGetter = fn(&str) -> &'static [&'static str];
-
-fn get_allowed_top_level() -> Vec<String> {
-    let mut allowed = FIELDS.tscanner_config.clone();
-    allowed.push("$schema".to_string());
-    allowed
+fn validate_regex_rules(rules: &serde_json::Map<String, serde_json::Value>) -> Vec<String> {
+    let mut invalid = Vec::new();
+    for (rule_name, rule_config) in rules {
+        if let Some(rule_obj) = rule_config.as_object() {
+            let prefix = format!("rules.regex.{}", rule_name);
+            invalid.extend(collect_invalid_fields(
+                rule_obj,
+                &FIELDS.regex_rule_config,
+                &prefix,
+            ));
+        }
+    }
+    invalid
 }
 
-pub fn validate_json_fields(
-    json: &serde_json::Value,
-    get_allowed_options_for_rule: Option<AllowedOptionsGetter>,
-) -> ValidationResult {
+fn validate_script_rules(rules: &serde_json::Map<String, serde_json::Value>) -> Vec<String> {
+    let mut invalid = Vec::new();
+    for (rule_name, rule_config) in rules {
+        if let Some(rule_obj) = rule_config.as_object() {
+            let prefix = format!("rules.script.{}", rule_name);
+            invalid.extend(collect_invalid_fields(
+                rule_obj,
+                &FIELDS.script_rule_config,
+                &prefix,
+            ));
+        }
+    }
+    invalid
+}
+
+fn validate_ai_rules(rules: &serde_json::Map<String, serde_json::Value>) -> Vec<String> {
+    let mut invalid = Vec::new();
+    for (rule_name, rule_config) in rules {
+        if let Some(rule_obj) = rule_config.as_object() {
+            let prefix = format!("aiRules.{}", rule_name);
+            invalid.extend(collect_invalid_fields(
+                rule_obj,
+                &FIELDS.ai_rule_config,
+                &prefix,
+            ));
+        }
+    }
+    invalid
+}
+
+pub fn validate_json_fields(json: &serde_json::Value) -> ValidationResult {
     let mut result = ValidationResult::new();
 
     let Some(obj) = json.as_object() else {
         return result;
     };
 
-    let mut invalid_fields = collect_invalid_fields(obj, &get_allowed_top_level(), "");
+    let mut invalid_fields = collect_invalid_fields(obj, &FIELDS.tscanner_config, "");
 
     if let Some(files) = obj.get("files").and_then(|v| v.as_object()) {
         invalid_fields.extend(collect_invalid_fields(files, &FIELDS.files_config, "files"));
@@ -130,15 +227,28 @@ pub fn validate_json_fields(
         invalid_fields.extend(collect_invalid_fields(cli, &FIELDS.cli_config, "cli"));
     }
 
-    if let Some(builtin_rules) = obj.get("builtinRules").and_then(|v| v.as_object()) {
-        invalid_fields.extend(validate_builtin_rules(
-            builtin_rules,
-            get_allowed_options_for_rule,
-        ));
+    if let Some(ai) = obj.get("ai").and_then(|v| v.as_object()) {
+        invalid_fields.extend(collect_invalid_fields(ai, &FIELDS.ai_config, "ai"));
     }
 
-    if let Some(custom_rules) = obj.get("customRules").and_then(|v| v.as_object()) {
-        invalid_fields.extend(validate_custom_rules(custom_rules));
+    if let Some(rules) = obj.get("rules").and_then(|v| v.as_object()) {
+        invalid_fields.extend(collect_invalid_fields(rules, &FIELDS.rules_config, "rules"));
+
+        if let Some(builtin_rules) = rules.get("builtin").and_then(|v| v.as_object()) {
+            invalid_fields.extend(validate_builtin_rules(builtin_rules, "rules.builtin"));
+        }
+
+        if let Some(regex_rules) = rules.get("regex").and_then(|v| v.as_object()) {
+            invalid_fields.extend(validate_regex_rules(regex_rules));
+        }
+
+        if let Some(script_rules) = rules.get("script").and_then(|v| v.as_object()) {
+            invalid_fields.extend(validate_script_rules(script_rules));
+        }
+    }
+
+    if let Some(ai_rules) = obj.get("aiRules").and_then(|v| v.as_object()) {
+        invalid_fields.extend(validate_ai_rules(ai_rules));
     }
 
     for field in invalid_fields {
@@ -146,22 +256,4 @@ pub fn validate_json_fields(
     }
 
     result
-}
-
-fn validate_builtin_rules(
-    rules: &serde_json::Map<String, serde_json::Value>,
-    get_allowed_options_for_rule: Option<AllowedOptionsGetter>,
-) -> Vec<String> {
-    let mut invalid = Vec::new();
-    for (rule_name, rule_config) in rules {
-        if let Some(rule_obj) = rule_config.as_object() {
-            let mut allowed: Vec<String> = FIELDS.builtin_rule_config.clone();
-            if let Some(getter) = get_allowed_options_for_rule {
-                allowed.extend(getter(rule_name).iter().map(|s| s.to_string()));
-            }
-            let prefix = format!("builtinRules.{}", rule_name);
-            invalid.extend(collect_invalid_fields(rule_obj, &allowed, &prefix));
-        }
-    }
-    invalid
 }

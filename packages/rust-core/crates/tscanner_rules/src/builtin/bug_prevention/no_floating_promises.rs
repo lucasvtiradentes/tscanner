@@ -1,14 +1,13 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
 use std::collections::HashSet;
-use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
 
 pub struct NoFloatingPromisesRule;
 
@@ -23,15 +22,19 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Floating Promises",
         description: "Disallows floating promises (promises used as statements without await, .then(), or .catch()). Unhandled promises can lead to silent failures.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::BugPrevention,
         typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-floating-promises"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-floating-promises"),
-        allowed_options: &[],
+        ..RuleMetadata::defaults()
     }
 });
+
+pub struct FloatingPromiseState {
+    pub line: usize,
+    pub column: usize,
+    pub end_column: usize,
+}
 
 struct AsyncFunctionCollector {
     async_functions: HashSet<String>,
@@ -71,33 +74,34 @@ fn collect_async_functions(program: &Program) -> HashSet<String> {
 }
 
 impl Rule for NoFloatingPromisesRule {
-    fn name(&self) -> &str {
+    type State = FloatingPromiseState;
+
+    fn name(&self) -> &'static str {
         "no-floating-promises"
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
-        let async_functions = collect_async_functions(program);
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
+        let async_functions = collect_async_functions(ctx.program());
 
         let mut visitor = FloatingPromiseVisitor {
-            issues: Vec::new(),
-            path: path.to_path_buf(),
-            source,
+            states: Vec::new(),
+            source: ctx.source(),
             async_functions,
         };
-        program.visit_with(&mut visitor);
-        visitor.issues
+        ctx.program().visit_with(&mut visitor);
+        visitor.states
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.column, state.end_column),
+            "Promise-returning expression used without handling. Use await, .then(), .catch(), or assign to a variable.".to_string(),
+        )
     }
 }
 
 struct FloatingPromiseVisitor<'a> {
-    issues: Vec<Issue>,
-    path: std::path::PathBuf,
+    states: Vec<FloatingPromiseState>,
     source: &'a str,
     async_functions: std::collections::HashSet<String>,
 }
@@ -112,15 +116,10 @@ impl<'a> Visit for FloatingPromiseVisitor<'a> {
                 let (line, column, end_column) =
                     get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
-                self.issues.push(Issue {
-                    rule: "no-floating-promises".to_string(),
-                    file: self.path.clone(),
+                self.states.push(FloatingPromiseState {
                     line,
                     column,
                     end_column,
-                    message: "Promise-returning expression used without handling. Use await, .then(), .catch(), or assign to a variable.".to_string(),
-                    severity: Severity::Warning,
-                    line_text: None,
                 });
             }
         }

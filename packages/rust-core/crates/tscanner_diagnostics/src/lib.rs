@@ -4,6 +4,6 @@ mod results;
 mod severity;
 
 pub use formatter::{GroupMode, PrettyFormatter};
-pub use issue::Issue;
+pub use issue::{Issue, IssueRuleType};
 pub use results::{ContentScanResult, FileResult, ScanResult};
 pub use severity::Severity;

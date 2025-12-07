@@ -3,7 +3,7 @@ use std::env;
 use tscanner_diagnostics::Severity;
 
 use crate::types::{
-    CliConfig, CliGroupBy, CodeEditorConfig, FilesConfig, ScriptMode, TscannerConfig,
+    AiExecutionMode, CliConfig, CliGroupBy, CodeEditorConfig, FilesConfig, TscannerConfig,
 };
 
 const DEFAULT_CONFIG_JSON: &str = include_str!("../../../../../assets/default-config.json");
@@ -19,8 +19,8 @@ struct Constants {
     config_file_name: String,
     default_target_branch: String,
     log_basename: String,
-    disable_file_comment: String,
-    disable_next_line_comment: String,
+    ignore_comment: String,
+    ignore_next_line_comment: String,
 }
 
 lazy_static::lazy_static! {
@@ -68,12 +68,12 @@ pub fn get_log_filename() -> String {
     }
 }
 
-pub fn disable_file_comment() -> &'static str {
-    &CONSTANTS.disable_file_comment
+pub fn ignore_comment() -> &'static str {
+    &CONSTANTS.ignore_comment
 }
 
-pub fn disable_next_line_comment() -> &'static str {
-    &CONSTANTS.disable_next_line_comment
+pub fn ignore_next_line_comment() -> &'static str {
+    &CONSTANTS.ignore_next_line_comment
 }
 
 pub fn default_code_editor_config() -> CodeEditorConfig {
@@ -162,8 +162,16 @@ pub fn default_script_timeout() -> u64 {
     10000
 }
 
-pub fn default_script_mode() -> ScriptMode {
-    ScriptMode::Batch
+pub fn default_ai_timeout() -> u64 {
+    120000
+}
+
+pub fn default_ai_execution_mode() -> AiExecutionMode {
+    AiExecutionMode::Ignore
+}
+
+pub fn default_ai_scan_interval_seconds() -> u32 {
+    0
 }
 
 pub fn get_default_config_json() -> &'static str {

@@ -1,3 +1,4 @@
+import { AiExecutionMode } from 'tscanner-common';
 import type * as vscode from 'vscode';
 import { loadEffectiveConfig } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
@@ -40,7 +41,7 @@ export async function setupScanInterval(
       return;
     }
     logger.debug('Running auto-scan...');
-    executeCommand(Command.FindIssue, { silent: true });
+    executeCommand(Command.FindIssue, { silent: true, aiMode: AiExecutionMode.Ignore });
   }, intervalMs);
 }
 

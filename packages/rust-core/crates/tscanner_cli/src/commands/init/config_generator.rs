@@ -34,7 +34,14 @@ pub fn get_all_rules_config() -> String {
         for name in rule_names {
             builtin_rules.insert(name.to_string(), Value::Object(serde_json::Map::new()));
         }
-        obj["builtinRules"] = Value::Object(builtin_rules);
+
+        if let Some(rules) = obj.get_mut("rules").and_then(|r| r.as_object_mut()) {
+            rules["builtin"] = Value::Object(builtin_rules);
+        } else {
+            let mut rules = serde_json::Map::new();
+            rules.insert("builtin".to_string(), Value::Object(builtin_rules));
+            obj["rules"] = Value::Object(rules);
+        }
     }
 
     serde_json::to_string_pretty(&config).unwrap_or_else(|_| DEFAULT_CONFIG_JSON.to_string())

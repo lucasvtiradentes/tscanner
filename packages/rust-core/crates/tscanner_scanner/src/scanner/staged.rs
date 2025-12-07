@@ -103,13 +103,14 @@ impl Scanner {
             .collect();
 
         let script_issues = self.run_script_rules(&files);
-        let ai_issues = self.run_ai_rules(&files);
 
         let mut all_results = results;
         self.merge_issues(&mut all_results, script_issues);
-        self.merge_issues(&mut all_results, ai_issues);
 
         self.filter_to_staged_lines(&mut all_results, staged_lines);
+
+        let ai_issues = self.run_ai_rules_with_context(&files, Some(staged_lines));
+        self.merge_issues(&mut all_results, ai_issues);
 
         let total_issues: usize = all_results.iter().map(|r| r.issues.len()).sum();
         let duration = start.elapsed();

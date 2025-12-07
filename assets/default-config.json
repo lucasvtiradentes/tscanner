@@ -1,9 +1,13 @@
 {
   "$schema": "https://unpkg.com/tscanner@0.0.28/schema.json",
-  "builtinRules": {
-    "no-explicit-any": {}
+  "rules": {
+    "builtin": {
+      "no-explicit-any": {}
+    },
+    "regex": {},
+    "script": {}
   },
-  "customRules": {},
+  "aiRules": {},
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
     "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]

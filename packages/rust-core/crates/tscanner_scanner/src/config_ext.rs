@@ -8,7 +8,7 @@ use tscanner_config::{
     CONFIG_ERROR_PREFIX,
 };
 use tscanner_diagnostics::Severity;
-use tscanner_rules::{get_all_rule_metadata, get_allowed_options_for_rule};
+use tscanner_rules::get_all_rule_metadata;
 
 const TSCANNER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -29,12 +29,7 @@ pub fn load_config(
 
     let workspace = config_path.parent().and_then(|p| p.parent());
     let content = std::fs::read_to_string(&config_path)?;
-    let (config, result) = TscannerConfig::full_validate(
-        &content,
-        workspace,
-        config_dir_name,
-        Some(get_allowed_options_for_rule),
-    )?;
+    let (config, result) = TscannerConfig::full_validate(&content, workspace, config_dir_name)?;
 
     for warning in &result.warnings {
         eprintln!("Warning: {}", warning);
@@ -82,11 +77,20 @@ pub trait ConfigExt {
         &self,
         name: &str,
     ) -> Result<CompiledRuleConfig, Box<dyn std::error::Error>>;
+    fn compile_regex_rule(
+        &self,
+        name: &str,
+    ) -> Result<CompiledRuleConfig, Box<dyn std::error::Error>>;
+    fn compile_script_rule(
+        &self,
+        name: &str,
+    ) -> Result<CompiledRuleConfig, Box<dyn std::error::Error>>;
     fn compile_custom_rule(
         &self,
         name: &str,
     ) -> Result<CompiledRuleConfig, Box<dyn std::error::Error>>;
     fn count_enabled_rules(&self) -> usize;
+    fn count_enabled_rules_breakdown(&self) -> (usize, usize, usize, usize);
     fn compute_hash(&self) -> u64;
 }
 
@@ -112,7 +116,8 @@ impl ConfigExt for TscannerConfig {
         name: &str,
     ) -> Result<CompiledRuleConfig, Box<dyn std::error::Error>> {
         let rule_config = self
-            .builtin_rules
+            .rules
+            .builtin
             .get(name)
             .ok_or_else(|| format!("Builtin rule '{}' not found in configuration", name))?;
 
@@ -142,42 +147,108 @@ impl ConfigExt for TscannerConfig {
         })
     }
 
-    fn compile_custom_rule(
+    fn compile_regex_rule(
         &self,
         name: &str,
     ) -> Result<CompiledRuleConfig, Box<dyn std::error::Error>> {
         let rule_config = self
-            .custom_rules
+            .rules
+            .regex
             .get(name)
-            .ok_or_else(|| format!("Custom rule '{}' not found in configuration", name))?;
+            .ok_or_else(|| format!("Regex rule '{}' not found in configuration", name))?;
 
         Ok(CompiledRuleConfig {
-            enabled: rule_config.enabled(),
-            severity: rule_config.severity(),
+            enabled: rule_config.enabled,
+            severity: rule_config.severity,
             global_include: compile_globset(&self.files.include)?,
             global_exclude: compile_globset(&self.files.exclude)?,
-            rule_include: compile_optional_globset(rule_config.include())?,
-            rule_exclude: compile_optional_globset(rule_config.exclude())?,
-            message: Some(rule_config.message().to_string()),
-            pattern: rule_config.pattern().map(|s| s.to_string()),
+            rule_include: compile_optional_globset(&rule_config.include)?,
+            rule_exclude: compile_optional_globset(&rule_config.exclude)?,
+            message: Some(rule_config.message.clone()),
+            pattern: Some(rule_config.pattern.clone()),
             options: None,
         })
     }
 
+    fn compile_script_rule(
+        &self,
+        name: &str,
+    ) -> Result<CompiledRuleConfig, Box<dyn std::error::Error>> {
+        let rule_config = self
+            .rules
+            .script
+            .get(name)
+            .ok_or_else(|| format!("Script rule '{}' not found in configuration", name))?;
+
+        Ok(CompiledRuleConfig {
+            enabled: rule_config.enabled,
+            severity: rule_config.severity,
+            global_include: compile_globset(&self.files.include)?,
+            global_exclude: compile_globset(&self.files.exclude)?,
+            rule_include: compile_optional_globset(&rule_config.include)?,
+            rule_exclude: compile_optional_globset(&rule_config.exclude)?,
+            message: Some(rule_config.message.clone()),
+            pattern: None,
+            options: None,
+        })
+    }
+
+    fn compile_custom_rule(
+        &self,
+        name: &str,
+    ) -> Result<CompiledRuleConfig, Box<dyn std::error::Error>> {
+        if let Some(rule_config) = self.rules.regex.get(name) {
+            return Ok(CompiledRuleConfig {
+                enabled: rule_config.enabled,
+                severity: rule_config.severity,
+                global_include: compile_globset(&self.files.include)?,
+                global_exclude: compile_globset(&self.files.exclude)?,
+                rule_include: compile_optional_globset(&rule_config.include)?,
+                rule_exclude: compile_optional_globset(&rule_config.exclude)?,
+                message: Some(rule_config.message.clone()),
+                pattern: Some(rule_config.pattern.clone()),
+                options: None,
+            });
+        }
+
+        if let Some(rule_config) = self.rules.script.get(name) {
+            return Ok(CompiledRuleConfig {
+                enabled: rule_config.enabled,
+                severity: rule_config.severity,
+                global_include: compile_globset(&self.files.include)?,
+                global_exclude: compile_globset(&self.files.exclude)?,
+                rule_include: compile_optional_globset(&rule_config.include)?,
+                rule_exclude: compile_optional_globset(&rule_config.exclude)?,
+                message: Some(rule_config.message.clone()),
+                pattern: None,
+                options: None,
+            });
+        }
+
+        Err(format!("Custom rule '{}' not found in configuration", name).into())
+    }
+
     fn count_enabled_rules(&self) -> usize {
+        let (builtin, regex, script, ai) = self.count_enabled_rules_breakdown();
+        builtin + regex + script + ai
+    }
+
+    fn count_enabled_rules_breakdown(&self) -> (usize, usize, usize, usize) {
         let all_builtin_metadata = get_all_rule_metadata();
 
         let enabled_builtin = all_builtin_metadata
             .iter()
-            .filter(|meta| match self.builtin_rules.get(meta.name) {
+            .filter(|meta| match self.rules.builtin.get(meta.name) {
                 Some(rule_config) => rule_config.enabled.unwrap_or(true),
                 None => meta.default_enabled,
             })
             .count();
 
-        let enabled_custom = self.custom_rules.values().filter(|r| r.enabled()).count();
+        let enabled_regex = self.rules.regex.values().filter(|r| r.enabled).count();
+        let enabled_script = self.rules.script.values().filter(|r| r.enabled).count();
+        let enabled_ai = self.ai_rules.values().filter(|r| r.enabled).count();
 
-        enabled_builtin + enabled_custom
+        (enabled_builtin, enabled_regex, enabled_script, enabled_ai)
     }
 
     fn compute_hash(&self) -> u64 {
@@ -190,7 +261,7 @@ impl ConfigExt for TscannerConfig {
             pattern.hash(&mut hasher);
         }
 
-        let sorted_builtin: BTreeMap<_, _> = self.builtin_rules.iter().collect();
+        let sorted_builtin: BTreeMap<_, _> = self.rules.builtin.iter().collect();
         for (name, config) in sorted_builtin {
             name.hash(&mut hasher);
             config.enabled.hash(&mut hasher);
@@ -210,17 +281,41 @@ impl ConfigExt for TscannerConfig {
             }
         }
 
-        let sorted_custom: BTreeMap<_, _> = self.custom_rules.iter().collect();
-        for (name, config) in sorted_custom {
+        let sorted_regex: BTreeMap<_, _> = self.rules.regex.iter().collect();
+        for (name, config) in sorted_regex {
             name.hash(&mut hasher);
-            config.enabled().hash(&mut hasher);
-            if let Some(pattern) = config.pattern() {
+            config.enabled.hash(&mut hasher);
+            config.pattern.hash(&mut hasher);
+            for pattern in &config.include {
                 pattern.hash(&mut hasher);
             }
-            for pattern in config.include() {
+            for pattern in &config.exclude {
                 pattern.hash(&mut hasher);
             }
-            for pattern in config.exclude() {
+        }
+
+        let sorted_script: BTreeMap<_, _> = self.rules.script.iter().collect();
+        for (name, config) in sorted_script {
+            name.hash(&mut hasher);
+            config.enabled.hash(&mut hasher);
+            config.command.hash(&mut hasher);
+            for pattern in &config.include {
+                pattern.hash(&mut hasher);
+            }
+            for pattern in &config.exclude {
+                pattern.hash(&mut hasher);
+            }
+        }
+
+        let sorted_ai: BTreeMap<_, _> = self.ai_rules.iter().collect();
+        for (name, config) in sorted_ai {
+            name.hash(&mut hasher);
+            config.enabled.hash(&mut hasher);
+            config.prompt.hash(&mut hasher);
+            for pattern in &config.include {
+                pattern.hash(&mut hasher);
+            }
+            for pattern in &config.exclude {
                 pattern.hash(&mut hasher);
             }
         }

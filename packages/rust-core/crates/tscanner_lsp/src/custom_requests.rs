@@ -1,8 +1,10 @@
+use lsp_types::notification::Notification;
 use lsp_types::request::Request;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-use tscanner_config::TscannerConfig;
+use tscanner_config::{AiExecutionMode, TscannerConfig};
 use tscanner_diagnostics::{ContentScanResult, FileResult, ScanResult};
+use tscanner_scanner::{AiProgressEvent, AiRuleStatus};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ScanParams {
@@ -11,6 +13,8 @@ pub struct ScanParams {
     pub config: Option<TscannerConfig>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub branch: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub ai_mode: Option<AiExecutionMode>,
 }
 
 pub enum ScanRequest {}
@@ -95,4 +99,29 @@ impl Request for FormatResultsRequest {
     type Params = FormatResultsParams;
     type Result = FormatPrettyResult;
     const METHOD: &'static str = "tscanner/formatResults";
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct AiProgressParams {
+    pub rule_name: String,
+    pub rule_index: usize,
+    pub total_rules: usize,
+    pub status: AiRuleStatus,
+}
+
+impl From<AiProgressEvent> for AiProgressParams {
+    fn from(event: AiProgressEvent) -> Self {
+        Self {
+            rule_name: event.rule_name,
+            rule_index: event.rule_index,
+            total_rules: event.total_rules,
+            status: event.status,
+        }
+    }
+}
+
+pub enum AiProgressNotification {}
+impl Notification for AiProgressNotification {
+    type Params = AiProgressParams;
+    const METHOD: &'static str = "tscanner/aiProgress";
 }

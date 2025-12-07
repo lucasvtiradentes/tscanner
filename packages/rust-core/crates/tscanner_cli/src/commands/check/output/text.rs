@@ -3,12 +3,23 @@ use super::CheckContext;
 use crate::shared::{render_summary, SummaryStats};
 use colored::*;
 use std::collections::{HashMap, HashSet};
-use tscanner_diagnostics::{GroupMode, ScanResult, Severity};
+use tscanner_diagnostics::{GroupMode, IssueRuleType, ScanResult, Severity};
+
+fn rule_type_icon(rule_type: IssueRuleType) -> &'static str {
+    match rule_type {
+        IssueRuleType::Builtin => "◆",
+        IssueRuleType::CustomRegex => "◇",
+        IssueRuleType::CustomScript => "▷",
+        IssueRuleType::Ai => "✦",
+    }
+}
 
 pub struct TextRenderer;
 
 impl OutputRenderer for TextRenderer {
     fn render(&self, ctx: &CheckContext, result: &ScanResult, stats: &SummaryStats) {
+        self.render_header(stats);
+
         match ctx.group_mode {
             GroupMode::Rule => self.render_by_rule(ctx, result),
             GroupMode::File => self.render_by_file(ctx, result),
@@ -23,6 +34,11 @@ impl OutputRenderer for TextRenderer {
 }
 
 impl TextRenderer {
+    fn render_header(&self, _stats: &SummaryStats) {
+        println!();
+        println!("{}", "Results:".cyan().bold());
+    }
+
     fn render_by_rule(&self, ctx: &CheckContext, result: &ScanResult) {
         let mut issues_by_rule: HashMap<String, Vec<_>> = HashMap::new();
 
@@ -44,8 +60,11 @@ impl TextRenderer {
         for rule_name in sorted_rules {
             let issues = &issues_by_rule[&rule_name];
             let unique_files: HashSet<_> = issues.iter().map(|(path, _)| path).collect();
+            let rule_type = issues.first().map(|(_, i)| i.rule_type).unwrap_or_default();
+            let icon = rule_type_icon(rule_type);
             println!(
-                "\n{} ({} issues, {} files)",
+                "\n{} {} ({} issues, {} files)",
+                icon.dimmed(),
                 rule_name.bold(),
                 issues.len(),
                 unique_files.len()
@@ -116,11 +135,13 @@ impl TextRenderer {
                 parts.push(location.to_string());
 
                 if ctx.cli_config.show_issue_rule_name && ctx.cli_config.show_issue_description {
+                    let icon = rule_type_icon(issue.rule_type).dimmed();
                     let rule_name = issue.rule.cyan().to_string();
-                    parts.push(format!("{} {}", rule_name, issue.message.dimmed()));
+                    parts.push(format!("{} {} {}", icon, rule_name, issue.message.dimmed()));
                 } else if ctx.cli_config.show_issue_rule_name {
+                    let icon = rule_type_icon(issue.rule_type).dimmed();
                     let rule_name = issue.rule.cyan().to_string();
-                    parts.push(rule_name);
+                    parts.push(format!("{} {}", icon, rule_name));
                 } else if ctx.cli_config.show_issue_description {
                     parts.push(issue.message.clone());
                 }

@@ -12,7 +12,7 @@ import {
   showToastMessage,
 } from '../common/lib/vscode-utils';
 import { WorkspaceStateKey, updateState } from '../common/state/workspace-state';
-import type { IssuesPanelContent } from '../issues-panel/panel-content';
+import type { RegularIssuesView } from '../issues-panel';
 
 enum BranchMenuOption {
   KeepCurrent = 'keep-current',
@@ -24,7 +24,7 @@ export async function showScanModeMenu(
   currentScanModeRef: { current: ScanMode },
   currentCompareBranchRef: { current: string },
   context: vscode.ExtensionContext,
-  panelContent: IssuesPanelContent,
+  regularView: RegularIssuesView,
 ) {
   logger.info('showScanModeMenu called');
   const scanModeItems: QuickPickItemWithId<ScanMode>[] = [
@@ -52,11 +52,11 @@ export async function showScanModeMenu(
   }
 
   if (selected.id === ScanMode.Codebase) {
-    await handleCodebaseScan(updateStatusBar, currentScanModeRef, currentCompareBranchRef, context, panelContent);
+    await handleCodebaseScan(updateStatusBar, currentScanModeRef, currentCompareBranchRef, context, regularView);
   }
 
   if (selected.id === ScanMode.Branch) {
-    await handleBranchScan(updateStatusBar, currentScanModeRef, currentCompareBranchRef, context, panelContent);
+    await handleBranchScan(updateStatusBar, currentScanModeRef, currentCompareBranchRef, context, regularView);
   }
 }
 
@@ -65,10 +65,10 @@ async function handleCodebaseScan(
   currentScanModeRef: { current: ScanMode },
   currentCompareBranchRef: { current: string },
   context: vscode.ExtensionContext,
-  panelContent: IssuesPanelContent,
+  regularView: RegularIssuesView,
 ) {
   logger.info('Switching to Codebase mode');
-  panelContent.setResults([]);
+  regularView.setResults([]);
   currentScanModeRef.current = ScanMode.Codebase;
   updateState(context, WorkspaceStateKey.ScanMode, ScanMode.Codebase);
   setCopyScanContext(ScanMode.Codebase, currentCompareBranchRef.current);
@@ -81,12 +81,12 @@ async function handleBranchScan(
   currentScanModeRef: { current: ScanMode },
   currentCompareBranchRef: { current: string },
   context: vscode.ExtensionContext,
-  panelContent: IssuesPanelContent,
+  regularView: RegularIssuesView,
 ) {
   const workspaceFolder = requireWorkspaceOrNull();
   if (!workspaceFolder) return;
 
-  const currentBranch = await VscodeGit.getCurrentBranch(workspaceFolder.uri.fsPath);
+  const currentBranch = VscodeGit.getCurrentBranch(workspaceFolder.uri.fsPath);
   if (!currentBranch) {
     showToastMessage(ToastKind.Error, 'Not in a git repository');
     return;
@@ -164,7 +164,7 @@ async function handleBranchScan(
   }
 
   logger.info(`Switching to Branch mode (comparing against: ${currentCompareBranchRef.current})`);
-  panelContent.setResults([]);
+  regularView.setResults([]);
   currentScanModeRef.current = ScanMode.Branch;
   updateState(context, WorkspaceStateKey.ScanMode, ScanMode.Branch);
   setCopyScanContext(ScanMode.Branch, currentCompareBranchRef.current);

@@ -1,3 +1,4 @@
+import z from 'zod';
 import constants from '../../../assets/constants.json';
 
 export const PACKAGE_NAME = constants.packageName;
@@ -7,8 +8,8 @@ export const CONFIG_DIR_NAME = constants.configDirName;
 export const CONFIG_FILE_NAME = constants.configFileName;
 export const DEFAULT_TARGET_BRANCH = constants.defaultTargetBranch;
 export const LOG_BASENAME = constants.logBasename;
-export const DISABLE_FILE_COMMENT = constants.disableFileComment;
-export const DISABLE_NEXT_LINE_COMMENT = constants.disableNextLineComment;
+export const IGNORE_COMMENT = constants.ignoreComment;
+export const IGNORE_NEXT_LINE_COMMENT = constants.ignoreNextLineComment;
 
 export enum Severity {
   Error = 'error',
@@ -30,10 +31,21 @@ export enum ViewMode {
   Tree = 'tree',
 }
 
-export enum CustomRuleType {
-  Regex = 'regex',
-  Script = 'script',
-  Ai = 'ai',
+export enum AiProvider {
+  Claude = 'claude',
+  Gemini = 'gemini',
+}
+
+export enum AiMode {
+  Paths = 'paths',
+  Content = 'content',
+  Agentic = 'agentic',
+}
+
+export enum AiExecutionMode {
+  Ignore = 'ignore',
+  Include = 'include',
+  Only = 'only',
 }
 
 export enum RuleType {
@@ -46,6 +58,13 @@ export enum RuleCategory {
   CodeQuality = 'codequality',
   Style = 'style',
   Performance = 'performance',
+}
+
+export enum IssueRuleType {
+  Builtin = 'builtin',
+  CustomRegex = 'custom_regex',
+  CustomScript = 'custom_script',
+  Ai = 'ai',
 }
 
 export const PLATFORM_TARGET_MAP: Record<string, string> = {
@@ -63,3 +82,6 @@ export const PLATFORM_PACKAGE_MAP: Record<string, string> = {
   'darwin-arm64': '@tscanner/cli-darwin-arm64',
   'win32-x64': '@tscanner/cli-win32-x64',
 };
+
+export const severitySchema = z.enum(Severity);
+export const issueRuleTypeSchema = z.enum(IssueRuleType);

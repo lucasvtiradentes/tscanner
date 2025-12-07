@@ -1,7 +1,8 @@
+import { type Issue, PACKAGE_DISPLAY_NAME } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { LOG_FILE_PATH } from '../common/lib/logger';
 import { openTextDocument } from '../common/lib/vscode-utils';
-import { type Issue, type IssueResult, parseSeverity } from '../common/types';
+import { type IssueResult, parseSeverity } from '../common/types';
 
 const CONFIG_ERROR_PREFIX = 'TSCANNER_CONFIG_ERROR:';
 
@@ -32,7 +33,7 @@ export function parseConfigError(errorMessage: string): ConfigError | null {
 
 export function showConfigErrorToast(configError: ConfigError) {
   const fieldsText = configError.invalidFields.join(', ');
-  const message = `TScanner config error: invalid fields [${fieldsText}]. Please check the docs for v${configError.version}`;
+  const message = `${PACKAGE_DISPLAY_NAME} config error: invalid fields [${fieldsText}]. Please check the docs for v${configError.version}`;
 
   vscode.window.showErrorMessage(message, 'Open Docs').then((selection) => {
     if (selection === 'Open Docs') {
@@ -43,7 +44,7 @@ export function showConfigErrorToast(configError: ConfigError) {
 
 export function showScanErrorToast(error: unknown) {
   vscode.window
-    .showErrorMessage(`TScanner: Scan error: ${error}\n\nCheck logs at ${LOG_FILE_PATH}`, 'Open Logs')
+    .showErrorMessage(`${PACKAGE_DISPLAY_NAME}: Scan error: ${error}\n\nCheck logs at ${LOG_FILE_PATH}`, 'Open Logs')
     .then((selection) => {
       if (selection === 'Open Logs') {
         openTextDocument(vscode.Uri.file(LOG_FILE_PATH)).then((doc) => {
@@ -63,5 +64,7 @@ export function mapIssueToResult(uri: vscode.Uri, issue: Issue, lineText?: strin
     rule: issue.rule,
     severity: parseSeverity(issue.severity),
     message: issue.message,
+    isAi: issue.is_ai,
+    ruleType: issue.rule_type,
   };
 }

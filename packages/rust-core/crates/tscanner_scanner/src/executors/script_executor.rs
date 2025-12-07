@@ -7,8 +7,8 @@ use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant, SystemTime};
-use tscanner_config::{ScriptMode, ScriptRuleConfig};
-use tscanner_diagnostics::{Issue, Severity};
+use tscanner_config::ScriptRuleConfig;
+use tscanner_diagnostics::{Issue, IssueRuleType, Severity};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ScriptFile {
@@ -134,6 +134,9 @@ impl ScriptExecutor {
                             message: format!("Script error: {}", e),
                             severity: Severity::Error,
                             line_text: None,
+                            is_ai: false,
+                            category: None,
+                            rule_type: IssueRuleType::CustomScript,
                         }]
                     }
                 }
@@ -147,16 +150,15 @@ impl ScriptExecutor {
         workspace_root: &Path,
         rule_config: &ScriptRuleConfig,
     ) -> bool {
-        if !rule_config.base.enabled {
+        if !rule_config.enabled {
             return false;
         }
 
         let relative = path.strip_prefix(workspace_root).unwrap_or(path);
         let relative_str = relative.to_string_lossy();
 
-        if !rule_config.base.include.is_empty() {
+        if !rule_config.include.is_empty() {
             let matches_include = rule_config
-                .base
                 .include
                 .iter()
                 .any(|pattern| glob_match::glob_match(pattern, &relative_str));
@@ -165,9 +167,8 @@ impl ScriptExecutor {
             }
         }
 
-        if !rule_config.base.exclude.is_empty() {
+        if !rule_config.exclude.is_empty() {
             let matches_exclude = rule_config
-                .base
                 .exclude
                 .iter()
                 .any(|pattern| glob_match::glob_match(pattern, &relative_str));
@@ -193,14 +194,7 @@ impl ScriptExecutor {
             return Ok(cached.issues.clone());
         }
 
-        let issues = match rule_config.mode {
-            ScriptMode::Batch => {
-                self.execute_batch(rule_name, rule_config, files, workspace_root)?
-            }
-            ScriptMode::Single => {
-                self.execute_single_parallel(rule_name, rule_config, files, workspace_root)?
-            }
-        };
+        let issues = self.execute_batch(rule_name, rule_config, files, workspace_root)?;
 
         self.cache.insert(
             cache_key,
@@ -244,28 +238,6 @@ impl ScriptExecutor {
         let output = self.spawn_command(rule_config, &input_json)?;
 
         self.parse_output(rule_name, rule_config, &output, workspace_root, files)
-    }
-
-    fn execute_single_parallel(
-        &self,
-        rule_name: &str,
-        rule_config: &ScriptRuleConfig,
-        files: &[&(PathBuf, String)],
-        workspace_root: &Path,
-    ) -> Result<Vec<Issue>, ScriptError> {
-        let results: Vec<Result<Vec<Issue>, ScriptError>> = files
-            .par_iter()
-            .map(|file| self.execute_batch(rule_name, rule_config, &[*file], workspace_root))
-            .collect();
-
-        let mut all_issues = Vec::new();
-        for result in results {
-            match result {
-                Ok(issues) => all_issues.extend(issues),
-                Err(e) => return Err(e),
-            }
-        }
-        Ok(all_issues)
     }
 
     fn spawn_command(
@@ -409,8 +381,11 @@ impl ScriptExecutor {
                         1
                     },
                     message: issue.message,
-                    severity: rule_config.base.severity,
+                    severity: rule_config.severity,
                     line_text,
+                    is_ai: false,
+                    category: None,
+                    rule_type: IssueRuleType::CustomScript,
                 }
             })
             .collect())

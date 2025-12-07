@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
+import { PACKAGE_DISPLAY_NAME } from 'tscanner-common';
 
 type TFields = 'WAYS_TO_USE_TSCANNER';
 type TPackage = 'cli' | 'vscode-extension' | 'github-action';
@@ -104,7 +105,7 @@ ${rows}
 
     if (wrapInDetails) {
       content = `<details>
-<summary>Other ways to use TScanner</summary>
+<summary>Other ways to use ${PACKAGE_DISPLAY_NAME}</summary>
 <br />
 
 ${content}

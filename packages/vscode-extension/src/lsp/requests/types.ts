@@ -1,22 +1,6 @@
-import type { GroupMode, ScanResult, TscannerConfig } from '../../common/types';
+import type { GroupMode, ScanContentParams, ScanFileParams, ScanParams, ScanResult } from 'tscanner-common';
 
-export type ScanParams = {
-  root: string;
-  config?: TscannerConfig;
-  branch?: string;
-};
-
-export type ScanFileParams = {
-  root: string;
-  file: string;
-};
-
-export type ScanContentParams = {
-  root: string;
-  file: string;
-  content: string;
-  config?: TscannerConfig;
-};
+export type { ScanContentParams, ScanFileParams, ScanParams };
 
 export type FormatResultsParams = {
   root: string;
@@ -37,4 +21,17 @@ export type FormatPrettyResult = {
 
 export type ClearCacheResult = {
   cleared: boolean;
+};
+
+export type AiRuleStatus =
+  | { pending: Record<string, never> }
+  | { running: Record<string, never> }
+  | { completed: { issues_found: number } }
+  | { failed: { error: string } };
+
+export type AiProgressParams = {
+  rule_name: string;
+  rule_index: number;
+  total_rules: number;
+  status: AiRuleStatus;
 };

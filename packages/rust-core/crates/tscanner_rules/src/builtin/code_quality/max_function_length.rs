@@ -1,14 +1,15 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{
+    RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleOption, RuleOptionSchema, RuleType,
+};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::count_statements;
 use crate::utils::get_span_positions;
 use serde::Deserialize;
-use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
 
 const DEFAULT_MAX_LENGTH: usize = 50;
 
@@ -29,6 +30,15 @@ impl Default for MaxFunctionLengthOptions {
             max_length: DEFAULT_MAX_LENGTH,
         }
     }
+}
+
+pub struct LongFunction {
+    pub line: usize,
+    pub column: usize,
+    pub end_column: usize,
+    pub name: String,
+    pub stmt_count: usize,
+    pub max_length: usize,
 }
 
 pub struct MaxFunctionLengthRule {
@@ -56,44 +66,54 @@ inventory::submit!(RuleMetadataRegistration {
         name: "max-function-length",
         display_name: "Max Function Length",
         description:
-            "Enforces a maximum number of statements in functions (default: 50). Long functions are harder to understand and maintain.",
+            "Enforces a maximum number of statements in functions. Long functions are harder to understand and maintain.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::CodeQuality,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/max-lines-per-function"),
         equivalent_biome_rule: None,
-        allowed_options: &["maxLength"],
+        options: &[RuleOption {
+            name: "maxLength",
+            description: "Maximum number of statements allowed in a function",
+            schema: RuleOptionSchema::Integer {
+                default: DEFAULT_MAX_LENGTH as i64,
+                minimum: Some(1),
+            },
+        }],
+        ..RuleMetadata::defaults()
     }
 });
 
 impl Rule for MaxFunctionLengthRule {
-    fn name(&self) -> &str {
+    type State = LongFunction;
+
+    fn name(&self) -> &'static str {
         "max-function-length"
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut visitor = MaxFunctionLengthVisitor {
             issues: Vec::new(),
-            path: path.to_path_buf(),
-            source,
+            source: ctx.source(),
             max_length: self.max_length,
         };
-        program.visit_with(&mut visitor);
+        ctx.program().visit_with(&mut visitor);
         visitor.issues
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.column, state.end_column),
+            format!(
+                "Function '{}' has {} statements (max: {}). Consider breaking it into smaller functions.",
+                state.name, state.stmt_count, state.max_length
+            ),
+        )
     }
 }
 
 struct MaxFunctionLengthVisitor<'a> {
-    issues: Vec<Issue>,
-    path: std::path::PathBuf,
+    issues: Vec<LongFunction>,
     source: &'a str,
     max_length: usize,
 }
@@ -106,18 +126,13 @@ impl<'a> MaxFunctionLengthVisitor<'a> {
             let (line, column, end_column) =
                 get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
-            self.issues.push(Issue {
-                rule: "max-function-length".to_string(),
-                file: self.path.clone(),
+            self.issues.push(LongFunction {
                 line,
                 column,
                 end_column,
-                message: format!(
-                    "Function '{}' has {} statements (max: {}). Consider breaking it into smaller functions.",
-                    name, stmt_count, self.max_length
-                ),
-                severity: Severity::Warning,
-                line_text: None,
+                name: name.to_string(),
+                stmt_count,
+                max_length: self.max_length,
             });
         }
     }

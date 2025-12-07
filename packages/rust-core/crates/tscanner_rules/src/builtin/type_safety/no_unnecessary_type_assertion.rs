@@ -1,13 +1,20 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
-use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
+
+pub struct UnnecessaryTypeAssertionMatch {
+    pub line: usize,
+    pub column: usize,
+    pub end_column: usize,
+    pub literal_type: String,
+    pub asserted_type: String,
+}
 
 pub struct NoUnnecessaryTypeAssertionRule;
 
@@ -22,18 +29,18 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Unnecessary Type Assertion",
         description: "Disallows type assertions on values that are already of the asserted type (e.g., \"hello\" as string, 123 as number).",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::TypeSafety,
         typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-unnecessary-type-assertion"),
         equivalent_biome_rule: None,
-        allowed_options: &[],
+        ..RuleMetadata::defaults()
     }
 });
 
 impl Rule for NoUnnecessaryTypeAssertionRule {
-    fn name(&self) -> &str {
+    type State = UnnecessaryTypeAssertionMatch;
+
+    fn name(&self) -> &'static str {
         "no-unnecessary-type-assertion"
     }
 
@@ -41,26 +48,28 @@ impl Rule for NoUnnecessaryTypeAssertionRule {
         true
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut visitor = UnnecessaryTypeAssertionVisitor {
-            issues: Vec::new(),
-            path: path.to_path_buf(),
-            source,
+            matches: Vec::new(),
+            source: ctx.source(),
         };
-        program.visit_with(&mut visitor);
-        visitor.issues
+        ctx.program().visit_with(&mut visitor);
+        visitor.matches
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.column, state.end_column),
+            format!(
+                "Unnecessary type assertion: {} is already of type {}",
+                state.literal_type, state.asserted_type
+            ),
+        )
     }
 }
 
 struct UnnecessaryTypeAssertionVisitor<'a> {
-    issues: Vec<Issue>,
-    path: std::path::PathBuf,
+    matches: Vec<UnnecessaryTypeAssertionMatch>,
     source: &'a str,
 }
 
@@ -71,18 +80,12 @@ impl<'a> Visit for UnnecessaryTypeAssertionVisitor<'a> {
             let (line, column, end_column) =
                 get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
-            self.issues.push(Issue {
-                rule: "no-unnecessary-type-assertion".to_string(),
-                file: self.path.clone(),
+            self.matches.push(UnnecessaryTypeAssertionMatch {
                 line,
                 column,
                 end_column,
-                message: format!(
-                    "Unnecessary type assertion: {} is already of type {}",
-                    literal_type, asserted_type
-                ),
-                severity: Severity::Warning,
-                line_text: None,
+                literal_type: literal_type.to_string(),
+                asserted_type: asserted_type.to_string(),
             });
         }
 

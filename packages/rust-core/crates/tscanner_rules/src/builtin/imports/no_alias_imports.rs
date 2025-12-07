@@ -1,12 +1,17 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
-use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
+
+pub struct AliasImportState {
+    pub line: usize,
+    pub start_col: usize,
+    pub end_col: usize,
+}
 
 pub struct NoAliasImportsRule;
 
@@ -21,41 +26,40 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Alias Imports",
         description: "Disallows aliased imports (starting with @). Prefer relative imports.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::Imports,
         typescript_only: false,
         equivalent_eslint_rule: None,
         equivalent_biome_rule: None,
-        allowed_options: &[],
+        ..RuleMetadata::defaults()
     }
 });
 
 impl Rule for NoAliasImportsRule {
-    fn name(&self) -> &str {
+    type State = AliasImportState;
+
+    fn name(&self) -> &'static str {
         "no-alias-imports"
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut visitor = AliasImportVisitor {
-            issues: Vec::new(),
-            path: path.to_path_buf(),
-            source,
+            states: Vec::new(),
+            source: ctx.source(),
         };
-        program.visit_with(&mut visitor);
-        visitor.issues
+        ctx.program().visit_with(&mut visitor);
+        visitor.states
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.start_col, state.end_col),
+            "Use relative imports instead of aliased imports".to_string(),
+        )
     }
 }
 
 struct AliasImportVisitor<'a> {
-    issues: Vec<Issue>,
-    path: std::path::PathBuf,
+    states: Vec<AliasImportState>,
     source: &'a str,
 }
 
@@ -75,20 +79,13 @@ impl<'a> Visit for AliasImportVisitor<'a> {
                 let (line, column, end_column) =
                     get_span_positions(self.source, import_start, import_end);
 
-                self.issues.push(Issue {
-                    rule: "no-alias-imports".to_string(),
-                    file: self.path.clone(),
+                self.states.push(AliasImportState {
                     line,
-                    column,
-                    end_column,
-                    message: "Use relative imports instead of aliased imports".to_string(),
-                    severity: Severity::Warning,
-                    line_text: None,
+                    start_col: column,
+                    end_col: end_column,
                 });
             }
         }
         n.visit_children_with(self);
     }
 }
-
-impl<'a> AliasImportVisitor<'a> {}

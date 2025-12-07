@@ -163,7 +163,7 @@ impl<'a> Visit for MyVisitor<'a> {
 **Create test directory:**
 
 ```bash
-mkdir crates/core/tests/specs/no-debugger
+mkdir crates/tscanner_rules/tests/specs/no-debugger
 ```
 
 **Create `invalid.ts` (code that should trigger):**

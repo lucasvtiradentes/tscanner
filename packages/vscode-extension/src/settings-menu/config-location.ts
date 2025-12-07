@@ -1,4 +1,5 @@
 import * as path from 'node:path';
+import { CONFIG_DIR_NAME, PACKAGE_DISPLAY_NAME } from 'tscanner-common';
 import * as vscode from 'vscode';
 import {
   type ConfigState,
@@ -27,9 +28,8 @@ import {
   openTextDocument,
   showToastMessage,
 } from '../common/lib/vscode-utils';
-import { CONFIG_DIR_NAME } from '../common/scripts-constants';
 import { WorkspaceStateKey, updateState } from '../common/state/workspace-state';
-import type { IssuesPanelContent } from '../issues-panel/panel-content';
+import type { RegularIssuesView } from '../issues-panel';
 
 export enum ConfigLocation {
   ExtensionStorage = 'extension-storage',
@@ -101,15 +101,17 @@ export async function openConfigFile(context: vscode.ExtensionContext, customCon
     return;
   }
 
-  showToastMessage(ToastKind.Error, 'No TScanner configuration found. Create one via "Manage Rules" first.');
+  showToastMessage(
+    ToastKind.Error,
+    `No ${PACKAGE_DISPLAY_NAME} configuration found. Create one via "Manage Rules" first.`,
+  );
 }
 
 export async function showConfigLocationMenu(
   updateStatusBar: () => Promise<void>,
-  updateBadge: () => void,
   currentCustomConfigDirRef: { current: string | null },
   context: vscode.ExtensionContext,
-  panelContent: IssuesPanelContent,
+  regularView: RegularIssuesView,
 ) {
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (!workspaceFolder) {
@@ -158,9 +160,8 @@ export async function showConfigLocationMenu(
         workspacePath,
         currentCustomConfigDirRef,
         context,
-        panelContent,
+        regularView,
         updateStatusBar,
-        updateBadge,
         currentLocation,
         configState,
       );
@@ -173,9 +174,8 @@ export async function showConfigLocationMenu(
       workspacePath,
       currentCustomConfigDirRef,
       context,
-      panelContent,
+      regularView,
       updateStatusBar,
-      updateBadge,
       currentLocation,
       configState,
     );
@@ -187,9 +187,8 @@ export async function showConfigLocationMenu(
       workspacePath,
       currentCustomConfigDirRef,
       context,
-      panelContent,
+      regularView,
       updateStatusBar,
-      updateBadge,
       currentLocation,
       targetLocation,
       null,
@@ -208,9 +207,8 @@ async function handleCustomPathSelection(
   workspacePath: string,
   currentCustomConfigDirRef: { current: string | null },
   context: vscode.ExtensionContext,
-  panelContent: IssuesPanelContent,
+  regularView: RegularIssuesView,
   updateStatusBar: () => Promise<void>,
-  updateBadge: () => void,
   currentLocation: ConfigLocation | null,
   configState: ConfigState,
 ) {
@@ -227,9 +225,8 @@ async function handleCustomPathSelection(
       workspacePath,
       currentCustomConfigDirRef,
       context,
-      panelContent,
+      regularView,
       updateStatusBar,
-      updateBadge,
       currentLocation,
       ConfigLocation.CustomPath,
       result,
@@ -247,9 +244,8 @@ async function moveConfigToLocation(
   workspacePath: string,
   currentCustomConfigDirRef: { current: string | null },
   context: vscode.ExtensionContext,
-  panelContent: IssuesPanelContent,
+  regularView: RegularIssuesView,
   updateStatusBar: () => Promise<void>,
-  updateBadge: () => void,
   fromLocation: ConfigLocation,
   toLocation: ConfigLocation,
   customPath: string | null,
@@ -305,8 +301,7 @@ async function moveConfigToLocation(
       break;
   }
 
-  panelContent.setResults([]);
-  updateBadge();
+  regularView.setResults([]);
   await updateStatusBar();
 
   logger.info(`Moved config from ${fromLabel} to ${toLabel}`);

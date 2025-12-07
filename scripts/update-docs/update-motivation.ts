@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
+import { PACKAGE_DISPLAY_NAME } from 'tscanner-common';
 
 type TFields = 'MOTIVATION';
 
@@ -11,7 +12,7 @@ export function updateMotivation() {
 
 AI generates code fast, but it doesn't know your project's conventions, preferred patterns, or forbidden shortcuts. You end up reviewing the same issues over and over.
 
-TScanner lets you define those rules once. Every AI-generated file, every PR, every save: automatically checked against your standards. Stop repeating yourself in code reviews.`;
+${PACKAGE_DISPLAY_NAME} lets you define those rules once. Every AI-generated file, every PR, every save: automatically checked against your standards. Stop repeating yourself in code reviews.`;
   };
 
   const readmeConfigs = [

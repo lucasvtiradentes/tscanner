@@ -1,4 +1,4 @@
-import { GitHelper, ScanMode, type TscannerConfig } from 'tscanner-common';
+import { GitHelper, type ModifiedLineRange, ScanMode, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { loadEffectiveConfig } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
@@ -6,8 +6,8 @@ import { VscodeGit } from '../common/lib/vscode-git';
 import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import type { ExtensionStateRefs } from '../common/state/extension-state';
 import { WorkspaceStateKey, setWorkspaceState } from '../common/state/workspace-state';
-import { type IssueResult, type ModifiedLineRange, serializeResults } from '../common/types';
-import type { IssuesPanelContent } from '../issues-panel/panel-content';
+import { type IssueResult, serializeResults } from '../common/types';
+import type { RegularIssuesView } from '../issues-panel';
 import { scanContent } from '../scanner/content-scan';
 
 function normalizePattern(pattern: string): string {
@@ -46,8 +46,28 @@ function buildWatchPattern(config: TscannerConfig | null): string {
     }
   }
 
-  if (config?.customRules) {
-    for (const rule of Object.values(config.customRules)) {
+  if (config?.rules?.regex) {
+    for (const rule of Object.values(config.rules.regex)) {
+      if (rule.include) {
+        for (const pattern of rule.include) {
+          patterns.add(normalizePattern(pattern));
+        }
+      }
+    }
+  }
+
+  if (config?.rules?.script) {
+    for (const rule of Object.values(config.rules.script)) {
+      if (rule.include) {
+        for (const pattern of rule.include) {
+          patterns.add(normalizePattern(pattern));
+        }
+      }
+    }
+  }
+
+  if (config?.aiRules) {
+    for (const rule of Object.values(config.aiRules)) {
       if (rule.include) {
         for (const pattern of rule.include) {
           patterns.add(normalizePattern(pattern));
@@ -70,9 +90,8 @@ function buildWatchPattern(config: TscannerConfig | null): string {
 
 export async function createFileWatcher(
   context: vscode.ExtensionContext,
-  panelContent: IssuesPanelContent,
+  regularView: RegularIssuesView,
   stateRefs: ExtensionStateRefs,
-  updateBadge: () => void,
 ): Promise<vscode.FileSystemWatcher> {
   const updateSingleFile = async (uri: vscode.Uri) => {
     if (stateRefs.isSearchingRef.current) return;
@@ -90,12 +109,24 @@ export async function createFileWatcher(
       );
       if (!changedFiles.has(relativePath)) {
         logger.debug(`File not in changed files set, skipping: ${relativePath}`);
+        const currentResults = regularView.getResults();
+        const filteredResults = currentResults.filter((r) => {
+          return vscode.workspace.asRelativePath(r.uri) !== relativePath;
+        });
+        if (filteredResults.length !== currentResults.length) {
+          logger.debug(
+            `Cleared ${currentResults.length - filteredResults.length} stale issues for reverted file: ${relativePath}`,
+          );
+          regularView.setResults(filteredResults);
+          setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializeResults(filteredResults));
+        }
         return;
       }
     }
 
     try {
-      logger.debug(`Scanning single file: ${relativePath}`);
+      const scanModeLabel = stateRefs.currentScanModeRef.current === ScanMode.Branch ? 'branch' : 'codebase';
+      logger.debug(`Scanning single file (${scanModeLabel} mode): ${relativePath}`);
 
       const document = await vscode.workspace.openTextDocument(uri);
       const content = document.getText();
@@ -118,7 +149,7 @@ export async function createFileWatcher(
         logger.debug(`Filtered ${newResults.length} issues to modified lines only`);
       }
 
-      const currentResults = panelContent.getResults();
+      const currentResults = regularView.getResults();
 
       const relatedFilesSet = new Set<string>(scanResult.relatedFiles.map((f) => vscode.workspace.asRelativePath(f)));
 
@@ -149,9 +180,8 @@ export async function createFileWatcher(
         `Updated results: removed ${currentResults.length - filteredResults.length}, added ${newResults.length}, related files: ${scanResult.relatedFiles.length}, total ${mergedResults.length}`,
       );
 
-      panelContent.setResults(mergedResults);
+      regularView.setResults(mergedResults);
       setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializeResults(mergedResults));
-      updateBadge();
     } catch (error) {
       logger.error(`Failed to update single file: ${error}`);
     }
@@ -161,7 +191,7 @@ export async function createFileWatcher(
     const relativePath = vscode.workspace.asRelativePath(uri);
     logger.debug(`File deleted: ${relativePath}`);
 
-    const currentResults = panelContent.getResults();
+    const currentResults = regularView.getResults();
     const filteredResults = currentResults.filter((r) => {
       const resultPath = vscode.workspace.asRelativePath(r.uri);
       return resultPath !== relativePath;
@@ -169,9 +199,8 @@ export async function createFileWatcher(
 
     if (filteredResults.length !== currentResults.length) {
       logger.debug(`Removed ${currentResults.length - filteredResults.length} issues from deleted file`);
-      panelContent.setResults(filteredResults);
+      regularView.setResults(filteredResults);
       setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializeResults(filteredResults));
-      updateBadge();
     }
   };
 

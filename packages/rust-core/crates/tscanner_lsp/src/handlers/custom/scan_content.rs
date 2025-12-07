@@ -3,6 +3,7 @@ use crate::session::Session;
 use lsp_server::{Connection, Message, Request, Response};
 use tscanner_config::{config_dir_name, config_file_name};
 use tscanner_scanner::{load_config, Scanner};
+use tscanner_service::log_debug;
 
 type LspError = Box<dyn std::error::Error + Send + Sync>;
 
@@ -44,6 +45,11 @@ pub fn handle_scan_content(
     };
 
     let result = scanner.scan_content(&params.file, &params.content);
+    log_debug(&format!(
+        "handle_scan_content: {} -> {:?} issues",
+        params.file.display(),
+        result.as_ref().map(|r| r.issues.len())
+    ));
 
     let response = match result {
         Some(content_result) => Response::new_ok(req.id, serde_json::to_value(&content_result)?),

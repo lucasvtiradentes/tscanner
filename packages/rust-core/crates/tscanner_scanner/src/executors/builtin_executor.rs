@@ -2,8 +2,8 @@ use crate::disable_comments::DisableDirectives;
 use crate::parser::parse_file;
 use std::path::Path;
 use tscanner_config::{CompiledRuleConfig, TscannerConfig};
-use tscanner_diagnostics::{FileResult, Issue};
-use tscanner_rules::{FileSource, RuleRegistry};
+use tscanner_diagnostics::{FileResult, Issue, IssueRuleType};
+use tscanner_rules::{FileSource, RuleContext, RuleRegistry};
 
 const JS_TS_EXTENSIONS: &[&str] = &["ts", "tsx", "js", "jsx", "mjs", "cjs", "mts", "cts"];
 
@@ -60,7 +60,7 @@ impl<'a> BuiltinExecutor<'a> {
 
         let directives = DisableDirectives::from_source(source);
 
-        if directives.file_disabled {
+        if directives.is_file_fully_disabled() {
             return ExecuteResult::Disabled;
         }
 
@@ -83,19 +83,31 @@ impl<'a> BuiltinExecutor<'a> {
             },
         );
         let source_lines: Vec<&str> = source.lines().collect();
+        let ctx = RuleContext::new(&program, path, source, file_source);
 
         let issues: Vec<Issue> = enabled_rules
             .iter()
             .filter(|(rule, _)| !(rule.is_typescript_only() && file_source.is_javascript()))
             .flat_map(|(rule, severity)| {
-                let mut rule_issues = rule.check(&program, path, source, file_source);
-                for issue in &mut rule_issues {
-                    issue.severity = *severity;
-                    if issue.line > 0 && issue.line <= source_lines.len() {
-                        issue.line_text = Some(source_lines[issue.line - 1].to_string());
-                    }
-                }
-                rule_issues
+                let signals = rule.signals(&ctx);
+                let category = self.registry.get_rule_category(rule.name());
+                signals
+                    .into_iter()
+                    .map(|signal| {
+                        let mut issue = signal.to_issue(rule.name(), path);
+                        issue.severity = *severity;
+                        issue.category = category.map(|s| s.to_string());
+                        issue.rule_type = if self.registry.is_custom_regex_rule(rule.name()) {
+                            IssueRuleType::CustomRegex
+                        } else {
+                            IssueRuleType::Builtin
+                        };
+                        if issue.line > 0 && issue.line <= source_lines.len() {
+                            issue.line_text = Some(source_lines[issue.line - 1].to_string());
+                        }
+                        issue
+                    })
+                    .collect::<Vec<_>>()
             })
             .filter(|issue| !directives.is_rule_disabled(issue.line, &issue.rule))
             .collect();
@@ -131,18 +143,30 @@ impl<'a> BuiltinExecutor<'a> {
             body: vec![],
             shebang: None,
         });
+        let ctx = RuleContext::new(&empty_program, path, source, file_source);
 
         let issues: Vec<Issue> = enabled_rules
             .iter()
             .flat_map(|(rule, severity)| {
-                let mut rule_issues = rule.check(&empty_program, path, source, file_source);
-                for issue in &mut rule_issues {
-                    issue.severity = *severity;
-                    if issue.line > 0 && issue.line <= source_lines.len() {
-                        issue.line_text = Some(source_lines[issue.line - 1].to_string());
-                    }
-                }
-                rule_issues
+                let signals = rule.signals(&ctx);
+                let category = self.registry.get_rule_category(rule.name());
+                signals
+                    .into_iter()
+                    .map(|signal| {
+                        let mut issue = signal.to_issue(rule.name(), path);
+                        issue.severity = *severity;
+                        issue.category = category.map(|s| s.to_string());
+                        issue.rule_type = if self.registry.is_custom_regex_rule(rule.name()) {
+                            IssueRuleType::CustomRegex
+                        } else {
+                            IssueRuleType::Builtin
+                        };
+                        if issue.line > 0 && issue.line <= source_lines.len() {
+                            issue.line_text = Some(source_lines[issue.line - 1].to_string());
+                        }
+                        issue
+                    })
+                    .collect::<Vec<_>>()
             })
             .collect();
 

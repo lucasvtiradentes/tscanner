@@ -1,14 +1,14 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{
+    RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleOption, RuleOptionSchema, RuleType,
+};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use regex::Regex;
 use serde::Deserialize;
-use std::path::Path;
 use std::sync::Arc;
-use swc_ecma_ast::Program;
-use tscanner_diagnostics::{Issue, Severity};
 
-const DEFAULT_METHODS: [&str; 21] = [
+const DEFAULT_METHODS: &[&str] = &[
     "log",
     "warn",
     "error",
@@ -40,7 +40,7 @@ struct NoConsoleOptions {
 }
 
 fn default_methods() -> Vec<String> {
-    DEFAULT_METHODS.iter().map(|s| s.to_string()).collect()
+    DEFAULT_METHODS.iter().map(|s| (*s).to_string()).collect()
 }
 
 impl Default for NoConsoleOptions {
@@ -49,6 +49,13 @@ impl Default for NoConsoleOptions {
             methods: default_methods(),
         }
     }
+}
+
+pub struct ConsoleMatch {
+    pub line: usize,
+    pub start_col: usize,
+    pub end_col: usize,
+    pub method: String,
 }
 
 pub struct NoConsoleRule {
@@ -81,46 +88,52 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Console",
         description: "Disallow the use of console methods. Console statements should be removed before committing to production.",
         rule_type: RuleType::Regex,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::CodeQuality,
-        typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-console"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-console"),
-        allowed_options: &["methods"],
+        options: &[RuleOption {
+            name: "methods",
+            description: "Console methods to disallow",
+            schema: RuleOptionSchema::Array {
+                items: "string",
+                default: DEFAULT_METHODS,
+            },
+        }],
+        ..RuleMetadata::defaults()
     }
 });
 
 impl Rule for NoConsoleRule {
-    fn name(&self) -> &str {
+    type State = ConsoleMatch;
+
+    fn name(&self) -> &'static str {
         "no-console"
     }
 
-    fn check(
-        &self,
-        _program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
-        let mut issues = Vec::new();
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
+        let mut matches = Vec::new();
 
-        for (line_num, line) in source.lines().enumerate() {
+        for (line_num, line) in ctx.source().lines().enumerate() {
             if let Some(mat) = self.pattern.find(line) {
-                let method = line[mat.start()..mat.end()].trim_end_matches(['(', ' ']);
-                issues.push(Issue {
-                    rule: self.name().to_string(),
-                    file: path.to_path_buf(),
+                let method = line[mat.start()..mat.end()]
+                    .trim_end_matches(['(', ' '])
+                    .to_string();
+                matches.push(ConsoleMatch {
                     line: line_num + 1,
-                    column: mat.start() + 1,
-                    end_column: mat.end(),
-                    message: format!("Unexpected call to {}", method),
-                    severity: Severity::Warning,
-                    line_text: None,
+                    start_col: mat.start() + 1,
+                    end_col: mat.end(),
+                    method,
                 });
             }
         }
 
-        issues
+        matches
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.start_col, state.end_col),
+            format!("Unexpected call to {}", state.method),
+        )
     }
 }

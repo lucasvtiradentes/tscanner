@@ -1,14 +1,13 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::signals::{RuleAction, RuleDiagnostic, TextEdit, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
 use std::collections::{HashMap, HashSet};
-use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
 
 pub struct PreferConstRule;
 
@@ -23,57 +22,84 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "Prefer Const",
         description: "Suggests using 'const' instead of 'let' when variables are never reassigned.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::Variables,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/prefer-const"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/use-const"),
-        allowed_options: &[],
+        ..RuleMetadata::defaults()
     }
 });
 
+pub struct ConstState {
+    pub line: usize,
+    pub start_col: usize,
+    pub end_col: usize,
+    pub variable_name: String,
+}
+
 impl Rule for PreferConstRule {
-    fn name(&self) -> &str {
+    type State = ConstState;
+
+    fn name(&self) -> &'static str {
         "prefer-const"
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut collector = VariableCollector {
             let_declarations: HashMap::new(),
-            source,
+            source: ctx.source(),
         };
-        program.visit_with(&mut collector);
+        ctx.program().visit_with(&mut collector);
 
         let mut checker = ReassignmentChecker {
             reassigned: HashSet::new(),
         };
-        program.visit_with(&mut checker);
+        ctx.program().visit_with(&mut checker);
 
-        let mut issues = Vec::new();
+        let mut states = Vec::new();
 
         for (name, (line, column, end_column)) in collector.let_declarations {
             if !checker.reassigned.contains(&name) {
-                issues.push(Issue {
-                    rule: "prefer-const".to_string(),
-                    file: path.to_path_buf(),
+                states.push(ConstState {
                     line,
-                    column,
-                    end_column,
-                    message: format!("'{}' is never reassigned, use 'const' instead", name),
-                    severity: Severity::Warning,
-                    line_text: None,
+                    start_col: column,
+                    end_col: end_column,
+                    variable_name: name,
                 });
             }
         }
 
-        issues
+        states
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.start_col, state.end_col),
+            format!(
+                "'{}' is never reassigned, use 'const' instead",
+                state.variable_name
+            ),
+        )
+    }
+
+    fn is_fixable(&self) -> bool {
+        true
+    }
+
+    fn action(&self, ctx: &RuleContext, state: &Self::State) -> Option<RuleAction> {
+        let line = ctx.get_line(state.line)?;
+        let let_start = line.find("let ")?;
+        let let_end = let_start + 3;
+
+        Some(RuleAction::quick_fix(
+            "Change 'let' to 'const'",
+            vec![TextEdit::replace_line_segment(
+                state.line,
+                let_start + 1,
+                let_end + 1,
+                "const",
+            )],
+        ))
     }
 }
 
@@ -81,8 +107,6 @@ struct VariableCollector<'a> {
     let_declarations: HashMap<String, (usize, usize, usize)>,
     source: &'a str,
 }
-
-impl<'a> VariableCollector<'a> {}
 
 impl<'a> Visit for VariableCollector<'a> {
     fn visit_var_decl(&mut self, n: &VarDecl) {

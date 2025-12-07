@@ -1,13 +1,20 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
 use std::collections::HashMap;
-use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
+
+pub struct DuplicateImportState {
+    pub line: usize,
+    pub start_col: usize,
+    pub end_col: usize,
+    pub module_name: String,
+    pub first_line: usize,
+}
 
 pub struct NoDuplicateImportsRule;
 
@@ -22,42 +29,44 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Duplicate Imports",
         description: "Disallows multiple import statements from the same module. Merge them into a single import.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::Imports,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-duplicate-imports"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-duplicate-json-keys"),
-        allowed_options: &[],
+        ..RuleMetadata::defaults()
     }
 });
 
 impl Rule for NoDuplicateImportsRule {
-    fn name(&self) -> &str {
+    type State = DuplicateImportState;
+
+    fn name(&self) -> &'static str {
         "no-duplicate-imports"
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut visitor = DuplicateImportsVisitor {
-            issues: Vec::new(),
-            path: path.to_path_buf(),
-            source,
+            states: Vec::new(),
+            source: ctx.source(),
             seen_imports: HashMap::new(),
         };
-        program.visit_with(&mut visitor);
-        visitor.issues
+        ctx.program().visit_with(&mut visitor);
+        visitor.states
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.start_col, state.end_col),
+            format!(
+                "Module '{}' is already imported at line {}. Merge imports.",
+                state.module_name, state.first_line
+            ),
+        )
     }
 }
 
 struct DuplicateImportsVisitor<'a> {
-    issues: Vec<Issue>,
-    path: std::path::PathBuf,
+    states: Vec<DuplicateImportState>,
     source: &'a str,
     seen_imports: HashMap<String, usize>,
 }
@@ -76,18 +85,12 @@ impl<'a> Visit for DuplicateImportsVisitor<'a> {
                 let (line, column, end_column) =
                     get_span_positions(self.source, import_start, import_end);
 
-                self.issues.push(Issue {
-                    rule: "no-duplicate-imports".to_string(),
-                    file: self.path.clone(),
+                self.states.push(DuplicateImportState {
                     line,
-                    column,
-                    end_column,
-                    message: format!(
-                        "Module '{}' is already imported at line {}. Merge imports.",
-                        module_name, first_line
-                    ),
-                    severity: Severity::Warning,
-                    line_text: None,
+                    start_col: column,
+                    end_col: end_column,
+                    module_name,
+                    first_line,
                 });
             } else {
                 let (line, _, _) = get_span_positions(self.source, import_start, import_end);
@@ -98,5 +101,3 @@ impl<'a> Visit for DuplicateImportsVisitor<'a> {
         n.visit_children_with(self);
     }
 }
-
-impl<'a> DuplicateImportsVisitor<'a> {}

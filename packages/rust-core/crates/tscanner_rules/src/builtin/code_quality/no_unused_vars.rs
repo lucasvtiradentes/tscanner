@@ -1,14 +1,20 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
 use std::collections::{HashMap, HashSet};
-use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
+
+pub struct UnusedVar {
+    pub line: usize,
+    pub column: usize,
+    pub end_column: usize,
+    pub name: String,
+}
 
 pub struct NoUnusedVarsRule;
 
@@ -23,68 +29,60 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Unused Variables",
         description: "Detects variables that are declared but never used in the code.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::CodeQuality,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-unused-vars"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-unused-variables"),
-        allowed_options: &[],
+        ..RuleMetadata::defaults()
     }
 });
 
 impl Rule for NoUnusedVarsRule {
-    fn name(&self) -> &str {
+    type State = UnusedVar;
+
+    fn name(&self) -> &'static str {
         "no-unused-vars"
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut visitor = UnusedVarsVisitor {
-            issues: Vec::new(),
-            _path: path.to_path_buf(),
-            _source: source,
             declared_vars: HashMap::new(),
             used_vars: HashSet::new(),
         };
-        program.visit_with(&mut visitor);
+        ctx.program().visit_with(&mut visitor);
 
+        let mut issues = Vec::new();
         for (name, span) in &visitor.declared_vars {
             if !visitor.used_vars.contains(name) && !name.starts_with('_') {
                 let (line, column, end_column) =
-                    get_span_positions(source, span.lo.0 as usize, span.hi.0 as usize);
+                    get_span_positions(ctx.source(), span.lo.0 as usize, span.hi.0 as usize);
 
-                visitor.issues.push(Issue {
-                    rule: "no-unused-vars".to_string(),
-                    file: path.to_path_buf(),
+                issues.push(UnusedVar {
                     line,
                     column,
                     end_column,
-                    message: format!("Variable '{}' is declared but never used.", name),
-                    severity: Severity::Warning,
-                    line_text: None,
+                    name: name.clone(),
                 });
             }
         }
 
-        visitor.issues
+        issues
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.column, state.end_column),
+            format!("Variable '{}' is declared but never used.", state.name),
+        )
     }
 }
 
-struct UnusedVarsVisitor<'a> {
-    issues: Vec<Issue>,
-    _path: std::path::PathBuf,
-    _source: &'a str,
+struct UnusedVarsVisitor {
     declared_vars: HashMap<String, swc_common::Span>,
     used_vars: HashSet<String>,
 }
 
-impl<'a> Visit for UnusedVarsVisitor<'a> {
+impl Visit for UnusedVarsVisitor {
     fn visit_var_decl(&mut self, n: &VarDecl) {
         for decl in &n.decls {
             if let Pat::Ident(ident) = &decl.name {

@@ -8,6 +8,39 @@ pub enum RuleType {
     Regex,
 }
 
+#[derive(Debug, Clone, Serialize)]
+#[serde(tag = "type", rename_all = "lowercase")]
+pub enum RuleOptionSchema {
+    Integer {
+        default: i64,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        minimum: Option<i64>,
+    },
+    Boolean {
+        default: bool,
+    },
+    String {
+        default: &'static str,
+    },
+    Array {
+        items: &'static str,
+        default: &'static [&'static str],
+    },
+}
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RuleOption {
+    pub name: &'static str,
+    pub description: &'static str,
+    #[serde(flatten)]
+    pub schema: RuleOptionSchema,
+}
+
+fn is_empty_options(options: &&'static [RuleOption]) -> bool {
+    options.is_empty()
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RuleMetadata {
@@ -24,8 +57,26 @@ pub struct RuleMetadata {
     pub equivalent_eslint_rule: Option<&'static str>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub equivalent_biome_rule: Option<&'static str>,
-    #[serde(skip)]
-    pub allowed_options: &'static [&'static str],
+    #[serde(default, skip_serializing_if = "is_empty_options", skip_deserializing)]
+    pub options: &'static [RuleOption],
+}
+
+impl RuleMetadata {
+    pub const fn defaults() -> Self {
+        Self {
+            name: "",
+            display_name: "",
+            description: "",
+            rule_type: RuleType::Ast,
+            default_severity: Severity::Warning,
+            default_enabled: false,
+            category: RuleCategory::CodeQuality,
+            typescript_only: false,
+            equivalent_eslint_rule: None,
+            equivalent_biome_rule: None,
+            options: &[],
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
@@ -50,11 +101,4 @@ pub fn get_all_rule_metadata() -> Vec<RuleMetadata> {
     inventory::iter::<RuleMetadataRegistration>()
         .map(|reg| reg.metadata.clone())
         .collect()
-}
-
-pub fn get_allowed_options_for_rule(rule_name: &str) -> &'static [&'static str] {
-    inventory::iter::<RuleMetadataRegistration>()
-        .find(|reg| reg.metadata.name == rule_name)
-        .map(|reg| reg.metadata.allowed_options)
-        .unwrap_or(&[])
 }

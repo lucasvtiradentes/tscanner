@@ -1,5 +1,5 @@
 ---
-source: crates/core/tests/spec_tests.rs
+source: crates/tscanner_rules/tests/spec_tests.rs
 expression: snapshot
 ---
 # Input
@@ -21,7 +21,7 @@ function restNoType(...args) {
 
 # Diagnostics
 ```
-invalid.ts:1:17 no-implicit-any ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:18 no-implicit-any ━━━━━━━━━━━━━━━━━━━━
 
   ! Parameter 'x' implicitly has 'any' type. Add type annotation.
 
@@ -31,7 +31,7 @@ invalid.ts:1:17 no-implicit-any ━━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:5:22 no-implicit-any ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:5:23 no-implicit-any ━━━━━━━━━━━━━━━━━━━━
 
   ! Parameter 'x' implicitly has 'any' type. Add type annotation.
 
@@ -42,7 +42,7 @@ invalid.ts:5:22 no-implicit-any ━━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:7:29 no-implicit-any ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:7:30 no-implicit-any ━━━━━━━━━━━━━━━━━━━━
 
   ! Destructured parameter implicitly has 'any' type. Add type annotation.
 
@@ -53,7 +53,7 @@ invalid.ts:7:29 no-implicit-any ━━━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:11:21 no-implicit-any ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:11:22 no-implicit-any ━━━━━━━━━━━━━━━━━━━━
 
   ! Rest parameter implicitly has 'any' type. Add type annotation.
 

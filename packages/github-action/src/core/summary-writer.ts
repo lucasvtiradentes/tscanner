@@ -1,9 +1,9 @@
 import { githubHelper } from '../lib/actions-helper';
-import type { ScanResult } from './scanner';
+import type { ActionScanResult } from './scanner';
 import { buildIssuesReport, buildSuccessReport } from './shared/sections';
 
-export type WriteSummaryParams = {
-  scanResult: ScanResult;
+type WriteSummaryParams = {
+  scanResult: ActionScanResult;
   targetBranch?: string;
   owner: string;
   repo: string;

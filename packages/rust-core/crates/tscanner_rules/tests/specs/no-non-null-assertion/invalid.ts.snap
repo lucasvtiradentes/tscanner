@@ -1,5 +1,5 @@
 ---
-source: crates/core/tests/spec_tests.rs
+source: crates/tscanner_rules/tests/spec_tests.rs
 expression: snapshot
 ---
 # Input
@@ -21,7 +21,7 @@ const chain = foo!.bar!.baz;
 
 # Diagnostics
 ```
-invalid.ts:1:11 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:1:12 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
 
@@ -31,7 +31,7 @@ invalid.ts:1:11 no-non-null-assertion ━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:3:11 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:3:12 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
 
@@ -42,7 +42,7 @@ invalid.ts:3:11 no-non-null-assertion ━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:5:1 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:5:2 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
 
@@ -53,7 +53,7 @@ invalid.ts:5:1 no-non-null-assertion ━━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:7:11 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:7:12 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
 
@@ -64,7 +64,7 @@ invalid.ts:7:11 no-non-null-assertion ━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:9:16 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:9:17 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
 
@@ -75,7 +75,7 @@ invalid.ts:9:16 no-non-null-assertion ━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:11:8 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:11:9 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
 
@@ -86,7 +86,7 @@ invalid.ts:11:8 no-non-null-assertion ━━━━━━━━━━━━━━
 ```
 
 ```
-invalid.ts:13:15 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:13:16 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
 
@@ -96,7 +96,7 @@ invalid.ts:13:15 no-non-null-assertion ━━━━━━━━━━━━━�
 ```
 
 ```
-invalid.ts:13:15 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
+invalid.ts:13:16 no-non-null-assertion ━━━━━━━━━━━━━━━━━━━━
 
   ! Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
 

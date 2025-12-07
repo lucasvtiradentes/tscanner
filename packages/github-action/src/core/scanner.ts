@@ -1,8 +1,8 @@
-import { type GroupMode, Severity } from 'tscanner-common';
+import { type CliOutputByFile, type CliOutputByRule, type GroupMode, Severity } from 'tscanner-common';
 import { githubHelper } from '../lib/actions-helper';
 import { type CliExecutor, createDevModeExecutor, createProdModeExecutor } from './cli-executor';
 
-export type ScanResult = {
+export type ActionScanResult = {
   totalIssues: number;
   totalErrors: number;
   totalWarnings: number;
@@ -15,7 +15,7 @@ export type ScanResult = {
   ruleGroupsByRule: RuleGroup[];
 };
 
-export type RuleGroup = {
+type RuleGroup = {
   ruleName: string;
   severity: Severity;
   issueCount: number;
@@ -23,60 +23,17 @@ export type RuleGroup = {
   files: FileIssues[];
 };
 
-export type FileIssues = {
+type FileIssues = {
   filePath: string;
   issues: Issue[];
 };
 
-export type Issue = {
+type Issue = {
   line: number;
   column: number;
   message: string;
   lineText: string;
   ruleName?: string;
-};
-
-type CliJsonOutputByRule = {
-  rules: Array<{
-    rule: string;
-    count: number;
-    issues: Array<{
-      file: string;
-      line: number;
-      column: number;
-      message: string;
-      severity: string;
-      line_text: string;
-    }>;
-  }>;
-  summary: {
-    total_files: number;
-    total_issues: number;
-    errors: number;
-    warnings: number;
-    total_enabled_rules: number;
-  };
-};
-
-type CliJsonOutputByFile = {
-  files: Array<{
-    file: string;
-    issues: Array<{
-      rule: string;
-      severity: string;
-      line: number;
-      column: number;
-      message: string;
-      line_text: string;
-    }>;
-  }>;
-  summary: {
-    total_files: number;
-    total_issues: number;
-    errors: number;
-    warnings: number;
-    total_enabled_rules: number;
-  };
 };
 
 export type ScanOptions = {
@@ -87,7 +44,7 @@ export type ScanOptions = {
   configPath: string;
 };
 
-export async function scanChangedFiles(options: ScanOptions): Promise<ScanResult> {
+export async function scanChangedFiles(options: ScanOptions): Promise<ActionScanResult> {
   const { targetBranch, devMode, tscannerVersion, groupBy, configPath } = options;
   const scanMode = targetBranch ? `changed files vs ${targetBranch}` : 'entire codebase';
   githubHelper.logInfo(`Scanning [${scanMode}] group by: [${groupBy}]`);
@@ -107,12 +64,12 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ScanResult
 
   const [scanOutputFile, scanOutputRule] = await Promise.all([executor.execute(argsFile), executor.execute(argsRule)]);
 
-  let scanDataFile: CliJsonOutputByFile;
-  let scanDataRule: CliJsonOutputByRule;
+  let scanDataFile: CliOutputByFile;
+  let scanDataRule: CliOutputByRule;
 
   try {
-    scanDataFile = JSON.parse(scanOutputFile) as CliJsonOutputByFile;
-    scanDataRule = JSON.parse(scanOutputRule) as CliJsonOutputByRule;
+    scanDataFile = JSON.parse(scanOutputFile) as CliOutputByFile;
+    scanDataRule = JSON.parse(scanOutputRule) as CliOutputByRule;
   } catch (err) {
     githubHelper.logError(`Failed to parse scan output: ${err instanceof Error ? err.message : String(err)}`);
     githubHelper.logDebug(`Raw output: ${scanOutputFile.substring(0, 500)}`);

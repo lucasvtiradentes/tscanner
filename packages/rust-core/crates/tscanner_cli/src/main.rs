@@ -31,6 +31,8 @@ fn main() -> Result<()> {
             glob,
             rule,
             continue_on_error,
+            include_ai,
+            only_ai,
             config_path,
         }) => {
             let paths = if paths.is_empty() {
@@ -48,6 +50,8 @@ fn main() -> Result<()> {
                 glob,
                 rule,
                 continue_on_error,
+                include_ai,
+                only_ai,
                 Some(config_path),
             )
         }

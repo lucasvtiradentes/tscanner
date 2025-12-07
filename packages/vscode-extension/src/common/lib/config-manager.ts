@@ -1,19 +1,16 @@
 import { createHash } from 'node:crypto';
 import { isAbsolute } from 'node:path';
 import * as jsonc from 'jsonc-parser';
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
 import defaultConfig from '../../../../../assets/default-config.json';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../constants';
-import { TscannerConfig } from '../types';
 import { logger } from './logger';
-
-export { TscannerConfig };
 
 function getWorkspaceHash(workspacePath: string): string {
   return createHash('md5').update(workspacePath).digest('hex').substring(0, 16);
 }
 
-export function getGlobalConfigDir(context: vscode.ExtensionContext): vscode.Uri {
+function getGlobalConfigDir(context: vscode.ExtensionContext): vscode.Uri {
   return vscode.Uri.joinPath(context.globalStorageUri, 'configs');
 }
 
@@ -43,7 +40,7 @@ export async function hasLocalConfig(workspacePath: string): Promise<boolean> {
   }
 }
 
-export async function loadConfig(configPath: vscode.Uri): Promise<TscannerConfig | null> {
+async function loadConfig(configPath: vscode.Uri): Promise<TscannerConfig | null> {
   try {
     const data = await vscode.workspace.fs.readFile(configPath);
     const content = Buffer.from(data).toString('utf8');
@@ -72,7 +69,7 @@ export async function hasCustomConfig(workspacePath: string, customConfigDir: st
   }
 }
 
-export async function getEffectiveConfigPath(
+async function getEffectiveConfigPath(
   context: vscode.ExtensionContext,
   workspacePath: string,
   customConfigDir?: string | null,
@@ -143,79 +140,6 @@ export async function saveCustomConfig(
 
 export function getDefaultConfig(): TscannerConfig {
   return structuredClone(defaultConfig) as TscannerConfig;
-}
-
-const AUTO_MANAGED_MARKER = '// AUTO-MANAGED BY TSCANNER EXTENSION - DO NOT EDIT THIS LINE';
-
-export function isAutoManagedConfig(configContent: string): boolean {
-  return configContent.includes(AUTO_MANAGED_MARKER);
-}
-
-export function addAutoManagedMarker(config: TscannerConfig): string {
-  const lines = JSON.stringify(config, null, 2).split('\n');
-  lines.splice(1, 0, `  "${AUTO_MANAGED_MARKER}": true,`);
-  return lines.join('\n');
-}
-
-export async function syncGlobalToLocal(context: vscode.ExtensionContext, workspacePath: string): Promise<void> {
-  const localPath = getLocalConfigPath(workspacePath);
-
-  try {
-    const existingContent = await vscode.workspace.fs.readFile(localPath);
-    const contentStr = Buffer.from(existingContent).toString('utf8');
-
-    if (!isAutoManagedConfig(contentStr)) {
-      logger.info(`Local config exists and is user-managed, skipping sync for ${workspacePath}`);
-      return;
-    }
-  } catch {}
-
-  const globalConfig = await loadConfig(getGlobalConfigPath(context, workspacePath));
-  if (!globalConfig) {
-    logger.debug(`No global config found for ${workspacePath}, skipping sync`);
-    return;
-  }
-
-  const localConfigDir = vscode.Uri.joinPath(vscode.Uri.file(workspacePath), CONFIG_DIR_NAME);
-  await vscode.workspace.fs.createDirectory(localConfigDir);
-
-  const configWithMarker = addAutoManagedMarker(globalConfig);
-  await vscode.workspace.fs.writeFile(localPath, Buffer.from(configWithMarker));
-
-  logger.info(`Synced global config to local config for ${workspacePath}`);
-}
-
-export async function shouldSyncToLocal(workspacePath: string): Promise<boolean> {
-  const localPath = getLocalConfigPath(workspacePath);
-
-  try {
-    const existingContent = await vscode.workspace.fs.readFile(localPath);
-    const contentStr = Buffer.from(existingContent).toString('utf8');
-    return isAutoManagedConfig(contentStr);
-  } catch {
-    return true;
-  }
-}
-
-export async function ensureLocalConfigForScan(
-  context: vscode.ExtensionContext,
-  workspacePath: string,
-): Promise<boolean> {
-  const hasLocal = await hasLocalConfig(workspacePath);
-  if (hasLocal) {
-    logger.debug('Local config already exists, using it for scan');
-    return true;
-  }
-
-  const globalConfig = await loadConfig(getGlobalConfigPath(context, workspacePath));
-  if (!globalConfig) {
-    logger.info('No config found (neither local nor global)');
-    return false;
-  }
-
-  await syncGlobalToLocal(context, workspacePath);
-  logger.info('Synced global config to local config for Rust scanner');
-  return true;
 }
 
 export async function hasGlobalConfig(context: vscode.ExtensionContext, workspacePath: string): Promise<boolean> {

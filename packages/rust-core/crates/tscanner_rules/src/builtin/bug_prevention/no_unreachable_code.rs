@@ -1,13 +1,12 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
-use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
 
 pub struct NoUnreachableCodeRule;
 
@@ -22,41 +21,46 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Unreachable Code",
         description: "Detects code after return, throw, break, or continue statements. This code will never execute.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::BugPrevention,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-unreachable"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-unreachable"),
-        allowed_options: &[],
+        ..RuleMetadata::defaults()
     }
 });
 
+pub struct UnreachableCodeState {
+    pub line: usize,
+    pub column: usize,
+    pub end_column: usize,
+}
+
 impl Rule for NoUnreachableCodeRule {
-    fn name(&self) -> &str {
+    type State = UnreachableCodeState;
+
+    fn name(&self) -> &'static str {
         "no-unreachable-code"
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut visitor = UnreachableCodeVisitor {
-            issues: Vec::new(),
-            path: path.to_path_buf(),
-            source,
+            states: Vec::new(),
+            source: ctx.source(),
         };
-        program.visit_with(&mut visitor);
-        visitor.issues
+        ctx.program().visit_with(&mut visitor);
+        visitor.states
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.column, state.end_column),
+            "Unreachable code detected after return/throw/break/continue".to_string(),
+        )
     }
 }
 
 struct UnreachableCodeVisitor<'a> {
-    issues: Vec<Issue>,
-    path: std::path::PathBuf,
+    states: Vec<UnreachableCodeState>,
     source: &'a str,
 }
 
@@ -77,16 +81,10 @@ impl<'a> UnreachableCodeVisitor<'a> {
                 let (line, column, end_column) =
                     get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
-                self.issues.push(Issue {
-                    rule: "no-unreachable-code".to_string(),
-                    file: self.path.clone(),
+                self.states.push(UnreachableCodeState {
                     line,
                     column,
                     end_column,
-                    message: "Unreachable code detected after return/throw/break/continue"
-                        .to_string(),
-                    severity: Severity::Error,
-                    line_text: None,
                 });
                 break;
             }

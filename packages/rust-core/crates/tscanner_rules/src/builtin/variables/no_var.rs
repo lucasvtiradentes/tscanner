@@ -1,13 +1,12 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::signals::{RuleAction, RuleDiagnostic, TextEdit, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
-use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
 
 pub struct NoVarRule;
 
@@ -22,41 +21,66 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Var",
         description: "Disallows the use of 'var' keyword. Use 'let' or 'const' instead for block-scoped variables.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::Variables,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-var"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-var"),
-        allowed_options: &[],
+        ..RuleMetadata::defaults()
     }
 });
 
+pub struct VarState {
+    pub line: usize,
+    pub start_col: usize,
+    pub end_col: usize,
+}
+
 impl Rule for NoVarRule {
-    fn name(&self) -> &str {
+    type State = VarState;
+
+    fn name(&self) -> &'static str {
         "no-var"
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut visitor = NoVarVisitor {
-            issues: Vec::new(),
-            path: path.to_path_buf(),
-            source,
+            states: Vec::new(),
+            source: ctx.source(),
         };
-        program.visit_with(&mut visitor);
-        visitor.issues
+        ctx.program().visit_with(&mut visitor);
+        visitor.states
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.start_col, state.end_col),
+            "Use 'let' or 'const' instead of 'var'",
+        )
+    }
+
+    fn is_fixable(&self) -> bool {
+        true
+    }
+
+    fn action(&self, ctx: &RuleContext, state: &Self::State) -> Option<RuleAction> {
+        let line = ctx.get_line(state.line)?;
+        let var_start = line.find("var ")?;
+        let var_end = var_start + 3;
+
+        Some(RuleAction::quick_fix(
+            "Change 'var' to 'let'",
+            vec![TextEdit::replace_line_segment(
+                state.line,
+                var_start + 1,
+                var_end + 1,
+                "let",
+            )],
+        ))
     }
 }
 
 struct NoVarVisitor<'a> {
-    issues: Vec<Issue>,
-    path: std::path::PathBuf,
+    states: Vec<VarState>,
     source: &'a str,
 }
 
@@ -67,19 +91,12 @@ impl<'a> Visit for NoVarVisitor<'a> {
             let (line, column, end_column) =
                 get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
-            self.issues.push(Issue {
-                rule: "no-var".to_string(),
-                file: self.path.clone(),
+            self.states.push(VarState {
                 line,
-                column,
-                end_column,
-                message: "Use 'let' or 'const' instead of 'var'".to_string(),
-                severity: Severity::Warning,
-                line_text: None,
+                start_col: column,
+                end_col: end_column,
             });
         }
         n.visit_children_with(self);
     }
 }
-
-impl<'a> NoVarVisitor<'a> {}

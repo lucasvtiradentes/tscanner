@@ -1,29 +1,31 @@
 import * as vscode from 'vscode';
-
-const CONFIG_SECTION = 'tscanner';
+import { IS_DEV } from '../constants';
+import { buildConfigSection, buildFullConfigKey } from '../scripts-constants';
 
 export enum ExtensionConfigKey {
   LspBin = 'lsp.bin',
-  TraceServer = 'trace.server',
+  LogsEnabled = 'logs.enabled',
 }
 
-export enum TraceLevel {
-  Off = 'off',
-  Messages = 'messages',
-  Verbose = 'verbose',
+export function getFullConfigKeyPath(key: ExtensionConfigKey): string {
+  return buildFullConfigKey(IS_DEV, key);
 }
 
 type ExtensionConfigSchema = {
   [ExtensionConfigKey.LspBin]: string;
-  [ExtensionConfigKey.TraceServer]: TraceLevel;
+  [ExtensionConfigKey.LogsEnabled]: boolean;
 };
 
 const defaultValues: ExtensionConfigSchema = {
   [ExtensionConfigKey.LspBin]: '',
-  [ExtensionConfigKey.TraceServer]: TraceLevel.Off,
+  [ExtensionConfigKey.LogsEnabled]: false,
 };
 
+function getConfigSection(): string {
+  return buildConfigSection(IS_DEV);
+}
+
 export function getExtensionConfig<K extends ExtensionConfigKey>(key: K): ExtensionConfigSchema[K] {
-  const config = vscode.workspace.getConfiguration(CONFIG_SECTION);
+  const config = vscode.workspace.getConfiguration(getConfigSection());
   return config.get<ExtensionConfigSchema[K]>(key) ?? defaultValues[key];
 }

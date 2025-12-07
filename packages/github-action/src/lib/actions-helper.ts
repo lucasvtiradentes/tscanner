@@ -4,9 +4,9 @@ import * as exec from '@actions/exec';
 import * as github from '@actions/github';
 
 export type Octokit = ReturnType<typeof github.getOctokit>;
-export type GithubContext = typeof github.context;
+type GithubContext = typeof github.context;
 
-export type AnnotationProperties = {
+type AnnotationProperties = {
   title?: string;
   file?: string;
   startLine?: number;

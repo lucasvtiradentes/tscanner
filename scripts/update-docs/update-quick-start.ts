@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, PACKAGE_NAME } from 'tscanner-common';
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, PACKAGE_DISPLAY_NAME, PACKAGE_NAME } from 'tscanner-common';
 
 type TFields = 'QUICK_START_CLI' | 'QUICK_START_VSCODE_EXTENSION' | 'QUICK_START_GITHUB_ACTION';
 
@@ -36,7 +36,7 @@ jobs:
 
 ${quickStartGithubActionYaml}
 
-2. Add TScanner config to your repo (run \`${PACKAGE_NAME} init\` or create \`${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}\`)
+2. Add ${PACKAGE_DISPLAY_NAME} config to your repo (run \`${PACKAGE_NAME} init\` or create \`${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}\`)
 3. Open a PR and watch the magic happen!`;
 
   return quickStartGithubAction;
@@ -75,11 +75,11 @@ function getVscodeExtensionSection() {
 
 <table>
   <tr>
-    <th>Search "TScanner" in Extensions</th>
+    <th>Search "${PACKAGE_DISPLAY_NAME}" in Extensions</th>
     <th>Install from marketplace</th>
   </tr>
   <tr>
-    <td><img width="300" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-install.png" alt="TScanner installation"></td>
+    <td><img width="300" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-install.png" alt="${PACKAGE_DISPLAY_NAME} installation"></td>
     <td>
       <div align="center">
       <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/badge/VS%20Code-Marketplace-007ACC?logo=visual-studio-code&logoColor=white" alt="VS Code"></a><br/>
@@ -90,7 +90,7 @@ function getVscodeExtensionSection() {
 </table>
 </div>
 
-2. Click TScanner icon in activity bar
+2. Click ${PACKAGE_DISPLAY_NAME} icon in activity bar
 3. Go to Settings Menu → "Manage Rules" → enable desired rules → click "Save"
 4. Issues appear automatically in the sidebar (if any)
 5. Click any issue to jump to its location`;
