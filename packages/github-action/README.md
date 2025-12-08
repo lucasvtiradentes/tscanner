@@ -370,6 +370,7 @@ jobs:
         run: |
           mkdir -p ~/.gemini
           echo '${{ secrets.GEMINI_CREDENTIALS }}' > ~/.gemini/oauth_creds.json
+          echo '{"security":{"auth":{"selectedType":"oauth-personal"}}}' > ~/.gemini/settings.json
 
       - uses: lucasvtiradentes/tscanner-action@v0.0.25
         with:
