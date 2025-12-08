@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.26
+
+### Patch Changes
+
+- 05d0b22: add ai rules
+
 ## 0.0.25
 
 ### Patch Changes

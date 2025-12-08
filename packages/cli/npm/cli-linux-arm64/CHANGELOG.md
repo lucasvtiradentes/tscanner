@@ -1,5 +1,11 @@
 # @tscanner/cli-linux-arm64
 
+## 0.0.29
+
+### Patch Changes
+
+- 05d0b22: add ai rules
+
 ## 0.0.28
 
 ### Patch Changes
