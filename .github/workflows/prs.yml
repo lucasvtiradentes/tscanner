@@ -47,6 +47,33 @@ jobs:
           cp packages/rust-core/target/release/tscanner packages/cli/npm/cli-linux-x64/tscanner
           chmod +x packages/cli/npm/cli-linux-x64/tscanner
 
+      - name: Detect AI provider
+        id: ai-provider
+        run: |
+          PROVIDER=$(node -e "const fs=require('fs'); const c=fs.readFileSync('.tscanner/config.jsonc','utf8').replace(/\/\/.*/g,''); const j=JSON.parse(c); console.log(j.ai?.provider || 'none')")
+          echo "provider=$PROVIDER" >> $GITHUB_OUTPUT
+
+      - name: Setup Gemini CLI
+        if: steps.ai-provider.outputs.provider == 'gemini'
+        run: npm install -g @google/gemini-cli
+
+      - name: Setup Gemini credentials
+        if: steps.ai-provider.outputs.provider == 'gemini'
+        run: |
+          mkdir -p ~/.gemini
+          echo '${{ secrets.GEMINI_CREDENTIALS }}' > ~/.gemini/oauth_creds.json
+          echo '{"security":{"auth":{"selectedType":"oauth-personal"}}}' > ~/.gemini/settings.json
+
+      - name: Setup Claude CLI
+        if: steps.ai-provider.outputs.provider == 'claude'
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Setup Claude credentials
+        if: steps.ai-provider.outputs.provider == 'claude'
+        run: |
+          mkdir -p ~/.claude
+          echo '${{ secrets.CLAUDE_CREDENTIALS }}' > ~/.claude/.credentials.json
+
       - uses: ./packages/github-action
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -57,3 +84,4 @@ jobs:
           summary: 'true'
           annotations: 'true'
           pr-comment: 'true'
+          ai-mode: 'include'

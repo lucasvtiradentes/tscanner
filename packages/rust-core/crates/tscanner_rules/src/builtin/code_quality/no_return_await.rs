@@ -1,13 +1,18 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
-use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
+
+pub struct ReturnAwait {
+    pub line: usize,
+    pub column: usize,
+    pub end_column: usize,
+}
 
 pub struct NoReturnAwaitRule;
 
@@ -22,42 +27,41 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Return Await",
         description: "Disallows redundant 'return await' in async functions. The await is unnecessary since the function already returns a Promise.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::CodeQuality,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/return-await"),
         equivalent_biome_rule: None,
-        allowed_options: &[],
+        ..RuleMetadata::defaults()
     }
 });
 
 impl Rule for NoReturnAwaitRule {
-    fn name(&self) -> &str {
+    type State = ReturnAwait;
+
+    fn name(&self) -> &'static str {
         "no-return-await"
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut visitor = ReturnAwaitVisitor {
             issues: Vec::new(),
-            path: path.to_path_buf(),
-            source,
+            source: ctx.source(),
             in_async_context: false,
         };
-        program.visit_with(&mut visitor);
+        ctx.program().visit_with(&mut visitor);
         visitor.issues
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.column, state.end_column),
+            "Redundant 'return await' found. Remove 'await' since async function already returns a Promise.".to_string(),
+        )
     }
 }
 
 struct ReturnAwaitVisitor<'a> {
-    issues: Vec<Issue>,
-    path: std::path::PathBuf,
+    issues: Vec<ReturnAwait>,
     source: &'a str,
     in_async_context: bool,
 }
@@ -85,15 +89,10 @@ impl<'a> Visit for ReturnAwaitVisitor<'a> {
                     let (line, column, end_column) =
                         get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
-                    self.issues.push(Issue {
-                        rule: "no-return-await".to_string(),
-                        file: self.path.clone(),
+                    self.issues.push(ReturnAwait {
                         line,
                         column,
                         end_column,
-                        message: "Redundant 'return await' found. Remove 'await' since async function already returns a Promise.".to_string(),
-                        severity: Severity::Warning,
-                        line_text: None,
                     });
                 }
             }

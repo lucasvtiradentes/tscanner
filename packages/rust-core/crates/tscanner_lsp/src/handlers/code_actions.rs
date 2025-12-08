@@ -4,7 +4,7 @@ use lsp_types::{
     TextEdit, Url, WorkspaceEdit,
 };
 use std::collections::HashMap;
-use tscanner_scanner::{disable_file_comment, disable_next_line_comment};
+use tscanner_scanner::{ignore_comment, ignore_next_line_comment};
 
 pub fn handle_code_action(params: CodeActionParams, session: &Session) -> Vec<CodeActionOrCommand> {
     if !session.is_initialized() {
@@ -18,9 +18,10 @@ pub fn handle_code_action(params: CodeActionParams, session: &Session) -> Vec<Co
         return actions;
     };
 
-    let Some(content) = session.open_files.get(uri) else {
+    let Some(doc) = session.get_document(uri) else {
         return actions;
     };
+    let content = &doc.content;
 
     for diagnostic in &params.context.diagnostics {
         let matching = diags_with_rules
@@ -31,18 +32,21 @@ pub fn handle_code_action(params: CodeActionParams, session: &Session) -> Vec<Co
             let line = diagnostic.range.start.line as usize;
             let indentation = get_line_indentation(content, line);
 
-            let disable_line_action = create_disable_line_action(
+            let ignore_line_action = create_ignore_line_action(
                 uri.clone(),
                 rule_id,
                 line,
                 &indentation,
                 diagnostic.clone(),
             );
-            actions.push(CodeActionOrCommand::CodeAction(disable_line_action));
+            actions.push(CodeActionOrCommand::CodeAction(ignore_line_action));
 
-            let disable_file_action =
-                create_disable_file_action(uri.clone(), rule_id, diagnostic.clone());
-            actions.push(CodeActionOrCommand::CodeAction(disable_file_action));
+            let ignore_rule_action =
+                create_ignore_rule_action(uri.clone(), rule_id, diagnostic.clone());
+            actions.push(CodeActionOrCommand::CodeAction(ignore_rule_action));
+
+            let ignore_file_action = create_ignore_file_action(uri.clone(), diagnostic.clone());
+            actions.push(CodeActionOrCommand::CodeAction(ignore_file_action));
         }
     }
 
@@ -60,7 +64,7 @@ fn get_line_indentation(content: &str, line: usize) -> String {
         .unwrap_or_default()
 }
 
-fn create_disable_line_action(
+fn create_ignore_line_action(
     uri: Url,
     rule_id: &str,
     line: usize,
@@ -70,7 +74,7 @@ fn create_disable_line_action(
     let comment = format!(
         "{}// {} {}\n",
         indentation,
-        disable_next_line_comment(),
+        ignore_next_line_comment(),
         rule_id
     );
 
@@ -92,7 +96,7 @@ fn create_disable_line_action(
     changes.insert(uri, vec![edit]);
 
     CodeAction {
-        title: format!("Disable {} for this line", rule_id),
+        title: format!("Ignore {} for this line", rule_id),
         kind: Some(CodeActionKind::QUICKFIX),
         diagnostics: Some(vec![diagnostic]),
         edit: Some(WorkspaceEdit {
@@ -104,8 +108,8 @@ fn create_disable_line_action(
     }
 }
 
-fn create_disable_file_action(uri: Url, rule_id: &str, diagnostic: Diagnostic) -> CodeAction {
-    let comment = format!("// {} {}\n", disable_file_comment(), rule_id);
+fn create_ignore_rule_action(uri: Url, rule_id: &str, diagnostic: Diagnostic) -> CodeAction {
+    let comment = format!("// {} {}\n", ignore_comment(), rule_id);
 
     let edit = TextEdit {
         range: Range {
@@ -125,7 +129,40 @@ fn create_disable_file_action(uri: Url, rule_id: &str, diagnostic: Diagnostic) -
     changes.insert(uri, vec![edit]);
 
     CodeAction {
-        title: format!("Disable {} for entire file", rule_id),
+        title: format!("Ignore {} for entire file", rule_id),
+        kind: Some(CodeActionKind::QUICKFIX),
+        diagnostics: Some(vec![diagnostic]),
+        edit: Some(WorkspaceEdit {
+            changes: Some(changes),
+            ..Default::default()
+        }),
+        is_preferred: Some(false),
+        ..Default::default()
+    }
+}
+
+fn create_ignore_file_action(uri: Url, diagnostic: Diagnostic) -> CodeAction {
+    let comment = format!("// {}\n", ignore_comment());
+
+    let edit = TextEdit {
+        range: Range {
+            start: Position {
+                line: 0,
+                character: 0,
+            },
+            end: Position {
+                line: 0,
+                character: 0,
+            },
+        },
+        new_text: comment,
+    };
+
+    let mut changes = HashMap::new();
+    changes.insert(uri, vec![edit]);
+
+    CodeAction {
+        title: "Ignore tscanner for entire file".to_string(),
         kind: Some(CodeActionKind::QUICKFIX),
         diagnostics: Some(vec![diagnostic]),
         edit: Some(WorkspaceEdit {

@@ -1,13 +1,19 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
-use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
+
+pub struct EmptyFunction {
+    pub line: usize,
+    pub column: usize,
+    pub end_column: usize,
+    pub kind: String,
+}
 
 pub struct NoEmptyFunctionRule;
 
@@ -22,41 +28,40 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Empty Function",
         description: "Disallows empty functions and methods. Empty functions are often leftovers from incomplete code.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::CodeQuality,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-empty-function"),
         equivalent_biome_rule: None,
-        allowed_options: &[],
+        ..RuleMetadata::defaults()
     }
 });
 
 impl Rule for NoEmptyFunctionRule {
-    fn name(&self) -> &str {
+    type State = EmptyFunction;
+
+    fn name(&self) -> &'static str {
         "no-empty-function"
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut visitor = EmptyFunctionVisitor {
             issues: Vec::new(),
-            path: path.to_path_buf(),
-            source,
+            source: ctx.source(),
         };
-        program.visit_with(&mut visitor);
+        ctx.program().visit_with(&mut visitor);
         visitor.issues
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.column, state.end_column),
+            format!("Empty {} body", state.kind),
+        )
     }
 }
 
 struct EmptyFunctionVisitor<'a> {
-    issues: Vec<Issue>,
-    path: std::path::PathBuf,
+    issues: Vec<EmptyFunction>,
     source: &'a str,
 }
 
@@ -70,15 +75,11 @@ impl<'a> EmptyFunctionVisitor<'a> {
             let (line, column, end_column) =
                 get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
-            self.issues.push(Issue {
-                rule: "no-empty-function".to_string(),
-                file: self.path.clone(),
+            self.issues.push(EmptyFunction {
                 line,
                 column,
                 end_column,
-                message: format!("Empty {} body", kind),
-                severity: Severity::Warning,
-                line_text: None,
+                kind: kind.to_string(),
             });
         }
     }

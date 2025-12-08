@@ -7,19 +7,24 @@ import {
   registerCommand,
   showToastMessage,
 } from '../../common/lib/vscode-utils';
-import type { IssuesPanelContent } from '../../issues-panel/panel-content';
+import type { RegularIssuesView } from '../../issues-panel';
+
+enum NavigationDirection {
+  Next = 'next',
+  Previous = 'previous',
+}
 
 let currentIssueIndex = -1;
 
-async function navigateToIssue(panelContent: IssuesPanelContent, direction: 'next' | 'previous'): Promise<void> {
-  const results = panelContent.getResults();
+async function navigateToIssue(regularView: RegularIssuesView, direction: NavigationDirection): Promise<void> {
+  const results = regularView.getResults();
 
   if (results.length === 0) {
     showToastMessage(ToastKind.Info, 'No issues found');
     return;
   }
 
-  if (direction === 'next') {
+  if (direction === NavigationDirection.Next) {
     currentIssueIndex = (currentIssueIndex + 1) % results.length;
   } else {
     if (currentIssueIndex === -1) {
@@ -36,12 +41,12 @@ async function navigateToIssue(panelContent: IssuesPanelContent, direction: 'nex
   vscode.window.setStatusBarMessage(`Issue ${currentIssueIndex + 1}/${results.length}: ${issue.rule}`, 3000);
 }
 
-export function createGoToNextIssueCommand(panelContent: IssuesPanelContent) {
-  return registerCommand(Command.GoToNextIssue, () => navigateToIssue(panelContent, 'next'));
+export function createGoToNextIssueCommand(regularView: RegularIssuesView) {
+  return registerCommand(Command.GoToNextIssue, () => navigateToIssue(regularView, NavigationDirection.Next));
 }
 
-export function createGoToPreviousIssueCommand(panelContent: IssuesPanelContent) {
-  return registerCommand(Command.GoToPreviousIssue, () => navigateToIssue(panelContent, 'previous'));
+export function createGoToPreviousIssueCommand(regularView: RegularIssuesView) {
+  return registerCommand(Command.GoToPreviousIssue, () => navigateToIssue(regularView, NavigationDirection.Previous));
 }
 
 export function resetIssueIndex() {

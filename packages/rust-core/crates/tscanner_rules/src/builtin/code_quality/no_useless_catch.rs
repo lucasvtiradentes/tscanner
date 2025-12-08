@@ -1,13 +1,18 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
-use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
+
+pub struct UselessCatch {
+    pub line: usize,
+    pub column: usize,
+    pub end_column: usize,
+}
 
 pub struct NoUselessCatchRule;
 
@@ -22,41 +27,40 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Useless Catch",
         description: "Disallows catch blocks that only rethrow the caught error. Remove the try-catch or add meaningful error handling.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::CodeQuality,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-useless-catch"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-useless-catch"),
-        allowed_options: &[],
+        ..RuleMetadata::defaults()
     }
 });
 
 impl Rule for NoUselessCatchRule {
-    fn name(&self) -> &str {
+    type State = UselessCatch;
+
+    fn name(&self) -> &'static str {
         "no-useless-catch"
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut visitor = UselessCatchVisitor {
             issues: Vec::new(),
-            path: path.to_path_buf(),
-            source,
+            source: ctx.source(),
         };
-        program.visit_with(&mut visitor);
+        ctx.program().visit_with(&mut visitor);
         visitor.issues
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.column, state.end_column),
+            "Useless catch block that only rethrows the error. Remove the try-catch or add meaningful error handling.".to_string(),
+        )
     }
 }
 
 struct UselessCatchVisitor<'a> {
-    issues: Vec<Issue>,
-    path: std::path::PathBuf,
+    issues: Vec<UselessCatch>,
     source: &'a str,
 }
 
@@ -75,15 +79,10 @@ impl<'a> Visit for UselessCatchVisitor<'a> {
                                     span.hi.0 as usize,
                                 );
 
-                                self.issues.push(Issue {
-                                    rule: "no-useless-catch".to_string(),
-                                    file: self.path.clone(),
+                                self.issues.push(UselessCatch {
                                     line,
                                     column,
                                     end_column,
-                                    message: "Useless catch block that only rethrows the error. Remove the try-catch or add meaningful error handling.".to_string(),
-                                    severity: Severity::Warning,
-                                    line_text: None,
                                 });
                             }
                         }

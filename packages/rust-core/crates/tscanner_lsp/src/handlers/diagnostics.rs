@@ -3,7 +3,7 @@ use crate::session::Session;
 use lsp_server::{Connection, Message, Notification};
 use lsp_types::{Diagnostic, PublishDiagnosticsParams, Url};
 use std::path::Path;
-use tscanner_service::{ScanContentParams, Workspace};
+use tscanner_service::{log_debug, ScanContentParams, Workspace};
 
 type LspError = Box<dyn std::error::Error + Send + Sync>;
 
@@ -18,14 +18,29 @@ pub fn publish_diagnostics(
         return Ok(());
     }
 
-    let issues = session
-        .workspace()
-        .scan_content(ScanContentParams {
+    let scan_result = {
+        let ws = session.workspace();
+        let ws_guard = ws.lock().unwrap();
+        ws_guard.scan_content(ScanContentParams {
             path: path.to_path_buf(),
             content: content.to_string(),
         })
-        .map(|result| result.issues)
-        .unwrap_or_default();
+    };
+
+    let issues = match &scan_result {
+        Ok(result) => {
+            log_debug(&format!(
+                "publish_diagnostics: {} issues for {}",
+                result.issues.len(),
+                path.display()
+            ));
+            result.issues.clone()
+        }
+        Err(e) => {
+            log_debug(&format!("publish_diagnostics error: {:?}", e));
+            Vec::new()
+        }
+    };
 
     let diags_with_rules: Vec<(Diagnostic, String)> = issues
         .iter()

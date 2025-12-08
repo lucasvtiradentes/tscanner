@@ -1,4 +1,5 @@
 use serde::Serialize;
+use tscanner_diagnostics::IssueRuleType;
 
 #[derive(Serialize)]
 pub struct JsonIssue {
@@ -9,6 +10,7 @@ pub struct JsonIssue {
     pub message: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub line_text: Option<String>,
+    pub rule_type: IssueRuleType,
 }
 
 #[derive(Serialize)]
@@ -33,4 +35,5 @@ pub struct JsonRuleIssue {
     pub severity: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub line_text: Option<String>,
+    pub rule_type: IssueRuleType,
 }

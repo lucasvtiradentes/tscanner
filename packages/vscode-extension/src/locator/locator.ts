@@ -1,6 +1,7 @@
 import { constants, accessSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
+import { PACKAGE_DISPLAY_NAME } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { IS_DEV } from '../common/constants';
 import { ExtensionConfigKey, getExtensionConfig } from '../common/state/extension-config';
@@ -8,10 +9,18 @@ import { findInGlobalModules } from './global-modules';
 import { findInNodeModules } from './node-modules';
 import { findInPath } from './path';
 
-export type LocatorResult = {
+export enum LocatorSource {
+  Dev = 'dev',
+  Settings = 'settings',
+  NodeModules = 'node_modules',
+  Global = 'global',
+  Path = 'path',
+}
+
+type LocatorResult = {
   path: string;
   args?: string[];
-  source: 'dev' | 'settings' | 'node_modules' | 'global' | 'path';
+  source: LocatorSource;
 } | null;
 
 export class Locator {
@@ -25,24 +34,24 @@ export class Locator {
 
     const settingsPath = this.getSettingsPath();
     if (settingsPath) {
-      return { path: settingsPath, source: 'settings' };
+      return { path: settingsPath, source: LocatorSource.Settings };
     }
 
     if (this.workspaceRoot) {
       const localPath = await findInNodeModules(this.workspaceRoot);
       if (localPath) {
-        return { path: localPath, source: 'node_modules' };
+        return { path: localPath, source: LocatorSource.NodeModules };
       }
     }
 
     const globalPath = await findInGlobalModules();
     if (globalPath) {
-      return { path: globalPath, source: 'global' };
+      return { path: globalPath, source: LocatorSource.Global };
     }
 
     const pathBinary = await findInPath();
     if (pathBinary) {
-      return { path: pathBinary, source: 'path' };
+      return { path: pathBinary, source: LocatorSource.Path };
     }
 
     return null;
@@ -58,7 +67,7 @@ export class Locator {
 
     const rustBinaryPath = join(this.workspaceRoot, 'packages', 'rust-core', 'target', 'release', binaryName);
     if (existsSync(rustBinaryPath)) {
-      return { path: rustBinaryPath, source: 'dev' };
+      return { path: rustBinaryPath, source: LocatorSource.Dev };
     }
 
     return null;
@@ -75,7 +84,7 @@ export class Locator {
 
     if (!existsSync(resolvedPath)) {
       vscode.window.showWarningMessage(
-        `TScanner: Configured binary path does not exist: ${resolvedPath}\n\nFalling back to auto-detection.`,
+        `${PACKAGE_DISPLAY_NAME}: Configured binary path does not exist: ${resolvedPath}\n\nFalling back to auto-detection.`,
       );
       return null;
     }
@@ -84,7 +93,7 @@ export class Locator {
       accessSync(resolvedPath, constants.X_OK);
     } catch {
       vscode.window.showWarningMessage(
-        `TScanner: Configured binary is not executable: ${resolvedPath}\n\nTry: chmod +x "${resolvedPath}"`,
+        `${PACKAGE_DISPLAY_NAME}: Configured binary is not executable: ${resolvedPath}\n\nTry: chmod +x "${resolvedPath}"`,
       );
     }
 

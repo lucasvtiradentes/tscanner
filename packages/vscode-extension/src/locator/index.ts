@@ -1,5 +1,2 @@
-export { Locator, type LocatorResult } from './locator';
-export { findInNodeModules } from './node-modules';
-export { findInGlobalModules } from './global-modules';
-export { findInPath } from './path';
+export { Locator, LocatorSource } from './locator';
 export { promptInstall } from './install-prompt';

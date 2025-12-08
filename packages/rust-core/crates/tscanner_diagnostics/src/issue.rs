@@ -2,7 +2,17 @@ use crate::Severity;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, Default, PartialEq, Eq)]
+#[serde(rename_all = "snake_case")]
+pub enum IssueRuleType {
+    #[default]
+    Builtin,
+    CustomRegex,
+    CustomScript,
+    Ai,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Issue {
     pub rule: String,
     pub file: PathBuf,
@@ -13,6 +23,12 @@ pub struct Issue {
     pub severity: Severity,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub line_text: Option<String>,
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub is_ai: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub category: Option<String>,
+    #[serde(default)]
+    pub rule_type: IssueRuleType,
 }
 
 impl Issue {
@@ -33,6 +49,9 @@ impl Issue {
             message,
             severity: Severity::Error,
             line_text: None,
+            is_ai: false,
+            category: None,
+            rule_type: IssueRuleType::Builtin,
         }
     }
 

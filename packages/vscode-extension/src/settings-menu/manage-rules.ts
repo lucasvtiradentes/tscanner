@@ -1,8 +1,7 @@
-import { CustomRuleType, RuleCategory } from 'tscanner-common';
+import { EXTENSION_DISPLAY_NAME } from 'src/common/scripts-constants';
+import { CONFIG_DIR_NAME, PACKAGE_NAME, RuleCategory, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { CONFIG_DIR_NAME } from '../common/constants';
 import {
-  type TscannerConfig,
   getConfigState,
   getDefaultConfig,
   loadEffectiveConfig,
@@ -27,12 +26,7 @@ type RuleQuickPickItem = vscode.QuickPickItem & {
   ruleName: string;
   picked: boolean;
   isCustom: boolean;
-};
-
-const CUSTOM_RULE_TYPE_CONFIG: Record<CustomRuleType, { icon: string; detailKey: 'pattern' | 'script' | 'prompt' }> = {
-  [CustomRuleType.Regex]: { icon: '$(regex)', detailKey: 'pattern' },
-  [CustomRuleType.Script]: { icon: '$(file-code)', detailKey: 'script' },
-  [CustomRuleType.Ai]: { icon: '$(sparkle)', detailKey: 'prompt' },
+  ruleKind?: 'regex' | 'script' | 'ai';
 };
 
 const CATEGORY_ICONS: Record<RuleCategory, string> = {
@@ -60,38 +54,52 @@ function getCategoryIcon(category: string): string {
   return CATEGORY_ICONS[category as RuleCategory] || 'circle-outline';
 }
 
-function getCustomRuleDetail(ruleConfig: NonNullable<TscannerConfig['customRules']>[string]): string {
-  if (ruleConfig.message) return ruleConfig.message;
-  switch (ruleConfig.type) {
-    case CustomRuleType.Regex:
-      return ruleConfig.pattern;
-    case CustomRuleType.Script:
-      return ruleConfig.command;
-    case CustomRuleType.Ai:
-      return ruleConfig.prompt;
-    default:
-      return '';
-  }
-}
-
 function buildCustomRuleItems(existingConfig: TscannerConfig): RuleQuickPickItem[] {
-  const customRules: RuleQuickPickItem[] = [];
+  const items: RuleQuickPickItem[] = [];
 
-  if (existingConfig?.customRules) {
-    for (const [ruleName, ruleConfig] of Object.entries(existingConfig.customRules)) {
-      const typeInfo = CUSTOM_RULE_TYPE_CONFIG[ruleConfig.type];
-      customRules.push({
-        label: `${typeInfo.icon} ${ruleName}`,
-        description: `[${ruleConfig.type.toUpperCase()}] custom`,
-        detail: getCustomRuleDetail(ruleConfig),
+  if (existingConfig?.rules?.regex) {
+    for (const [ruleName, ruleConfig] of Object.entries(existingConfig.rules.regex)) {
+      items.push({
+        label: `$(regex) ${ruleName}`,
+        description: '[REGEX] custom',
+        detail: ruleConfig.message || ruleConfig.pattern,
         ruleName,
         picked: ruleConfig.enabled ?? true,
         isCustom: true,
+        ruleKind: 'regex',
       });
     }
   }
 
-  return customRules;
+  if (existingConfig?.rules?.script) {
+    for (const [ruleName, ruleConfig] of Object.entries(existingConfig.rules.script)) {
+      items.push({
+        label: `$(file-code) ${ruleName}`,
+        description: '[SCRIPT] custom',
+        detail: ruleConfig.message || ruleConfig.command,
+        ruleName,
+        picked: ruleConfig.enabled ?? true,
+        isCustom: true,
+        ruleKind: 'script',
+      });
+    }
+  }
+
+  if (existingConfig?.aiRules) {
+    for (const [ruleName, ruleConfig] of Object.entries(existingConfig.aiRules)) {
+      items.push({
+        label: `$(sparkle) ${ruleName}`,
+        description: '[AI] custom',
+        detail: ruleConfig.message || ruleConfig.prompt,
+        ruleName,
+        picked: ruleConfig.enabled ?? true,
+        isCustom: true,
+        ruleKind: 'ai',
+      });
+    }
+  }
+
+  return items;
 }
 
 export function createManageRulesCommand(
@@ -110,7 +118,10 @@ export function createManageRulesCommand(
     const result = await locator.locate();
 
     if (!result) {
-      showToastMessage(ToastKind.Error, 'TScanner binary not found. Install with: npm install -g tscanner');
+      showToastMessage(
+        ToastKind.Error,
+        `${EXTENSION_DISPLAY_NAME} binary not found. Install with: npm install -g ${PACKAGE_NAME}`,
+      );
       return;
     }
 
@@ -122,13 +133,13 @@ export function createManageRulesCommand(
 
       logger.info(`Loading config for manage-rules, customConfigDir: ${customConfigDir ?? 'null'}`);
       const existingConfig = (await loadEffectiveConfig(context, workspacePath, customConfigDir)) || getDefaultConfig();
-      logger.info(`Loaded config with ${Object.keys(existingConfig.builtinRules || {}).length} builtin rules`);
+      logger.info(`Loaded config with ${Object.keys(existingConfig.rules?.builtin || {}).length} builtin rules`);
 
       const customRules = buildCustomRuleItems(existingConfig);
       const rulesByCategory = new Map<string, RuleQuickPickItem[]>();
 
       for (const rule of rules) {
-        const existingRule = existingConfig?.builtinRules?.[rule.name];
+        const existingRule = existingConfig?.rules?.builtin?.[rule.name];
         const isEnabled = existingRule?.enabled ?? existingRule !== undefined;
 
         const ruleItem: RuleQuickPickItem = {
@@ -182,40 +193,59 @@ export function createManageRulesCommand(
 
       const config: TscannerConfig = existingConfig;
 
-      if (!config.builtinRules) {
-        config.builtinRules = {};
+      if (!config.rules) {
+        config.rules = {};
       }
-      if (!config.customRules) {
-        config.customRules = {};
+      if (!config.rules.builtin) {
+        config.rules.builtin = {};
+      }
+      if (!config.rules.regex) {
+        config.rules.regex = {};
+      }
+      if (!config.rules.script) {
+        config.rules.script = {};
+      }
+      if (!config.aiRules) {
+        config.aiRules = {};
       }
 
       for (const rule of rules) {
         if (enabledRules.has(rule.name)) {
-          const existingRuleConfig = config.builtinRules[rule.name];
+          const existingRuleConfig = config.rules.builtin[rule.name];
           if (!existingRuleConfig) {
-            config.builtinRules[rule.name] = {};
+            config.rules.builtin[rule.name] = {};
           } else {
             existingRuleConfig.enabled = undefined;
           }
         } else {
-          const existingRuleConfig = config.builtinRules[rule.name];
+          const existingRuleConfig = config.rules.builtin[rule.name];
           if (existingRuleConfig && Object.keys(existingRuleConfig).length > 0) {
             existingRuleConfig.enabled = false;
           } else {
-            delete config.builtinRules[rule.name];
+            delete config.rules.builtin[rule.name];
           }
         }
       }
 
       for (const customRule of customRules) {
-        const existingCustom = existingConfig?.customRules?.[customRule.ruleName];
-        if (existingCustom) {
-          if (enabledRules.has(customRule.ruleName)) {
-            existingCustom.enabled = undefined;
-          } else {
-            existingCustom.enabled = false;
+        if (customRule.ruleKind === 'regex') {
+          const existingRule = existingConfig?.rules?.regex?.[customRule.ruleName];
+          if (existingRule) {
+            existingRule.enabled = enabledRules.has(customRule.ruleName) ? undefined : false;
+            config.rules.regex[customRule.ruleName] = existingRule;
           }
-          config.customRules[customRule.ruleName] = existingCustom;
+        } else if (customRule.ruleKind === 'script') {
+          const existingRule = existingConfig?.rules?.script?.[customRule.ruleName];
+          if (existingRule) {
+            existingRule.enabled = enabledRules.has(customRule.ruleName) ? undefined : false;
+            config.rules.script[customRule.ruleName] = existingRule;
+          }
+        } else if (customRule.ruleKind === 'ai') {
+          const existingRule = existingConfig?.aiRules?.[customRule.ruleName];
+          if (existingRule) {
+            existingRule.enabled = enabledRules.has(customRule.ruleName) ? undefined : false;
+            config.aiRules[customRule.ruleName] = existingRule;
+          }
         }
       }
 

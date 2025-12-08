@@ -81,6 +81,7 @@ impl Scanner {
         let processed = AtomicUsize::new(0);
         let cache_hits = AtomicUsize::new(0);
 
+        let regular_start = Instant::now();
         let results: Vec<FileResult> = files
             .par_iter()
             .filter_map(|path| {
@@ -103,13 +104,17 @@ impl Scanner {
             .collect();
 
         let script_issues = self.run_script_rules(&files);
-        let ai_issues = self.run_ai_rules(&files);
 
         let mut all_results = results;
         self.merge_issues(&mut all_results, script_issues);
-        self.merge_issues(&mut all_results, ai_issues);
 
         self.filter_to_staged_lines(&mut all_results, staged_lines);
+        let regular_duration = regular_start.elapsed();
+
+        let ai_start = Instant::now();
+        let (ai_issues, ai_warning) = self.run_ai_rules_with_context(&files, Some(staged_lines));
+        self.merge_issues(&mut all_results, ai_issues);
+        let ai_duration = ai_start.elapsed();
 
         let total_issues: usize = all_results.iter().map(|r| r.issues.len()).sum();
         let duration = start.elapsed();
@@ -119,13 +124,18 @@ impl Scanner {
         let cached = cache_hits.load(Ordering::Relaxed);
         let scanned = file_count - cached;
 
+        let warnings = ai_warning.into_iter().collect();
+
         ScanResult {
             files: all_results,
             total_issues,
             duration_ms: duration.as_millis(),
+            regular_rules_duration_ms: regular_duration.as_millis(),
+            ai_rules_duration_ms: ai_duration.as_millis(),
             total_files: file_count,
             cached_files: cached,
             scanned_files: scanned,
+            warnings,
         }
     }
 

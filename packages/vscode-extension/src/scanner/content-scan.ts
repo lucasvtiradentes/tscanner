@@ -1,11 +1,12 @@
+import type { TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { logger } from '../common/lib/logger';
 import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
-import type { IssueResult, TscannerConfig } from '../common/types';
+import type { IssueResult } from '../common/types';
 import { ensureLspClient } from './client';
 import { mapIssueToResult } from './utils';
 
-export type ScanContentResult = {
+type ScanContentResult = {
   issues: IssueResult[];
   relatedFiles: string[];
 };

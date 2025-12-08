@@ -1,4 +1,5 @@
 use crate::errors::WorkspaceError;
+use crate::logger::{log_debug, log_info};
 use crate::types::*;
 use crate::workspace::Workspace;
 use parking_lot::RwLock;
@@ -8,10 +9,12 @@ use tscanner_cache::FileCache;
 use tscanner_config::TscannerConfig;
 use tscanner_diagnostics::{ContentScanResult, FileResult, Issue, ScanResult};
 use tscanner_rules::{get_all_rule_metadata, RuleMetadata};
+use tscanner_scanner::Scanner;
 
 struct ProjectState {
     root: PathBuf,
     config: TscannerConfig,
+    scanner: Option<Scanner>,
 }
 
 struct OpenFile {
@@ -65,10 +68,29 @@ impl Default for WorkspaceServer {
 impl Workspace for WorkspaceServer {
     fn open_project(&self, params: OpenProjectParams) -> Result<(), WorkspaceError> {
         let config = params.config.unwrap_or_default();
+        log_info(&format!(
+            "open_project: {} (builtin rules: {})",
+            params.root.display(),
+            config.rules.builtin.len()
+        ));
+
+        let scanner_result =
+            Scanner::with_cache(config.clone(), self.cache.clone(), params.root.clone());
+        let scanner = match scanner_result {
+            Ok(s) => {
+                log_debug("Scanner created successfully");
+                Some(s)
+            }
+            Err(e) => {
+                log_info(&format!("Scanner creation failed: {:?}", e));
+                None
+            }
+        };
 
         *self.project.write() = Some(ProjectState {
             root: params.root,
             config,
+            scanner,
         });
 
         Ok(())
@@ -146,13 +168,32 @@ impl Workspace for WorkspaceServer {
         ))
     }
 
-    fn scan_content(
-        &self,
-        _params: ScanContentParams,
-    ) -> Result<ContentScanResult, WorkspaceError> {
-        Err(WorkspaceError::Internal(
-            "scan_content() not yet implemented - use core::Scanner directly".to_string(),
-        ))
+    fn scan_content(&self, params: ScanContentParams) -> Result<ContentScanResult, WorkspaceError> {
+        log_debug(&format!(
+            "scan_content: {} ({} bytes)",
+            params.path.display(),
+            params.content.len()
+        ));
+
+        let project = self.project.read();
+        let project = project.as_ref().ok_or(WorkspaceError::NoProjectOpen)?;
+
+        let scanner = project
+            .scanner
+            .as_ref()
+            .ok_or_else(|| WorkspaceError::Internal("Scanner not initialized".to_string()))?;
+
+        let result = scanner.scan_content(&params.path, &params.content);
+        log_debug(&format!(
+            "scan_content result: {:?} issues",
+            result.as_ref().map(|r| r.issues.len())
+        ));
+
+        Ok(result.unwrap_or_else(|| ContentScanResult {
+            file: params.path,
+            issues: Vec::new(),
+            related_files: Vec::new(),
+        }))
     }
 
     fn get_rules_metadata(&self) -> Result<Vec<RuleMetadata>, WorkspaceError> {

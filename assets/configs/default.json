@@ -1,9 +1,14 @@
 {
-  "$schema": "https://unpkg.com/tscanner@0.0.28/schema.json",
-  "builtinRules": {
-    "no-explicit-any": {}
+  "$schema": "../../packages/cli/schema.json",
+  "rules": {
+    "builtin": {
+      "no-explicit-any": {}
+    },
+    "regex": {},
+    "script": {}
   },
-  "customRules": {},
+  "aiRules": {},
+  "ai": {},
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
     "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
@@ -11,10 +16,12 @@
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": false,
-    "scanIntervalSeconds": 0
+    "scanIntervalSeconds": 0,
+    "aiScanIntervalSeconds": 0
   },
   "cli": {
     "groupBy": "file",
+    "aiMode": "ignore",
     "noCache": false,
     "showSettings": true,
     "showIssueSeverity": true,

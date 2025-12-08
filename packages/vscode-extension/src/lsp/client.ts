@@ -1,24 +1,28 @@
 import { existsSync } from 'node:fs';
+import { getStatusBarName } from 'src/common/constants';
+import {
+  type AiExecutionMode,
+  CONFIG_DIR_NAME,
+  CONFIG_FILE_NAME,
+  type ContentScanResult,
+  type FileResult,
+  type GroupMode,
+  type RuleMetadata,
+  type ScanResult,
+  type TscannerConfig,
+} from 'tscanner-common';
 import * as vscode from 'vscode';
-import { LanguageClient, type LanguageClientOptions, type ServerOptions, Trace } from 'vscode-languageclient/node';
-import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from '../common/constants';
+import { LanguageClient, type LanguageClientOptions, type ServerOptions } from 'vscode-languageclient/node';
 import { ensureBinaryExecutable } from '../common/lib/binary-utils';
-import { ExtensionConfigKey, TraceLevel, getExtensionConfig } from '../common/state/extension-config';
-import type {
-  ContentScanResult,
-  FileResult,
-  GroupMode,
-  RuleMetadata,
-  ScanResult,
-  TscannerConfig,
-} from '../common/types';
 import { ClearCacheRequestType } from './requests/clear-cache';
 import { FormatResultsRequestType } from './requests/format-results';
 import { GetRulesMetadataRequestType } from './requests/get-rules-metadata';
 import { ScanRequestType } from './requests/scan';
 import { ScanContentRequestType } from './requests/scan-content';
 import { ScanFileRequestType } from './requests/scan-file';
-import type { FormatPrettyResult } from './requests/types';
+import type { AiProgressParams, FormatPrettyResult } from './requests/types';
+
+const AI_PROGRESS_METHOD = 'tscanner/aiProgress';
 
 export class TscannerLspClient {
   private client: LanguageClient | null = null;
@@ -38,8 +42,6 @@ export class TscannerLspClient {
     }
 
     ensureBinaryExecutable(this.binaryPath);
-
-    const trace = getExtensionConfig(ExtensionConfigKey.TraceServer);
 
     const serverOptions: ServerOptions = {
       command: this.binaryPath,
@@ -61,15 +63,9 @@ export class TscannerLspClient {
           vscode.workspace.createFileSystemWatcher(`**/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`),
         ],
       },
-      traceOutputChannel:
-        trace !== TraceLevel.Off ? vscode.window.createOutputChannel('TScanner LSP Trace') : undefined,
     };
 
-    this.client = new LanguageClient('tscanner', 'TScanner LSP', serverOptions, clientOptions);
-
-    if (trace !== TraceLevel.Off) {
-      await this.client.setTrace(trace === TraceLevel.Verbose ? Trace.Verbose : Trace.Messages);
-    }
+    this.client = new LanguageClient('tscanner', `${getStatusBarName()} LSP`, serverOptions, clientOptions);
 
     await this.client.start();
   }
@@ -85,9 +81,9 @@ export class TscannerLspClient {
     return this.client !== null;
   }
 
-  async scan(root: string, config?: TscannerConfig, branch?: string): Promise<ScanResult> {
+  async scan(root: string, config?: TscannerConfig, branch?: string, aiMode?: AiExecutionMode): Promise<ScanResult> {
     if (!this.client) throw new Error('LSP client not started');
-    return this.client.sendRequest(ScanRequestType, { root, config, branch });
+    return this.client.sendRequest(ScanRequestType, { root, config, branch, ai_mode: aiMode });
   }
 
   async scanFile(root: string, file: string): Promise<FileResult> {
@@ -117,5 +113,10 @@ export class TscannerLspClient {
       results,
       group_mode: groupMode,
     });
+  }
+
+  onAiProgress(handler: (params: AiProgressParams) => void): vscode.Disposable {
+    if (!this.client) throw new Error('LSP client not started');
+    return this.client.onNotification(AI_PROGRESS_METHOD, handler);
   }
 }

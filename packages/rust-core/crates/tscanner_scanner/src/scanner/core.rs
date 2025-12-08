@@ -8,7 +8,7 @@ use tscanner_config::{compile_globset, TscannerConfig};
 use tscanner_rules::RuleRegistry;
 
 pub struct Scanner {
-    pub(crate) registry: RuleRegistry,
+    pub registry: RuleRegistry,
     pub(crate) config: TscannerConfig,
     pub(crate) cache: Arc<FileCache>,
     pub(crate) root: PathBuf,
@@ -74,7 +74,7 @@ impl Scanner {
             Some(compile_globset(&custom_patterns)?)
         };
         let script_executor = ScriptExecutor::with_logger(&root, log_error, log_debug);
-        let ai_executor = AiExecutor::with_logger(&root, log_warn, log_debug);
+        let ai_executor = AiExecutor::with_config(&root, config.ai.clone(), log_warn, log_debug);
         Ok(Self {
             registry,
             config,

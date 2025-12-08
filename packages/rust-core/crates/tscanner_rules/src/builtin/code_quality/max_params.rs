@@ -1,13 +1,14 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{
+    RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleOption, RuleOptionSchema, RuleType,
+};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
 use serde::Deserialize;
-use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
 
 const DEFAULT_MAX_PARAMS: usize = 4;
 
@@ -28,6 +29,15 @@ impl Default for MaxParamsOptions {
             max_params: DEFAULT_MAX_PARAMS,
         }
     }
+}
+
+pub struct TooManyParams {
+    pub line: usize,
+    pub column: usize,
+    pub end_column: usize,
+    pub name: String,
+    pub param_count: usize,
+    pub max_params: usize,
 }
 
 pub struct MaxParamsRule {
@@ -57,42 +67,52 @@ inventory::submit!(RuleMetadataRegistration {
         description:
             "Limits the number of parameters in a function. Functions with many parameters should use an options object instead.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::CodeQuality,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/max-params"),
         equivalent_biome_rule: None,
-        allowed_options: &["maxParams"],
+        options: &[RuleOption {
+            name: "maxParams",
+            description: "Maximum number of parameters allowed in a function",
+            schema: RuleOptionSchema::Integer {
+                default: DEFAULT_MAX_PARAMS as i64,
+                minimum: Some(1),
+            },
+        }],
+        ..RuleMetadata::defaults()
     }
 });
 
 impl Rule for MaxParamsRule {
-    fn name(&self) -> &str {
+    type State = TooManyParams;
+
+    fn name(&self) -> &'static str {
         "max-params"
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut visitor = MaxParamsVisitor {
             issues: Vec::new(),
-            path: path.to_path_buf(),
-            source,
+            source: ctx.source(),
             max_params: self.max_params,
         };
-        program.visit_with(&mut visitor);
+        ctx.program().visit_with(&mut visitor);
         visitor.issues
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.column, state.end_column),
+            format!(
+                "Function '{}' has {} parameters (max: {}). Consider using an options object.",
+                state.name, state.param_count, state.max_params
+            ),
+        )
     }
 }
 
 struct MaxParamsVisitor<'a> {
-    issues: Vec<Issue>,
-    path: std::path::PathBuf,
+    issues: Vec<TooManyParams>,
     source: &'a str,
     max_params: usize,
 }
@@ -103,18 +123,13 @@ impl<'a> MaxParamsVisitor<'a> {
             let (line, column, end_column) =
                 get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
-            self.issues.push(Issue {
-                rule: "max-params".to_string(),
-                file: self.path.clone(),
+            self.issues.push(TooManyParams {
                 line,
                 column,
                 end_column,
-                message: format!(
-                    "Function '{}' has {} parameters (max: {}). Consider using an options object.",
-                    name, param_count, self.max_params
-                ),
-                severity: Severity::Warning,
-                line_text: None,
+                name: name.to_string(),
+                param_count,
+                max_params: self.max_params,
             });
         }
     }

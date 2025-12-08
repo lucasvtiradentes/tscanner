@@ -9,8 +9,8 @@ The CLI package is a Node.js wrapper around the Rust binary that enables cross-p
 ```
 tscanner (npm)
 ├── Node.js wrapper (main.ts)
-│   ├── Platform detection (platform.ts)
 │   ├── Binary resolution (binary-resolver.ts)
+│   │   └── Platform detection (via tscanner-common)
 │   └── Child process spawn → Rust binary
 └── Platform-specific binaries (optionalDependencies)
     ├── @tscanner/cli-darwin-arm64
@@ -59,25 +59,43 @@ tscanner check --branch origin/main
 
 | Command | Description | Example |
 |---------|-------------|---------|
-| `init [path]` | Create `.tscanner/config.jsonc` configuration | `tscanner init` |
-| `check [path]` | Scan files and report issues | `tscanner check` |
-| `rules [path]` | List all available rules with metadata | `tscanner rules` |
+| `init` | Create `.tscanner/config.jsonc` configuration | `tscanner init` |
+| `check [paths]` | Scan files and report issues | `tscanner check` |
+| `config` | Show/validate configuration and list rules | `tscanner config --rules` |
+| `lsp` | Start Language Server Protocol server | `tscanner lsp` |
 | `--help` | Show help information | `tscanner --help` |
 | `--version` | Show version number | `tscanner --version` |
+
+### Init Command Flags
+
+| Flag | Description | Example |
+|------|-------------|---------|
+| `--all-rules` | Include all available rules in config | `tscanner init --all-rules` |
 
 ### Check Command Flags
 
 | Flag | Description | Example |
 |------|-------------|---------|
 | `--no-cache` | Skip cache and force full scan | `tscanner check --no-cache` |
-| `--json` | Output results as JSON | `tscanner check --json` |
-| `--pretty` | Pretty output with rule definitions | `tscanner check --pretty` |
-| `--by-rule` | Group issues by rule instead of file | `tscanner check --by-rule` |
+| `--format <FORMAT>` | Output format: `json`, `pretty`, `default` | `tscanner check --format json` |
+| `--group-by <GROUP>` | Group issues by `rule` or `file` | `tscanner check --group-by rule` |
 | `--branch <BRANCH>` | Only scan files changed vs branch | `tscanner check --branch main` |
-| `--file <PATTERN>` | Filter by file glob pattern | `tscanner check --file "src/**"` |
+| `--staged` | Only scan staged files | `tscanner check --staged` |
+| `--glob <PATTERN>` | Filter by file glob pattern | `tscanner check --glob "src/**"` |
 | `--rule <RULE>` | Filter by specific rule | `tscanner check --rule no-explicit-any` |
 | `--continue-on-error` | Don't exit with error code | `tscanner check --continue-on-error` |
-| `--config <DIR>` | Custom config directory | `tscanner check --config ./custom` |
+| `--config-path <DIR>` | Custom config directory | `tscanner check --config-path ./custom` |
+| `--include-ai` | Include AI-powered rules in scan | `tscanner check --include-ai` |
+| `--only-ai` | Only run AI-powered rules | `tscanner check --only-ai` |
+
+### Config Command Flags
+
+| Flag | Description | Example |
+|------|-------------|---------|
+| `--rules` | List all available rules and their status | `tscanner config --rules` |
+| `--validate` | Validate the configuration file | `tscanner config --validate` |
+| `--show` | Show the resolved configuration | `tscanner config --show` |
+| `--config-path <DIR>` | Path to .tscanner folder | `tscanner config --config-path ./custom` |
 
 ## Exit Codes
 

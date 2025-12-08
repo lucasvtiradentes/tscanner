@@ -1,8 +1,8 @@
 use std::path::Path;
 
 use crate::defaults::get_default_config_json;
-use crate::types::{CustomRuleConfig, TscannerConfig};
-use crate::validation::{validate_json_fields, AllowedOptionsGetter, ValidationResult};
+use crate::types::TscannerConfig;
+use crate::validation::{validate_json_fields, ValidationResult};
 
 pub const CONFIG_ERROR_PREFIX: &str = "TSCANNER_CONFIG_ERROR:";
 
@@ -17,11 +17,10 @@ impl TscannerConfig {
         content: &str,
         workspace: Option<&Path>,
         config_dir_name: &str,
-        get_allowed_options: Option<AllowedOptionsGetter>,
     ) -> Result<(Self, ValidationResult), Box<dyn std::error::Error>> {
         let json_value = Self::parse_json(content)?;
 
-        let mut result = validate_json_fields(&json_value, get_allowed_options);
+        let mut result = validate_json_fields(&json_value);
         if !result.is_valid() {
             return Ok((Self::default(), result));
         }
@@ -43,17 +42,21 @@ impl TscannerConfig {
     ) -> ValidationResult {
         let mut result = ValidationResult::new();
 
-        for (name, rule_config) in &self.custom_rules {
-            if let CustomRuleConfig::Regex(regex_config) = rule_config {
-                if let Err(e) = regex::Regex::new(&regex_config.pattern) {
-                    result.add_error(format!("Rule '{}' has invalid regex pattern: {}", name, e));
-                }
+        for (name, regex_config) in &self.rules.regex {
+            if let Err(e) = regex::Regex::new(&regex_config.pattern) {
+                result.add_error(format!("Rule '{}' has invalid regex pattern: {}", name, e));
             }
+        }
 
-            if let CustomRuleConfig::Script(script_config) = rule_config {
-                if script_config.command.trim().is_empty() {
-                    result.add_error(format!("Rule '{}' has empty command", name));
-                }
+        for (name, script_config) in &self.rules.script {
+            if script_config.command.trim().is_empty() {
+                result.add_error(format!("Rule '{}' has empty command", name));
+            }
+        }
+
+        for (name, ai_config) in &self.ai_rules {
+            if ai_config.prompt.trim().is_empty() {
+                result.add_error(format!("AI rule '{}' has empty prompt", name));
             }
         }
 
@@ -64,12 +67,14 @@ impl TscannerConfig {
 
         for (rule1, rule2) in &conflicting_builtin_rules {
             let rule1_enabled = self
-                .builtin_rules
+                .rules
+                .builtin
                 .get(*rule1)
                 .and_then(|r| r.enabled)
                 .unwrap_or(false);
             let rule2_enabled = self
-                .builtin_rules
+                .rules
+                .builtin
                 .get(*rule2)
                 .and_then(|r| r.enabled)
                 .unwrap_or(false);
@@ -112,18 +117,37 @@ impl TscannerConfig {
 
     pub fn get_rule_specific_include_patterns(&self) -> Vec<String> {
         let builtin_patterns = self
-            .builtin_rules
+            .rules
+            .builtin
             .values()
             .filter(|rule| rule.enabled.unwrap_or(true))
             .flat_map(|rule| rule.include.clone());
 
-        let custom_patterns = self
-            .custom_rules
+        let regex_patterns = self
+            .rules
+            .regex
             .values()
-            .filter(|rule| rule.base().enabled)
-            .flat_map(|rule| rule.base().include.clone());
+            .filter(|rule| rule.enabled)
+            .flat_map(|rule| rule.include.clone());
 
-        builtin_patterns.chain(custom_patterns).collect()
+        let script_patterns = self
+            .rules
+            .script
+            .values()
+            .filter(|rule| rule.enabled)
+            .flat_map(|rule| rule.include.clone());
+
+        let ai_patterns = self
+            .ai_rules
+            .values()
+            .filter(|rule| rule.enabled)
+            .flat_map(|rule| rule.include.clone());
+
+        builtin_patterns
+            .chain(regex_patterns)
+            .chain(script_patterns)
+            .chain(ai_patterns)
+            .collect()
     }
 }
 

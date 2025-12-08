@@ -2,7 +2,7 @@ import { GitHelper, ScanMode } from 'tscanner-common';
 import { writeAnnotations } from './core/annotation-writer';
 import { updateOrCreateComment } from './core/comment-updater';
 import { type ActionInputs, getActionInputs } from './core/input-validator';
-import { type ScanOptions, type ScanResult, scanChangedFiles } from './core/scanner';
+import { type ActionScanResult, type ScanOptions, scanChangedFiles } from './core/scanner/scanner';
 import { writeSummary } from './core/summary-writer';
 import { type Octokit, githubHelper } from './lib/actions-helper';
 import { validateConfigFiles } from './utils/config-validator';
@@ -71,12 +71,13 @@ class ActionRunner {
     }
   }
 
-  private async executeScan(inputs: ActionInputs): Promise<ScanResult> {
+  private async executeScan(inputs: ActionInputs): Promise<ActionScanResult> {
     const commonParams = {
       devMode: inputs.devMode,
       tscannerVersion: inputs.tscannerVersion,
       groupBy: inputs.groupBy,
       configPath: inputs.configPath,
+      aiMode: inputs.aiMode,
     } satisfies ScanOptions;
 
     if (inputs.mode === ScanMode.Branch) {
@@ -92,7 +93,7 @@ class ActionRunner {
     });
   }
 
-  private async handlePRComment(inputs: ActionInputs, octokit: Octokit, scanResult: ScanResult) {
+  private async handlePRComment(inputs: ActionInputs, octokit: Octokit, scanResult: ActionScanResult) {
     const context = githubHelper.getContext();
     const prInfo = context.payload.pull_request;
 
@@ -128,7 +129,7 @@ class ActionRunner {
     }
   }
 
-  private handleScanResults(scanResult: ScanResult, inputs: ActionInputs): void {
+  private handleScanResults(scanResult: ActionScanResult, inputs: ActionInputs): void {
     if (scanResult.totalErrors > 0) {
       const loggerMethod = inputs.continueOnError ? githubHelper.logInfo : githubHelper.setFailed;
       loggerMethod(`Found ${scanResult.totalErrors} error(s)`);

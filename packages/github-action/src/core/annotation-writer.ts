@@ -1,17 +1,23 @@
-import { Severity } from 'tscanner-common';
+import { PACKAGE_DISPLAY_NAME, Severity } from 'tscanner-common';
 import { type Octokit, githubHelper } from '../lib/actions-helper';
-import type { ScanResult } from './scanner';
+import type { ActionScanResult } from './scanner/scanner';
+
+enum AnnotationLevel {
+  Notice = 'notice',
+  Warning = 'warning',
+  Failure = 'failure',
+}
 
 type CheckAnnotation = {
   path: string;
   start_line: number;
   end_line: number;
-  annotation_level: 'notice' | 'warning' | 'failure';
+  annotation_level: AnnotationLevel;
   message: string;
   title: string;
 };
 
-export async function writeAnnotations(octokit: Octokit, scanResult: ScanResult): Promise<void> {
+export async function writeAnnotations(octokit: Octokit, scanResult: ActionScanResult): Promise<void> {
   const annotations: CheckAnnotation[] = [];
 
   for (const group of scanResult.ruleGroupsByRule) {
@@ -21,7 +27,7 @@ export async function writeAnnotations(octokit: Octokit, scanResult: ScanResult)
           path: file.filePath,
           start_line: issue.line,
           end_line: issue.line,
-          annotation_level: group.severity === Severity.Error ? 'failure' : 'warning',
+          annotation_level: group.severity === Severity.Error ? AnnotationLevel.Failure : AnnotationLevel.Warning,
           message: issue.message,
           title: issue.ruleName ?? group.ruleName,
         });
@@ -53,7 +59,7 @@ export async function writeAnnotations(octokit: Octokit, scanResult: ScanResult)
     const { data: checkRun } = await octokit.rest.checks.create({
       owner,
       repo,
-      name: 'TScanner',
+      name: PACKAGE_DISPLAY_NAME,
       head_sha: headSha,
       status: 'completed',
       conclusion,

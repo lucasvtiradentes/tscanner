@@ -1,71 +1,15 @@
 use schemars::schema_for;
 use serde_json::{json, Map, Value};
-use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 use tscanner_config::TscannerConfig;
-use tscanner_rules::get_all_rule_metadata;
-
-fn get_rule_options_schema() -> HashMap<&'static str, Value> {
-    let mut options = HashMap::new();
-
-    options.insert(
-        "max-params",
-        json!({
-            "maxParams": {
-                "type": "integer",
-                "default": 4,
-                "minimum": 1,
-                "description": "Maximum number of parameters allowed in a function"
-            }
-        }),
-    );
-
-    options.insert(
-        "max-function-length",
-        json!({
-            "maxLength": {
-                "type": "integer",
-                "default": 50,
-                "minimum": 1,
-                "description": "Maximum number of statements allowed in a function"
-            }
-        }),
-    );
-
-    options.insert(
-        "no-todo-comments",
-        json!({
-            "keywords": {
-                "type": "array",
-                "items": { "type": "string" },
-                "default": ["TODO", "FIXME", "HACK", "XXX", "NOTE", "BUG"],
-                "description": "Comment keywords to detect"
-            }
-        }),
-    );
-
-    options.insert(
-        "no-console",
-        json!({
-            "methods": {
-                "type": "array",
-                "items": { "type": "string" },
-                "default": ["log", "warn", "error", "info", "debug", "trace", "table", "dir", "dirxml", "group", "groupCollapsed", "groupEnd", "time", "timeEnd", "timeLog", "assert", "count", "countReset", "clear", "profile", "profileEnd"],
-                "description": "Console methods to disallow"
-            }
-        }),
-    );
-
-    options
-}
+use tscanner_rules::{get_all_rule_metadata, RuleOptionSchema};
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let schema = schema_for!(TscannerConfig);
     let mut schema_value: Value = serde_json::to_value(&schema)?;
 
     let metadata = get_all_rule_metadata();
-    let rule_options = get_rule_options_schema();
 
     let base_rule_props = json!({
         "enabled": {
@@ -100,12 +44,43 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         let mut properties = base_rule_props.as_object().unwrap().clone();
 
-        if let Some(options) = rule_options.get(meta.name) {
-            if let Some(opts_obj) = options.as_object() {
-                for (key, value) in opts_obj {
-                    properties.insert(key.clone(), value.clone());
+        for opt in meta.options {
+            let opt_schema = match &opt.schema {
+                RuleOptionSchema::Integer { default, minimum } => {
+                    let mut schema = json!({
+                        "type": "integer",
+                        "default": default,
+                        "description": opt.description
+                    });
+                    if let Some(min) = minimum {
+                        schema["minimum"] = json!(min);
+                    }
+                    schema
                 }
-            }
+                RuleOptionSchema::Boolean { default } => {
+                    json!({
+                        "type": "boolean",
+                        "default": default,
+                        "description": opt.description
+                    })
+                }
+                RuleOptionSchema::String { default } => {
+                    json!({
+                        "type": "string",
+                        "default": default,
+                        "description": opt.description
+                    })
+                }
+                RuleOptionSchema::Array { items, default } => {
+                    json!({
+                        "type": "array",
+                        "items": { "type": items },
+                        "default": default,
+                        "description": opt.description
+                    })
+                }
+            };
+            properties.insert(opt.name.to_string(), opt_schema);
         }
 
         rule_schema.insert("properties".to_string(), Value::Object(properties));
@@ -124,9 +99,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    let mut rule_properties = Map::new();
+    let mut builtin_rule_properties = Map::new();
     for meta in &metadata {
-        rule_properties.insert(
+        builtin_rule_properties.insert(
             meta.name.to_string(),
             json!({
                 "$ref": format!("#/definitions/BuiltinRuleConfig_{}", meta.name.replace('-', "_"))
@@ -134,16 +109,58 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         );
     }
 
+    if let Some(definitions) = schema_value.get_mut("definitions") {
+        if let Some(defs_obj) = definitions.as_object_mut() {
+            if let Some(rules_config) = defs_obj.get_mut("RulesConfig") {
+                if let Some(rules_config_obj) = rules_config.as_object_mut() {
+                    if let Some(rules_props) = rules_config_obj.get_mut("properties") {
+                        if let Some(rules_props_obj) = rules_props.as_object_mut() {
+                            rules_props_obj.insert(
+                                "builtin".to_string(),
+                                json!({
+                                    "type": "object",
+                                    "description": "Built-in AST rules",
+                                    "properties": builtin_rule_properties,
+                                    "additionalProperties": false
+                                }),
+                            );
+
+                            rules_props_obj.insert(
+                                "regex".to_string(),
+                                json!({
+                                    "type": "object",
+                                    "description": "Custom regex pattern rules",
+                                    "additionalProperties": { "$ref": "#/definitions/RegexRuleConfig" }
+                                }),
+                            );
+
+                            rules_props_obj.insert(
+                                "script".to_string(),
+                                json!({
+                                    "type": "object",
+                                    "description": "Custom script rules",
+                                    "additionalProperties": { "$ref": "#/definitions/ScriptRuleConfig" }
+                                }),
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     if let Some(properties) = schema_value
         .get_mut("properties")
         .and_then(|p| p.as_object_mut())
     {
-        if let Some(builtin_rules) = properties.get_mut("builtinRules") {
-            if let Some(obj) = builtin_rules.as_object_mut() {
-                obj.insert("properties".to_string(), Value::Object(rule_properties));
-                obj.insert("additionalProperties".to_string(), json!(false));
-            }
-        }
+        properties.insert(
+            "aiRules".to_string(),
+            json!({
+                "type": "object",
+                "description": "AI-powered rules (expensive, run separately)",
+                "additionalProperties": { "$ref": "#/definitions/AiRuleConfig" }
+            }),
+        );
     }
 
     let json = serde_json::to_string_pretty(&schema_value)?;

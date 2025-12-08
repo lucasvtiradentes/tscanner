@@ -1,41 +1,48 @@
-use serde_json::Value;
-use tscanner_rules::get_all_rule_metadata;
+use anyhow::{Context, Result};
+use std::fs;
+use std::path::Path;
 
-const DEFAULT_CONFIG_JSON: &str = include_str!("../../../../../../../assets/default-config.json");
 const TSCANNER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
-pub fn get_default_config() -> String {
-    let mut config: Value = serde_json::from_str(DEFAULT_CONFIG_JSON).unwrap_or_default();
+const MINIMAL_CONFIG_JSON: &str = include_str!("../../../../../../../assets/configs/minimal.json");
+const FULL_CONFIG_JSON: &str = include_str!("../../../../../../../assets/configs/full.json");
+const EXAMPLE_SCRIPT: &str =
+    include_str!("../../../../../../../assets/configs/script-rule-example.ts");
+const EXAMPLE_PROMPT: &str = include_str!("../../../../../../../assets/configs/ai-rule-example.md");
+const DEV_SCHEMA: &str = "\"$schema\": \"../../packages/cli/schema.json\"";
 
-    if let Some(obj) = config.as_object_mut() {
-        obj["$schema"] = Value::String(format!(
-            "https://unpkg.com/tscanner@{}/schema.json",
-            TSCANNER_VERSION
-        ));
-    }
-
-    serde_json::to_string_pretty(&config).unwrap_or_else(|_| DEFAULT_CONFIG_JSON.to_string())
+fn process_config(config_json: &str) -> String {
+    let prod_schema = format!(
+        "\"$schema\": \"https://unpkg.com/tscanner@{}/schema.json\"",
+        TSCANNER_VERSION
+    );
+    config_json.replace(DEV_SCHEMA, &prod_schema)
 }
 
-pub fn get_all_rules_config() -> String {
-    let mut config: Value = serde_json::from_str(DEFAULT_CONFIG_JSON).unwrap_or_default();
+pub fn get_default_config() -> String {
+    process_config(MINIMAL_CONFIG_JSON)
+}
 
-    if let Some(obj) = config.as_object_mut() {
-        obj["$schema"] = Value::String(format!(
-            "https://unpkg.com/tscanner@{}/schema.json",
-            TSCANNER_VERSION
-        ));
+pub fn get_full_config() -> String {
+    process_config(FULL_CONFIG_JSON)
+}
 
-        let metadata = get_all_rule_metadata();
-        let mut rule_names: Vec<&str> = metadata.iter().map(|m| m.name).collect();
-        rule_names.sort();
+pub fn write_example_files(config_dir: &Path) -> Result<()> {
+    let scripts_dir = config_dir.join("scripts");
+    fs::create_dir_all(&scripts_dir).context("Failed to create scripts directory")?;
+    fs::write(
+        scripts_dir.join("example-no-debug-comments.ts"),
+        EXAMPLE_SCRIPT,
+    )
+    .context("Failed to write example script")?;
 
-        let mut builtin_rules = serde_json::Map::new();
-        for name in rule_names {
-            builtin_rules.insert(name.to_string(), Value::Object(serde_json::Map::new()));
-        }
-        obj["builtinRules"] = Value::Object(builtin_rules);
-    }
+    let prompts_dir = config_dir.join("prompts");
+    fs::create_dir_all(&prompts_dir).context("Failed to create prompts directory")?;
+    fs::write(
+        prompts_dir.join("example-find-complexity.md"),
+        EXAMPLE_PROMPT,
+    )
+    .context("Failed to write example prompt")?;
 
-    serde_json::to_string_pretty(&config).unwrap_or_else(|_| DEFAULT_CONFIG_JSON.to_string())
+    Ok(())
 }

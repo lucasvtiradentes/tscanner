@@ -1,7 +1,7 @@
 import { COMMENT_MARKER } from '../constants';
 import { type Octokit, githubHelper } from '../lib/actions-helper';
 import { formatTimestamp } from '../utils/format-timestamp';
-import type { ScanResult } from './scanner';
+import type { ActionScanResult } from './scanner/scanner';
 import {
   type CommitHistoryEntry,
   buildCommitHistorySection,
@@ -24,12 +24,12 @@ function serializeCommitHistory(history: CommitHistoryEntry[]): string {
   return `<!-- COMMIT_HISTORY:${JSON.stringify(history)}-->`;
 }
 
-export type CommentUpdateParams = {
+type CommentUpdateParams = {
   octokit: Octokit;
   owner: string;
   repo: string;
   prNumber: number;
-  scanResult: ScanResult;
+  scanResult: ActionScanResult;
   timezone: string;
   commitSha: string;
   commitMessage: string;
@@ -37,7 +37,7 @@ export type CommentUpdateParams = {
 };
 
 function buildCommentBody(
-  result: ScanResult,
+  result: ActionScanResult,
   timezone: string,
   commitSha: string,
   commitMessage: string,

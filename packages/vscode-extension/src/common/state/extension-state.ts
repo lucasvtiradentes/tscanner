@@ -3,13 +3,6 @@ import type * as vscode from 'vscode';
 import type { TscannerLspClient } from '../../lsp/client';
 import { WorkspaceStateKey, getWorkspaceState } from './workspace-state';
 
-export type ExtensionState = {
-  isSearching: boolean;
-  scanMode: ScanMode;
-  compareBranch: string;
-  customConfigDir: string | null;
-};
-
 export type ExtensionStateRefs = {
   isSearchingRef: { current: boolean };
   currentScanModeRef: { current: ScanMode };
@@ -30,7 +23,6 @@ export type CommandContext = {
   context: vscode.ExtensionContext;
   treeView: vscode.TreeView<any>;
   stateRefs: ExtensionStateRefs;
-  updateBadge: () => void;
   updateStatusBar: () => Promise<void>;
   getLspClient: () => TscannerLspClient | null;
 };

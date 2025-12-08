@@ -1,10 +1,17 @@
 use super::Scanner;
+use crate::executors::{AiProgressCallback, ChangedLinesMap, RegularRulesCompleteCallback};
 use rayon::prelude::*;
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Instant;
+use tscanner_config::AiExecutionMode;
 use tscanner_diagnostics::{ContentScanResult, FileResult, ScanResult};
+
+pub struct ScanCallbacks {
+    pub on_regular_rules_complete: Option<RegularRulesCompleteCallback>,
+    pub on_ai_progress: Option<AiProgressCallback>,
+}
 
 impl Scanner {
     pub fn scan_codebase(&self, roots: &[PathBuf]) -> ScanResult {
@@ -16,8 +23,70 @@ impl Scanner {
         roots: &[PathBuf],
         file_filter: Option<&HashSet<PathBuf>>,
     ) -> ScanResult {
+        self.scan_codebase_with_filter_and_ai_mode(roots, file_filter, AiExecutionMode::Ignore)
+    }
+
+    pub fn scan_codebase_with_filter_and_ai_mode(
+        &self,
+        roots: &[PathBuf],
+        file_filter: Option<&HashSet<PathBuf>>,
+        ai_mode: AiExecutionMode,
+    ) -> ScanResult {
+        self.scan_codebase_with_filter_and_ai_mode_and_lines(roots, file_filter, ai_mode, None)
+    }
+
+    pub fn scan_codebase_with_filter_and_ai_mode_and_lines(
+        &self,
+        roots: &[PathBuf],
+        file_filter: Option<&HashSet<PathBuf>>,
+        ai_mode: AiExecutionMode,
+        changed_lines: Option<&ChangedLinesMap>,
+    ) -> ScanResult {
+        self.scan_codebase_with_callbacks(
+            roots,
+            file_filter,
+            ai_mode,
+            changed_lines,
+            ScanCallbacks {
+                on_regular_rules_complete: None,
+                on_ai_progress: None,
+            },
+        )
+    }
+
+    pub fn scan_codebase_with_progress(
+        &self,
+        roots: &[PathBuf],
+        file_filter: Option<&HashSet<PathBuf>>,
+        ai_mode: AiExecutionMode,
+        changed_lines: Option<&ChangedLinesMap>,
+        ai_progress_callback: Option<AiProgressCallback>,
+    ) -> ScanResult {
+        self.scan_codebase_with_callbacks(
+            roots,
+            file_filter,
+            ai_mode,
+            changed_lines,
+            ScanCallbacks {
+                on_regular_rules_complete: None,
+                on_ai_progress: ai_progress_callback,
+            },
+        )
+    }
+
+    pub fn scan_codebase_with_callbacks(
+        &self,
+        roots: &[PathBuf],
+        file_filter: Option<&HashSet<PathBuf>>,
+        ai_mode: AiExecutionMode,
+        changed_lines: Option<&ChangedLinesMap>,
+        callbacks: ScanCallbacks,
+    ) -> ScanResult {
         let start = Instant::now();
-        (self.log_info)(&format!("Starting codebase scan of {:?}", roots));
+        (self.log_info)(&format!(
+            "Starting codebase scan of {:?} (ai_mode: {:?})",
+            roots, ai_mode
+        ));
 
         let files = self.collect_files_with_filter(roots, file_filter);
         let file_count = files.len();
@@ -26,29 +95,54 @@ impl Scanner {
         let processed = AtomicUsize::new(0);
         let cache_hits = AtomicUsize::new(0);
 
-        let results: Vec<FileResult> = files
-            .par_iter()
-            .filter_map(|path| {
-                processed.fetch_add(1, Ordering::Relaxed);
+        let regular_start = Instant::now();
+        let results: Vec<FileResult> = if ai_mode == AiExecutionMode::Only {
+            Vec::new()
+        } else {
+            files
+                .par_iter()
+                .filter_map(|path| {
+                    processed.fetch_add(1, Ordering::Relaxed);
 
-                if let Some(cached_issues) = self.cache.get(path) {
-                    cache_hits.fetch_add(1, Ordering::Relaxed);
-                    if cached_issues.is_empty() {
-                        return None;
+                    if let Some(cached_issues) = self.cache.get(path) {
+                        cache_hits.fetch_add(1, Ordering::Relaxed);
+                        if cached_issues.is_empty() {
+                            return None;
+                        }
+                        return Some(FileResult {
+                            file: path.clone(),
+                            issues: cached_issues,
+                        });
                     }
-                    return Some(FileResult {
-                        file: path.clone(),
-                        issues: cached_issues,
-                    });
-                }
 
-                self.run_builtin_executor(path)
-            })
-            .filter(|r| !r.issues.is_empty())
-            .collect();
+                    self.run_builtin_executor(path)
+                })
+                .filter(|r| !r.issues.is_empty())
+                .collect()
+        };
 
-        let script_issues = self.run_script_rules(&files);
-        let ai_issues = self.run_ai_rules(&files);
+        let script_issues = if ai_mode == AiExecutionMode::Only {
+            Vec::new()
+        } else {
+            self.run_script_rules(&files)
+        };
+        let regular_duration = regular_start.elapsed();
+
+        if let Some(ref cb) = callbacks.on_regular_rules_complete {
+            cb(regular_duration.as_millis());
+        }
+
+        let ai_start = Instant::now();
+        let (ai_issues, ai_warning) = if ai_mode == AiExecutionMode::Ignore {
+            (Vec::new(), None)
+        } else {
+            self.run_ai_rules_with_context_and_progress(
+                &files,
+                changed_lines,
+                callbacks.on_ai_progress,
+            )
+        };
+        let ai_duration = ai_start.elapsed();
 
         let mut all_results = results;
         self.merge_issues(&mut all_results, script_issues);
@@ -62,13 +156,18 @@ impl Scanner {
         let cached = cache_hits.load(Ordering::Relaxed);
         let scanned = file_count - cached;
 
+        let warnings = ai_warning.into_iter().collect();
+
         ScanResult {
             files: all_results,
             total_issues,
             duration_ms: duration.as_millis(),
+            regular_rules_duration_ms: regular_duration.as_millis(),
+            ai_rules_duration_ms: ai_duration.as_millis(),
             total_files: file_count,
             cached_files: cached,
             scanned_files: scanned,
+            warnings,
         }
     }
 

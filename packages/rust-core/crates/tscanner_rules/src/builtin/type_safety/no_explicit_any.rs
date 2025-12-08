@@ -1,13 +1,19 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
-use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
+
+pub struct ExplicitAnyMatch {
+    pub line: usize,
+    pub column: usize,
+    pub end_column: usize,
+    pub message: String,
+}
 
 pub struct NoExplicitAnyRule;
 
@@ -22,18 +28,18 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Explicit Any",
         description: "Detects usage of TypeScript 'any' type (`: any` and `as any`). Using 'any' defeats the purpose of TypeScript's type system.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::TypeSafety,
         typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-explicit-any"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-explicit-any"),
-        allowed_options: &[],
+        ..RuleMetadata::defaults()
     }
 });
 
 impl Rule for NoExplicitAnyRule {
-    fn name(&self) -> &str {
+    type State = ExplicitAnyMatch;
+
+    fn name(&self) -> &'static str {
         "no-explicit-any"
     }
 
@@ -41,26 +47,25 @@ impl Rule for NoExplicitAnyRule {
         true
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut visitor = AnyTypeVisitor {
-            issues: Vec::new(),
-            path: path.to_path_buf(),
-            source,
+            matches: Vec::new(),
+            source: ctx.source(),
         };
-        program.visit_with(&mut visitor);
-        visitor.issues
+        ctx.program().visit_with(&mut visitor);
+        visitor.matches
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.column, state.end_column),
+            state.message.clone(),
+        )
     }
 }
 
 struct AnyTypeVisitor<'a> {
-    issues: Vec<Issue>,
-    path: std::path::PathBuf,
+    matches: Vec<ExplicitAnyMatch>,
     source: &'a str,
 }
 
@@ -71,15 +76,11 @@ impl<'a> Visit for AnyTypeVisitor<'a> {
             let (line, column, end_column) =
                 get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
-            self.issues.push(Issue {
-                rule: "no-explicit-any".to_string(),
-                file: self.path.clone(),
+            self.matches.push(ExplicitAnyMatch {
                 line,
                 column,
                 end_column,
-                message: "Found `: any` type annotation".to_string(),
-                severity: Severity::Error,
-                line_text: None,
+                message: "Found \": any\" type annotation".to_string(),
             });
         }
         n.visit_children_with(self);
@@ -92,16 +93,14 @@ impl<'a> Visit for AnyTypeVisitor<'a> {
                 let (line, column, end_column) =
                     get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
-                self.issues.push(Issue {
-                    rule: "no-explicit-any".to_string(),
-                    file: self.path.clone(),
+                self.matches.push(ExplicitAnyMatch {
                     line,
                     column,
                     end_column,
-                    message: "Found `as any` type assertion".to_string(),
-                    severity: Severity::Error,
-                    line_text: None,
+                    message: "Found \"as any\" type assertion".to_string(),
                 });
+                n.expr.visit_with(self);
+                return;
             }
         }
         n.visit_children_with(self);

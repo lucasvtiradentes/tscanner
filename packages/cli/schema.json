@@ -1,6 +1,123 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "definitions": {
+    "AiConfig": {
+      "properties": {
+        "command": {
+          "description": "Custom command path (required only for 'custom' provider)",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "provider": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AiProvider"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "AI provider to use (claude, gemini, custom)"
+        },
+        "timeout": {
+          "default": 120000,
+          "description": "Timeout in milliseconds for AI calls (default: 120000)",
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
+    "AiExecutionMode": {
+      "enum": [
+        "ignore",
+        "include",
+        "only"
+      ],
+      "type": "string"
+    },
+    "AiMode": {
+      "enum": [
+        "paths",
+        "content",
+        "agentic"
+      ],
+      "type": "string"
+    },
+    "AiProvider": {
+      "enum": [
+        "claude",
+        "gemini",
+        "custom"
+      ],
+      "type": "string"
+    },
+    "AiRuleConfig": {
+      "properties": {
+        "enabled": {
+          "default": true,
+          "description": "Enable or disable this rule (default: true)",
+          "type": "boolean"
+        },
+        "exclude": {
+          "description": "File patterns to exclude",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "message": {
+          "description": "Error message to display when rule is violated",
+          "type": "string"
+        },
+        "mode": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/AiMode"
+            }
+          ],
+          "default": "paths",
+          "description": "How files are provided to the AI: 'paths' (default) sends only file paths, 'content' sends file contents in prompt, 'agentic' lets AI explore files autonomously"
+        },
+        "prompt": {
+          "description": "Path to AI prompt markdown file (relative to .tscanner/prompts/)",
+          "type": "string"
+        },
+        "severity": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            }
+          ],
+          "default": "warning",
+          "description": "Severity level (default: warning)"
+        },
+        "timeout": {
+          "description": "Override timeout for this rule in milliseconds",
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "message",
+        "prompt"
+      ],
+      "type": "object"
+    },
     "BuiltinRuleConfig": {
       "properties": {
         "enabled": {
@@ -77,7 +194,7 @@
       "type": "object"
     },
     "BuiltinRuleConfig_max_function_length": {
-      "description": "Enforces a maximum number of statements in functions (default: 50). Long functions are harder to understand and maintain.",
+      "description": "Enforces a maximum number of statements in functions. Long functions are harder to understand and maintain.",
       "properties": {
         "enabled": {
           "description": "Enable or disable this rule",
@@ -1107,7 +1224,7 @@
       "type": "object"
     },
     "BuiltinRuleConfig_no_todo_comments": {
-      "description": "Detects TODO, FIXME, and similar comment markers.",
+      "description": "Detects TODO comments (case insensitive). Configure 'keywords' option to detect additional markers like FIXME, HACK, etc.",
       "properties": {
         "enabled": {
           "description": "Enable or disable this rule",
@@ -1132,14 +1249,9 @@
         },
         "keywords": {
           "default": [
-            "TODO",
-            "FIXME",
-            "HACK",
-            "XXX",
-            "NOTE",
-            "BUG"
+            "TODO"
           ],
-          "description": "Comment keywords to detect",
+          "description": "Comment keywords to detect (case insensitive)",
           "items": {
             "type": "string"
           },
@@ -1541,6 +1653,15 @@
     },
     "CliConfig": {
       "properties": {
+        "aiMode": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/AiExecutionMode"
+            }
+          ],
+          "default": "ignore",
+          "description": "AI rules execution mode: 'ignore' (default), 'include', or 'only'"
+        },
         "groupBy": {
           "allOf": [
             {
@@ -1597,6 +1718,13 @@
     },
     "CodeEditorConfig": {
       "properties": {
+        "aiScanIntervalSeconds": {
+          "default": 0,
+          "description": "Auto-scan interval for AI rules in seconds (0 = disabled). Runs only AI rules on a separate schedule.",
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
         "highlightErrors": {
           "default": true,
           "description": "Highlight error issues in the code editor",
@@ -1616,185 +1744,6 @@
         }
       },
       "type": "object"
-    },
-    "CustomRuleConfig": {
-      "oneOf": [
-        {
-          "properties": {
-            "enabled": {
-              "default": true,
-              "description": "Enable or disable this rule (default: true)",
-              "type": "boolean"
-            },
-            "exclude": {
-              "description": "File patterns to exclude",
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            "include": {
-              "description": "File patterns to include",
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            "message": {
-              "description": "Error message to display when rule is violated",
-              "type": "string"
-            },
-            "pattern": {
-              "description": "Regex pattern to match",
-              "type": "string"
-            },
-            "severity": {
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Severity"
-                }
-              ],
-              "default": "warning",
-              "description": "Severity level (default: warning)"
-            },
-            "type": {
-              "enum": [
-                "regex"
-              ],
-              "type": "string"
-            }
-          },
-          "required": [
-            "message",
-            "pattern",
-            "type"
-          ],
-          "type": "object"
-        },
-        {
-          "properties": {
-            "command": {
-              "description": "Full command to execute the script (e.g., 'npx tsx scripts/my-script.ts --arg'). Path is relative to .tscanner/ directory.",
-              "type": "string"
-            },
-            "enabled": {
-              "default": true,
-              "description": "Enable or disable this rule (default: true)",
-              "type": "boolean"
-            },
-            "exclude": {
-              "description": "File patterns to exclude",
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            "include": {
-              "description": "File patterns to include",
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            "message": {
-              "description": "Error message to display when rule is violated",
-              "type": "string"
-            },
-            "mode": {
-              "allOf": [
-                {
-                  "$ref": "#/definitions/ScriptMode"
-                }
-              ],
-              "default": "batch",
-              "description": "Script execution mode: 'batch' (all files at once) or 'single' (one file per invocation)"
-            },
-            "options": {
-              "description": "Additional options to pass to the script"
-            },
-            "severity": {
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Severity"
-                }
-              ],
-              "default": "warning",
-              "description": "Severity level (default: warning)"
-            },
-            "timeout": {
-              "default": 10000,
-              "description": "Script timeout in milliseconds (default: 10000)",
-              "format": "uint64",
-              "minimum": 0.0,
-              "type": "integer"
-            },
-            "type": {
-              "enum": [
-                "script"
-              ],
-              "type": "string"
-            }
-          },
-          "required": [
-            "command",
-            "message",
-            "type"
-          ],
-          "type": "object"
-        },
-        {
-          "properties": {
-            "enabled": {
-              "default": true,
-              "description": "Enable or disable this rule (default: true)",
-              "type": "boolean"
-            },
-            "exclude": {
-              "description": "File patterns to exclude",
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            "include": {
-              "description": "File patterns to include",
-              "items": {
-                "type": "string"
-              },
-              "type": "array"
-            },
-            "message": {
-              "description": "Error message to display when rule is violated",
-              "type": "string"
-            },
-            "prompt": {
-              "description": "Path to AI prompt markdown file",
-              "type": "string"
-            },
-            "severity": {
-              "allOf": [
-                {
-                  "$ref": "#/definitions/Severity"
-                }
-              ],
-              "default": "warning",
-              "description": "Severity level (default: warning)"
-            },
-            "type": {
-              "enum": [
-                "ai"
-              ],
-              "type": "string"
-            }
-          },
-          "required": [
-            "message",
-            "prompt",
-            "type"
-          ],
-          "type": "object"
-        }
-      ]
     },
     "FilesConfig": {
       "properties": {
@@ -1829,12 +1778,245 @@
       },
       "type": "object"
     },
-    "ScriptMode": {
-      "enum": [
-        "batch",
-        "single"
+    "RegexRuleConfig": {
+      "properties": {
+        "enabled": {
+          "default": true,
+          "description": "Enable or disable this rule (default: true)",
+          "type": "boolean"
+        },
+        "exclude": {
+          "description": "File patterns to exclude",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "message": {
+          "description": "Error message to display when rule is violated",
+          "type": "string"
+        },
+        "pattern": {
+          "description": "Regex pattern to match",
+          "type": "string"
+        },
+        "severity": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            }
+          ],
+          "default": "warning",
+          "description": "Severity level (default: warning)"
+        }
+      },
+      "required": [
+        "message",
+        "pattern"
       ],
-      "type": "string"
+      "type": "object"
+    },
+    "RulesConfig": {
+      "properties": {
+        "builtin": {
+          "additionalProperties": false,
+          "description": "Built-in AST rules",
+          "properties": {
+            "consistent-return": {
+              "$ref": "#/definitions/BuiltinRuleConfig_consistent_return"
+            },
+            "max-function-length": {
+              "$ref": "#/definitions/BuiltinRuleConfig_max_function_length"
+            },
+            "max-params": {
+              "$ref": "#/definitions/BuiltinRuleConfig_max_params"
+            },
+            "no-absolute-imports": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_absolute_imports"
+            },
+            "no-alias-imports": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_alias_imports"
+            },
+            "no-async-without-await": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_async_without_await"
+            },
+            "no-console": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_console"
+            },
+            "no-constant-condition": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_constant_condition"
+            },
+            "no-default-export": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_default_export"
+            },
+            "no-duplicate-imports": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_duplicate_imports"
+            },
+            "no-dynamic-import": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_dynamic_import"
+            },
+            "no-else-return": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_else_return"
+            },
+            "no-empty-class": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_empty_class"
+            },
+            "no-empty-function": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_empty_function"
+            },
+            "no-empty-interface": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_empty_interface"
+            },
+            "no-explicit-any": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_explicit_any"
+            },
+            "no-floating-promises": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_floating_promises"
+            },
+            "no-forwarded-exports": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_forwarded_exports"
+            },
+            "no-implicit-any": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_implicit_any"
+            },
+            "no-inferrable-types": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_inferrable_types"
+            },
+            "no-nested-require": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_nested_require"
+            },
+            "no-nested-ternary": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_nested_ternary"
+            },
+            "no-non-null-assertion": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_non_null_assertion"
+            },
+            "no-relative-imports": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_relative_imports"
+            },
+            "no-return-await": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_return_await"
+            },
+            "no-shadow": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_shadow"
+            },
+            "no-single-or-array-union": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_single_or_array_union"
+            },
+            "no-todo-comments": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_todo_comments"
+            },
+            "no-unnecessary-type-assertion": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_unnecessary_type_assertion"
+            },
+            "no-unreachable-code": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_unreachable_code"
+            },
+            "no-unused-vars": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_unused_vars"
+            },
+            "no-useless-catch": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_useless_catch"
+            },
+            "no-var": {
+              "$ref": "#/definitions/BuiltinRuleConfig_no_var"
+            },
+            "prefer-const": {
+              "$ref": "#/definitions/BuiltinRuleConfig_prefer_const"
+            },
+            "prefer-interface-over-type": {
+              "$ref": "#/definitions/BuiltinRuleConfig_prefer_interface_over_type"
+            },
+            "prefer-nullish-coalescing": {
+              "$ref": "#/definitions/BuiltinRuleConfig_prefer_nullish_coalescing"
+            },
+            "prefer-optional-chain": {
+              "$ref": "#/definitions/BuiltinRuleConfig_prefer_optional_chain"
+            },
+            "prefer-type-over-interface": {
+              "$ref": "#/definitions/BuiltinRuleConfig_prefer_type_over_interface"
+            }
+          },
+          "type": "object"
+        },
+        "regex": {
+          "additionalProperties": {
+            "$ref": "#/definitions/RegexRuleConfig"
+          },
+          "description": "Custom regex pattern rules",
+          "type": "object"
+        },
+        "script": {
+          "additionalProperties": {
+            "$ref": "#/definitions/ScriptRuleConfig"
+          },
+          "description": "Custom script rules",
+          "type": "object"
+        }
+      },
+      "type": "object"
+    },
+    "ScriptRuleConfig": {
+      "properties": {
+        "command": {
+          "description": "Full command to execute the script (e.g., 'npx tsx scripts/my-script.ts --arg'). Path is relative to .tscanner/ directory.",
+          "type": "string"
+        },
+        "enabled": {
+          "default": true,
+          "description": "Enable or disable this rule (default: true)",
+          "type": "boolean"
+        },
+        "exclude": {
+          "description": "File patterns to exclude",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "include": {
+          "description": "File patterns to include",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "message": {
+          "description": "Error message to display when rule is violated",
+          "type": "string"
+        },
+        "options": {
+          "description": "Additional options to pass to the script"
+        },
+        "severity": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/Severity"
+            }
+          ],
+          "default": "warning",
+          "description": "Severity level (default: warning)"
+        },
+        "timeout": {
+          "default": 10000,
+          "description": "Script timeout in milliseconds (default: 10000)",
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "command",
+        "message"
+      ],
+      "type": "object"
     },
     "Severity": {
       "enum": [
@@ -1852,125 +2034,22 @@
         "null"
       ]
     },
-    "builtinRules": {
-      "additionalProperties": false,
-      "description": "Built-in AST rules configuration",
-      "properties": {
-        "consistent-return": {
-          "$ref": "#/definitions/BuiltinRuleConfig_consistent_return"
+    "ai": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/AiConfig"
         },
-        "max-function-length": {
-          "$ref": "#/definitions/BuiltinRuleConfig_max_function_length"
-        },
-        "max-params": {
-          "$ref": "#/definitions/BuiltinRuleConfig_max_params"
-        },
-        "no-absolute-imports": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_absolute_imports"
-        },
-        "no-alias-imports": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_alias_imports"
-        },
-        "no-async-without-await": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_async_without_await"
-        },
-        "no-console": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_console"
-        },
-        "no-constant-condition": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_constant_condition"
-        },
-        "no-default-export": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_default_export"
-        },
-        "no-duplicate-imports": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_duplicate_imports"
-        },
-        "no-dynamic-import": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_dynamic_import"
-        },
-        "no-else-return": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_else_return"
-        },
-        "no-empty-class": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_empty_class"
-        },
-        "no-empty-function": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_empty_function"
-        },
-        "no-empty-interface": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_empty_interface"
-        },
-        "no-explicit-any": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_explicit_any"
-        },
-        "no-floating-promises": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_floating_promises"
-        },
-        "no-forwarded-exports": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_forwarded_exports"
-        },
-        "no-implicit-any": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_implicit_any"
-        },
-        "no-inferrable-types": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_inferrable_types"
-        },
-        "no-nested-require": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_nested_require"
-        },
-        "no-nested-ternary": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_nested_ternary"
-        },
-        "no-non-null-assertion": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_non_null_assertion"
-        },
-        "no-relative-imports": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_relative_imports"
-        },
-        "no-return-await": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_return_await"
-        },
-        "no-shadow": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_shadow"
-        },
-        "no-single-or-array-union": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_single_or_array_union"
-        },
-        "no-todo-comments": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_todo_comments"
-        },
-        "no-unnecessary-type-assertion": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_unnecessary_type_assertion"
-        },
-        "no-unreachable-code": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_unreachable_code"
-        },
-        "no-unused-vars": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_unused_vars"
-        },
-        "no-useless-catch": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_useless_catch"
-        },
-        "no-var": {
-          "$ref": "#/definitions/BuiltinRuleConfig_no_var"
-        },
-        "prefer-const": {
-          "$ref": "#/definitions/BuiltinRuleConfig_prefer_const"
-        },
-        "prefer-interface-over-type": {
-          "$ref": "#/definitions/BuiltinRuleConfig_prefer_interface_over_type"
-        },
-        "prefer-nullish-coalescing": {
-          "$ref": "#/definitions/BuiltinRuleConfig_prefer_nullish_coalescing"
-        },
-        "prefer-optional-chain": {
-          "$ref": "#/definitions/BuiltinRuleConfig_prefer_optional_chain"
-        },
-        "prefer-type-over-interface": {
-          "$ref": "#/definitions/BuiltinRuleConfig_prefer_type_over_interface"
+        {
+          "type": "null"
         }
+      ],
+      "description": "AI provider configuration for AI-powered rules"
+    },
+    "aiRules": {
+      "additionalProperties": {
+        "$ref": "#/definitions/AiRuleConfig"
       },
+      "description": "AI-powered rules (expensive, run separately)",
       "type": "object"
     },
     "cli": {
@@ -1995,13 +2074,6 @@
       ],
       "description": "Code editor configuration (highlighting, auto-scan)"
     },
-    "customRules": {
-      "additionalProperties": {
-        "$ref": "#/definitions/CustomRuleConfig"
-      },
-      "description": "Custom rules configuration (regex, script, or AI)",
-      "type": "object"
-    },
     "files": {
       "allOf": [
         {
@@ -2025,6 +2097,15 @@
         ]
       },
       "description": "File patterns configuration"
+    },
+    "rules": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/RulesConfig"
+        }
+      ],
+      "default": {},
+      "description": "Rules configuration (builtin, regex, script)"
     }
   },
   "title": "TscannerConfig",

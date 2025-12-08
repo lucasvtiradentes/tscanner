@@ -46,7 +46,7 @@
     },
     "tscanner#build": {
       "outputLogs": "new-only",
-      "dependsOn": ["core#build"],
+      "dependsOn": ["core#build", "tscanner-common#build"],
       "outputs": ["dist/**", "npm/**"],
       "inputs": [
         "./src/**",
@@ -54,9 +54,20 @@
         "./package.json"
       ]
     },
+    "tscanner-github-action#build": {
+      "outputLogs": "new-only",
+      "dependsOn": ["tscanner-common#build"],
+      "outputs": ["dist/**"],
+      "inputs": [
+        "./src/**",
+        "./tsconfig.json",
+        "./tsup.config.ts",
+        "./package.json"
+      ]
+    },
     "tscanner-vscode#build": {
       "outputLogs": "new-only",
-      "dependsOn": ["core#build"],
+      "dependsOn": ["core#build", "tscanner-common#build"],
       "outputs": ["out/**", "dist-dev/**"],
       "inputs": [
         "./src/**",

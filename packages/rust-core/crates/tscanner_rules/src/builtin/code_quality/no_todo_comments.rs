@@ -1,14 +1,14 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{
+    RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleOption, RuleOptionSchema, RuleType,
+};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use regex::Regex;
 use serde::Deserialize;
-use std::path::Path;
 use std::sync::Arc;
-use swc_ecma_ast::Program;
-use tscanner_diagnostics::{Issue, Severity};
 
-const DEFAULT_KEYWORDS: [&str; 6] = ["TODO", "FIXME", "HACK", "XXX", "NOTE", "BUG"];
+const DEFAULT_KEYWORDS: &[&str] = &["TODO"];
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -18,7 +18,7 @@ struct NoTodoCommentsOptions {
 }
 
 fn default_keywords() -> Vec<String> {
-    DEFAULT_KEYWORDS.iter().map(|s| s.to_string()).collect()
+    DEFAULT_KEYWORDS.iter().map(|s| (*s).to_string()).collect()
 }
 
 impl Default for NoTodoCommentsOptions {
@@ -27,6 +27,12 @@ impl Default for NoTodoCommentsOptions {
             keywords: default_keywords(),
         }
     }
+}
+
+pub struct TodoComment {
+    pub line: usize,
+    pub start_col: usize,
+    pub end_col: usize,
 }
 
 pub struct NoTodoCommentsRule {
@@ -40,9 +46,9 @@ impl NoTodoCommentsRule {
             .map(|o| o.keywords)
             .unwrap_or_else(default_keywords);
 
-        let pattern_str = format!(r"//\s*({})", keywords.join("|"));
-        let pattern = Regex::new(&pattern_str)
-            .unwrap_or_else(|_| Regex::new(r"//\s*(TODO|FIXME|HACK|XXX|NOTE|BUG)").unwrap());
+        let pattern_str = format!(r"(?i)//\s*({})", keywords.join("|"));
+        let pattern =
+            Regex::new(&pattern_str).unwrap_or_else(|_| Regex::new(r"(?i)//\s*(TODO)").unwrap());
 
         Self { pattern }
     }
@@ -57,47 +63,51 @@ inventory::submit!(RuleMetadataRegistration {
     metadata: RuleMetadata {
         name: "no-todo-comments",
         display_name: "No TODO Comments",
-        description: "Detects TODO, FIXME, and similar comment markers.",
+        description: "Detects TODO comments (case insensitive). Configure 'keywords' option to detect additional markers like FIXME, HACK, etc.",
         rule_type: RuleType::Regex,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::CodeQuality,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-warning-comments"),
         equivalent_biome_rule: None,
-        allowed_options: &["keywords"],
+        options: &[RuleOption {
+            name: "keywords",
+            description: "Comment keywords to detect (case insensitive)",
+            schema: RuleOptionSchema::Array {
+                items: "string",
+                default: DEFAULT_KEYWORDS,
+            },
+        }],
+        ..RuleMetadata::defaults()
     }
 });
 
 impl Rule for NoTodoCommentsRule {
-    fn name(&self) -> &str {
+    type State = TodoComment;
+
+    fn name(&self) -> &'static str {
         "no-todo-comments"
     }
 
-    fn check(
-        &self,
-        _program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
-        let mut issues = Vec::new();
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
+        let mut matches = Vec::new();
 
-        for (line_num, line) in source.lines().enumerate() {
+        for (line_num, line) in ctx.source().lines().enumerate() {
             if let Some(mat) = self.pattern.find(line) {
-                issues.push(Issue {
-                    rule: self.name().to_string(),
-                    file: path.to_path_buf(),
+                matches.push(TodoComment {
                     line: line_num + 1,
-                    column: mat.start() + 1,
-                    end_column: mat.end() + 1,
-                    message: "Comment marker found. Consider creating an issue instead".to_string(),
-                    severity: Severity::Warning,
-                    line_text: None,
+                    start_col: mat.start() + 1,
+                    end_col: mat.end() + 1,
                 });
             }
         }
 
-        issues
+        matches
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, _state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(_state.line, _state.start_col, _state.end_col),
+            "Comment marker found. Consider creating an issue instead".to_string(),
+        )
     }
 }

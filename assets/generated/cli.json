@@ -1,7 +1,4 @@
 {
-  "name": "tscanner",
-  "version": "0.0.26",
-  "description": "Code quality scanner for the AI-generated code era",
   "commands": [
     {
       "name": "check",
@@ -87,9 +84,35 @@
           "required": false
         },
         {
+          "name": "include-ai",
+          "short": null,
+          "description": "Include AI rules in the scan (slower)",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false
+        },
+        {
           "name": "no-cache",
           "short": null,
           "description": "Skip cache and force full scan",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "only-ai",
+          "short": null,
+          "description": "Run only AI rules, skip all other rules",
           "takesValue": false,
           "valueName": null,
           "possibleValues": [
@@ -188,9 +211,9 @@
       "arguments": [],
       "flags": [
         {
-          "name": "all-rules",
+          "name": "full",
           "short": null,
-          "description": "Initialize with all built-in rules enabled",
+          "description": "Initialize with all built-in rules, example regex/script/AI rules, and sample files",
           "takesValue": false,
           "valueName": null,
           "possibleValues": [

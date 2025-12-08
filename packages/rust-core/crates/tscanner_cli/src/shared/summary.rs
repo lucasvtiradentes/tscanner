@@ -1,6 +1,15 @@
+use super::format_duration;
 use colored::*;
 use serde::Serialize;
 use tscanner_diagnostics::{ScanResult, Severity};
+
+#[derive(Clone, Default, Serialize)]
+pub struct RulesBreakdown {
+    pub builtin: usize,
+    pub regex: usize,
+    pub script: usize,
+    pub ai: usize,
+}
 
 #[derive(Serialize)]
 pub struct JsonSummary {
@@ -12,6 +21,7 @@ pub struct JsonSummary {
     pub warnings: usize,
     pub duration_ms: u128,
     pub total_enabled_rules: usize,
+    pub rules_breakdown: RulesBreakdown,
 }
 
 pub struct SummaryStats {
@@ -20,10 +30,15 @@ pub struct SummaryStats {
     pub warning_count: usize,
     pub unique_rules_count: usize,
     pub total_enabled_rules: usize,
+    pub rules_breakdown: RulesBreakdown,
 }
 
 impl SummaryStats {
-    pub fn from_result(result: &ScanResult, total_enabled_rules: usize) -> Self {
+    pub fn from_result(
+        result: &ScanResult,
+        total_enabled_rules: usize,
+        rules_breakdown: RulesBreakdown,
+    ) -> Self {
         let mut error_count = 0;
         let mut warning_count = 0;
         let mut unique_rules = std::collections::HashSet::new();
@@ -44,6 +59,7 @@ impl SummaryStats {
             warning_count,
             unique_rules_count: unique_rules.len(),
             total_enabled_rules,
+            rules_breakdown,
         }
     }
 }
@@ -59,6 +75,7 @@ impl JsonSummary {
             warnings: stats.warning_count,
             duration_ms: result.duration_ms,
             total_enabled_rules: stats.total_enabled_rules,
+            rules_breakdown: stats.rules_breakdown.clone(),
         }
     }
 }
@@ -83,12 +100,33 @@ pub fn render_summary(result: &ScanResult, stats: &SummaryStats) {
         result.cached_files.to_string().green(),
         result.scanned_files.to_string().yellow()
     );
+    let breakdown = &stats.rules_breakdown;
+    let breakdown_parts: Vec<String> = [
+        (breakdown.builtin, "builtin"),
+        (breakdown.regex, "custom regex"),
+        (breakdown.script, "custom scripts"),
+        (breakdown.ai, "ai"),
+    ]
+    .iter()
+    .filter(|(count, _)| *count > 0)
+    .map(|(count, label)| format!("{} {}", count, label))
+    .collect();
+    let breakdown_str = if breakdown_parts.is_empty() {
+        String::new()
+    } else {
+        format!(" ({})", breakdown_parts.join(", "))
+    };
     println!(
-        "  {} {}/{}",
+        "  {} {}/{}{}",
         "Triggered rules:".dimmed(),
         stats.unique_rules_count.to_string().cyan(),
-        stats.total_enabled_rules
+        stats.total_enabled_rules,
+        breakdown_str
     );
-    println!("  {} {}ms", "Duration:".dimmed(), result.duration_ms);
+    println!(
+        "  {} {}",
+        "Duration:".dimmed(),
+        format_duration(result.duration_ms)
+    );
     println!();
 }

@@ -5,7 +5,7 @@ Testing framework: [insta](https://insta.rs/) (snapshot testing)
 ## Test File Structure
 
 ```
-crates/core/tests/
+crates/tscanner_rules/tests/
 ├── spec_tests.rs              # Rule snapshot test runner
 ├── glob_tests.rs              # Glob pattern matching unit tests
 ├── integration_glob_tests.rs  # Config glob integration tests
@@ -50,11 +50,11 @@ The `spec_tests.rs` file:
 
 ```bash
 # 1. Create test directory
-mkdir crates/core/tests/specs/my-new-rule
+mkdir crates/tscanner_rules/tests/specs/my-new-rule
 
 # 2. Create test files
-echo "code that triggers rule" > crates/core/tests/specs/my-new-rule/invalid.ts
-echo "code that passes" > crates/core/tests/specs/my-new-rule/valid.ts
+echo "code that triggers rule" > crates/tscanner_rules/tests/specs/my-new-rule/invalid.ts
+echo "code that passes" > crates/tscanner_rules/tests/specs/my-new-rule/valid.ts
 
 # 3. Add to spec_tests.rs
 generate_rule_tests!(my_new_rule);  # Note: underscores, not hyphens

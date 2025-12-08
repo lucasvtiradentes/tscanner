@@ -1,10 +1,25 @@
 import { basename } from 'node:path';
-import type { ViewMode } from 'tscanner-common';
+import { IssueRuleType, type ViewMode } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { getCommandId } from '../../common/constants';
 import { Command, TreeItemContextValue, formatIssueCount } from '../../common/lib/vscode-utils';
 import { type FolderNode, type IssueResult, NodeKind } from '../../common/types';
 import { getFolderIssueCount } from './tree-builder';
+
+function getRuleTypeIcon(ruleType?: IssueRuleType): vscode.ThemeIcon {
+  switch (ruleType) {
+    case IssueRuleType.Builtin:
+      return new vscode.ThemeIcon('symbol-keyword');
+    case IssueRuleType.CustomRegex:
+      return new vscode.ThemeIcon('regex');
+    case IssueRuleType.CustomScript:
+      return new vscode.ThemeIcon('terminal');
+    case IssueRuleType.Ai:
+      return new vscode.ThemeIcon('sparkle');
+    default:
+      return new vscode.ThemeIcon('list-filter');
+  }
+}
 
 export class RuleGroupItem extends vscode.TreeItem {
   constructor(
@@ -15,7 +30,8 @@ export class RuleGroupItem extends vscode.TreeItem {
     super(rule, vscode.TreeItemCollapsibleState.Collapsed);
 
     this.description = formatIssueCount(results.length);
-    this.iconPath = new vscode.ThemeIcon('list-filter');
+    const ruleType = results[0]?.ruleType;
+    this.iconPath = getRuleTypeIcon(ruleType);
     this.contextValue = TreeItemContextValue.RuleGroup;
   }
 }
@@ -57,7 +73,7 @@ export class LineResultItem extends vscode.TreeItem {
       arguments: [result.uri, result.line, result.column],
     };
 
-    this.iconPath = new vscode.ThemeIcon('symbol-variable');
+    this.iconPath = getRuleTypeIcon(result.ruleType);
     this.contextValue = TreeItemContextValue.Issue;
   }
 }

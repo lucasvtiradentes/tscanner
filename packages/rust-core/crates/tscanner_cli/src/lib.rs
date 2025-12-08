@@ -82,6 +82,12 @@ pub enum Commands {
         #[arg(long, help = "Continue execution even when errors are found")]
         continue_on_error: bool,
 
+        #[arg(long, help = "Include AI rules in the scan (slower)")]
+        include_ai: bool,
+
+        #[arg(long, help = "Run only AI rules, skip all other rules")]
+        only_ai: bool,
+
         #[arg(
             long,
             value_name = "CONFIG_DIR",
@@ -113,8 +119,11 @@ pub enum Commands {
 
     #[command(about = "Create a default configuration file")]
     Init {
-        #[arg(long, help = "Initialize with all built-in rules enabled")]
-        all_rules: bool,
+        #[arg(
+            long,
+            help = "Initialize with all built-in rules, example regex/script/AI rules, and sample files"
+        )]
+        full: bool,
     },
 
     #[command(about = "Start the LSP server (Language Server Protocol)")]

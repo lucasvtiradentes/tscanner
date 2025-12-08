@@ -1,11 +1,9 @@
 use super::Scanner;
-use crate::executors::{BuiltinExecutor, ExecuteResult};
+use crate::executors::{AiProgressCallback, BuiltinExecutor, ExecuteResult};
 use ignore::WalkBuilder;
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
-use tscanner_config::{
-    compile_globset, AiRuleConfig, CustomRuleConfig, ScriptMode, ScriptRuleConfig,
-};
+use tscanner_config::{compile_globset, AiRuleConfig, ScriptRuleConfig};
 use tscanner_diagnostics::{FileResult, Issue};
 
 impl Scanner {
@@ -47,32 +45,34 @@ impl Scanner {
 
     pub(crate) fn collect_script_rules(&self) -> Vec<(String, ScriptRuleConfig)> {
         self.config
-            .custom_rules
+            .rules
+            .script
             .iter()
-            .filter_map(|(name, config)| {
-                if let CustomRuleConfig::Script(script_config) = config {
-                    if script_config.base.enabled {
-                        return Some((name.clone(), script_config.clone()));
-                    }
+            .filter_map(|(name, script_config)| {
+                if script_config.enabled {
+                    Some((name.clone(), script_config.clone()))
+                } else {
+                    None
                 }
-                None
             })
             .collect()
     }
 
     pub(crate) fn collect_ai_rules(&self) -> Vec<(String, AiRuleConfig)> {
-        self.config
-            .custom_rules
+        let mut rules: Vec<_> = self
+            .config
+            .ai_rules
             .iter()
-            .filter_map(|(name, config)| {
-                if let CustomRuleConfig::Ai(ai_config) = config {
-                    if ai_config.base.enabled {
-                        return Some((name.clone(), ai_config.clone()));
-                    }
+            .filter_map(|(name, ai_config)| {
+                if ai_config.enabled {
+                    Some((name.clone(), ai_config.clone()))
+                } else {
+                    None
                 }
-                None
             })
-            .collect()
+            .collect();
+        rules.sort_by(|(a, _), (b, _)| a.cmp(b));
+        rules
     }
 
     pub(crate) fn run_script_rules(&self, _files: &[PathBuf]) -> Vec<Issue> {
@@ -96,7 +96,7 @@ impl Scanner {
     ) -> Vec<(PathBuf, String)> {
         let needed_patterns: HashSet<&str> = script_rules
             .iter()
-            .flat_map(|(_, cfg)| cfg.base.include.iter().map(|s| s.as_str()))
+            .flat_map(|(_, cfg)| cfg.include.iter().map(|s| s.as_str()))
             .collect();
 
         if needed_patterns.is_empty() {
@@ -105,7 +105,7 @@ impl Scanner {
 
         let exclude_patterns: HashSet<&str> = script_rules
             .iter()
-            .flat_map(|(_, cfg)| cfg.base.exclude.iter().map(|s| s.as_str()))
+            .flat_map(|(_, cfg)| cfg.exclude.iter().map(|s| s.as_str()))
             .collect();
 
         WalkBuilder::new(&self.root)
@@ -137,13 +137,84 @@ impl Scanner {
             .collect()
     }
 
-    pub(crate) fn run_ai_rules(&self, _files: &[PathBuf]) -> Vec<Issue> {
+    pub(crate) fn run_ai_rules_with_context(
+        &self,
+        _files: &[PathBuf],
+        changed_lines: Option<&HashMap<PathBuf, HashSet<usize>>>,
+    ) -> (Vec<Issue>, Option<String>) {
+        self.run_ai_rules_with_context_and_progress(_files, changed_lines, None)
+    }
+
+    pub(crate) fn run_ai_rules_with_context_and_progress(
+        &self,
+        _files: &[PathBuf],
+        changed_lines: Option<&HashMap<PathBuf, HashSet<usize>>>,
+        progress_callback: Option<AiProgressCallback>,
+    ) -> (Vec<Issue>, Option<String>) {
         let ai_rules = self.collect_ai_rules();
         if ai_rules.is_empty() {
+            return (vec![], None);
+        }
+
+        let all_files = self.collect_ai_files(&ai_rules);
+        if all_files.is_empty() {
+            return (vec![], None);
+        }
+
+        self.ai_executor.execute_rules_with_progress(
+            &ai_rules,
+            &all_files,
+            &self.root,
+            changed_lines,
+            progress_callback,
+        )
+    }
+
+    pub(crate) fn collect_ai_files(
+        &self,
+        ai_rules: &[(String, AiRuleConfig)],
+    ) -> Vec<(PathBuf, String)> {
+        let needed_patterns: std::collections::HashSet<&str> = ai_rules
+            .iter()
+            .flat_map(|(_, cfg)| cfg.include.iter().map(|s| s.as_str()))
+            .collect();
+
+        if needed_patterns.is_empty() {
             return vec![];
         }
 
-        self.ai_executor.execute_rules(&ai_rules, &[], &self.root)
+        let exclude_patterns: std::collections::HashSet<&str> = ai_rules
+            .iter()
+            .flat_map(|(_, cfg)| cfg.exclude.iter().map(|s| s.as_str()))
+            .collect();
+
+        WalkBuilder::new(&self.root)
+            .hidden(false)
+            .git_ignore(true)
+            .build()
+            .flatten()
+            .filter(|entry| {
+                let path = entry.path();
+                if !path.is_file() {
+                    return false;
+                }
+                let relative = path.strip_prefix(&self.root).unwrap_or(path);
+                let relative_str = relative.to_string_lossy();
+                let matches_include = needed_patterns
+                    .iter()
+                    .any(|pattern| glob_match::glob_match(pattern, &relative_str));
+                let matches_exclude = exclude_patterns
+                    .iter()
+                    .any(|pattern| glob_match::glob_match(pattern, &relative_str));
+                matches_include && !matches_exclude
+            })
+            .filter_map(|entry| {
+                let path = entry.path().to_path_buf();
+                std::fs::read_to_string(&path)
+                    .ok()
+                    .map(|content| (path, content))
+            })
+            .collect()
     }
 
     pub(crate) fn merge_issues(&self, results: &mut Vec<FileResult>, issues: Vec<Issue>) {
@@ -243,11 +314,9 @@ impl Scanner {
             return (vec![], vec![]);
         }
 
-        let has_batch_rules = script_rules
-            .iter()
-            .any(|(_, cfg)| cfg.mode == ScriptMode::Batch && cfg.base.include.len() > 1);
+        let has_multi_file_rules = script_rules.iter().any(|(_, cfg)| cfg.include.len() > 1);
 
-        let all_related_files_cache: HashMap<PathBuf, String> = if has_batch_rules {
+        let all_related_files_cache: HashMap<PathBuf, String> = if has_multi_file_rules {
             self.collect_all_related_files(path, content, &script_rules)
         } else {
             HashMap::new()
@@ -257,8 +326,8 @@ impl Scanner {
         let mut all_related_files = HashSet::new();
 
         for (rule_name, script_config) in &script_rules {
-            let rule_include = compile_globset(&script_config.base.include).ok();
-            let rule_exclude = compile_globset(&script_config.base.exclude).ok();
+            let rule_include = compile_globset(&script_config.include).ok();
+            let rule_exclude = compile_globset(&script_config.exclude).ok();
 
             let relative_path = path.strip_prefix(&self.root).unwrap_or(path);
             let matches_include = rule_include
@@ -274,10 +343,9 @@ impl Scanner {
                 continue;
             }
 
-            let is_batch_with_multiple =
-                script_config.mode == ScriptMode::Batch && script_config.base.include.len() > 1;
+            let is_multi_file = script_config.include.len() > 1;
 
-            let files: Vec<(PathBuf, String)> = if is_batch_with_multiple {
+            let files: Vec<(PathBuf, String)> = if is_multi_file {
                 all_related_files_cache
                     .iter()
                     .filter(|(p, _)| {
@@ -298,7 +366,7 @@ impl Scanner {
                 vec![(path.to_path_buf(), content.to_string())]
             };
 
-            if is_batch_with_multiple {
+            if is_multi_file {
                 for (file_path, _) in &files {
                     if file_path != path {
                         all_related_files.insert(file_path.clone());
@@ -325,8 +393,8 @@ impl Scanner {
     ) -> HashMap<PathBuf, String> {
         let all_patterns: HashSet<&str> = rules
             .iter()
-            .filter(|(_, cfg)| cfg.mode == ScriptMode::Batch && cfg.base.include.len() > 1)
-            .flat_map(|(_, cfg)| cfg.base.include.iter().map(|s| s.as_str()))
+            .filter(|(_, cfg)| cfg.include.len() > 1)
+            .flat_map(|(_, cfg)| cfg.include.iter().map(|s| s.as_str()))
             .collect();
 
         if all_patterns.is_empty() {

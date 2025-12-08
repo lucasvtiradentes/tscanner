@@ -7,13 +7,13 @@ use tscanner_config::{config_dir_name, config_file_name};
 use tscanner_rules::get_all_rule_metadata;
 use tscanner_service::{log_error, log_info};
 
-use super::config_generator::{get_all_rules_config, get_default_config};
+use super::config_generator::{get_default_config, get_full_config, write_example_files};
 
-pub fn cmd_init(path: &Path, all_rules: bool) -> Result<()> {
+pub fn cmd_init(path: &Path, full: bool) -> Result<()> {
     log_info(&format!(
-        "cmd_init: Initializing config at: {} (all_rules: {})",
+        "cmd_init: Initializing config at: {} (full: {})",
         path.display(),
-        all_rules
+        full
     ));
 
     let root = fs::canonicalize(path).context("Failed to resolve path")?;
@@ -33,34 +33,41 @@ pub fn cmd_init(path: &Path, all_rules: bool) -> Result<()> {
     fs::create_dir_all(&config_dir)
         .context(format!("Failed to create {} directory", config_dir_name()))?;
 
-    let config_content = if all_rules {
-        get_all_rules_config()
+    let config_content = if full {
+        get_full_config()
     } else {
         get_default_config()
     };
 
-    fs::write(&config_path, config_content).context("Failed to write config file")?;
+    fs::write(&config_path, &config_content).context("Failed to write config file")?;
 
     log_info(&format!(
         "cmd_init: Created config: {}",
         config_path.display()
     ));
 
-    if all_rules {
+    if full {
+        write_example_files(&config_dir)?;
+
         let rule_count = get_all_rule_metadata().len();
         println!(
             "{}",
             format!(
-                "✓ Created configuration with all {} built-in rules enabled",
+                "✓ Created full configuration with {} built-in rules + examples",
                 rule_count
             )
             .green()
             .bold()
         );
+        println!("  {}", config_path.display());
+        println!();
+        println!("{}", "Created example files:".cyan());
+        println!("  scripts/example-no-debug-comments.ts");
+        println!("  prompts/example-find-complexity.md");
     } else {
         println!("{}", "✓ Created default configuration".green().bold());
+        println!("  {}", config_path.display());
     }
-    println!("  {}", config_path.display());
     println!();
     println!("Edit this file to customize rules and settings.");
 

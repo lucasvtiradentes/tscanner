@@ -1,13 +1,19 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
-use std::path::Path;
 use std::sync::Arc;
 use swc_common::Spanned;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
+
+pub struct InferrableTypeMatch {
+    pub line: usize,
+    pub column: usize,
+    pub end_column: usize,
+    pub var_name: String,
+}
 
 pub struct NoInferrableTypesRule;
 
@@ -22,18 +28,18 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Inferrable Types",
         description: "Disallows explicit type annotations on variables initialized with literal values. TypeScript can infer these types automatically.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::TypeSafety,
         typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-inferrable-types"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-inferrable-types"),
-        allowed_options: &[],
+        ..RuleMetadata::defaults()
     }
 });
 
 impl Rule for NoInferrableTypesRule {
-    fn name(&self) -> &str {
+    type State = InferrableTypeMatch;
+
+    fn name(&self) -> &'static str {
         "no-inferrable-types"
     }
 
@@ -41,26 +47,28 @@ impl Rule for NoInferrableTypesRule {
         true
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut visitor = InferrableTypesVisitor {
-            issues: Vec::new(),
-            path: path.to_path_buf(),
-            source,
+            matches: Vec::new(),
+            source: ctx.source(),
         };
-        program.visit_with(&mut visitor);
-        visitor.issues
+        ctx.program().visit_with(&mut visitor);
+        visitor.matches
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.column, state.end_column),
+            format!(
+                "Type annotation on variable '{}' is redundant. TypeScript can infer this type from the literal value.",
+                state.var_name
+            ),
+        )
     }
 }
 
 struct InferrableTypesVisitor<'a> {
-    issues: Vec<Issue>,
-    path: std::path::PathBuf,
+    matches: Vec<InferrableTypeMatch>,
     source: &'a str,
 }
 
@@ -93,18 +101,11 @@ impl<'a> Visit for InferrableTypesVisitor<'a> {
                         let (line, column, end_column) =
                             get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
 
-                        self.issues.push(Issue {
-                            rule: "no-inferrable-types".to_string(),
-                            file: self.path.clone(),
+                        self.matches.push(InferrableTypeMatch {
                             line,
                             column,
                             end_column,
-                            message: format!(
-                                "Type annotation on variable '{}' is redundant. TypeScript can infer this type from the literal value.",
-                                ident.id.sym
-                            ),
-                            severity: Severity::Warning,
-                            line_text: None,
+                            var_name: ident.id.sym.to_string(),
                         });
                     }
                 }

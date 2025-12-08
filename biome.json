@@ -20,7 +20,8 @@
       "pnpm-lock.yaml",
       "packages/cli/schema.json",
       "packages/github-action/dist/**",
-      "packages/rust-core/crates/tscanner_rules/tests/specs/**"
+      "packages/rust-core/crates/tscanner_rules/tests/specs/**",
+      "examples/**"
     ]
   },
   "formatter": {
@@ -35,7 +36,7 @@
     "rules": {
       "correctness": {
         "noUnusedImports": "error",
-        "noUnusedVariables": "error"
+        "noUnusedVariables": "off"
       },
       "suspicious": {
         "noExplicitAny": "off",

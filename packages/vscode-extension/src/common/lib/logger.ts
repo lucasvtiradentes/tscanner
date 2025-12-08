@@ -5,6 +5,12 @@ import { getLogFilename } from '../constants';
 
 export const LOG_FILE_PATH = join(tmpdir(), getLogFilename());
 
+let logsEnabled = false;
+
+export function initializeLogger(enabled: boolean) {
+  logsEnabled = enabled;
+}
+
 class Logger {
   private context: string;
 
@@ -13,12 +19,14 @@ class Logger {
   }
 
   private write(level: string, message: string) {
+    if (!logsEnabled) return;
+
     const now = new Date();
     const utcMinus3 = new Date(now.getTime() - 3 * 60 * 60 * 1000);
     const timestamp = utcMinus3.toISOString().replace('Z', '-03:00');
-    const logMessage = `[${timestamp}] [${this.context}] [${level}] ${message}\n`;
+    const logMessage = `[${timestamp}] [${this.context}] [${level}] ${message}`;
 
-    appendFileSync(LOG_FILE_PATH, logMessage);
+    appendFileSync(LOG_FILE_PATH, `${logMessage}\n`);
   }
 
   info(message: string) {

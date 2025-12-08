@@ -1,6 +1,17 @@
+import { EXTENSION_DISPLAY_NAME } from 'src/common/scripts-constants';
+import { PACKAGE_NAME } from 'tscanner-common';
+import { logger } from '../common/lib/logger';
 import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
-import { Locator, promptInstall } from '../locator';
+import { Locator, LocatorSource, promptInstall } from '../locator';
 import { TscannerLspClient } from '../lsp/client';
+
+const SOURCE_LABELS: Record<LocatorSource, string> = {
+  [LocatorSource.Dev]: 'dev (local rust build)',
+  [LocatorSource.Settings]: 'settings (user configured)',
+  [LocatorSource.NodeModules]: 'node_modules (project dependency)',
+  [LocatorSource.Global]: 'global (npm -g)',
+  [LocatorSource.Path]: 'PATH (system)',
+};
 
 let lspClient: TscannerLspClient | null = null;
 
@@ -19,18 +30,18 @@ export async function ensureLspClient(): Promise<TscannerLspClient> {
       if (installed) {
         const retryResult = await locator.locate();
         if (!retryResult) {
-          throw new Error('TScanner binary not found after installation. Please restart VSCode.');
+          throw new Error(`${EXTENSION_DISPLAY_NAME} binary not found after installation. Please restart VSCode.`);
         }
+        logger.info(`Using tscanner from: ${SOURCE_LABELS[retryResult.source]} (${retryResult.path})`);
         const args = [...(retryResult.args ?? []), 'lsp'];
         lspClient = new TscannerLspClient(retryResult.path, args);
       } else {
         throw new Error(
-          'TScanner binary not found.\n\n' +
-            'Install with: npm install -g tscanner\n' +
-            'Or add as dev dependency: npm install -D tscanner',
+          `${EXTENSION_DISPLAY_NAME} binary not found.\n\nInstall with: npm install -g ${PACKAGE_NAME}\nOr add as dev dependency: npm install -D ${PACKAGE_NAME}`,
         );
       }
     } else {
+      logger.info(`Using tscanner from: ${SOURCE_LABELS[result.source]} (${result.path})`);
       const args = [...(result.args ?? []), 'lsp'];
       lspClient = new TscannerLspClient(result.path, args);
     }

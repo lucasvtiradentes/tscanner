@@ -65,6 +65,7 @@ impl JsonRenderer {
                             column: issue.column,
                             message: issue.message.clone(),
                             line_text: issue.line_text.clone(),
+                            rule_type: issue.rule_type,
                         })
                         .collect(),
                 }
@@ -103,6 +104,7 @@ impl JsonRenderer {
                             Severity::Warning => "warning".to_string(),
                         },
                         line_text: issue.line_text.clone(),
+                        rule_type: issue.rule_type,
                     });
             }
         }

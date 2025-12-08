@@ -1,0 +1,35 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "ignore": [
+    ".tscanner/**",
+    ".changeset/**",
+    "examples/**",
+    "packages/rust-core/**",
+    "scripts/release/**",
+    "shared/tscanner-common/**"
+  ],
+  "workspaces": {
+    ".": {
+      "entry": ["scripts/**/*.ts"],
+      "project": ["scripts/**/*.ts"],
+      "ignoreDependencies": ["tscanner-common"]
+    },
+    "packages/cli": {
+      "entry": ["src/main.ts"],
+      "project": ["src/**/*.ts"],
+      "ignoreDependencies": ["zod", "zod-to-json-schema"]
+    },
+    "packages/github-action": {
+      "entry": ["src/index.ts"],
+      "project": ["src/**/*.ts"],
+      "ignoreDependencies": ["tsx"]
+    },
+    "packages/vscode-extension": {
+      "entry": ["src/extension.ts"],
+      "project": ["src/**/*.ts"],
+      "ignoreBinaries": ["vsce"],
+      "ignoreDependencies": ["tscanner"]
+    }
+  },
+  "biome": { "config": "biome.json" }
+}

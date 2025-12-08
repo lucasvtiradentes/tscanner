@@ -1,11 +1,16 @@
+import type { AiExecutionMode, TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { logger } from '../common/lib/logger';
 import { getCurrentWorkspaceFolder, openTextDocument } from '../common/lib/vscode-utils';
-import type { IssueResult, TscannerConfig } from '../common/types';
+import type { IssueResult } from '../common/types';
 import { ensureLspClient } from './client';
 import { mapIssueToResult, parseConfigError, showConfigErrorToast, showScanErrorToast } from './utils';
 
-export async function scanCodebase(fileFilter?: Set<string>, config?: TscannerConfig): Promise<IssueResult[]> {
+export async function scanCodebase(
+  fileFilter?: Set<string>,
+  config?: TscannerConfig,
+  aiMode?: AiExecutionMode,
+): Promise<IssueResult[]> {
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (!workspaceFolder) {
     return [];
@@ -15,7 +20,7 @@ export async function scanCodebase(fileFilter?: Set<string>, config?: TscannerCo
     const client = await ensureLspClient();
 
     const scanStart = Date.now();
-    const result = await client.scan(workspaceFolder.uri.fsPath, config);
+    const result = await client.scan(workspaceFolder.uri.fsPath, config, undefined, aiMode);
     const scanTime = Date.now() - scanStart;
 
     logger.info(

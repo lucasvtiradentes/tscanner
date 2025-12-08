@@ -1,12 +1,18 @@
+use crate::context::RuleContext;
 use crate::metadata::RuleType;
 use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
-use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
+
+pub struct RelativeImportState {
+    pub line: usize,
+    pub start_col: usize,
+    pub end_col: usize,
+}
 
 pub struct NoRelativeImportsRule;
 
@@ -21,41 +27,40 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Relative Imports",
         description: "Detects relative imports (starting with './' or '../'). Prefer absolute imports with @ prefix for better maintainability.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::Imports,
         typescript_only: false,
         equivalent_eslint_rule: None,
         equivalent_biome_rule: None,
-        allowed_options: &[],
+        ..RuleMetadata::defaults()
     }
 });
 
 impl Rule for NoRelativeImportsRule {
-    fn name(&self) -> &str {
+    type State = RelativeImportState;
+
+    fn name(&self) -> &'static str {
         "no-relative-imports"
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut visitor = RelativeImportVisitor {
-            issues: Vec::new(),
-            path: path.to_path_buf(),
-            source,
+            states: Vec::new(),
+            source: ctx.source(),
         };
-        program.visit_with(&mut visitor);
-        visitor.issues
+        ctx.program().visit_with(&mut visitor);
+        visitor.states
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.start_col, state.end_col),
+            "Use absolute imports with @ prefix instead of relative imports".to_string(),
+        )
     }
 }
 
 struct RelativeImportVisitor<'a> {
-    issues: Vec<Issue>,
-    path: std::path::PathBuf,
+    states: Vec<RelativeImportState>,
     source: &'a str,
 }
 
@@ -75,21 +80,13 @@ impl<'a> Visit for RelativeImportVisitor<'a> {
                 let (line, column, end_column) =
                     get_span_positions(self.source, import_start, import_end);
 
-                self.issues.push(Issue {
-                    rule: "no-relative-imports".to_string(),
-                    file: self.path.clone(),
+                self.states.push(RelativeImportState {
                     line,
-                    column,
-                    end_column,
-                    message: "Use absolute imports with @ prefix instead of relative imports"
-                        .to_string(),
-                    severity: Severity::Warning,
-                    line_text: None,
+                    start_col: column,
+                    end_col: end_column,
                 });
             }
         }
         n.visit_children_with(self);
     }
 }
-
-impl<'a> RelativeImportVisitor<'a> {}

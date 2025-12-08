@@ -1,5 +1,11 @@
-import { GitHelper, ScanMode, ViewMode } from 'tscanner-common';
-import { CONFIG_DIR_NAME } from '../../common/constants';
+import {
+  type AiExecutionMode,
+  CONFIG_DIR_NAME,
+  GitHelper,
+  ScanMode,
+  ViewMode,
+  hasConfiguredRules,
+} from 'tscanner-common';
 import { getConfigState, loadEffectiveConfig } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import {
@@ -18,17 +24,17 @@ import {
   setWorkspaceState,
   updateState,
 } from '../../common/state/workspace-state';
-import { hasConfiguredRules, serializeResults } from '../../common/types';
-import type { IssuesPanelContent } from '../../issues-panel/panel-content';
+import { serializeResults } from '../../common/types';
+import type { RegularIssuesView } from '../../issues-panel';
 import { scanBranch } from '../../scanner/branch-scan';
 import { scanCodebase } from '../../scanner/codebase-scan';
 import { resetIssueIndex } from './issue-navigation';
 
-export function createScanWorkspaceCommand(ctx: CommandContext, panelContent: IssuesPanelContent) {
-  const { context, treeView, stateRefs, updateBadge, updateStatusBar } = ctx;
+export function createScanWorkspaceCommand(ctx: CommandContext, regularView: RegularIssuesView) {
+  const { context, treeView, stateRefs, updateStatusBar } = ctx;
   const { isSearchingRef, currentScanModeRef, currentCompareBranchRef, currentCustomConfigDirRef } = stateRefs;
 
-  return registerCommand(Command.FindIssue, async (options?: { silent?: boolean }) => {
+  return registerCommand(Command.FindIssue, async (options?: { silent?: boolean; aiMode?: AiExecutionMode }) => {
     if (isSearchingRef.current) {
       if (!options?.silent) {
         showToastMessage(ToastKind.Warning, 'Search already in progress');
@@ -49,8 +55,7 @@ export function createScanWorkspaceCommand(ctx: CommandContext, panelContent: Is
     const configState = await getConfigState(context, workspaceFolder.uri.fsPath, customConfigDir);
 
     if (!hasConfiguredRules(effectiveConfig)) {
-      panelContent.setResults([]);
-      updateBadge();
+      regularView.setResults([]);
       if (!options?.silent) {
         const action = await showToastMessage(
           ToastKind.Warning,
@@ -101,6 +106,7 @@ export function createScanWorkspaceCommand(ctx: CommandContext, panelContent: Is
 
     isSearchingRef.current = true;
     setContextKey(ContextKey.Searching, true);
+    regularView.setResults([]);
 
     logger.info(`Starting scan in ${currentScanModeRef.current} mode`);
 
@@ -108,20 +114,19 @@ export function createScanWorkspaceCommand(ctx: CommandContext, panelContent: Is
       const startTime = Date.now();
       const results =
         currentScanModeRef.current === ScanMode.Branch
-          ? await scanBranch(currentCompareBranchRef.current, undefined, configToPass)
-          : await scanCodebase(undefined, configToPass);
+          ? await scanBranch(currentCompareBranchRef.current, undefined, configToPass, options?.aiMode)
+          : await scanCodebase(undefined, configToPass, options?.aiMode);
 
       const elapsed = Date.now() - startTime;
       logger.info(`Search completed in ${elapsed}ms, found ${results.length} results`);
 
       resetIssueIndex();
-      panelContent.setResults(results);
+      regularView.setResults(results);
       setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializeResults(results));
-      updateBadge();
 
-      if (panelContent.viewMode === ViewMode.Tree) {
+      if (regularView.viewMode === ViewMode.Tree) {
         setTimeout(() => {
-          const folders = panelContent.getAllFolderItems();
+          const folders = regularView.getAllFolderItems();
           for (const folder of folders) {
             treeView.reveal(folder, { expand: true, select: false, focus: false });
           }
@@ -133,6 +138,7 @@ export function createScanWorkspaceCommand(ctx: CommandContext, panelContent: Is
     } finally {
       isSearchingRef.current = false;
       setContextKey(ContextKey.Searching, false);
+      setContextKey(ContextKey.HasScanned, true);
     }
   });
 }

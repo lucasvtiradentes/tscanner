@@ -15,10 +15,19 @@
     "category": "codequality",
     "defaultEnabled": false,
     "defaultSeverity": "warning",
-    "description": "Enforces a maximum number of statements in functions (default: 50). Long functions are harder to understand and maintain.",
+    "description": "Enforces a maximum number of statements in functions. Long functions are harder to understand and maintain.",
     "displayName": "Max Function Length",
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/max-lines-per-function",
     "name": "max-function-length",
+    "options": [
+      {
+        "default": 50,
+        "description": "Maximum number of statements allowed in a function",
+        "minimum": 1,
+        "name": "maxLength",
+        "type": "integer"
+      }
+    ],
     "ruleType": "ast",
     "sourcePath": "packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/max_function_length.rs",
     "typescriptOnly": false
@@ -31,6 +40,15 @@
     "displayName": "Max Parameters",
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/max-params",
     "name": "max-params",
+    "options": [
+      {
+        "default": 4,
+        "description": "Maximum number of parameters allowed in a function",
+        "minimum": 1,
+        "name": "maxParams",
+        "type": "integer"
+      }
+    ],
     "ruleType": "ast",
     "sourcePath": "packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/max_params.rs",
     "typescriptOnly": false
@@ -79,6 +97,37 @@
     "equivalentBiomeRule": "https://biomejs.dev/linter/rules/no-console",
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/no-console",
     "name": "no-console",
+    "options": [
+      {
+        "default": [
+          "log",
+          "warn",
+          "error",
+          "info",
+          "debug",
+          "trace",
+          "table",
+          "dir",
+          "dirxml",
+          "group",
+          "groupCollapsed",
+          "groupEnd",
+          "time",
+          "timeEnd",
+          "timeLog",
+          "assert",
+          "count",
+          "countReset",
+          "clear",
+          "profile",
+          "profileEnd"
+        ],
+        "description": "Console methods to disallow",
+        "items": "string",
+        "name": "methods",
+        "type": "array"
+      }
+    ],
     "ruleType": "regex",
     "sourcePath": "packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/no_console.rs",
     "typescriptOnly": false
@@ -331,10 +380,21 @@
     "category": "codequality",
     "defaultEnabled": false,
     "defaultSeverity": "warning",
-    "description": "Detects TODO, FIXME, and similar comment markers.",
+    "description": "Detects TODO comments (case insensitive). Configure 'keywords' option to detect additional markers like FIXME, HACK, etc.",
     "displayName": "No TODO Comments",
     "equivalentEslintRule": "https://eslint.org/docs/latest/rules/no-warning-comments",
     "name": "no-todo-comments",
+    "options": [
+      {
+        "default": [
+          "TODO"
+        ],
+        "description": "Comment keywords to detect (case insensitive)",
+        "items": "string",
+        "name": "keywords",
+        "type": "array"
+      }
+    ],
     "ruleType": "regex",
     "sourcePath": "packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/no_todo_comments.rs",
     "typescriptOnly": false

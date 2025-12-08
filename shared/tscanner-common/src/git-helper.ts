@@ -1,5 +1,6 @@
 import { execSync } from 'node:child_process';
-import type { ModifiedLineRange } from './schemas';
+import type { ModifiedLineRange } from './schemas/other';
+// import type { ModifiedLineRange } from './schemas/cli';
 
 export class GitHelper {
   private static toGitPath(filePath: string): string {

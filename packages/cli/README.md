@@ -4,8 +4,8 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner - CLI</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-usage">Usage</a> • <a href="#-configuration">Configuration</a><br />
-  <a href="#-use-cases">Use Cases</a> • <a href="#-rules">Rules</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-usage">Usage</a><br />
+  <a href="#-configuration">Configuration</a> • <a href="#-rules">Rules</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
 </div>
 
 <div width="100%" align="center">
@@ -82,15 +82,35 @@ Scan your codebase from the terminal. Run before commits, in CI pipelines, or as
 AI generates code fast, but it doesn't know your project's conventions, preferred patterns, or forbidden shortcuts. You end up reviewing the same issues over and over.
 
 TScanner lets you define those rules once. Every AI-generated file, every PR, every save: automatically checked against your standards. Stop repeating yourself in code reviews.
+
+<div align="center">
+
+<details>
+<summary>Use cases for this project</summary>
+<br />
+
+<div align="left">
+
+- **Project Consistency** - Enforce import styles, naming conventions, and code organization rules
+- **PR Quality Gates** - Auto-comment violations before merge so reviewers focus on logic
+- **AI Code Validation** - Real-time feedback on AI-generated code before accepting
+- **Flexible Customization** - Built-in rules + custom scripts and AI rules for complex logic 
+
+</div>
+
+</details>
+
+</div>
+
 <!-- </DYNFIELD:MOTIVATION> -->
 
 ## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-<!-- <DYNFIELD:QUICK_START_CLI> -->
-1. Install globally
+<!-- <DYNFIELD:QUICK_START_INSTALL> -->
+1. Install locally
 
 ```bash
-npm install -g tscanner
+npm install -D tscanner
 ```
 
 2. Initialize configuration
@@ -99,7 +119,13 @@ npm install -g tscanner
 tscanner init
 ```
 
-3. Use it
+> **Tip:** Use `tscanner init --full` for a complete config with example regex, script, and AI rules.
+<!-- </DYNFIELD:QUICK_START_INSTALL> -->
+
+After that you can already use the CLI:
+
+<!-- <DYNFIELD:QUICK_START_CLI> -->
+3. Check via terminal
 
 ```bash
 # Scan workspace
@@ -107,6 +133,15 @@ tscanner check
 
 # Scan only changed files vs branch
 tscanner check --branch origin/main
+```
+
+4. Integrate with [lint-staged](https://github.com/lint-staged/lint-staged) (optional)
+
+```jsonc
+// .lintstagedrc.json
+{
+  "*": ["npx tscanner check --staged"]
+}
 ```
 <!-- </DYNFIELD:QUICK_START_CLI> -->
 
@@ -124,8 +159,8 @@ tscanner check --branch origin/main
     <th width="300">Flag description</th>
   </tr>
   <tr>
-    <td rowspan="9" align="left"><code>check [options] [paths]</code></td>
-    <td rowspan="9" align="left">Scan code for issues and display results</td>
+    <td rowspan="11" align="left"><code>check [options] [paths]</code></td>
+    <td rowspan="11" align="left">Scan code for issues and display results</td>
     <td align="left"><code>--branch <BRANCH></code></td>
     <td align="center">-</td>
     <td align="left">Only show issues in files changed compared to branch (e.g., origin/main)</td>
@@ -168,9 +203,23 @@ tscanner check --branch origin/main
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--include-ai</code></td>
+    <td align="center">-</td>
+    <td align="left">Include AI rules in the scan (slower)</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--no-cache</code></td>
     <td align="center">-</td>
     <td align="left">Skip cache and force full scan</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--only-ai</code></td>
+    <td align="center">-</td>
+    <td align="left">Run only AI rules, skip all other rules</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
@@ -217,9 +266,9 @@ tscanner check --branch origin/main
   <tr>
     <td rowspan="1" align="left"><code>init [options]</code></td>
     <td rowspan="1" align="left">Create a default configuration file</td>
-    <td align="left"><code>--all-rules</code></td>
+    <td align="left"><code>--full</code></td>
     <td align="center">-</td>
-    <td align="left">Initialize with all built-in rules enabled</td>
+    <td align="left">Initialize with all built-in rules, example regex/script/AI rules, and sample files</td>
   </tr>
   <tr>
     <td rowspan="1" align="left"><code>lsp</code></td>
@@ -233,161 +282,35 @@ tscanner check --branch origin/main
 </div>
 <!-- </DYNFIELD:CLI_USAGE> -->
 
-### Examples
-
-<div align="center">
-
-<details>
-<summary><b>Initialize Configuration</b></summary>
-
-<div align="left">
-
-```bash
-# Create .tscanner/config.jsonc in current directory
-tscanner init
-
-# Create config in specific directory
-tscanner init /path/to/project
-```
-
-Creates `.tscanner/config.jsonc` with default rule configuration (see [Configuration](#-configuration) section).
-
-</div>
-
-</details>
-
-<details>
-<summary><b>Scan Files</b></summary>
-
-<div align="left">
-
-```bash
-# Basic scan (current directory)
-tscanner check
-
-# Scan specific directory
-tscanner check src/
-
-# Scan specific file
-tscanner check src/index.ts
-
-# Scan multiple files/directories
-tscanner check src/index.ts src/utils.ts lib/
-
-# Skip cache (force full rescan)
-tscanner check --no-cache
-
-# Output as JSON
-tscanner check --format json
-
-# Pretty output with rule definitions
-tscanner check --format pretty
-
-# Group results by rule instead of file
-tscanner check --group-by rule
-```
-
-**Example output:**
-```
-Scanning...
-
-src/index.ts
-  ✖ 5:10 Found ': any' type annotation [no-explicit-any]
-  ⚠ 10:7 'count' is never reassigned, use 'const' instead [prefer-const]
-
-src/utils.ts
-  ⚠ 15:3 console.log found [no-console]
-
-✖ 2 errors, 2 warnings
-Scanned 2 files in 45ms
-```
-
-**Exit codes:**
-- `0` - No errors found
-- `1` - Errors found or configuration missing
-
-</div>
-
-</details>
-
-<details>
-<summary><b>Advanced Filtering</b></summary>
-
-<div align="left">
-
-```bash
-# Only scan files changed compared to branch
-tscanner check --branch origin/main
-tscanner check --branch develop
-
-# Filter by file pattern (glob)
-tscanner check --file "src/**/*.ts"
-tscanner check --file "components/**/*.tsx"
-
-# Filter by specific rule
-tscanner check --rule no-console
-tscanner check --rule no-explicit-any
-
-# Combine filters
-tscanner check --branch main --file "src/**" --rule no-console
-
-# Continue on error (don't exit with code 1)
-tscanner check --continue-on-error
-
-# Use custom config location
-tscanner check --config /path/to/config/dir
-```
-
-</div>
-
-</details>
-
-<details>
-<summary><b>List Rules</b></summary>
-
-<div align="left">
-
-```bash
-# Show all available rules
-tscanner rules
-
-# Show rules for specific project
-tscanner rules /path/to/project
-
-# Use custom config location
-tscanner rules --config /path/to/config/dir
-```
-
-**Output shows:**
-- Rule name and description
-- Current status (enabled/disabled)
-- Severity level (error/warning)
-- Rule type (ast/regex)
-
-</div>
-
-</details>
-
-</div>
-
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
 ## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 To scan your code, you need to set up the rules in the TScanner config folder. Here's how to get started:
 
-1. **VSCode Extension**: TScanner icon in the status bar → `Manage Rules` → Select desired rules → `Save`
-2. **CLI**: Run `tscanner init` in your project root
+1. **CLI**: Run `tscanner init` in your project root (**Recommended**)
+2. **VSCode Extension**: TScanner icon in the status bar → `Manage Rules` → Select desired rules → `Save`
 3. **Manual**: Copy the default config below to `.tscanner/config.jsonc`
 
-The default configuration is:
+<div align="center">
+<details>
+<summary><strong>Default configuration</strong></summary>
+
+<br/>
+
+<div align="left">
 
 ```json
 {
   "$schema": "https://unpkg.com/tscanner@0.0.28/schema.json",
-  "builtinRules": {
-    "no-explicit-any": {}
+  "rules": {
+    "builtin": {
+      "no-explicit-any": {}
+    },
+    "regex": {},
+    "script": {}
   },
-  "customRules": {},
+  "aiRules": {},
+  "ai": {},
   "files": {
     "include": [
       "**/*.ts",
@@ -407,10 +330,12 @@ The default configuration is:
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": false,
-    "scanIntervalSeconds": 0
+    "scanIntervalSeconds": 0,
+    "aiScanIntervalSeconds": 0
   },
   "cli": {
     "groupBy": "file",
+    "aiMode": "ignore",
     "noCache": false,
     "showSettings": true,
     "showIssueSeverity": true,
@@ -422,27 +347,24 @@ The default configuration is:
 }
 ```
 
-**Inline Disables:**
-
-```typescript
-// tscanner-disable-next-line no-explicit-any
-const data: any = fetchData();
-
-// tscanner-disable-file
-// Entire file is skipped
-```
+</div>
+</details>
 
 <details>
 <summary><strong>Additional info about configuration</strong></summary>
 
 <br/>
 
+<div align="left">
+
 All configuration fields are **optional** with sensible defaults. The minimum required config is just enabling the rules you want:
 
 ```json
 {
-  "builtinRules": {
-    "no-explicit-any": {}
+  "rules": {
+    "builtin": {
+      "no-explicit-any": {}
+    }
   }
 }
 ```
@@ -451,20 +373,22 @@ With this minimal config, TScanner will scan all `.ts/.tsx/.js/.jsx/.mjs/.cjs` f
 
 **Understanding `files.include` and `files.exclude`:**
 
-- `files.include`: Glob patterns for files to scan (default: `["**/*.{ts,tsx,js,jsx,mjs,cjs}"]`)
-- `files.exclude`: Glob patterns for files/folders to ignore (default: `["node_modules/**", "dist/**", "build/**", ".git/**"]`)
+- `files.include`: Glob patterns for files to scan (default: `["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"]`)
+- `files.exclude`: Glob patterns for files/folders to ignore (default: `["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]`)
 
 Example with per-rule file patterns:
 
 ```json
 {
-  "builtinRules": {
-    "no-explicit-any": {},
-    "no-console": {
-      "exclude": ["src/utils/logger.ts"]
-    },
-    "max-function-length": {
-      "include": ["src/core/**/*.ts"]
+  "rules": {
+    "builtin": {
+      "no-explicit-any": {},
+      "no-console": {
+        "exclude": ["src/utils/logger.ts"]
+      },
+      "max-function-length": {
+        "include": ["src/core/**/*.ts"]
+      }
     }
   }
 }
@@ -475,123 +399,21 @@ This config:
 - Runs `no-console` on all files except `src/utils/logger.ts`
 - Runs `max-function-length` only on files inside `src/core/`
 
+**Inline Disables:**
+
+```typescript
+// tscanner-ignore-next-line no-explicit-any
+const data: any = fetchData();
+
+// tscanner-ignore
+// Entire file is skipped
+```
+
+</div>
 </details>
+
+</div>
 <!-- </DYNFIELD:COMMON_SECTION_CONFIG> -->
-
-## 🎯 Use Cases<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
-
-<details>
-<summary><b>CI/CD Pipeline</b></summary>
-
-It is recommended to use [TScanner GitHub action](https://github.com/lucasvtiradentes/tscanner/tree/main/packages/github-action), but you can also set up your own workflow:
-
-```yaml
-name: Code Quality
-
-on: [push, pull_request]
-
-jobs:
-  tscanner:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-      - name: Install TScanner
-        run: npm install -g tscanner
-      - name: Run TScanner validation
-        run: tscanner check
-```
-
-</details>
-
-<details>
-<summary><b>Pre-commit Hook</b></summary>
-
-```bash
-#!/bin/sh
-if command -v tscanner &> /dev/null && [ -f .tscanner/config.jsonc ]; then
-  tscanner check --staged
-fi
-```
-
-</details>
-
-<details>
-<summary><b>Lint-staged Integration</b></summary>
-
-Add to your `.lintstagedrc.json`:
-
-```json
-{
-  "*.{ts,tsx,js,jsx}": ["tscanner check --staged"]
-}
-```
-
-The `--staged` flag:
-- Only scans files that are git staged
-- Respects `files.include` and `files.exclude` from config
-- Is mutually exclusive with `--branch`
-
-</details>
-
-<details>
-<summary><b>Git Pre-push Hook</b></summary>
-
-```bash
-#!/bin/sh
-if command -v tscanner &> /dev/null && [ -f .tscanner/config.jsonc ]; then
-  tscanner check --branch origin/main --no-cache
-fi
-```
-
-</details>
-
-<details>
-<summary><b>VS Code Tasks</b></summary>
-
-```json
-{
-  "version": "2.0.0",
-  "tasks": [
-    {
-      "label": "tscanner: Check",
-      "type": "shell",
-      "command": "tscanner check"
-    },
-    {
-      "label": "tscanner: Check (No Cache)",
-      "type": "shell",
-      "command": "tscanner check --no-cache"
-    },
-    {
-      "label": "tscanner: Check (Branch Changes)",
-      "type": "shell",
-      "command": "tscanner check --branch origin/main"
-    }
-  ]
-}
-```
-
-</details>
-
-<details>
-<summary><b>Package.json Scripts</b></summary>
-
-```json
-{
-  "scripts": {
-    "lint": "tscanner check",
-    "lint:nocache": "tscanner check --no-cache",
-    "lint:branch": "tscanner check --branch origin/main",
-    "lint:json": "tscanner check --json > lint-results.json"
-  }
-}
-```
-
-</details>
 
 <!-- <DYNFIELD:RULES> -->
 ## 📋 Rules<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
@@ -607,7 +429,7 @@ Customize TScanner to validate what matters to your project while maintaining co
     <th width="400">Example</th>
   </tr>
   <tr>
-    <td><b><a href="packages/rust-core/crates/core/src/rules">Built-in</a></b></td>
+    <td>Built-in</td>
     <td>38 ready-to-use AST rules</td>
     <td><code>no-explicit-any</code>, <code>prefer-const</code>, <code>no-console</code></td>
   </tr>
@@ -645,37 +467,44 @@ Customize TScanner to validate what matters to your project while maintaining co
 <table>
   <tr>
     <th width="250">Rule</th>
-    <th width="450">Description</th>
+    <th width="400">Description</th>
+    <th width="150">Options</th>
     <th width="100">Also in</th>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/type_safety/no_explicit_any.rs"><code>no-explicit-any</code></a><br/><br/><img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only"></div></td>
     <td align="left">Detects usage of TypeScript 'any' type (<code>: any</code> and <code>as any</code>). Using 'any' defeats the purpose of TypeScript's type system.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://typescript-eslint.io/rules/no-explicit-any"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-explicit-any"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/type_safety/no_implicit_any.rs"><code>no-implicit-any</code></a><br/><br/><img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only"></div></td>
     <td align="left">Detects function parameters without type annotations that implicitly have 'any' type.</td>
     <td align="left"></td>
+    <td align="left"></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/type_safety/no_inferrable_types.rs"><code>no-inferrable-types</code></a><br/><br/><img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only"></div></td>
     <td align="left">Disallows explicit type annotations on variables initialized with literal values. TypeScript can infer these types automatically.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://typescript-eslint.io/rules/no-inferrable-types"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-inferrable-types"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/type_safety/no_non_null_assertion.rs"><code>no-non-null-assertion</code></a><br/><br/><img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only"></div></td>
     <td align="left">Disallows the non-null assertion operator (!). Use proper null checks or optional chaining instead.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://typescript-eslint.io/rules/no-non-null-assertion"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-non-null-assertion"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/type_safety/no_single_or_array_union.rs"><code>no-single-or-array-union</code></a><br/><br/><img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only"></div></td>
     <td align="left">Disallows union types that combine a type with its array form (e.g., <code>string | string[]</code>, <code>number | number[]</code>). Prefer using a consistent type to avoid handling multiple cases in function implementations.</td>
     <td align="left"></td>
+    <td align="left"></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/type_safety/no_unnecessary_type_assertion.rs"><code>no-unnecessary-type-assertion</code></a><br/><br/><img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only"></div></td>
     <td align="left">Disallows type assertions on values that are already of the asserted type (e.g., "hello" as string, 123 as number).</td>
+    <td align="left"></td>
     <td align="left"><a href="https://typescript-eslint.io/rules/no-unnecessary-type-assertion"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
   </tr>
 </table>
@@ -689,72 +518,86 @@ Customize TScanner to validate what matters to your project while maintaining co
 <table>
   <tr>
     <th width="250">Rule</th>
-    <th width="450">Description</th>
+    <th width="400">Description</th>
+    <th width="150">Options</th>
     <th width="100">Also in</th>
   </tr>
   <tr>
-    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/max_function_length.rs"><code>max-function-length</code></a></div></td>
-    <td align="left">Enforces a maximum number of statements in functions (default: 50). Long functions are harder to understand and maintain.</td>
+    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/max_function_length.rs"><code>max-function-length</code></a><br/><br/><img src="https://img.shields.io/badge/configurable-green" alt="Configurable"></div></td>
+    <td align="left">Enforces a maximum number of statements in functions. Long functions are harder to understand and maintain.</td>
+    <td align="left"><code>maxLength</code>: 50</td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/max-lines-per-function"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
   </tr>
   <tr>
-    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/max_params.rs"><code>max-parameters</code></a></div></td>
+    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/max_params.rs"><code>max-parameters</code></a><br/><br/><img src="https://img.shields.io/badge/configurable-green" alt="Configurable"></div></td>
     <td align="left">Limits the number of parameters in a function. Functions with many parameters should use an options object instead.</td>
+    <td align="left"><code>maxParams</code>: 4</td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/max-params"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/no_async_without_await.rs"><code>no-async-without-await</code></a></div></td>
     <td align="left">Disallows async functions that don't use await. The async keyword is unnecessary if await is never used.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/require-await"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/use-await"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>
-    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/no_console.rs"><code>no-console</code></a><br/><br/><img src="https://img.shields.io/badge/regex--rule-6C757D" alt="Regex rule"></div></td>
+    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/no_console.rs"><code>no-console</code></a><br/><br/><img src="https://img.shields.io/badge/regex--rule-6C757D" alt="Regex rule"> <img src="https://img.shields.io/badge/configurable-green" alt="Configurable"></div></td>
     <td align="left">Disallow the use of console methods. Console statements should be removed before committing to production.</td>
+    <td align="left"><code>methods</code>: [21 items]</td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/no-console"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-console"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/no_else_return.rs"><code>no-else-return</code></a></div></td>
     <td align="left">Disallows else blocks after return statements. The else is unnecessary since the function already returned.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/no-else-return"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-useless-else"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/no_empty_class.rs"><code>no-empty-class</code></a></div></td>
     <td align="left">Disallows empty classes without methods or properties.</td>
     <td align="left"></td>
+    <td align="left"></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/no_empty_function.rs"><code>no-empty-function</code></a></div></td>
     <td align="left">Disallows empty functions and methods. Empty functions are often leftovers from incomplete code.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/no-empty-function"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/no_empty_interface.rs"><code>no-empty-interface</code></a><br/><br/><img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only"></div></td>
     <td align="left">Disallows empty interface declarations. Empty interfaces are equivalent to {} and usually indicate incomplete code.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://typescript-eslint.io/rules/no-empty-interface"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-empty-interface"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/no_nested_ternary.rs"><code>no-nested-ternary</code></a></div></td>
     <td align="left">Disallows nested ternary expressions. Nested ternaries are hard to read and should be replaced with if-else statements.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/no-nested-ternary"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-nested-ternary"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/no_return_await.rs"><code>no-return-await</code></a></div></td>
     <td align="left">Disallows redundant 'return await' in async functions. The await is unnecessary since the function already returns a Promise.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://typescript-eslint.io/rules/return-await"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
   </tr>
   <tr>
-    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/no_todo_comments.rs"><code>no-todo-comments</code></a><br/><br/><img src="https://img.shields.io/badge/regex--rule-6C757D" alt="Regex rule"></div></td>
-    <td align="left">Detects TODO, FIXME, and similar comment markers.</td>
+    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/no_todo_comments.rs"><code>no-todo-comments</code></a><br/><br/><img src="https://img.shields.io/badge/regex--rule-6C757D" alt="Regex rule"> <img src="https://img.shields.io/badge/configurable-green" alt="Configurable"></div></td>
+    <td align="left">Detects TODO comments (case insensitive). Configure 'keywords' option to detect additional markers like FIXME, HACK, etc.</td>
+    <td align="left"><code>keywords</code>: [1 items]</td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/no-warning-comments"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/no_unused_vars.rs"><code>no-unused-variables</code></a></div></td>
     <td align="left">Detects variables that are declared but never used in the code.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/no-unused-vars"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-unused-variables"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/code_quality/no_useless_catch.rs"><code>no-useless-catch</code></a></div></td>
     <td align="left">Disallows catch blocks that only rethrow the caught error. Remove the try-catch or add meaningful error handling.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/no-useless-catch"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-useless-catch"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
 </table>
@@ -768,27 +611,32 @@ Customize TScanner to validate what matters to your project while maintaining co
 <table>
   <tr>
     <th width="250">Rule</th>
-    <th width="450">Description</th>
+    <th width="400">Description</th>
+    <th width="150">Options</th>
     <th width="100">Also in</th>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/bug_prevention/consistent_return.rs"><code>consistent-return</code></a></div></td>
     <td align="left">Requires consistent return behavior in functions. Either all code paths return a value or none do.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/consistent-return"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/bug_prevention/no_constant_condition.rs"><code>no-constant-condition</code></a></div></td>
     <td align="left">Disallows constant expressions in conditions (if/while/for/ternary). Likely a programming error.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/no-constant-condition"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-constant-condition"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/bug_prevention/no_floating_promises.rs"><code>no-floating-promises</code></a><br/><br/><img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only"></div></td>
     <td align="left">Disallows floating promises (promises used as statements without await, .then(), or .catch()). Unhandled promises can lead to silent failures.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://typescript-eslint.io/rules/no-floating-promises"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-floating-promises"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/bug_prevention/no_unreachable_code.rs"><code>no-unreachable-code</code></a></div></td>
     <td align="left">Detects code after return, throw, break, or continue statements. This code will never execute.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/no-unreachable"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-unreachable"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
 </table>
@@ -802,22 +650,26 @@ Customize TScanner to validate what matters to your project while maintaining co
 <table>
   <tr>
     <th width="250">Rule</th>
-    <th width="450">Description</th>
+    <th width="400">Description</th>
+    <th width="150">Options</th>
     <th width="100">Also in</th>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/variables/no_shadow.rs"><code>no-shadow</code></a></div></td>
     <td align="left">Disallows variable declarations that shadow variables in outer scopes. Shadowing can lead to confusing code and subtle bugs.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/no-shadow"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/variables/no_var.rs"><code>no-var</code></a></div></td>
     <td align="left">Disallows the use of 'var' keyword. Use 'let' or 'const' instead for block-scoped variables.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/no-var"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-var"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/variables/prefer_const.rs"><code>prefer-const</code></a></div></td>
     <td align="left">Suggests using 'const' instead of 'let' when variables are never reassigned.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/prefer-const"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/use-const"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
 </table>
@@ -831,47 +683,56 @@ Customize TScanner to validate what matters to your project while maintaining co
 <table>
   <tr>
     <th width="250">Rule</th>
-    <th width="450">Description</th>
+    <th width="400">Description</th>
+    <th width="150">Options</th>
     <th width="100">Also in</th>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/imports/no_absolute_imports.rs"><code>no-absolute-imports</code></a></div></td>
     <td align="left">Disallows absolute imports without alias. Prefer relative or aliased imports.</td>
     <td align="left"></td>
+    <td align="left"></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/imports/no_alias_imports.rs"><code>no-alias-imports</code></a></div></td>
     <td align="left">Disallows aliased imports (starting with @). Prefer relative imports.</td>
     <td align="left"></td>
+    <td align="left"></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/imports/no_default_export.rs"><code>no-default-export</code></a></div></td>
     <td align="left">Disallows default exports. Named exports are preferred for better refactoring support and explicit imports.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://biomejs.dev/linter/rules/no-default-export"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/imports/no_duplicate_imports.rs"><code>no-duplicate-imports</code></a></div></td>
     <td align="left">Disallows multiple import statements from the same module. Merge them into a single import.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/no-duplicate-imports"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-duplicate-json-keys"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/imports/no_dynamic_import.rs"><code>no-dynamic-import</code></a></div></td>
     <td align="left">Disallows dynamic import() expressions. Dynamic imports make static analysis harder and can impact bundle optimization.</td>
     <td align="left"></td>
+    <td align="left"></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/imports/no_forwarded_exports.rs"><code>no-forwarded-exports</code></a></div></td>
     <td align="left">Disallows re-exporting from other modules. This includes direct re-exports (export { X } from 'module'), star re-exports (export * from 'module'), and re-exporting imported values.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://biomejs.dev/linter/rules/no-re-export-all"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/imports/no_nested_require.rs"><code>no-nested-require</code></a></div></td>
     <td align="left">Disallows require() calls inside functions, blocks, or conditionals. Require statements should be at the top level for static analysis.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://eslint.org/docs/latest/rules/global-require"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/imports/no_relative_imports.rs"><code>no-relative-imports</code></a></div></td>
     <td align="left">Detects relative imports (starting with './' or '../'). Prefer absolute imports with @ prefix for better maintainability.</td>
+    <td align="left"></td>
     <td align="left"></td>
   </tr>
 </table>
@@ -885,27 +746,32 @@ Customize TScanner to validate what matters to your project while maintaining co
 <table>
   <tr>
     <th width="250">Rule</th>
-    <th width="450">Description</th>
+    <th width="400">Description</th>
+    <th width="150">Options</th>
     <th width="100">Also in</th>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/style/prefer_interface_over_type.rs"><code>prefer-interface-over-type</code></a><br/><br/><img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only"></div></td>
     <td align="left">Suggests using 'interface' keyword instead of 'type' for consistency.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://typescript-eslint.io/rules/consistent-type-definitions"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/style/prefer_nullish_coalescing.rs"><code>prefer-nullish-coalescing</code></a></div></td>
     <td align="left">Suggests using nullish coalescing (??) instead of logical OR (||) for default values. The || operator treats 0, "", and false as falsy, which may not be intended.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://typescript-eslint.io/rules/prefer-nullish-coalescing"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/style/prefer_optional_chain.rs"><code>prefer-optional-chain</code></a></div></td>
     <td align="left">Suggests using optional chaining (?.) instead of logical AND (&&) chains for null checks.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://typescript-eslint.io/rules/prefer-optional-chain"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/use-optional-chain"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/style/prefer_type_over_interface.rs"><code>prefer-type-over-interface</code></a><br/><br/><img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only"></div></td>
     <td align="left">Suggests using 'type' keyword instead of 'interface' for consistency. Type aliases are more flexible and composable.</td>
+    <td align="left"></td>
     <td align="left"><a href="https://typescript-eslint.io/rules/consistent-type-definitions"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
   </tr>
 </table>
@@ -919,22 +785,28 @@ Customize TScanner to validate what matters to your project while maintaining co
 
 Define patterns to match in your code using regular expressions:
 
+**Config** (`.tscanner/config.jsonc`):
 ```json
 {
-  "customRules": {
-    "no-todos": {
-      "type": "regex",
-      "pattern": "TODO:|FIXME:",
-      "message": "Remove TODO comments before merging"
-    },
-    "no-debug-logs": {
-      "type": "regex",
-      "pattern": "console\\.(log|debug|info)",
-      "message": "Remove debug statements"
+  "rules": {
+    "regex": {
+      "no-todos": {
+        "pattern": "TODO:|FIXME:",
+        "message": "Remove TODO comments before merging",
+        "severity": "warning"
+      },
+      "no-debug-logs": {
+        "pattern": "console\\.(log|debug|info)",
+        "message": "Remove debug statements",
+        "severity": "warning",
+        "exclude": ["**/*.test.ts"]
+      }
     }
   }
 }
 ```
+
+> 💡 See a real example in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
 
 </div>
 </details>
@@ -944,7 +816,80 @@ Define patterns to match in your code using regular expressions:
 <br />
 <div align="left">
 
-Soon!
+Run custom scripts that receive file data via stdin and output issues as JSON:
+
+**Config** (`.tscanner/config.jsonc`):
+```json
+{
+  "rules": {
+    "script": {
+      "no-debug-comments": {
+        "command": "npx tsx .tscanner/scripts/no-debug-comments.ts",
+        "message": "Debug comments should be removed",
+        "severity": "warning"
+      }
+    }
+  }
+}
+```
+
+**Script** (`.tscanner/scripts/no-debug-comments.ts`):
+```typescript
+#!/usr/bin/env npx tsx
+
+import { stdin } from 'node:process';
+
+type ScriptFile = {
+  path: string;
+  content: string;
+  lines: string[];
+};
+
+type ScriptInput = {
+  files: ScriptFile[];
+  options?: Record<string, unknown>;
+  workspaceRoot: string;
+};
+
+type ScriptIssue = {
+  file: string;
+  line: number;
+  column?: number;
+  message: string;
+};
+
+async function main() {
+  let data = '';
+  for await (const chunk of stdin) {
+    data += chunk;
+  }
+
+  const input: ScriptInput = JSON.parse(data);
+  const issues: ScriptIssue[] = [];
+
+  for (const file of input.files) {
+    for (let i = 0; i < file.lines.length; i++) {
+      const line = file.lines[i];
+      if (/\/\/\s*(DEBUG|HACK|XXX|TEMP)\b/i.test(line)) {
+        issues.push({
+          file: file.path,
+          line: i + 1,
+          message: `Debug comment found: "${line.trim().substring(0, 50)}"`,
+        });
+      }
+    }
+  }
+
+  console.log(JSON.stringify({ issues }));
+}
+
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
+```
+
+> 💡 See a real example in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
 
 </div>
 </details>
@@ -954,7 +899,51 @@ Soon!
 <br />
 <div align="left">
 
-Soon!
+Use AI prompts to perform semantic code analysis:
+
+**Config** (`.tscanner/config.jsonc`):
+```json
+{
+  "aiRules": {
+    "find-complexity": {
+      "prompt": "find-complexity.md",
+      "mode": "content",
+      "message": "Function is too complex, consider refactoring",
+      "severity": "warning",
+      "enabled": true
+    }
+  },
+  "ai": {
+    "provider": "claude",
+    "timeout": 120000
+  }
+}
+```
+
+**Prompt** (`.tscanner/prompts/find-complexity.md`):
+```markdown
+# Find Complex Functions
+
+Analyze the provided code and identify functions that are overly complex.
+
+## What to look for
+
+1. Functions with high cyclomatic complexity (many branches/loops)
+2. Deeply nested code blocks (3+ levels)
+3. Functions doing too many things (violating single responsibility)
+4. Long parameter lists that should be objects
+
+## Output format
+
+Report each complex function with:
+- The function name
+- Why it's complex
+- A brief suggestion for improvement
+
+{{FILES}}
+```
+
+> 💡 See a real example in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
 
 </div>
 </details>

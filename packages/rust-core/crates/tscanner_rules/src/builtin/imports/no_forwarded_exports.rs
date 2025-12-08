@@ -1,13 +1,19 @@
-use crate::metadata::RuleType;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
+use crate::context::RuleContext;
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
 use std::collections::HashSet;
-use std::path::Path;
 use std::sync::Arc;
 use swc_ecma_ast::*;
 use swc_ecma_visit::{Visit, VisitWith};
-use tscanner_diagnostics::{Issue, Severity};
+
+pub struct ForwardedExportState {
+    pub line: usize,
+    pub start_col: usize,
+    pub end_col: usize,
+    pub message: String,
+}
 
 pub struct NoForwardedExportsRule;
 
@@ -22,42 +28,41 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Forwarded Exports",
         description: "Disallows re-exporting from other modules. This includes direct re-exports (export { X } from 'module'), star re-exports (export * from 'module'), and re-exporting imported values.",
         rule_type: RuleType::Ast,
-        default_severity: Severity::Warning,
-        default_enabled: false,
         category: RuleCategory::Imports,
         typescript_only: false,
         equivalent_eslint_rule: None,
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-re-export-all"),
-        allowed_options: &[],
+        ..RuleMetadata::defaults()
     }
 });
 
 impl Rule for NoForwardedExportsRule {
-    fn name(&self) -> &str {
+    type State = ForwardedExportState;
+
+    fn name(&self) -> &'static str {
         "no-forwarded-exports"
     }
 
-    fn check(
-        &self,
-        program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: crate::FileSource,
-    ) -> Vec<Issue> {
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
         let mut visitor = ForwardedExportsVisitor {
-            issues: Vec::new(),
-            path: path.to_path_buf(),
-            source,
+            states: Vec::new(),
+            source: ctx.source(),
             imported_names: HashSet::new(),
         };
-        program.visit_with(&mut visitor);
-        visitor.issues
+        ctx.program().visit_with(&mut visitor);
+        visitor.states
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.start_col, state.end_col),
+            state.message.clone(),
+        )
     }
 }
 
 struct ForwardedExportsVisitor<'a> {
-    issues: Vec<Issue>,
-    path: std::path::PathBuf,
+    states: Vec<ForwardedExportState>,
     source: &'a str,
     imported_names: HashSet<String>,
 }
@@ -104,18 +109,14 @@ impl<'a> Visit for ForwardedExportsVisitor<'a> {
                 get_span_positions(self.source, n.span.lo.0 as usize, n.span.hi.0 as usize);
             let src_value = self.get_source_value(src.span);
 
-            self.issues.push(Issue {
-                rule: "no-forwarded-exports".to_string(),
-                file: self.path.clone(),
+            self.states.push(ForwardedExportState {
                 line,
-                column,
-                end_column,
+                start_col: column,
+                end_col: end_column,
                 message: format!(
                     "Avoid re-exporting from '{}'. Import and use directly instead.",
                     src_value
                 ),
-                severity: Severity::Warning,
-                line_text: None,
             });
         } else {
             for specifier in &n.specifiers {
@@ -132,18 +133,14 @@ impl<'a> Visit for ForwardedExportsVisitor<'a> {
                             named.span.hi.0 as usize,
                         );
 
-                        self.issues.push(Issue {
-                            rule: "no-forwarded-exports".to_string(),
-                            file: self.path.clone(),
+                        self.states.push(ForwardedExportState {
                             line,
-                            column,
-                            end_column,
+                            start_col: column,
+                            end_col: end_column,
                             message: format!(
                                 "Avoid re-exporting '{}'. Import and use directly instead.",
                                 orig_name
                             ),
-                            severity: Severity::Warning,
-                            line_text: None,
                         });
                     }
                 }
@@ -158,18 +155,14 @@ impl<'a> Visit for ForwardedExportsVisitor<'a> {
             get_span_positions(self.source, n.span.lo.0 as usize, n.span.hi.0 as usize);
         let src_value = self.get_source_value(n.src.span);
 
-        self.issues.push(Issue {
-            rule: "no-forwarded-exports".to_string(),
-            file: self.path.clone(),
+        self.states.push(ForwardedExportState {
             line,
-            column,
-            end_column,
+            start_col: column,
+            end_col: end_column,
             message: format!(
                 "Avoid star re-export from '{}'. Import and use directly instead.",
                 src_value
             ),
-            severity: Severity::Warning,
-            line_text: None,
         });
 
         n.visit_children_with(self);

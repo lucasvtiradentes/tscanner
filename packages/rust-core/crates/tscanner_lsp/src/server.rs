@@ -4,6 +4,7 @@ use crate::handlers::custom::{
     handle_scan_content, handle_scan_file,
 };
 use crate::handlers::{handle_code_action, handle_notification};
+use crate::scheduler::AnalysisScheduler;
 use crate::session::Session;
 use lsp_server::{Connection, Message, Request, Response};
 use lsp_types::{CodeActionParams, InitializeParams};
@@ -25,7 +26,9 @@ pub fn run_lsp_server() -> Result<(), LspError> {
         session.set_root(root);
     }
 
-    main_loop(&connection, &mut session)?;
+    let scheduler = AnalysisScheduler::new(connection.sender.clone(), session.workspace());
+
+    main_loop(&connection, &mut session, &scheduler)?;
 
     io_threads.join()?;
     Ok(())
@@ -38,7 +41,11 @@ fn extract_workspace_root(params: &InitializeParams) -> Option<PathBuf> {
         .and_then(|folders| folders.first().and_then(|f| f.uri.to_file_path().ok()))
 }
 
-fn main_loop(connection: &Connection, session: &mut Session) -> Result<(), LspError> {
+fn main_loop(
+    connection: &Connection,
+    session: &mut Session,
+    scheduler: &AnalysisScheduler,
+) -> Result<(), LspError> {
     for msg in &connection.receiver {
         match msg {
             Message::Request(req) => {
@@ -48,7 +55,7 @@ fn main_loop(connection: &Connection, session: &mut Session) -> Result<(), LspEr
                 handle_request(connection, req, session)?;
             }
             Message::Notification(notif) => {
-                handle_notification(connection, notif, session)?;
+                handle_notification(connection, notif, session, scheduler)?;
             }
             Message::Response(_) => {}
         }

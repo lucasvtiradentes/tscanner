@@ -1,10 +1,15 @@
 use regex::Regex;
-use std::path::Path;
-use swc_ecma_ast::Program;
-use tscanner_diagnostics::{Issue, Severity};
+use tscanner_diagnostics::Severity;
 
+use crate::context::RuleContext;
+use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::Rule;
-use crate::FileSource;
+
+pub struct RegexMatch {
+    pub line: usize,
+    pub start_col: usize,
+    pub end_col: usize,
+}
 
 pub struct RegexExecutor {
     name: String,
@@ -27,38 +32,41 @@ impl RegexExecutor {
             severity,
         })
     }
+
+    fn static_name(&self) -> &'static str {
+        Box::leak(self.name.clone().into_boxed_str())
+    }
 }
 
 impl Rule for RegexExecutor {
-    fn name(&self) -> &str {
-        &self.name
+    type State = RegexMatch;
+
+    fn name(&self) -> &'static str {
+        self.static_name()
     }
 
-    fn check(
-        &self,
-        _program: &Program,
-        path: &Path,
-        source: &str,
-        _file_source: FileSource,
-    ) -> Vec<Issue> {
-        let mut issues = Vec::new();
+    fn run<'a>(&self, ctx: &RuleContext<'a>) -> Vec<Self::State> {
+        let mut matches = Vec::new();
 
-        for (line_num, line) in source.lines().enumerate() {
+        for (line_num, line) in ctx.source().lines().enumerate() {
             if let Some(mat) = self.pattern.find(line) {
-                issues.push(Issue {
-                    rule: self.name.clone(),
-                    file: path.to_path_buf(),
+                matches.push(RegexMatch {
                     line: line_num + 1,
-                    column: mat.start() + 1,
-                    end_column: mat.end() + 1,
-                    message: self.message.clone(),
-                    severity: self.severity,
-                    line_text: None,
+                    start_col: mat.start() + 1,
+                    end_col: mat.end() + 1,
                 });
             }
         }
 
-        issues
+        matches
+    }
+
+    fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
+        RuleDiagnostic::new(
+            TextRange::single_line(state.line, state.start_col, state.end_col),
+            self.message.clone(),
+        )
+        .with_severity(self.severity)
     }
 
     fn is_regex_only(&self) -> bool {

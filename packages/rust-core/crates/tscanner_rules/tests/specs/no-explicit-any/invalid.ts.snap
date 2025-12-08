@@ -1,5 +1,5 @@
 ---
-source: crates/core/tests/spec_tests.rs
+source: crates/tscanner_rules/tests/spec_tests.rs
 expression: snapshot
 ---
 # Input
@@ -17,7 +17,7 @@ type AnyAlias = any;
 ```
 invalid.ts:1:14 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
 
-  ! Found `: any` type annotation
+  ! Found ": any" type annotation
 
   > 1 │ const value: any = 'hello';
     2 │ let data: any;
@@ -27,7 +27,7 @@ invalid.ts:1:14 no-explicit-any ━━━━━━━━━━━━━━━━
 ```
 invalid.ts:2:11 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
 
-  ! Found `: any` type annotation
+  ! Found ": any" type annotation
 
     1 │ const value: any = 'hello';
   > 2 │ let data: any;
@@ -38,7 +38,7 @@ invalid.ts:2:11 no-explicit-any ━━━━━━━━━━━━━━━━
 ```
 invalid.ts:3:25 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
 
-  ! Found `: any` type annotation
+  ! Found ": any" type annotation
 
     2 │ let data: any;
   > 3 │ function process(input: any): any {
@@ -49,7 +49,7 @@ invalid.ts:3:25 no-explicit-any ━━━━━━━━━━━━━━━━
 ```
 invalid.ts:3:31 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
 
-  ! Found `: any` type annotation
+  ! Found ": any" type annotation
 
     2 │ let data: any;
   > 3 │ function process(input: any): any {
@@ -60,18 +60,7 @@ invalid.ts:3:31 no-explicit-any ━━━━━━━━━━━━━━━━
 ```
 invalid.ts:6:25 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
 
-  ! Found `as any` type assertion
-
-    5 │ }
-  > 6 │ const result = value as any;
-    7 │ type AnyAlias = any;
-
-```
-
-```
-invalid.ts:6:25 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
-
-  ! Found `: any` type annotation
+  ! Found "as any" type assertion
 
     5 │ }
   > 6 │ const result = value as any;
@@ -82,7 +71,7 @@ invalid.ts:6:25 no-explicit-any ━━━━━━━━━━━━━━━━
 ```
 invalid.ts:7:17 no-explicit-any ━━━━━━━━━━━━━━━━━━━━
 
-  ! Found `: any` type annotation
+  ! Found ": any" type annotation
 
     6 │ const result = value as any;
   > 7 │ type AnyAlias = any;

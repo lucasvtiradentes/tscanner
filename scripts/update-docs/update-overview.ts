@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { DynMarkdown, getJson } from 'markdown-helper';
+import { PACKAGE_DISPLAY_NAME } from 'tscanner-common';
 
 type TFields = 'OVERVIEW';
 
@@ -10,7 +11,7 @@ const RULES_COUNT = rulesJson.length;
 function getOverviewContent(): string {
   return `## 🎺 Overview<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-Define what "good code" means for your project. TScanner enforces your patterns in real-time in the code editor, blocks violations in PRs, and runs in CI. ${RULES_COUNT} ready-to-use rules + custom rules via regex, scripts, or AI.`;
+Define what "good code" means for your project. ${PACKAGE_DISPLAY_NAME} enforces your patterns in real-time in the code editor, blocks violations in PRs, and runs in CI. ${RULES_COUNT} ready-to-use rules + custom rules via regex, scripts, or AI.`;
 }
 
 export function updateOverview() {

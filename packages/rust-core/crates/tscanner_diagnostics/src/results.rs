@@ -22,9 +22,13 @@ pub struct ScanResult {
     pub files: Vec<FileResult>,
     pub total_issues: usize,
     pub duration_ms: u128,
+    pub regular_rules_duration_ms: u128,
+    pub ai_rules_duration_ms: u128,
     pub total_files: usize,
     pub cached_files: usize,
     pub scanned_files: usize,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub warnings: Vec<String>,
 }
 
 impl ScanResult {
@@ -36,14 +40,20 @@ impl ScanResult {
                 if let Some(modified_lines) = line_filter.get(&file_result.file) {
                     file_result
                         .issues
-                        .retain(|issue| modified_lines.contains(&issue.line));
+                        .retain(|issue| issue.is_ai || modified_lines.contains(&issue.line));
                     if !file_result.issues.is_empty() {
                         Some(file_result)
                     } else {
                         None
                     }
                 } else {
-                    None
+                    let has_ai_issues = file_result.issues.iter().any(|i| i.is_ai);
+                    if has_ai_issues {
+                        file_result.issues.retain(|issue| issue.is_ai);
+                        Some(file_result)
+                    } else {
+                        None
+                    }
                 }
             })
             .collect();

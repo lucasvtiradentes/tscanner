@@ -6,10 +6,6 @@ authors.workspace = true
 license.workspace = true
 repository.workspace = true
 
-[[bin]]
-name = "generate_config_fields"
-path = "../../scripts/generate_config_fields.rs"
-
 [dependencies]
 tscanner_diagnostics = { path = "../tscanner_diagnostics" }
 serde = { workspace = true }
@@ -19,3 +15,4 @@ globset = { workspace = true }
 json_comments = { workspace = true }
 regex = { workspace = true }
 lazy_static = "1.4"
+which = { workspace = true }

@@ -1,3 +1,4 @@
+import { EXTENSION_DISPLAY_NAME } from 'src/common/scripts-constants';
 import * as vscode from 'vscode';
 import { getConfigState } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
@@ -9,7 +10,7 @@ import {
   requireWorkspaceOrNull,
 } from '../common/lib/vscode-utils';
 import type { CommandContext } from '../common/state/extension-state';
-import type { IssuesPanelContent } from '../issues-panel/panel-content';
+import type { RegularIssuesView } from '../issues-panel';
 import { getCurrentLocationLabel, openConfigFile, showConfigLocationMenu } from './config-location';
 import { showScanModeMenu } from './scan-mode';
 
@@ -20,8 +21,8 @@ enum SettingsMenuOption {
   OpenConfigFile = 'open-config-file',
 }
 
-export function createOpenSettingsMenuCommand(ctx: CommandContext, panelContent: IssuesPanelContent) {
-  const { context, stateRefs, updateBadge, updateStatusBar } = ctx;
+export function createOpenSettingsMenuCommand(ctx: CommandContext, regularView: RegularIssuesView) {
+  const { context, stateRefs, updateStatusBar } = ctx;
   const { currentScanModeRef, currentCompareBranchRef, currentCustomConfigDirRef } = stateRefs;
 
   return registerCommand(Command.OpenSettingsMenu, async () => {
@@ -69,7 +70,7 @@ export function createOpenSettingsMenuCommand(ctx: CommandContext, panelContent:
     }
 
     const selected = await vscode.window.showQuickPick(mainMenuItems, {
-      placeHolder: 'TScanner Settings',
+      placeHolder: `${EXTENSION_DISPLAY_NAME} Settings`,
       ignoreFocusOut: false,
     });
 
@@ -82,10 +83,10 @@ export function createOpenSettingsMenuCommand(ctx: CommandContext, panelContent:
         await executeCommand(Command.ManageRules);
         break;
       case SettingsMenuOption.ManageScanMode:
-        await showScanModeMenu(updateStatusBar, currentScanModeRef, currentCompareBranchRef, context, panelContent);
+        await showScanModeMenu(updateStatusBar, currentScanModeRef, currentCompareBranchRef, context, regularView);
         break;
       case SettingsMenuOption.ManageConfigLocation:
-        await showConfigLocationMenu(updateStatusBar, updateBadge, currentCustomConfigDirRef, context, panelContent);
+        await showConfigLocationMenu(updateStatusBar, currentCustomConfigDirRef, context, regularView);
         break;
       case SettingsMenuOption.OpenConfigFile:
         await openConfigFile(context, currentCustomConfigDirRef.current);

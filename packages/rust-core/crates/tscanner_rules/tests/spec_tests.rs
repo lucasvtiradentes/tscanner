@@ -1,7 +1,7 @@
 use std::fs;
 use std::path::Path;
 use tscanner_diagnostics::Issue;
-use tscanner_rules::{FileSource, RuleRegistration};
+use tscanner_rules::{FileSource, RuleContext, RuleRegistration};
 use tscanner_scanner::parse_file;
 
 fn run_rule_test(input_path: &str) {
@@ -28,7 +28,12 @@ fn run_rule_test(input_path: &str) {
         .map(|r| (r.factory)(None))
         .unwrap_or_else(|| panic!("rule '{rule_name}' not found"));
 
-    let mut issues = rule.check(&program, input_file, &source, file_source);
+    let ctx = RuleContext::new(&program, input_file, &source, file_source);
+    let signals = rule.signals(&ctx);
+    let mut issues: Vec<Issue> = signals
+        .iter()
+        .map(|s| s.to_issue(rule_name, input_file))
+        .collect();
     issues.sort_by(|a, b| a.line.cmp(&b.line).then(a.column.cmp(&b.column)));
 
     let snapshot = format_snapshot(&source, &issues, input_file);

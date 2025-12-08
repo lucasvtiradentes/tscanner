@@ -20,5 +20,6 @@ tscanner_fs = { path = "../tscanner_fs" }
 tscanner_rules = { path = "../tscanner_rules" }
 lsp-types = "0.95"
 lsp-server = "0.7"
+crossbeam-channel = "0.5"
 serde = { workspace = true }
 serde_json = { workspace = true }

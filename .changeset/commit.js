@@ -39,7 +39,6 @@ function updateSchemaVersionInFiles(newVersion) {
     join(process.cwd(), 'packages', 'cli', 'README.md'),
     join(process.cwd(), 'packages', 'vscode-extension', 'README.md'),
     join(process.cwd(), 'packages', 'github-action', 'README.md'),
-    join(process.cwd(), 'assets', 'default-config.json'),
   ];
   const schemaPattern = /(unpkg\.com\/tscanner@)[\d.]+(\/)schema\.json/g;
 

@@ -1,5 +1,5 @@
+import { CONFIG_FILE_NAME } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { CONFIG_FILE_NAME } from '../common/constants';
 import { logger } from '../common/lib/logger';
 import { Command, executeCommand } from '../common/lib/vscode-utils';
 
