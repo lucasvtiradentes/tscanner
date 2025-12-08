@@ -230,7 +230,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: lucasvtiradentes/tscanner-action@v0.0.25
+      - uses: lucasvtiradentes/tscanner-action@v0.0.26
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -258,7 +258,7 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 
 ```json
 {
-  "$schema": "https://unpkg.com/tscanner@0.0.28/schema.json",
+  "$schema": "https://unpkg.com/tscanner@0.0.29/schema.json",
   "rules": {
     "builtin": {
       "no-explicit-any": {}
