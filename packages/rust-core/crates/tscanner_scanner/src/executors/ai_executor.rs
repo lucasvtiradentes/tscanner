@@ -34,6 +34,7 @@ pub struct AiProgressEvent {
 }
 
 pub type AiProgressCallback = Arc<dyn Fn(AiProgressEvent) + Send + Sync>;
+pub type RegularRulesCompleteCallback = Arc<dyn Fn(u128) + Send + Sync>;
 
 const AI_RULE_WRAPPER: &str =
     include_str!("../../../../../../assets/prompts/ai-rule-wrapper.prompt.md");

@@ -1,5 +1,5 @@
 use super::Scanner;
-use crate::executors::{AiProgressCallback, ChangedLinesMap};
+use crate::executors::{AiProgressCallback, ChangedLinesMap, RegularRulesCompleteCallback};
 use rayon::prelude::*;
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
@@ -7,6 +7,11 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Instant;
 use tscanner_config::AiExecutionMode;
 use tscanner_diagnostics::{ContentScanResult, FileResult, ScanResult};
+
+pub struct ScanCallbacks {
+    pub on_regular_rules_complete: Option<RegularRulesCompleteCallback>,
+    pub on_ai_progress: Option<AiProgressCallback>,
+}
 
 impl Scanner {
     pub fn scan_codebase(&self, roots: &[PathBuf]) -> ScanResult {
@@ -37,7 +42,16 @@ impl Scanner {
         ai_mode: AiExecutionMode,
         changed_lines: Option<&ChangedLinesMap>,
     ) -> ScanResult {
-        self.scan_codebase_with_progress(roots, file_filter, ai_mode, changed_lines, None)
+        self.scan_codebase_with_callbacks(
+            roots,
+            file_filter,
+            ai_mode,
+            changed_lines,
+            ScanCallbacks {
+                on_regular_rules_complete: None,
+                on_ai_progress: None,
+            },
+        )
     }
 
     pub fn scan_codebase_with_progress(
@@ -47,6 +61,26 @@ impl Scanner {
         ai_mode: AiExecutionMode,
         changed_lines: Option<&ChangedLinesMap>,
         ai_progress_callback: Option<AiProgressCallback>,
+    ) -> ScanResult {
+        self.scan_codebase_with_callbacks(
+            roots,
+            file_filter,
+            ai_mode,
+            changed_lines,
+            ScanCallbacks {
+                on_regular_rules_complete: None,
+                on_ai_progress: ai_progress_callback,
+            },
+        )
+    }
+
+    pub fn scan_codebase_with_callbacks(
+        &self,
+        roots: &[PathBuf],
+        file_filter: Option<&HashSet<PathBuf>>,
+        ai_mode: AiExecutionMode,
+        changed_lines: Option<&ChangedLinesMap>,
+        callbacks: ScanCallbacks,
     ) -> ScanResult {
         let start = Instant::now();
         (self.log_info)(&format!(
@@ -61,6 +95,7 @@ impl Scanner {
         let processed = AtomicUsize::new(0);
         let cache_hits = AtomicUsize::new(0);
 
+        let regular_start = Instant::now();
         let results: Vec<FileResult> = if ai_mode == AiExecutionMode::Only {
             Vec::new()
         } else {
@@ -91,12 +126,23 @@ impl Scanner {
         } else {
             self.run_script_rules(&files)
         };
+        let regular_duration = regular_start.elapsed();
 
+        if let Some(ref cb) = callbacks.on_regular_rules_complete {
+            cb(regular_duration.as_millis());
+        }
+
+        let ai_start = Instant::now();
         let (ai_issues, ai_warning) = if ai_mode == AiExecutionMode::Ignore {
             (Vec::new(), None)
         } else {
-            self.run_ai_rules_with_context_and_progress(&files, changed_lines, ai_progress_callback)
+            self.run_ai_rules_with_context_and_progress(
+                &files,
+                changed_lines,
+                callbacks.on_ai_progress,
+            )
         };
+        let ai_duration = ai_start.elapsed();
 
         let mut all_results = results;
         self.merge_issues(&mut all_results, script_issues);
@@ -116,6 +162,8 @@ impl Scanner {
             files: all_results,
             total_issues,
             duration_ms: duration.as_millis(),
+            regular_rules_duration_ms: regular_duration.as_millis(),
+            ai_rules_duration_ms: ai_duration.as_millis(),
             total_files: file_count,
             cached_files: cached,
             scanned_files: scanned,

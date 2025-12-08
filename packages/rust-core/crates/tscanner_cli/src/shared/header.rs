@@ -1,6 +1,6 @@
 use colored::*;
 use tscanner_cli::OutputFormat;
-use tscanner_config::AiExecutionMode;
+use tscanner_config::{AiExecutionMode, AiProvider};
 use tscanner_diagnostics::GroupMode;
 
 #[derive(Clone)]
@@ -16,11 +16,25 @@ pub struct ScanConfig {
     pub format: OutputFormat,
     pub group_by: GroupMode,
     pub ai_mode: AiExecutionMode,
+    pub ai_provider: Option<AiProvider>,
     pub cache_enabled: bool,
     pub continue_on_error: bool,
     pub config_path: String,
     pub glob_filter: Option<String>,
     pub rule_filter: Option<String>,
+}
+
+pub fn format_duration(ms: u128) -> String {
+    if ms < 1000 {
+        format!("{}ms", ms)
+    } else if ms < 60000 {
+        format!("{:.1}s", ms as f64 / 1000.0)
+    } else {
+        let total_seconds = ms / 1000;
+        let minutes = total_seconds / 60;
+        let seconds = total_seconds % 60;
+        format!("{}m {}s", minutes, seconds)
+    }
 }
 
 pub fn render_header(config: &ScanConfig) {
@@ -68,6 +82,14 @@ pub fn render_header(config: &ScanConfig) {
         println!("  {} {}", "Format:".dimmed(), format_str);
         println!("  {} {}", "Group by:".dimmed(), group_str);
         println!("  {} {}", "AI mode:".dimmed(), ai_mode_str);
+        if let Some(ref provider) = config.ai_provider {
+            let provider_str = match provider {
+                AiProvider::Claude => "claude",
+                AiProvider::Gemini => "gemini",
+                AiProvider::Custom => "custom",
+            };
+            println!("  {} {}", "AI provider:".dimmed(), provider_str);
+        }
         println!("  {} {}", "Cache:".dimmed(), cache_str);
         println!(
             "  {} {}",

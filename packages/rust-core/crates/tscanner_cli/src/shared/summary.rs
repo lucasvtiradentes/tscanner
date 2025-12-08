@@ -1,3 +1,4 @@
+use super::format_duration;
 use colored::*;
 use serde::Serialize;
 use tscanner_diagnostics::{ScanResult, Severity};
@@ -122,6 +123,10 @@ pub fn render_summary(result: &ScanResult, stats: &SummaryStats) {
         stats.total_enabled_rules,
         breakdown_str
     );
-    println!("  {} {}ms", "Duration:".dimmed(), result.duration_ms);
+    println!(
+        "  {} {}",
+        "Duration:".dimmed(),
+        format_duration(result.duration_ms)
+    );
     println!();
 }

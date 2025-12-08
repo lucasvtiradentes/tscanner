@@ -8,7 +8,8 @@ use std::sync::{Arc, Mutex};
 
 use crate::config_loader::load_config_with_custom;
 use crate::shared::{
-    render_header, render_summary, RulesBreakdown, ScanConfig, ScanMode, SummaryStats,
+    format_duration, render_header, render_summary, RulesBreakdown, ScanConfig, ScanMode,
+    SummaryStats,
 };
 use tscanner_cache::FileCache;
 use tscanner_cli::{CliGroupMode, OutputFormat};
@@ -16,7 +17,10 @@ use tscanner_config::{
     app_name, config_dir_name, config_file_name, AiExecutionMode, CliConfig, CliGroupBy,
 };
 use tscanner_diagnostics::GroupMode;
-use tscanner_scanner::{AiProgressCallback, AiProgressEvent, AiRuleStatus, ConfigExt, Scanner};
+use tscanner_scanner::{
+    AiProgressCallback, AiProgressEvent, AiRuleStatus, ConfigExt, RegularRulesCompleteCallback,
+    ScanCallbacks, Scanner,
+};
 use tscanner_service::{log_error, log_info};
 
 use super::context::CheckContext;
@@ -121,6 +125,7 @@ pub fn cmd_check(
     let effective_ai_mode = resolve_ai_mode(include_ai, only_ai, resolved_cli.ai_mode);
 
     let config_hash = config.compute_hash();
+    let ai_provider = config.ai.as_ref().and_then(|ai| ai.provider);
     let (builtin_count, regex_count, script_count, ai_count) =
         config.count_enabled_rules_breakdown();
     let rules_breakdown = match effective_ai_mode {
@@ -197,6 +202,7 @@ pub fn cmd_check(
             format: output_format.clone(),
             group_by: effective_group_mode.clone(),
             ai_mode: effective_ai_mode,
+            ai_provider,
             cache_enabled: !effective_no_cache,
             continue_on_error,
             config_path: relative_config_path,
@@ -205,35 +211,55 @@ pub fn cmd_check(
         };
         render_header(&scan_config);
         println!("{}", "Scanning...\n".cyan().bold());
-        let regular_rules_count =
-            rules_breakdown.builtin + rules_breakdown.regex + rules_breakdown.script;
-        if regular_rules_count > 0 {
-            println!(
-                "{} {}",
-                "✓".green(),
-                format!("Regular rules ({})", regular_rules_count)
-                    .cyan()
-                    .bold()
-            );
-        }
     }
 
-    let progress_callback: Option<AiProgressCallback> =
+    let regular_rules_count =
+        rules_breakdown.builtin + rules_breakdown.regex + rules_breakdown.script;
+
+    let regular_rules_callback: Option<RegularRulesCompleteCallback> =
+        if !is_json && regular_rules_count > 0 {
+            let count = regular_rules_count;
+            Some(Arc::new(move |duration_ms: u128| {
+                println!(
+                    "{} {}",
+                    "✓".green(),
+                    format!(
+                        "Regular rules ({}) {}",
+                        count,
+                        format_duration(duration_ms).dimmed()
+                    )
+                    .cyan()
+                    .bold()
+                );
+                let _ = io::stdout().flush();
+            }))
+        } else {
+            None
+        };
+
+    let ai_progress_callback: Option<AiProgressCallback> =
         if effective_ai_mode != AiExecutionMode::Ignore && !is_json {
             let rule_states: Arc<Mutex<HashMap<usize, (String, AiRuleStatus)>>> =
                 Arc::new(Mutex::new(HashMap::new()));
             let has_rendered = Arc::new(Mutex::new(false));
+            let start_time = Arc::new(Mutex::new(None::<std::time::Instant>));
             let states_clone = rule_states.clone();
             let has_rendered_clone = has_rendered.clone();
+            let start_time_clone = start_time.clone();
             Some(Arc::new(move |event: AiProgressEvent| {
                 let mut states = states_clone.lock().unwrap();
                 let mut rendered = has_rendered_clone.lock().unwrap();
+                let mut start = start_time_clone.lock().unwrap();
+                if start.is_none() {
+                    *start = Some(std::time::Instant::now());
+                }
                 states.insert(
                     event.rule_index,
                     (event.rule_name.clone(), event.status.clone()),
                 );
                 if states.len() == event.total_rules {
-                    render_ai_progress(&states, event.total_rules, !*rendered);
+                    let elapsed_ms = start.map(|s| s.elapsed().as_millis()).unwrap_or(0);
+                    render_ai_progress(&states, event.total_rules, !*rendered, elapsed_ms);
                     *rendered = true;
                 }
             }))
@@ -241,13 +267,30 @@ pub fn cmd_check(
             None
         };
 
-    let mut result = scanner.scan_codebase_with_progress(
+    let mut result = scanner.scan_codebase_with_callbacks(
         &scan_paths,
         files_to_scan.as_ref(),
         effective_ai_mode,
         modified_lines.as_ref(),
-        progress_callback,
+        ScanCallbacks {
+            on_regular_rules_complete: regular_rules_callback,
+            on_ai_progress: ai_progress_callback,
+        },
     );
+
+    if !is_json && rules_breakdown.ai > 0 {
+        println!(
+            "{} {}",
+            "✓".green(),
+            format!(
+                "AI rules ({}) {}",
+                rules_breakdown.ai,
+                format_duration(result.ai_rules_duration_ms).dimmed()
+            )
+            .cyan()
+            .bold()
+        );
+    }
 
     if let Some(ref line_filter) = modified_lines {
         filters::apply_line_filter(&mut result, line_filter);
@@ -362,6 +405,7 @@ fn render_ai_progress(
     states: &HashMap<usize, (String, AiRuleStatus)>,
     total: usize,
     is_first: bool,
+    elapsed_ms: u128,
 ) {
     let completed = states
         .values()
@@ -375,21 +419,20 @@ fn render_ai_progress(
 
     let all_completed = completed == total;
 
-    if !is_first {
-        eprint!("\x1B[1A");
-        eprint!("\x1B[0J");
-    }
-
     if all_completed {
-        eprintln!(
-            "{} {}",
-            "✓".green(),
-            format!("AI rules ({})", total).cyan().bold()
-        );
+        if !is_first {
+            eprint!("\x1B[1A");
+            eprint!("\x1B[0J");
+        }
     } else {
+        if !is_first {
+            eprint!("\x1B[1A");
+            eprint!("\x1B[0J");
+        }
         eprintln!(
-            "⏳ {}",
-            format!("AI rules ({}/{})", completed, total).cyan().bold()
+            "⏳ {} {}",
+            format!("AI rules ({}/{})", completed, total).cyan().bold(),
+            format_duration(elapsed_ms).dimmed()
         );
     }
 
