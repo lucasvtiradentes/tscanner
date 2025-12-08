@@ -12,7 +12,7 @@ use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime};
 use tscanner_config::{AiConfig, AiMode, AiRuleConfig};
-use tscanner_diagnostics::{Issue, IssueRuleType, Severity};
+use tscanner_diagnostics::{Issue, IssueRuleType};
 
 pub type ChangedLinesMap = HashMap<PathBuf, HashSet<usize>>;
 
@@ -100,7 +100,6 @@ impl From<std::io::Error> for AiError {
 pub struct AiExecutor {
     workspace_root: PathBuf,
     prompts_dir: PathBuf,
-    config_dir: PathBuf,
     ai_config: Option<AiConfig>,
     cache: DashMap<u64, CachedResult>,
     in_flight: DashMap<u64, Arc<AtomicBool>>,
@@ -113,7 +112,6 @@ impl AiExecutor {
         Self {
             workspace_root: workspace_root.to_path_buf(),
             prompts_dir: workspace_root.join(".tscanner").join("prompts"),
-            config_dir: workspace_root.join(".tscanner"),
             ai_config: None,
             cache: DashMap::new(),
             in_flight: DashMap::new(),
@@ -126,7 +124,6 @@ impl AiExecutor {
         Self {
             workspace_root: workspace_root.to_path_buf(),
             prompts_dir: workspace_root.join(".tscanner").join("prompts"),
-            config_dir: workspace_root.join(".tscanner"),
             ai_config: None,
             cache: DashMap::new(),
             in_flight: DashMap::new(),
@@ -144,7 +141,6 @@ impl AiExecutor {
         Self {
             workspace_root: workspace_root.to_path_buf(),
             prompts_dir: workspace_root.join(".tscanner").join("prompts"),
-            config_dir: workspace_root.join(".tscanner"),
             ai_config,
             cache: DashMap::new(),
             in_flight: DashMap::new(),
@@ -269,19 +265,7 @@ impl AiExecutor {
                                 },
                             });
                         }
-                        vec![Issue {
-                            rule: rule_name.clone(),
-                            file: self.config_dir.clone(),
-                            line: 0,
-                            column: 0,
-                            end_column: 0,
-                            message: format!("AI error: {}", e),
-                            severity: Severity::Error,
-                            line_text: None,
-                            is_ai: true,
-                            category: None,
-                            rule_type: IssueRuleType::Ai,
-                        }]
+                        vec![]
                     }
                 }
             })

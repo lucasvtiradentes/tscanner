@@ -20,12 +20,8 @@ type CheckAnnotation = {
 export async function writeAnnotations(octokit: Octokit, scanResult: ActionScanResult): Promise<void> {
   const annotations: CheckAnnotation[] = [];
 
-  for (const group of scanResult.ruleGroupsByRule ?? []) {
-    if (!group.files?.length) continue;
-
+  for (const group of scanResult.ruleGroupsByRule) {
     for (const file of group.files) {
-      if (!file.issues?.length) continue;
-
       for (const issue of file.issues) {
         annotations.push({
           path: file.filePath,
