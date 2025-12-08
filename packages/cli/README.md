@@ -301,7 +301,7 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 
 ```json
 {
-  "$schema": "https://unpkg.com/tscanner@0.0.28/schema.json",
+  "$schema": "https://unpkg.com/tscanner@0.0.29/schema.json",
   "rules": {
     "builtin": {
       "no-explicit-any": {}
