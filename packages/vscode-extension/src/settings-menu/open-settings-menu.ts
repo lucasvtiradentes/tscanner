@@ -26,12 +26,7 @@ export function createOpenSettingsMenuCommand(ctx: CommandContext, regularView: 
     const workspacePath = workspaceFolder.uri.fsPath;
     const customConfigDir = currentCustomConfigDirRef.current;
     const configState = await getConfigState(context, workspacePath, customConfigDir);
-    const currentLocationLabel = getCurrentLocationLabel(
-      configState.hasCustom,
-      configState.hasLocal,
-      configState.hasGlobal,
-      customConfigDir,
-    );
+    const currentLocationLabel = getCurrentLocationLabel(configState.hasCustom, configState.hasLocal, customConfigDir);
 
     const mainMenuItems: QuickPickItemWithId<SettingsMenuOption>[] = [];
 

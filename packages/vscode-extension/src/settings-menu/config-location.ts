@@ -4,15 +4,12 @@ import * as vscode from 'vscode';
 import {
   type ConfigState,
   deleteCustomConfig,
-  deleteGlobalConfig,
   deleteLocalConfig,
   getConfigState,
   hasCustomConfig,
-  hasGlobalConfig,
   hasLocalConfig,
   loadEffectiveConfig,
   saveCustomConfig,
-  saveGlobalConfig,
   saveLocalConfig,
 } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
@@ -28,33 +25,23 @@ import { WorkspaceStateKey, updateState } from '../common/state/workspace-state'
 import type { RegularIssuesView } from '../issues-panel';
 
 export enum ConfigLocation {
-  ExtensionStorage = 'extension-storage',
   ProjectFolder = 'project-folder',
   CustomPath = 'custom-path',
 }
 
-export function getCurrentLocationLabel(
-  hasCustom: boolean,
-  hasLocal: boolean,
-  hasGlobal: boolean,
-  customConfigDir: string | null,
-): string {
+export function getCurrentLocationLabel(hasCustom: boolean, hasLocal: boolean, customConfigDir: string | null): string {
   if (hasCustom && customConfigDir) {
     return `Current: ${customConfigDir}/${CONFIG_DIR_NAME}`;
   }
   if (hasLocal) {
     return `Current: ${CONFIG_DIR_NAME} (Project Folder)`;
   }
-  if (hasGlobal) {
-    return 'Current: Extension Storage';
-  }
   return 'No config set';
 }
 
-function getCurrentConfigLocation(hasCustom: boolean, hasLocal: boolean, hasGlobal: boolean): ConfigLocation | null {
+function getCurrentConfigLocation(hasCustom: boolean, hasLocal: boolean): ConfigLocation | null {
   if (hasCustom) return ConfigLocation.CustomPath;
   if (hasLocal) return ConfigLocation.ProjectFolder;
-  if (hasGlobal) return ConfigLocation.ExtensionStorage;
   return null;
 }
 
@@ -73,15 +60,9 @@ export async function showConfigLocationMenu(
   const workspacePath = workspaceFolder.uri.fsPath;
   const customConfigDir = currentCustomConfigDirRef.current;
   const configState = await getConfigState(context, workspacePath, customConfigDir);
-  const currentLocation = getCurrentConfigLocation(configState.hasCustom, configState.hasLocal, configState.hasGlobal);
+  const currentLocation = getCurrentConfigLocation(configState.hasCustom, configState.hasLocal);
 
   const menuItems: QuickPickItemWithId<ConfigLocation>[] = [
-    {
-      id: ConfigLocation.ExtensionStorage,
-      label: '$(cloud) Extension Storage',
-      description: currentLocation === ConfigLocation.ExtensionStorage ? '✓ Active' : '',
-      detail: 'Lost on extension uninstall',
-    },
     {
       id: ConfigLocation.ProjectFolder,
       label: '$(file) Project Folder',
@@ -219,9 +200,6 @@ async function moveConfigToLocation(
   }
 
   switch (fromLocation) {
-    case ConfigLocation.ExtensionStorage:
-      await deleteGlobalConfig(context, workspacePath);
-      break;
     case ConfigLocation.ProjectFolder:
       await deleteLocalConfig(workspacePath);
       break;
@@ -233,11 +211,6 @@ async function moveConfigToLocation(
   }
 
   switch (toLocation) {
-    case ConfigLocation.ExtensionStorage:
-      await saveGlobalConfig(context, workspacePath, config);
-      currentCustomConfigDirRef.current = null;
-      updateState(context, WorkspaceStateKey.CustomConfigDir, null);
-      break;
     case ConfigLocation.ProjectFolder:
       await saveLocalConfig(workspacePath, config);
       currentCustomConfigDirRef.current = null;
@@ -262,12 +235,10 @@ async function moveConfigToLocation(
 
 function getLocationLabel(location: ConfigLocation, customPath: string | null): string {
   switch (location) {
-    case ConfigLocation.ExtensionStorage:
-      return 'Extension Storage';
     case ConfigLocation.ProjectFolder:
       return CONFIG_DIR_NAME;
     case ConfigLocation.CustomPath:
-      return customPath || 'Custom Path';
+      return customPath ?? 'Custom Path';
   }
 }
 
@@ -426,26 +397,6 @@ async function showConfigLocationMenuLoop(
     }
   }
 
-  if (targetLocation === ConfigLocation.ExtensionStorage) {
-    const existingGlobal = await hasGlobalConfig(context, workspacePath);
-    if (existingGlobal) {
-      const confirm = await vscode.window.showWarningMessage(
-        'A config already exists in Extension Storage. This will overwrite it.',
-        { modal: true },
-        'Overwrite',
-      );
-      if (confirm !== 'Overwrite') {
-        return showConfigLocationMenuLoop(
-          workspaceFolder,
-          workspacePath,
-          menuItems,
-          currentCustomConfigDirRef,
-          context,
-        );
-      }
-    }
-  }
-
   currentCustomConfigDirRef.current = null;
   updateState(context, WorkspaceStateKey.CustomConfigDir, null);
 
@@ -465,11 +416,6 @@ export async function showConfigLocationMenuForFirstSetup(
   const workspacePath = workspaceFolder.uri.fsPath;
 
   const menuItems: QuickPickItemWithId<ConfigLocation>[] = [
-    {
-      id: ConfigLocation.ExtensionStorage,
-      label: '$(cloud) Extension Storage',
-      detail: 'Lost on extension uninstall',
-    },
     {
       id: ConfigLocation.ProjectFolder,
       label: '$(file) Project Folder',
