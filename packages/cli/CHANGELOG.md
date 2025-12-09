@@ -1,5 +1,11 @@
 # tscanner
 
+## 0.0.31
+
+### Patch Changes
+
+- cf08f69: simplify config loader
+
 ## 0.0.30
 
 ### Patch Changes
