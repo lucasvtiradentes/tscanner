@@ -14,6 +14,20 @@ import {
 import { WorkspaceStateKey, updateState } from '../common/state/workspace-state';
 import type { RegularIssuesView } from '../issues-panel';
 
+const ROOT_PATH = '.';
+
+function isRootPath(p: string): boolean {
+  return p === ROOT_PATH || p === '';
+}
+
+function toConfigDir(selectedPath: string): string | null {
+  return isRootPath(selectedPath) ? null : selectedPath;
+}
+
+function joinPath(base: string, segment: string): string {
+  return isRootPath(base) ? segment : path.posix.join(base, segment);
+}
+
 type ConfigLocationContext = {
   updateStatusBar: () => Promise<void>;
   currentConfigDirRef: { current: string | null };
@@ -39,12 +53,12 @@ export async function showConfigLocationMenu(ctx: ConfigLocationContext): Promis
   const currentConfigDir = ctx.currentConfigDirRef.current;
   const currentHasConfig = await hasConfig(workspacePath, currentConfigDir);
 
-  const startPath = currentConfigDir ?? '.';
+  const startPath = currentConfigDir ?? ROOT_PATH;
   const selectedPath = await showFolderPicker(workspaceFolder.uri, startPath);
 
   if (!selectedPath) return;
 
-  const newConfigDir = selectedPath === '.' ? null : selectedPath;
+  const newConfigDir = toConfigDir(selectedPath);
 
   if (newConfigDir === currentConfigDir) {
     return;
@@ -91,24 +105,21 @@ async function getSubfolders(dirUri: vscode.Uri): Promise<string[]> {
   }
 }
 
-async function showFolderPicker(workspaceRoot: vscode.Uri, currentRelativePath: string): Promise<string | null> {
-  const currentUri =
-    currentRelativePath === '.' ? workspaceRoot : vscode.Uri.joinPath(workspaceRoot, currentRelativePath);
+async function showFolderPicker(workspaceRoot: vscode.Uri, currentPath: string): Promise<string | null> {
+  const currentUri = isRootPath(currentPath) ? workspaceRoot : vscode.Uri.joinPath(workspaceRoot, currentPath);
 
   const subfolders = await getSubfolders(currentUri);
+  const isRoot = isRootPath(currentPath);
 
   const items: QuickPickItemWithId<string>[] = [];
 
   items.push({
     id: '__select__',
     label: '$(check) Select this folder',
-    detail:
-      currentRelativePath === '.'
-        ? `Use: ${CONFIG_DIR_NAME} (project root)`
-        : `Use: ${path.posix.join(currentRelativePath, CONFIG_DIR_NAME)}`,
+    detail: isRoot ? `Use: ${CONFIG_DIR_NAME} (project root)` : `Use: ${joinPath(currentPath, CONFIG_DIR_NAME)}`,
   });
 
-  if (currentRelativePath !== '.') {
+  if (!isRoot) {
     items.push({
       id: '__parent__',
       label: '$(arrow-up) ..',
@@ -128,7 +139,7 @@ async function showFolderPicker(workspaceRoot: vscode.Uri, currentRelativePath: 
     items.push({
       id: folder,
       label: `$(folder) ${folder}`,
-      detail: currentRelativePath === '.' ? folder : path.posix.join(currentRelativePath, folder),
+      detail: joinPath(currentPath, folder),
     });
   }
 
@@ -140,15 +151,13 @@ async function showFolderPicker(workspaceRoot: vscode.Uri, currentRelativePath: 
   if (!selected) return null;
 
   if (selected.id === '__select__') {
-    return currentRelativePath;
+    return currentPath;
   }
 
   if (selected.id === '__parent__') {
-    const parent = path.posix.dirname(currentRelativePath);
-    const parentPath = parent === '.' || parent === '' ? '.' : parent;
-    return showFolderPicker(workspaceRoot, parentPath);
+    const parent = path.posix.dirname(currentPath);
+    return showFolderPicker(workspaceRoot, isRootPath(parent) ? ROOT_PATH : parent);
   }
 
-  const nextPath = currentRelativePath === '.' ? selected.id : path.posix.join(currentRelativePath, selected.id);
-  return showFolderPicker(workspaceRoot, nextPath);
+  return showFolderPicker(workspaceRoot, joinPath(currentPath, selected.id));
 }
