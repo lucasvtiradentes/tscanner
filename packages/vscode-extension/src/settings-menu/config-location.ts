@@ -248,18 +248,26 @@ async function showFolderPickerQuickPick(
 
   const items: QuickPickItemWithId<string>[] = [];
 
-  items.push({
-    id: '__select__',
-    label: '$(check) Select this Folder',
-    detail: `Use: ${path.posix.join(displayPath, CONFIG_DIR_NAME)}`,
-  });
-
   if (currentRelativePath !== '.') {
+    items.push({
+      id: '__select__',
+      label: '$(check) Select this Folder',
+      detail: `Use: ${path.posix.join(displayPath, CONFIG_DIR_NAME)}`,
+    });
+
     items.push({
       id: '__parent__',
       label: '$(arrow-up) ..',
       detail: 'Go to parent folder',
     });
+
+    if (subfolders.length > 0) {
+      items.push({
+        id: '__separator__',
+        label: '',
+        kind: vscode.QuickPickItemKind.Separator,
+      });
+    }
   }
 
   for (const folder of subfolders.sort()) {
