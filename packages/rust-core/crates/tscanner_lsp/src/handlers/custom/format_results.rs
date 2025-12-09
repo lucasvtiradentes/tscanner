@@ -25,7 +25,7 @@ pub fn handle_format_results(connection: &Connection, req: Request) -> Result<()
         _ => FormattedOutput::build_by_file(&params.root, &params.results, &stats),
     };
 
-    let formatted_output = formatted.to_plain_text(false);
+    let formatted_output = formatted.to_plain_text(true);
 
     let error_count = params
         .results

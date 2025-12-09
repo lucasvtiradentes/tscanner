@@ -167,8 +167,7 @@ export async function copyIssuesBase(params: CopyParams): Promise<void> {
   }
 
   const context = buildContext(params, result.summary.total_issues);
-  const summaryText = `\n\nIssues: ${result.summary.total_issues} (${result.summary.error_count} errors, ${result.summary.warning_count} warnings)\nFiles: ${result.summary.file_count}\nRules: ${result.summary.rule_count}`;
-  const finalText = AI_FIX_PROMPT_HEADER + context + result.output + summaryText + AI_FIX_PROMPT_FOOTER;
+  const finalText = AI_FIX_PROMPT_HEADER + context + result.output.trimEnd() + AI_FIX_PROMPT_FOOTER;
 
   await copyToClipboard(finalText);
   showToastMessage(ToastKind.Info, params.successMessage);
