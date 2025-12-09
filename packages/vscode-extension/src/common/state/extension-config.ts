@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { IS_DEV } from '../constants';
+import { logger } from '../lib/logger';
 import { buildConfigSection, buildFullConfigKey } from '../scripts-constants';
 
 export enum ExtensionConfigKey {
@@ -27,5 +28,7 @@ function getConfigSection(): string {
 
 export function getExtensionConfig<K extends ExtensionConfigKey>(key: K): ExtensionConfigSchema[K] {
   const config = vscode.workspace.getConfiguration(getConfigSection());
-  return config.get<ExtensionConfigSchema[K]>(key) ?? defaultValues[key];
+  const value = config.get<ExtensionConfigSchema[K]>(key) ?? defaultValues[key];
+  logger.debug(`[extension-config] GET ${key} = ${JSON.stringify(value)}`);
+  return value;
 }
