@@ -75,6 +75,12 @@
         "message": "mod.rs should only contain module declarations and re-exports",
         "severity": "error",
         "include": ["**/mod.rs"]
+      },
+      "no-long-files": {
+        "command": "npx tsx scripts/no-long-files.ts",
+        "message": "File exceeds 300 lines limit",
+        "severity": "warning",
+        "include": ["packages/**/*.ts", "packages/**/*.rs"]
       }
     }
   },
