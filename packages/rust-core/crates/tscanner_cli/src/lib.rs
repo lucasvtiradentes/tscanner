@@ -97,26 +97,6 @@ pub enum Commands {
         config_path: PathBuf,
     },
 
-    #[command(about = "Configuration management")]
-    Config {
-        #[arg(long, help = "List all available rules and their status")]
-        rules: bool,
-
-        #[arg(long, help = "Validate the configuration file")]
-        validate: bool,
-
-        #[arg(long, help = "Show the resolved configuration")]
-        show: bool,
-
-        #[arg(
-            long,
-            value_name = "CONFIG_DIR",
-            default_value = ".tscanner",
-            help = "Path to .tscanner folder"
-        )]
-        config_path: PathBuf,
-    },
-
     #[command(about = "Create a default configuration file")]
     Init {
         #[arg(

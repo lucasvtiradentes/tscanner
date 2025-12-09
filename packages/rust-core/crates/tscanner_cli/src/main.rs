@@ -7,7 +7,7 @@ mod commands;
 mod config_loader;
 mod shared;
 
-use commands::{cmd_check, cmd_config, cmd_init};
+use commands::{cmd_check, cmd_init};
 use tscanner_cli::{Cli, Commands};
 use tscanner_service::init_logger;
 
@@ -55,18 +55,6 @@ fn main() -> Result<()> {
                 Some(config_path),
             )
         }
-        Some(Commands::Config {
-            rules,
-            validate,
-            show,
-            config_path,
-        }) => cmd_config(
-            &PathBuf::from("."),
-            rules,
-            validate,
-            show,
-            Some(config_path),
-        ),
         Some(Commands::Init { full }) => cmd_init(&PathBuf::from("."), full),
         Some(Commands::Lsp) => {
             tscanner_service::log_info("LSP server starting");

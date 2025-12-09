@@ -236,34 +236,6 @@ tscanner check --branch origin/main
     <td align="left">Scan only git staged files</td>
   </tr>
   <tr>
-    <td rowspan="4" align="left"><code>config [options]</code></td>
-    <td rowspan="4" align="left">Configuration management</td>
-    <td align="left"><code>--config-path <CONFIG_DIR></code></td>
-    <td align="center">.tscanner</td>
-    <td align="left">Path to .tscanner folder</td>
-  </tr>
-  <tr>
-    <!-- <td align="left"><code>config [options]</code></td> -->
-    <!-- <td align="left">Configuration management</td> -->
-    <td align="left"><code>--rules</code></td>
-    <td align="center">-</td>
-    <td align="left">List all available rules and their status</td>
-  </tr>
-  <tr>
-    <!-- <td align="left"><code>config [options]</code></td> -->
-    <!-- <td align="left">Configuration management</td> -->
-    <td align="left"><code>--show</code></td>
-    <td align="center">-</td>
-    <td align="left">Show the resolved configuration</td>
-  </tr>
-  <tr>
-    <!-- <td align="left"><code>config [options]</code></td> -->
-    <!-- <td align="left">Configuration management</td> -->
-    <td align="left"><code>--validate</code></td>
-    <td align="center">-</td>
-    <td align="left">Validate the configuration file</td>
-  </tr>
-  <tr>
     <td rowspan="1" align="left"><code>init [options]</code></td>
     <td rowspan="1" align="left">Create a default configuration file</td>
     <td align="left"><code>--full</code></td>
