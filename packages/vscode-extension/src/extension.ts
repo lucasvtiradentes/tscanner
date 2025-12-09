@@ -126,19 +126,23 @@ async function startExtension(stateRefs: ExtensionStateRefs): Promise<void> {
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  const workspaceFolder = getCurrentWorkspaceFolder();
-  const currentKey = workspaceFolder?.uri.fsPath || 'no-workspace';
+  const logsEnabled = getExtensionConfig(ExtensionConfigKey.LogsEnabled);
+  initializeLogger(logsEnabled);
+  logger.clear();
 
-  if (activationKey === currentKey) {
+  const workspaceFolder = getCurrentWorkspaceFolder();
+  if (!workspaceFolder) {
+    logger.info(`${EXTENSION_DISPLAY_NAME} extension activated (no workspace open)`);
+    return;
+  }
+
+  if (activationKey === workspaceFolder.uri.fsPath) {
     logger.warn('Extension already activated for this workspace, skipping');
     return;
   }
 
-  activationKey = currentKey;
+  activationKey = workspaceFolder.uri.fsPath;
 
-  const logsEnabled = getExtensionConfig(ExtensionConfigKey.LogsEnabled);
-  initializeLogger(logsEnabled);
-  logger.clear();
   logger.info(`${EXTENSION_DISPLAY_NAME} extension activated`);
 
   setupContextKeys(context);
