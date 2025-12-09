@@ -48,7 +48,7 @@ class CopyScanContext {
   }
 }
 
-export const copyScanContext = new CopyScanContext();
+const copyScanContext = new CopyScanContext();
 
 export function setCopyLspClient(getLspClient: () => TscannerLspClient | null) {
   copyScanContext.setLspClient(getLspClient);

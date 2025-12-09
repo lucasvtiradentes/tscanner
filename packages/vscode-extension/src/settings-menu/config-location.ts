@@ -20,7 +20,7 @@ import {
 import { WorkspaceStateKey, updateState } from '../common/state/workspace-state';
 import type { RegularIssuesView } from '../issues-panel';
 
-export enum ConfigLocation {
+enum ConfigLocation {
   ProjectFolder = 'project-folder',
   CustomPath = 'custom-path',
 }

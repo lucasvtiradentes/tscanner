@@ -3,7 +3,6 @@ import { isAbsolute } from 'node:path';
 import * as jsonc from 'jsonc-parser';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
-import defaultConfig from '../../../../../assets/configs/default.json';
 import { logger } from './logger';
 
 function getWorkspaceHash(workspacePath: string): string {
@@ -14,31 +13,31 @@ function getGlobalConfigDir(context: vscode.ExtensionContext): vscode.Uri {
   return vscode.Uri.joinPath(context.globalStorageUri, 'configs');
 }
 
-export function getGlobalConfigPath(context: vscode.ExtensionContext, workspacePath: string): vscode.Uri {
+function getGlobalConfigPath(context: vscode.ExtensionContext, workspacePath: string): vscode.Uri {
   const workspaceHash = getWorkspaceHash(workspacePath);
   return vscode.Uri.joinPath(getGlobalConfigDir(context), workspaceHash, CONFIG_FILE_NAME);
 }
 
-export function getLocalConfigDir(workspacePath: string): vscode.Uri {
+function getLocalConfigDir(workspacePath: string): vscode.Uri {
   return vscode.Uri.joinPath(vscode.Uri.file(workspacePath), CONFIG_DIR_NAME);
 }
 
-export function getLocalConfigPath(workspacePath: string): vscode.Uri {
+function getLocalConfigPath(workspacePath: string): vscode.Uri {
   return vscode.Uri.joinPath(getLocalConfigDir(workspacePath), CONFIG_FILE_NAME);
 }
 
-export function getCustomConfigDir(workspacePath: string, customConfigDir: string): vscode.Uri {
+function getCustomConfigDir(workspacePath: string, customConfigDir: string): vscode.Uri {
   const customDir = isAbsolute(customConfigDir)
     ? vscode.Uri.file(customConfigDir)
     : vscode.Uri.joinPath(vscode.Uri.file(workspacePath), customConfigDir);
   return vscode.Uri.joinPath(customDir, CONFIG_DIR_NAME);
 }
 
-export function getCustomConfigPath(workspacePath: string, customConfigDir: string): vscode.Uri {
+function getCustomConfigPath(workspacePath: string, customConfigDir: string): vscode.Uri {
   return vscode.Uri.joinPath(getCustomConfigDir(workspacePath, customConfigDir), CONFIG_FILE_NAME);
 }
 
-export async function hasLocalConfig(workspacePath: string): Promise<boolean> {
+async function hasLocalConfig(workspacePath: string): Promise<boolean> {
   const localPath = getLocalConfigPath(workspacePath);
   try {
     await vscode.workspace.fs.stat(localPath);
@@ -67,7 +66,7 @@ async function loadConfig(configPath: vscode.Uri): Promise<TscannerConfig | null
   }
 }
 
-export async function hasCustomConfig(workspacePath: string, customConfigDir: string): Promise<boolean> {
+async function hasCustomConfig(workspacePath: string, customConfigDir: string): Promise<boolean> {
   const customPath = getCustomConfigPath(workspacePath, customConfigDir);
   try {
     await vscode.workspace.fs.stat(customPath);
@@ -108,86 +107,13 @@ export async function loadEffectiveConfig(
   return loadConfig(configPath);
 }
 
-export async function saveGlobalConfig(
-  context: vscode.ExtensionContext,
-  workspacePath: string,
-  config: TscannerConfig,
-): Promise<void> {
-  const configPath = getGlobalConfigPath(context, workspacePath);
-  const configDir = vscode.Uri.joinPath(configPath, '..');
-
-  await vscode.workspace.fs.createDirectory(configDir);
-  await vscode.workspace.fs.writeFile(configPath, Buffer.from(JSON.stringify(config, null, 2)));
-
-  logger.info(`Saved global config for workspace: ${workspacePath} at ${configPath.fsPath}`);
-}
-
-export async function saveLocalConfig(workspacePath: string, config: TscannerConfig): Promise<void> {
-  const localConfigDir = vscode.Uri.joinPath(vscode.Uri.file(workspacePath), CONFIG_DIR_NAME);
-  const localConfigPath = getLocalConfigPath(workspacePath);
-
-  await vscode.workspace.fs.createDirectory(localConfigDir);
-  await vscode.workspace.fs.writeFile(localConfigPath, Buffer.from(JSON.stringify(config, null, 2)));
-
-  logger.info(`Saved local config for workspace: ${workspacePath}`);
-}
-
-export async function saveCustomConfig(
-  workspacePath: string,
-  customConfigDir: string,
-  config: TscannerConfig,
-): Promise<void> {
-  const customPath = getCustomConfigPath(workspacePath, customConfigDir);
-  const customDir = vscode.Uri.joinPath(customPath, '..');
-
-  await vscode.workspace.fs.createDirectory(customDir);
-  await vscode.workspace.fs.writeFile(customPath, Buffer.from(JSON.stringify(config, null, 2)));
-
-  logger.info(`Saved custom config at: ${customPath.fsPath}`);
-}
-
-export function getDefaultConfig(): TscannerConfig {
-  return structuredClone(defaultConfig) as TscannerConfig;
-}
-
-export async function hasGlobalConfig(context: vscode.ExtensionContext, workspacePath: string): Promise<boolean> {
+async function hasGlobalConfig(context: vscode.ExtensionContext, workspacePath: string): Promise<boolean> {
   const globalPath = getGlobalConfigPath(context, workspacePath);
   try {
     await vscode.workspace.fs.stat(globalPath);
     return true;
   } catch {
     return false;
-  }
-}
-
-export async function deleteGlobalConfig(context: vscode.ExtensionContext, workspacePath: string): Promise<void> {
-  const globalPath = getGlobalConfigPath(context, workspacePath);
-  try {
-    await vscode.workspace.fs.delete(globalPath);
-    logger.info(`Deleted global config at ${globalPath.fsPath}`);
-  } catch {
-    logger.debug('No global config to delete');
-  }
-}
-
-export async function deleteLocalConfig(workspacePath: string): Promise<void> {
-  const localDir = vscode.Uri.joinPath(vscode.Uri.file(workspacePath), CONFIG_DIR_NAME);
-  try {
-    await vscode.workspace.fs.delete(localDir, { recursive: true });
-    logger.info(`Deleted local config dir at ${localDir.fsPath}`);
-  } catch {
-    logger.debug('No local config to delete');
-  }
-}
-
-export async function deleteCustomConfig(workspacePath: string, customConfigDir: string): Promise<void> {
-  const configDir = getCustomConfigDir(workspacePath, customConfigDir);
-  logger.info(`Attempting to delete custom config dir at ${configDir.fsPath}`);
-  try {
-    await vscode.workspace.fs.delete(configDir, { recursive: true });
-    logger.info(`Deleted custom config dir at ${configDir.fsPath}`);
-  } catch (err) {
-    logger.debug(`No custom config to delete: ${err}`);
   }
 }
 
