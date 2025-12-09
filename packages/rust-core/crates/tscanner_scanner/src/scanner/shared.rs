@@ -139,15 +139,15 @@ impl Scanner {
 
     pub(crate) fn run_ai_rules_with_context(
         &self,
-        _files: &[PathBuf],
+        file_filter: &[PathBuf],
         changed_lines: Option<&HashMap<PathBuf, HashSet<usize>>>,
     ) -> (Vec<Issue>, Option<String>) {
-        self.run_ai_rules_with_context_and_progress(_files, changed_lines, None)
+        self.run_ai_rules_with_context_and_progress(file_filter, changed_lines, None)
     }
 
     pub(crate) fn run_ai_rules_with_context_and_progress(
         &self,
-        _files: &[PathBuf],
+        file_filter: &[PathBuf],
         changed_lines: Option<&HashMap<PathBuf, HashSet<usize>>>,
         progress_callback: Option<AiProgressCallback>,
     ) -> (Vec<Issue>, Option<String>) {
@@ -156,7 +156,12 @@ impl Scanner {
             return (vec![], None);
         }
 
-        let all_files = self.collect_ai_files(&ai_rules);
+        let all_files = if file_filter.is_empty() {
+            self.collect_ai_files(&ai_rules)
+        } else {
+            self.collect_ai_files_from_filter(&ai_rules, file_filter)
+        };
+
         if all_files.is_empty() {
             return (vec![], None);
         }
@@ -213,6 +218,49 @@ impl Scanner {
                 std::fs::read_to_string(&path)
                     .ok()
                     .map(|content| (path, content))
+            })
+            .collect()
+    }
+
+    pub(crate) fn collect_ai_files_from_filter(
+        &self,
+        ai_rules: &[(String, AiRuleConfig)],
+        file_filter: &[PathBuf],
+    ) -> Vec<(PathBuf, String)> {
+        let needed_patterns: std::collections::HashSet<&str> = ai_rules
+            .iter()
+            .flat_map(|(_, cfg)| cfg.include.iter().map(|s| s.as_str()))
+            .collect();
+
+        if needed_patterns.is_empty() {
+            return vec![];
+        }
+
+        let exclude_patterns: std::collections::HashSet<&str> = ai_rules
+            .iter()
+            .flat_map(|(_, cfg)| cfg.exclude.iter().map(|s| s.as_str()))
+            .collect();
+
+        file_filter
+            .iter()
+            .filter(|path| {
+                if !path.is_file() {
+                    return false;
+                }
+                let relative = path.strip_prefix(&self.root).unwrap_or(path);
+                let relative_str = relative.to_string_lossy();
+                let matches_include = needed_patterns
+                    .iter()
+                    .any(|pattern| glob_match::glob_match(pattern, &relative_str));
+                let matches_exclude = exclude_patterns
+                    .iter()
+                    .any(|pattern| glob_match::glob_match(pattern, &relative_str));
+                matches_include && !matches_exclude
+            })
+            .filter_map(|path| {
+                std::fs::read_to_string(path)
+                    .ok()
+                    .map(|content| (path.clone(), content))
             })
             .collect()
     }
