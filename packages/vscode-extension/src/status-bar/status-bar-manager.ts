@@ -1,11 +1,45 @@
-import { ScanMode, hasConfiguredRules } from 'tscanner-common';
+import { execSync } from 'node:child_process';
+import { ScanMode, type TscannerConfig, hasConfiguredRules } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { getCommandId, getStatusBarName } from '../common/constants';
 import { getConfigDirLabel, loadConfig } from '../common/lib/config-manager';
 import { Command, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
+import { Locator, LocatorSource } from '../locator';
+
+type BinaryInfo = {
+  source: LocatorSource;
+  version: string | null;
+};
+
+const SOURCE_LABELS: Record<LocatorSource, string> = {
+  [LocatorSource.Dev]: 'dev',
+  [LocatorSource.Settings]: 'settings',
+  [LocatorSource.NodeModules]: 'local',
+  [LocatorSource.Global]: 'global',
+  [LocatorSource.Path]: 'PATH',
+};
+
+function getAiProviderLabel(config: TscannerConfig | null): string {
+  if (!config?.ai?.provider) {
+    return 'None';
+  }
+  const provider = config.ai.provider;
+  return provider.charAt(0).toUpperCase() + provider.slice(1);
+}
+
+function getBinaryVersion(binaryPath: string): string | null {
+  try {
+    const output = execSync(`"${binaryPath}" --version`, { encoding: 'utf8', timeout: 5000 });
+    const match = output.match(/(\d+\.\d+\.\d+)/);
+    return match ? match[1] : null;
+  } catch {
+    return null;
+  }
+}
 
 export class StatusBarManager {
   private statusBarItem: vscode.StatusBarItem;
+  private cachedBinaryInfo: BinaryInfo | null = null;
 
   constructor(
     private currentScanModeRef: { current: ScanMode },
@@ -27,8 +61,12 @@ export class StatusBarManager {
     const config = await loadConfig(workspaceFolder.uri.fsPath, configDir);
     const hasConfig = hasConfiguredRules(config);
 
+    if (!this.cachedBinaryInfo) {
+      this.cachedBinaryInfo = await this.loadBinaryInfo(workspaceFolder.uri.fsPath);
+    }
+
     if (hasConfig) {
-      this.showConfigured(configDir);
+      this.showConfigured(configDir, config, this.cachedBinaryInfo);
     } else {
       this.showUnconfigured();
     }
@@ -36,7 +74,19 @@ export class StatusBarManager {
     this.statusBarItem.show();
   }
 
-  private showConfigured(configDir: string | null): void {
+  private async loadBinaryInfo(workspacePath: string): Promise<BinaryInfo> {
+    const locator = new Locator(workspacePath);
+    const result = await locator.locate();
+
+    if (!result) {
+      return { source: LocatorSource.Global, version: null };
+    }
+
+    const version = getBinaryVersion(result.path);
+    return { source: result.source, version };
+  }
+
+  private showConfigured(configDir: string | null, config: TscannerConfig | null, binaryInfo: BinaryInfo): void {
     const icon = '$(shield)';
     const modeText =
       this.currentScanModeRef.current === ScanMode.Codebase
@@ -48,7 +98,22 @@ export class StatusBarManager {
 
     const displayName = getStatusBarName();
     const configLabel = getConfigDirLabel(configDir);
-    this.statusBarItem.tooltip = `${displayName} - Click to change settings\nConfig: ${configLabel}`;
+    const binaryLabel = binaryInfo.version
+      ? `${SOURCE_LABELS[binaryInfo.source]} (v${binaryInfo.version})`
+      : SOURCE_LABELS[binaryInfo.source];
+    const aiProviderLabel = getAiProviderLabel(config);
+
+    const tooltipLines = [
+      displayName,
+      '',
+      `Config: ${configLabel}`,
+      `Binary: ${binaryLabel}`,
+      `AI Provider: ${aiProviderLabel}`,
+      '',
+      'Click to change settings',
+    ];
+
+    this.statusBarItem.tooltip = tooltipLines.join('\n');
   }
 
   private showUnconfigured(): void {
@@ -57,7 +122,20 @@ export class StatusBarManager {
     this.statusBarItem.text = finalText;
 
     const displayName = getStatusBarName();
-    this.statusBarItem.tooltip = `${displayName} - No rules configured. Click to set up.`;
+    const tooltipLines = [
+      displayName,
+      '',
+      'No rules configured.',
+      'Run "tscanner init" to create config.',
+      '',
+      'Click to set up.',
+    ];
+
+    this.statusBarItem.tooltip = tooltipLines.join('\n');
+  }
+
+  clearBinaryCache(): void {
+    this.cachedBinaryInfo = null;
   }
 
   getDisposable(): vscode.Disposable {
