@@ -39,7 +39,7 @@ async function main() {
     if (lineCount > MAX_LINES) {
       issues.push({
         file: file.path,
-        line: 1,
+        line: MAX_LINES + 1,
         message: `File has ${lineCount} lines, exceeds maximum of ${MAX_LINES} lines`,
       });
     }
