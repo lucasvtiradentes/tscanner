@@ -1,53 +1,37 @@
-import { createHash } from 'node:crypto';
 import { isAbsolute } from 'node:path';
 import * as jsonc from 'jsonc-parser';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { logger } from './logger';
 
-function getWorkspaceHash(workspacePath: string): string {
-  return createHash('md5').update(workspacePath).digest('hex').substring(0, 16);
-}
+function getConfigDir(workspacePath: string, configDir: string | null): vscode.Uri {
+  const baseDir = vscode.Uri.file(workspacePath);
 
-function getGlobalConfigDir(context: vscode.ExtensionContext): vscode.Uri {
-  return vscode.Uri.joinPath(context.globalStorageUri, 'configs');
-}
+  if (!configDir) {
+    return vscode.Uri.joinPath(baseDir, CONFIG_DIR_NAME);
+  }
 
-function getGlobalConfigPath(context: vscode.ExtensionContext, workspacePath: string): vscode.Uri {
-  const workspaceHash = getWorkspaceHash(workspacePath);
-  return vscode.Uri.joinPath(getGlobalConfigDir(context), workspaceHash, CONFIG_FILE_NAME);
-}
-
-function getLocalConfigDir(workspacePath: string): vscode.Uri {
-  return vscode.Uri.joinPath(vscode.Uri.file(workspacePath), CONFIG_DIR_NAME);
-}
-
-function getLocalConfigPath(workspacePath: string): vscode.Uri {
-  return vscode.Uri.joinPath(getLocalConfigDir(workspacePath), CONFIG_FILE_NAME);
-}
-
-function getCustomConfigDir(workspacePath: string, customConfigDir: string): vscode.Uri {
-  const customDir = isAbsolute(customConfigDir)
-    ? vscode.Uri.file(customConfigDir)
-    : vscode.Uri.joinPath(vscode.Uri.file(workspacePath), customConfigDir);
+  const customDir = isAbsolute(configDir) ? vscode.Uri.file(configDir) : vscode.Uri.joinPath(baseDir, configDir);
   return vscode.Uri.joinPath(customDir, CONFIG_DIR_NAME);
 }
 
-function getCustomConfigPath(workspacePath: string, customConfigDir: string): vscode.Uri {
-  return vscode.Uri.joinPath(getCustomConfigDir(workspacePath, customConfigDir), CONFIG_FILE_NAME);
+function getConfigPath(workspacePath: string, configDir: string | null): vscode.Uri {
+  return vscode.Uri.joinPath(getConfigDir(workspacePath, configDir), CONFIG_FILE_NAME);
 }
 
-async function hasLocalConfig(workspacePath: string): Promise<boolean> {
-  const localPath = getLocalConfigPath(workspacePath);
+export async function hasConfig(workspacePath: string, configDir: string | null): Promise<boolean> {
+  const configPath = getConfigPath(workspacePath, configDir);
   try {
-    await vscode.workspace.fs.stat(localPath);
+    await vscode.workspace.fs.stat(configPath);
     return true;
   } catch {
     return false;
   }
 }
 
-async function loadConfig(configPath: vscode.Uri): Promise<TscannerConfig | null> {
+export async function loadConfig(workspacePath: string, configDir: string | null): Promise<TscannerConfig | null> {
+  const configPath = getConfigPath(workspacePath, configDir);
+
   try {
     const data = await vscode.workspace.fs.readFile(configPath);
     const content = Buffer.from(data).toString('utf8');
@@ -59,61 +43,11 @@ async function loadConfig(configPath: vscode.Uri): Promise<TscannerConfig | null
       return null;
     }
 
+    logger.debug(`loadConfig: path=${configPath.fsPath}, loaded=true`);
     return config as TscannerConfig;
   } catch (error) {
-    logger.debug(`Failed to load config from ${configPath.fsPath}: ${error}`);
+    logger.debug(`loadConfig: path=${configPath.fsPath}, loaded=false, error=${error}`);
     return null;
-  }
-}
-
-async function hasCustomConfig(workspacePath: string, customConfigDir: string): Promise<boolean> {
-  const customPath = getCustomConfigPath(workspacePath, customConfigDir);
-  try {
-    await vscode.workspace.fs.stat(customPath);
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-async function getEffectiveConfigPath(
-  context: vscode.ExtensionContext,
-  workspacePath: string,
-  customConfigDir?: string | null,
-): Promise<vscode.Uri> {
-  if (customConfigDir) {
-    const hasCustom = await hasCustomConfig(workspacePath, customConfigDir);
-    if (hasCustom) {
-      logger.info(`Using custom config for workspace: ${workspacePath} from ${customConfigDir}`);
-      return getCustomConfigPath(workspacePath, customConfigDir);
-    }
-    logger.info(`Custom config dir set but no config found: ${customConfigDir}`);
-  }
-
-  const hasLocal = await hasLocalConfig(workspacePath);
-  if (hasLocal) {
-    return getLocalConfigPath(workspacePath);
-  }
-
-  return getGlobalConfigPath(context, workspacePath);
-}
-
-export async function loadEffectiveConfig(
-  context: vscode.ExtensionContext,
-  workspacePath: string,
-  customConfigDir?: string | null,
-): Promise<TscannerConfig | null> {
-  const configPath = await getEffectiveConfigPath(context, workspacePath, customConfigDir);
-  return loadConfig(configPath);
-}
-
-async function hasGlobalConfig(context: vscode.ExtensionContext, workspacePath: string): Promise<boolean> {
-  const globalPath = getGlobalConfigPath(context, workspacePath);
-  try {
-    await vscode.workspace.fs.stat(globalPath);
-    return true;
-  } catch {
-    return false;
   }
 }
 
@@ -133,33 +67,13 @@ async function copyDirectoryRecursive(source: vscode.Uri, target: vscode.Uri): P
   }
 }
 
-export async function moveLocalToCustom(workspacePath: string, customConfigDir: string): Promise<void> {
-  const sourceDir = getLocalConfigDir(workspacePath);
-  const targetDir = getCustomConfigDir(workspacePath, customConfigDir);
-
-  await copyDirectoryRecursive(sourceDir, targetDir);
-  await vscode.workspace.fs.delete(sourceDir, { recursive: true });
-
-  logger.info(`Moved config from ${sourceDir.fsPath} to ${targetDir.fsPath}`);
-}
-
-export async function moveCustomToLocal(workspacePath: string, customConfigDir: string): Promise<void> {
-  const sourceDir = getCustomConfigDir(workspacePath, customConfigDir);
-  const targetDir = getLocalConfigDir(workspacePath);
-
-  await copyDirectoryRecursive(sourceDir, targetDir);
-  await vscode.workspace.fs.delete(sourceDir, { recursive: true });
-
-  logger.info(`Moved config from ${sourceDir.fsPath} to ${targetDir.fsPath}`);
-}
-
-export async function moveCustomToCustom(
+export async function moveConfig(
   workspacePath: string,
-  fromCustomDir: string,
-  toCustomDir: string,
+  fromConfigDir: string | null,
+  toConfigDir: string | null,
 ): Promise<void> {
-  const sourceDir = getCustomConfigDir(workspacePath, fromCustomDir);
-  const targetDir = getCustomConfigDir(workspacePath, toCustomDir);
+  const sourceDir = getConfigDir(workspacePath, fromConfigDir);
+  const targetDir = getConfigDir(workspacePath, toConfigDir);
 
   await copyDirectoryRecursive(sourceDir, targetDir);
   await vscode.workspace.fs.delete(sourceDir, { recursive: true });
@@ -167,25 +81,6 @@ export async function moveCustomToCustom(
   logger.info(`Moved config from ${sourceDir.fsPath} to ${targetDir.fsPath}`);
 }
 
-export type ConfigState = {
-  hasCustom: boolean;
-  hasLocal: boolean;
-  hasGlobal: boolean;
-  hasAny: boolean;
-};
-
-export async function getConfigState(
-  context: vscode.ExtensionContext,
-  workspacePath: string,
-  customConfigDir: string | null,
-): Promise<ConfigState> {
-  const hasCustom = customConfigDir ? await hasCustomConfig(workspacePath, customConfigDir) : false;
-  const hasLocal = await hasLocalConfig(workspacePath);
-  const hasGlobal = await hasGlobalConfig(context, workspacePath);
-  return {
-    hasCustom,
-    hasLocal,
-    hasGlobal,
-    hasAny: hasCustom || hasLocal || hasGlobal,
-  };
+export function getConfigDirLabel(configDir: string | null): string {
+  return configDir ? `${configDir}/${CONFIG_DIR_NAME}` : CONFIG_DIR_NAME;
 }

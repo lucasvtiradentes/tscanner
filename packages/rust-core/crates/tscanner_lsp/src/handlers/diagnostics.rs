@@ -29,12 +29,19 @@ pub fn publish_diagnostics(
 
     let issues = match &scan_result {
         Ok(result) => {
+            let filtered: Vec<_> = result
+                .issues
+                .iter()
+                .filter(|issue| issue.file == path)
+                .cloned()
+                .collect();
             log_debug(&format!(
-                "publish_diagnostics: {} issues for {}",
-                result.issues.len(),
-                path.display()
+                "publish_diagnostics: {} issues for {} (filtered from {})",
+                filtered.len(),
+                path.display(),
+                result.issues.len()
             ));
-            result.issues.clone()
+            filtered
         }
         Err(e) => {
             log_debug(&format!("publish_diagnostics error: {:?}", e));

@@ -1,5 +1,5 @@
 import { AiExecutionMode, CONFIG_DIR_NAME, ScanMode, hasConfiguredRules } from 'tscanner-common';
-import { getConfigState, loadEffectiveConfig } from '../../common/lib/config-manager';
+import { getConfigDirLabel, loadConfig } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import {
   Command,
@@ -12,9 +12,8 @@ import {
 import type { CommandContext } from '../../common/state/extension-state';
 import { ContextKey, setContextKey } from '../../common/state/workspace-state';
 import type { AiIssuesView } from '../../issues-panel';
-import { scanBranch } from '../../scanner/branch-scan';
 import { getLspClient } from '../../scanner/client';
-import { scanCodebase } from '../../scanner/codebase-scan';
+import { scan } from '../../scanner/scan';
 
 export function createRefreshCommand() {
   return registerCommand(Command.Refresh, async () => {
@@ -23,8 +22,8 @@ export function createRefreshCommand() {
 }
 
 export function createRefreshAiIssuesCommand(ctx: CommandContext, aiView: AiIssuesView) {
-  const { context, stateRefs } = ctx;
-  const { currentScanModeRef, currentCompareBranchRef, currentCustomConfigDirRef } = stateRefs;
+  const { stateRefs } = ctx;
+  const { currentScanModeRef, currentCompareBranchRef, currentConfigDirRef } = stateRefs;
 
   return registerCommand(Command.RefreshAiIssues, async () => {
     const workspaceFolder = getCurrentWorkspaceFolder();
@@ -39,23 +38,20 @@ export function createRefreshAiIssuesCommand(ctx: CommandContext, aiView: AiIssu
     let progressDisposable: { dispose(): void } | null = null;
 
     try {
-      const customConfigDir = currentCustomConfigDirRef.current;
-      const effectiveConfig = await loadEffectiveConfig(context, workspaceFolder.uri.fsPath, customConfigDir);
-      const configState = await getConfigState(context, workspaceFolder.uri.fsPath, customConfigDir);
+      const configDir = currentConfigDirRef.current;
+      const config = await loadConfig(workspaceFolder.uri.fsPath, configDir);
 
-      if (!hasConfiguredRules(effectiveConfig)) {
+      if (!hasConfiguredRules(config)) {
         aiView.setResults([], true);
         showToastMessage(ToastKind.Warning, 'No rules configured for this workspace');
         return;
       }
 
-      const configToPass = configState.hasLocal && !configState.hasCustom ? undefined : (effectiveConfig ?? undefined);
-      if (configState.hasCustom) {
-        logger.info(`[AI Scan] Using custom config from ${customConfigDir}`);
-      } else if (configState.hasLocal) {
-        logger.info(`[AI Scan] Using local config from ${CONFIG_DIR_NAME}`);
+      const configToPass = configDir ? (config ?? undefined) : undefined;
+      if (configDir) {
+        logger.info(`[AI Scan] Using config from ${getConfigDirLabel(configDir)}`);
       } else {
-        logger.info('[AI Scan] Using global config from extension storage');
+        logger.info(`[AI Scan] Using local config from ${CONFIG_DIR_NAME}`);
       }
 
       logger.info('[AI Scan] Starting AI-only scan...');
@@ -69,10 +65,8 @@ export function createRefreshAiIssuesCommand(ctx: CommandContext, aiView: AiIssu
       }
 
       const startTime = Date.now();
-      const results =
-        currentScanModeRef.current === ScanMode.Branch
-          ? await scanBranch(currentCompareBranchRef.current, undefined, configToPass, AiExecutionMode.Only)
-          : await scanCodebase(undefined, configToPass, AiExecutionMode.Only);
+      const branch = currentScanModeRef.current === ScanMode.Branch ? currentCompareBranchRef.current : undefined;
+      const results = await scan({ branch, config: configToPass, aiMode: AiExecutionMode.Only });
 
       const elapsed = Date.now() - startTime;
       logger.info(`[AI Scan] Completed in ${elapsed}ms, found ${results.length} AI issues`);

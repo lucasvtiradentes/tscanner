@@ -1,6 +1,6 @@
 import { GitHelper, type ModifiedLineRange, ScanMode, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { loadEffectiveConfig } from '../common/lib/config-manager';
+import { loadConfig } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
 import { VscodeGit } from '../common/lib/vscode-git';
 import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
@@ -130,11 +130,7 @@ export async function createFileWatcher(
 
       const document = await vscode.workspace.openTextDocument(uri);
       const content = document.getText();
-      const config = await loadEffectiveConfig(
-        context,
-        workspaceFolder.uri.fsPath,
-        stateRefs.currentCustomConfigDirRef.current,
-      );
+      const config = await loadConfig(workspaceFolder.uri.fsPath, stateRefs.currentConfigDirRef.current);
       const scanResult = await scanContent(uri.fsPath, content, config ?? undefined);
       let newResults = scanResult.issues;
 
@@ -209,11 +205,7 @@ export async function createFileWatcher(
 
   if (workspaceFolder) {
     try {
-      const config = await loadEffectiveConfig(
-        context,
-        workspaceFolder.uri.fsPath,
-        stateRefs.currentCustomConfigDirRef.current,
-      );
+      const config = await loadConfig(workspaceFolder.uri.fsPath, stateRefs.currentConfigDirRef.current);
       watchPattern = buildWatchPattern(config);
       logger.debug(`File watcher pattern: ${watchPattern}`);
     } catch {}

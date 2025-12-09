@@ -11,6 +11,7 @@ import {
   requireWorkspaceOrNull,
   showToastMessage,
 } from '../common/lib/vscode-utils';
+import type { ExtensionStateRefs } from '../common/state/extension-state';
 import { WorkspaceStateKey, updateState } from '../common/state/workspace-state';
 import type { RegularIssuesView } from '../issues-panel';
 
@@ -19,14 +20,19 @@ enum BranchMenuOption {
   ChooseAnother = 'choose-another',
 }
 
-export async function showScanModeMenu(
-  updateStatusBar: () => Promise<void>,
-  currentScanModeRef: { current: ScanMode },
-  currentCompareBranchRef: { current: string },
-  context: vscode.ExtensionContext,
-  regularView: RegularIssuesView,
-) {
+type ScanModeContext = {
+  updateStatusBar: () => Promise<void>;
+  stateRefs: ExtensionStateRefs;
+  context: vscode.ExtensionContext;
+  regularView: RegularIssuesView;
+};
+
+export async function showScanModeMenu(ctx: ScanModeContext) {
+  const { updateStatusBar, stateRefs, context, regularView } = ctx;
+  const { currentScanModeRef, currentCompareBranchRef } = stateRefs;
+
   logger.info('showScanModeMenu called');
+
   const scanModeItems: QuickPickItemWithId<ScanMode>[] = [
     {
       id: ScanMode.Codebase,
@@ -47,26 +53,21 @@ export async function showScanModeMenu(
     ignoreFocusOut: false,
   });
 
-  if (!selected) {
-    return;
-  }
+  if (!selected) return;
 
   if (selected.id === ScanMode.Codebase) {
-    await handleCodebaseScan(updateStatusBar, currentScanModeRef, currentCompareBranchRef, context, regularView);
+    await handleCodebaseScan(ctx);
   }
 
   if (selected.id === ScanMode.Branch) {
-    await handleBranchScan(updateStatusBar, currentScanModeRef, currentCompareBranchRef, context, regularView);
+    await handleBranchScan(ctx);
   }
 }
 
-async function handleCodebaseScan(
-  updateStatusBar: () => Promise<void>,
-  currentScanModeRef: { current: ScanMode },
-  currentCompareBranchRef: { current: string },
-  context: vscode.ExtensionContext,
-  regularView: RegularIssuesView,
-) {
+async function handleCodebaseScan(ctx: ScanModeContext) {
+  const { updateStatusBar, stateRefs, context, regularView } = ctx;
+  const { currentScanModeRef, currentCompareBranchRef } = stateRefs;
+
   logger.info('Switching to Codebase mode');
   regularView.setResults([]);
   currentScanModeRef.current = ScanMode.Codebase;
@@ -76,13 +77,10 @@ async function handleCodebaseScan(
   executeCommand(Command.FindIssue);
 }
 
-async function handleBranchScan(
-  updateStatusBar: () => Promise<void>,
-  currentScanModeRef: { current: ScanMode },
-  currentCompareBranchRef: { current: string },
-  context: vscode.ExtensionContext,
-  regularView: RegularIssuesView,
-) {
+async function handleBranchScan(ctx: ScanModeContext) {
+  const { updateStatusBar, stateRefs, context, regularView } = ctx;
+  const { currentScanModeRef, currentCompareBranchRef } = stateRefs;
+
   const workspaceFolder = requireWorkspaceOrNull();
   if (!workspaceFolder) return;
 
@@ -122,7 +120,6 @@ async function handleBranchScan(
     }
 
     const otherBranches = branches.filter((b) => b !== currentBranch);
-
     const localBranches = otherBranches.filter((b) => !b.startsWith('origin/'));
     const remoteBranches = otherBranches.filter((b) => b.startsWith('origin/'));
 
