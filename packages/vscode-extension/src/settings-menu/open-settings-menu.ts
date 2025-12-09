@@ -5,13 +5,12 @@ import { logger } from '../common/lib/logger';
 import { Command, type QuickPickItemWithId, registerCommand, requireWorkspaceOrNull } from '../common/lib/vscode-utils';
 import type { CommandContext } from '../common/state/extension-state';
 import type { RegularIssuesView } from '../issues-panel';
-import { getCurrentLocationLabel, openConfigFile, showConfigLocationMenu } from './config-location';
+import { getCurrentLocationLabel, showConfigLocationMenu } from './config-location';
 import { showScanModeMenu } from './scan-mode';
 
 enum SettingsMenuOption {
   ManageScanMode = 'manage-scan-mode',
   ManageConfigLocation = 'manage-config-location',
-  OpenConfigFile = 'open-config-file',
 }
 
 export function createOpenSettingsMenuCommand(ctx: CommandContext, regularView: RegularIssuesView) {
@@ -48,11 +47,6 @@ export function createOpenSettingsMenuCommand(ctx: CommandContext, regularView: 
           label: '$(folder) Manage Config Location',
           detail: currentLocationLabel,
         },
-        {
-          id: SettingsMenuOption.OpenConfigFile,
-          label: '$(edit) Open Config File',
-          detail: 'Edit current config file',
-        },
       );
     }
 
@@ -71,9 +65,6 @@ export function createOpenSettingsMenuCommand(ctx: CommandContext, regularView: 
         break;
       case SettingsMenuOption.ManageConfigLocation:
         await showConfigLocationMenu(updateStatusBar, currentCustomConfigDirRef, context, regularView);
-        break;
-      case SettingsMenuOption.OpenConfigFile:
-        await openConfigFile(context, currentCustomConfigDirRef.current);
         break;
     }
   });

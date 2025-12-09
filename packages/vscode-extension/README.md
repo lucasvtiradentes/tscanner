@@ -366,7 +366,7 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 <div align="left">
 
 - **Scan Settings**: Choose workspace or branch mode, select target branch
-- **Config Files**: Edit `.tscanner/config.jsonc` or create from template
+- **Config Location**: Change where the config file is stored
 
 </div>
 

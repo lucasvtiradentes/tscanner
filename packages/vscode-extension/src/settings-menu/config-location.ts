@@ -1,5 +1,5 @@
 import * as path from 'node:path';
-import { CONFIG_DIR_NAME, PACKAGE_DISPLAY_NAME } from 'tscanner-common';
+import { CONFIG_DIR_NAME } from 'tscanner-common';
 import * as vscode from 'vscode';
 import {
   type ConfigState,
@@ -7,9 +7,6 @@ import {
   deleteGlobalConfig,
   deleteLocalConfig,
   getConfigState,
-  getCustomConfigPath,
-  getGlobalConfigPath,
-  getLocalConfigPath,
   hasCustomConfig,
   hasGlobalConfig,
   hasLocalConfig,
@@ -25,7 +22,6 @@ import {
   ToastKind,
   executeCommand,
   getCurrentWorkspaceFolder,
-  openTextDocument,
   showToastMessage,
 } from '../common/lib/vscode-utils';
 import { WorkspaceStateKey, updateState } from '../common/state/workspace-state';
@@ -60,51 +56,6 @@ function getCurrentConfigLocation(hasCustom: boolean, hasLocal: boolean, hasGlob
   if (hasLocal) return ConfigLocation.ProjectFolder;
   if (hasGlobal) return ConfigLocation.ExtensionStorage;
   return null;
-}
-
-export async function openConfigFile(context: vscode.ExtensionContext, customConfigDir: string | null) {
-  const workspaceFolder = getCurrentWorkspaceFolder();
-
-  if (!workspaceFolder) {
-    showToastMessage(ToastKind.Error, 'No workspace folder open');
-    return;
-  }
-
-  const workspacePath = workspaceFolder.uri.fsPath;
-
-  if (customConfigDir) {
-    const hasCustom = await hasCustomConfig(workspacePath, customConfigDir);
-    if (hasCustom) {
-      const customConfigPath = getCustomConfigPath(workspacePath, customConfigDir);
-      const doc = await openTextDocument(customConfigPath);
-      await vscode.window.showTextDocument(doc);
-      return;
-    }
-    logger.info('Custom config not found, falling back to local/global');
-  }
-
-  const hasLocal = await hasLocalConfig(workspacePath);
-  if (hasLocal) {
-    const localConfigPath = getLocalConfigPath(workspacePath);
-    const doc = await openTextDocument(localConfigPath);
-    await vscode.window.showTextDocument(doc);
-    return;
-  }
-
-  logger.info('Local config not found, trying global config');
-
-  const hasGlobal = await hasGlobalConfig(context, workspacePath);
-  if (hasGlobal) {
-    const globalConfigPath = getGlobalConfigPath(context, workspacePath);
-    const doc = await openTextDocument(globalConfigPath);
-    await vscode.window.showTextDocument(doc);
-    return;
-  }
-
-  showToastMessage(
-    ToastKind.Error,
-    `No ${PACKAGE_DISPLAY_NAME} configuration found. Run "tscanner init" to create one.`,
-  );
 }
 
 export async function showConfigLocationMenu(
