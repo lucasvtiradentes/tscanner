@@ -3,14 +3,12 @@ import { CONFIG_DIR_NAME } from 'tscanner-common';
 import * as vscode from 'vscode';
 import {
   type ConfigState,
-  deleteCustomConfig,
-  deleteLocalConfig,
   getConfigState,
   hasCustomConfig,
   hasLocalConfig,
-  loadEffectiveConfig,
-  saveCustomConfig,
-  saveLocalConfig,
+  moveCustomToCustom,
+  moveCustomToLocal,
+  moveLocalToCustom,
 } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
 import {
@@ -186,43 +184,32 @@ async function moveConfigToLocation(
   const toLabel = getLocationLabel(toLocation, customPath);
 
   const confirm = await vscode.window.showWarningMessage(
-    `Move config from "${fromLabel}" to "${toLabel}/${CONFIG_DIR_NAME}"?`,
+    `Move config folder from "${fromLabel}" to "${toLabel}/${CONFIG_DIR_NAME}"?`,
     { modal: true },
     'Move',
   );
 
   if (confirm !== 'Move') return;
 
-  const config = await loadEffectiveConfig(context, workspacePath, currentCustomConfigDirRef.current);
-  if (!config) {
-    showToastMessage(ToastKind.Error, 'Failed to load current config');
-    return;
-  }
-
-  switch (fromLocation) {
-    case ConfigLocation.ProjectFolder:
-      await deleteLocalConfig(workspacePath);
-      break;
-    case ConfigLocation.CustomPath:
-      if (currentCustomConfigDirRef.current) {
-        await deleteCustomConfig(workspacePath, currentCustomConfigDirRef.current);
-      }
-      break;
-  }
-
-  switch (toLocation) {
-    case ConfigLocation.ProjectFolder:
-      await saveLocalConfig(workspacePath, config);
-      currentCustomConfigDirRef.current = null;
-      updateState(context, WorkspaceStateKey.CustomConfigDir, null);
-      break;
-    case ConfigLocation.CustomPath:
-      if (customPath) {
-        await saveCustomConfig(workspacePath, customPath, config);
-        currentCustomConfigDirRef.current = customPath;
-        updateState(context, WorkspaceStateKey.CustomConfigDir, customPath);
-      }
-      break;
+  if (fromLocation === ConfigLocation.ProjectFolder && toLocation === ConfigLocation.CustomPath && customPath) {
+    await moveLocalToCustom(workspacePath, customPath);
+    currentCustomConfigDirRef.current = customPath;
+    updateState(context, WorkspaceStateKey.CustomConfigDir, customPath);
+  } else if (fromLocation === ConfigLocation.CustomPath && toLocation === ConfigLocation.ProjectFolder) {
+    if (currentCustomConfigDirRef.current) {
+      await moveCustomToLocal(workspacePath, currentCustomConfigDirRef.current);
+    }
+    currentCustomConfigDirRef.current = null;
+    updateState(context, WorkspaceStateKey.CustomConfigDir, null);
+  } else if (
+    fromLocation === ConfigLocation.CustomPath &&
+    toLocation === ConfigLocation.CustomPath &&
+    currentCustomConfigDirRef.current &&
+    customPath
+  ) {
+    await moveCustomToCustom(workspacePath, currentCustomConfigDirRef.current, customPath);
+    currentCustomConfigDirRef.current = customPath;
+    updateState(context, WorkspaceStateKey.CustomConfigDir, customPath);
   }
 
   regularView.setResults([]);

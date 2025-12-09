@@ -19,15 +19,23 @@ export function getGlobalConfigPath(context: vscode.ExtensionContext, workspaceP
   return vscode.Uri.joinPath(getGlobalConfigDir(context), workspaceHash, CONFIG_FILE_NAME);
 }
 
-export function getLocalConfigPath(workspacePath: string): vscode.Uri {
-  return vscode.Uri.joinPath(vscode.Uri.file(workspacePath), CONFIG_DIR_NAME, CONFIG_FILE_NAME);
+export function getLocalConfigDir(workspacePath: string): vscode.Uri {
+  return vscode.Uri.joinPath(vscode.Uri.file(workspacePath), CONFIG_DIR_NAME);
 }
 
-export function getCustomConfigPath(workspacePath: string, customConfigDir: string): vscode.Uri {
+export function getLocalConfigPath(workspacePath: string): vscode.Uri {
+  return vscode.Uri.joinPath(getLocalConfigDir(workspacePath), CONFIG_FILE_NAME);
+}
+
+export function getCustomConfigDir(workspacePath: string, customConfigDir: string): vscode.Uri {
   const customDir = isAbsolute(customConfigDir)
     ? vscode.Uri.file(customConfigDir)
     : vscode.Uri.joinPath(vscode.Uri.file(workspacePath), customConfigDir);
-  return vscode.Uri.joinPath(customDir, CONFIG_DIR_NAME, CONFIG_FILE_NAME);
+  return vscode.Uri.joinPath(customDir, CONFIG_DIR_NAME);
+}
+
+export function getCustomConfigPath(workspacePath: string, customConfigDir: string): vscode.Uri {
+  return vscode.Uri.joinPath(getCustomConfigDir(workspacePath, customConfigDir), CONFIG_FILE_NAME);
 }
 
 export async function hasLocalConfig(workspacePath: string): Promise<boolean> {
@@ -173,8 +181,7 @@ export async function deleteLocalConfig(workspacePath: string): Promise<void> {
 }
 
 export async function deleteCustomConfig(workspacePath: string, customConfigDir: string): Promise<void> {
-  const customPath = getCustomConfigPath(workspacePath, customConfigDir);
-  const configDir = vscode.Uri.joinPath(customPath, '..');
+  const configDir = getCustomConfigDir(workspacePath, customConfigDir);
   logger.info(`Attempting to delete custom config dir at ${configDir.fsPath}`);
   try {
     await vscode.workspace.fs.delete(configDir, { recursive: true });
@@ -182,6 +189,56 @@ export async function deleteCustomConfig(workspacePath: string, customConfigDir:
   } catch (err) {
     logger.debug(`No custom config to delete: ${err}`);
   }
+}
+
+async function copyDirectoryRecursive(source: vscode.Uri, target: vscode.Uri): Promise<void> {
+  await vscode.workspace.fs.createDirectory(target);
+
+  const entries = await vscode.workspace.fs.readDirectory(source);
+  for (const [name, type] of entries) {
+    const sourceEntry = vscode.Uri.joinPath(source, name);
+    const targetEntry = vscode.Uri.joinPath(target, name);
+
+    if (type === vscode.FileType.Directory) {
+      await copyDirectoryRecursive(sourceEntry, targetEntry);
+    } else {
+      await vscode.workspace.fs.copy(sourceEntry, targetEntry, { overwrite: true });
+    }
+  }
+}
+
+export async function moveLocalToCustom(workspacePath: string, customConfigDir: string): Promise<void> {
+  const sourceDir = getLocalConfigDir(workspacePath);
+  const targetDir = getCustomConfigDir(workspacePath, customConfigDir);
+
+  await copyDirectoryRecursive(sourceDir, targetDir);
+  await vscode.workspace.fs.delete(sourceDir, { recursive: true });
+
+  logger.info(`Moved config from ${sourceDir.fsPath} to ${targetDir.fsPath}`);
+}
+
+export async function moveCustomToLocal(workspacePath: string, customConfigDir: string): Promise<void> {
+  const sourceDir = getCustomConfigDir(workspacePath, customConfigDir);
+  const targetDir = getLocalConfigDir(workspacePath);
+
+  await copyDirectoryRecursive(sourceDir, targetDir);
+  await vscode.workspace.fs.delete(sourceDir, { recursive: true });
+
+  logger.info(`Moved config from ${sourceDir.fsPath} to ${targetDir.fsPath}`);
+}
+
+export async function moveCustomToCustom(
+  workspacePath: string,
+  fromCustomDir: string,
+  toCustomDir: string,
+): Promise<void> {
+  const sourceDir = getCustomConfigDir(workspacePath, fromCustomDir);
+  const targetDir = getCustomConfigDir(workspacePath, toCustomDir);
+
+  await copyDirectoryRecursive(sourceDir, targetDir);
+  await vscode.workspace.fs.delete(sourceDir, { recursive: true });
+
+  logger.info(`Moved config from ${sourceDir.fsPath} to ${targetDir.fsPath}`);
 }
 
 export type ConfigState = {
