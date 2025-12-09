@@ -401,7 +401,8 @@ impl AiExecutor {
 
         self.save_prompt_to_tmp(rule_name, &full_prompt);
 
-        let timeout = rule_config.timeout.unwrap_or(ai_config.timeout);
+        let timeout_secs = rule_config.timeout.unwrap_or(ai_config.timeout);
+        let timeout_ms = timeout_secs * 1000;
         let (program, args) =
             resolve_provider_command(ai_config.provider.as_ref(), ai_config.command.as_deref())
                 .map_err(AiError::InvalidOutput)?;
@@ -413,15 +414,16 @@ impl AiExecutor {
         };
 
         (self.log_debug)(&format!(
-            "AI rule '{}': calling {} with {} files, mode={} (timeout: {}ms)",
+            "AI rule '{}': calling {} with {} files, mode={} (timeout: {}s)",
             rule_name,
             program,
             files.len(),
             mode_str,
-            timeout
+            timeout_secs
         ));
 
-        let response = self.spawn_ai_command(&program, &args, &full_prompt, timeout, cancelled)?;
+        let response =
+            self.spawn_ai_command(&program, &args, &full_prompt, timeout_ms, cancelled)?;
 
         if cancelled.load(Ordering::SeqCst) {
             return Ok(vec![]);

@@ -7,7 +7,7 @@
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": false,
-    "scanIntervalSeconds": 0,
-    "aiScanIntervalSeconds": 0
+    "scanInterval": 0,
+    "aiScanInterval": 0
   }
 }

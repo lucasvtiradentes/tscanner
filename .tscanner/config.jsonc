@@ -125,12 +125,12 @@
   },
   "ai": {
     "provider": "claude",
-    "timeout": 180000
+    "timeout": 180
   },
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": true,
-    "scanIntervalSeconds": 0,
-    "aiScanIntervalSeconds": 0
+    "scanInterval": 0,
+    "aiScanInterval": 0
   }
 }

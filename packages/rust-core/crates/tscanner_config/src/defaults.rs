@@ -90,8 +90,8 @@ pub fn default_highlight_warnings() -> bool {
     default_code_editor_config().highlight_warnings
 }
 
-pub fn default_scan_interval_seconds() -> u32 {
-    default_code_editor_config().scan_interval_seconds
+pub fn default_scan_interval() -> u32 {
+    default_code_editor_config().scan_interval
 }
 
 pub fn default_files_config() -> FilesConfig {
@@ -117,14 +117,14 @@ pub fn default_severity() -> Severity {
 }
 
 pub fn default_script_timeout() -> u64 {
-    10000
+    10
 }
 
 pub fn default_ai_timeout() -> u64 {
-    120000
+    120
 }
 
-pub fn default_ai_scan_interval_seconds() -> u32 {
+pub fn default_ai_scan_interval() -> u32 {
     0
 }
 

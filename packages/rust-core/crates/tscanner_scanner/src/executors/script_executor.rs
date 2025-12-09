@@ -277,7 +277,7 @@ impl ScriptExecutor {
         let input_clone = input.to_vec();
         let write_handle = std::thread::spawn(move || stdin.write_all(&input_clone));
 
-        let timeout = Duration::from_millis(rule_config.timeout);
+        let timeout = Duration::from_secs(rule_config.timeout);
         let start = Instant::now();
 
         loop {

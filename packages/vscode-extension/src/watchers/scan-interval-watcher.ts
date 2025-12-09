@@ -25,15 +25,15 @@ export async function setupScanInterval(
     stateRefs.currentCustomConfigDirRef.current,
   );
 
-  const scanIntervalSeconds = config?.codeEditor?.scanIntervalSeconds ?? 0;
+  const scanInterval = config?.codeEditor?.scanInterval ?? 0;
 
-  if (scanIntervalSeconds <= 0) {
-    logger.info('Auto-scan interval disabled (scanIntervalSeconds = 0)');
+  if (scanInterval <= 0) {
+    logger.info('Auto-scan interval disabled (scanInterval = 0)');
     return;
   }
 
-  const intervalMs = scanIntervalSeconds * 1000;
-  logger.info(`Setting up auto-scan interval: ${scanIntervalSeconds} seconds`);
+  const intervalMs = scanInterval * 1000;
+  logger.info(`Setting up auto-scan interval: ${scanInterval} seconds`);
 
   scanIntervalTimer = setInterval(() => {
     if (stateRefs.isSearchingRef.current) {

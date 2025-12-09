@@ -22,8 +22,8 @@
           "description": "AI provider to use (claude, gemini, custom)"
         },
         "timeout": {
-          "default": 120000,
-          "description": "Timeout in milliseconds for AI calls (default: 120000)",
+          "default": 120,
+          "description": "Timeout in seconds for AI calls (default: 120)",
           "format": "uint64",
           "minimum": 0.0,
           "type": "integer"
@@ -95,7 +95,7 @@
           "description": "Severity level (default: warning)"
         },
         "timeout": {
-          "description": "Override timeout for this rule in milliseconds",
+          "description": "Override timeout for this rule in seconds",
           "format": "uint64",
           "minimum": 0.0,
           "type": [
@@ -1645,7 +1645,7 @@
     },
     "CodeEditorConfig": {
       "properties": {
-        "aiScanIntervalSeconds": {
+        "aiScanInterval": {
           "default": 0,
           "description": "Auto-scan interval for AI rules in seconds (0 = disabled). Runs only AI rules on a separate schedule.",
           "format": "uint32",
@@ -1662,7 +1662,7 @@
           "description": "Highlight warning issues in the code editor",
           "type": "boolean"
         },
-        "scanIntervalSeconds": {
+        "scanInterval": {
           "default": 0,
           "description": "Auto-scan interval in seconds (0 = disabled, only manual/on-save scans)",
           "format": "uint32",
@@ -1932,8 +1932,8 @@
           "description": "Severity level (default: warning)"
         },
         "timeout": {
-          "default": 10000,
-          "description": "Script timeout in milliseconds (default: 10000)",
+          "default": 10,
+          "description": "Script timeout in seconds (default: 10)",
           "format": "uint64",
           "minimum": 0.0,
           "type": "integer"

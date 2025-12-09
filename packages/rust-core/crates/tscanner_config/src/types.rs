@@ -6,10 +6,9 @@ use std::path::Path;
 use tscanner_diagnostics::Severity;
 
 use crate::defaults::{
-    default_ai_scan_interval_seconds, default_ai_timeout, default_code_editor_config,
-    default_exclude, default_files_config, default_highlight_errors, default_highlight_warnings,
-    default_include, default_scan_interval_seconds, default_script_timeout, default_severity,
-    default_true,
+    default_ai_scan_interval, default_ai_timeout, default_code_editor_config, default_exclude,
+    default_files_config, default_highlight_errors, default_highlight_warnings, default_include,
+    default_scan_interval, default_script_timeout, default_severity, default_true,
 };
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Default)]
@@ -71,7 +70,7 @@ pub struct AiConfig {
     pub command: Option<String>,
 
     #[serde(default = "default_ai_timeout")]
-    #[schemars(description = "Timeout in milliseconds for AI calls (default: 120000)")]
+    #[schemars(description = "Timeout in seconds for AI calls (default: 120)")]
     pub timeout: u64,
 }
 
@@ -92,19 +91,19 @@ pub struct CodeEditorConfig {
     )]
     pub highlight_warnings: bool,
 
-    #[serde(default = "default_scan_interval_seconds")]
+    #[serde(default = "default_scan_interval")]
     #[schemars(
-        default = "default_scan_interval_seconds",
+        default = "default_scan_interval",
         description = "Auto-scan interval in seconds (0 = disabled, only manual/on-save scans)"
     )]
-    pub scan_interval_seconds: u32,
+    pub scan_interval: u32,
 
-    #[serde(default = "default_ai_scan_interval_seconds")]
+    #[serde(default = "default_ai_scan_interval")]
     #[schemars(
-        default = "default_ai_scan_interval_seconds",
+        default = "default_ai_scan_interval",
         description = "Auto-scan interval for AI rules in seconds (0 = disabled). Runs only AI rules on a separate schedule."
     )]
-    pub ai_scan_interval_seconds: u32,
+    pub ai_scan_interval: u32,
 }
 
 impl Default for CodeEditorConfig {
@@ -266,7 +265,7 @@ pub struct ScriptRuleConfig {
     pub exclude: Vec<String>,
 
     #[serde(default = "default_script_timeout")]
-    #[schemars(description = "Script timeout in milliseconds (default: 10000)")]
+    #[schemars(description = "Script timeout in seconds (default: 10)")]
     pub timeout: u64,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -283,7 +282,7 @@ impl Default for ScriptRuleConfig {
             enabled: true,
             include: Vec::new(),
             exclude: Vec::new(),
-            timeout: 10000,
+            timeout: 10,
             options: None,
         }
     }
@@ -321,7 +320,7 @@ pub struct AiRuleConfig {
     pub exclude: Vec<String>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "Override timeout for this rule in milliseconds")]
+    #[schemars(description = "Override timeout for this rule in seconds")]
     pub timeout: Option<u64>,
 }
 

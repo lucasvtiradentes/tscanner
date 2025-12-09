@@ -269,7 +269,7 @@ Use AI prompts to perform semantic code analysis:
   },
   "ai": {
     "provider": "claude",
-    "timeout": 120000
+    "timeout": 120
   }
 }
 \`\`\`

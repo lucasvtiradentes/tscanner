@@ -67,7 +67,7 @@
   },
   "ai": {
     "provider": "claude",
-    "timeout": 120000
+    "timeout": 120
   },
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
@@ -76,7 +76,7 @@
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": false,
-    "scanIntervalSeconds": 0,
-    "aiScanIntervalSeconds": 0
+    "scanInterval": 0,
+    "aiScanInterval": 0
   }
 }

@@ -299,8 +299,8 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": false,
-    "scanIntervalSeconds": 0,
-    "aiScanIntervalSeconds": 0
+    "scanInterval": 0,
+    "aiScanInterval": 0
   }
 }
 ```
@@ -876,7 +876,7 @@ Use AI prompts to perform semantic code analysis:
   },
   "ai": {
     "provider": "claude",
-    "timeout": 120000
+    "timeout": 120
   }
 }
 ```
