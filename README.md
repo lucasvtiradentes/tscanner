@@ -144,8 +144,6 @@ TScanner lets you define those rules once. Every AI-generated file, every PR, ev
 
 ## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-TScanner is available as a [VSCode Extension](packages/vscode-extension#readme), [CLI](packages/cli#readme), and [GitHub Action](packages/github-action#readme).
-
 <!-- <DYNFIELD:QUICK_START_INSTALL> -->
 1. Install locally
 
