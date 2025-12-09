@@ -32,6 +32,27 @@ pub enum AiProvider {
     Custom,
 }
 
+impl AiProvider {
+    pub const ALL: &'static [AiProvider] =
+        &[AiProvider::Claude, AiProvider::Gemini, AiProvider::Custom];
+
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            AiProvider::Claude => "claude",
+            AiProvider::Gemini => "gemini",
+            AiProvider::Custom => "custom",
+        }
+    }
+
+    pub fn all_names() -> String {
+        Self::ALL
+            .iter()
+            .map(|p| p.as_str())
+            .collect::<Vec<_>>()
+            .join(", ")
+    }
+}
+
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum AiExecutionMode {

@@ -14,7 +14,7 @@ use crate::shared::{
 use tscanner_cache::FileCache;
 use tscanner_cli::{CliGroupMode, OutputFormat};
 use tscanner_config::{
-    app_name, config_dir_name, config_file_name, AiExecutionMode, CliConfig, CliGroupBy,
+    app_name, config_dir_name, config_file_name, AiExecutionMode, AiProvider, CliConfig, CliGroupBy,
 };
 use tscanner_diagnostics::GroupMode;
 use tscanner_scanner::{
@@ -126,6 +126,22 @@ pub fn cmd_check(
 
     let config_hash = config.compute_hash();
     let ai_provider = config.ai.as_ref().and_then(|ai| ai.provider);
+
+    if ai_provider.is_none() && effective_ai_mode != AiExecutionMode::Ignore {
+        eprintln!(
+            "{}",
+            "Error: AI rules enabled but no provider configured"
+                .red()
+                .bold()
+        );
+        eprintln!();
+        eprintln!("Add a provider to your config file:");
+        eprintln!("  {}", "\"ai\": { \"provider\": \"claude\" }".yellow());
+        eprintln!();
+        eprintln!("Available providers: {}", AiProvider::all_names().cyan());
+        std::process::exit(1);
+    }
+
     let (builtin_count, regex_count, script_count, ai_count) =
         config.count_enabled_rules_breakdown();
     let rules_breakdown = match effective_ai_mode {
