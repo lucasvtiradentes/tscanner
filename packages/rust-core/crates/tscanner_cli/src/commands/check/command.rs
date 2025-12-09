@@ -8,8 +8,7 @@ use std::sync::{Arc, Mutex};
 
 use crate::config_loader::load_config_with_custom;
 use crate::shared::{
-    compute_triggered_breakdown, format_duration, render_header, render_summary, RulesBreakdown,
-    ScanConfig, ScanMode, SummaryStats,
+    format_duration, render_header, CliOutput, RulesBreakdown, ScanConfig, ScanMode, SummaryStats,
 };
 use tscanner_cache::FileCache;
 use tscanner_cli::{CliGroupMode, OutputFormat};
@@ -348,6 +347,11 @@ pub fn cmd_check(
     let stats = SummaryStats::from_result(&result, total_enabled_rules, rules_breakdown);
 
     if result.files.is_empty() && !is_json {
+        let cli_output = match effective_group_mode {
+            GroupMode::File => CliOutput::build_by_file(&root, &result, &stats),
+            GroupMode::Rule => CliOutput::build_by_rule(&root, &result, &stats),
+        };
+
         println!();
         println!("{}", "Results:".cyan().bold());
         println!();
@@ -366,24 +370,28 @@ pub fn cmd_check(
 
         println!();
         if cli_options.show_summary {
-            let triggered_breakdown = compute_triggered_breakdown(&result);
-            render_summary(&result, &stats, &triggered_breakdown);
+            render_summary_from_output(cli_output.summary());
         }
 
         if let Some(ref json_path) = json_output {
-            write_json_output(json_path, &root, &effective_group_mode, &result, &stats)?;
+            write_json_output(json_path, &cli_output)?;
         }
 
         return Ok(());
     }
 
-    let ctx = CheckContext::new(root.clone(), effective_group_mode.clone(), cli_options);
+    let cli_output = match effective_group_mode {
+        GroupMode::File => CliOutput::build_by_file(&root, &result, &stats),
+        GroupMode::Rule => CliOutput::build_by_rule(&root, &result, &stats),
+    };
+
+    let ctx = CheckContext::new(cli_options);
 
     let renderer = output::get_renderer(&output_format);
-    renderer.render(&ctx, &result, &stats);
+    renderer.render(&ctx, &cli_output, &result);
 
     if let Some(ref json_path) = json_output {
-        write_json_output(json_path, &root, &effective_group_mode, &result, &stats)?;
+        write_json_output(json_path, &cli_output)?;
     }
 
     log_info(&format!(
@@ -398,14 +406,8 @@ pub fn cmd_check(
     Ok(())
 }
 
-fn write_json_output(
-    json_path: &Path,
-    root: &Path,
-    group_mode: &GroupMode,
-    result: &tscanner_diagnostics::ScanResult,
-    stats: &SummaryStats,
-) -> Result<()> {
-    if let Some(json_str) = output::JsonRenderer::to_json_string(root, group_mode, result, stats) {
+fn write_json_output(json_path: &Path, output: &CliOutput) -> Result<()> {
+    if let Some(json_str) = output.to_json() {
         fs::write(json_path, json_str)
             .context(format!("Failed to write JSON output to {:?}", json_path))?;
         log_info(&format!(
@@ -414,6 +416,59 @@ fn write_json_output(
         ));
     }
     Ok(())
+}
+
+fn render_summary_from_output(summary: &crate::shared::OutputSummary) {
+    println!("{}", "Summary:".cyan().bold());
+    println!();
+    println!(
+        "  {} {} ({} errors, {} warnings)",
+        "Issues:".dimmed(),
+        summary.total_issues.to_string().cyan(),
+        summary.errors.to_string().red(),
+        summary.warnings.to_string().yellow()
+    );
+
+    let breakdown = &summary.triggered_rules_breakdown;
+    let breakdown_parts: Vec<String> = [
+        (breakdown.builtin, "builtin"),
+        (breakdown.regex, "regex"),
+        (breakdown.script, "script"),
+        (breakdown.ai, "ai"),
+    ]
+    .iter()
+    .filter(|(count, _)| *count > 0)
+    .map(|(count, label)| format!("{} {}", count, label))
+    .collect();
+
+    let breakdown_str = if breakdown_parts.is_empty() {
+        String::new()
+    } else {
+        format!(" ({})", breakdown_parts.join(", "))
+    };
+
+    println!(
+        "  {} {}/{}{}",
+        "Triggered rules:".dimmed(),
+        summary.triggered_rules.to_string().cyan(),
+        summary.total_enabled_rules,
+        breakdown_str
+    );
+
+    println!(
+        "  {} {}/{}",
+        "Files with issues:".dimmed(),
+        summary.files_with_issues.to_string().cyan(),
+        summary.total_files
+    );
+
+    println!(
+        "  {} {}",
+        "Duration:".dimmed(),
+        format_duration(summary.duration_ms)
+    );
+
+    println!();
 }
 
 fn build_cli_options(group_by: Option<CliGroupMode>) -> CliOptions {
