@@ -1,5 +1,11 @@
 # tscanner-vscode
 
+## 0.0.30
+
+### Patch Changes
+
+- 3873fdc: fix copy issue
+
 ## 0.0.29
 
 ### Patch Changes
