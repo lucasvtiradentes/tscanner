@@ -8,7 +8,6 @@ export class GitHelper {
 
   private static execGit(cmd: string, cwd: string): [string | null, Error | null] {
     try {
-      console.log(2);
       const output = execSync(cmd, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] });
       return [output, null];
     } catch (error) {
