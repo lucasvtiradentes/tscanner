@@ -1,17 +1,16 @@
 import { ScanMode, hasConfiguredRules } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { getCommandId, getStatusBarName } from '../common/constants';
-import { loadEffectiveConfig } from '../common/lib/config-manager';
+import { getConfigDirLabel, loadConfig } from '../common/lib/config-manager';
 import { Command, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 
 export class StatusBarManager {
   private statusBarItem: vscode.StatusBarItem;
 
   constructor(
-    private context: vscode.ExtensionContext,
     private currentScanModeRef: { current: ScanMode },
     private currentCompareBranchRef: { current: string },
-    private currentCustomConfigDirRef: { current: string | null },
+    private currentConfigDirRef: { current: string | null },
   ) {
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     this.statusBarItem.command = getCommandId(Command.OpenSettingsMenu);
@@ -24,12 +23,12 @@ export class StatusBarManager {
       return;
     }
 
-    const customConfigDir = this.currentCustomConfigDirRef.current;
-    const config = await loadEffectiveConfig(this.context, workspaceFolder.uri.fsPath, customConfigDir);
+    const configDir = this.currentConfigDirRef.current;
+    const config = await loadConfig(workspaceFolder.uri.fsPath, configDir);
     const hasConfig = hasConfiguredRules(config);
 
     if (hasConfig) {
-      this.showConfigured(customConfigDir);
+      this.showConfigured(configDir);
     } else {
       this.showUnconfigured();
     }
@@ -37,7 +36,7 @@ export class StatusBarManager {
     this.statusBarItem.show();
   }
 
-  private showConfigured(customConfigDir: string | null): void {
+  private showConfigured(configDir: string | null): void {
     const icon = '$(shield)';
     const modeText =
       this.currentScanModeRef.current === ScanMode.Codebase
@@ -48,7 +47,8 @@ export class StatusBarManager {
     this.statusBarItem.text = finalText;
 
     const displayName = getStatusBarName();
-    this.statusBarItem.tooltip = `${displayName} - Click to change settings${customConfigDir ? `\nConfig: ${customConfigDir}` : ''}`;
+    const configLabel = getConfigDirLabel(configDir);
+    this.statusBarItem.tooltip = `${displayName} - Click to change settings\nConfig: ${configLabel}`;
   }
 
   private showUnconfigured(): void {

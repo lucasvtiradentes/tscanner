@@ -1,6 +1,6 @@
 import { AiExecutionMode } from 'tscanner-common';
 import type * as vscode from 'vscode';
-import { loadEffectiveConfig } from '../common/lib/config-manager';
+import { loadConfig } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import type { ExtensionStateRefs } from '../common/state/extension-state';
@@ -8,7 +8,7 @@ import type { ExtensionStateRefs } from '../common/state/extension-state';
 let scanIntervalTimer: NodeJS.Timeout | null = null;
 
 export async function setupScanInterval(
-  context: vscode.ExtensionContext,
+  _context: vscode.ExtensionContext,
   stateRefs: ExtensionStateRefs,
 ): Promise<void> {
   if (scanIntervalTimer) {
@@ -19,11 +19,7 @@ export async function setupScanInterval(
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (!workspaceFolder) return;
 
-  const config = await loadEffectiveConfig(
-    context,
-    workspaceFolder.uri.fsPath,
-    stateRefs.currentCustomConfigDirRef.current,
-  );
+  const config = await loadConfig(workspaceFolder.uri.fsPath, stateRefs.currentConfigDirRef.current);
 
   const scanInterval = config?.codeEditor?.scanInterval ?? 0;
 

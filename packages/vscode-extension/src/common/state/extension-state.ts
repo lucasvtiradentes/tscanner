@@ -7,7 +7,7 @@ export type ExtensionStateRefs = {
   isSearchingRef: { current: boolean };
   currentScanModeRef: { current: ScanMode };
   currentCompareBranchRef: { current: string };
-  currentCustomConfigDirRef: { current: string | null };
+  currentConfigDirRef: { current: string | null };
 };
 
 export function createExtensionStateRefs(context: vscode.ExtensionContext): ExtensionStateRefs {
@@ -15,7 +15,7 @@ export function createExtensionStateRefs(context: vscode.ExtensionContext): Exte
     isSearchingRef: { current: false },
     currentScanModeRef: { current: getWorkspaceState(context, WorkspaceStateKey.ScanMode) },
     currentCompareBranchRef: { current: getWorkspaceState(context, WorkspaceStateKey.CompareBranch) },
-    currentCustomConfigDirRef: { current: getWorkspaceState(context, WorkspaceStateKey.CustomConfigDir) },
+    currentConfigDirRef: { current: getWorkspaceState(context, WorkspaceStateKey.CustomConfigDir) },
   };
 }
 

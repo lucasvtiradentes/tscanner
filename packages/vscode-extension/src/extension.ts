@@ -84,10 +84,9 @@ export function activate(context: vscode.ExtensionContext) {
 
   logger.info('Creating status bar manager...');
   const statusBarManager = new StatusBarManager(
-    context,
     stateRefs.currentScanModeRef,
     stateRefs.currentCompareBranchRef,
-    stateRefs.currentCustomConfigDirRef,
+    stateRefs.currentConfigDirRef,
   );
 
   const updateStatusBar = async () => {

@@ -1,5 +1,5 @@
 import { AiExecutionMode, CONFIG_DIR_NAME, ScanMode, hasConfiguredRules } from 'tscanner-common';
-import { getConfigState, loadEffectiveConfig } from '../../common/lib/config-manager';
+import { getConfigDirLabel, loadConfig } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import {
   Command,
@@ -23,8 +23,8 @@ export function createRefreshCommand() {
 }
 
 export function createRefreshAiIssuesCommand(ctx: CommandContext, aiView: AiIssuesView) {
-  const { context, stateRefs } = ctx;
-  const { currentScanModeRef, currentCompareBranchRef, currentCustomConfigDirRef } = stateRefs;
+  const { stateRefs } = ctx;
+  const { currentScanModeRef, currentCompareBranchRef, currentConfigDirRef } = stateRefs;
 
   return registerCommand(Command.RefreshAiIssues, async () => {
     const workspaceFolder = getCurrentWorkspaceFolder();
@@ -39,23 +39,20 @@ export function createRefreshAiIssuesCommand(ctx: CommandContext, aiView: AiIssu
     let progressDisposable: { dispose(): void } | null = null;
 
     try {
-      const customConfigDir = currentCustomConfigDirRef.current;
-      const effectiveConfig = await loadEffectiveConfig(context, workspaceFolder.uri.fsPath, customConfigDir);
-      const configState = await getConfigState(context, workspaceFolder.uri.fsPath, customConfigDir);
+      const configDir = currentConfigDirRef.current;
+      const config = await loadConfig(workspaceFolder.uri.fsPath, configDir);
 
-      if (!hasConfiguredRules(effectiveConfig)) {
+      if (!hasConfiguredRules(config)) {
         aiView.setResults([], true);
         showToastMessage(ToastKind.Warning, 'No rules configured for this workspace');
         return;
       }
 
-      const configToPass = configState.hasLocal && !configState.hasCustom ? undefined : (effectiveConfig ?? undefined);
-      if (configState.hasCustom) {
-        logger.info(`[AI Scan] Using custom config from ${customConfigDir}`);
-      } else if (configState.hasLocal) {
-        logger.info(`[AI Scan] Using local config from ${CONFIG_DIR_NAME}`);
+      const configToPass = configDir ? (config ?? undefined) : undefined;
+      if (configDir) {
+        logger.info(`[AI Scan] Using config from ${getConfigDirLabel(configDir)}`);
       } else {
-        logger.info('[AI Scan] Using global config from extension storage');
+        logger.info(`[AI Scan] Using local config from ${CONFIG_DIR_NAME}`);
       }
 
       logger.info('[AI Scan] Starting AI-only scan...');

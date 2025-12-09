@@ -6,7 +6,7 @@ import {
   ViewMode,
   hasConfiguredRules,
 } from 'tscanner-common';
-import { getConfigState, loadEffectiveConfig } from '../../common/lib/config-manager';
+import { getConfigDirLabel, loadConfig } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import {
   Command,
@@ -32,7 +32,7 @@ import { resetIssueIndex } from './issue-navigation';
 
 export function createScanWorkspaceCommand(ctx: CommandContext, regularView: RegularIssuesView) {
   const { context, treeView, stateRefs, updateStatusBar } = ctx;
-  const { isSearchingRef, currentScanModeRef, currentCompareBranchRef, currentCustomConfigDirRef } = stateRefs;
+  const { isSearchingRef, currentScanModeRef, currentCompareBranchRef, currentConfigDirRef } = stateRefs;
 
   return registerCommand(Command.FindIssue, async (options?: { silent?: boolean; aiMode?: AiExecutionMode }) => {
     if (isSearchingRef.current) {
@@ -50,11 +50,10 @@ export function createScanWorkspaceCommand(ctx: CommandContext, regularView: Reg
       return;
     }
 
-    const customConfigDir = currentCustomConfigDirRef.current;
-    const effectiveConfig = await loadEffectiveConfig(context, workspaceFolder.uri.fsPath, customConfigDir);
-    const configState = await getConfigState(context, workspaceFolder.uri.fsPath, customConfigDir);
+    const configDir = currentConfigDirRef.current;
+    const config = await loadConfig(workspaceFolder.uri.fsPath, configDir);
 
-    if (!hasConfiguredRules(effectiveConfig)) {
+    if (!hasConfiguredRules(config)) {
       regularView.setResults([]);
       if (!options?.silent) {
         showToastMessage(ToastKind.Warning, 'No rules configured. Run "tscanner init" to create config.');
@@ -62,13 +61,11 @@ export function createScanWorkspaceCommand(ctx: CommandContext, regularView: Reg
       return;
     }
 
-    const configToPass = configState.hasLocal && !configState.hasCustom ? undefined : (effectiveConfig ?? undefined);
-    if (configState.hasCustom) {
-      logger.info(`Using custom config from ${customConfigDir}`);
-    } else if (configState.hasLocal) {
-      logger.info(`Using local config from ${CONFIG_DIR_NAME}`);
+    const configToPass = configDir ? (config ?? undefined) : undefined;
+    if (configDir) {
+      logger.info(`Using config from ${getConfigDirLabel(configDir)}`);
     } else {
-      logger.info('Using global config from extension storage');
+      logger.info(`Using local config from ${CONFIG_DIR_NAME}`);
     }
 
     if (currentScanModeRef.current === ScanMode.Branch) {

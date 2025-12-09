@@ -1,13 +1,7 @@
 import * as path from 'node:path';
 import { CONFIG_DIR_NAME } from 'tscanner-common';
 import * as vscode from 'vscode';
-import {
-  type ConfigState,
-  getConfigState,
-  moveCustomToCustom,
-  moveCustomToLocal,
-  moveLocalToCustom,
-} from '../common/lib/config-manager';
+import { getConfigDirLabel, hasConfig, moveConfig } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
 import {
   Command,
@@ -20,33 +14,21 @@ import {
 import { WorkspaceStateKey, updateState } from '../common/state/workspace-state';
 import type { RegularIssuesView } from '../issues-panel';
 
-enum ConfigLocation {
-  ProjectFolder = 'project-folder',
-  CustomPath = 'custom-path',
-}
+type ConfigLocationContext = {
+  updateStatusBar: () => Promise<void>;
+  currentConfigDirRef: { current: string | null };
+  context: vscode.ExtensionContext;
+  regularView: RegularIssuesView;
+};
 
-export function getCurrentLocationLabel(hasCustom: boolean, hasLocal: boolean, customConfigDir: string | null): string {
-  if (hasCustom && customConfigDir) {
-    return `Current: ${customConfigDir}/${CONFIG_DIR_NAME}`;
+export function getCurrentLocationLabel(configDir: string | null, hasConfigFile: boolean): string {
+  if (!hasConfigFile) {
+    return 'No config set';
   }
-  if (hasLocal) {
-    return `Current: ${CONFIG_DIR_NAME} (Project Folder)`;
-  }
-  return 'No config set';
+  return `Current: ${getConfigDirLabel(configDir)}`;
 }
 
-function getCurrentConfigLocation(hasCustom: boolean, hasLocal: boolean): ConfigLocation | null {
-  if (hasCustom) return ConfigLocation.CustomPath;
-  if (hasLocal) return ConfigLocation.ProjectFolder;
-  return null;
-}
-
-export async function showConfigLocationMenu(
-  updateStatusBar: () => Promise<void>,
-  currentCustomConfigDirRef: { current: string | null },
-  context: vscode.ExtensionContext,
-  regularView: RegularIssuesView,
-) {
+export async function showConfigLocationMenu(ctx: ConfigLocationContext): Promise<void> {
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (!workspaceFolder) {
     showToastMessage(ToastKind.Error, 'No workspace folder open');
@@ -54,177 +36,50 @@ export async function showConfigLocationMenu(
   }
 
   const workspacePath = workspaceFolder.uri.fsPath;
-  const customConfigDir = currentCustomConfigDirRef.current;
-  const configState = await getConfigState(context, workspacePath, customConfigDir);
-  const currentLocation = getCurrentConfigLocation(configState.hasCustom, configState.hasLocal);
+  const currentConfigDir = ctx.currentConfigDirRef.current;
+  const currentHasConfig = await hasConfig(workspacePath, currentConfigDir);
 
-  const menuItems: QuickPickItemWithId<ConfigLocation>[] = [
-    {
-      id: ConfigLocation.ProjectFolder,
-      label: '$(file) Project Folder',
-      description: currentLocation === ConfigLocation.ProjectFolder ? '✓ Active' : '',
-      detail: `${CONFIG_DIR_NAME} (can commit to git)`,
-    },
-    {
-      id: ConfigLocation.CustomPath,
-      label: '$(folder-opened) Custom Path',
-      description: currentLocation === ConfigLocation.CustomPath ? `✓ Active (${customConfigDir})` : '',
-      detail: 'Select a custom folder within workspace',
-    },
-  ];
+  const startPath = currentConfigDir ?? '.';
+  const selectedPath = await showFolderPicker(workspaceFolder.uri, startPath);
 
-  const selected = await vscode.window.showQuickPick(menuItems, {
-    placeHolder: 'Select config location',
-    ignoreFocusOut: false,
-  });
+  if (!selectedPath) return;
 
-  if (!selected) return;
+  const newConfigDir = selectedPath === '.' ? null : selectedPath;
 
-  const targetLocation = selected.id as ConfigLocation;
-
-  if (targetLocation === currentLocation) {
-    if (targetLocation === ConfigLocation.CustomPath) {
-      await handleCustomPathSelection(
-        workspacePath,
-        currentCustomConfigDirRef,
-        context,
-        regularView,
-        updateStatusBar,
-        currentLocation,
-        configState,
-      );
-    }
+  if (newConfigDir === currentConfigDir) {
     return;
   }
 
-  if (targetLocation === ConfigLocation.CustomPath) {
-    await handleCustomPathSelection(
-      workspacePath,
-      currentCustomConfigDirRef,
-      context,
-      regularView,
-      updateStatusBar,
-      currentLocation,
-      configState,
-    );
-    return;
-  }
+  const newHasConfig = await hasConfig(workspacePath, newConfigDir);
 
-  if (currentLocation && configState.hasAny) {
-    await moveConfigToLocation(
-      workspacePath,
-      currentCustomConfigDirRef,
-      context,
-      regularView,
-      updateStatusBar,
-      currentLocation,
-      targetLocation,
-      null,
-    );
-  } else {
-    if (targetLocation === ConfigLocation.ProjectFolder) {
-      currentCustomConfigDirRef.current = null;
-      updateState(context, WorkspaceStateKey.CustomConfigDir, null);
+  if (currentHasConfig && !newHasConfig) {
+    const shouldMove = await askToMoveConfig(currentConfigDir, newConfigDir);
+    if (shouldMove) {
+      await moveConfig(workspacePath, currentConfigDir, newConfigDir);
     }
-    await updateStatusBar();
-    showToastMessage(ToastKind.Info, 'Config location set. Run "tscanner init" to create config.');
   }
+
+  ctx.currentConfigDirRef.current = newConfigDir;
+  updateState(ctx.context, WorkspaceStateKey.CustomConfigDir, newConfigDir);
+  logger.info(`Config dir changed to: ${getConfigDirLabel(newConfigDir)}`);
+
+  await ctx.updateStatusBar();
+  ctx.regularView.setResults([]);
+  executeCommand(Command.FindIssue, { silent: true });
 }
 
-async function handleCustomPathSelection(
-  workspacePath: string,
-  currentCustomConfigDirRef: { current: string | null },
-  context: vscode.ExtensionContext,
-  regularView: RegularIssuesView,
-  updateStatusBar: () => Promise<void>,
-  currentLocation: ConfigLocation | null,
-  configState: ConfigState,
-) {
-  const workspaceFolder = getCurrentWorkspaceFolder();
-  if (!workspaceFolder) return;
+async function askToMoveConfig(fromDir: string | null, toDir: string | null): Promise<boolean> {
+  const fromLabel = getConfigDirLabel(fromDir);
+  const toLabel = getConfigDirLabel(toDir);
 
-  const startPath = currentCustomConfigDirRef.current || '.';
-  const result = await showFolderPickerQuickPick(workspaceFolder.uri, startPath);
-
-  if (result === 'cancelled' || result === null) return;
-
-  if (currentLocation && configState.hasAny) {
-    await moveConfigToLocation(
-      workspacePath,
-      currentCustomConfigDirRef,
-      context,
-      regularView,
-      updateStatusBar,
-      currentLocation,
-      ConfigLocation.CustomPath,
-      result,
-    );
-  } else {
-    currentCustomConfigDirRef.current = result;
-    updateState(context, WorkspaceStateKey.CustomConfigDir, result);
-    await updateStatusBar();
-    logger.info(`Custom config folder set to: ${result}`);
-    showToastMessage(ToastKind.Info, `Config location set to: ${result}. Run "tscanner init" to create config.`);
-  }
-}
-
-async function moveConfigToLocation(
-  workspacePath: string,
-  currentCustomConfigDirRef: { current: string | null },
-  context: vscode.ExtensionContext,
-  regularView: RegularIssuesView,
-  updateStatusBar: () => Promise<void>,
-  fromLocation: ConfigLocation,
-  toLocation: ConfigLocation,
-  customPath: string | null,
-) {
-  const fromLabel = getLocationLabel(fromLocation, currentCustomConfigDirRef.current);
-  const toLabel = getLocationLabel(toLocation, customPath);
-
-  const confirm = await vscode.window.showWarningMessage(
-    `Move config folder from "${fromLabel}" to "${toLabel}/${CONFIG_DIR_NAME}"?`,
+  const result = await vscode.window.showWarningMessage(
+    `Move config from "${fromLabel}" to "${toLabel}"?`,
     { modal: true },
     'Move',
+    'Just point to new location',
   );
 
-  if (confirm !== 'Move') return;
-
-  if (fromLocation === ConfigLocation.ProjectFolder && toLocation === ConfigLocation.CustomPath && customPath) {
-    await moveLocalToCustom(workspacePath, customPath);
-    currentCustomConfigDirRef.current = customPath;
-    updateState(context, WorkspaceStateKey.CustomConfigDir, customPath);
-  } else if (fromLocation === ConfigLocation.CustomPath && toLocation === ConfigLocation.ProjectFolder) {
-    if (currentCustomConfigDirRef.current) {
-      await moveCustomToLocal(workspacePath, currentCustomConfigDirRef.current);
-    }
-    currentCustomConfigDirRef.current = null;
-    updateState(context, WorkspaceStateKey.CustomConfigDir, null);
-  } else if (
-    fromLocation === ConfigLocation.CustomPath &&
-    toLocation === ConfigLocation.CustomPath &&
-    currentCustomConfigDirRef.current &&
-    customPath
-  ) {
-    await moveCustomToCustom(workspacePath, currentCustomConfigDirRef.current, customPath);
-    currentCustomConfigDirRef.current = customPath;
-    updateState(context, WorkspaceStateKey.CustomConfigDir, customPath);
-  }
-
-  regularView.setResults([]);
-  await updateStatusBar();
-
-  logger.info(`Moved config from ${fromLabel} to ${toLabel}`);
-  showToastMessage(ToastKind.Info, `Config moved to ${toLabel}`);
-  executeCommand(Command.FindIssue);
-}
-
-function getLocationLabel(location: ConfigLocation, customPath: string | null): string {
-  switch (location) {
-    case ConfigLocation.ProjectFolder:
-      return CONFIG_DIR_NAME;
-    case ConfigLocation.CustomPath:
-      return customPath ?? 'Custom Path';
-  }
+  return result === 'Move';
 }
 
 async function getSubfolders(dirUri: vscode.Uri): Promise<string[]> {
@@ -236,38 +91,37 @@ async function getSubfolders(dirUri: vscode.Uri): Promise<string[]> {
   }
 }
 
-async function showFolderPickerQuickPick(
-  workspaceRoot: vscode.Uri,
-  currentRelativePath: string,
-): Promise<string | null | 'cancelled'> {
+async function showFolderPicker(workspaceRoot: vscode.Uri, currentRelativePath: string): Promise<string | null> {
   const currentUri =
     currentRelativePath === '.' ? workspaceRoot : vscode.Uri.joinPath(workspaceRoot, currentRelativePath);
 
   const subfolders = await getSubfolders(currentUri);
-  const displayPath = currentRelativePath;
 
   const items: QuickPickItemWithId<string>[] = [];
 
-  if (currentRelativePath !== '.') {
-    items.push({
-      id: '__select__',
-      label: '$(check) Select this Folder',
-      detail: `Use: ${path.posix.join(displayPath, CONFIG_DIR_NAME)}`,
-    });
+  items.push({
+    id: '__select__',
+    label: '$(check) Select this folder',
+    detail:
+      currentRelativePath === '.'
+        ? `Use: ${CONFIG_DIR_NAME} (project root)`
+        : `Use: ${path.posix.join(currentRelativePath, CONFIG_DIR_NAME)}`,
+  });
 
+  if (currentRelativePath !== '.') {
     items.push({
       id: '__parent__',
       label: '$(arrow-up) ..',
       detail: 'Go to parent folder',
     });
+  }
 
-    if (subfolders.length > 0) {
-      items.push({
-        id: '__separator__',
-        label: '',
-        kind: vscode.QuickPickItemKind.Separator,
-      });
-    }
+  if (subfolders.length > 0) {
+    items.push({
+      id: '__separator__',
+      label: '',
+      kind: vscode.QuickPickItemKind.Separator,
+    });
   }
 
   for (const folder of subfolders.sort()) {
@@ -279,11 +133,11 @@ async function showFolderPickerQuickPick(
   }
 
   const selected = await vscode.window.showQuickPick(items, {
-    placeHolder: `Current: ${displayPath}`,
+    placeHolder: `Select folder for ${CONFIG_DIR_NAME}`,
     ignoreFocusOut: true,
   });
 
-  if (!selected) return 'cancelled';
+  if (!selected) return null;
 
   if (selected.id === '__select__') {
     return currentRelativePath;
@@ -292,9 +146,9 @@ async function showFolderPickerQuickPick(
   if (selected.id === '__parent__') {
     const parent = path.posix.dirname(currentRelativePath);
     const parentPath = parent === '.' || parent === '' ? '.' : parent;
-    return showFolderPickerQuickPick(workspaceRoot, parentPath);
+    return showFolderPicker(workspaceRoot, parentPath);
   }
 
   const nextPath = currentRelativePath === '.' ? selected.id : path.posix.join(currentRelativePath, selected.id);
-  return showFolderPickerQuickPick(workspaceRoot, nextPath);
+  return showFolderPicker(workspaceRoot, nextPath);
 }
