@@ -1,6 +1,6 @@
 {
   "name": "tscanner",
-  "version": "0.0.30",
+  "version": "0.0.31",
   "description": "Code quality scanner for the AI-generated code era",
   "license": "MIT",
   "author": "lucasvtiradentes",
@@ -56,11 +56,11 @@
     "prepublishOnly": "pnpm run build"
   },
   "optionalDependencies": {
-    "@tscanner/cli-darwin-arm64": "0.0.30",
-    "@tscanner/cli-darwin-x64": "0.0.30",
-    "@tscanner/cli-linux-arm64": "0.0.30",
-    "@tscanner/cli-linux-x64": "0.0.30",
-    "@tscanner/cli-win32-x64": "0.0.30"
+    "@tscanner/cli-darwin-arm64": "0.0.31",
+    "@tscanner/cli-darwin-x64": "0.0.31",
+    "@tscanner/cli-linux-arm64": "0.0.31",
+    "@tscanner/cli-linux-x64": "0.0.31",
+    "@tscanner/cli-win32-x64": "0.0.31"
   },
   "dependencies": {
     "zod": "^4.1.12"

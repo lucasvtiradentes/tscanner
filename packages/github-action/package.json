@@ -1,6 +1,6 @@
 {
   "name": "tscanner-github-action",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "private": true,
   "description": "Code quality scanner for the AI-generated code era",
   "keywords": [

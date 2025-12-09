@@ -1572,7 +1572,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_cache"
-version = "0.0.30"
+version = "0.0.31"
 dependencies = [
  "dashmap",
  "dirs",
@@ -1583,7 +1583,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_cli"
-version = "0.0.30"
+version = "0.0.31"
 dependencies = [
  "anyhow",
  "clap",
@@ -1607,7 +1607,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_config"
-version = "0.0.30"
+version = "0.0.31"
 dependencies = [
  "globset",
  "json_comments",
@@ -1622,7 +1622,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_diagnostics"
-version = "0.0.30"
+version = "0.0.31"
 dependencies = [
  "schemars",
  "serde",
@@ -1631,7 +1631,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_fs"
-version = "0.0.30"
+version = "0.0.31"
 dependencies = [
  "anyhow",
  "notify",
@@ -1640,7 +1640,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_lsp"
-version = "0.0.30"
+version = "0.0.31"
 dependencies = [
  "crossbeam-channel",
  "lsp-server",
@@ -1659,7 +1659,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_output"
-version = "0.0.30"
+version = "0.0.31"
 dependencies = [
  "pathdiff",
  "serde",
@@ -1669,7 +1669,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_rules"
-version = "0.0.30"
+version = "0.0.31"
 dependencies = [
  "dashmap",
  "glob-match",
@@ -1690,7 +1690,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_scanner"
-version = "0.0.30"
+version = "0.0.31"
 dependencies = [
  "anyhow",
  "dashmap",
@@ -1714,7 +1714,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_service"
-version = "0.0.30"
+version = "0.0.31"
 dependencies = [
  "lazy_static",
  "parking_lot",

@@ -154,7 +154,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: lucasvtiradentes/tscanner-action@v0.0.27
+      - uses: lucasvtiradentes/tscanner-action@v0.0.28
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -323,7 +323,7 @@ jobs:
           mkdir -p ~/.claude
           echo '${{ secrets.CLAUDE_CREDENTIALS }}' > ~/.claude/.credentials.json
 
-      - uses: lucasvtiradentes/tscanner-action@v0.0.27
+      - uses: lucasvtiradentes/tscanner-action@v0.0.28
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           ai-mode: include
@@ -372,7 +372,7 @@ jobs:
           echo '${{ secrets.GEMINI_CREDENTIALS }}' > ~/.gemini/oauth_creds.json
           echo '{"security":{"auth":{"selectedType":"oauth-personal"}}}' > ~/.gemini/settings.json
 
-      - uses: lucasvtiradentes/tscanner-action@v0.0.27
+      - uses: lucasvtiradentes/tscanner-action@v0.0.28
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           ai-mode: include
@@ -410,7 +410,7 @@ jobs:
           mkdir -p ~/.claude
           echo '${{ secrets.CLAUDE_CREDENTIALS }}' > ~/.claude/.credentials.json
 
-      - uses: lucasvtiradentes/tscanner-action@v0.0.27
+      - uses: lucasvtiradentes/tscanner-action@v0.0.28
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           ai-mode: only
@@ -449,7 +449,7 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
 
-      - uses: lucasvtiradentes/tscanner-action@v0.0.27
+      - uses: lucasvtiradentes/tscanner-action@v0.0.28
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           target-branch: 'origin/main'        # omit to scan full codebase
@@ -481,7 +481,7 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 
 ```json
 {
-  "$schema": "https://unpkg.com/tscanner@0.0.30/schema.json",
+  "$schema": "https://unpkg.com/tscanner@0.0.31/schema.json",
   "files": {
     "include": [
       "**/*.ts",
