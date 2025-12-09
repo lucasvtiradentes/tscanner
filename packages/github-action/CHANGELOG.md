@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.27
+
+### Patch Changes
+
+- 3873fdc: fix copy issue
+
 ## 0.0.26
 
 ### Patch Changes
