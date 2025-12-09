@@ -444,15 +444,6 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 ```json
 {
   "$schema": "https://unpkg.com/tscanner@0.0.29/schema.json",
-  "rules": {
-    "builtin": {
-      "no-explicit-any": {}
-    },
-    "regex": {},
-    "script": {}
-  },
-  "aiRules": {},
-  "ai": {},
   "files": {
     "include": [
       "**/*.ts",
@@ -474,17 +465,6 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
     "highlightWarnings": false,
     "scanIntervalSeconds": 0,
     "aiScanIntervalSeconds": 0
-  },
-  "cli": {
-    "groupBy": "file",
-    "aiMode": "ignore",
-    "noCache": false,
-    "showSettings": true,
-    "showIssueSeverity": true,
-    "showIssueSourceLine": true,
-    "showIssueRuleName": true,
-    "showIssueDescription": false,
-    "showSummary": true
   }
 }
 ```

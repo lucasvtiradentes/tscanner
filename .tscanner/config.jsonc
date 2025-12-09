@@ -126,16 +126,5 @@
     "highlightWarnings": true,
     "scanIntervalSeconds": 0,
     "aiScanIntervalSeconds": 0
-  },
-  "cli": {
-    "groupBy": "file",
-    "noCache": false,
-    "aiMode": "ignore",
-    "showSettings": true,
-    "showIssueSeverity": true,
-    "showIssueSourceLine": true,
-    "showIssueRuleName": true,
-    "showIssueDescription": false,
-    "showSummary": true
   }
 }

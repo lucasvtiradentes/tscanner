@@ -24,7 +24,7 @@ impl OutputRenderer for PrettyRenderer {
 
         println!();
 
-        if ctx.cli_config.show_summary {
+        if ctx.cli_options.show_summary {
             render_summary(result, stats);
         }
     }

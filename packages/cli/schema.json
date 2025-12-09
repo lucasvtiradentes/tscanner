@@ -31,14 +31,6 @@
       },
       "type": "object"
     },
-    "AiExecutionMode": {
-      "enum": [
-        "ignore",
-        "include",
-        "only"
-      ],
-      "type": "string"
-    },
     "AiMode": {
       "enum": [
         "paths",
@@ -1651,71 +1643,6 @@
       },
       "type": "object"
     },
-    "CliConfig": {
-      "properties": {
-        "aiMode": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/AiExecutionMode"
-            }
-          ],
-          "default": "ignore",
-          "description": "AI rules execution mode: 'ignore' (default), 'include', or 'only'"
-        },
-        "groupBy": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/CliGroupBy"
-            }
-          ],
-          "default": "file",
-          "description": "Group issues by file or rule"
-        },
-        "noCache": {
-          "default": false,
-          "description": "Skip cache and force full scan",
-          "type": "boolean"
-        },
-        "showIssueDescription": {
-          "default": false,
-          "description": "Show issue rule description/message",
-          "type": "boolean"
-        },
-        "showIssueRuleName": {
-          "default": true,
-          "description": "Show issue rule name",
-          "type": "boolean"
-        },
-        "showIssueSeverity": {
-          "default": true,
-          "description": "Show issue severity icon",
-          "type": "boolean"
-        },
-        "showIssueSourceLine": {
-          "default": true,
-          "description": "Show issue source line text",
-          "type": "boolean"
-        },
-        "showSettings": {
-          "default": true,
-          "description": "Show check settings",
-          "type": "boolean"
-        },
-        "showSummary": {
-          "default": true,
-          "description": "Show check summary",
-          "type": "boolean"
-        }
-      },
-      "type": "object"
-    },
-    "CliGroupBy": {
-      "enum": [
-        "file",
-        "rule"
-      ],
-      "type": "string"
-    },
     "CodeEditorConfig": {
       "properties": {
         "aiScanIntervalSeconds": {
@@ -2051,17 +1978,6 @@
       },
       "description": "AI-powered rules (expensive, run separately)",
       "type": "object"
-    },
-    "cli": {
-      "anyOf": [
-        {
-          "$ref": "#/definitions/CliConfig"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "CLI output configuration"
     },
     "codeEditor": {
       "anyOf": [

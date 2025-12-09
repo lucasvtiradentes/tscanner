@@ -1,14 +1,5 @@
 {
   "$schema": "../../packages/cli/schema.json",
-  "rules": {
-    "builtin": {
-      "no-explicit-any": {}
-    },
-    "regex": {},
-    "script": {}
-  },
-  "aiRules": {},
-  "ai": {},
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
     "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
@@ -18,16 +9,5 @@
     "highlightWarnings": false,
     "scanIntervalSeconds": 0,
     "aiScanIntervalSeconds": 0
-  },
-  "cli": {
-    "groupBy": "file",
-    "aiMode": "ignore",
-    "noCache": false,
-    "showSettings": true,
-    "showIssueSeverity": true,
-    "showIssueSourceLine": true,
-    "showIssueRuleName": true,
-    "showIssueDescription": false,
-    "showSummary": true
   }
 }

@@ -13,9 +13,7 @@ use crate::shared::{
 };
 use tscanner_cache::FileCache;
 use tscanner_cli::{CliGroupMode, OutputFormat};
-use tscanner_config::{
-    app_name, config_dir_name, config_file_name, AiExecutionMode, AiProvider, CliConfig, CliGroupBy,
-};
+use tscanner_config::{app_name, config_dir_name, config_file_name, AiExecutionMode, AiProvider};
 use tscanner_diagnostics::GroupMode;
 use tscanner_scanner::{
     AiProgressCallback, AiProgressEvent, AiRuleStatus, ConfigExt, RegularRulesCompleteCallback,
@@ -27,6 +25,38 @@ use super::context::CheckContext;
 use super::filters;
 use super::git;
 use super::output;
+
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub enum CliGroupBy {
+    #[default]
+    File,
+    Rule,
+}
+
+#[derive(Debug, Clone)]
+pub struct CliOptions {
+    pub group_by: CliGroupBy,
+    pub show_settings: bool,
+    pub show_issue_severity: bool,
+    pub show_issue_source_line: bool,
+    pub show_issue_rule_name: bool,
+    pub show_issue_description: bool,
+    pub show_summary: bool,
+}
+
+impl Default for CliOptions {
+    fn default() -> Self {
+        Self {
+            group_by: CliGroupBy::File,
+            show_settings: true,
+            show_issue_severity: true,
+            show_issue_source_line: true,
+            show_issue_rule_name: true,
+            show_issue_description: true,
+            show_summary: true,
+        }
+    }
+}
 
 #[allow(clippy::too_many_arguments)]
 pub fn cmd_check(
@@ -75,54 +105,51 @@ pub fn cmd_check(
         staged
     ));
 
-    let (config, cli_config, resolved_config_path) =
-        match load_config_with_custom(&root, config_path)? {
-            Some((cfg, config_file_path)) => {
-                log_info(&format!(
-                    "cmd_check: Config loaded successfully from: {}",
-                    config_file_path
-                ));
-                let file_cli_config = cfg.cli.clone().unwrap_or_default();
-                (cfg, file_cli_config, config_file_path)
-            }
-            None => {
-                log_error("cmd_check: No config found");
-                eprintln!(
-                    "{}",
-                    format!("Error: No {} configuration found!", app_name())
-                        .red()
-                        .bold()
-                );
-                eprintln!();
-                eprintln!("Expected config at:");
-                eprintln!(
-                    "  • {}",
-                    format!(
-                        "{}/{}/{}",
-                        root.display(),
-                        config_dir_name(),
-                        config_file_name()
-                    )
-                    .yellow()
-                );
+    let (config, resolved_config_path) = match load_config_with_custom(&root, config_path)? {
+        Some((cfg, config_file_path)) => {
+            log_info(&format!(
+                "cmd_check: Config loaded successfully from: {}",
+                config_file_path
+            ));
+            (cfg, config_file_path)
+        }
+        None => {
+            log_error("cmd_check: No config found");
+            eprintln!(
+                "{}",
+                format!("Error: No {} configuration found!", app_name())
+                    .red()
+                    .bold()
+            );
+            eprintln!();
+            eprintln!("Expected config at:");
+            eprintln!(
+                "  • {}",
+                format!(
+                    "{}/{}/{}",
+                    root.display(),
+                    config_dir_name(),
+                    config_file_name()
+                )
+                .yellow()
+            );
 
-                eprintln!();
-                eprintln!(
-                    "Run {} to create a default configuration,",
-                    format!("{} init", app_name()).cyan()
-                );
-                eprintln!(
-                    "or use {} to specify a custom config directory.",
-                    "--config <path>".cyan()
-                );
-                std::process::exit(1);
-            }
-        };
+            eprintln!();
+            eprintln!(
+                "Run {} to create a default configuration,",
+                format!("{} init", app_name()).cyan()
+            );
+            eprintln!(
+                "or use {} to specify a custom config directory.",
+                "--config <path>".cyan()
+            );
+            std::process::exit(1);
+        }
+    };
 
-    let resolved_cli = apply_group_by_override(&cli_config, group_by);
-    let effective_group_mode = resolve_group_mode(&resolved_cli);
-    let effective_no_cache = no_cache || resolved_cli.no_cache;
-    let effective_ai_mode = resolve_ai_mode(include_ai, only_ai, resolved_cli.ai_mode);
+    let cli_options = build_cli_options(group_by);
+    let effective_group_mode = resolve_group_mode(&cli_options);
+    let effective_ai_mode = resolve_ai_mode(include_ai, only_ai);
 
     let config_hash = config.compute_hash();
     let ai_provider = config.ai.as_ref().and_then(|ai| ai.provider);
@@ -168,7 +195,7 @@ pub fn cmd_check(
         + rules_breakdown.regex
         + rules_breakdown.script
         + rules_breakdown.ai;
-    let cache = if effective_no_cache {
+    let cache = if no_cache {
         FileCache::new()
     } else {
         FileCache::with_config_hash(config_hash)
@@ -213,13 +240,13 @@ pub fn cmd_check(
             .map(|p| p.display().to_string())
             .unwrap_or(resolved_config_path.clone());
         let scan_config = ScanConfig {
-            show_settings: resolved_cli.show_settings,
+            show_settings: cli_options.show_settings,
             mode: scan_mode,
             format: output_format.clone(),
             group_by: effective_group_mode.clone(),
             ai_mode: effective_ai_mode,
             ai_provider,
-            cache_enabled: !effective_no_cache,
+            cache_enabled: !no_cache,
             continue_on_error,
             config_path: relative_config_path,
             glob_filter: glob_filter.clone(),
@@ -345,13 +372,13 @@ pub fn cmd_check(
         }
 
         println!();
-        if resolved_cli.show_summary {
+        if cli_options.show_summary {
             render_summary(&result, &stats);
         }
         return Ok(());
     }
 
-    let ctx = CheckContext::new(root, effective_group_mode, resolved_cli);
+    let ctx = CheckContext::new(root, effective_group_mode, cli_options);
 
     let renderer = output::get_renderer(&output_format);
     renderer.render(&ctx, &result, &stats);
@@ -368,37 +395,31 @@ pub fn cmd_check(
     Ok(())
 }
 
-fn apply_group_by_override(cli_config: &CliConfig, group_by: Option<CliGroupMode>) -> CliConfig {
-    CliConfig {
-        group_by: group_by
-            .as_ref()
-            .map(|g| match g {
-                CliGroupMode::Rule => CliGroupBy::Rule,
-                CliGroupMode::File => CliGroupBy::File,
-            })
-            .unwrap_or(cli_config.group_by),
-        ..cli_config.clone()
+fn build_cli_options(group_by: Option<CliGroupMode>) -> CliOptions {
+    let mut options = CliOptions::default();
+    if let Some(g) = group_by {
+        options.group_by = match g {
+            CliGroupMode::Rule => CliGroupBy::Rule,
+            CliGroupMode::File => CliGroupBy::File,
+        };
     }
+    options
 }
 
-fn resolve_group_mode(cli_config: &CliConfig) -> GroupMode {
-    match cli_config.group_by {
+fn resolve_group_mode(cli_options: &CliOptions) -> GroupMode {
+    match cli_options.group_by {
         CliGroupBy::Rule => GroupMode::Rule,
         CliGroupBy::File => GroupMode::File,
     }
 }
 
-fn resolve_ai_mode(
-    include_ai_flag: bool,
-    only_ai_flag: bool,
-    config_mode: AiExecutionMode,
-) -> AiExecutionMode {
+fn resolve_ai_mode(include_ai_flag: bool, only_ai_flag: bool) -> AiExecutionMode {
     if only_ai_flag {
         AiExecutionMode::Only
     } else if include_ai_flag {
         AiExecutionMode::Include
     } else {
-        config_mode
+        AiExecutionMode::Ignore
     }
 }
 

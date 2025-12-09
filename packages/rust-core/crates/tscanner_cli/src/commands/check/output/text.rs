@@ -43,7 +43,7 @@ impl OutputRenderer for TextRenderer {
 
         println!();
 
-        if ctx.cli_config.show_summary {
+        if ctx.cli_options.show_summary {
             render_summary(result, stats);
         }
     }
@@ -92,19 +92,19 @@ impl TextRenderer {
 
                 let mut parts: Vec<String> = Vec::new();
 
-                if ctx.cli_config.show_issue_severity {
+                if ctx.cli_options.show_issue_severity {
                     parts.push(severity_icon(issue.severity).to_string());
                 }
 
                 parts.push(location.to_string());
 
-                if ctx.cli_config.show_issue_description {
+                if ctx.cli_options.show_issue_description {
                     parts.push(issue.message.clone());
                 }
 
                 println!("  {}", parts.join(" "));
 
-                if ctx.cli_config.show_issue_source_line {
+                if ctx.cli_options.show_issue_source_line {
                     render_source_line(issue);
                 }
             }
@@ -131,27 +131,27 @@ impl TextRenderer {
 
                 let mut parts: Vec<String> = Vec::new();
 
-                if ctx.cli_config.show_issue_severity {
+                if ctx.cli_options.show_issue_severity {
                     parts.push(severity_icon(issue.severity).to_string());
                 }
 
                 parts.push(location.to_string());
 
-                if ctx.cli_config.show_issue_rule_name && ctx.cli_config.show_issue_description {
+                if ctx.cli_options.show_issue_rule_name && ctx.cli_options.show_issue_description {
                     let icon = rule_type_icon(issue.rule_type).dimmed();
                     let rule_name = issue.rule.cyan().to_string();
                     parts.push(format!("{} {} {}", icon, rule_name, issue.message.dimmed()));
-                } else if ctx.cli_config.show_issue_rule_name {
+                } else if ctx.cli_options.show_issue_rule_name {
                     let icon = rule_type_icon(issue.rule_type).dimmed();
                     let rule_name = issue.rule.cyan().to_string();
                     parts.push(format!("{} {}", icon, rule_name));
-                } else if ctx.cli_config.show_issue_description {
+                } else if ctx.cli_options.show_issue_description {
                     parts.push(issue.message.clone());
                 }
 
                 println!("  {}", parts.join(" "));
 
-                if ctx.cli_config.show_issue_source_line {
+                if ctx.cli_options.show_issue_source_line {
                     render_source_line(issue);
                 }
             }

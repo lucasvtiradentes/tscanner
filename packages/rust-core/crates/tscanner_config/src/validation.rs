@@ -40,7 +40,6 @@ struct SchemaFields {
     tscanner_config: Vec<String>,
     ai_config: Vec<String>,
     code_editor_config: Vec<String>,
-    cli_config: Vec<String>,
     files_config: Vec<String>,
     rules_config: Vec<String>,
     regex_rule_config: Vec<String>,
@@ -104,7 +103,6 @@ fn build_schema_fields(schema: &Value) -> SchemaFields {
         tscanner_config,
         ai_config: extract_definition_properties(schema, "AiConfig"),
         code_editor_config: extract_definition_properties(schema, "CodeEditorConfig"),
-        cli_config: extract_definition_properties(schema, "CliConfig"),
         files_config: extract_definition_properties(schema, "FilesConfig"),
         rules_config: extract_definition_properties(schema, "RulesConfig"),
         regex_rule_config: extract_definition_properties(schema, "RegexRuleConfig"),
@@ -221,10 +219,6 @@ pub fn validate_json_fields(json: &serde_json::Value) -> ValidationResult {
             &FIELDS.code_editor_config,
             "codeEditor",
         ));
-    }
-
-    if let Some(cli) = obj.get("cli").and_then(|v| v.as_object()) {
-        invalid_fields.extend(collect_invalid_fields(cli, &FIELDS.cli_config, "cli"));
     }
 
     if let Some(ai) = obj.get("ai").and_then(|v| v.as_object()) {

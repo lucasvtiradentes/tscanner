@@ -6,13 +6,10 @@ use std::path::Path;
 use tscanner_diagnostics::Severity;
 
 use crate::defaults::{
-    default_ai_execution_mode, default_ai_scan_interval_seconds, default_ai_timeout,
-    default_cli_config, default_cli_group_by, default_cli_no_cache,
-    default_cli_show_issue_description, default_cli_show_issue_rule_name,
-    default_cli_show_issue_severity, default_cli_show_issue_source_line, default_cli_show_settings,
-    default_cli_show_summary, default_code_editor_config, default_exclude, default_files_config,
-    default_highlight_errors, default_highlight_warnings, default_include,
-    default_scan_interval_seconds, default_script_timeout, default_severity, default_true,
+    default_ai_scan_interval_seconds, default_ai_timeout, default_code_editor_config,
+    default_exclude, default_files_config, default_highlight_errors, default_highlight_warnings,
+    default_include, default_scan_interval_seconds, default_script_timeout, default_severity,
+    default_true,
 };
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Default)]
@@ -116,87 +113,6 @@ impl Default for CodeEditorConfig {
     }
 }
 
-#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "lowercase")]
-pub enum CliGroupBy {
-    #[default]
-    File,
-    Rule,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(rename_all = "camelCase")]
-pub struct CliConfig {
-    #[serde(default = "default_cli_group_by")]
-    #[schemars(
-        default = "default_cli_group_by",
-        description = "Group issues by file or rule"
-    )]
-    pub group_by: CliGroupBy,
-
-    #[serde(default = "default_cli_no_cache")]
-    #[schemars(
-        default = "default_cli_no_cache",
-        description = "Skip cache and force full scan"
-    )]
-    pub no_cache: bool,
-
-    #[serde(default = "default_cli_show_settings")]
-    #[schemars(
-        default = "default_cli_show_settings",
-        description = "Show check settings"
-    )]
-    pub show_settings: bool,
-
-    #[serde(default = "default_cli_show_issue_severity")]
-    #[schemars(
-        default = "default_cli_show_issue_severity",
-        description = "Show issue severity icon"
-    )]
-    pub show_issue_severity: bool,
-
-    #[serde(default = "default_cli_show_issue_source_line")]
-    #[schemars(
-        default = "default_cli_show_issue_source_line",
-        description = "Show issue source line text"
-    )]
-    pub show_issue_source_line: bool,
-
-    #[serde(default = "default_cli_show_issue_rule_name")]
-    #[schemars(
-        default = "default_cli_show_issue_rule_name",
-        description = "Show issue rule name"
-    )]
-    pub show_issue_rule_name: bool,
-
-    #[serde(default = "default_cli_show_issue_description")]
-    #[schemars(
-        default = "default_cli_show_issue_description",
-        description = "Show issue rule description/message"
-    )]
-    pub show_issue_description: bool,
-
-    #[serde(default = "default_cli_show_summary")]
-    #[schemars(
-        default = "default_cli_show_summary",
-        description = "Show check summary"
-    )]
-    pub show_summary: bool,
-
-    #[serde(default = "default_ai_execution_mode")]
-    #[schemars(
-        default = "default_ai_execution_mode",
-        description = "AI rules execution mode: 'ignore' (default), 'include', or 'only'"
-    )]
-    pub ai_mode: AiExecutionMode,
-}
-
-impl Default for CliConfig {
-    fn default() -> Self {
-        default_cli_config()
-    }
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct FilesConfig {
@@ -245,10 +161,6 @@ pub struct TscannerConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[schemars(description = "Code editor configuration (highlighting, auto-scan)")]
     pub code_editor: Option<CodeEditorConfig>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "CLI output configuration")]
-    pub cli: Option<CliConfig>,
 
     #[serde(default)]
     #[schemars(description = "Rules configuration (builtin, regex, script)")]
