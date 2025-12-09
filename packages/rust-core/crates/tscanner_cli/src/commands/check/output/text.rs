@@ -3,14 +3,15 @@ use super::CheckContext;
 use crate::shared::{FormattedOutput, OutputFileGroup, OutputRuleGroup, OutputSummary};
 use colored::*;
 use std::collections::HashMap;
+use tscanner_config::{icon_ai, icon_builtin, icon_error, icon_regex, icon_script, icon_warning};
 use tscanner_diagnostics::{IssueRuleType, ScanResult};
 
 fn rule_type_icon(rule_type: IssueRuleType) -> &'static str {
     match rule_type {
-        IssueRuleType::Builtin => "●",
-        IssueRuleType::CustomRegex => "○",
-        IssueRuleType::CustomScript => "▶",
-        IssueRuleType::Ai => "✦",
+        IssueRuleType::Builtin => icon_builtin(),
+        IssueRuleType::CustomRegex => icon_regex(),
+        IssueRuleType::CustomScript => icon_script(),
+        IssueRuleType::Ai => icon_ai(),
     }
 }
 
@@ -153,9 +154,9 @@ impl TextRenderer {
 
                 for issue in issues {
                     let severity_icon = if issue.severity == "error" {
-                        "✖".red()
+                        icon_error().red()
                     } else {
-                        "⚠".yellow()
+                        icon_warning().yellow()
                     };
 
                     let location = format!("{}:{}", issue.line, issue.column);
@@ -211,9 +212,9 @@ impl TextRenderer {
 
                 for issue in issues {
                     let severity_icon = if issue.severity == "error" {
-                        "✖".red()
+                        icon_error().red()
                     } else {
-                        "⚠".yellow()
+                        icon_warning().yellow()
                     };
 
                     let location = format!("{}:{}", issue.line, issue.column);

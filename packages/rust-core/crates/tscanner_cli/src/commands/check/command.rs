@@ -13,7 +13,10 @@ use crate::shared::{
 };
 use tscanner_cache::FileCache;
 use tscanner_cli::{CliGroupMode, OutputFormat};
-use tscanner_config::{app_name, config_dir_name, config_file_name, AiExecutionMode, AiProvider};
+use tscanner_config::{
+    app_name, config_dir_name, config_file_name, icon_progress, icon_skipped, icon_success,
+    icon_warning, AiExecutionMode, AiProvider,
+};
 use tscanner_output::GroupMode;
 use tscanner_scanner::{
     AiProgressCallback, AiProgressEvent, AiRuleStatus, ConfigExt, RegularRulesCompleteCallback,
@@ -347,7 +350,7 @@ pub fn cmd_check(
     if !is_json && !result.warnings.is_empty() {
         println!();
         for warning in &result.warnings {
-            println!("{} {}", "⚠".yellow(), warning.yellow());
+            println!("{} {}", icon_warning().yellow(), warning.yellow());
         }
     }
 
@@ -560,7 +563,8 @@ fn render_ai_progress(
             eprint!("\x1B[0J");
         }
         eprintln!(
-            "⧗ {} {}",
+            "{} {} {}",
+            icon_progress(),
             format!("AI rules ({}/{})", completed, total).cyan().bold(),
             format_duration(elapsed_ms).dimmed()
         );
@@ -579,7 +583,7 @@ fn render_rules_status(label: &str, count: usize, status: RuleStatus) {
         RuleStatus::Completed(duration_ms) => {
             println!(
                 "{} {}",
-                "✓".green(),
+                icon_success().green(),
                 format!(
                     "{} ({}) {}",
                     label,
@@ -593,7 +597,7 @@ fn render_rules_status(label: &str, count: usize, status: RuleStatus) {
         RuleStatus::Skipped => {
             println!(
                 "{} {}",
-                "⊘".dimmed(),
+                icon_skipped().dimmed(),
                 format!("{} ({}) {}", label, count, "skipped".dimmed()).dimmed()
             );
         }

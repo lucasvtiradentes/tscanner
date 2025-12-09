@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use tscanner_config::{icon_ai, icon_builtin, icon_error, icon_regex, icon_script, icon_warning};
 use tscanner_diagnostics::IssueRuleType;
 
 use crate::formatted::FormattedOutput;
@@ -7,10 +8,10 @@ use crate::types::{OutputFileGroup, OutputRuleGroup, OutputSummary};
 
 fn rule_type_icon(rule_type: IssueRuleType) -> &'static str {
     match rule_type {
-        IssueRuleType::Builtin => "●",
-        IssueRuleType::CustomRegex => "○",
-        IssueRuleType::CustomScript => "▶",
-        IssueRuleType::Ai => "✦",
+        IssueRuleType::Builtin => icon_builtin(),
+        IssueRuleType::CustomRegex => icon_regex(),
+        IssueRuleType::CustomScript => icon_script(),
+        IssueRuleType::Ai => icon_ai(),
     }
 }
 
@@ -121,9 +122,9 @@ fn render_by_file(
 
             for issue in issues {
                 let severity_icon = if issue.severity == "error" {
-                    "✖"
+                    icon_error()
                 } else {
-                    "⚠"
+                    icon_warning()
                 };
 
                 let location = format!("{}:{}", issue.line, issue.column);
@@ -210,9 +211,9 @@ fn render_by_rule(
 
             for issue in issues {
                 let severity_icon = if issue.severity == "error" {
-                    "✖"
+                    icon_error()
                 } else {
-                    "⚠"
+                    icon_warning()
                 };
 
                 let location = format!("{}:{}", issue.line, issue.column);

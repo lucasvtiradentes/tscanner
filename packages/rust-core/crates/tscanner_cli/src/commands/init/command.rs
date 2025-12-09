@@ -3,7 +3,10 @@ use colored::*;
 use std::fs;
 use std::path::Path;
 
-use tscanner_config::{config_dir_name, config_file_name};
+use tscanner_config::{
+    ai_rules_dir, config_dir_name, config_file_name, example_ai_rule, example_script_rule,
+    script_rules_dir,
+};
 use tscanner_rules::get_all_rule_metadata;
 use tscanner_service::{log_error, log_info};
 
@@ -62,8 +65,8 @@ pub fn cmd_init(path: &Path, full: bool) -> Result<()> {
         println!("  {}", config_path.display());
         println!();
         println!("{}", "Created example files:".cyan());
-        println!("  script-rules/example-no-debug-comments.ts");
-        println!("  ai-rules/example-find-complexity.md");
+        println!("  {}/{}", script_rules_dir(), example_script_rule());
+        println!("  {}/{}", ai_rules_dir(), example_ai_rule());
     } else {
         println!("{}", "✓ Created default configuration".green().bold());
         println!("  {}", config_path.display());

@@ -1664,6 +1664,7 @@ dependencies = [
  "pathdiff",
  "serde",
  "serde_json",
+ "tscanner_config",
  "tscanner_diagnostics",
 ]
 

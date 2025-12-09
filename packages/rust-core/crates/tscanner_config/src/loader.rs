@@ -1,6 +1,5 @@
 use std::path::Path;
 
-use crate::defaults::get_default_config_json;
 use crate::types::TscannerConfig;
 use crate::validation::{validate_json_fields, ValidationResult};
 
@@ -148,12 +147,5 @@ impl TscannerConfig {
             .chain(script_patterns)
             .chain(ai_patterns)
             .collect()
-    }
-}
-
-impl Default for TscannerConfig {
-    fn default() -> Self {
-        serde_json::from_str(get_default_config_json())
-            .expect("Failed to parse embedded default-config.json")
     }
 }

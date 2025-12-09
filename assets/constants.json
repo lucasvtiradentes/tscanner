@@ -7,5 +7,83 @@
   "defaultTargetBranch": "origin/main",
   "logBasename": "tscannerlogs",
   "ignoreComment": "tscanner-ignore",
-  "ignoreNextLineComment": "tscanner-ignore-next-line"
+  "ignoreNextLineComment": "tscanner-ignore-next-line",
+  "defaults": {
+    "files": {
+      "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+      "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
+    },
+    "codeEditor": {
+      "highlightErrors": true,
+      "highlightWarnings": false,
+      "scanInterval": 0,
+      "aiScanInterval": 0
+    },
+    "timeouts": {
+      "scriptSeconds": 10,
+      "aiSeconds": 120
+    },
+    "intervals": {
+      "lspDebounceMs": 150,
+      "schedulerPollingMs": 50,
+      "scriptPollingMs": 10,
+      "aiPollingMs": 50,
+      "aiInflightWaitMs": 100
+    },
+    "directories": {
+      "scriptRules": "script-rules",
+      "aiRules": "ai-rules"
+    },
+    "examples": {
+      "scriptRule": "example-no-debug-comments.ts",
+      "aiRule": "example-find-complexity.md"
+    }
+  },
+  "display": {
+    "icons": {
+      "builtin": "●",
+      "regex": "○",
+      "script": "▶",
+      "ai": "✦",
+      "error": "✖",
+      "warning": "⚠",
+      "progress": "⧗",
+      "success": "✓",
+      "skipped": "⊘"
+    },
+    "ruleTypes": ["builtin", "regex", "script", "ai"]
+  },
+  "extensions": {
+    "javascript": ["ts", "tsx", "js", "jsx", "mjs", "cjs", "mts", "cts"]
+  },
+  "cache": {
+    "dirName": "tscanner",
+    "filePattern": "cache_{}.json"
+  },
+  "ai": {
+    "tempDir": "tscanner-ai-prompts",
+    "placeholders": {
+      "files": "{{FILES}}",
+      "content": "{{CONTENT}}"
+    },
+    "providers": {
+      "claude": {
+        "command": "claude",
+        "args": ["-p", "--output-format", "text", "--model", "haiku"]
+      },
+      "gemini": {
+        "command": "gemini",
+        "args": ["-o", "text"]
+      }
+    }
+  },
+  "validation": {
+    "conflictingRules": [
+      ["prefer-type-over-interface", "prefer-interface-over-type"],
+      ["no-relative-imports", "no-absolute-imports"]
+    ]
+  },
+  "urls": {
+    "rulesBase": "https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin"
+  }
 }

@@ -13,6 +13,21 @@ type TFields = 'COMMON_SECTION_CONFIG';
 
 const rootDir = path.resolve(__dirname, '..', '..');
 
+type Constants = {
+  defaults: {
+    files: {
+      include: string[];
+      exclude: string[];
+    };
+    codeEditor: {
+      highlightErrors: boolean;
+      highlightWarnings: boolean;
+      scanInterval: number;
+      aiScanInterval: number;
+    };
+  };
+};
+
 function getSchemaUrl(): string {
   const pkgJson = getJson(path.join(rootDir, 'packages/cli/package.json')) as { version: string };
   return `https://unpkg.com/tscanner@${pkgJson.version}/schema.json`;
@@ -20,8 +35,12 @@ function getSchemaUrl(): string {
 
 export function updateConfigSection() {
   const getConfigSectionContent = () => {
-    const defaultConfigJson = getJson(path.join(rootDir, 'assets/configs/default.json')) as Record<string, unknown>;
-    defaultConfigJson.$schema = getSchemaUrl();
+    const constants = getJson(path.join(rootDir, 'assets/constants.json')) as Constants;
+    const defaultConfigJson = {
+      $schema: getSchemaUrl(),
+      files: constants.defaults.files,
+      codeEditor: constants.defaults.codeEditor,
+    };
     const defaultConfigContent = JSON.stringify(defaultConfigJson, null, 2);
 
     return `## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
