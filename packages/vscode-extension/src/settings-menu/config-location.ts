@@ -11,7 +11,7 @@ import {
   getCurrentWorkspaceFolder,
   showToastMessage,
 } from '../common/lib/vscode-utils';
-import { WorkspaceStateKey, updateState } from '../common/state/workspace-state';
+import { WorkspaceStateKey, setWorkspaceState } from '../common/state/workspace-state';
 import type { RegularIssuesView } from '../issues-panel';
 
 const ROOT_PATH = '.';
@@ -74,7 +74,7 @@ export async function showConfigLocationMenu(ctx: ConfigLocationContext): Promis
   }
 
   ctx.currentConfigDirRef.current = newConfigDir;
-  updateState(ctx.context, WorkspaceStateKey.CustomConfigDir, newConfigDir);
+  setWorkspaceState(ctx.context, WorkspaceStateKey.ConfigDir, newConfigDir);
   logger.info(`Config dir changed to: ${getConfigDirLabel(newConfigDir)}`);
 
   await ctx.updateStatusBar();

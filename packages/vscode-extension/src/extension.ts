@@ -5,106 +5,73 @@ import { initializeLogger, logger } from './common/lib/logger';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from './common/lib/vscode-utils';
 import { EXTENSION_DISPLAY_NAME } from './common/scripts-constants';
 import { ExtensionConfigKey, getExtensionConfig, getFullConfigKeyPath } from './common/state/extension-config';
-import { type CommandContext, createExtensionStateRefs } from './common/state/extension-state';
+import { type CommandContext, type ExtensionStateRefs, createExtensionStateRefs } from './common/state/extension-state';
 import { ContextKey, WorkspaceStateKey, getWorkspaceState, setContextKey } from './common/state/workspace-state';
 import { AiIssuesView, IssuesViewIcon, RegularIssuesView } from './issues-panel';
 import { dispose as disposeScanner, getLspClient, startLspClient } from './scanner/client';
 import { StatusBarManager } from './status-bar/status-bar-manager';
-import { disposeAiScanInterval, setupAiScanInterval } from './watchers/ai-scan-interval-watcher';
-import { createConfigWatcher } from './watchers/config-watcher';
-import { createFileWatcher } from './watchers/file-watcher';
-import { disposeScanInterval, setupScanInterval } from './watchers/scan-interval-watcher';
+import { aiScanIntervalWatcher, createConfigWatcher, createFileWatcher, scanIntervalWatcher } from './watchers';
 
 let activationKey: string | undefined;
 
-function setupTreeView(view: RegularIssuesView): vscode.TreeView<vscode.TreeItem> {
-  const viewId = getViewId();
-  logger.info(`Registering tree view with ID: ${viewId}`);
+type Views = {
+  regularView: RegularIssuesView;
+  aiView: AiIssuesView;
+  treeView: vscode.TreeView<vscode.TreeItem>;
+  aiTreeView: vscode.TreeView<vscode.TreeItem>;
+  regularViewIcon: IssuesViewIcon;
+  aiViewIcon: IssuesViewIcon;
+};
 
-  return vscode.window.createTreeView(viewId, {
-    treeDataProvider: view,
-  });
+function setupViews(context: vscode.ExtensionContext): Views {
+  const viewModeKey = getWorkspaceState(context, WorkspaceStateKey.ViewMode);
+  const groupModeKey = getWorkspaceState(context, WorkspaceStateKey.GroupMode);
+
+  const regularView = new RegularIssuesView();
+  regularView.viewMode = viewModeKey;
+  regularView.groupMode = groupModeKey;
+  regularView.setResults([]);
+
+  const aiView = new AiIssuesView();
+  aiView.viewMode = viewModeKey;
+  aiView.groupMode = groupModeKey;
+  aiView.setResults([], true);
+
+  const treeView = vscode.window.createTreeView(getViewId(), { treeDataProvider: regularView });
+  const aiTreeView = vscode.window.createTreeView(getAiViewId(), { treeDataProvider: aiView });
+
+  logger.info(`Registered tree views: ${getViewId()}, ${getAiViewId()}`);
+
+  return {
+    regularView,
+    aiView,
+    treeView,
+    aiTreeView,
+    regularViewIcon: new IssuesViewIcon(treeView, regularView),
+    aiViewIcon: new IssuesViewIcon(aiTreeView, aiView, 'AI'),
+  };
 }
 
-function setupAiTreeView(view: AiIssuesView): vscode.TreeView<vscode.TreeItem> {
-  const viewId = getAiViewId();
-  logger.info(`Registering AI tree view with ID: ${viewId}`);
+function setupContextKeys(context: vscode.ExtensionContext): void {
+  const viewMode = getWorkspaceState(context, WorkspaceStateKey.ViewMode);
+  const groupMode = getWorkspaceState(context, WorkspaceStateKey.GroupMode);
+  const scanMode = getWorkspaceState(context, WorkspaceStateKey.ScanMode);
 
-  return vscode.window.createTreeView(viewId, {
-    treeDataProvider: view,
-  });
-}
+  logger.info(`Setting context keys: viewMode=${viewMode}, groupMode=${groupMode}, scanMode=${scanMode}`);
 
-function setupContextKeys(viewModeKey: string, groupModeKey: string, scanModeKey: string): void {
-  logger.info(`Setting context keys: viewMode=${viewModeKey}, groupMode=${groupModeKey}, scanMode=${scanModeKey}`);
-  setContextKey(ContextKey.ViewMode, viewModeKey);
-  setContextKey(ContextKey.GroupMode, groupModeKey);
-  setContextKey(ContextKey.ScanMode, scanModeKey);
+  setContextKey(ContextKey.ViewMode, viewMode);
+  setContextKey(ContextKey.GroupMode, groupMode);
+  setContextKey(ContextKey.ScanMode, scanMode);
   setContextKey(ContextKey.Searching, false);
   setContextKey(ContextKey.HasScanned, false);
   setContextKey(ContextKey.HasAiScanned, false);
 }
 
-export function activate(context: vscode.ExtensionContext) {
-  const workspaceFolder = getCurrentWorkspaceFolder();
-  const currentKey = workspaceFolder?.uri.fsPath || 'no-workspace';
-
-  if (activationKey === currentKey) {
-    logger.warn('Extension already activated for this workspace, skipping duplicate activation');
-    return;
-  }
-
-  activationKey = currentKey;
-
-  const logsEnabled = getExtensionConfig(ExtensionConfigKey.LogsEnabled);
-  initializeLogger(logsEnabled);
-  logger.clear();
-  logger.info(`${EXTENSION_DISPLAY_NAME} extension activated`);
-
-  const regularView = new RegularIssuesView();
-  const aiView = new AiIssuesView();
-  const viewModeKey = getWorkspaceState(context, WorkspaceStateKey.ViewMode);
-  const groupModeKey = getWorkspaceState(context, WorkspaceStateKey.GroupMode);
-  const scanModeKey = getWorkspaceState(context, WorkspaceStateKey.ScanMode);
-
-  regularView.viewMode = viewModeKey;
-  regularView.groupMode = groupModeKey;
-  regularView.setResults([]);
-  aiView.viewMode = viewModeKey;
-  aiView.groupMode = groupModeKey;
-  aiView.setResults([], true);
-
-  setupContextKeys(viewModeKey, groupModeKey, scanModeKey);
-
-  const treeView = setupTreeView(regularView);
-  const aiTreeView = setupAiTreeView(aiView);
-  const regularViewIcon = new IssuesViewIcon(treeView, regularView);
-  const aiViewIcon = new IssuesViewIcon(aiTreeView, aiView, 'AI');
-  const stateRefs = createExtensionStateRefs(context);
-
-  logger.info('Creating status bar manager...');
-  const statusBarManager = new StatusBarManager(
-    stateRefs.currentScanModeRef,
-    stateRefs.currentCompareBranchRef,
-    stateRefs.currentConfigDirRef,
-  );
-
-  const updateStatusBar = async () => {
-    await statusBarManager.update();
-  };
-
-  updateStatusBar().then(() => logger.info('Status bar setup complete'));
-
-  const commandContext: CommandContext = {
-    context,
-    treeView,
-    stateRefs,
-    updateStatusBar,
-    getLspClient,
-  };
-
-  const commands = registerAllCommands(commandContext, regularView, aiView);
-
+function setupWatchers(
+  context: vscode.ExtensionContext,
+  stateRefs: ExtensionStateRefs,
+  regularView: RegularIssuesView,
+): vscode.Disposable {
   let currentFileWatcher: vscode.FileSystemWatcher | null = null;
 
   const recreateFileWatcher = async () => {
@@ -115,16 +82,18 @@ export function activate(context: vscode.ExtensionContext) {
   };
 
   const configWatcher = createConfigWatcher(async () => {
-    await setupScanInterval(context, stateRefs);
-    await setupAiScanInterval(context, stateRefs);
+    await scanIntervalWatcher.setup(stateRefs);
+    await aiScanIntervalWatcher.setup(stateRefs);
     await recreateFileWatcher();
   });
 
-  context.subscriptions.push(...commands, configWatcher, statusBarManager.getDisposable(), regularViewIcon, aiViewIcon);
-
   void recreateFileWatcher();
 
-  const settingsWatcher = vscode.workspace.onDidChangeConfiguration(async (e) => {
+  return configWatcher;
+}
+
+function setupSettingsListener(): vscode.Disposable {
+  return vscode.workspace.onDidChangeConfiguration(async (e) => {
     if (e.affectsConfiguration(getFullConfigKeyPath(ExtensionConfigKey.LspBin))) {
       const restart = await vscode.window.showInformationMessage(
         `${EXTENSION_DISPLAY_NAME} binary path changed. Restart LSP server?`,
@@ -139,22 +108,75 @@ export function activate(context: vscode.ExtensionContext) {
       }
     }
   });
+}
 
-  context.subscriptions.push(settingsWatcher);
+async function startExtension(stateRefs: ExtensionStateRefs): Promise<void> {
+  logger.info('Starting LSP client...');
+  await startLspClient();
 
-  setTimeout(async () => {
-    logger.info('Starting LSP client...');
-    await startLspClient();
-    logger.info('Running initial scan after 2s delay...');
-    executeCommand(Command.FindIssue, { silent: true });
+  logger.info('Running initial scan...');
+  executeCommand(Command.FindIssue, { silent: true });
 
-    await setupScanInterval(context, stateRefs);
-    await setupAiScanInterval(context, stateRefs);
-  }, 2000);
+  await scanIntervalWatcher.setup(stateRefs);
+  await aiScanIntervalWatcher.setup(stateRefs);
+}
+
+export function activate(context: vscode.ExtensionContext) {
+  const workspaceFolder = getCurrentWorkspaceFolder();
+  const currentKey = workspaceFolder?.uri.fsPath || 'no-workspace';
+
+  if (activationKey === currentKey) {
+    logger.warn('Extension already activated for this workspace, skipping');
+    return;
+  }
+
+  activationKey = currentKey;
+
+  const logsEnabled = getExtensionConfig(ExtensionConfigKey.LogsEnabled);
+  initializeLogger(logsEnabled);
+  logger.clear();
+  logger.info(`${EXTENSION_DISPLAY_NAME} extension activated`);
+
+  setupContextKeys(context);
+
+  const { regularView, aiView, treeView, regularViewIcon, aiViewIcon } = setupViews(context);
+  const stateRefs = createExtensionStateRefs(context);
+
+  const statusBarManager = new StatusBarManager(
+    stateRefs.currentScanModeRef,
+    stateRefs.currentCompareBranchRef,
+    stateRefs.currentConfigDirRef,
+  );
+
+  const updateStatusBar = async () => statusBarManager.update();
+  updateStatusBar().then(() => logger.info('Status bar setup complete'));
+
+  const commandContext: CommandContext = {
+    context,
+    treeView,
+    stateRefs,
+    updateStatusBar,
+    getLspClient,
+  };
+
+  const commands = registerAllCommands(commandContext, regularView, aiView);
+  const configWatcher = setupWatchers(context, stateRefs, regularView);
+  const settingsWatcher = setupSettingsListener();
+
+  context.subscriptions.push(
+    ...commands,
+    configWatcher,
+    settingsWatcher,
+    statusBarManager.getDisposable(),
+    regularViewIcon,
+    aiViewIcon,
+  );
+
+  setTimeout(() => startExtension(stateRefs), 2000);
 }
 
 export function deactivate() {
-  disposeScanInterval();
-  disposeAiScanInterval();
+  scanIntervalWatcher.dispose();
+  aiScanIntervalWatcher.dispose();
   disposeScanner();
 }

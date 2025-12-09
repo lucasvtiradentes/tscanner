@@ -10,7 +10,7 @@ export enum WorkspaceStateKey {
   ScanMode = 'scanMode',
   CompareBranch = 'compareBranch',
   CachedResults = 'cachedResults',
-  CustomConfigDir = 'customConfigDir',
+  ConfigDir = 'customConfigDir',
 }
 
 const workspaceStateSchema = z.object({
@@ -19,7 +19,7 @@ const workspaceStateSchema = z.object({
   [WorkspaceStateKey.ScanMode]: z.enum(ScanMode),
   [WorkspaceStateKey.CompareBranch]: z.string(),
   [WorkspaceStateKey.CachedResults]: z.array(z.any()),
-  [WorkspaceStateKey.CustomConfigDir]: z.string().nullable(),
+  [WorkspaceStateKey.ConfigDir]: z.string().nullable(),
 });
 
 type WorkspaceStateSchema = z.infer<typeof workspaceStateSchema>;
@@ -31,7 +31,7 @@ const defaultValues: WorkspaceStateSchema = {
   [WorkspaceStateKey.ScanMode]: ScanMode.Codebase,
   [WorkspaceStateKey.CompareBranch]: DEFAULT_TARGET_BRANCH,
   [WorkspaceStateKey.CachedResults]: [],
-  [WorkspaceStateKey.CustomConfigDir]: null,
+  [WorkspaceStateKey.ConfigDir]: null,
 };
 
 const CONTEXT_PREFIX = 'tscanner';

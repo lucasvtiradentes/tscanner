@@ -15,7 +15,7 @@ enum SettingsMenuOption {
 
 export function createOpenSettingsMenuCommand(ctx: CommandContext, regularView: RegularIssuesView) {
   const { context, stateRefs, updateStatusBar } = ctx;
-  const { currentScanModeRef, currentCompareBranchRef, currentConfigDirRef } = stateRefs;
+  const { currentConfigDirRef } = stateRefs;
 
   return registerCommand(Command.OpenSettingsMenu, async () => {
     logger.info('openSettingsMenu command called');
@@ -49,21 +49,14 @@ export function createOpenSettingsMenuCommand(ctx: CommandContext, regularView: 
       ignoreFocusOut: false,
     });
 
-    if (!selected) {
-      return;
-    }
+    if (!selected) return;
 
     switch (selected.id) {
       case SettingsMenuOption.ManageScanMode:
-        await showScanModeMenu(updateStatusBar, currentScanModeRef, currentCompareBranchRef, context, regularView);
+        await showScanModeMenu({ updateStatusBar, stateRefs, context, regularView });
         break;
       case SettingsMenuOption.ManageConfigLocation:
-        await showConfigLocationMenu({
-          updateStatusBar,
-          currentConfigDirRef,
-          context,
-          regularView,
-        });
+        await showConfigLocationMenu({ updateStatusBar, currentConfigDirRef, context, regularView });
         break;
     }
   });

@@ -26,8 +26,7 @@ import {
 } from '../../common/state/workspace-state';
 import { serializeResults } from '../../common/types';
 import type { RegularIssuesView } from '../../issues-panel';
-import { scanBranch } from '../../scanner/branch-scan';
-import { scanCodebase } from '../../scanner/codebase-scan';
+import { scan } from '../../scanner/scan';
 import { resetIssueIndex } from './issue-navigation';
 
 export function createScanWorkspaceCommand(ctx: CommandContext, regularView: RegularIssuesView) {
@@ -102,10 +101,8 @@ export function createScanWorkspaceCommand(ctx: CommandContext, regularView: Reg
 
     try {
       const startTime = Date.now();
-      const results =
-        currentScanModeRef.current === ScanMode.Branch
-          ? await scanBranch(currentCompareBranchRef.current, undefined, configToPass, options?.aiMode)
-          : await scanCodebase(undefined, configToPass, options?.aiMode);
+      const branch = currentScanModeRef.current === ScanMode.Branch ? currentCompareBranchRef.current : undefined;
+      const results = await scan({ branch, config: configToPass, aiMode: options?.aiMode });
 
       const elapsed = Date.now() - startTime;
       logger.info(`Search completed in ${elapsed}ms, found ${results.length} results`);

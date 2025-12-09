@@ -12,9 +12,8 @@ import {
 import type { CommandContext } from '../../common/state/extension-state';
 import { ContextKey, setContextKey } from '../../common/state/workspace-state';
 import type { AiIssuesView } from '../../issues-panel';
-import { scanBranch } from '../../scanner/branch-scan';
 import { getLspClient } from '../../scanner/client';
-import { scanCodebase } from '../../scanner/codebase-scan';
+import { scan } from '../../scanner/scan';
 
 export function createRefreshCommand() {
   return registerCommand(Command.Refresh, async () => {
@@ -66,10 +65,8 @@ export function createRefreshAiIssuesCommand(ctx: CommandContext, aiView: AiIssu
       }
 
       const startTime = Date.now();
-      const results =
-        currentScanModeRef.current === ScanMode.Branch
-          ? await scanBranch(currentCompareBranchRef.current, undefined, configToPass, AiExecutionMode.Only)
-          : await scanCodebase(undefined, configToPass, AiExecutionMode.Only);
+      const branch = currentScanModeRef.current === ScanMode.Branch ? currentCompareBranchRef.current : undefined;
+      const results = await scan({ branch, config: configToPass, aiMode: AiExecutionMode.Only });
 
       const elapsed = Date.now() - startTime;
       logger.info(`[AI Scan] Completed in ${elapsed}ms, found ${results.length} AI issues`);
