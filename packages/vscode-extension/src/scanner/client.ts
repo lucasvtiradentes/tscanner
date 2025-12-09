@@ -18,6 +18,7 @@ let lspClient: TscannerLspClient | null = null;
 export async function ensureLspClient(): Promise<TscannerLspClient> {
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (!workspaceFolder) {
+    logger.info('No workspace folder open, LSP client not started');
     throw new Error('No workspace folder found');
   }
 

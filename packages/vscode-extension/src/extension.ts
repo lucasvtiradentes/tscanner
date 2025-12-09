@@ -112,7 +112,11 @@ function setupSettingsListener(): vscode.Disposable {
 
 async function startExtension(stateRefs: ExtensionStateRefs): Promise<void> {
   logger.info('Starting LSP client...');
-  await startLspClient();
+  try {
+    await startLspClient();
+  } catch (err) {
+    return;
+  }
 
   logger.info('Running initial scan...');
   executeCommand(Command.FindIssue, { silent: true });
