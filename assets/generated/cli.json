@@ -49,13 +49,12 @@
         {
           "name": "format",
           "short": null,
-          "description": "Output format: text, json, or pretty",
+          "description": "Output format: text or json",
           "takesValue": true,
           "valueName": "FORMAT",
           "possibleValues": [
             "text",
-            "json",
-            "pretty"
+            "json"
           ],
           "defaultValue": "text",
           "required": false
@@ -93,6 +92,16 @@
             "true",
             "false"
           ],
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "json-output",
+          "short": null,
+          "description": "Additionally save JSON output to file (works with any format)",
+          "takesValue": true,
+          "valueName": "FILE",
+          "possibleValues": null,
           "defaultValue": null,
           "required": false
         },
@@ -136,63 +145,6 @@
           "name": "staged",
           "short": null,
           "description": "Scan only git staged files",
-          "takesValue": false,
-          "valueName": null,
-          "possibleValues": [
-            "true",
-            "false"
-          ],
-          "defaultValue": null,
-          "required": false
-        }
-      ]
-    },
-    {
-      "name": "config",
-      "description": "Configuration management",
-      "usage": "tscanner config [options]",
-      "arguments": [],
-      "flags": [
-        {
-          "name": "config-path",
-          "short": null,
-          "description": "Path to .tscanner folder",
-          "takesValue": true,
-          "valueName": "CONFIG_DIR",
-          "possibleValues": null,
-          "defaultValue": ".tscanner",
-          "required": false
-        },
-        {
-          "name": "rules",
-          "short": null,
-          "description": "List all available rules and their status",
-          "takesValue": false,
-          "valueName": null,
-          "possibleValues": [
-            "true",
-            "false"
-          ],
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "show",
-          "short": null,
-          "description": "Show the resolved configuration",
-          "takesValue": false,
-          "valueName": null,
-          "possibleValues": [
-            "true",
-            "false"
-          ],
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "validate",
-          "short": null,
-          "description": "Validate the configuration file",
           "takesValue": false,
           "valueName": null,
           "possibleValues": [

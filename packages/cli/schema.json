@@ -22,22 +22,14 @@
           "description": "AI provider to use (claude, gemini, custom)"
         },
         "timeout": {
-          "default": 120000,
-          "description": "Timeout in milliseconds for AI calls (default: 120000)",
+          "default": 120,
+          "description": "Timeout in seconds for AI calls (default: 120)",
           "format": "uint64",
           "minimum": 0.0,
           "type": "integer"
         }
       },
       "type": "object"
-    },
-    "AiExecutionMode": {
-      "enum": [
-        "ignore",
-        "include",
-        "only"
-      ],
-      "type": "string"
     },
     "AiMode": {
       "enum": [
@@ -90,7 +82,7 @@
           "description": "How files are provided to the AI: 'paths' (default) sends only file paths, 'content' sends file contents in prompt, 'agentic' lets AI explore files autonomously"
         },
         "prompt": {
-          "description": "Path to AI prompt markdown file (relative to .tscanner/prompts/)",
+          "description": "Path to AI prompt markdown file (relative to .tscanner/ai-rules/)",
           "type": "string"
         },
         "severity": {
@@ -103,7 +95,7 @@
           "description": "Severity level (default: warning)"
         },
         "timeout": {
-          "description": "Override timeout for this rule in milliseconds",
+          "description": "Override timeout for this rule in seconds",
           "format": "uint64",
           "minimum": 0.0,
           "type": [
@@ -1651,74 +1643,9 @@
       },
       "type": "object"
     },
-    "CliConfig": {
-      "properties": {
-        "aiMode": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/AiExecutionMode"
-            }
-          ],
-          "default": "ignore",
-          "description": "AI rules execution mode: 'ignore' (default), 'include', or 'only'"
-        },
-        "groupBy": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/CliGroupBy"
-            }
-          ],
-          "default": "file",
-          "description": "Group issues by file or rule"
-        },
-        "noCache": {
-          "default": false,
-          "description": "Skip cache and force full scan",
-          "type": "boolean"
-        },
-        "showIssueDescription": {
-          "default": false,
-          "description": "Show issue rule description/message",
-          "type": "boolean"
-        },
-        "showIssueRuleName": {
-          "default": true,
-          "description": "Show issue rule name",
-          "type": "boolean"
-        },
-        "showIssueSeverity": {
-          "default": true,
-          "description": "Show issue severity icon",
-          "type": "boolean"
-        },
-        "showIssueSourceLine": {
-          "default": true,
-          "description": "Show issue source line text",
-          "type": "boolean"
-        },
-        "showSettings": {
-          "default": true,
-          "description": "Show check settings",
-          "type": "boolean"
-        },
-        "showSummary": {
-          "default": true,
-          "description": "Show check summary",
-          "type": "boolean"
-        }
-      },
-      "type": "object"
-    },
-    "CliGroupBy": {
-      "enum": [
-        "file",
-        "rule"
-      ],
-      "type": "string"
-    },
     "CodeEditorConfig": {
       "properties": {
-        "aiScanIntervalSeconds": {
+        "aiScanInterval": {
           "default": 0,
           "description": "Auto-scan interval for AI rules in seconds (0 = disabled). Runs only AI rules on a separate schedule.",
           "format": "uint32",
@@ -1735,7 +1662,7 @@
           "description": "Highlight warning issues in the code editor",
           "type": "boolean"
         },
-        "scanIntervalSeconds": {
+        "scanInterval": {
           "default": 0,
           "description": "Auto-scan interval in seconds (0 = disabled, only manual/on-save scans)",
           "format": "uint32",
@@ -1966,7 +1893,7 @@
     "ScriptRuleConfig": {
       "properties": {
         "command": {
-          "description": "Full command to execute the script (e.g., 'npx tsx scripts/my-script.ts --arg'). Path is relative to .tscanner/ directory.",
+          "description": "Full command to execute the script (e.g., 'npx tsx script-rules/my-script.ts --arg'). Path is relative to .tscanner/ directory.",
           "type": "string"
         },
         "enabled": {
@@ -2005,8 +1932,8 @@
           "description": "Severity level (default: warning)"
         },
         "timeout": {
-          "default": 10000,
-          "description": "Script timeout in milliseconds (default: 10000)",
+          "default": 10,
+          "description": "Script timeout in seconds (default: 10)",
           "format": "uint64",
           "minimum": 0.0,
           "type": "integer"
@@ -2051,17 +1978,6 @@
       },
       "description": "AI-powered rules (expensive, run separately)",
       "type": "object"
-    },
-    "cli": {
-      "anyOf": [
-        {
-          "$ref": "#/definitions/CliConfig"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "CLI output configuration"
     },
     "codeEditor": {
       "anyOf": [

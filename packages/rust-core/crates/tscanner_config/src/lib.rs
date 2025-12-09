@@ -12,8 +12,8 @@ pub use defaults::{
 pub use globset::{compile_globset, compile_optional_globset};
 pub use loader::CONFIG_ERROR_PREFIX;
 pub use types::{
-    AiConfig, AiExecutionMode, AiMode, AiProvider, AiRuleConfig, BuiltinRuleConfig, CliConfig,
-    CliGroupBy, CodeEditorConfig, CompiledRuleConfig, FilesConfig, RegexRuleConfig, RulesConfig,
+    AiConfig, AiExecutionMode, AiMode, AiProvider, AiRuleConfig, BuiltinRuleConfig,
+    CodeEditorConfig, CompiledRuleConfig, FilesConfig, RegexRuleConfig, RulesConfig,
     ScriptRuleConfig, TscannerConfig,
 };
 pub use validation::{validate_json_fields, ValidationResult};

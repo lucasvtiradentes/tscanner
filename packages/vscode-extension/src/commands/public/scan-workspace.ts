@@ -57,14 +57,7 @@ export function createScanWorkspaceCommand(ctx: CommandContext, regularView: Reg
     if (!hasConfiguredRules(effectiveConfig)) {
       regularView.setResults([]);
       if (!options?.silent) {
-        const action = await showToastMessage(
-          ToastKind.Warning,
-          'No rules configured for this workspace',
-          'Configure Rules',
-        );
-        if (action === 'Configure Rules') {
-          await executeCommand(Command.ManageRules);
-        }
+        showToastMessage(ToastKind.Warning, 'No rules configured. Run "tscanner init" to create config.');
       }
       return;
     }

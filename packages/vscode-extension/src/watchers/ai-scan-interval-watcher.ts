@@ -25,15 +25,15 @@ export async function setupAiScanInterval(
     stateRefs.currentCustomConfigDirRef.current,
   );
 
-  const aiScanIntervalSeconds = config?.codeEditor?.aiScanIntervalSeconds ?? 0;
+  const aiScanInterval = config?.codeEditor?.aiScanInterval ?? 0;
 
-  if (aiScanIntervalSeconds <= 0) {
-    logger.info('AI auto-scan interval disabled (aiScanIntervalSeconds = 0)');
+  if (aiScanInterval <= 0) {
+    logger.info('AI auto-scan interval disabled (aiScanInterval = 0)');
     return;
   }
 
-  const intervalMs = aiScanIntervalSeconds * 1000;
-  logger.info(`Setting up AI auto-scan interval: ${aiScanIntervalSeconds} seconds`);
+  const intervalMs = aiScanInterval * 1000;
+  logger.info(`Setting up AI auto-scan interval: ${aiScanInterval} seconds`);
 
   aiScanIntervalTimer = setInterval(() => {
     if (stateRefs.isSearchingRef.current) {

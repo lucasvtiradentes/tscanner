@@ -144,8 +144,6 @@ TScanner lets you define those rules once. Every AI-generated file, every PR, ev
 
 ## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-TScanner is available as a [VSCode Extension](packages/vscode-extension#readme), [CLI](packages/cli#readme), and [GitHub Action](packages/github-action#readme).
-
 <!-- <DYNFIELD:QUICK_START_INSTALL> -->
 1. Install locally
 
@@ -245,8 +243,7 @@ jobs:
 To scan your code, you need to set up the rules in the TScanner config folder. Here's how to get started:
 
 1. **CLI**: Run `tscanner init` in your project root (**Recommended**)
-2. **VSCode Extension**: TScanner icon in the status bar → `Manage Rules` → Select desired rules → `Save`
-3. **Manual**: Copy the default config below to `.tscanner/config.jsonc`
+2. **Manual**: Copy the default config below to `.tscanner/config.jsonc`
 
 <div align="center">
 <details>
@@ -259,15 +256,6 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 ```json
 {
   "$schema": "https://unpkg.com/tscanner@0.0.29/schema.json",
-  "rules": {
-    "builtin": {
-      "no-explicit-any": {}
-    },
-    "regex": {},
-    "script": {}
-  },
-  "aiRules": {},
-  "ai": {},
   "files": {
     "include": [
       "**/*.ts",
@@ -287,19 +275,8 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": false,
-    "scanIntervalSeconds": 0,
-    "aiScanIntervalSeconds": 0
-  },
-  "cli": {
-    "groupBy": "file",
-    "aiMode": "ignore",
-    "noCache": false,
-    "showSettings": true,
-    "showIssueSeverity": true,
-    "showIssueSourceLine": true,
-    "showIssueRuleName": true,
-    "showIssueDescription": false,
-    "showSummary": true
+    "scanInterval": 0,
+    "aiScanInterval": 0
   }
 }
 ```
@@ -386,7 +363,7 @@ Customize TScanner to validate what matters to your project while maintaining co
     <th width="400">Example</th>
   </tr>
   <tr>
-    <td>Built-in</td>
+    <td><b>Built-in</b></td>
     <td>38 ready-to-use AST rules</td>
     <td><code>no-explicit-any</code>, <code>prefer-const</code>, <code>no-console</code></td>
   </tr>
@@ -409,6 +386,9 @@ Customize TScanner to validate what matters to your project while maintaining co
 
 </div>
 
+
+  <br />
+  
 <div align="center">
 
 <details>
@@ -781,7 +761,7 @@ Run custom scripts that receive file data via stdin and output issues as JSON:
   "rules": {
     "script": {
       "no-debug-comments": {
-        "command": "npx tsx .tscanner/scripts/no-debug-comments.ts",
+        "command": "npx tsx .tscanner/script-rules/no-debug-comments.ts",
         "message": "Debug comments should be removed",
         "severity": "warning"
       }
@@ -790,7 +770,7 @@ Run custom scripts that receive file data via stdin and output issues as JSON:
 }
 ```
 
-**Script** (`.tscanner/scripts/no-debug-comments.ts`):
+**Script** (`.tscanner/script-rules/no-debug-comments.ts`):
 ```typescript
 #!/usr/bin/env npx tsx
 
@@ -872,12 +852,12 @@ Use AI prompts to perform semantic code analysis:
   },
   "ai": {
     "provider": "claude",
-    "timeout": 120000
+    "timeout": 120
   }
 }
 ```
 
-**Prompt** (`.tscanner/prompts/find-complexity.md`):
+**Prompt** (`.tscanner/ai-rules/find-complexity.md`):
 ```markdown
 # Find Complex Functions
 

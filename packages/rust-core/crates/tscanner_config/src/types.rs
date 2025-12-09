@@ -6,13 +6,9 @@ use std::path::Path;
 use tscanner_diagnostics::Severity;
 
 use crate::defaults::{
-    default_ai_execution_mode, default_ai_scan_interval_seconds, default_ai_timeout,
-    default_cli_config, default_cli_group_by, default_cli_no_cache,
-    default_cli_show_issue_description, default_cli_show_issue_rule_name,
-    default_cli_show_issue_severity, default_cli_show_issue_source_line, default_cli_show_settings,
-    default_cli_show_summary, default_code_editor_config, default_exclude, default_files_config,
-    default_highlight_errors, default_highlight_warnings, default_include,
-    default_scan_interval_seconds, default_script_timeout, default_severity, default_true,
+    default_ai_scan_interval, default_ai_timeout, default_code_editor_config, default_exclude,
+    default_files_config, default_highlight_errors, default_highlight_warnings, default_include,
+    default_scan_interval, default_script_timeout, default_severity, default_true,
 };
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Default)]
@@ -30,6 +26,27 @@ pub enum AiProvider {
     Claude,
     Gemini,
     Custom,
+}
+
+impl AiProvider {
+    pub const ALL: &'static [AiProvider] =
+        &[AiProvider::Claude, AiProvider::Gemini, AiProvider::Custom];
+
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            AiProvider::Claude => "claude",
+            AiProvider::Gemini => "gemini",
+            AiProvider::Custom => "custom",
+        }
+    }
+
+    pub fn all_names() -> String {
+        Self::ALL
+            .iter()
+            .map(|p| p.as_str())
+            .collect::<Vec<_>>()
+            .join(", ")
+    }
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Default)]
@@ -53,7 +70,7 @@ pub struct AiConfig {
     pub command: Option<String>,
 
     #[serde(default = "default_ai_timeout")]
-    #[schemars(description = "Timeout in milliseconds for AI calls (default: 120000)")]
+    #[schemars(description = "Timeout in seconds for AI calls (default: 120)")]
     pub timeout: u64,
 }
 
@@ -74,105 +91,24 @@ pub struct CodeEditorConfig {
     )]
     pub highlight_warnings: bool,
 
-    #[serde(default = "default_scan_interval_seconds")]
+    #[serde(default = "default_scan_interval")]
     #[schemars(
-        default = "default_scan_interval_seconds",
+        default = "default_scan_interval",
         description = "Auto-scan interval in seconds (0 = disabled, only manual/on-save scans)"
     )]
-    pub scan_interval_seconds: u32,
+    pub scan_interval: u32,
 
-    #[serde(default = "default_ai_scan_interval_seconds")]
+    #[serde(default = "default_ai_scan_interval")]
     #[schemars(
-        default = "default_ai_scan_interval_seconds",
+        default = "default_ai_scan_interval",
         description = "Auto-scan interval for AI rules in seconds (0 = disabled). Runs only AI rules on a separate schedule."
     )]
-    pub ai_scan_interval_seconds: u32,
+    pub ai_scan_interval: u32,
 }
 
 impl Default for CodeEditorConfig {
     fn default() -> Self {
         default_code_editor_config()
-    }
-}
-
-#[derive(Debug, Clone, Copy, Default, Serialize, Deserialize, PartialEq, Eq, JsonSchema)]
-#[serde(rename_all = "lowercase")]
-pub enum CliGroupBy {
-    #[default]
-    File,
-    Rule,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(rename_all = "camelCase")]
-pub struct CliConfig {
-    #[serde(default = "default_cli_group_by")]
-    #[schemars(
-        default = "default_cli_group_by",
-        description = "Group issues by file or rule"
-    )]
-    pub group_by: CliGroupBy,
-
-    #[serde(default = "default_cli_no_cache")]
-    #[schemars(
-        default = "default_cli_no_cache",
-        description = "Skip cache and force full scan"
-    )]
-    pub no_cache: bool,
-
-    #[serde(default = "default_cli_show_settings")]
-    #[schemars(
-        default = "default_cli_show_settings",
-        description = "Show check settings"
-    )]
-    pub show_settings: bool,
-
-    #[serde(default = "default_cli_show_issue_severity")]
-    #[schemars(
-        default = "default_cli_show_issue_severity",
-        description = "Show issue severity icon"
-    )]
-    pub show_issue_severity: bool,
-
-    #[serde(default = "default_cli_show_issue_source_line")]
-    #[schemars(
-        default = "default_cli_show_issue_source_line",
-        description = "Show issue source line text"
-    )]
-    pub show_issue_source_line: bool,
-
-    #[serde(default = "default_cli_show_issue_rule_name")]
-    #[schemars(
-        default = "default_cli_show_issue_rule_name",
-        description = "Show issue rule name"
-    )]
-    pub show_issue_rule_name: bool,
-
-    #[serde(default = "default_cli_show_issue_description")]
-    #[schemars(
-        default = "default_cli_show_issue_description",
-        description = "Show issue rule description/message"
-    )]
-    pub show_issue_description: bool,
-
-    #[serde(default = "default_cli_show_summary")]
-    #[schemars(
-        default = "default_cli_show_summary",
-        description = "Show check summary"
-    )]
-    pub show_summary: bool,
-
-    #[serde(default = "default_ai_execution_mode")]
-    #[schemars(
-        default = "default_ai_execution_mode",
-        description = "AI rules execution mode: 'ignore' (default), 'include', or 'only'"
-    )]
-    pub ai_mode: AiExecutionMode,
-}
-
-impl Default for CliConfig {
-    fn default() -> Self {
-        default_cli_config()
     }
 }
 
@@ -224,10 +160,6 @@ pub struct TscannerConfig {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[schemars(description = "Code editor configuration (highlighting, auto-scan)")]
     pub code_editor: Option<CodeEditorConfig>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "CLI output configuration")]
-    pub cli: Option<CliConfig>,
 
     #[serde(default)]
     #[schemars(description = "Rules configuration (builtin, regex, script)")]
@@ -309,7 +241,7 @@ impl Default for RegexRuleConfig {
 #[serde(rename_all = "camelCase")]
 pub struct ScriptRuleConfig {
     #[schemars(
-        description = "Full command to execute the script (e.g., 'npx tsx scripts/my-script.ts --arg'). Path is relative to .tscanner/ directory."
+        description = "Full command to execute the script (e.g., 'npx tsx script-rules/my-script.ts --arg'). Path is relative to .tscanner/ directory."
     )]
     pub command: String,
 
@@ -333,7 +265,7 @@ pub struct ScriptRuleConfig {
     pub exclude: Vec<String>,
 
     #[serde(default = "default_script_timeout")]
-    #[schemars(description = "Script timeout in milliseconds (default: 10000)")]
+    #[schemars(description = "Script timeout in seconds (default: 10)")]
     pub timeout: u64,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -350,7 +282,7 @@ impl Default for ScriptRuleConfig {
             enabled: true,
             include: Vec::new(),
             exclude: Vec::new(),
-            timeout: 10000,
+            timeout: 10,
             options: None,
         }
     }
@@ -359,7 +291,7 @@ impl Default for ScriptRuleConfig {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct AiRuleConfig {
-    #[schemars(description = "Path to AI prompt markdown file (relative to .tscanner/prompts/)")]
+    #[schemars(description = "Path to AI prompt markdown file (relative to .tscanner/ai-rules/)")]
     pub prompt: String,
 
     #[schemars(description = "Error message to display when rule is violated")]
@@ -388,7 +320,7 @@ pub struct AiRuleConfig {
     pub exclude: Vec<String>,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "Override timeout for this rule in milliseconds")]
+    #[schemars(description = "Override timeout for this rule in seconds")]
     pub timeout: Option<u64>,
 }
 

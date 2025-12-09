@@ -7,7 +7,7 @@
       "severity": "warning",
       "include": ["**/Dockerfile", "**/Dockerfile.*"],
       "mode": "batch",
-      "timeout": 10000
+      "timeout": 10
     }
   }
 }

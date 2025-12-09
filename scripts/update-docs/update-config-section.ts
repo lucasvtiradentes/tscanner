@@ -29,8 +29,7 @@ export function updateConfigSection() {
 To scan your code, you need to set up the rules in the ${PACKAGE_DISPLAY_NAME} config folder. Here's how to get started:
 
 1. **CLI**: Run \`${PACKAGE_NAME} init\` in your project root (**Recommended**)
-2. **VSCode Extension**: ${PACKAGE_DISPLAY_NAME} icon in the status bar → \`Manage Rules\` → Select desired rules → \`Save\`
-3. **Manual**: Copy the default config below to \`${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}\`
+2. **Manual**: Copy the default config below to \`${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}\`
 
 <div align="center">
 <details>

@@ -1,5 +1,5 @@
 import { z } from 'zod';
-import { AiExecutionMode, AiMode, AiProvider, GroupMode, severitySchema } from '../constants';
+import { AiExecutionMode, AiMode, AiProvider, severitySchema } from '../constants';
 
 const baseRuleConfigSchema = z.object({
   enabled: z.boolean().optional(),
@@ -48,23 +48,11 @@ const aiConfigSchema = z.object({
 const codeEditorConfigSchema = z.object({
   highlightErrors: z.boolean().optional(),
   highlightWarnings: z.boolean().optional(),
-  scanIntervalSeconds: z.number().optional(),
-  aiScanIntervalSeconds: z.number().optional(),
+  scanInterval: z.number().optional(),
+  aiScanInterval: z.number().optional(),
 });
 
 const aiExecutionModeSchema = z.enum(AiExecutionMode);
-
-const cliConfigSchema = z.object({
-  groupBy: z.enum(GroupMode).optional(),
-  noCache: z.boolean().optional(),
-  showSettings: z.boolean().optional(),
-  showIssueSeverity: z.boolean().optional(),
-  showIssueSourceLine: z.boolean().optional(),
-  showIssueRuleName: z.boolean().optional(),
-  showIssueDescription: z.boolean().optional(),
-  showSummary: z.boolean().optional(),
-  aiMode: aiExecutionModeSchema.optional(),
-});
 
 const filesConfigSchema = z.object({
   include: z.array(z.string()).optional(),
@@ -77,7 +65,6 @@ export const tscannerConfigSchema = z.object({
   files: filesConfigSchema.optional(),
   ai: aiConfigSchema.optional(),
   codeEditor: codeEditorConfigSchema.optional(),
-  cli: cliConfigSchema.optional(),
 });
 
 export type TscannerConfig = z.infer<typeof tscannerConfigSchema>;

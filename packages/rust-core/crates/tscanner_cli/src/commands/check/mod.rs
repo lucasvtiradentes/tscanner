@@ -1,4 +1,4 @@
-mod command;
+pub mod command;
 pub mod context;
 mod filters;
 mod git;

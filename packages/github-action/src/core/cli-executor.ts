@@ -2,7 +2,7 @@ import { PACKAGE_NAME } from 'tscanner-common';
 import { githubHelper } from '../lib/actions-helper';
 
 export type CliExecutor = {
-  execute: (args: string[]) => Promise<string>;
+  execute: (args: string[]) => Promise<void>;
 };
 
 export function createDevModeExecutor(): CliExecutor {
@@ -12,18 +12,11 @@ export function createDevModeExecutor(): CliExecutor {
   githubHelper.logInfo(`Using local CLI: ${cliPath}`);
 
   return {
-    async execute(args: string[]): Promise<string> {
-      let output = '';
+    async execute(args: string[]): Promise<void> {
       await githubHelper.execCommand('node', [cliPath, ...args], {
-        silent: true,
-        listeners: {
-          stdout: (data: Buffer) => {
-            output += data.toString();
-          },
-        },
+        silent: false,
         ignoreReturnCode: true,
       });
-      return output;
     },
   };
 }
@@ -34,18 +27,11 @@ export function createProdModeExecutor(tscannerVersion: string): CliExecutor {
   githubHelper.logInfo(`Using published ${PACKAGE_NAME} from npm: ${packageSpec}`);
 
   return {
-    async execute(args: string[]): Promise<string> {
-      let output = '';
+    async execute(args: string[]): Promise<void> {
       await githubHelper.execCommand('npx', [packageSpec, ...args], {
-        silent: true,
-        listeners: {
-          stdout: (data: Buffer) => {
-            output += data.toString();
-          },
-        },
+        silent: false,
         ignoreReturnCode: true,
       });
-      return output;
     },
   };
 }

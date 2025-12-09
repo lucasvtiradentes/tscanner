@@ -3,7 +3,6 @@ import { getCommandId } from '../constants';
 
 export enum Command {
   FindIssue = 'findIssue',
-  ManageRules = 'manageRules',
   OpenSettingsMenu = 'openSettingsMenu',
   CycleViewModeFileFlatView = 'cycleViewModeFileFlatView',
   CycleViewModeFileTreeView = 'cycleViewModeFileTreeView',

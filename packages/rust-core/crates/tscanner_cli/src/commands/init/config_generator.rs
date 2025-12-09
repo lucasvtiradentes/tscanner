@@ -28,18 +28,18 @@ pub fn get_full_config() -> String {
 }
 
 pub fn write_example_files(config_dir: &Path) -> Result<()> {
-    let scripts_dir = config_dir.join("scripts");
-    fs::create_dir_all(&scripts_dir).context("Failed to create scripts directory")?;
+    let script_rules_dir = config_dir.join("script-rules");
+    fs::create_dir_all(&script_rules_dir).context("Failed to create script-rules directory")?;
     fs::write(
-        scripts_dir.join("example-no-debug-comments.ts"),
+        script_rules_dir.join("example-no-debug-comments.ts"),
         EXAMPLE_SCRIPT,
     )
     .context("Failed to write example script")?;
 
-    let prompts_dir = config_dir.join("prompts");
-    fs::create_dir_all(&prompts_dir).context("Failed to create prompts directory")?;
+    let ai_rules_dir = config_dir.join("ai-rules");
+    fs::create_dir_all(&ai_rules_dir).context("Failed to create ai-rules directory")?;
     fs::write(
-        prompts_dir.join("example-find-complexity.md"),
+        ai_rules_dir.join("example-find-complexity.md"),
         EXAMPLE_PROMPT,
     )
     .context("Failed to write example prompt")?;

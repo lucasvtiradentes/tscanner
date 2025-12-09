@@ -2,7 +2,7 @@ import type * as vscode from 'vscode';
 import { setCopyLspClient, setCopyScanContext } from '../common/lib/copy-utils';
 import type { CommandContext } from '../common/state/extension-state';
 import type { AiIssuesView, RegularIssuesView } from '../issues-panel';
-import { createManageRulesCommand, createOpenSettingsMenuCommand } from '../settings-menu';
+import { createOpenSettingsMenuCommand } from '../settings-menu';
 import { createCopyAllAiIssuesCommand, createCopyAllIssuesCommand } from './internal/copy-all';
 import {
   createCopyAiFileIssuesCommand,
@@ -44,7 +44,6 @@ export function registerAllCommands(
     createGoToPreviousIssueCommand(regularView),
     createShowLogsCommand(),
     createRefreshCommand(),
-    createManageRulesCommand(updateStatusBar, context, stateRefs.currentCustomConfigDirRef),
     createOpenSettingsMenuCommand(ctx, regularView),
     createCycleViewModeFileFlatViewCommand(regularView, aiView, context),
     createCycleViewModeFileTreeViewCommand(regularView, aiView, context),

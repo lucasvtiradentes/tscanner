@@ -1,7 +1,6 @@
 pub mod header;
-pub mod summary;
-pub mod types;
 
 pub use header::*;
-pub use summary::*;
-pub use types::*;
+pub use tscanner_output::{
+    FormattedOutput, OutputFileGroup, OutputRuleGroup, OutputSummary, RulesBreakdown, SummaryStats,
+};

@@ -7,6 +7,7 @@ import {
   type ScanResult,
 } from 'tscanner-common';
 import type { TscannerLspClient } from '../../lsp/client';
+import type { FormatPrettyResult } from '../../lsp/requests/types';
 import { type FolderNode, type IssueResult, NodeKind } from '../types';
 import { ToastKind, copyToClipboard, getCurrentWorkspaceFolder, showToastMessage } from './vscode-utils';
 
@@ -47,7 +48,7 @@ class CopyScanContext {
   }
 }
 
-export const copyScanContext = new CopyScanContext();
+const copyScanContext = new CopyScanContext();
 
 export function setCopyLspClient(getLspClient: () => TscannerLspClient | null) {
   copyScanContext.setLspClient(getLspClient);
@@ -74,9 +75,9 @@ function convertToScanResult(results: IssueResult[]): ScanResult {
       rule: issue.rule,
       file: filePath,
       message: issue.message,
-      line: issue.line,
-      column: issue.column,
-      end_column: issue.endColumn,
+      line: issue.line + 1,
+      column: issue.column + 1,
+      end_column: issue.endColumn + 1,
       severity: issue.severity,
       line_text: issue.text,
       rule_type: issue.ruleType ?? IssueRuleType.Builtin,
@@ -87,6 +88,8 @@ function convertToScanResult(results: IssueResult[]): ScanResult {
     files,
     total_issues: results.length,
     duration_ms: 0,
+    regular_rules_duration_ms: 0,
+    ai_rules_duration_ms: 0,
     total_files: files.length,
     cached_files: 0,
     scanned_files: files.length,
@@ -149,11 +152,22 @@ export async function copyIssuesBase(params: CopyParams): Promise<void> {
   const workspaceRoot = workspaceFolder.uri.fsPath;
 
   const scanResult = convertToScanResult(params.results);
-  const result = await lspClient.formatResults(workspaceRoot, scanResult, params.groupMode);
+
+  let result: FormatPrettyResult;
+  try {
+    result = await lspClient.formatResults(workspaceRoot, scanResult, params.groupMode);
+  } catch (error) {
+    const errorMsg = String(error);
+    if (errorMsg.includes('connection got disposed')) {
+      showToastMessage(ToastKind.Error, 'LSP connection lost. Please run a scan first to reconnect.');
+    } else {
+      showToastMessage(ToastKind.Error, `Failed to format results: ${errorMsg}`);
+    }
+    return;
+  }
 
   const context = buildContext(params, result.summary.total_issues);
-  const summaryText = `\n\nIssues: ${result.summary.total_issues} (${result.summary.error_count} errors, ${result.summary.warning_count} warnings)\nFiles: ${result.summary.file_count}\nRules: ${result.summary.rule_count}`;
-  const finalText = AI_FIX_PROMPT_HEADER + context + result.output + summaryText + AI_FIX_PROMPT_FOOTER;
+  const finalText = AI_FIX_PROMPT_HEADER + context + result.output.trimEnd() + AI_FIX_PROMPT_FOOTER;
 
   await copyToClipboard(finalText);
   showToastMessage(ToastKind.Info, params.successMessage);

@@ -75,6 +75,12 @@
         "message": "mod.rs should only contain module declarations and re-exports",
         "severity": "error",
         "include": ["**/mod.rs"]
+      },
+      "no-long-files": {
+        "command": "npx tsx scripts/no-long-files.ts",
+        "message": "File exceeds 300 lines limit",
+        "severity": "warning",
+        "include": ["packages/**/*.ts", "packages/**/*.rs"]
       }
     }
   },
@@ -113,29 +119,18 @@
       "packages/vscode-extension/dist-dev/**",
       "packages/vscode-extension/out/**",
       "packages/rust-core/crates/tscanner_rules/tests/**",
-      ".tscanner/scripts/**",
+      ".tscanner/script-rules/**",
       "examples/all-rules/**"
     ]
   },
   "ai": {
     "provider": "claude",
-    "timeout": 180000
+    "timeout": 180
   },
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": true,
-    "scanIntervalSeconds": 0,
-    "aiScanIntervalSeconds": 0
-  },
-  "cli": {
-    "groupBy": "file",
-    "noCache": false,
-    "aiMode": "ignore",
-    "showSettings": true,
-    "showIssueSeverity": true,
-    "showIssueSourceLine": true,
-    "showIssueRuleName": true,
-    "showIssueDescription": false,
-    "showSummary": true
+    "scanInterval": 0,
+    "aiScanInterval": 0
   }
 }

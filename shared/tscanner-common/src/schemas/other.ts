@@ -55,6 +55,8 @@ const scanResultSchema = z.object({
   files: z.array(fileResultSchema),
   total_issues: z.number(),
   duration_ms: z.number(),
+  regular_rules_duration_ms: z.number(),
+  ai_rules_duration_ms: z.number(),
   total_files: z.number(),
   cached_files: z.number(),
   scanned_files: z.number(),

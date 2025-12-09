@@ -7,7 +7,7 @@ mod commands;
 mod config_loader;
 mod shared;
 
-use commands::{cmd_check, cmd_config, cmd_init};
+use commands::{cmd_check, cmd_init};
 use tscanner_cli::{Cli, Commands};
 use tscanner_service::init_logger;
 
@@ -26,6 +26,7 @@ fn main() -> Result<()> {
             no_cache,
             group_by,
             format,
+            json_output,
             branch,
             staged,
             glob,
@@ -45,6 +46,7 @@ fn main() -> Result<()> {
                 no_cache,
                 group_by,
                 Some(format),
+                json_output,
                 branch,
                 staged,
                 glob,
@@ -55,22 +57,17 @@ fn main() -> Result<()> {
                 Some(config_path),
             )
         }
-        Some(Commands::Config {
-            rules,
-            validate,
-            show,
-            config_path,
-        }) => cmd_config(
-            &PathBuf::from("."),
-            rules,
-            validate,
-            show,
-            Some(config_path),
-        ),
         Some(Commands::Init { full }) => cmd_init(&PathBuf::from("."), full),
         Some(Commands::Lsp) => {
-            tscanner_lsp::run_lsp_server().map_err(|e| anyhow::anyhow!("{}", e))?;
-            Ok(())
+            tscanner_service::log_info("LSP server starting");
+            let result = tscanner_lsp::run_lsp_server().map_err(|e| anyhow::anyhow!("{}", e));
+            match &result {
+                Ok(_) => tscanner_service::log_info("LSP server exited normally"),
+                Err(e) => {
+                    tscanner_service::log_info(&format!("LSP server exited with error: {}", e))
+                }
+            }
+            result
         }
         None => {
             Cli::parse_from(["tscanner", "--help"]);

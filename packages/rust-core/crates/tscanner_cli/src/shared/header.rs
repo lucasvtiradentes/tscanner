@@ -1,7 +1,7 @@
 use colored::*;
 use tscanner_cli::OutputFormat;
 use tscanner_config::{AiExecutionMode, AiProvider};
-use tscanner_diagnostics::GroupMode;
+use tscanner_output::GroupMode;
 
 #[derive(Clone)]
 pub enum ScanMode {
@@ -50,7 +50,6 @@ pub fn render_header(config: &ScanConfig) {
         let format_str = match config.format {
             OutputFormat::Text => "text",
             OutputFormat::Json => "json",
-            OutputFormat::Pretty => "pretty",
         };
         let group_str = match config.group_by {
             GroupMode::Rule => "rule",

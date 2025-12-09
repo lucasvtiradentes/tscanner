@@ -88,6 +88,23 @@ impl Scanner {
             roots, ai_mode
         ));
 
+        if let Some(filter) = file_filter {
+            if filter.is_empty() {
+                (self.log_info)("No files to scan (empty file filter), skipping");
+                return ScanResult {
+                    files: Vec::new(),
+                    total_issues: 0,
+                    duration_ms: start.elapsed().as_millis(),
+                    regular_rules_duration_ms: 0,
+                    ai_rules_duration_ms: 0,
+                    total_files: 0,
+                    cached_files: 0,
+                    scanned_files: 0,
+                    warnings: Vec::new(),
+                };
+            }
+        }
+
         let files = self.collect_files_with_filter(roots, file_filter);
         let file_count = files.len();
         (self.log_debug)(&format!("Found {} files to scan", file_count));

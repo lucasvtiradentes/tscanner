@@ -50,7 +50,7 @@
     },
     "script": {
       "example-no-debug-comments": {
-        "command": "npx tsx scripts/example-no-debug-comments.ts",
+        "command": "npx tsx script-rules/example-no-debug-comments.ts",
         "message": "Debug comments should be removed",
         "severity": "warning"
       }
@@ -67,7 +67,7 @@
   },
   "ai": {
     "provider": "claude",
-    "timeout": 120000
+    "timeout": 120
   },
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
@@ -76,18 +76,7 @@
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": false,
-    "scanIntervalSeconds": 0,
-    "aiScanIntervalSeconds": 0
-  },
-  "cli": {
-    "groupBy": "file",
-    "aiMode": "ignore",
-    "noCache": false,
-    "showSettings": true,
-    "showIssueSeverity": true,
-    "showIssueSourceLine": true,
-    "showIssueRuleName": true,
-    "showIssueDescription": false,
-    "showSummary": true
+    "scanInterval": 0,
+    "aiScanInterval": 0
   }
 }

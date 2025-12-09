@@ -1,12 +1,11 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
 
-#[derive(Debug, Clone, Default, ValueEnum)]
+#[derive(Debug, Clone, Default, ValueEnum, PartialEq)]
 pub enum OutputFormat {
     #[default]
     Text,
     Json,
-    Pretty,
 }
 
 #[derive(Debug, Clone, ValueEnum)]
@@ -51,9 +50,16 @@ pub enum Commands {
             value_enum,
             value_name = "FORMAT",
             default_value = "text",
-            help = "Output format: text, json, or pretty"
+            help = "Output format: text or json"
         )]
         format: OutputFormat,
+
+        #[arg(
+            long,
+            value_name = "FILE",
+            help = "Additionally save JSON output to file (works with any format)"
+        )]
+        json_output: Option<PathBuf>,
 
         #[arg(
             long,
@@ -87,26 +93,6 @@ pub enum Commands {
 
         #[arg(long, help = "Run only AI rules, skip all other rules")]
         only_ai: bool,
-
-        #[arg(
-            long,
-            value_name = "CONFIG_DIR",
-            default_value = ".tscanner",
-            help = "Path to .tscanner folder"
-        )]
-        config_path: PathBuf,
-    },
-
-    #[command(about = "Configuration management")]
-    Config {
-        #[arg(long, help = "List all available rules and their status")]
-        rules: bool,
-
-        #[arg(long, help = "Validate the configuration file")]
-        validate: bool,
-
-        #[arg(long, help = "Show the resolved configuration")]
-        show: bool,
 
         #[arg(
             long,

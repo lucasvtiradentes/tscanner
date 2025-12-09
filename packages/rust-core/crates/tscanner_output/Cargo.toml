@@ -1,0 +1,13 @@
+[package]
+name = "tscanner_output"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+tscanner_diagnostics = { path = "../tscanner_diagnostics" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+pathdiff = { workspace = true }

@@ -1,5 +1,4 @@
 mod json;
-mod pretty;
 mod renderer;
 mod text;
 

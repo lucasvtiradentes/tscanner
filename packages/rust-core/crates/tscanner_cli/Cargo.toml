@@ -20,6 +20,7 @@ path = "../../scripts/generate_schema.rs"
 
 [dependencies]
 tscanner_diagnostics = { path = "../tscanner_diagnostics" }
+tscanner_output = { path = "../tscanner_output" }
 tscanner_config = { path = "../tscanner_config" }
 tscanner_rules = { path = "../tscanner_rules" }
 tscanner_fs = { path = "../tscanner_fs" }
