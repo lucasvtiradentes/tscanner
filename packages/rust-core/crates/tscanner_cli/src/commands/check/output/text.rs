@@ -3,7 +3,7 @@ use super::CheckContext;
 use crate::shared::{render_summary, SummaryStats};
 use colored::*;
 use std::collections::{HashMap, HashSet};
-use tscanner_diagnostics::{GroupMode, IssueRuleType, ScanResult, Severity};
+use tscanner_diagnostics::{GroupMode, Issue, IssueRuleType, ScanResult, Severity};
 
 fn rule_type_icon(rule_type: IssueRuleType) -> &'static str {
     match rule_type {
@@ -11,6 +11,22 @@ fn rule_type_icon(rule_type: IssueRuleType) -> &'static str {
         IssueRuleType::CustomRegex => "◇",
         IssueRuleType::CustomScript => "▷",
         IssueRuleType::Ai => "✦",
+    }
+}
+
+fn severity_icon(severity: Severity) -> ColoredString {
+    match severity {
+        Severity::Error => "✖".red(),
+        Severity::Warning => "⚠".yellow(),
+    }
+}
+
+fn render_source_line(issue: &Issue) {
+    if let Some(line_text) = &issue.line_text {
+        let trimmed = line_text.trim();
+        if !trimmed.is_empty() {
+            println!("    {}", trimmed.dimmed());
+        }
     }
 }
 
@@ -77,11 +93,7 @@ impl TextRenderer {
                 let mut parts: Vec<String> = Vec::new();
 
                 if ctx.cli_config.show_issue_severity {
-                    let icon = match issue.severity {
-                        Severity::Error => "✖".red().to_string(),
-                        Severity::Warning => "⚠".yellow().to_string(),
-                    };
-                    parts.push(icon);
+                    parts.push(severity_icon(issue.severity).to_string());
                 }
 
                 parts.push(location.to_string());
@@ -93,12 +105,7 @@ impl TextRenderer {
                 println!("  {}", parts.join(" "));
 
                 if ctx.cli_config.show_issue_source_line {
-                    if let Some(line_text) = &issue.line_text {
-                        let trimmed = line_text.trim();
-                        if !trimmed.is_empty() {
-                            println!("    {}", trimmed.dimmed());
-                        }
-                    }
+                    render_source_line(issue);
                 }
             }
         }
@@ -125,11 +132,7 @@ impl TextRenderer {
                 let mut parts: Vec<String> = Vec::new();
 
                 if ctx.cli_config.show_issue_severity {
-                    let icon = match issue.severity {
-                        Severity::Error => "✖".red().to_string(),
-                        Severity::Warning => "⚠".yellow().to_string(),
-                    };
-                    parts.push(icon);
+                    parts.push(severity_icon(issue.severity).to_string());
                 }
 
                 parts.push(location.to_string());
@@ -149,12 +152,7 @@ impl TextRenderer {
                 println!("  {}", parts.join(" "));
 
                 if ctx.cli_config.show_issue_source_line {
-                    if let Some(line_text) = &issue.line_text {
-                        let trimmed = line_text.trim();
-                        if !trimmed.is_empty() {
-                            println!("    {}", trimmed.dimmed());
-                        }
-                    }
+                    render_source_line(issue);
                 }
             }
         }

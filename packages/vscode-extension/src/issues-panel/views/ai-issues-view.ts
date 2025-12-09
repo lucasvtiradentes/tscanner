@@ -21,7 +21,7 @@ class AiProgressItem extends vscode.TreeItem {
 
 function getStatusIcon(status: AiRuleStatus): string {
   if ('pending' in status) return '○';
-  if ('running' in status) return '⏳';
+  if ('running' in status) return '⧗';
   if ('completed' in status) return '✓';
   if ('failed' in status) return '✗';
   return '?';

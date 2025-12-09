@@ -128,7 +128,11 @@ impl Scanner {
         let regular_duration = regular_start.elapsed();
 
         let ai_start = Instant::now();
-        let (ai_issues, ai_warning) = self.run_ai_rules_with_context(&files, Some(modified_lines));
+        let (ai_issues, ai_warning) = if files.is_empty() {
+            (vec![], None)
+        } else {
+            self.run_ai_rules_with_context(&files, Some(modified_lines))
+        };
         self.merge_issues(&mut all_results, ai_issues);
         let ai_duration = ai_start.elapsed();
 

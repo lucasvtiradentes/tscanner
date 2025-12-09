@@ -216,21 +216,16 @@ pub fn cmd_check(
     let regular_rules_count =
         rules_breakdown.builtin + rules_breakdown.regex + rules_breakdown.script;
 
+    let scan_skipped = files_to_scan
+        .as_ref()
+        .map(|f| f.is_empty())
+        .unwrap_or(false);
+
     let regular_rules_callback: Option<RegularRulesCompleteCallback> =
-        if !is_json && regular_rules_count > 0 {
+        if !is_json && regular_rules_count > 0 && !scan_skipped {
             let count = regular_rules_count;
             Some(Arc::new(move |duration_ms: u128| {
-                println!(
-                    "{} {}",
-                    "✓".green(),
-                    format!(
-                        "Regular rules ({}) {}",
-                        count,
-                        format_duration(duration_ms).dimmed()
-                    )
-                    .cyan()
-                    .bold()
-                );
+                render_rules_status("Regular rules", count, RuleStatus::Completed(duration_ms));
                 let _ = io::stdout().flush();
             }))
         } else {
@@ -238,7 +233,7 @@ pub fn cmd_check(
         };
 
     let ai_progress_callback: Option<AiProgressCallback> =
-        if effective_ai_mode != AiExecutionMode::Ignore && !is_json {
+        if effective_ai_mode != AiExecutionMode::Ignore && !is_json && !scan_skipped {
             let rule_states: Arc<Mutex<HashMap<usize, (String, AiRuleStatus)>>> =
                 Arc::new(Mutex::new(HashMap::new()));
             let has_rendered = Arc::new(Mutex::new(false));
@@ -278,17 +273,18 @@ pub fn cmd_check(
         },
     );
 
-    if !is_json && rules_breakdown.ai > 0 {
-        println!(
-            "{} {}",
-            "✓".green(),
-            format!(
-                "AI rules ({}) {}",
-                rules_breakdown.ai,
-                format_duration(result.ai_rules_duration_ms).dimmed()
-            )
-            .cyan()
-            .bold()
+    if !is_json && scan_skipped {
+        if regular_rules_count > 0 {
+            render_rules_status("Regular rules", regular_rules_count, RuleStatus::Skipped);
+        }
+        if rules_breakdown.ai > 0 {
+            render_rules_status("AI rules", rules_breakdown.ai, RuleStatus::Skipped);
+        }
+    } else if !is_json && rules_breakdown.ai > 0 {
+        render_rules_status(
+            "AI rules",
+            rules_breakdown.ai,
+            RuleStatus::Completed(result.ai_rules_duration_ms),
         );
     }
 
@@ -317,7 +313,21 @@ pub fn cmd_check(
 
     if result.files.is_empty() && !is_json {
         println!();
+        println!("{}", "Results:".cyan().bold());
+        println!();
         println!("{}", "✓ No issues found!".green().bold());
+
+        if scan_skipped {
+            println!();
+            println!("{}", "Notes:".cyan().bold());
+            println!();
+            println!(
+                "  {} {}",
+                "ℹ".blue(),
+                "Scan skipped: no files to analyze (staged/branch has no matching files)".dimmed()
+            );
+        }
+
         println!();
         if resolved_cli.show_summary {
             render_summary(&result, &stats);
@@ -430,11 +440,42 @@ fn render_ai_progress(
             eprint!("\x1B[0J");
         }
         eprintln!(
-            "⏳ {} {}",
+            "⧗ {} {}",
             format!("AI rules ({}/{})", completed, total).cyan().bold(),
             format_duration(elapsed_ms).dimmed()
         );
     }
 
     let _ = io::stderr().flush();
+}
+
+enum RuleStatus {
+    Completed(u128),
+    Skipped,
+}
+
+fn render_rules_status(label: &str, count: usize, status: RuleStatus) {
+    match status {
+        RuleStatus::Completed(duration_ms) => {
+            println!(
+                "{} {}",
+                "✓".green(),
+                format!(
+                    "{} ({}) {}",
+                    label,
+                    count,
+                    format_duration(duration_ms).dimmed()
+                )
+                .cyan()
+                .bold()
+            );
+        }
+        RuleStatus::Skipped => {
+            println!(
+                "{} {}",
+                "⊘".dimmed(),
+                format!("{} ({}) {}", label, count, "skipped".dimmed()).dimmed()
+            );
+        }
+    }
 }
