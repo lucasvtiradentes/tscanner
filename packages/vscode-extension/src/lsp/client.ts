@@ -12,7 +12,7 @@ import {
   type TscannerConfig,
 } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { LanguageClient, type LanguageClientOptions, type ServerOptions } from 'vscode-languageclient/node';
+import { LanguageClient, type LanguageClientOptions, type ServerOptions, State } from 'vscode-languageclient/node';
 import { ensureBinaryExecutable } from '../common/lib/binary-utils';
 import { ClearCacheRequestType } from './requests/clear-cache';
 import { FormatResultsRequestType } from './requests/format-results';
@@ -78,7 +78,21 @@ export class TscannerLspClient {
   }
 
   isRunning(): boolean {
-    return this.client !== null;
+    return this.client !== null && this.client.state === State.Running;
+  }
+
+  getState(): string {
+    if (!this.client) return 'null';
+    switch (this.client.state) {
+      case State.Stopped:
+        return 'Stopped';
+      case State.Starting:
+        return 'Starting';
+      case State.Running:
+        return 'Running';
+      default:
+        return `Unknown(${this.client.state})`;
+    }
   }
 
   async scan(root: string, config?: TscannerConfig, branch?: string, aiMode?: AiExecutionMode): Promise<ScanResult> {

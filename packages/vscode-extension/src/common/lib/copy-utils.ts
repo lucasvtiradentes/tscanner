@@ -7,6 +7,7 @@ import {
   type ScanResult,
 } from 'tscanner-common';
 import type { TscannerLspClient } from '../../lsp/client';
+import type { FormatPrettyResult } from '../../lsp/requests/types';
 import { type FolderNode, type IssueResult, NodeKind } from '../types';
 import { ToastKind, copyToClipboard, getCurrentWorkspaceFolder, showToastMessage } from './vscode-utils';
 
@@ -87,6 +88,8 @@ function convertToScanResult(results: IssueResult[]): ScanResult {
     files,
     total_issues: results.length,
     duration_ms: 0,
+    regular_rules_duration_ms: 0,
+    ai_rules_duration_ms: 0,
     total_files: files.length,
     cached_files: 0,
     scanned_files: files.length,
@@ -149,7 +152,19 @@ export async function copyIssuesBase(params: CopyParams): Promise<void> {
   const workspaceRoot = workspaceFolder.uri.fsPath;
 
   const scanResult = convertToScanResult(params.results);
-  const result = await lspClient.formatResults(workspaceRoot, scanResult, params.groupMode);
+
+  let result: FormatPrettyResult;
+  try {
+    result = await lspClient.formatResults(workspaceRoot, scanResult, params.groupMode);
+  } catch (error) {
+    const errorMsg = String(error);
+    if (errorMsg.includes('connection got disposed')) {
+      showToastMessage(ToastKind.Error, 'LSP connection lost. Please run a scan first to reconnect.');
+    } else {
+      showToastMessage(ToastKind.Error, `Failed to format results: ${errorMsg}`);
+    }
+    return;
+  }
 
   const context = buildContext(params, result.summary.total_issues);
   const summaryText = `\n\nIssues: ${result.summary.total_issues} (${result.summary.error_count} errors, ${result.summary.warning_count} warnings)\nFiles: ${result.summary.file_count}\nRules: ${result.summary.rule_count}`;
