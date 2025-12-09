@@ -153,7 +153,7 @@ Customize ${PACKAGE_DISPLAY_NAME} to validate what matters to your project while
     <th width="400">Example</th>
   </tr>
   <tr>
-    <td>Built-in</td>
+    <td><b>Built-in</b></td>
     <td>${rulesJson.length} ready-to-use AST rules</td>
     <td><code>no-explicit-any</code>, <code>prefer-const</code>, <code>no-console</code></td>
   </tr>
@@ -284,7 +284,10 @@ ${aiRuleExample}
 </div>
 </details>`;
 
-  const fullRulesContent = `${rulesIntroTable}<div align="center">
+  const fullRulesContent = `${rulesIntroTable}
+  <br />
+  
+<div align="center">
 
 ${builtInRulesContent}
 
