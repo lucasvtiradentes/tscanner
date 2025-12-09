@@ -365,7 +365,6 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 
 <div align="left">
 
-- **Manage Rules**: Multi-select UI for all rules with enable/disable toggles
 - **Scan Settings**: Choose workspace or branch mode, select target branch
 - **Config Files**: Edit `.tscanner/config.jsonc` or create from template
 
@@ -430,8 +429,7 @@ Perfect for PR validation - see only issues you introduced.
 To scan your code, you need to set up the rules in the TScanner config folder. Here's how to get started:
 
 1. **CLI**: Run `tscanner init` in your project root (**Recommended**)
-2. **VSCode Extension**: TScanner icon in the status bar → `Manage Rules` → Select desired rules → `Save`
-3. **Manual**: Copy the default config below to `.tscanner/config.jsonc`
+2. **Manual**: Copy the default config below to `.tscanner/config.jsonc`
 
 <div align="center">
 <details>

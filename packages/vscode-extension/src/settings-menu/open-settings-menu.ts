@@ -2,20 +2,13 @@ import { EXTENSION_DISPLAY_NAME } from 'src/common/scripts-constants';
 import * as vscode from 'vscode';
 import { getConfigState } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
-import {
-  Command,
-  type QuickPickItemWithId,
-  executeCommand,
-  registerCommand,
-  requireWorkspaceOrNull,
-} from '../common/lib/vscode-utils';
+import { Command, type QuickPickItemWithId, registerCommand, requireWorkspaceOrNull } from '../common/lib/vscode-utils';
 import type { CommandContext } from '../common/state/extension-state';
 import type { RegularIssuesView } from '../issues-panel';
 import { getCurrentLocationLabel, openConfigFile, showConfigLocationMenu } from './config-location';
 import { showScanModeMenu } from './scan-mode';
 
 enum SettingsMenuOption {
-  ManageRules = 'manage-rules',
   ManageScanMode = 'manage-scan-mode',
   ManageConfigLocation = 'manage-config-location',
   OpenConfigFile = 'open-config-file',
@@ -41,13 +34,7 @@ export function createOpenSettingsMenuCommand(ctx: CommandContext, regularView: 
       customConfigDir,
     );
 
-    const mainMenuItems: QuickPickItemWithId<SettingsMenuOption>[] = [
-      {
-        id: SettingsMenuOption.ManageRules,
-        label: '$(checklist) Manage Rules',
-        detail: 'Enable/disable rules',
-      },
-    ];
+    const mainMenuItems: QuickPickItemWithId<SettingsMenuOption>[] = [];
 
     if (configState.hasAny) {
       mainMenuItems.push(
@@ -79,9 +66,6 @@ export function createOpenSettingsMenuCommand(ctx: CommandContext, regularView: 
     }
 
     switch (selected.id) {
-      case SettingsMenuOption.ManageRules:
-        await executeCommand(Command.ManageRules);
-        break;
       case SettingsMenuOption.ManageScanMode:
         await showScanModeMenu(updateStatusBar, currentScanModeRef, currentCompareBranchRef, context, regularView);
         break;

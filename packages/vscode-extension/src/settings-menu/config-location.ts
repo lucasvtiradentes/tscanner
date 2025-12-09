@@ -103,7 +103,7 @@ export async function openConfigFile(context: vscode.ExtensionContext, customCon
 
   showToastMessage(
     ToastKind.Error,
-    `No ${PACKAGE_DISPLAY_NAME} configuration found. Create one via "Manage Rules" first.`,
+    `No ${PACKAGE_DISPLAY_NAME} configuration found. Run "tscanner init" to create one.`,
   );
 }
 
@@ -199,7 +199,7 @@ export async function showConfigLocationMenu(
       updateState(context, WorkspaceStateKey.CustomConfigDir, null);
     }
     await updateStatusBar();
-    showToastMessage(ToastKind.Info, 'Config location set. Use "Manage Rules" to create config.');
+    showToastMessage(ToastKind.Info, 'Config location set. Run "tscanner init" to create config.');
   }
 }
 
@@ -236,7 +236,7 @@ async function handleCustomPathSelection(
     updateState(context, WorkspaceStateKey.CustomConfigDir, result);
     await updateStatusBar();
     logger.info(`Custom config folder set to: ${result}`);
-    showToastMessage(ToastKind.Info, `Config location set to: ${result}. Use "Manage Rules" to create config.`);
+    showToastMessage(ToastKind.Info, `Config location set to: ${result}. Run "tscanner init" to create config.`);
   }
 }
 
