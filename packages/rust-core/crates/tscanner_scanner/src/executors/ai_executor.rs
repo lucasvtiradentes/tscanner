@@ -150,6 +150,24 @@ impl AiExecutor {
         }
     }
 
+    pub fn with_config_dir(
+        workspace_root: &Path,
+        config_dir: PathBuf,
+        ai_config: Option<AiConfig>,
+        log_warn: fn(&str),
+        log_debug: fn(&str),
+    ) -> Self {
+        Self {
+            workspace_root: workspace_root.to_path_buf(),
+            ai_rules_dir: config_dir.join("ai-rules"),
+            ai_config,
+            cache: DashMap::new(),
+            in_flight: DashMap::new(),
+            log_warn,
+            log_debug,
+        }
+    }
+
     pub fn execute_rules(
         &self,
         rules: &[(String, AiRuleConfig)],

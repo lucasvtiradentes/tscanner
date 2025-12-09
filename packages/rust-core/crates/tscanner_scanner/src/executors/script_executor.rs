@@ -94,10 +94,32 @@ impl ScriptExecutor {
         }
     }
 
+    pub fn with_config_dir(config_dir: PathBuf) -> Self {
+        Self {
+            cache: DashMap::new(),
+            config_dir,
+            log_error: |_| {},
+            log_debug: |_| {},
+        }
+    }
+
     pub fn with_logger(workspace_root: &Path, log_error: fn(&str), log_debug: fn(&str)) -> Self {
         Self {
             cache: DashMap::new(),
             config_dir: workspace_root.join(".tscanner"),
+            log_error,
+            log_debug,
+        }
+    }
+
+    pub fn with_config_dir_and_logger(
+        config_dir: PathBuf,
+        log_error: fn(&str),
+        log_debug: fn(&str),
+    ) -> Self {
+        Self {
+            cache: DashMap::new(),
+            config_dir,
             log_error,
             log_debug,
         }

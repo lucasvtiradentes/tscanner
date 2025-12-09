@@ -194,8 +194,14 @@ pub fn cmd_check(
         FileCache::with_config_hash(config_hash)
     };
 
-    let scanner = Scanner::with_cache(config, Arc::new(cache), root.clone())
-        .map_err(|e| anyhow::anyhow!("{}", e))?;
+    let config_dir = Path::new(&resolved_config_path)
+        .parent()
+        .map(|p| p.to_path_buf());
+    let scanner = match config_dir {
+        Some(dir) => Scanner::with_cache_and_config_dir(config, Arc::new(cache), root.clone(), dir),
+        None => Scanner::with_cache(config, Arc::new(cache), root.clone()),
+    }
+    .map_err(|e| anyhow::anyhow!("{}", e))?;
 
     let is_json = matches!(output_format, OutputFormat::Json);
 
