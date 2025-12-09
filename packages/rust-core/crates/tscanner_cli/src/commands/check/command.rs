@@ -8,8 +8,8 @@ use std::sync::{Arc, Mutex};
 
 use crate::config_loader::load_config_with_custom;
 use crate::shared::{
-    format_duration, render_header, render_summary, RulesBreakdown, ScanConfig, ScanMode,
-    SummaryStats,
+    compute_triggered_breakdown, format_duration, render_header, render_summary, RulesBreakdown,
+    ScanConfig, ScanMode, SummaryStats,
 };
 use tscanner_cache::FileCache;
 use tscanner_cli::{CliGroupMode, OutputFormat};
@@ -366,7 +366,8 @@ pub fn cmd_check(
 
         println!();
         if cli_options.show_summary {
-            render_summary(&result, &stats);
+            let triggered_breakdown = compute_triggered_breakdown(&result);
+            render_summary(&result, &stats, &triggered_breakdown);
         }
 
         if let Some(ref json_path) = json_output {

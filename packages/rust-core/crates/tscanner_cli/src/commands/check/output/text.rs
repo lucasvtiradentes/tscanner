@@ -1,6 +1,6 @@
 use super::renderer::OutputRenderer;
 use super::CheckContext;
-use crate::shared::{render_summary, SummaryStats};
+use crate::shared::{compute_triggered_breakdown, render_summary, SummaryStats};
 use colored::*;
 use tscanner_diagnostics::{GroupMode, PrettyFormatter, ScanResult};
 
@@ -25,7 +25,8 @@ impl OutputRenderer for TextRenderer {
         println!();
 
         if ctx.cli_options.show_summary {
-            render_summary(result, stats);
+            let triggered_breakdown = compute_triggered_breakdown(result);
+            render_summary(result, stats, &triggered_breakdown);
         }
     }
 }

@@ -1,7 +1,7 @@
 use super::format_duration;
 use colored::*;
 use serde::Serialize;
-use tscanner_diagnostics::{ScanResult, Severity};
+use tscanner_diagnostics::{IssueRuleType, ScanResult, Severity};
 
 #[derive(Clone, Default, Serialize)]
 pub struct RulesBreakdown {
@@ -64,6 +64,30 @@ impl SummaryStats {
     }
 }
 
+pub fn compute_triggered_breakdown(result: &ScanResult) -> RulesBreakdown {
+    let mut unique_rules: std::collections::HashMap<String, IssueRuleType> =
+        std::collections::HashMap::new();
+
+    for file_result in &result.files {
+        for issue in &file_result.issues {
+            unique_rules
+                .entry(issue.rule.clone())
+                .or_insert(issue.rule_type);
+        }
+    }
+
+    let mut breakdown = RulesBreakdown::default();
+    for rule_type in unique_rules.values() {
+        match rule_type {
+            IssueRuleType::Builtin => breakdown.builtin += 1,
+            IssueRuleType::CustomRegex => breakdown.regex += 1,
+            IssueRuleType::CustomScript => breakdown.script += 1,
+            IssueRuleType::Ai => breakdown.ai += 1,
+        }
+    }
+    breakdown
+}
+
 impl JsonSummary {
     pub fn new(result: &ScanResult, stats: &SummaryStats) -> Self {
         Self {
@@ -80,10 +104,14 @@ impl JsonSummary {
     }
 }
 
-pub fn render_summary(result: &ScanResult, stats: &SummaryStats) {
+pub fn render_summary(
+    result: &ScanResult,
+    stats: &SummaryStats,
+    triggered_breakdown: &RulesBreakdown,
+) {
     let files_with_issues = result.files.iter().filter(|f| !f.issues.is_empty()).count();
 
-    println!("{}", "Check summary:".cyan().bold());
+    println!("{}", "Summary:".cyan().bold());
     println!();
     println!(
         "  {} {} ({} errors, {} warnings)",
@@ -92,20 +120,12 @@ pub fn render_summary(result: &ScanResult, stats: &SummaryStats) {
         stats.error_count.to_string().red(),
         stats.warning_count.to_string().yellow()
     );
-    println!(
-        "  {} {}/{} ({} cached, {} scanned)",
-        "Files with issues:".dimmed(),
-        files_with_issues.to_string().cyan(),
-        result.total_files,
-        result.cached_files.to_string().green(),
-        result.scanned_files.to_string().yellow()
-    );
-    let breakdown = &stats.rules_breakdown;
+
     let breakdown_parts: Vec<String> = [
-        (breakdown.builtin, "builtin"),
-        (breakdown.regex, "custom regex"),
-        (breakdown.script, "custom scripts"),
-        (breakdown.ai, "ai"),
+        (triggered_breakdown.builtin, "builtin"),
+        (triggered_breakdown.regex, "regex"),
+        (triggered_breakdown.script, "script"),
+        (triggered_breakdown.ai, "ai"),
     ]
     .iter()
     .filter(|(count, _)| *count > 0)
@@ -123,6 +143,14 @@ pub fn render_summary(result: &ScanResult, stats: &SummaryStats) {
         stats.total_enabled_rules,
         breakdown_str
     );
+
+    println!(
+        "  {} {}/{}",
+        "Files with issues:".dimmed(),
+        files_with_issues.to_string().cyan(),
+        result.total_files
+    );
+
     println!(
         "  {} {}",
         "Duration:".dimmed(),
