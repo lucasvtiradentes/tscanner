@@ -109,8 +109,6 @@ export class StatusBarManager {
       `Config: ${configLabel}`,
       `Binary: ${binaryLabel}`,
       `AI Provider: ${aiProviderLabel}`,
-      '',
-      'Click to change settings',
     ];
 
     this.statusBarItem.tooltip = tooltipLines.join('\n');
@@ -122,14 +120,7 @@ export class StatusBarManager {
     this.statusBarItem.text = finalText;
 
     const displayName = getStatusBarName();
-    const tooltipLines = [
-      displayName,
-      '',
-      'No rules configured.',
-      'Run "tscanner init" to create config.',
-      '',
-      'Click to set up.',
-    ];
+    const tooltipLines = [displayName, '', 'No rules configured.', 'Run "tscanner init" to create config.'];
 
     this.statusBarItem.tooltip = tooltipLines.join('\n');
   }
