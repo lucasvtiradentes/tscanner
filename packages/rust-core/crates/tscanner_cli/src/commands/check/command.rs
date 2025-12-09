@@ -8,12 +8,13 @@ use std::sync::{Arc, Mutex};
 
 use crate::config_loader::load_config_with_custom;
 use crate::shared::{
-    format_duration, render_header, CliOutput, RulesBreakdown, ScanConfig, ScanMode, SummaryStats,
+    format_duration, render_header, FormattedOutput, RulesBreakdown, ScanConfig, ScanMode,
+    SummaryStats,
 };
 use tscanner_cache::FileCache;
 use tscanner_cli::{CliGroupMode, OutputFormat};
 use tscanner_config::{app_name, config_dir_name, config_file_name, AiExecutionMode, AiProvider};
-use tscanner_diagnostics::GroupMode;
+use tscanner_output::GroupMode;
 use tscanner_scanner::{
     AiProgressCallback, AiProgressEvent, AiRuleStatus, ConfigExt, RegularRulesCompleteCallback,
     ScanCallbacks, Scanner,
@@ -347,9 +348,9 @@ pub fn cmd_check(
     let stats = SummaryStats::from_result(&result, total_enabled_rules, rules_breakdown);
 
     if result.files.is_empty() && !is_json {
-        let cli_output = match effective_group_mode {
-            GroupMode::File => CliOutput::build_by_file(&root, &result, &stats),
-            GroupMode::Rule => CliOutput::build_by_rule(&root, &result, &stats),
+        let formatted_output = match effective_group_mode {
+            GroupMode::File => FormattedOutput::build_by_file(&root, &result, &stats),
+            GroupMode::Rule => FormattedOutput::build_by_rule(&root, &result, &stats),
         };
 
         println!();
@@ -370,28 +371,28 @@ pub fn cmd_check(
 
         println!();
         if cli_options.show_summary {
-            render_summary_from_output(cli_output.summary());
+            render_summary_from_output(formatted_output.summary());
         }
 
         if let Some(ref json_path) = json_output {
-            write_json_output(json_path, &cli_output)?;
+            write_json_output(json_path, &formatted_output)?;
         }
 
         return Ok(());
     }
 
-    let cli_output = match effective_group_mode {
-        GroupMode::File => CliOutput::build_by_file(&root, &result, &stats),
-        GroupMode::Rule => CliOutput::build_by_rule(&root, &result, &stats),
+    let formatted_output = match effective_group_mode {
+        GroupMode::File => FormattedOutput::build_by_file(&root, &result, &stats),
+        GroupMode::Rule => FormattedOutput::build_by_rule(&root, &result, &stats),
     };
 
     let ctx = CheckContext::new(cli_options);
 
     let renderer = output::get_renderer(&output_format);
-    renderer.render(&ctx, &cli_output, &result);
+    renderer.render(&ctx, &formatted_output, &result);
 
     if let Some(ref json_path) = json_output {
-        write_json_output(json_path, &cli_output)?;
+        write_json_output(json_path, &formatted_output)?;
     }
 
     log_info(&format!(
@@ -406,7 +407,7 @@ pub fn cmd_check(
     Ok(())
 }
 
-fn write_json_output(json_path: &Path, output: &CliOutput) -> Result<()> {
+fn write_json_output(json_path: &Path, output: &FormattedOutput) -> Result<()> {
     if let Some(json_str) = output.to_json() {
         fs::write(json_path, json_str)
             .context(format!("Failed to write JSON output to {:?}", json_path))?;

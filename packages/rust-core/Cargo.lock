@@ -1598,6 +1598,7 @@ dependencies = [
  "tscanner_diagnostics",
  "tscanner_fs",
  "tscanner_lsp",
+ "tscanner_output",
  "tscanner_rules",
  "tscanner_scanner",
  "tscanner_service",
@@ -1650,9 +1651,20 @@ dependencies = [
  "tscanner_config",
  "tscanner_diagnostics",
  "tscanner_fs",
+ "tscanner_output",
  "tscanner_rules",
  "tscanner_scanner",
  "tscanner_service",
+]
+
+[[package]]
+name = "tscanner_output"
+version = "0.0.29"
+dependencies = [
+ "pathdiff",
+ "serde",
+ "serde_json",
+ "tscanner_diagnostics",
 ]
 
 [[package]]

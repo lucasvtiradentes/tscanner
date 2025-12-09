@@ -1,7 +1,7 @@
 use colored::*;
 use tscanner_cli::OutputFormat;
 use tscanner_config::{AiExecutionMode, AiProvider};
-use tscanner_diagnostics::GroupMode;
+use tscanner_output::GroupMode;
 
 #[derive(Clone)]
 pub enum ScanMode {

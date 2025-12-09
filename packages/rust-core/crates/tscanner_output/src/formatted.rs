@@ -1,64 +1,56 @@
-use serde::Serialize;
 use std::collections::HashMap;
 use std::path::Path;
+
+use serde::Serialize;
 use tscanner_diagnostics::{IssueRuleType, ScanResult, Severity};
 
-use super::summary::{RulesBreakdown, SummaryStats};
+use crate::types::{
+    OutputFileGroup, OutputIssue, OutputRuleGroup, OutputRuleIssue, OutputSummary, RulesBreakdown,
+};
 
-#[derive(Clone, Serialize)]
-pub struct OutputIssue {
-    pub rule: String,
-    pub severity: String,
-    pub line: usize,
-    pub column: usize,
-    pub message: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line_text: Option<String>,
-    pub rule_type: IssueRuleType,
-}
-
-#[derive(Clone, Serialize)]
-pub struct OutputFileGroup {
-    pub file: String,
-    pub issues: Vec<OutputIssue>,
-}
-
-#[derive(Clone, Serialize)]
-pub struct OutputRuleGroup {
-    pub rule: String,
-    pub rule_type: IssueRuleType,
-    pub message: String,
-    pub count: usize,
-    pub issues: Vec<OutputRuleIssue>,
-}
-
-#[derive(Clone, Serialize)]
-pub struct OutputRuleIssue {
-    pub file: String,
-    pub line: usize,
-    pub column: usize,
-    pub severity: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub line_text: Option<String>,
-}
-
-#[derive(Clone, Serialize)]
-pub struct OutputSummary {
-    pub total_files: usize,
-    pub files_with_issues: usize,
+pub struct SummaryStats {
     pub total_issues: usize,
-    pub errors: usize,
-    pub warnings: usize,
-    pub triggered_rules: usize,
-    pub triggered_rules_breakdown: RulesBreakdown,
+    pub error_count: usize,
+    pub warning_count: usize,
+    pub unique_rules_count: usize,
     pub total_enabled_rules: usize,
-    pub enabled_rules_breakdown: RulesBreakdown,
-    pub duration_ms: u128,
+    pub rules_breakdown: RulesBreakdown,
+}
+
+impl SummaryStats {
+    pub fn from_result(
+        result: &ScanResult,
+        total_enabled_rules: usize,
+        rules_breakdown: RulesBreakdown,
+    ) -> Self {
+        let mut error_count = 0;
+        let mut warning_count = 0;
+        let mut unique_rules = std::collections::HashSet::new();
+
+        for file_result in &result.files {
+            for issue in &file_result.issues {
+                match issue.severity {
+                    Severity::Error => error_count += 1,
+                    Severity::Warning => warning_count += 1,
+                }
+                unique_rules.insert(&issue.rule);
+            }
+        }
+
+        Self {
+            total_issues: error_count + warning_count,
+            error_count,
+            warning_count,
+            unique_rules_count: unique_rules.len(),
+            total_enabled_rules,
+            rules_breakdown,
+        }
+    }
 }
 
 #[derive(Clone, Serialize)]
 #[serde(untagged)]
-pub enum CliOutput {
+pub enum FormattedOutput {
     ByFile {
         files: Vec<OutputFileGroup>,
         summary: OutputSummary,
@@ -69,7 +61,7 @@ pub enum CliOutput {
     },
 }
 
-impl CliOutput {
+impl FormattedOutput {
     pub fn build_by_file(root: &Path, result: &ScanResult, stats: &SummaryStats) -> Self {
         let summary = Self::build_summary(result, stats);
 
@@ -103,7 +95,7 @@ impl CliOutput {
             })
             .collect();
 
-        CliOutput::ByFile { files, summary }
+        FormattedOutput::ByFile { files, summary }
     }
 
     pub fn build_by_rule(root: &Path, result: &ScanResult, stats: &SummaryStats) -> Self {
@@ -149,7 +141,7 @@ impl CliOutput {
 
         rules.sort_by(|a, b| a.rule.cmp(&b.rule));
 
-        CliOutput::ByRule { rules, summary }
+        FormattedOutput::ByRule { rules, summary }
     }
 
     fn build_summary(result: &ScanResult, stats: &SummaryStats) -> OutputSummary {
@@ -195,12 +187,26 @@ impl CliOutput {
 
     pub fn summary(&self) -> &OutputSummary {
         match self {
-            CliOutput::ByFile { summary, .. } => summary,
-            CliOutput::ByRule { summary, .. } => summary,
+            FormattedOutput::ByFile { summary, .. } => summary,
+            FormattedOutput::ByRule { summary, .. } => summary,
         }
     }
 
     pub fn to_json(&self) -> Option<String> {
         serde_json::to_string_pretty(self).ok()
+    }
+
+    pub fn files(&self) -> Option<&Vec<OutputFileGroup>> {
+        match self {
+            FormattedOutput::ByFile { files, .. } => Some(files),
+            FormattedOutput::ByRule { .. } => None,
+        }
+    }
+
+    pub fn rules(&self) -> Option<&Vec<OutputRuleGroup>> {
+        match self {
+            FormattedOutput::ByFile { .. } => None,
+            FormattedOutput::ByRule { rules, .. } => Some(rules),
+        }
     }
 }

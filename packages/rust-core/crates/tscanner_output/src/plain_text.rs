@@ -1,0 +1,285 @@
+use std::collections::HashMap;
+
+use tscanner_diagnostics::IssueRuleType;
+
+use crate::formatted::FormattedOutput;
+use crate::types::{OutputFileGroup, OutputRuleGroup, OutputSummary};
+
+fn rule_type_icon(rule_type: IssueRuleType) -> &'static str {
+    match rule_type {
+        IssueRuleType::Builtin => "●",
+        IssueRuleType::CustomRegex => "○",
+        IssueRuleType::CustomScript => "▶",
+        IssueRuleType::Ai => "✦",
+    }
+}
+
+fn format_duration(ms: u128) -> String {
+    if ms < 1000 {
+        format!("{}ms", ms)
+    } else if ms < 60000 {
+        format!("{:.1}s", ms as f64 / 1000.0)
+    } else {
+        let total_seconds = ms / 1000;
+        let minutes = total_seconds / 60;
+        let seconds = total_seconds % 60;
+        format!("{}m {}s", minutes, seconds)
+    }
+}
+
+impl FormattedOutput {
+    pub fn to_plain_text(&self, include_summary: bool) -> String {
+        match self {
+            FormattedOutput::ByFile { files, summary } => {
+                render_by_file(files, summary, include_summary)
+            }
+            FormattedOutput::ByRule { rules, summary } => {
+                render_by_rule(rules, summary, include_summary)
+            }
+        }
+    }
+}
+
+fn render_by_file(
+    files: &[OutputFileGroup],
+    summary: &OutputSummary,
+    include_summary: bool,
+) -> String {
+    let mut lines: Vec<String> = Vec::new();
+
+    lines.push(String::new());
+    lines.push("Results:".to_string());
+
+    let mut rules_map: HashMap<String, (String, IssueRuleType)> = HashMap::new();
+    for file in files {
+        for issue in &file.issues {
+            if !rules_map.contains_key(&issue.rule) {
+                rules_map.insert(issue.rule.clone(), (issue.message.clone(), issue.rule_type));
+            }
+        }
+    }
+
+    if !rules_map.is_empty() {
+        lines.push(String::new());
+        lines.push("Rules triggered:".to_string());
+        lines.push(String::new());
+
+        let mut sorted_rules: Vec<_> = rules_map.iter().collect();
+        sorted_rules.sort_by_key(|(rule, _)| *rule);
+
+        let max_rule_len = sorted_rules
+            .iter()
+            .map(|(rule, _)| rule.len())
+            .max()
+            .unwrap_or(0);
+
+        for (rule, (message, rule_type)) in sorted_rules {
+            let icon = rule_type_icon(*rule_type);
+            lines.push(format!(
+                "  {} {:<width$}: {}",
+                icon,
+                rule,
+                message,
+                width = max_rule_len
+            ));
+        }
+
+        lines.push(String::new());
+        lines.push("Issues grouped by file:".to_string());
+    }
+
+    for file in files {
+        let mut issues_by_rule: HashMap<&str, Vec<_>> = HashMap::new();
+        for issue in &file.issues {
+            issues_by_rule.entry(&issue.rule).or_default().push(issue);
+        }
+
+        let unique_rules = issues_by_rule.len();
+        lines.push(String::new());
+        lines.push(format!(
+            "{} - {} issues - {} rules",
+            file.file,
+            file.issues.len(),
+            unique_rules
+        ));
+
+        let mut sorted_rules: Vec<_> = issues_by_rule.keys().collect();
+        sorted_rules.sort();
+
+        for rule_name in sorted_rules {
+            let issues = &issues_by_rule[rule_name];
+            let rule_type = issues.first().map(|i| i.rule_type).unwrap_or_default();
+            let icon = rule_type_icon(rule_type);
+
+            lines.push(String::new());
+            lines.push(format!(
+                "  {} {} ({} issues)",
+                icon,
+                rule_name,
+                issues.len()
+            ));
+
+            for issue in issues {
+                let severity_icon = if issue.severity == "error" {
+                    "✖"
+                } else {
+                    "⚠"
+                };
+
+                let location = format!("{}:{}", issue.line, issue.column);
+
+                if let Some(ref line_text) = issue.line_text {
+                    let trimmed = line_text.trim();
+                    if !trimmed.is_empty() {
+                        lines.push(format!("    {} {} -> {}", severity_icon, location, trimmed));
+                    } else {
+                        lines.push(format!("    {} {}", severity_icon, location));
+                    }
+                } else {
+                    lines.push(format!("    {} {}", severity_icon, location));
+                }
+            }
+        }
+    }
+
+    lines.push(String::new());
+
+    if include_summary {
+        render_summary_lines(&mut lines, summary);
+    }
+
+    lines.join("\n")
+}
+
+fn render_by_rule(
+    rules: &[OutputRuleGroup],
+    summary: &OutputSummary,
+    include_summary: bool,
+) -> String {
+    let mut lines: Vec<String> = Vec::new();
+
+    lines.push(String::new());
+    lines.push("Results:".to_string());
+
+    if !rules.is_empty() {
+        lines.push(String::new());
+        lines.push("Rules triggered:".to_string());
+        lines.push(String::new());
+
+        let max_rule_len = rules.iter().map(|r| r.rule.len()).max().unwrap_or(0);
+
+        for rule in rules {
+            let icon = rule_type_icon(rule.rule_type);
+            lines.push(format!(
+                "  {} {:<width$}: {}",
+                icon,
+                rule.rule,
+                rule.message,
+                width = max_rule_len
+            ));
+        }
+
+        lines.push(String::new());
+        lines.push("Issues grouped by rule:".to_string());
+    }
+
+    for rule in rules {
+        let icon = rule_type_icon(rule.rule_type);
+
+        let mut files_map: HashMap<&str, Vec<_>> = HashMap::new();
+        for issue in &rule.issues {
+            files_map.entry(&issue.file).or_default().push(issue);
+        }
+
+        let unique_files = files_map.len();
+
+        lines.push(String::new());
+        lines.push(format!(
+            "{} {} ({} issues, {} files)",
+            icon, rule.rule, rule.count, unique_files
+        ));
+
+        let mut sorted_files: Vec<_> = files_map.keys().collect();
+        sorted_files.sort();
+
+        for file in sorted_files {
+            let issues = &files_map[file];
+
+            lines.push(String::new());
+            lines.push(format!("  {} ({} issues)", file, issues.len()));
+
+            for issue in issues {
+                let severity_icon = if issue.severity == "error" {
+                    "✖"
+                } else {
+                    "⚠"
+                };
+
+                let location = format!("{}:{}", issue.line, issue.column);
+
+                if let Some(ref line_text) = issue.line_text {
+                    let trimmed = line_text.trim();
+                    if !trimmed.is_empty() {
+                        lines.push(format!("    {} {} -> {}", severity_icon, location, trimmed));
+                    } else {
+                        lines.push(format!("    {} {}", severity_icon, location));
+                    }
+                } else {
+                    lines.push(format!("    {} {}", severity_icon, location));
+                }
+            }
+        }
+    }
+
+    lines.push(String::new());
+
+    if include_summary {
+        render_summary_lines(&mut lines, summary);
+    }
+
+    lines.join("\n")
+}
+
+fn render_summary_lines(lines: &mut Vec<String>, summary: &OutputSummary) {
+    lines.push("Summary:".to_string());
+    lines.push(String::new());
+    lines.push(format!(
+        "  Issues: {} ({} errors, {} warnings)",
+        summary.total_issues, summary.errors, summary.warnings
+    ));
+
+    let breakdown = &summary.triggered_rules_breakdown;
+    let breakdown_parts: Vec<String> = [
+        (breakdown.builtin, "builtin"),
+        (breakdown.regex, "regex"),
+        (breakdown.script, "script"),
+        (breakdown.ai, "ai"),
+    ]
+    .iter()
+    .filter(|(count, _)| *count > 0)
+    .map(|(count, label)| format!("{} {}", count, label))
+    .collect();
+
+    let breakdown_str = if breakdown_parts.is_empty() {
+        String::new()
+    } else {
+        format!(" ({})", breakdown_parts.join(", "))
+    };
+
+    lines.push(format!(
+        "  Triggered rules: {}/{}{}",
+        summary.triggered_rules, summary.total_enabled_rules, breakdown_str
+    ));
+
+    lines.push(format!(
+        "  Files with issues: {}/{}",
+        summary.files_with_issues, summary.total_files
+    ));
+
+    lines.push(format!(
+        "  Duration: {}",
+        format_duration(summary.duration_ms)
+    ));
+
+    lines.push(String::new());
+}

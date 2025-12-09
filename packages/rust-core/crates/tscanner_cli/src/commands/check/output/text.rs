@@ -1,6 +1,6 @@
 use super::renderer::OutputRenderer;
 use super::CheckContext;
-use crate::shared::{CliOutput, OutputFileGroup, OutputRuleGroup, OutputSummary};
+use crate::shared::{FormattedOutput, OutputFileGroup, OutputRuleGroup, OutputSummary};
 use colored::*;
 use std::collections::HashMap;
 use tscanner_diagnostics::{IssueRuleType, ScanResult};
@@ -30,12 +30,12 @@ fn format_duration(ms: u128) -> String {
 pub struct TextRenderer;
 
 impl OutputRenderer for TextRenderer {
-    fn render(&self, ctx: &CheckContext, output: &CliOutput, _result: &ScanResult) {
+    fn render(&self, ctx: &CheckContext, output: &FormattedOutput, _result: &ScanResult) {
         println!();
         println!("{}", "Results:".cyan().bold());
 
         match output {
-            CliOutput::ByFile { files, summary } => {
+            FormattedOutput::ByFile { files, summary } => {
                 self.render_rules_triggered_by_file(files);
                 self.render_by_file(files);
                 println!();
@@ -43,7 +43,7 @@ impl OutputRenderer for TextRenderer {
                     self.render_summary(summary);
                 }
             }
-            CliOutput::ByRule { rules, summary } => {
+            FormattedOutput::ByRule { rules, summary } => {
                 self.render_rules_triggered_by_rule(rules);
                 self.render_by_rule(rules);
                 println!();
