@@ -3,7 +3,6 @@ use tscanner_cli::OutputFormat;
 use tscanner_diagnostics::ScanResult;
 
 use super::json::JsonRenderer;
-use super::pretty::PrettyRenderer;
 use super::text::TextRenderer;
 use super::CheckContext;
 
@@ -14,7 +13,6 @@ pub trait OutputRenderer {
 pub fn get_renderer(format: &OutputFormat) -> Box<dyn OutputRenderer> {
     match format {
         OutputFormat::Json => Box::new(JsonRenderer),
-        OutputFormat::Pretty => Box::new(PrettyRenderer),
         OutputFormat::Text => Box::new(TextRenderer),
     }
 }

@@ -50,7 +50,6 @@ pub fn render_header(config: &ScanConfig) {
         let format_str = match config.format {
             OutputFormat::Text => "text",
             OutputFormat::Json => "json",
-            OutputFormat::Pretty => "pretty",
         };
         let group_str = match config.group_by {
             GroupMode::Rule => "rule",

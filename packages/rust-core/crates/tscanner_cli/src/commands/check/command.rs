@@ -37,10 +37,6 @@ pub enum CliGroupBy {
 pub struct CliOptions {
     pub group_by: CliGroupBy,
     pub show_settings: bool,
-    pub show_issue_severity: bool,
-    pub show_issue_source_line: bool,
-    pub show_issue_rule_name: bool,
-    pub show_issue_description: bool,
     pub show_summary: bool,
 }
 
@@ -49,10 +45,6 @@ impl Default for CliOptions {
         Self {
             group_by: CliGroupBy::File,
             show_settings: true,
-            show_issue_severity: true,
-            show_issue_source_line: true,
-            show_issue_rule_name: true,
-            show_issue_description: true,
             show_summary: true,
         }
     }
@@ -64,6 +56,7 @@ pub fn cmd_check(
     no_cache: bool,
     group_by: Option<CliGroupMode>,
     format: Option<OutputFormat>,
+    json_output: Option<PathBuf>,
     branch: Option<String>,
     staged: bool,
     glob_filter: Option<String>,
@@ -375,13 +368,22 @@ pub fn cmd_check(
         if cli_options.show_summary {
             render_summary(&result, &stats);
         }
+
+        if let Some(ref json_path) = json_output {
+            write_json_output(json_path, &root, &effective_group_mode, &result, &stats)?;
+        }
+
         return Ok(());
     }
 
-    let ctx = CheckContext::new(root, effective_group_mode, cli_options);
+    let ctx = CheckContext::new(root.clone(), effective_group_mode.clone(), cli_options);
 
     let renderer = output::get_renderer(&output_format);
     renderer.render(&ctx, &result, &stats);
+
+    if let Some(ref json_path) = json_output {
+        write_json_output(json_path, &root, &effective_group_mode, &result, &stats)?;
+    }
 
     log_info(&format!(
         "cmd_check: Found {} errors, {} warnings",
@@ -392,6 +394,24 @@ pub fn cmd_check(
         std::process::exit(1);
     }
 
+    Ok(())
+}
+
+fn write_json_output(
+    json_path: &Path,
+    root: &Path,
+    group_mode: &GroupMode,
+    result: &tscanner_diagnostics::ScanResult,
+    stats: &SummaryStats,
+) -> Result<()> {
+    if let Some(json_str) = output::JsonRenderer::to_json_string(root, group_mode, result, stats) {
+        fs::write(json_path, json_str)
+            .context(format!("Failed to write JSON output to {:?}", json_path))?;
+        log_info(&format!(
+            "cmd_check: JSON output written to {:?}",
+            json_path
+        ));
+    }
     Ok(())
 }
 

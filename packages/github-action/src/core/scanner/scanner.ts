@@ -1,3 +1,5 @@
+import * as fs from 'node:fs';
+import * as path from 'node:path';
 import {
   AiExecutionMode,
   type CliOutputByFile,
@@ -61,9 +63,12 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
 
   const executor: CliExecutor = devMode ? createDevModeExecutor() : createProdModeExecutor(tscannerVersion);
 
+  const jsonOutputFile = path.join(process.cwd(), 'tscanner-results.json');
+
   const baseArgs = [
     'check',
-    '--format=json',
+    '--json-output',
+    jsonOutputFile,
     '--continue-on-error',
     '--config-path',
     configPath,
@@ -72,17 +77,25 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
     '--group-by=file',
   ];
 
-  const scanOutputFile = await executor.execute(baseArgs);
+  await executor.execute(baseArgs);
 
   let scanDataFile: CliOutputByFile;
   let scanDataRule: CliOutputByRule;
 
   try {
-    scanDataFile = JSON.parse(scanOutputFile) as CliOutputByFile;
+    const jsonContent = fs.readFileSync(jsonOutputFile, 'utf-8');
+    scanDataFile = JSON.parse(jsonContent) as CliOutputByFile;
     scanDataRule = deriveOutputByRule(scanDataFile);
+    fs.unlinkSync(jsonOutputFile);
   } catch (err) {
     githubHelper.logError(`Failed to parse scan output: ${err instanceof Error ? err.message : String(err)}`);
-    githubHelper.logDebug(`Raw output: ${scanOutputFile.substring(0, 500)}`);
+    if (fs.existsSync(jsonOutputFile)) {
+      try {
+        const rawContent = fs.readFileSync(jsonOutputFile, 'utf-8');
+        githubHelper.logDebug(`Raw output: ${rawContent.substring(0, 500)}`);
+        fs.unlinkSync(jsonOutputFile);
+      } catch {}
+    }
     throw new Error('Invalid scan output format');
   }
 

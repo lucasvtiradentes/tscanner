@@ -5,6 +5,7 @@ use crate::shared::{
 };
 use serde::Serialize;
 use std::collections::HashMap;
+use std::path::Path;
 use tscanner_diagnostics::{GroupMode, ScanResult, Severity};
 
 #[derive(Serialize)]
@@ -22,32 +23,27 @@ enum JsonOutput {
 
 pub struct JsonRenderer;
 
-impl OutputRenderer for JsonRenderer {
-    fn render(&self, ctx: &CheckContext, result: &ScanResult, stats: &SummaryStats) {
-        let output = match ctx.group_mode {
-            GroupMode::File => self.render_by_file(ctx, result, stats),
-            GroupMode::Rule => self.render_by_rule(ctx, result, stats),
-        };
-
-        if let Ok(json) = serde_json::to_string_pretty(&output) {
-            println!("{}", json);
-        }
-    }
-}
-
 impl JsonRenderer {
-    fn render_by_file(
-        &self,
-        ctx: &CheckContext,
+    pub fn to_json_string(
+        root: &Path,
+        group_mode: &GroupMode,
         result: &ScanResult,
         stats: &SummaryStats,
-    ) -> JsonOutput {
+    ) -> Option<String> {
+        let output = match group_mode {
+            GroupMode::File => Self::build_by_file(root, result, stats),
+            GroupMode::Rule => Self::build_by_rule(root, result, stats),
+        };
+        serde_json::to_string_pretty(&output).ok()
+    }
+
+    fn build_by_file(root: &Path, result: &ScanResult, stats: &SummaryStats) -> JsonOutput {
         let files: Vec<JsonFileGroup> = result
             .files
             .iter()
             .filter(|f| !f.issues.is_empty())
             .map(|file_result| {
-                let relative_path = pathdiff::diff_paths(&file_result.file, &ctx.root)
+                let relative_path = pathdiff::diff_paths(&file_result.file, root)
                     .unwrap_or_else(|| file_result.file.clone());
 
                 JsonFileGroup {
@@ -78,16 +74,11 @@ impl JsonRenderer {
         }
     }
 
-    fn render_by_rule(
-        &self,
-        ctx: &CheckContext,
-        result: &ScanResult,
-        stats: &SummaryStats,
-    ) -> JsonOutput {
+    fn build_by_rule(root: &Path, result: &ScanResult, stats: &SummaryStats) -> JsonOutput {
         let mut issues_by_rule: HashMap<String, Vec<JsonRuleIssue>> = HashMap::new();
 
         for file_result in &result.files {
-            let relative_path = pathdiff::diff_paths(&file_result.file, &ctx.root)
+            let relative_path = pathdiff::diff_paths(&file_result.file, root)
                 .unwrap_or_else(|| file_result.file.clone());
 
             for issue in &file_result.issues {
@@ -123,6 +114,14 @@ impl JsonRenderer {
         JsonOutput::ByRule {
             rules,
             summary: JsonSummary::new(result, stats),
+        }
+    }
+}
+
+impl OutputRenderer for JsonRenderer {
+    fn render(&self, ctx: &CheckContext, result: &ScanResult, stats: &SummaryStats) {
+        if let Some(json) = Self::to_json_string(&ctx.root, &ctx.group_mode, result, stats) {
+            println!("{}", json);
         }
     }
 }

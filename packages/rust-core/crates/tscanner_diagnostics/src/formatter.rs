@@ -1,7 +1,16 @@
 use std::collections::{BTreeMap, HashMap, HashSet};
 use std::path::{Path, PathBuf};
 
-use crate::{Issue, ScanResult, Severity};
+use crate::{Issue, IssueRuleType, ScanResult, Severity};
+
+fn rule_type_icon(rule_type: IssueRuleType) -> &'static str {
+    match rule_type {
+        IssueRuleType::Builtin => "●",
+        IssueRuleType::CustomRegex => "○",
+        IssueRuleType::CustomScript => "▶",
+        IssueRuleType::Ai => "✦",
+    }
+}
 
 #[derive(Debug, Clone)]
 pub enum GroupMode {
@@ -15,11 +24,11 @@ impl PrettyFormatter {
     pub fn format_by_file(scan_result: &ScanResult, root: &Path) -> String {
         let mut lines: Vec<String> = Vec::new();
 
-        let mut rules_map: HashMap<String, String> = HashMap::new();
+        let mut rules_map: HashMap<String, (String, IssueRuleType)> = HashMap::new();
         for file_result in &scan_result.files {
             for issue in &file_result.issues {
                 if !rules_map.contains_key(&issue.rule) {
-                    rules_map.insert(issue.rule.clone(), issue.message.clone());
+                    rules_map.insert(issue.rule.clone(), (issue.message.clone(), issue.rule_type));
                 }
             }
         }
@@ -36,9 +45,11 @@ impl PrettyFormatter {
                 .max()
                 .unwrap_or(0);
 
-            for (rule, message) in sorted_rules {
+            for (rule, (message, rule_type)) in sorted_rules {
+                let icon = rule_type_icon(*rule_type);
                 lines.push(format!(
-                    "  {:<width$}: {}",
+                    "  {} {:<width$}: {}",
+                    icon,
                     rule,
                     message,
                     width = max_rule_len
@@ -78,8 +89,15 @@ impl PrettyFormatter {
 
             for rule_name in sorted_rules {
                 let issues = &issues_by_rule[rule_name];
+                let rule_type = issues.first().map(|i| i.rule_type).unwrap_or_default();
+                let icon = rule_type_icon(rule_type);
                 lines.push(String::new());
-                lines.push(format!("  {} ({} issues)", rule_name, issues.len()));
+                lines.push(format!(
+                    "  {} {} ({} issues)",
+                    icon,
+                    rule_name,
+                    issues.len()
+                ));
 
                 for issue in issues {
                     let severity_icon = match issue.severity {
@@ -136,8 +154,10 @@ impl PrettyFormatter {
 
             for (rule_name, issues) in &issues_by_rule {
                 if let Some((_, first_issue)) = issues.first() {
+                    let icon = rule_type_icon(first_issue.rule_type);
                     lines.push(format!(
-                        "  {:<width$}: {}",
+                        "  {} {:<width$}: {}",
+                        icon,
                         rule_name,
                         first_issue.message,
                         width = max_rule_len
@@ -150,9 +170,12 @@ impl PrettyFormatter {
 
         for (rule_name, issues) in issues_by_rule {
             let unique_files: HashSet<_> = issues.iter().map(|(path, _)| path).collect();
+            let rule_type = issues.first().map(|(_, i)| i.rule_type).unwrap_or_default();
+            let icon = rule_type_icon(rule_type);
             lines.push(String::new());
             lines.push(format!(
-                "{} ({} issues, {} files)",
+                "{} {} ({} issues, {} files)",
+                icon,
                 rule_name,
                 issues.len(),
                 unique_files.len()

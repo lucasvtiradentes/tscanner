@@ -159,8 +159,8 @@ tscanner check --branch origin/main
     <th width="300">Flag description</th>
   </tr>
   <tr>
-    <td rowspan="11" align="left"><code>check [options] [paths]</code></td>
-    <td rowspan="11" align="left">Scan code for issues and display results</td>
+    <td rowspan="12" align="left"><code>check [options] [paths]</code></td>
+    <td rowspan="12" align="left">Scan code for issues and display results</td>
     <td align="left"><code>--branch <BRANCH></code></td>
     <td align="center">-</td>
     <td align="left">Only show issues in files changed compared to branch (e.g., origin/main)</td>
@@ -182,9 +182,9 @@ tscanner check --branch origin/main
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><code>--format [text/json/pretty]</code></td>
+    <td align="left"><code>--format [text/json]</code></td>
     <td align="center">text</td>
-    <td align="left">Output format: text, json, or pretty</td>
+    <td align="left">Output format: text or json</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
@@ -206,6 +206,13 @@ tscanner check --branch origin/main
     <td align="left"><code>--include-ai</code></td>
     <td align="center">-</td>
     <td align="left">Include AI rules in the scan (slower)</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--json-output <FILE></code></td>
+    <td align="center">-</td>
+    <td align="left">Additionally save JSON output to file (works with any format)</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
