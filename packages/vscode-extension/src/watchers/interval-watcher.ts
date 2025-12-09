@@ -4,9 +4,14 @@ import { logger } from '../common/lib/logger';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import type { ExtensionStateRefs } from '../common/state/extension-state';
 
+export enum IntervalConfigKey {
+  Scan = 'scanInterval',
+  AiScan = 'aiScanInterval',
+}
+
 type IntervalConfig = {
   name: string;
-  configKey: 'scanInterval' | 'aiScanInterval';
+  configKey: IntervalConfigKey;
   aiMode: AiExecutionMode;
 };
 
