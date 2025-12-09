@@ -62,8 +62,8 @@ pub fn cmd_init(path: &Path, full: bool) -> Result<()> {
         println!("  {}", config_path.display());
         println!();
         println!("{}", "Created example files:".cyan());
-        println!("  scripts/example-no-debug-comments.ts");
-        println!("  prompts/example-find-complexity.md");
+        println!("  script-rules/example-no-debug-comments.ts");
+        println!("  ai-rules/example-find-complexity.md");
     } else {
         println!("{}", "✓ Created default configuration".green().bold());
         println!("  {}", config_path.display());

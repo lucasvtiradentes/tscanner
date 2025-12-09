@@ -50,7 +50,7 @@
     },
     "script": {
       "example-no-debug-comments": {
-        "command": "npx tsx scripts/example-no-debug-comments.ts",
+        "command": "npx tsx script-rules/example-no-debug-comments.ts",
         "message": "Debug comments should be removed",
         "severity": "warning"
       }

@@ -82,7 +82,7 @@
           "description": "How files are provided to the AI: 'paths' (default) sends only file paths, 'content' sends file contents in prompt, 'agentic' lets AI explore files autonomously"
         },
         "prompt": {
-          "description": "Path to AI prompt markdown file (relative to .tscanner/prompts/)",
+          "description": "Path to AI prompt markdown file (relative to .tscanner/ai-rules/)",
           "type": "string"
         },
         "severity": {
@@ -1893,7 +1893,7 @@
     "ScriptRuleConfig": {
       "properties": {
         "command": {
-          "description": "Full command to execute the script (e.g., 'npx tsx scripts/my-script.ts --arg'). Path is relative to .tscanner/ directory.",
+          "description": "Full command to execute the script (e.g., 'npx tsx script-rules/my-script.ts --arg'). Path is relative to .tscanner/ directory.",
           "type": "string"
         },
         "enabled": {

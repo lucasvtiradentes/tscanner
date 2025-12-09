@@ -119,7 +119,7 @@
       "packages/vscode-extension/dist-dev/**",
       "packages/vscode-extension/out/**",
       "packages/rust-core/crates/tscanner_rules/tests/**",
-      ".tscanner/scripts/**",
+      ".tscanner/script-rules/**",
       "examples/all-rules/**"
     ]
   },

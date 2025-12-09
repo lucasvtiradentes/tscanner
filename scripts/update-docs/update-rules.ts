@@ -229,7 +229,7 @@ Run custom scripts that receive file data via stdin and output issues as JSON:
   "rules": {
     "script": {
       "no-debug-comments": {
-        "command": "npx tsx .tscanner/scripts/no-debug-comments.ts",
+        "command": "npx tsx .tscanner/script-rules/no-debug-comments.ts",
         "message": "Debug comments should be removed",
         "severity": "warning"
       }
@@ -238,7 +238,7 @@ Run custom scripts that receive file data via stdin and output issues as JSON:
 }
 \`\`\`
 
-**Script** (\`.tscanner/scripts/no-debug-comments.ts\`):
+**Script** (\`.tscanner/script-rules/no-debug-comments.ts\`):
 \`\`\`typescript
 ${scriptRuleExample}
 \`\`\`
@@ -274,7 +274,7 @@ Use AI prompts to perform semantic code analysis:
 }
 \`\`\`
 
-**Prompt** (\`.tscanner/prompts/find-complexity.md\`):
+**Prompt** (\`.tscanner/ai-rules/find-complexity.md\`):
 \`\`\`markdown
 ${aiRuleExample}
 \`\`\`

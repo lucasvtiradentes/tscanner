@@ -241,7 +241,7 @@ impl Default for RegexRuleConfig {
 #[serde(rename_all = "camelCase")]
 pub struct ScriptRuleConfig {
     #[schemars(
-        description = "Full command to execute the script (e.g., 'npx tsx scripts/my-script.ts --arg'). Path is relative to .tscanner/ directory."
+        description = "Full command to execute the script (e.g., 'npx tsx script-rules/my-script.ts --arg'). Path is relative to .tscanner/ directory."
     )]
     pub command: String,
 
@@ -291,7 +291,7 @@ impl Default for ScriptRuleConfig {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct AiRuleConfig {
-    #[schemars(description = "Path to AI prompt markdown file (relative to .tscanner/prompts/)")]
+    #[schemars(description = "Path to AI prompt markdown file (relative to .tscanner/ai-rules/)")]
     pub prompt: String,
 
     #[schemars(description = "Error message to display when rule is violated")]

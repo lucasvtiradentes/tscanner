@@ -1,6 +1,5 @@
 import { execSync } from 'node:child_process';
 import type { ModifiedLineRange } from './schemas/other';
-// import type { ModifiedLineRange } from './schemas/cli';
 
 export class GitHelper {
   private static toGitPath(filePath: string): string {
@@ -9,6 +8,7 @@ export class GitHelper {
 
   private static execGit(cmd: string, cwd: string): [string | null, Error | null] {
     try {
+      console.log(2);
       const output = execSync(cmd, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] });
       return [output, null];
     } catch (error) {

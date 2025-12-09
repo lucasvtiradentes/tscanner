@@ -100,7 +100,7 @@ impl From<std::io::Error> for AiError {
 
 pub struct AiExecutor {
     workspace_root: PathBuf,
-    prompts_dir: PathBuf,
+    ai_rules_dir: PathBuf,
     ai_config: Option<AiConfig>,
     cache: DashMap<u64, CachedResult>,
     in_flight: DashMap<u64, Arc<AtomicBool>>,
@@ -112,7 +112,7 @@ impl AiExecutor {
     pub fn new(workspace_root: &Path) -> Self {
         Self {
             workspace_root: workspace_root.to_path_buf(),
-            prompts_dir: workspace_root.join(".tscanner").join("prompts"),
+            ai_rules_dir: workspace_root.join(".tscanner").join("ai-rules"),
             ai_config: None,
             cache: DashMap::new(),
             in_flight: DashMap::new(),
@@ -124,7 +124,7 @@ impl AiExecutor {
     pub fn with_logger(workspace_root: &Path, log_warn: fn(&str), log_debug: fn(&str)) -> Self {
         Self {
             workspace_root: workspace_root.to_path_buf(),
-            prompts_dir: workspace_root.join(".tscanner").join("prompts"),
+            ai_rules_dir: workspace_root.join(".tscanner").join("ai-rules"),
             ai_config: None,
             cache: DashMap::new(),
             in_flight: DashMap::new(),
@@ -141,7 +141,7 @@ impl AiExecutor {
     ) -> Self {
         Self {
             workspace_root: workspace_root.to_path_buf(),
-            prompts_dir: workspace_root.join(".tscanner").join("prompts"),
+            ai_rules_dir: workspace_root.join(".tscanner").join("ai-rules"),
             ai_config,
             cache: DashMap::new(),
             in_flight: DashMap::new(),
@@ -320,7 +320,7 @@ impl AiExecutor {
         ai_config: &AiConfig,
         changed_lines: Option<&ChangedLinesMap>,
     ) -> Result<Vec<Issue>, AiError> {
-        let prompt_path = self.prompts_dir.join(&rule_config.prompt);
+        let prompt_path = self.ai_rules_dir.join(&rule_config.prompt);
         if !prompt_path.exists() {
             return Err(AiError::PromptNotFound(prompt_path));
         }
