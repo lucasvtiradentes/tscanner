@@ -299,10 +299,6 @@ impl AiExecutor {
         workspace_root: &Path,
         rule_config: &AiRuleConfig,
     ) -> bool {
-        if !rule_config.enabled {
-            return false;
-        }
-
         let relative = path.strip_prefix(workspace_root).unwrap_or(path);
         let relative_str = relative.to_string_lossy();
 
@@ -415,12 +411,26 @@ impl AiExecutor {
         let files_section =
             self.format_files_section(files, workspace_root, &rule_config.mode, changed_lines);
         let rule_prompt = prompt_content.replace("{{FILES}}", &files_section);
-        let full_prompt = AI_RULE_WRAPPER.replace("{{CONTENT}}", &rule_prompt);
+        let options_section = if rule_config.options.is_null() {
+            String::new()
+        } else {
+            format!(
+                "## Additional Options\n\n```json\n{}\n```\n",
+                serde_json::to_string_pretty(&rule_config.options).unwrap_or_default()
+            )
+        };
+        let full_prompt = AI_RULE_WRAPPER
+            .replace("{{CONTENT}}", &rule_prompt)
+            .replace("{{OPTIONS}}", &options_section);
 
         self.save_prompt_to_tmp(rule_name, &full_prompt);
 
-        let timeout_secs = rule_config.timeout.unwrap_or(ai_config.timeout);
-        let timeout_ms = timeout_secs * 1000;
+        let timeout_secs = rule_config.timeout;
+        let timeout_ms = if timeout_secs > 0 {
+            timeout_secs * 1000
+        } else {
+            0
+        };
         let (program, args) =
             resolve_provider_command(ai_config.provider.as_ref(), ai_config.command.as_deref())
                 .map_err(AiError::InvalidOutput)?;

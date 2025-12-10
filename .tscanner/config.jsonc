@@ -41,13 +41,11 @@
       "no-rust-deprecated": {
         "pattern": "allow\\(deprecated\\)",
         "message": "No deprecated methods",
-        "severity": "warning",
         "include": ["packages/rust-core/**/*.rs"]
       },
       "no-process-env": {
         "pattern": "process\\.env",
-        "message": "No process env",
-        "severity": "warning"
+        "message": "No process env"
       }
     },
     "script": {
@@ -60,7 +58,6 @@
       "readme-toc-match": {
         "command": "npx tsx script-rules/readme-toc-match.ts",
         "message": "README TOC must match all document headings",
-        "severity": "warning",
         "include": ["**/README.md"],
         "exclude": [".changeset/README.md"]
       },
@@ -79,7 +76,6 @@
       "no-long-files": {
         "command": "npx tsx script-rules/no-long-files.ts",
         "message": "File exceeds 300 lines limit",
-        "severity": "warning",
         "include": ["packages/**/*.ts", "packages/**/*.rs"]
       }
     }
@@ -92,14 +88,13 @@
       "severity": "warning",
       "include": ["packages/rust-core/crates/tscanner_scanner/src/executors/**.rs"]
     },
-    "find-magic-numbers": {
-      "enabled": false,
-      "prompt": "find-magic-numbers.md",
-      "mode": "paths",
-      "message": "Magic number should be extracted to a named constant",
-      "severity": "warning",
-      "include": ["packages/rust-core/**/*.rs"]
-    },
+    // "find-magic-numbers": {
+    //   "prompt": "find-magic-numbers.md",
+    //   "mode": "paths",
+    //   "message": "Magic number should be extracted to a named constant",
+    //   "severity": "warning",
+    //   "include": ["packages/rust-core/**/*.rs"]
+    // },
     "find-enum-candidates": {
       "prompt": "find-enum-candidates.md",
       "mode": "agentic",
@@ -124,8 +119,7 @@
     ]
   },
   "ai": {
-    "provider": "claude",
-    "timeout": 180
+    "provider": "claude"
   },
   "codeEditor": {
     "highlightErrors": true,

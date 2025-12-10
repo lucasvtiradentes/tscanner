@@ -48,13 +48,7 @@ impl Scanner {
             .rules
             .script
             .iter()
-            .filter_map(|(name, script_config)| {
-                if script_config.enabled {
-                    Some((name.clone(), script_config.clone()))
-                } else {
-                    None
-                }
-            })
+            .map(|(name, script_config)| (name.clone(), script_config.clone()))
             .collect()
     }
 
@@ -63,13 +57,7 @@ impl Scanner {
             .config
             .ai_rules
             .iter()
-            .filter_map(|(name, ai_config)| {
-                if ai_config.enabled {
-                    Some((name.clone(), ai_config.clone()))
-                } else {
-                    None
-                }
-            })
+            .map(|(name, ai_config)| (name.clone(), ai_config.clone()))
             .collect();
         rules.sort_by(|(a, _), (b, _)| a.cmp(b));
         rules

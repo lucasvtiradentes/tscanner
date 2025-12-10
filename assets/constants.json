@@ -15,13 +15,13 @@
     },
     "codeEditor": {
       "highlightErrors": true,
-      "highlightWarnings": false,
+      "highlightWarnings": true,
       "scanInterval": 0,
       "aiScanInterval": 0
     },
     "timeouts": {
-      "scriptSeconds": 10,
-      "aiSeconds": 120
+      "scriptSeconds": 0,
+      "aiSeconds": 0
     },
     "intervals": {
       "lspDebounceMs": 150,

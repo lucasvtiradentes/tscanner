@@ -121,11 +121,10 @@ impl RuleRegistry {
             }
         }
 
-        let enabled_count = compiled_configs.values().filter(|c| c.enabled).count();
         log_info(&format!(
-            "Loaded {} rules ({} enabled)",
+            "Loaded {} rules ({} configured)",
             rules.len(),
-            enabled_count
+            compiled_configs.len()
         ));
 
         Ok(Self {
@@ -165,7 +164,7 @@ impl RuleRegistry {
             .iter()
             .filter_map(|(name, rule)| {
                 if let Some(compiled) = self.compiled_configs.get(name) {
-                    if compiled.enabled && matches_file(file_path, root, compiled) {
+                    if matches_file(file_path, root, compiled) {
                         return Some((rule.clone(), compiled.severity));
                     }
                 }
@@ -190,7 +189,7 @@ impl RuleRegistry {
                     return None;
                 }
                 if let Some(compiled) = self.compiled_configs.get(name) {
-                    if compiled.enabled && matches_file(file_path, root, compiled) {
+                    if matches_file(file_path, root, compiled) {
                         return Some((rule.clone(), compiled.severity));
                     }
                 }
@@ -204,10 +203,7 @@ impl RuleRegistry {
     }
 
     pub fn is_enabled(&self, name: &str) -> bool {
-        self.compiled_configs
-            .get(name)
-            .map(|c| c.enabled)
-            .unwrap_or(false)
+        self.compiled_configs.contains_key(name)
     }
 }
 

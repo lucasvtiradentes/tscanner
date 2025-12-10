@@ -12,16 +12,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let metadata = get_all_rule_metadata();
 
     let base_rule_props = json!({
-        "enabled": {
-            "description": "Enable or disable this rule",
-            "type": ["boolean", "null"]
-        },
         "severity": {
-            "anyOf": [
-                { "$ref": "#/definitions/Severity" },
-                { "type": "null" }
+            "allOf": [
+                { "$ref": "#/definitions/Severity" }
             ],
-            "description": "Severity level for this rule"
+            "description": "Severity level for this rule (default: warning)"
         },
         "include": {
             "description": "File patterns to include for this rule",
@@ -159,6 +154,46 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "type": "object",
                 "description": "AI-powered rules (expensive, run separately)",
                 "additionalProperties": { "$ref": "#/definitions/AiRuleConfig" }
+            }),
+        );
+    }
+
+    if let Some(definitions) = schema_value
+        .get_mut("definitions")
+        .and_then(|d| d.as_object_mut())
+    {
+        definitions.insert(
+            "AiConfig".to_string(),
+            json!({
+                "type": "object",
+                "properties": {
+                    "provider": {
+                        "anyOf": [
+                            { "$ref": "#/definitions/AiProvider" },
+                            { "type": "null" }
+                        ],
+                        "description": "AI provider to use (claude, gemini, custom)"
+                    },
+                    "command": {
+                        "type": ["string", "null"],
+                        "description": "Custom command path (required when provider is 'custom')"
+                    }
+                },
+                "if": {
+                    "properties": {
+                        "provider": { "const": "custom" }
+                    },
+                    "required": ["provider"]
+                },
+                "then": {
+                    "required": ["command"],
+                    "properties": {
+                        "command": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                }
             }),
         );
     }

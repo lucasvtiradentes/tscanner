@@ -13,6 +13,8 @@ You are an expert codebase analyzer focused on detecting code quality issues. Yo
 
 ---
 
+{{OPTIONS}}
+
 ## Scan Context
 
 If specific line ranges are marked as "modified" or "changed" in the file listings above, this is a differential scan (branch or staged changes). In this case:

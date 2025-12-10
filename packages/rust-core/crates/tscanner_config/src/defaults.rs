@@ -32,7 +32,6 @@ struct Constants {
 struct Defaults {
     files: FilesDefaults,
     code_editor: CodeEditorDefaults,
-    timeouts: TimeoutDefaults,
     intervals: IntervalDefaults,
     directories: DirectoryDefaults,
     examples: ExampleDefaults,
@@ -52,13 +51,6 @@ struct CodeEditorDefaults {
     highlight_warnings: bool,
     scan_interval: u32,
     ai_scan_interval: u32,
-}
-
-#[derive(Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-struct TimeoutDefaults {
-    script_seconds: u64,
-    ai_seconds: u64,
 }
 
 #[derive(Deserialize, Clone)]
@@ -307,20 +299,8 @@ pub fn default_exclude() -> Vec<String> {
     CONSTANTS.defaults.files.exclude.clone()
 }
 
-pub fn default_true() -> bool {
-    true
-}
-
 pub fn default_severity() -> Severity {
     Severity::Warning
-}
-
-pub fn default_script_timeout() -> u64 {
-    CONSTANTS.defaults.timeouts.script_seconds
-}
-
-pub fn default_ai_timeout() -> u64 {
-    CONSTANTS.defaults.timeouts.ai_seconds
 }
 
 pub fn default_ai_scan_interval() -> u32 {

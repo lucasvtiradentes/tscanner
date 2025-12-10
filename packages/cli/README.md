@@ -298,7 +298,7 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
   },
   "codeEditor": {
     "highlightErrors": true,
-    "highlightWarnings": false,
+    "highlightWarnings": true,
     "scanInterval": 0,
     "aiScanInterval": 0
   }

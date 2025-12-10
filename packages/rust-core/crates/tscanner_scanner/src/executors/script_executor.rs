@@ -172,10 +172,6 @@ impl ScriptExecutor {
         workspace_root: &Path,
         rule_config: &ScriptRuleConfig,
     ) -> bool {
-        if !rule_config.enabled {
-            return false;
-        }
-
         let relative = path.strip_prefix(workspace_root).unwrap_or(path);
         let relative_str = relative.to_string_lossy();
 
@@ -248,9 +244,15 @@ impl ScriptExecutor {
             })
             .collect();
 
+        let options = if rule_config.options.is_null() {
+            None
+        } else {
+            Some(rule_config.options.clone())
+        };
+
         let input = ScriptInput {
             files: script_files,
-            options: rule_config.options.clone(),
+            options,
             workspace_root: workspace_root.to_string_lossy().to_string(),
         };
 

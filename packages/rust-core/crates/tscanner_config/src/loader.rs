@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::types::TscannerConfig;
+use crate::types::{AiProvider, TscannerConfig};
 use crate::validation::{validate_json_fields, ValidationResult};
 
 pub const CONFIG_ERROR_PREFIX: &str = "TSCANNER_CONFIG_ERROR:";
@@ -41,6 +41,15 @@ impl TscannerConfig {
     ) -> ValidationResult {
         let mut result = ValidationResult::new();
 
+        if let Some(ref ai_config) = self.ai {
+            if ai_config.provider == Some(AiProvider::Custom)
+                && (ai_config.command.is_none()
+                    || ai_config.command.as_ref().map(|c| c.trim().is_empty()) == Some(true))
+            {
+                result.add_error("ai.command is required when ai.provider is 'custom'".to_string());
+            }
+        }
+
         for (name, regex_config) in &self.rules.regex {
             if let Err(e) = regex::Regex::new(&regex_config.pattern) {
                 result.add_error(format!("Rule '{}' has invalid regex pattern: {}", name, e));
@@ -65,18 +74,8 @@ impl TscannerConfig {
         ];
 
         for (rule1, rule2) in &conflicting_builtin_rules {
-            let rule1_enabled = self
-                .rules
-                .builtin
-                .get(*rule1)
-                .and_then(|r| r.enabled)
-                .unwrap_or(false);
-            let rule2_enabled = self
-                .rules
-                .builtin
-                .get(*rule2)
-                .and_then(|r| r.enabled)
-                .unwrap_or(false);
+            let rule1_enabled = self.rules.builtin.contains_key(*rule1);
+            let rule2_enabled = self.rules.builtin.contains_key(*rule2);
 
             if rule1_enabled && rule2_enabled {
                 result.add_warning(format!(
@@ -94,9 +93,6 @@ impl TscannerConfig {
         path: &Path,
         rule_config: &crate::types::CompiledRuleConfig,
     ) -> bool {
-        if !rule_config.enabled {
-            return false;
-        }
         rule_config.matches(path)
     }
 
@@ -106,10 +102,6 @@ impl TscannerConfig {
         root: &Path,
         rule_config: &crate::types::CompiledRuleConfig,
     ) -> bool {
-        if !rule_config.enabled {
-            return false;
-        }
-
         let relative_path = path.strip_prefix(root).unwrap_or(path);
         rule_config.matches(relative_path)
     }
@@ -119,28 +111,21 @@ impl TscannerConfig {
             .rules
             .builtin
             .values()
-            .filter(|rule| rule.enabled.unwrap_or(true))
             .flat_map(|rule| rule.include.clone());
 
         let regex_patterns = self
             .rules
             .regex
             .values()
-            .filter(|rule| rule.enabled)
             .flat_map(|rule| rule.include.clone());
 
         let script_patterns = self
             .rules
             .script
             .values()
-            .filter(|rule| rule.enabled)
             .flat_map(|rule| rule.include.clone());
 
-        let ai_patterns = self
-            .ai_rules
-            .values()
-            .filter(|rule| rule.enabled)
-            .flat_map(|rule| rule.include.clone());
+        let ai_patterns = self.ai_rules.values().flat_map(|rule| rule.include.clone());
 
         builtin_patterns
             .chain(regex_patterns)
