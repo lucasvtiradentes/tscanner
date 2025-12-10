@@ -13,11 +13,11 @@ use crate::shared::{
 };
 use tscanner_cache::FileCache;
 use tscanner_cli::{CliGroupMode, OutputFormat};
+use tscanner_cli_output::GroupMode;
 use tscanner_config::{
     app_name, config_dir_name, config_file_name, icon_progress, icon_skipped, icon_success,
     icon_warning, AiExecutionMode, AiProvider,
 };
-use tscanner_output::GroupMode;
 use tscanner_scanner::{
     AiProgressCallback, AiProgressEvent, AiRuleStatus, ConfigExt, RegularRulesCompleteCallback,
     ScanCallbacks, Scanner,

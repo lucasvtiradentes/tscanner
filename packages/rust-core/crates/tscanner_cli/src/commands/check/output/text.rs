@@ -37,7 +37,7 @@ trait IssueDisplay {
     fn line_text(&self) -> Option<&str>;
 }
 
-impl IssueDisplay for tscanner_output::OutputIssue {
+impl IssueDisplay for tscanner_cli_output::OutputIssue {
     fn severity(&self) -> &str {
         &self.severity
     }
@@ -52,7 +52,7 @@ impl IssueDisplay for tscanner_output::OutputIssue {
     }
 }
 
-impl IssueDisplay for tscanner_output::OutputRuleIssue {
+impl IssueDisplay for tscanner_cli_output::OutputRuleIssue {
     fn severity(&self) -> &str {
         &self.severity
     }

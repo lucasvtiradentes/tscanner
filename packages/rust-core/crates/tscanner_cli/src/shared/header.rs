@@ -1,6 +1,6 @@
 use tscanner_cli::OutputFormat;
+use tscanner_cli_output::GroupMode;
 use tscanner_config::{AiExecutionMode, AiProvider};
-use tscanner_output::GroupMode;
 
 use super::section::{print_section_header, print_setting, print_setting_value};
 

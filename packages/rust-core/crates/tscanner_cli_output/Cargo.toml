@@ -1,5 +1,5 @@
 [package]
-name = "tscanner_output"
+name = "tscanner_cli_output"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true

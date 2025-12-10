@@ -1594,15 +1594,26 @@ dependencies = [
  "serde",
  "serde_json",
  "tscanner_cache",
+ "tscanner_cli_output",
  "tscanner_config",
  "tscanner_fs",
  "tscanner_lsp",
- "tscanner_output",
  "tscanner_rules",
  "tscanner_scanner",
  "tscanner_service",
  "tscanner_types",
  "walkdir",
+]
+
+[[package]]
+name = "tscanner_cli_output"
+version = "0.0.31"
+dependencies = [
+ "pathdiff",
+ "serde",
+ "serde_json",
+ "tscanner_config",
+ "tscanner_types",
 ]
 
 [[package]]
@@ -1658,23 +1669,12 @@ dependencies = [
  "serde",
  "serde_json",
  "tscanner_cache",
+ "tscanner_cli_output",
  "tscanner_config",
  "tscanner_fs",
- "tscanner_output",
  "tscanner_rules",
  "tscanner_scanner",
  "tscanner_service",
- "tscanner_types",
-]
-
-[[package]]
-name = "tscanner_output"
-version = "0.0.31"
-dependencies = [
- "pathdiff",
- "serde",
- "serde_json",
- "tscanner_config",
  "tscanner_types",
 ]
 

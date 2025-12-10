@@ -4,7 +4,7 @@ members = [
   "crates/tscanner_types",
   "crates/tscanner_constants",
   "crates/tscanner_logger",
-  "crates/tscanner_output",
+  "crates/tscanner_cli_output",
   "crates/tscanner_config",
   "crates/tscanner_rules",
   "crates/tscanner_fs",

@@ -12,7 +12,7 @@ path = "src/main.rs"
 
 [dependencies]
 tscanner_types = { path = "../tscanner_types" }
-tscanner_output = { path = "../tscanner_output" }
+tscanner_cli_output = { path = "../tscanner_cli_output" }
 tscanner_config = { path = "../tscanner_config" }
 tscanner_service = { path = "../tscanner_service" }
 tscanner_scanner = { path = "../tscanner_scanner" }
