@@ -14,6 +14,7 @@ struct Constants {
     config_file_name: String,
     default_target_branch: String,
     log_basename: String,
+    log_timezone_offset_hours: i8,
     ignore_comment: String,
     ignore_next_line_comment: String,
     defaults: Defaults,
@@ -185,6 +186,10 @@ pub fn default_target_branch() -> &'static str {
 
 pub fn log_basename() -> &'static str {
     &CONSTANTS.log_basename
+}
+
+pub fn log_timezone_offset_hours() -> i8 {
+    CONSTANTS.log_timezone_offset_hours
 }
 
 pub fn is_dev_mode() -> bool {

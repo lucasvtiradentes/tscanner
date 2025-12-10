@@ -8,6 +8,7 @@ export const CONFIG_DIR_NAME = constants.configDirName;
 export const CONFIG_FILE_NAME = constants.configFileName;
 export const DEFAULT_TARGET_BRANCH = constants.defaultTargetBranch;
 export const LOG_BASENAME = constants.logBasename;
+export const LOG_TIMEZONE_OFFSET_HOURS = constants.logTimezoneOffsetHours;
 export const IGNORE_COMMENT = constants.ignoreComment;
 export const IGNORE_NEXT_LINE_COMMENT = constants.ignoreNextLineComment;
 

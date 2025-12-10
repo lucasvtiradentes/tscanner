@@ -6,6 +6,7 @@
   "configFileName": "config.jsonc",
   "defaultTargetBranch": "origin/main",
   "logBasename": "tscannerlogs",
+  "logTimezoneOffsetHours": -3,
   "ignoreComment": "tscanner-ignore",
   "ignoreNextLineComment": "tscanner-ignore-next-line",
   "defaults": {
