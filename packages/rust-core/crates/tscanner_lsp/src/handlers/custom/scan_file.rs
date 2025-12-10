@@ -22,6 +22,7 @@ pub fn handle_scan_file(
         config,
         session.cache.clone(),
         params.root.clone(),
+        None,
     )?
     else {
         return Ok(());

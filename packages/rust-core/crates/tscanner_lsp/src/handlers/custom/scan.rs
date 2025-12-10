@@ -27,8 +27,14 @@ pub fn handle_scan(
     let cache = Arc::new(FileCache::with_config_hash(config_hash));
     session.cache = cache.clone();
 
-    let Some(scanner) =
-        create_scanner_or_respond(connection, &req.id, config, cache, params.root.clone())?
+    let Some(scanner) = create_scanner_or_respond(
+        connection,
+        &req.id,
+        config,
+        cache,
+        params.root.clone(),
+        params.config_dir,
+    )?
     else {
         return Ok(());
     };

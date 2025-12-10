@@ -1652,6 +1652,7 @@ dependencies = [
  "thiserror 2.0.17",
  "tscanner_cache",
  "tscanner_config",
+ "tscanner_constants",
  "tscanner_logger",
  "tscanner_rules",
  "tscanner_scanner",

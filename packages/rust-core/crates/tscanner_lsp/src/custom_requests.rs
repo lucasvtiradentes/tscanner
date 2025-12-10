@@ -12,6 +12,8 @@ pub struct ScanParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub config: Option<TscannerConfig>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub config_dir: Option<PathBuf>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub branch: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub ai_mode: Option<AiExecutionMode>,
@@ -44,6 +46,8 @@ pub struct ScanContentParams {
     pub content: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub config: Option<TscannerConfig>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub config_dir: Option<PathBuf>,
 }
 
 pub enum ScanContentRequest {}

@@ -1,5 +1,6 @@
 use serde::Deserialize;
 use std::env;
+use std::path::{Path, PathBuf};
 use tscanner_types::Severity;
 
 const CONSTANTS_JSON: &str = include_str!("../../../../../assets/constants.json");
@@ -316,4 +317,17 @@ pub fn gemini_args() -> &'static [String] {
 
 pub fn rules_base_url() -> &'static str {
     &CONSTANTS.urls.rules_base
+}
+
+pub fn resolve_config_dir(root: &Path, config_dir: Option<PathBuf>) -> PathBuf {
+    match config_dir {
+        Some(dir) => {
+            if dir.is_absolute() {
+                dir.join(config_dir_name())
+            } else {
+                root.join(dir).join(config_dir_name())
+            }
+        }
+        None => root.join(config_dir_name()),
+    }
 }

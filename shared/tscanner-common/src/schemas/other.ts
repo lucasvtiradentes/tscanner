@@ -11,6 +11,7 @@ import {
 const scanParamsSchema = z.object({
   root: z.string(),
   config: z.any().optional(),
+  config_dir: z.string().optional(),
   branch: z.string().optional(),
   ai_mode: z.nativeEnum(AiExecutionMode).optional(),
 });
@@ -25,6 +26,7 @@ const scanContentParamsSchema = z.object({
   file: z.string(),
   content: z.string(),
   config: z.any().optional(),
+  config_dir: z.string().optional(),
 });
 
 const issueSchema = z.object({
