@@ -48,6 +48,8 @@ const aiConfigSchema = z.object({
 const codeEditorConfigSchema = z.object({
   highlightErrors: z.boolean().optional(),
   highlightWarnings: z.boolean().optional(),
+  highlightInfos: z.boolean().optional(),
+  highlightHints: z.boolean().optional(),
   scanInterval: z.number().optional(),
   aiScanInterval: z.number().optional(),
 });

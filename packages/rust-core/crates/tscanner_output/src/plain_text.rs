@@ -1,6 +1,8 @@
 use std::collections::HashMap;
 
-use tscanner_config::{icon_ai, icon_builtin, icon_error, icon_regex, icon_script, icon_warning};
+use tscanner_config::{
+    icon_ai, icon_builtin, icon_error, icon_hint, icon_info, icon_regex, icon_script, icon_warning,
+};
 use tscanner_diagnostics::IssueRuleType;
 
 use crate::formatted::FormattedOutput;
@@ -121,10 +123,12 @@ fn render_by_file(
             ));
 
             for issue in issues {
-                let severity_icon = if issue.severity == "error" {
-                    icon_error()
-                } else {
-                    icon_warning()
+                let severity_icon = match issue.severity.as_str() {
+                    "error" => icon_error(),
+                    "warning" => icon_warning(),
+                    "info" => icon_info(),
+                    "hint" => icon_hint(),
+                    _ => icon_warning(),
                 };
 
                 let location = format!("{}:{}", issue.line, issue.column);
@@ -210,10 +214,12 @@ fn render_by_rule(
             lines.push(format!("  {} ({} issues)", file, issues.len()));
 
             for issue in issues {
-                let severity_icon = if issue.severity == "error" {
-                    icon_error()
-                } else {
-                    icon_warning()
+                let severity_icon = match issue.severity.as_str() {
+                    "error" => icon_error(),
+                    "warning" => icon_warning(),
+                    "info" => icon_info(),
+                    "hint" => icon_hint(),
+                    _ => icon_warning(),
                 };
 
                 let location = format!("{}:{}", issue.line, issue.column);
@@ -244,27 +250,18 @@ fn render_by_rule(
 fn render_summary_lines(lines: &mut Vec<String>, summary: &OutputSummary) {
     lines.push("Summary:".to_string());
     lines.push(String::new());
-    lines.push(format!(
-        "  Issues: {} ({} errors, {} warnings)",
-        summary.total_issues, summary.errors, summary.warnings
-    ));
 
-    let breakdown = &summary.triggered_rules_breakdown;
-    let breakdown_parts: Vec<String> = [
-        (breakdown.builtin, "builtin"),
-        (breakdown.regex, "regex"),
-        (breakdown.script, "script"),
-        (breakdown.ai, "ai"),
-    ]
-    .iter()
-    .filter(|(count, _)| *count > 0)
-    .map(|(count, label)| format!("{} {}", count, label))
-    .collect();
+    lines.push(format!("  Issues: {}", summary.format_issues_plain()));
 
+    let breakdown_parts = summary.rules_breakdown_parts();
     let breakdown_str = if breakdown_parts.is_empty() {
         String::new()
     } else {
-        format!(" ({})", breakdown_parts.join(", "))
+        let parts: Vec<String> = breakdown_parts
+            .iter()
+            .map(|(count, label)| format!("{} {}", count, label))
+            .collect();
+        format!(" ({})", parts.join(", "))
     };
 
     lines.push(format!(

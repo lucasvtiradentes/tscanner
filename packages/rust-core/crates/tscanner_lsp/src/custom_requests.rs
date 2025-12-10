@@ -90,6 +90,8 @@ pub struct FormatSummary {
     pub total_issues: usize,
     pub error_count: usize,
     pub warning_count: usize,
+    pub info_count: usize,
+    pub hint_count: usize,
     pub file_count: usize,
     pub rule_count: usize,
 }

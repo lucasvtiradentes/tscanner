@@ -34,7 +34,16 @@ export type FileNode = {
 };
 
 export function parseSeverity(severity: string): Severity {
-  return severity.toLowerCase() === 'error' ? Severity.Error : Severity.Warning;
+  switch (severity.toLowerCase()) {
+    case 'error':
+      return Severity.Error;
+    case 'info':
+      return Severity.Info;
+    case 'hint':
+      return Severity.Hint;
+    default:
+      return Severity.Warning;
+  }
 }
 
 type SerializedIssueResult = Omit<IssueResult, 'uri'> & { uriString: string };

@@ -27,20 +27,28 @@ pub fn handle_format_results(connection: &Connection, req: Request) -> Result<()
 
     let formatted_output = formatted.to_plain_text(true);
 
-    let error_count = params
+    let all_issues: Vec<_> = params
         .results
         .files
         .iter()
         .flat_map(|f| &f.issues)
+        .collect();
+
+    let error_count = all_issues
+        .iter()
         .filter(|i| matches!(i.severity, Severity::Error))
         .count();
-
-    let warning_count = params
-        .results
-        .files
+    let warning_count = all_issues
         .iter()
-        .flat_map(|f| &f.issues)
         .filter(|i| matches!(i.severity, Severity::Warning))
+        .count();
+    let info_count = all_issues
+        .iter()
+        .filter(|i| matches!(i.severity, Severity::Info))
+        .count();
+    let hint_count = all_issues
+        .iter()
+        .filter(|i| matches!(i.severity, Severity::Hint))
         .count();
 
     let file_count = params.results.files.len();
@@ -51,6 +59,8 @@ pub fn handle_format_results(connection: &Connection, req: Request) -> Result<()
             total_issues: params.results.total_issues,
             error_count,
             warning_count,
+            info_count,
+            hint_count,
             file_count,
             rule_count,
         },

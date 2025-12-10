@@ -431,30 +431,45 @@ fn write_json_output(json_path: &Path, output: &FormattedOutput) -> Result<()> {
 fn render_summary_from_output(summary: &crate::shared::OutputSummary) {
     println!("{}", "Summary:".cyan().bold());
     println!();
-    println!(
-        "  {} {} ({} errors, {} warnings)",
-        "Issues:".dimmed(),
-        summary.total_issues.to_string().cyan(),
-        summary.errors.to_string().red(),
-        summary.warnings.to_string().yellow()
-    );
 
-    let breakdown = &summary.triggered_rules_breakdown;
-    let breakdown_parts: Vec<String> = [
-        (breakdown.builtin, "builtin"),
-        (breakdown.regex, "regex"),
-        (breakdown.script, "script"),
-        (breakdown.ai, "ai"),
-    ]
-    .iter()
-    .filter(|(count, _)| *count > 0)
-    .map(|(count, label)| format!("{} {}", count, label))
-    .collect();
+    let issue_parts = summary.issue_parts();
+    if issue_parts.is_empty() {
+        println!(
+            "  {} {}",
+            "Issues:".dimmed(),
+            summary.total_issues.to_string().cyan(),
+        );
+    } else {
+        let colored_parts: Vec<String> = issue_parts
+            .iter()
+            .map(|p| {
+                let colored_count = match p.label {
+                    "errors" => p.count.to_string().red().to_string(),
+                    "warnings" => p.count.to_string().yellow().to_string(),
+                    "infos" => p.count.to_string().blue().to_string(),
+                    "hints" => p.count.to_string().dimmed().to_string(),
+                    _ => p.count.to_string(),
+                };
+                format!("{} {}", colored_count, p.label)
+            })
+            .collect();
+        println!(
+            "  {} {} ({})",
+            "Issues:".dimmed(),
+            summary.total_issues.to_string().cyan(),
+            colored_parts.join(", ")
+        );
+    }
 
+    let breakdown_parts = summary.rules_breakdown_parts();
     let breakdown_str = if breakdown_parts.is_empty() {
         String::new()
     } else {
-        format!(" ({})", breakdown_parts.join(", "))
+        let parts: Vec<String> = breakdown_parts
+            .iter()
+            .map(|(count, label)| format!("{} {}", count, label))
+            .collect();
+        format!(" ({})", parts.join(", "))
     };
 
     println!(

@@ -1274,6 +1274,16 @@
           "description": "Highlight error issues in the code editor",
           "type": "boolean"
         },
+        "highlightHints": {
+          "default": true,
+          "description": "Highlight hint issues in the code editor",
+          "type": "boolean"
+        },
+        "highlightInfos": {
+          "default": true,
+          "description": "Highlight info issues in the code editor",
+          "type": "boolean"
+        },
         "highlightWarnings": {
           "default": true,
           "description": "Highlight warning issues in the code editor",
@@ -1552,7 +1562,9 @@
     "Severity": {
       "enum": [
         "error",
-        "warning"
+        "warning",
+        "info",
+        "hint"
       ],
       "type": "string"
     }

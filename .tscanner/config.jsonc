@@ -4,8 +4,8 @@
     "builtin": {
       "consistent-return": {},
       "max-function-length": {},
-      "max-params": {},
-      "no-explicit-any": {},
+      "max-params": { "severity": "hint" },
+      "no-explicit-any": { "severity":"info" },
       "no-async-without-await": {},
       "no-console": {"exclude": ["**/scripts/*", ".changeset/commit.js"]},
       "no-constant-condition": {},

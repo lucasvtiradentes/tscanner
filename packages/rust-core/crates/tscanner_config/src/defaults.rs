@@ -49,6 +49,8 @@ struct FilesDefaults {
 struct CodeEditorDefaults {
     highlight_errors: bool,
     highlight_warnings: bool,
+    highlight_infos: bool,
+    highlight_hints: bool,
     scan_interval: u32,
     ai_scan_interval: u32,
 }
@@ -93,6 +95,8 @@ struct IconsConfig {
     ai: String,
     error: String,
     warning: String,
+    info: String,
+    hint: String,
     progress: String,
     success: String,
     skipped: String,
@@ -179,6 +183,8 @@ fn generate_default_config_json() -> String {
     struct DefaultCodeEditorConfig {
         highlight_errors: bool,
         highlight_warnings: bool,
+        highlight_infos: bool,
+        highlight_hints: bool,
         scan_interval: u32,
         ai_scan_interval: u32,
     }
@@ -191,6 +197,8 @@ fn generate_default_config_json() -> String {
         code_editor: DefaultCodeEditorConfig {
             highlight_errors: CONSTANTS.defaults.code_editor.highlight_errors,
             highlight_warnings: CONSTANTS.defaults.code_editor.highlight_warnings,
+            highlight_infos: CONSTANTS.defaults.code_editor.highlight_infos,
+            highlight_hints: CONSTANTS.defaults.code_editor.highlight_hints,
             scan_interval: CONSTANTS.defaults.code_editor.scan_interval,
             ai_scan_interval: CONSTANTS.defaults.code_editor.ai_scan_interval,
         },
@@ -267,6 +275,8 @@ pub fn default_code_editor_config() -> CodeEditorConfig {
     CodeEditorConfig {
         highlight_errors: CONSTANTS.defaults.code_editor.highlight_errors,
         highlight_warnings: CONSTANTS.defaults.code_editor.highlight_warnings,
+        highlight_infos: CONSTANTS.defaults.code_editor.highlight_infos,
+        highlight_hints: CONSTANTS.defaults.code_editor.highlight_hints,
         scan_interval: CONSTANTS.defaults.code_editor.scan_interval,
         ai_scan_interval: CONSTANTS.defaults.code_editor.ai_scan_interval,
     }
@@ -278,6 +288,14 @@ pub fn default_highlight_errors() -> bool {
 
 pub fn default_highlight_warnings() -> bool {
     CONSTANTS.defaults.code_editor.highlight_warnings
+}
+
+pub fn default_highlight_infos() -> bool {
+    CONSTANTS.defaults.code_editor.highlight_infos
+}
+
+pub fn default_highlight_hints() -> bool {
+    CONSTANTS.defaults.code_editor.highlight_hints
 }
 
 pub fn default_scan_interval() -> u32 {
@@ -349,6 +367,14 @@ pub fn icon_error() -> &'static str {
 
 pub fn icon_warning() -> &'static str {
     &CONSTANTS.display.icons.warning
+}
+
+pub fn icon_info() -> &'static str {
+    &CONSTANTS.display.icons.info
+}
+
+pub fn icon_hint() -> &'static str {
+    &CONSTANTS.display.icons.hint
 }
 
 pub fn icon_progress() -> &'static str {

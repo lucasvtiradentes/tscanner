@@ -12,6 +12,8 @@ pub struct SummaryStats {
     pub total_issues: usize,
     pub error_count: usize,
     pub warning_count: usize,
+    pub info_count: usize,
+    pub hint_count: usize,
     pub unique_rules_count: usize,
     pub total_enabled_rules: usize,
     pub rules_breakdown: RulesBreakdown,
@@ -25,6 +27,8 @@ impl SummaryStats {
     ) -> Self {
         let mut error_count = 0;
         let mut warning_count = 0;
+        let mut info_count = 0;
+        let mut hint_count = 0;
         let mut unique_rules = std::collections::HashSet::new();
 
         for file_result in &result.files {
@@ -32,15 +36,19 @@ impl SummaryStats {
                 match issue.severity {
                     Severity::Error => error_count += 1,
                     Severity::Warning => warning_count += 1,
+                    Severity::Info => info_count += 1,
+                    Severity::Hint => hint_count += 1,
                 }
                 unique_rules.insert(&issue.rule);
             }
         }
 
         Self {
-            total_issues: error_count + warning_count,
+            total_issues: error_count + warning_count + info_count + hint_count,
             error_count,
             warning_count,
+            info_count,
+            hint_count,
             unique_rules_count: unique_rules.len(),
             total_enabled_rules,
             rules_breakdown,
@@ -83,6 +91,8 @@ impl FormattedOutput {
                             severity: match issue.severity {
                                 Severity::Error => "error".to_string(),
                                 Severity::Warning => "warning".to_string(),
+                                Severity::Info => "info".to_string(),
+                                Severity::Hint => "hint".to_string(),
                             },
                             line: issue.line,
                             column: issue.column,
@@ -122,6 +132,8 @@ impl FormattedOutput {
                     severity: match issue.severity {
                         Severity::Error => "error".to_string(),
                         Severity::Warning => "warning".to_string(),
+                        Severity::Info => "info".to_string(),
+                        Severity::Hint => "hint".to_string(),
                     },
                     line_text: issue.line_text.clone(),
                 });
@@ -154,6 +166,8 @@ impl FormattedOutput {
             total_issues: stats.total_issues,
             errors: stats.error_count,
             warnings: stats.warning_count,
+            infos: stats.info_count,
+            hints: stats.hint_count,
             triggered_rules: stats.unique_rules_count,
             triggered_rules_breakdown: triggered_breakdown,
             total_enabled_rules: stats.total_enabled_rules,

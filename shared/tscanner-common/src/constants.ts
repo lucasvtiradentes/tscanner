@@ -14,6 +14,8 @@ export const IGNORE_NEXT_LINE_COMMENT = constants.ignoreNextLineComment;
 export enum Severity {
   Error = 'error',
   Warning = 'warning',
+  Info = 'info',
+  Hint = 'hint',
 }
 
 export enum ScanMode {

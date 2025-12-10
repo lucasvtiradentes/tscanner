@@ -7,8 +7,8 @@ use tscanner_diagnostics::Severity;
 
 use crate::defaults::{
     default_ai_scan_interval, default_code_editor_config, default_exclude, default_files_config,
-    default_highlight_errors, default_highlight_warnings, default_include, default_scan_interval,
-    default_severity,
+    default_highlight_errors, default_highlight_hints, default_highlight_infos,
+    default_highlight_warnings, default_include, default_scan_interval, default_severity,
 };
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Default)]
@@ -86,6 +86,20 @@ pub struct CodeEditorConfig {
         description = "Highlight warning issues in the code editor"
     )]
     pub highlight_warnings: bool,
+
+    #[serde(default = "default_highlight_infos")]
+    #[schemars(
+        default = "default_highlight_infos",
+        description = "Highlight info issues in the code editor"
+    )]
+    pub highlight_infos: bool,
+
+    #[serde(default = "default_highlight_hints")]
+    #[schemars(
+        default = "default_highlight_hints",
+        description = "Highlight hint issues in the code editor"
+    )]
+    pub highlight_hints: bool,
 
     #[serde(default = "default_scan_interval")]
     #[schemars(

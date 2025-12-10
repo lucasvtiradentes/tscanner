@@ -4,6 +4,6 @@ mod types;
 
 pub use formatted::{FormattedOutput, SummaryStats};
 pub use types::{
-    GroupMode, OutputFileGroup, OutputIssue, OutputRuleGroup, OutputRuleIssue, OutputSummary,
-    RulesBreakdown,
+    GroupMode, IssuePart, OutputFileGroup, OutputIssue, OutputRuleGroup, OutputRuleIssue,
+    OutputSummary, RulesBreakdown,
 };

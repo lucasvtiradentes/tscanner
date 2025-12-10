@@ -7,4 +7,6 @@ pub enum Severity {
     Error,
     #[default]
     Warning,
+    Info,
+    Hint,
 }

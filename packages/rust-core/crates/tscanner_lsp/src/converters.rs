@@ -32,6 +32,8 @@ pub fn issue_to_diagnostic(issue: &Issue) -> Diagnostic {
         severity: Some(match issue.severity {
             Severity::Error => DiagnosticSeverity::ERROR,
             Severity::Warning => DiagnosticSeverity::WARNING,
+            Severity::Info => DiagnosticSeverity::INFORMATION,
+            Severity::Hint => DiagnosticSeverity::HINT,
         }),
         code: Some(lsp_types::NumberOrString::String(issue.rule.clone())),
         code_description,
