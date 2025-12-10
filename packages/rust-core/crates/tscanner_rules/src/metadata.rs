@@ -3,7 +3,7 @@ use tscanner_types::Severity;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]
-pub enum RuleType {
+pub enum RuleExecutionKind {
     Ast,
     Regex,
 }
@@ -47,7 +47,7 @@ pub struct RuleMetadata {
     pub name: &'static str,
     pub display_name: &'static str,
     pub description: &'static str,
-    pub rule_type: RuleType,
+    pub rule_type: RuleExecutionKind,
     pub default_severity: Severity,
     pub default_enabled: bool,
     pub category: RuleCategory,
@@ -67,7 +67,7 @@ impl RuleMetadata {
             name: "",
             display_name: "",
             description: "",
-            rule_type: RuleType::Ast,
+            rule_type: RuleExecutionKind::Ast,
             default_severity: Severity::Warning,
             default_enabled: false,
             category: RuleCategory::CodeQuality,

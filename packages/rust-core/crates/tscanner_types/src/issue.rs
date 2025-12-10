@@ -4,7 +4,7 @@ use std::path::PathBuf;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Default, PartialEq, Eq)]
 #[serde(rename_all = "snake_case")]
-pub enum IssueRuleType {
+pub enum RuleSource {
     #[default]
     Builtin,
     CustomRegex,
@@ -28,7 +28,7 @@ pub struct Issue {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub category: Option<String>,
     #[serde(default)]
-    pub rule_type: IssueRuleType,
+    pub rule_type: RuleSource,
 }
 
 impl Issue {
@@ -51,7 +51,7 @@ impl Issue {
             line_text: None,
             is_ai: false,
             category: None,
-            rule_type: IssueRuleType::Builtin,
+            rule_type: RuleSource::Builtin,
         }
     }
 
