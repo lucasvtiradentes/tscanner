@@ -150,7 +150,6 @@ impl ScriptExecutor {
                             message: format!("Script error: {}", e),
                             severity: Severity::Error,
                             line_text: None,
-                            is_ai: false,
                             category: None,
                             rule_type: RuleSource::CustomScript,
                         }]
@@ -378,7 +377,6 @@ impl ScriptExecutor {
                     message: issue.message,
                     severity: rule_config.severity,
                     line_text,
-                    is_ai: false,
                     category: None,
                     rule_type: RuleSource::CustomScript,
                 }

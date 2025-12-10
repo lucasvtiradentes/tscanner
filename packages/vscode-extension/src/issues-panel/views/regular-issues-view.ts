@@ -7,7 +7,7 @@ import { BaseIssuesView } from './base-issues-view';
 
 export class RegularIssuesView extends BaseIssuesView {
   setResults(results: IssueResult[]): void {
-    this.results = results.filter((r) => r.isAi !== true);
+    this.results = results.filter((r) => r.ruleType !== 'ai');
     this._onDidChangeTreeData.fire(undefined);
   }
 

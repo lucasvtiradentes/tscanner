@@ -91,7 +91,6 @@ impl RuleSignal {
             message: self.diagnostic.message.clone(),
             severity: self.diagnostic.severity,
             line_text: None,
-            is_ai: false,
             category: None,
             rule_type: RuleSource::Builtin,
         }

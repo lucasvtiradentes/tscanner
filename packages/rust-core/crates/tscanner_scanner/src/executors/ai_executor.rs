@@ -733,7 +733,6 @@ impl AiExecutor {
                     message: issue.message,
                     severity: rule_config.severity,
                     line_text,
-                    is_ai: true,
                     category: None,
                     rule_type: RuleSource::Ai,
                 })

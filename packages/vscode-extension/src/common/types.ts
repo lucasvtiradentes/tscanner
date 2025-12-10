@@ -10,7 +10,6 @@ export type IssueResult = {
   rule: string;
   severity: Severity;
   message: string;
-  isAi?: boolean;
   ruleType?: IssueRuleType;
 };
 

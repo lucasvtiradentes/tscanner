@@ -45,7 +45,7 @@ export class AiIssuesView extends BaseIssuesView {
   }
 
   setResults(results: IssueResult[], skipTimestampUpdate?: boolean): void {
-    this.results = results.filter((r) => r.isAi === true);
+    this.results = results.filter((r) => r.ruleType === 'ai');
     if (!skipTimestampUpdate) {
       this._lastScanTimestamp = Date.now();
     }

@@ -64,7 +64,6 @@ export function mapIssueToResult(uri: vscode.Uri, issue: Issue, lineText?: strin
     rule: issue.rule,
     severity: parseSeverity(issue.severity),
     message: issue.message,
-    isAi: issue.is_ai,
     ruleType: issue.rule_type,
   };
 }
