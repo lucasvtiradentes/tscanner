@@ -1,5 +1,5 @@
 use serde::Serialize;
-use tscanner_diagnostics::IssueRuleType;
+use tscanner_types::IssueRuleType;
 
 #[derive(Debug, Clone)]
 pub enum GroupMode {

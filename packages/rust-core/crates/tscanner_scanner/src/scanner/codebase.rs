@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Instant;
 use tscanner_config::AiExecutionMode;
-use tscanner_diagnostics::{ContentScanResult, FileResult, ScanResult};
+use tscanner_types::{ContentScanResult, FileResult, ScanResult};
 
 pub struct ScanCallbacks {
     pub on_regular_rules_complete: Option<RegularRulesCompleteCallback>,

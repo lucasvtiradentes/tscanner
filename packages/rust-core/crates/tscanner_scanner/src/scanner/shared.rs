@@ -4,7 +4,7 @@ use ignore::WalkBuilder;
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use tscanner_config::{compile_globset, AiRuleConfig, ScriptRuleConfig};
-use tscanner_diagnostics::{FileResult, Issue};
+use tscanner_types::{FileResult, Issue};
 
 impl Scanner {
     pub(crate) fn run_builtin_executor(&self, path: &Path) -> Option<FileResult> {

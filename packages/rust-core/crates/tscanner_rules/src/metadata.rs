@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use tscanner_diagnostics::Severity;
+use tscanner_types::Severity;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "lowercase")]

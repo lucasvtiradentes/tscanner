@@ -1,7 +1,7 @@
 use super::renderer::OutputRenderer;
 use super::CheckContext;
 use crate::shared::FormattedOutput;
-use tscanner_diagnostics::ScanResult;
+use tscanner_types::ScanResult;
 
 pub struct JsonRenderer;
 

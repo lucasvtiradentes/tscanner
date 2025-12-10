@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 use std::env;
-use tscanner_diagnostics::Severity;
+use tscanner_types::Severity;
 
 use crate::types::{CodeEditorConfig, FilesConfig, TscannerConfig};
 

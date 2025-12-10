@@ -1,5 +1,5 @@
 use regex::Regex;
-use tscanner_diagnostics::Severity;
+use tscanner_types::Severity;
 
 use crate::context::RuleContext;
 use crate::signals::{RuleDiagnostic, TextRange};

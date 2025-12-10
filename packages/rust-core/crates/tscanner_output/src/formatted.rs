@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::path::Path;
 
 use serde::Serialize;
-use tscanner_diagnostics::{IssueRuleType, ScanResult, Severity};
+use tscanner_types::{IssueRuleType, ScanResult, Severity};
 
 use crate::types::{
     OutputFileGroup, OutputIssue, OutputRuleGroup, OutputRuleIssue, OutputSummary, RulesBreakdown,

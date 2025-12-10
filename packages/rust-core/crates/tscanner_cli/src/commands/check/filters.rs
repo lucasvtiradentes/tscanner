@@ -1,7 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
-use tscanner_diagnostics::ScanResult;
 use tscanner_service::log_info;
+use tscanner_types::ScanResult;
 
 pub fn apply_line_filter(result: &mut ScanResult, line_filter: &HashMap<PathBuf, HashSet<usize>>) {
     result.filter_by_modified_lines(line_filter);

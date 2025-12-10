@@ -1578,7 +1578,7 @@ dependencies = [
  "dirs",
  "serde",
  "serde_json",
- "tscanner_diagnostics",
+ "tscanner_types",
 ]
 
 [[package]]
@@ -1595,13 +1595,13 @@ dependencies = [
  "serde_json",
  "tscanner_cache",
  "tscanner_config",
- "tscanner_diagnostics",
  "tscanner_fs",
  "tscanner_lsp",
  "tscanner_output",
  "tscanner_rules",
  "tscanner_scanner",
  "tscanner_service",
+ "tscanner_types",
  "walkdir",
 ]
 
@@ -1616,17 +1616,8 @@ dependencies = [
  "schemars",
  "serde",
  "serde_json",
- "tscanner_diagnostics",
+ "tscanner_types",
  "which",
-]
-
-[[package]]
-name = "tscanner_diagnostics"
-version = "0.0.31"
-dependencies = [
- "schemars",
- "serde",
- "serde_json",
 ]
 
 [[package]]
@@ -1649,12 +1640,12 @@ dependencies = [
  "serde_json",
  "tscanner_cache",
  "tscanner_config",
- "tscanner_diagnostics",
  "tscanner_fs",
  "tscanner_output",
  "tscanner_rules",
  "tscanner_scanner",
  "tscanner_service",
+ "tscanner_types",
 ]
 
 [[package]]
@@ -1665,7 +1656,7 @@ dependencies = [
  "serde",
  "serde_json",
  "tscanner_config",
- "tscanner_diagnostics",
+ "tscanner_types",
 ]
 
 [[package]]
@@ -1685,8 +1676,8 @@ dependencies = [
  "swc_ecma_parser",
  "swc_ecma_visit",
  "tscanner_config",
- "tscanner_diagnostics",
  "tscanner_scanner",
+ "tscanner_types",
 ]
 
 [[package]]
@@ -1707,9 +1698,9 @@ dependencies = [
  "swc_ecma_parser",
  "tscanner_cache",
  "tscanner_config",
- "tscanner_diagnostics",
  "tscanner_fs",
  "tscanner_rules",
+ "tscanner_types",
  "which",
 ]
 
@@ -1725,9 +1716,18 @@ dependencies = [
  "time",
  "tscanner_cache",
  "tscanner_config",
- "tscanner_diagnostics",
  "tscanner_rules",
  "tscanner_scanner",
+ "tscanner_types",
+]
+
+[[package]]
+name = "tscanner_types"
+version = "0.0.31"
+dependencies = [
+ "schemars",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

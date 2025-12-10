@@ -7,7 +7,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-tscanner_diagnostics = { path = "../tscanner_diagnostics" }
+tscanner_types = { path = "../tscanner_types" }
 dashmap = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

@@ -3,7 +3,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
-use tscanner_diagnostics::Severity;
+use tscanner_types::Severity;
 
 use crate::defaults::{
     default_ai_scan_interval, default_code_editor_config, default_exclude, default_files_config,

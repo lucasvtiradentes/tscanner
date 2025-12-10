@@ -1,8 +1,8 @@
 use std::fs;
 use std::path::Path;
-use tscanner_diagnostics::Issue;
 use tscanner_rules::{FileSource, RuleContext, RuleRegistration};
 use tscanner_scanner::parse_file;
+use tscanner_types::Issue;
 
 fn run_rule_test(input_path: &str) {
     let input_file = Path::new(input_path);

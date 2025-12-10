@@ -1,8 +1,8 @@
 use crate::custom_requests::{FormatPrettyResult, FormatResultsParams, FormatSummary};
 use lsp_server::{Connection, Message, Request, Response};
 use std::collections::HashSet;
-use tscanner_diagnostics::Severity;
 use tscanner_output::{FormattedOutput, RulesBreakdown, SummaryStats};
+use tscanner_types::Severity;
 
 type LspError = Box<dyn std::error::Error + Send + Sync>;
 

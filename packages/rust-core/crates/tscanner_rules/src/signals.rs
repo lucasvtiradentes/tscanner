@@ -1,5 +1,5 @@
 use std::path::Path;
-use tscanner_diagnostics::{Issue, IssueRuleType, Severity};
+use tscanner_types::{Issue, IssueRuleType, Severity};
 
 #[derive(Debug, Clone)]
 pub struct TextRange {

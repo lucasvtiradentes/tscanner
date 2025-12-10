@@ -24,4 +24,4 @@ pub use types::{
 };
 pub use validation::{validate_json_fields, ValidationResult};
 
-pub use tscanner_diagnostics::Severity;
+pub use tscanner_types::Severity;

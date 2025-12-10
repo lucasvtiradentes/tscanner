@@ -2,7 +2,7 @@ use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use std::sync::Arc;
 use tscanner_config::{CompiledRuleConfig, TscannerConfig};
-use tscanner_diagnostics::Severity;
+use tscanner_types::Severity;
 
 use crate::executors::RegexExecutor;
 use crate::metadata::{get_all_rule_metadata, RuleCategory};

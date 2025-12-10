@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant, SystemTime};
 use tscanner_config::ScriptRuleConfig;
-use tscanner_diagnostics::{Issue, IssueRuleType, Severity};
+use tscanner_types::{Issue, IssueRuleType, Severity};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ScriptFile {

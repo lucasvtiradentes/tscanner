@@ -4,8 +4,8 @@ use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Instant;
-use tscanner_diagnostics::{FileResult, ScanResult};
 use tscanner_fs::{get_changed_files, get_modified_lines};
+use tscanner_types::{FileResult, ScanResult};
 
 #[derive(Debug)]
 pub struct BranchScanResult {

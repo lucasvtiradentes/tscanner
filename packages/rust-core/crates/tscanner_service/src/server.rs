@@ -7,9 +7,9 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use tscanner_cache::FileCache;
 use tscanner_config::TscannerConfig;
-use tscanner_diagnostics::{ContentScanResult, FileResult, Issue, ScanResult};
 use tscanner_rules::{get_all_rule_metadata, RuleMetadata};
 use tscanner_scanner::Scanner;
+use tscanner_types::{ContentScanResult, FileResult, Issue, ScanResult};
 
 struct ProjectState {
     root: PathBuf,

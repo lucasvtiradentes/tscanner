@@ -2,8 +2,8 @@ use crate::disable_comments::DisableDirectives;
 use crate::parser::parse_file;
 use std::path::Path;
 use tscanner_config::{CompiledRuleConfig, TscannerConfig};
-use tscanner_diagnostics::{FileResult, Issue, IssueRuleType};
 use tscanner_rules::{FileSource, RuleContext, RuleRegistry};
+use tscanner_types::{FileResult, Issue, IssueRuleType};
 
 const JS_TS_EXTENSIONS: &[&str] = &["ts", "tsx", "js", "jsx", "mjs", "cjs", "mts", "cts"];
 

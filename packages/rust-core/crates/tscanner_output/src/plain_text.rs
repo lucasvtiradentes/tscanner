@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use tscanner_config::{
     icon_ai, icon_builtin, icon_error, icon_hint, icon_info, icon_regex, icon_script, icon_warning,
 };
-use tscanner_diagnostics::IssueRuleType;
+use tscanner_types::IssueRuleType;
 
 use crate::formatted::FormattedOutput;
 use crate::types::{OutputFileGroup, OutputRuleGroup, OutputSummary};

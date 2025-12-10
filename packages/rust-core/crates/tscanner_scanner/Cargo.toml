@@ -7,7 +7,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-tscanner_diagnostics = { path = "../tscanner_diagnostics" }
+tscanner_types = { path = "../tscanner_types" }
 tscanner_config = { path = "../tscanner_config" }
 tscanner_rules = { path = "../tscanner_rules" }
 tscanner_cache = { path = "../tscanner_cache" }

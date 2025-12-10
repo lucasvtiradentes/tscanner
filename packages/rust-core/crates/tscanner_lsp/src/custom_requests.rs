@@ -3,8 +3,8 @@ use lsp_types::request::Request;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use tscanner_config::{AiExecutionMode, TscannerConfig};
-use tscanner_diagnostics::{ContentScanResult, FileResult, ScanResult};
 use tscanner_scanner::{AiProgressEvent, AiRuleStatus};
+use tscanner_types::{ContentScanResult, FileResult, ScanResult};
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ScanParams {

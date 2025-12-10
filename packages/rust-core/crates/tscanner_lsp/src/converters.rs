@@ -1,5 +1,5 @@
 use lsp_types::{CodeDescription, Diagnostic, DiagnosticSeverity, Position, Range, Url};
-use tscanner_diagnostics::{Issue, Severity};
+use tscanner_types::{Issue, Severity};
 
 const RULES_BASE_URL: &str = "https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin";
 

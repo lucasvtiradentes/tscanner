@@ -12,7 +12,7 @@ use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime};
 use tscanner_config::{AiConfig, AiMode, AiRuleConfig};
-use tscanner_diagnostics::{Issue, IssueRuleType};
+use tscanner_types::{Issue, IssueRuleType};
 
 pub type ChangedLinesMap = HashMap<PathBuf, HashSet<usize>>;
 
