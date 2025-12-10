@@ -1,44 +1,94 @@
 use super::renderer::OutputRenderer;
 use super::CheckContext;
-use crate::shared::{FormattedOutput, OutputFileGroup, OutputRuleGroup, OutputSummary};
+use crate::shared::{
+    format_duration, print_section_header, print_section_title, rule_type_icon, severity_icon,
+    FormattedOutput, OutputFileGroup, OutputRuleGroup, OutputSummary,
+};
 use colored::*;
 use std::collections::HashMap;
-use tscanner_diagnostics::{IssueRuleType, ScanResult};
+use tscanner_constants::icon_warning;
+use tscanner_types::{IssueRuleType, ScanResult};
 
-fn rule_type_icon(rule_type: IssueRuleType) -> &'static str {
-    match rule_type {
-        IssueRuleType::Builtin => "●",
-        IssueRuleType::CustomRegex => "○",
-        IssueRuleType::CustomScript => "▶",
-        IssueRuleType::Ai => "✦",
+fn get_severity_icon(severity: &str) -> ColoredString {
+    let icon = severity_icon(severity);
+    match severity {
+        "error" => icon.red(),
+        "warning" => icon.yellow(),
+        "info" => icon.blue(),
+        "hint" => icon.dimmed(),
+        _ => icon.yellow(),
     }
 }
 
-fn format_duration(ms: u128) -> String {
-    if ms < 1000 {
-        format!("{}ms", ms)
-    } else if ms < 60000 {
-        format!("{:.1}s", ms as f64 / 1000.0)
-    } else {
-        let total_seconds = ms / 1000;
-        let minutes = total_seconds / 60;
-        let seconds = total_seconds % 60;
-        format!("{}m {}s", minutes, seconds)
+trait IssueDisplay {
+    fn severity(&self) -> &str;
+    fn line(&self) -> usize;
+    fn column(&self) -> usize;
+    fn line_text(&self) -> Option<&str>;
+}
+
+impl IssueDisplay for tscanner_cli_output::OutputIssue {
+    fn severity(&self) -> &str {
+        &self.severity
     }
+    fn line(&self) -> usize {
+        self.line
+    }
+    fn column(&self) -> usize {
+        self.column
+    }
+    fn line_text(&self) -> Option<&str> {
+        self.line_text.as_deref()
+    }
+}
+
+impl IssueDisplay for tscanner_cli_output::OutputRuleIssue {
+    fn severity(&self) -> &str {
+        &self.severity
+    }
+    fn line(&self) -> usize {
+        self.line
+    }
+    fn column(&self) -> usize {
+        self.column
+    }
+    fn line_text(&self) -> Option<&str> {
+        self.line_text.as_deref()
+    }
+}
+
+fn render_issue_location<T: IssueDisplay>(issue: &T) {
+    let severity_icon = get_severity_icon(issue.severity());
+    let location = format!("{}:{}", issue.line(), issue.column());
+
+    if let Some(line_text) = issue.line_text() {
+        let trimmed = line_text.trim();
+        if !trimmed.is_empty() {
+            println!(
+                "    {} {} -> {}",
+                severity_icon,
+                location.dimmed(),
+                trimmed.dimmed()
+            );
+            return;
+        }
+    }
+    println!("    {} {}", severity_icon, location.dimmed());
 }
 
 pub struct TextRenderer;
 
 impl OutputRenderer for TextRenderer {
-    fn render(&self, ctx: &CheckContext, output: &FormattedOutput, _result: &ScanResult) {
+    fn render(&self, ctx: &CheckContext, output: &FormattedOutput, result: &ScanResult) {
         println!();
-        println!("{}", "Results:".cyan().bold());
+        print_section_title("Results:");
 
         match output {
             FormattedOutput::ByFile { files, summary } => {
                 self.render_rules_triggered_by_file(files);
                 self.render_by_file(files);
                 println!();
+                self.render_warnings(&result.warnings);
                 if ctx.cli_options.show_summary {
                     self.render_summary(summary);
                 }
@@ -47,6 +97,7 @@ impl OutputRenderer for TextRenderer {
                 self.render_rules_triggered_by_rule(rules);
                 self.render_by_rule(rules);
                 println!();
+                self.render_warnings(&result.warnings);
                 if ctx.cli_options.show_summary {
                     self.render_summary(summary);
                 }
@@ -152,29 +203,7 @@ impl TextRenderer {
                 println!("  {} {} ({} issues)", icon, rule_name, issues.len());
 
                 for issue in issues {
-                    let severity_icon = if issue.severity == "error" {
-                        "✖".red()
-                    } else {
-                        "⚠".yellow()
-                    };
-
-                    let location = format!("{}:{}", issue.line, issue.column);
-
-                    if let Some(ref line_text) = issue.line_text {
-                        let trimmed = line_text.trim();
-                        if !trimmed.is_empty() {
-                            println!(
-                                "    {} {} -> {}",
-                                severity_icon,
-                                location.dimmed(),
-                                trimmed.dimmed()
-                            );
-                        } else {
-                            println!("    {} {}", severity_icon, location.dimmed());
-                        }
-                    } else {
-                        println!("    {} {}", severity_icon, location.dimmed());
-                    }
+                    render_issue_location(*issue);
                 }
             }
         }
@@ -210,84 +239,91 @@ impl TextRenderer {
                 println!("  {} ({} issues)", file, issues.len());
 
                 for issue in issues {
-                    let severity_icon = if issue.severity == "error" {
-                        "✖".red()
-                    } else {
-                        "⚠".yellow()
-                    };
-
-                    let location = format!("{}:{}", issue.line, issue.column);
-
-                    if let Some(ref line_text) = issue.line_text {
-                        let trimmed = line_text.trim();
-                        if !trimmed.is_empty() {
-                            println!(
-                                "    {} {} -> {}",
-                                severity_icon,
-                                location.dimmed(),
-                                trimmed.dimmed()
-                            );
-                        } else {
-                            println!("    {} {}", severity_icon, location.dimmed());
-                        }
-                    } else {
-                        println!("    {} {}", severity_icon, location.dimmed());
-                    }
+                    render_issue_location(*issue);
                 }
             }
         }
     }
 
     fn render_summary(&self, summary: &OutputSummary) {
-        println!("{}", "Summary:".cyan().bold());
-        println!();
-        println!(
-            "  {} {} ({} errors, {} warnings)",
-            "Issues:".dimmed(),
-            summary.total_issues.to_string().cyan(),
-            summary.errors.to_string().red(),
-            summary.warnings.to_string().yellow()
-        );
+        render_summary(summary);
+    }
 
-        let breakdown = &summary.triggered_rules_breakdown;
-        let breakdown_parts: Vec<String> = [
-            (breakdown.builtin, "builtin"),
-            (breakdown.regex, "regex"),
-            (breakdown.script, "script"),
-            (breakdown.ai, "ai"),
-        ]
-        .iter()
-        .filter(|(count, _)| *count > 0)
-        .map(|(count, label)| format!("{} {}", count, label))
-        .collect();
+    fn render_warnings(&self, warnings: &[String]) {
+        if warnings.is_empty() {
+            return;
+        }
 
-        let breakdown_str = if breakdown_parts.is_empty() {
-            String::new()
-        } else {
-            format!(" ({})", breakdown_parts.join(", "))
-        };
+        print_section_header("Warnings:");
+        for warning in warnings {
+            println!("  {} {}", icon_warning().yellow(), warning.yellow());
+        }
+    }
+}
 
-        println!(
-            "  {} {}/{}{}",
-            "Triggered rules:".dimmed(),
-            summary.triggered_rules.to_string().cyan(),
-            summary.total_enabled_rules,
-            breakdown_str
-        );
+pub fn render_summary(summary: &OutputSummary) {
+    print_section_header("Summary:");
 
-        println!(
-            "  {} {}/{}",
-            "Files with issues:".dimmed(),
-            summary.files_with_issues.to_string().cyan(),
-            summary.total_files
-        );
-
+    let issue_parts = summary.issue_parts();
+    if issue_parts.is_empty() {
         println!(
             "  {} {}",
-            "Duration:".dimmed(),
-            format_duration(summary.duration_ms)
+            "Issues:".dimmed(),
+            summary.total_issues.to_string().cyan(),
         );
-
-        println!();
+    } else {
+        let colored_parts: Vec<String> = issue_parts
+            .iter()
+            .map(|p| {
+                let colored_count = match p.label {
+                    "errors" => p.count.to_string().red().to_string(),
+                    "warnings" => p.count.to_string().yellow().to_string(),
+                    "infos" => p.count.to_string().blue().to_string(),
+                    "hints" => p.count.to_string().dimmed().to_string(),
+                    _ => p.count.to_string(),
+                };
+                format!("{} {}", colored_count, p.label)
+            })
+            .collect();
+        println!(
+            "  {} {} ({})",
+            "Issues:".dimmed(),
+            summary.total_issues.to_string().cyan(),
+            colored_parts.join(", ")
+        );
     }
+
+    let breakdown_parts = summary.rules_breakdown_parts();
+    let breakdown_str = if breakdown_parts.is_empty() {
+        String::new()
+    } else {
+        let parts: Vec<String> = breakdown_parts
+            .iter()
+            .map(|(count, label)| format!("{} {}", count, label))
+            .collect();
+        format!(" ({})", parts.join(", "))
+    };
+
+    println!(
+        "  {} {}/{}{}",
+        "Triggered rules:".dimmed(),
+        summary.triggered_rules.to_string().cyan(),
+        summary.total_enabled_rules,
+        breakdown_str
+    );
+
+    println!(
+        "  {} {}/{}",
+        "Files with issues:".dimmed(),
+        summary.files_with_issues.to_string().cyan(),
+        summary.total_files
+    );
+
+    println!(
+        "  {} {}",
+        "Duration:".dimmed(),
+        format_duration(summary.duration_ms)
+    );
+
+    println!();
 }

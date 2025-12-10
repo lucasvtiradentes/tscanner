@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tscanner_cache::FileCache;
-use tscanner_config::{config_dir_name, config_file_name};
+use tscanner_constants::{config_dir_name, config_file_name};
 use tscanner_scanner::{load_config, Scanner};
 use tscanner_service::{OpenProjectParams, Workspace, WorkspaceServer};
 

@@ -1,133 +1,84 @@
-use serde::Deserialize;
-use std::env;
-use tscanner_diagnostics::Severity;
+use serde::Serialize;
+use tscanner_constants::{
+    default_ai_scan_interval, default_exclude, default_highlight_errors, default_highlight_hints,
+    default_highlight_infos, default_highlight_warnings, default_include, default_scan_interval,
+};
 
 use crate::types::{CodeEditorConfig, FilesConfig, TscannerConfig};
 
-const DEFAULT_CONFIG_JSON: &str = include_str!("../../../../../assets/configs/default.json");
-const CONSTANTS_JSON: &str = include_str!("../../../../../assets/constants.json");
-
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct Constants {
-    package_name: String,
-    package_display_name: String,
-    package_description: String,
-    config_dir_name: String,
-    config_file_name: String,
-    default_target_branch: String,
-    log_basename: String,
-    ignore_comment: String,
-    ignore_next_line_comment: String,
-}
-
 lazy_static::lazy_static! {
-    static ref CONSTANTS: Constants = serde_json::from_str(CONSTANTS_JSON)
-        .expect("Failed to parse constants.json");
+    static ref DEFAULT_CONFIG_JSON_STRING: String = generate_default_config_json();
 }
 
-pub fn app_name() -> &'static str {
-    &CONSTANTS.package_name
-}
-
-pub fn app_display_name() -> &'static str {
-    &CONSTANTS.package_display_name
-}
-
-pub fn app_description() -> &'static str {
-    &CONSTANTS.package_description
-}
-
-pub fn config_dir_name() -> &'static str {
-    &CONSTANTS.config_dir_name
-}
-
-pub fn config_file_name() -> &'static str {
-    &CONSTANTS.config_file_name
-}
-
-pub fn default_target_branch() -> &'static str {
-    &CONSTANTS.default_target_branch
-}
-
-pub fn log_basename() -> &'static str {
-    &CONSTANTS.log_basename
-}
-
-pub fn is_dev_mode() -> bool {
-    env::var("CI").is_err() && env::var("GITHUB_ACTIONS").is_err()
-}
-
-pub fn get_log_filename() -> String {
-    if is_dev_mode() {
-        format!("{}-dev.txt", log_basename())
-    } else {
-        format!("{}.txt", log_basename())
+fn generate_default_config_json() -> String {
+    #[derive(Serialize)]
+    #[serde(rename_all = "camelCase")]
+    struct DefaultConfig {
+        files: DefaultFilesConfig,
+        code_editor: DefaultCodeEditorConfig,
     }
-}
 
-pub fn ignore_comment() -> &'static str {
-    &CONSTANTS.ignore_comment
-}
+    #[derive(Serialize)]
+    #[serde(rename_all = "camelCase")]
+    struct DefaultFilesConfig {
+        include: Vec<String>,
+        exclude: Vec<String>,
+    }
 
-pub fn ignore_next_line_comment() -> &'static str {
-    &CONSTANTS.ignore_next_line_comment
+    #[derive(Serialize)]
+    #[serde(rename_all = "camelCase")]
+    struct DefaultCodeEditorConfig {
+        highlight_errors: bool,
+        highlight_warnings: bool,
+        highlight_infos: bool,
+        highlight_hints: bool,
+        scan_interval: u32,
+        ai_scan_interval: u32,
+    }
+
+    let config = DefaultConfig {
+        files: DefaultFilesConfig {
+            include: default_include(),
+            exclude: default_exclude(),
+        },
+        code_editor: DefaultCodeEditorConfig {
+            highlight_errors: default_highlight_errors(),
+            highlight_warnings: default_highlight_warnings(),
+            highlight_infos: default_highlight_infos(),
+            highlight_hints: default_highlight_hints(),
+            scan_interval: default_scan_interval(),
+            ai_scan_interval: default_ai_scan_interval(),
+        },
+    };
+
+    serde_json::to_string(&config).expect("Failed to serialize default config")
 }
 
 pub fn default_code_editor_config() -> CodeEditorConfig {
-    let config: TscannerConfig =
-        serde_json::from_str(DEFAULT_CONFIG_JSON).expect("Failed to parse default-config.json");
-    config
-        .code_editor
-        .expect("default-config.json must have 'codeEditor' section")
-}
-
-pub fn default_highlight_errors() -> bool {
-    default_code_editor_config().highlight_errors
-}
-
-pub fn default_highlight_warnings() -> bool {
-    default_code_editor_config().highlight_warnings
-}
-
-pub fn default_scan_interval() -> u32 {
-    default_code_editor_config().scan_interval
+    CodeEditorConfig {
+        highlight_errors: default_highlight_errors(),
+        highlight_warnings: default_highlight_warnings(),
+        highlight_infos: default_highlight_infos(),
+        highlight_hints: default_highlight_hints(),
+        scan_interval: default_scan_interval(),
+        ai_scan_interval: default_ai_scan_interval(),
+    }
 }
 
 pub fn default_files_config() -> FilesConfig {
-    let config: TscannerConfig =
-        serde_json::from_str(DEFAULT_CONFIG_JSON).expect("Failed to parse default-config.json");
-    config.files
-}
-
-pub fn default_include() -> Vec<String> {
-    default_files_config().include
-}
-
-pub fn default_exclude() -> Vec<String> {
-    default_files_config().exclude
-}
-
-pub fn default_true() -> bool {
-    true
-}
-
-pub fn default_severity() -> Severity {
-    Severity::Warning
-}
-
-pub fn default_script_timeout() -> u64 {
-    10
-}
-
-pub fn default_ai_timeout() -> u64 {
-    120
-}
-
-pub fn default_ai_scan_interval() -> u32 {
-    0
+    FilesConfig {
+        include: default_include(),
+        exclude: default_exclude(),
+    }
 }
 
 pub fn get_default_config_json() -> &'static str {
-    DEFAULT_CONFIG_JSON
+    &DEFAULT_CONFIG_JSON_STRING
+}
+
+impl Default for TscannerConfig {
+    fn default() -> Self {
+        serde_json::from_str(get_default_config_json())
+            .expect("Failed to parse generated default config")
+    }
 }

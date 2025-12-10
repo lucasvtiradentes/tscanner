@@ -1,18 +1,6 @@
 use std::fs;
 use std::path::PathBuf;
-use tscanner_rules::{get_all_rule_metadata, RuleCategory};
-
-fn category_to_path(category: &RuleCategory) -> &'static str {
-    match category {
-        RuleCategory::BugPrevention => "bug_prevention",
-        RuleCategory::CodeQuality => "code_quality",
-        RuleCategory::TypeSafety => "type_safety",
-        RuleCategory::Style => "style",
-        RuleCategory::Performance => "performance",
-        RuleCategory::Variables => "variables",
-        RuleCategory::Imports => "imports",
-    }
-}
+use tscanner_rules::get_all_rule_metadata;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut rules = get_all_rule_metadata();
@@ -24,7 +12,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let mut obj = serde_json::to_value(r).unwrap();
             let map = obj.as_object_mut().unwrap();
 
-            let category_path = category_to_path(&r.category);
+            let category_path = r.category.as_folder_name();
             let snake_name = r.name.replace('-', "_");
             map.insert(
                 "sourcePath".to_string(),

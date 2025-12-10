@@ -1,5 +1,9 @@
 {
   "$schema": "../../packages/cli/schema.json",
+  "files": {
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
+  },
   "rules": {
     "builtin": {
       "consistent-return": {},
@@ -44,38 +48,25 @@
     "regex": {
       "example-no-console-log": {
         "pattern": "console\\.log",
-        "message": "Remove console.log before committing",
-        "severity": "warning"
+        "message": "Remove console.log before committing"
       }
     },
     "script": {
       "example-no-debug-comments": {
         "command": "npx tsx script-rules/example-no-debug-comments.ts",
-        "message": "Debug comments should be removed",
-        "severity": "warning"
+        "message": "Debug comments should be removed"
       }
     }
   },
-  "aiRules": {
-    "example-find-complexity": {
-      "prompt": "example-find-complexity.md",
-      "mode": "content",
-      "message": "Function is too complex, consider refactoring",
-      "severity": "warning",
-      "enabled": false
-    }
-  },
+  "aiRules": {},
   "ai": {
-    "provider": "claude",
-    "timeout": 120
-  },
-  "files": {
-    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
-    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
+    "provider": "claude"
   },
   "codeEditor": {
     "highlightErrors": true,
-    "highlightWarnings": false,
+    "highlightWarnings": true,
+    "highlightInfos": true,
+    "highlightHints": true,
     "scanInterval": 0,
     "aiScanInterval": 0
   }

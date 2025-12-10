@@ -2,15 +2,15 @@ use crate::disable_comments::DisableDirectives;
 use crate::parser::parse_file;
 use std::path::Path;
 use tscanner_config::{CompiledRuleConfig, TscannerConfig};
-use tscanner_diagnostics::{FileResult, Issue, IssueRuleType};
-use tscanner_rules::{FileSource, RuleContext, RuleRegistry};
-
-const JS_TS_EXTENSIONS: &[&str] = &["ts", "tsx", "js", "jsx", "mjs", "cjs", "mts", "cts"];
+use tscanner_constants::is_js_ts_extension;
+use tscanner_rules::{RuleContext, RuleRegistry};
+use tscanner_types::FileSource;
+use tscanner_types::{FileResult, Issue, IssueRuleType};
 
 pub fn is_js_ts_file(path: &Path) -> bool {
     path.extension()
         .and_then(|ext| ext.to_str())
-        .map(|ext| JS_TS_EXTENSIONS.contains(&ext))
+        .map(is_js_ts_extension)
         .unwrap_or(false)
 }
 

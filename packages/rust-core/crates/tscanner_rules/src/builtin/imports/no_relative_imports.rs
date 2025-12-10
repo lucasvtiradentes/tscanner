@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::RuleType;
+use crate::metadata::RuleExecutionKind;
 use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
@@ -26,7 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "no-relative-imports",
         display_name: "No Relative Imports",
         description: "Detects relative imports (starting with './' or '../'). Prefer absolute imports with @ prefix for better maintainability.",
-        rule_type: RuleType::Ast,
+        rule_type: RuleExecutionKind::Ast,
         category: RuleCategory::Imports,
         typescript_only: false,
         equivalent_eslint_rule: None,

@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::metadata::{RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
@@ -25,7 +25,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "prefer-nullish-coalescing",
         display_name: "Prefer Nullish Coalescing",
         description: "Suggests using nullish coalescing (??) instead of logical OR (||) for default values. The || operator treats 0, \"\", and false as falsy, which may not be intended.",
-        rule_type: RuleType::Ast,
+        rule_type: RuleExecutionKind::Ast,
         category: RuleCategory::Style,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/prefer-nullish-coalescing"),

@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::metadata::{RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
@@ -28,7 +28,7 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Implicit Any",
         description:
             "Detects function parameters without type annotations that implicitly have 'any' type.",
-        rule_type: RuleType::Ast,
+        rule_type: RuleExecutionKind::Ast,
         category: RuleCategory::TypeSafety,
         typescript_only: true,
         equivalent_eslint_rule: None,

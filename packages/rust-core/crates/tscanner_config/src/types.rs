@@ -3,13 +3,14 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
-use tscanner_diagnostics::Severity;
-
-use crate::defaults::{
-    default_ai_scan_interval, default_ai_timeout, default_code_editor_config, default_exclude,
-    default_files_config, default_highlight_errors, default_highlight_warnings, default_include,
-    default_scan_interval, default_script_timeout, default_severity, default_true,
+use tscanner_constants::{
+    default_ai_scan_interval, default_exclude, default_highlight_errors, default_highlight_hints,
+    default_highlight_infos, default_highlight_warnings, default_include, default_scan_interval,
+    default_severity,
 };
+use tscanner_types::Severity;
+
+use crate::defaults::{default_code_editor_config, default_files_config};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
@@ -68,10 +69,6 @@ pub struct AiConfig {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[schemars(description = "Custom command path (required only for 'custom' provider)")]
     pub command: Option<String>,
-
-    #[serde(default = "default_ai_timeout")]
-    #[schemars(description = "Timeout in seconds for AI calls (default: 120)")]
-    pub timeout: u64,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -90,6 +87,20 @@ pub struct CodeEditorConfig {
         description = "Highlight warning issues in the code editor"
     )]
     pub highlight_warnings: bool,
+
+    #[serde(default = "default_highlight_infos")]
+    #[schemars(
+        default = "default_highlight_infos",
+        description = "Highlight info issues in the code editor"
+    )]
+    pub highlight_infos: bool,
+
+    #[serde(default = "default_highlight_hints")]
+    #[schemars(
+        default = "default_highlight_hints",
+        description = "Highlight hint issues in the code editor"
+    )]
+    pub highlight_hints: bool,
 
     #[serde(default = "default_scan_interval")]
     #[schemars(
@@ -177,13 +188,12 @@ pub struct TscannerConfig {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct BuiltinRuleConfig {
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "Enable or disable this rule")]
-    pub enabled: Option<bool>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "Severity level for this rule")]
-    pub severity: Option<Severity>,
+    #[serde(
+        default = "default_severity",
+        skip_serializing_if = "is_default_severity"
+    )]
+    #[schemars(description = "Severity level for this rule (default: warning)")]
+    pub severity: Severity,
 
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     #[schemars(description = "File patterns to include for this rule")]
@@ -198,6 +208,10 @@ pub struct BuiltinRuleConfig {
     pub options: HashMap<String, serde_json::Value>,
 }
 
+fn is_default_severity(s: &Severity) -> bool {
+    *s == Severity::Warning
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct RegexRuleConfig {
@@ -207,13 +221,12 @@ pub struct RegexRuleConfig {
     #[schemars(description = "Error message to display when rule is violated")]
     pub message: String,
 
-    #[serde(default = "default_severity")]
+    #[serde(
+        default = "default_severity",
+        skip_serializing_if = "is_default_severity"
+    )]
     #[schemars(description = "Severity level (default: warning)")]
     pub severity: Severity,
-
-    #[serde(default = "default_true")]
-    #[schemars(description = "Enable or disable this rule (default: true)")]
-    pub enabled: bool,
 
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     #[schemars(description = "File patterns to include")]
@@ -230,7 +243,6 @@ impl Default for RegexRuleConfig {
             pattern: String::new(),
             message: String::new(),
             severity: Severity::Warning,
-            enabled: true,
             include: Vec::new(),
             exclude: Vec::new(),
         }
@@ -248,13 +260,12 @@ pub struct ScriptRuleConfig {
     #[schemars(description = "Error message to display when rule is violated")]
     pub message: String,
 
-    #[serde(default = "default_severity")]
+    #[serde(
+        default = "default_severity",
+        skip_serializing_if = "is_default_severity"
+    )]
     #[schemars(description = "Severity level (default: warning)")]
     pub severity: Severity,
-
-    #[serde(default = "default_true")]
-    #[schemars(description = "Enable or disable this rule (default: true)")]
-    pub enabled: bool,
 
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     #[schemars(description = "File patterns to include")]
@@ -264,13 +275,17 @@ pub struct ScriptRuleConfig {
     #[schemars(description = "File patterns to exclude")]
     pub exclude: Vec<String>,
 
-    #[serde(default = "default_script_timeout")]
-    #[schemars(description = "Script timeout in seconds (default: 10)")]
+    #[serde(default, skip_serializing_if = "is_zero")]
+    #[schemars(description = "Script timeout in seconds (default: 0 = no limit)")]
     pub timeout: u64,
 
-    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "serde_json::Value::is_null")]
     #[schemars(description = "Additional options to pass to the script")]
-    pub options: Option<serde_json::Value>,
+    pub options: serde_json::Value,
+}
+
+fn is_zero(v: &u64) -> bool {
+    *v == 0
 }
 
 impl Default for ScriptRuleConfig {
@@ -279,11 +294,10 @@ impl Default for ScriptRuleConfig {
             command: String::new(),
             message: String::new(),
             severity: Severity::Warning,
-            enabled: true,
             include: Vec::new(),
             exclude: Vec::new(),
-            timeout: 10,
-            options: None,
+            timeout: 0,
+            options: serde_json::Value::Null,
         }
     }
 }
@@ -297,19 +311,18 @@ pub struct AiRuleConfig {
     #[schemars(description = "Error message to display when rule is violated")]
     pub message: String,
 
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "is_default_mode")]
     #[schemars(
         description = "How files are provided to the AI: 'paths' (default) sends only file paths, 'content' sends file contents in prompt, 'agentic' lets AI explore files autonomously"
     )]
     pub mode: AiMode,
 
-    #[serde(default = "default_severity")]
+    #[serde(
+        default = "default_severity",
+        skip_serializing_if = "is_default_severity"
+    )]
     #[schemars(description = "Severity level (default: warning)")]
     pub severity: Severity,
-
-    #[serde(default = "default_true")]
-    #[schemars(description = "Enable or disable this rule (default: true)")]
-    pub enabled: bool,
 
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     #[schemars(description = "File patterns to include")]
@@ -319,9 +332,17 @@ pub struct AiRuleConfig {
     #[schemars(description = "File patterns to exclude")]
     pub exclude: Vec<String>,
 
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "Override timeout for this rule in seconds")]
-    pub timeout: Option<u64>,
+    #[serde(default, skip_serializing_if = "is_zero")]
+    #[schemars(description = "Timeout for this rule in seconds (default: 0 = no limit)")]
+    pub timeout: u64,
+
+    #[serde(default, skip_serializing_if = "serde_json::Value::is_null")]
+    #[schemars(description = "Additional options to pass to the AI prompt")]
+    pub options: serde_json::Value,
+}
+
+fn is_default_mode(m: &AiMode) -> bool {
+    *m == AiMode::Paths
 }
 
 impl Default for AiRuleConfig {
@@ -331,16 +352,15 @@ impl Default for AiRuleConfig {
             message: String::new(),
             mode: AiMode::Paths,
             severity: Severity::Warning,
-            enabled: true,
             include: Vec::new(),
             exclude: Vec::new(),
-            timeout: None,
+            timeout: 0,
+            options: serde_json::Value::Null,
         }
     }
 }
 
 pub struct CompiledRuleConfig {
-    pub enabled: bool,
     pub severity: Severity,
     pub global_include: GlobSet,
     pub global_exclude: GlobSet,

@@ -1,5 +1,5 @@
 [package]
-name = "tscanner_output"
+name = "tscanner_constants"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true
@@ -7,7 +7,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-tscanner_diagnostics = { path = "../tscanner_diagnostics" }
+lazy_static = "1.4"
 serde = { workspace = true }
 serde_json = { workspace = true }
-pathdiff = { workspace = true }
+tscanner_types = { path = "../tscanner_types" }

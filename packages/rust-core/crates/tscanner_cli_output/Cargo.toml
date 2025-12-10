@@ -1,0 +1,14 @@
+[package]
+name = "tscanner_cli_output"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+tscanner_constants = { path = "../tscanner_constants" }
+tscanner_types = { path = "../tscanner_types" }
+serde = { workspace = true }
+serde_json = { workspace = true }
+pathdiff = { workspace = true }

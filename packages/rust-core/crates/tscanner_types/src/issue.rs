@@ -23,8 +23,6 @@ pub struct Issue {
     pub severity: Severity,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub line_text: Option<String>,
-    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
-    pub is_ai: bool,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub category: Option<String>,
     #[serde(default)]
@@ -49,10 +47,13 @@ impl Issue {
             message,
             severity: Severity::Error,
             line_text: None,
-            is_ai: false,
             category: None,
             rule_type: IssueRuleType::Builtin,
         }
+    }
+
+    pub fn is_ai(&self) -> bool {
+        self.rule_type == IssueRuleType::Ai
     }
 
     pub fn with_severity(mut self, severity: Severity) -> Self {

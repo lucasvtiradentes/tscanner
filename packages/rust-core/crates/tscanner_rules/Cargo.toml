@@ -11,7 +11,7 @@ name = "generate_rules_json"
 path = "../../scripts/generate_rules_json.rs"
 
 [dependencies]
-tscanner_diagnostics = { path = "../tscanner_diagnostics" }
+tscanner_types = { path = "../tscanner_types" }
 tscanner_config = { path = "../tscanner_config" }
 swc_ecma_parser = { workspace = true }
 swc_ecma_ast = { workspace = true }

@@ -6,6 +6,71 @@
   "configFileName": "config.jsonc",
   "defaultTargetBranch": "origin/main",
   "logBasename": "tscannerlogs",
+  "logTimezoneOffsetHours": -3,
   "ignoreComment": "tscanner-ignore",
-  "ignoreNextLineComment": "tscanner-ignore-next-line"
+  "ignoreNextLineComment": "tscanner-ignore-next-line",
+  "defaults": {
+    "files": {
+      "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs", "**/*mts", "**/*cts"],
+      "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**", "**/.next/**"]
+    },
+    "codeEditor": {
+      "highlightErrors": true,
+      "highlightWarnings": true,
+      "highlightInfos": true,
+      "highlightHints": true,
+      "scanInterval": 0,
+      "aiScanInterval": 0
+    },
+    "directories": {
+      "scriptRules": "script-rules",
+      "aiRules": "ai-rules"
+    },
+    "examples": {
+      "scriptRule": "example-no-debug-comments.ts",
+      "aiRule": "example-find-complexity.md"
+    }
+  },
+  "display": {
+    "icons": {
+      "builtin": "●",
+      "regex": "○",
+      "script": "▶",
+      "ai": "✦",
+      "error": "✖",
+      "warning": "⚠",
+      "info": "ℹ",
+      "hint": "💡",
+      "progress": "⧗",
+      "success": "✓",
+      "skipped": "⊘"
+    }
+  },
+  "extensions": {
+    "javascript": ["ts", "tsx", "js", "jsx", "mjs", "cjs", "mts", "cts"]
+  },
+  "cache": {
+    "dirName": "tscanner"
+  },
+  "ai": {
+    "tempDir": "tscanner-ai-prompts",
+    "placeholders": {
+      "files": "{{FILES}}",
+      "content": "{{CONTENT}}",
+      "options": "{{OPTIONS}}"
+    },
+    "providers": {
+      "claude": {
+        "command": "claude",
+        "args": ["-p", "--output-format", "text", "--model", "haiku"]
+      },
+      "gemini": {
+        "command": "gemini",
+        "args": ["-o", "text"]
+      }
+    }
+  },
+  "urls": {
+    "rulesBase": "https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin"
+  }
 }

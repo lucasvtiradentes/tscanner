@@ -1,7 +1,7 @@
 use regex::Regex;
 use std::collections::{HashMap, HashSet};
 use std::sync::LazyLock;
-use tscanner_config::{ignore_comment, ignore_next_line_comment};
+use tscanner_constants::{ignore_comment, ignore_next_line_comment};
 
 static IGNORE_RE: LazyLock<Regex> =
     LazyLock::new(|| Regex::new(&format!(r"//\s*{}(?:\s+(.*))?$", ignore_comment())).unwrap());

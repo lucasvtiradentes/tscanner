@@ -8,12 +8,16 @@ export const CONFIG_DIR_NAME = constants.configDirName;
 export const CONFIG_FILE_NAME = constants.configFileName;
 export const DEFAULT_TARGET_BRANCH = constants.defaultTargetBranch;
 export const LOG_BASENAME = constants.logBasename;
+export const LOG_TIMEZONE_OFFSET_HOURS = constants.logTimezoneOffsetHours;
 export const IGNORE_COMMENT = constants.ignoreComment;
 export const IGNORE_NEXT_LINE_COMMENT = constants.ignoreNextLineComment;
+export const JS_EXTENSIONS = constants.extensions.javascript;
 
 export enum Severity {
   Error = 'error',
   Warning = 'warning',
+  Info = 'info',
+  Hint = 'hint',
 }
 
 export enum ScanMode {
@@ -34,6 +38,7 @@ export enum ViewMode {
 export enum AiProvider {
   Claude = 'claude',
   Gemini = 'gemini',
+  Custom = 'custom',
 }
 
 export enum AiMode {
@@ -58,6 +63,9 @@ export enum RuleCategory {
   CodeQuality = 'codequality',
   Style = 'style',
   Performance = 'performance',
+  BugPrevention = 'bugprevention',
+  Variables = 'variables',
+  Imports = 'imports',
 }
 
 export enum IssueRuleType {

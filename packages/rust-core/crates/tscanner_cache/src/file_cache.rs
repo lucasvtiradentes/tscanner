@@ -3,7 +3,8 @@ use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::SystemTime;
-use tscanner_diagnostics::Issue;
+use tscanner_constants::cache_dir_name;
+use tscanner_types::Issue;
 
 #[derive(Clone, Serialize, Deserialize)]
 struct CacheEntry {
@@ -71,7 +72,7 @@ impl FileCache {
     }
 
     fn get_cache_dir() -> Option<PathBuf> {
-        let cache_dir = dirs::cache_dir()?.join("tscanner");
+        let cache_dir = dirs::cache_dir()?.join(cache_dir_name());
         fs::create_dir_all(&cache_dir).ok()?;
         Some(cache_dir)
     }

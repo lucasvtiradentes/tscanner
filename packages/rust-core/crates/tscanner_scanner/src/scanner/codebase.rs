@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Instant;
 use tscanner_config::AiExecutionMode;
-use tscanner_diagnostics::{ContentScanResult, FileResult, ScanResult};
+use tscanner_types::{ContentScanResult, FileResult, ScanResult};
 
 pub struct ScanCallbacks {
     pub on_regular_rules_complete: Option<RegularRulesCompleteCallback>,
@@ -138,8 +138,8 @@ impl Scanner {
                 .collect()
         };
 
-        let script_issues = if ai_mode == AiExecutionMode::Only {
-            Vec::new()
+        let (script_issues, script_warnings) = if ai_mode == AiExecutionMode::Only {
+            (Vec::new(), Vec::new())
         } else {
             self.run_script_rules(&files)
         };
@@ -173,7 +173,8 @@ impl Scanner {
         let cached = cache_hits.load(Ordering::Relaxed);
         let scanned = file_count - cached;
 
-        let warnings = ai_warning.into_iter().collect();
+        let mut warnings: Vec<String> = script_warnings;
+        warnings.extend(ai_warning);
 
         ScanResult {
             files: all_results,

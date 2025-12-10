@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::metadata::{RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
@@ -27,7 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "no-single-or-array-union",
         display_name: "No Single Or Array Union",
         description: "Disallows union types that combine a type with its array form (e.g., `string | string[]`, `number | number[]`). Prefer using a consistent type to avoid handling multiple cases in function implementations.",
-        rule_type: RuleType::Ast,
+        rule_type: RuleExecutionKind::Ast,
         category: RuleCategory::TypeSafety,
         typescript_only: true,
         equivalent_eslint_rule: None,

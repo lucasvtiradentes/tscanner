@@ -1,5 +1,5 @@
 [package]
-name = "tscanner_diagnostics"
+name = "tscanner_types"
 version.workspace = true
 edition.workspace = true
 authors.workspace = true

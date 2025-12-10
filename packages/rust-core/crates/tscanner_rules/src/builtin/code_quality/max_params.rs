@@ -1,6 +1,7 @@
 use crate::context::RuleContext;
 use crate::metadata::{
-    RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleOption, RuleOptionSchema, RuleType,
+    RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration, RuleOption,
+    RuleOptionSchema,
 };
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
@@ -66,7 +67,7 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "Max Parameters",
         description:
             "Limits the number of parameters in a function. Functions with many parameters should use an options object instead.",
-        rule_type: RuleType::Ast,
+        rule_type: RuleExecutionKind::Ast,
         category: RuleCategory::CodeQuality,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/max-params"),

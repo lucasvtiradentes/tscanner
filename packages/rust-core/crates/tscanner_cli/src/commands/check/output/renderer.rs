@@ -1,6 +1,6 @@
 use crate::shared::FormattedOutput;
 use tscanner_cli::OutputFormat;
-use tscanner_diagnostics::ScanResult;
+use tscanner_types::ScanResult;
 
 use super::json::JsonRenderer;
 use super::text::TextRenderer;

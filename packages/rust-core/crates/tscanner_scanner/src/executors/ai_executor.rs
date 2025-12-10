@@ -10,9 +10,13 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
-use std::time::{Duration, Instant, SystemTime};
+use std::time::{Duration, Instant};
 use tscanner_config::{AiConfig, AiMode, AiRuleConfig};
-use tscanner_diagnostics::{Issue, IssueRuleType};
+use tscanner_constants::{
+    ai_placeholder_content, ai_placeholder_files, ai_placeholder_options, ai_rules_dir,
+    ai_temp_dir, config_dir_name,
+};
+use tscanner_types::{Issue, IssueRuleType};
 
 pub type ChangedLinesMap = HashMap<PathBuf, HashSet<usize>>;
 
@@ -57,8 +61,6 @@ pub struct AiIssue {
 struct CachedResult {
     issues: Vec<Issue>,
     prompt_hash: u64,
-    #[allow(dead_code)]
-    cached_at: SystemTime,
 }
 
 #[derive(Debug)]
@@ -75,7 +77,7 @@ impl std::fmt::Display for AiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             AiError::IoError(e) => write!(f, "IO error: {}", e),
-            AiError::Timeout(ms) => write!(f, "AI call timed out after {}ms", ms),
+            AiError::Timeout(secs) => write!(f, "AI call timed out after {}s", secs),
             AiError::NonZeroExit { code, stderr } => {
                 write!(f, "AI command exited with code {:?}: {}", code, stderr)
             }
@@ -109,28 +111,29 @@ pub struct AiExecutor {
 }
 
 impl AiExecutor {
-    pub fn new(workspace_root: &Path) -> Self {
+    pub fn new(
+        workspace_root: &Path,
+        config_dir: Option<PathBuf>,
+        ai_config: Option<AiConfig>,
+        log_warn: Option<fn(&str)>,
+        log_debug: Option<fn(&str)>,
+    ) -> Self {
+        let ai_rules_dir_path = config_dir
+            .map(|d| d.join(ai_rules_dir()))
+            .unwrap_or_else(|| workspace_root.join(config_dir_name()).join(ai_rules_dir()));
         Self {
             workspace_root: workspace_root.to_path_buf(),
-            ai_rules_dir: workspace_root.join(".tscanner").join("ai-rules"),
-            ai_config: None,
+            ai_rules_dir: ai_rules_dir_path,
+            ai_config,
             cache: DashMap::new(),
             in_flight: DashMap::new(),
-            log_warn: |_| {},
-            log_debug: |_| {},
+            log_warn: log_warn.unwrap_or(|_| {}),
+            log_debug: log_debug.unwrap_or(|_| {}),
         }
     }
 
     pub fn with_logger(workspace_root: &Path, log_warn: fn(&str), log_debug: fn(&str)) -> Self {
-        Self {
-            workspace_root: workspace_root.to_path_buf(),
-            ai_rules_dir: workspace_root.join(".tscanner").join("ai-rules"),
-            ai_config: None,
-            cache: DashMap::new(),
-            in_flight: DashMap::new(),
-            log_warn,
-            log_debug,
-        }
+        Self::new(workspace_root, None, None, Some(log_warn), Some(log_debug))
     }
 
     pub fn with_config(
@@ -139,15 +142,29 @@ impl AiExecutor {
         log_warn: fn(&str),
         log_debug: fn(&str),
     ) -> Self {
-        Self {
-            workspace_root: workspace_root.to_path_buf(),
-            ai_rules_dir: workspace_root.join(".tscanner").join("ai-rules"),
+        Self::new(
+            workspace_root,
+            None,
             ai_config,
-            cache: DashMap::new(),
-            in_flight: DashMap::new(),
-            log_warn,
-            log_debug,
-        }
+            Some(log_warn),
+            Some(log_debug),
+        )
+    }
+
+    pub fn with_config_dir(
+        workspace_root: &Path,
+        config_dir: PathBuf,
+        ai_config: Option<AiConfig>,
+        log_warn: fn(&str),
+        log_debug: fn(&str),
+    ) -> Self {
+        Self::new(
+            workspace_root,
+            Some(config_dir),
+            ai_config,
+            Some(log_warn),
+            Some(log_debug),
+        )
     }
 
     pub fn execute_rules(
@@ -281,34 +298,12 @@ impl AiExecutor {
         workspace_root: &Path,
         rule_config: &AiRuleConfig,
     ) -> bool {
-        if !rule_config.enabled {
-            return false;
-        }
-
-        let relative = path.strip_prefix(workspace_root).unwrap_or(path);
-        let relative_str = relative.to_string_lossy();
-
-        if !rule_config.include.is_empty() {
-            let matches_include = rule_config
-                .include
-                .iter()
-                .any(|pattern| glob_match::glob_match(pattern, &relative_str));
-            if !matches_include {
-                return false;
-            }
-        }
-
-        if !rule_config.exclude.is_empty() {
-            let matches_exclude = rule_config
-                .exclude
-                .iter()
-                .any(|pattern| glob_match::glob_match(pattern, &relative_str));
-            if matches_exclude {
-                return false;
-            }
-        }
-
-        true
+        super::utils::file_matches_patterns(
+            path,
+            workspace_root,
+            &rule_config.include,
+            &rule_config.exclude,
+        )
     }
 
     fn execute_rule(
@@ -374,7 +369,6 @@ impl AiExecutor {
                 CachedResult {
                     issues: issues.clone(),
                     prompt_hash,
-                    cached_at: SystemTime::now(),
                 },
             );
         }
@@ -396,13 +390,27 @@ impl AiExecutor {
     ) -> Result<Vec<Issue>, AiError> {
         let files_section =
             self.format_files_section(files, workspace_root, &rule_config.mode, changed_lines);
-        let rule_prompt = prompt_content.replace("{{FILES}}", &files_section);
-        let full_prompt = AI_RULE_WRAPPER.replace("{{CONTENT}}", &rule_prompt);
+        let rule_prompt = prompt_content.replace(ai_placeholder_files(), &files_section);
+        let options_section = if rule_config.options.is_null() {
+            String::new()
+        } else {
+            format!(
+                "## Additional Options\n\n```json\n{}\n```\n",
+                serde_json::to_string_pretty(&rule_config.options).unwrap_or_default()
+            )
+        };
+        let full_prompt = AI_RULE_WRAPPER
+            .replace(ai_placeholder_content(), &rule_prompt)
+            .replace(ai_placeholder_options(), &options_section);
 
         self.save_prompt_to_tmp(rule_name, &full_prompt);
 
-        let timeout_secs = rule_config.timeout.unwrap_or(ai_config.timeout);
-        let timeout_ms = timeout_secs * 1000;
+        let timeout_secs = rule_config.timeout;
+        let timeout_ms = if timeout_secs > 0 {
+            timeout_secs * 1000
+        } else {
+            0
+        };
         let (program, args) =
             resolve_provider_command(ai_config.provider.as_ref(), ai_config.command.as_deref())
                 .map_err(AiError::InvalidOutput)?;
@@ -602,7 +610,11 @@ impl AiExecutor {
         let prompt_clone = prompt.to_string();
         let write_handle = std::thread::spawn(move || stdin.write_all(prompt_clone.as_bytes()));
 
-        let timeout = Duration::from_millis(timeout_ms);
+        let timeout = if timeout_ms > 0 {
+            Some(Duration::from_millis(timeout_ms))
+        } else {
+            None
+        };
         let start = Instant::now();
 
         loop {
@@ -635,9 +647,11 @@ impl AiExecutor {
                     return Ok(String::from_utf8_lossy(&stdout).to_string());
                 }
                 Ok(None) => {
-                    if start.elapsed() > timeout {
-                        let _ = child.kill();
-                        return Err(AiError::Timeout(timeout_ms));
+                    if let Some(t) = timeout {
+                        if start.elapsed() > t {
+                            let _ = child.kill();
+                            return Err(AiError::Timeout(timeout_ms / 1000));
+                        }
                     }
                     std::thread::sleep(Duration::from_millis(50));
                 }
@@ -714,8 +728,7 @@ impl AiExecutor {
 
                 let line_text = file_lines
                     .get(&file_path)
-                    .and_then(|lines| lines.get(issue.line - 1))
-                    .map(|s| s.to_string());
+                    .and_then(|lines| super::utils::extract_line_text(lines, issue.line));
 
                 Some(Issue {
                     rule: rule_name.to_string(),
@@ -726,7 +739,6 @@ impl AiExecutor {
                     message: issue.message,
                     severity: rule_config.severity,
                     line_text,
-                    is_ai: true,
                     category: None,
                     rule_type: IssueRuleType::Ai,
                 })
@@ -789,7 +801,7 @@ impl AiExecutor {
     }
 
     fn save_prompt_to_tmp(&self, rule_name: &str, prompt: &str) {
-        let tmp_dir = std::env::temp_dir().join("tscanner-ai-prompts");
+        let tmp_dir = std::env::temp_dir().join(ai_temp_dir());
         if std::fs::create_dir_all(&tmp_dir).is_err() {
             return;
         }
@@ -804,6 +816,6 @@ impl AiExecutor {
 
 impl Default for AiExecutor {
     fn default() -> Self {
-        Self::new(Path::new("."))
+        Self::new(Path::new("."), None, None, None, None)
     }
 }

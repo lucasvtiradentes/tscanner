@@ -11,13 +11,14 @@ name = "tscanner-server"
 path = "src/main.rs"
 
 [dependencies]
-tscanner_diagnostics = { path = "../tscanner_diagnostics" }
-tscanner_output = { path = "../tscanner_output" }
+tscanner_types = { path = "../tscanner_types" }
+tscanner_cli_output = { path = "../tscanner_cli_output" }
 tscanner_config = { path = "../tscanner_config" }
+tscanner_constants = { path = "../tscanner_constants" }
 tscanner_service = { path = "../tscanner_service" }
 tscanner_scanner = { path = "../tscanner_scanner" }
 tscanner_cache = { path = "../tscanner_cache" }
-tscanner_fs = { path = "../tscanner_fs" }
+tscanner_git = { path = "../tscanner_git" }
 tscanner_rules = { path = "../tscanner_rules" }
 lsp-types = "0.95"
 lsp-server = "0.7"

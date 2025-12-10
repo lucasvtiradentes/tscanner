@@ -7,8 +7,6 @@ use tscanner_config::{
     compile_globset, compile_optional_globset, CompiledRuleConfig, TscannerConfig,
     CONFIG_ERROR_PREFIX,
 };
-use tscanner_diagnostics::Severity;
-use tscanner_rules::get_all_rule_metadata;
 
 const TSCANNER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -121,13 +119,6 @@ impl ConfigExt for TscannerConfig {
             .get(name)
             .ok_or_else(|| format!("Builtin rule '{}' not found in configuration", name))?;
 
-        let metadata = get_all_rule_metadata().into_iter().find(|m| m.name == name);
-
-        let default_severity = metadata
-            .as_ref()
-            .map(|m| m.default_severity)
-            .unwrap_or(Severity::Warning);
-
         let options = if rule_config.options.is_empty() {
             None
         } else {
@@ -135,8 +126,7 @@ impl ConfigExt for TscannerConfig {
         };
 
         Ok(CompiledRuleConfig {
-            enabled: rule_config.enabled.unwrap_or(true),
-            severity: rule_config.severity.unwrap_or(default_severity),
+            severity: rule_config.severity,
             global_include: compile_globset(&self.files.include)?,
             global_exclude: compile_globset(&self.files.exclude)?,
             rule_include: compile_optional_globset(&rule_config.include)?,
@@ -158,7 +148,6 @@ impl ConfigExt for TscannerConfig {
             .ok_or_else(|| format!("Regex rule '{}' not found in configuration", name))?;
 
         Ok(CompiledRuleConfig {
-            enabled: rule_config.enabled,
             severity: rule_config.severity,
             global_include: compile_globset(&self.files.include)?,
             global_exclude: compile_globset(&self.files.exclude)?,
@@ -181,7 +170,6 @@ impl ConfigExt for TscannerConfig {
             .ok_or_else(|| format!("Script rule '{}' not found in configuration", name))?;
 
         Ok(CompiledRuleConfig {
-            enabled: rule_config.enabled,
             severity: rule_config.severity,
             global_include: compile_globset(&self.files.include)?,
             global_exclude: compile_globset(&self.files.exclude)?,
@@ -199,7 +187,6 @@ impl ConfigExt for TscannerConfig {
     ) -> Result<CompiledRuleConfig, Box<dyn std::error::Error>> {
         if let Some(rule_config) = self.rules.regex.get(name) {
             return Ok(CompiledRuleConfig {
-                enabled: rule_config.enabled,
                 severity: rule_config.severity,
                 global_include: compile_globset(&self.files.include)?,
                 global_exclude: compile_globset(&self.files.exclude)?,
@@ -213,7 +200,6 @@ impl ConfigExt for TscannerConfig {
 
         if let Some(rule_config) = self.rules.script.get(name) {
             return Ok(CompiledRuleConfig {
-                enabled: rule_config.enabled,
                 severity: rule_config.severity,
                 global_include: compile_globset(&self.files.include)?,
                 global_exclude: compile_globset(&self.files.exclude)?,
@@ -234,19 +220,10 @@ impl ConfigExt for TscannerConfig {
     }
 
     fn count_enabled_rules_breakdown(&self) -> (usize, usize, usize, usize) {
-        let all_builtin_metadata = get_all_rule_metadata();
-
-        let enabled_builtin = all_builtin_metadata
-            .iter()
-            .filter(|meta| match self.rules.builtin.get(meta.name) {
-                Some(rule_config) => rule_config.enabled.unwrap_or(true),
-                None => meta.default_enabled,
-            })
-            .count();
-
-        let enabled_regex = self.rules.regex.values().filter(|r| r.enabled).count();
-        let enabled_script = self.rules.script.values().filter(|r| r.enabled).count();
-        let enabled_ai = self.ai_rules.values().filter(|r| r.enabled).count();
+        let enabled_builtin = self.rules.builtin.len();
+        let enabled_regex = self.rules.regex.len();
+        let enabled_script = self.rules.script.len();
+        let enabled_ai = self.ai_rules.len();
 
         (enabled_builtin, enabled_regex, enabled_script, enabled_ai)
     }
@@ -264,10 +241,7 @@ impl ConfigExt for TscannerConfig {
         let sorted_builtin: BTreeMap<_, _> = self.rules.builtin.iter().collect();
         for (name, config) in sorted_builtin {
             name.hash(&mut hasher);
-            config.enabled.hash(&mut hasher);
-            if let Some(sev) = &config.severity {
-                format!("{:?}", sev).hash(&mut hasher);
-            }
+            format!("{:?}", config.severity).hash(&mut hasher);
             for pattern in &config.include {
                 pattern.hash(&mut hasher);
             }
@@ -284,7 +258,6 @@ impl ConfigExt for TscannerConfig {
         let sorted_regex: BTreeMap<_, _> = self.rules.regex.iter().collect();
         for (name, config) in sorted_regex {
             name.hash(&mut hasher);
-            config.enabled.hash(&mut hasher);
             config.pattern.hash(&mut hasher);
             for pattern in &config.include {
                 pattern.hash(&mut hasher);
@@ -297,7 +270,6 @@ impl ConfigExt for TscannerConfig {
         let sorted_script: BTreeMap<_, _> = self.rules.script.iter().collect();
         for (name, config) in sorted_script {
             name.hash(&mut hasher);
-            config.enabled.hash(&mut hasher);
             config.command.hash(&mut hasher);
             for pattern in &config.include {
                 pattern.hash(&mut hasher);
@@ -310,7 +282,6 @@ impl ConfigExt for TscannerConfig {
         let sorted_ai: BTreeMap<_, _> = self.ai_rules.iter().collect();
         for (name, config) in sorted_ai {
             name.hash(&mut hasher);
-            config.enabled.hash(&mut hasher);
             config.prompt.hash(&mut hasher);
             for pattern in &config.include {
                 pattern.hash(&mut hasher);

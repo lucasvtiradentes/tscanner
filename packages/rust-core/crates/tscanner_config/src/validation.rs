@@ -155,46 +155,16 @@ fn validate_builtin_rules(
     invalid
 }
 
-fn validate_regex_rules(rules: &serde_json::Map<String, serde_json::Value>) -> Vec<String> {
+fn validate_custom_rules(
+    rules: &serde_json::Map<String, serde_json::Value>,
+    allowed_fields: &[String],
+    prefix_format: &str,
+) -> Vec<String> {
     let mut invalid = Vec::new();
     for (rule_name, rule_config) in rules {
         if let Some(rule_obj) = rule_config.as_object() {
-            let prefix = format!("rules.regex.{}", rule_name);
-            invalid.extend(collect_invalid_fields(
-                rule_obj,
-                &FIELDS.regex_rule_config,
-                &prefix,
-            ));
-        }
-    }
-    invalid
-}
-
-fn validate_script_rules(rules: &serde_json::Map<String, serde_json::Value>) -> Vec<String> {
-    let mut invalid = Vec::new();
-    for (rule_name, rule_config) in rules {
-        if let Some(rule_obj) = rule_config.as_object() {
-            let prefix = format!("rules.script.{}", rule_name);
-            invalid.extend(collect_invalid_fields(
-                rule_obj,
-                &FIELDS.script_rule_config,
-                &prefix,
-            ));
-        }
-    }
-    invalid
-}
-
-fn validate_ai_rules(rules: &serde_json::Map<String, serde_json::Value>) -> Vec<String> {
-    let mut invalid = Vec::new();
-    for (rule_name, rule_config) in rules {
-        if let Some(rule_obj) = rule_config.as_object() {
-            let prefix = format!("aiRules.{}", rule_name);
-            invalid.extend(collect_invalid_fields(
-                rule_obj,
-                &FIELDS.ai_rule_config,
-                &prefix,
-            ));
+            let prefix = format!("{}.{}", prefix_format, rule_name);
+            invalid.extend(collect_invalid_fields(rule_obj, allowed_fields, &prefix));
         }
     }
     invalid
@@ -233,16 +203,28 @@ pub fn validate_json_fields(json: &serde_json::Value) -> ValidationResult {
         }
 
         if let Some(regex_rules) = rules.get("regex").and_then(|v| v.as_object()) {
-            invalid_fields.extend(validate_regex_rules(regex_rules));
+            invalid_fields.extend(validate_custom_rules(
+                regex_rules,
+                &FIELDS.regex_rule_config,
+                "rules.regex",
+            ));
         }
 
         if let Some(script_rules) = rules.get("script").and_then(|v| v.as_object()) {
-            invalid_fields.extend(validate_script_rules(script_rules));
+            invalid_fields.extend(validate_custom_rules(
+                script_rules,
+                &FIELDS.script_rule_config,
+                "rules.script",
+            ));
         }
     }
 
     if let Some(ai_rules) = obj.get("aiRules").and_then(|v| v.as_object()) {
-        invalid_fields.extend(validate_ai_rules(ai_rules));
+        invalid_fields.extend(validate_custom_rules(
+            ai_rules,
+            &FIELDS.ai_rule_config,
+            "aiRules",
+        ));
     }
 
     for field in invalid_fields {

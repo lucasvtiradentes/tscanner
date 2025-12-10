@@ -7,11 +7,12 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-tscanner_diagnostics = { path = "../tscanner_diagnostics" }
+tscanner_types = { path = "../tscanner_types" }
 tscanner_config = { path = "../tscanner_config" }
+tscanner_constants = { path = "../tscanner_constants" }
 tscanner_rules = { path = "../tscanner_rules" }
 tscanner_cache = { path = "../tscanner_cache" }
-tscanner_fs = { path = "../tscanner_fs" }
+tscanner_git = { path = "../tscanner_git" }
 swc_ecma_parser = { workspace = true }
 swc_ecma_ast = { workspace = true }
 swc_common = { workspace = true }

@@ -8,13 +8,17 @@ use std::sync::{Arc, Mutex};
 
 use crate::config_loader::load_config_with_custom;
 use crate::shared::{
-    format_duration, render_header, FormattedOutput, RulesBreakdown, ScanConfig, ScanMode,
-    SummaryStats,
+    format_duration, print_section_header, print_section_title, render_header, FormattedOutput,
+    RulesBreakdown, ScanConfig, ScanMode, SummaryStats,
 };
 use tscanner_cache::FileCache;
 use tscanner_cli::{CliGroupMode, OutputFormat};
-use tscanner_config::{app_name, config_dir_name, config_file_name, AiExecutionMode, AiProvider};
-use tscanner_output::GroupMode;
+use tscanner_cli_output::GroupMode;
+use tscanner_config::{AiExecutionMode, AiProvider};
+use tscanner_constants::{
+    app_name, config_dir_name, config_file_name, icon_progress, icon_skipped, icon_success,
+    icon_warning,
+};
 use tscanner_scanner::{
     AiProgressCallback, AiProgressEvent, AiRuleStatus, ConfigExt, RegularRulesCompleteCallback,
     ScanCallbacks, Scanner,
@@ -25,6 +29,8 @@ use super::context::CheckContext;
 use super::filters;
 use super::git;
 use super::output;
+
+type ModifiedLinesMap = HashMap<PathBuf, HashSet<usize>>;
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub enum CliGroupBy {
@@ -194,8 +200,14 @@ pub fn cmd_check(
         FileCache::with_config_hash(config_hash)
     };
 
-    let scanner = Scanner::with_cache(config, Arc::new(cache), root.clone())
-        .map_err(|e| anyhow::anyhow!("{}", e))?;
+    let config_dir = Path::new(&resolved_config_path)
+        .parent()
+        .map(|p| p.to_path_buf());
+    let scanner = match config_dir {
+        Some(dir) => Scanner::with_cache_and_config_dir(config, Arc::new(cache), root.clone(), dir),
+        None => Scanner::with_cache(config, Arc::new(cache), root.clone()),
+    }
+    .map_err(|e| anyhow::anyhow!("{}", e))?;
 
     let is_json = matches!(output_format, OutputFormat::Json);
 
@@ -246,7 +258,7 @@ pub fn cmd_check(
             rule_filter: rule_filter.clone(),
         };
         render_header(&scan_config);
-        println!("{}", "Scanning...\n".cyan().bold());
+        print_section_header("Scanning...");
     }
 
     let regular_rules_count =
@@ -338,13 +350,6 @@ pub fn cmd_check(
         result.duration_ms
     ));
 
-    if !is_json && !result.warnings.is_empty() {
-        println!();
-        for warning in &result.warnings {
-            println!("{} {}", "⚠".yellow(), warning.yellow());
-        }
-    }
-
     let stats = SummaryStats::from_result(&result, total_enabled_rules, rules_breakdown);
 
     if result.files.is_empty() && !is_json {
@@ -354,14 +359,13 @@ pub fn cmd_check(
         };
 
         println!();
-        println!("{}", "Results:".cyan().bold());
+        print_section_title("Results:");
         println!();
         println!("{}", "✓ No issues found!".green().bold());
 
         if scan_skipped {
             println!();
-            println!("{}", "Notes:".cyan().bold());
-            println!();
+            print_section_header("Notes:");
             println!(
                 "  {} {}",
                 "ℹ".blue(),
@@ -369,9 +373,19 @@ pub fn cmd_check(
             );
         }
 
-        println!();
+        if !result.warnings.is_empty() {
+            println!();
+            print_section_header("Warnings:");
+            for warning in &result.warnings {
+                println!("  {} {}", icon_warning().yellow(), warning.yellow());
+            }
+        }
+
+        if result.warnings.is_empty() {
+            println!();
+        }
         if cli_options.show_summary {
-            render_summary_from_output(formatted_output.summary());
+            output::render_summary(formatted_output.summary());
         }
 
         if let Some(ref json_path) = json_output {
@@ -419,59 +433,6 @@ fn write_json_output(json_path: &Path, output: &FormattedOutput) -> Result<()> {
     Ok(())
 }
 
-fn render_summary_from_output(summary: &crate::shared::OutputSummary) {
-    println!("{}", "Summary:".cyan().bold());
-    println!();
-    println!(
-        "  {} {} ({} errors, {} warnings)",
-        "Issues:".dimmed(),
-        summary.total_issues.to_string().cyan(),
-        summary.errors.to_string().red(),
-        summary.warnings.to_string().yellow()
-    );
-
-    let breakdown = &summary.triggered_rules_breakdown;
-    let breakdown_parts: Vec<String> = [
-        (breakdown.builtin, "builtin"),
-        (breakdown.regex, "regex"),
-        (breakdown.script, "script"),
-        (breakdown.ai, "ai"),
-    ]
-    .iter()
-    .filter(|(count, _)| *count > 0)
-    .map(|(count, label)| format!("{} {}", count, label))
-    .collect();
-
-    let breakdown_str = if breakdown_parts.is_empty() {
-        String::new()
-    } else {
-        format!(" ({})", breakdown_parts.join(", "))
-    };
-
-    println!(
-        "  {} {}/{}{}",
-        "Triggered rules:".dimmed(),
-        summary.triggered_rules.to_string().cyan(),
-        summary.total_enabled_rules,
-        breakdown_str
-    );
-
-    println!(
-        "  {} {}/{}",
-        "Files with issues:".dimmed(),
-        summary.files_with_issues.to_string().cyan(),
-        summary.total_files
-    );
-
-    println!(
-        "  {} {}",
-        "Duration:".dimmed(),
-        format_duration(summary.duration_ms)
-    );
-
-    println!();
-}
-
 fn build_cli_options(group_by: Option<CliGroupMode>) -> CliOptions {
     let mut options = CliOptions::default();
     if let Some(g) = group_by {
@@ -499,8 +460,6 @@ fn resolve_ai_mode(include_ai_flag: bool, only_ai_flag: bool) -> AiExecutionMode
         AiExecutionMode::Ignore
     }
 }
-
-type ModifiedLinesMap = std::collections::HashMap<PathBuf, std::collections::HashSet<usize>>;
 
 fn get_branch_changes(
     root: &Path,
@@ -554,7 +513,8 @@ fn render_ai_progress(
             eprint!("\x1B[0J");
         }
         eprintln!(
-            "⧗ {} {}",
+            "{} {} {}",
+            icon_progress(),
             format!("AI rules ({}/{})", completed, total).cyan().bold(),
             format_duration(elapsed_ms).dimmed()
         );
@@ -573,7 +533,7 @@ fn render_rules_status(label: &str, count: usize, status: RuleStatus) {
         RuleStatus::Completed(duration_ms) => {
             println!(
                 "{} {}",
-                "✓".green(),
+                icon_success().green(),
                 format!(
                     "{} ({}) {}",
                     label,
@@ -587,7 +547,7 @@ fn render_rules_status(label: &str, count: usize, status: RuleStatus) {
         RuleStatus::Skipped => {
             println!(
                 "{} {}",
-                "⊘".dimmed(),
+                icon_skipped().dimmed(),
                 format!("{} ({}) {}", label, count, "skipped".dimmed()).dimmed()
             );
         }

@@ -1,7 +1,7 @@
 use crate::errors::WorkspaceError;
 use crate::types::*;
-use tscanner_diagnostics::{ContentScanResult, FileResult, ScanResult};
 use tscanner_rules::RuleMetadata;
+use tscanner_types::{ContentScanResult, FileResult, ScanResult};
 
 pub trait Workspace: Send + Sync {
     fn open_project(&self, params: OpenProjectParams) -> Result<(), WorkspaceError>;

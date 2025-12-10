@@ -31,7 +31,25 @@ impl Scanner {
         cache: Arc<FileCache>,
         root: PathBuf,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        Self::with_cache_and_logger(config, cache, root, |_| {}, |_| {}, |_| {}, |_| {})
+        Self::with_cache_and_logger(config, cache, root, None, |_| {}, |_| {}, |_| {}, |_| {})
+    }
+
+    pub fn with_cache_and_config_dir(
+        config: TscannerConfig,
+        cache: Arc<FileCache>,
+        root: PathBuf,
+        config_dir: PathBuf,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
+        Self::with_cache_and_logger(
+            config,
+            cache,
+            root,
+            Some(config_dir),
+            |_| {},
+            |_| {},
+            |_| {},
+            |_| {},
+        )
     }
 
     pub fn with_logger(
@@ -45,14 +63,16 @@ impl Scanner {
         let config_hash = config.compute_hash();
         let cache = Arc::new(FileCache::with_config_hash(config_hash));
         Self::with_cache_and_logger(
-            config, cache, root, log_info, log_debug, log_error, log_warn,
+            config, cache, root, None, log_info, log_debug, log_error, log_warn,
         )
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn with_cache_and_logger(
         config: TscannerConfig,
         cache: Arc<FileCache>,
         root: PathBuf,
+        config_dir: Option<PathBuf>,
         log_info: fn(&str),
         log_debug: fn(&str),
         log_error: fn(&str),
@@ -73,8 +93,22 @@ impl Scanner {
         } else {
             Some(compile_globset(&custom_patterns)?)
         };
-        let script_executor = ScriptExecutor::with_logger(&root, log_error, log_debug);
-        let ai_executor = AiExecutor::with_config(&root, config.ai.clone(), log_warn, log_debug);
+        let (script_executor, ai_executor) = match config_dir {
+            Some(ref dir) => (
+                ScriptExecutor::with_config_dir_and_logger(dir.clone(), log_error, log_debug),
+                AiExecutor::with_config_dir(
+                    &root,
+                    dir.clone(),
+                    config.ai.clone(),
+                    log_warn,
+                    log_debug,
+                ),
+            ),
+            None => (
+                ScriptExecutor::with_logger(&root, log_error, log_debug),
+                AiExecutor::with_config(&root, config.ai.clone(), log_warn, log_debug),
+            ),
+        };
         Ok(Self {
             registry,
             config,

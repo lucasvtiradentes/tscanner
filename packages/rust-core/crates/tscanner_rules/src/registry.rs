@@ -2,23 +2,11 @@ use std::collections::{HashMap, HashSet};
 use std::path::Path;
 use std::sync::Arc;
 use tscanner_config::{CompiledRuleConfig, TscannerConfig};
-use tscanner_diagnostics::Severity;
+use tscanner_types::Severity;
 
 use crate::executors::RegexExecutor;
-use crate::metadata::{get_all_rule_metadata, RuleCategory};
+use crate::metadata::get_all_rule_metadata;
 use crate::traits::{DynRule, RuleRegistration};
-
-fn category_to_folder(category: RuleCategory) -> &'static str {
-    match category {
-        RuleCategory::TypeSafety => "type_safety",
-        RuleCategory::CodeQuality => "code_quality",
-        RuleCategory::Style => "style",
-        RuleCategory::Performance => "performance",
-        RuleCategory::BugPrevention => "bug_prevention",
-        RuleCategory::Variables => "variables",
-        RuleCategory::Imports => "imports",
-    }
-}
 
 pub struct RuleRegistry {
     rules: HashMap<String, Arc<dyn DynRule>>,
@@ -39,7 +27,7 @@ impl RuleRegistry {
         for metadata in get_all_rule_metadata() {
             rule_categories.insert(
                 metadata.name.to_string(),
-                category_to_folder(metadata.category).to_string(),
+                metadata.category.as_folder_name().to_string(),
             );
         }
 
@@ -70,7 +58,7 @@ impl RuleRegistry {
         for metadata in get_all_rule_metadata() {
             rule_categories.insert(
                 metadata.name.to_string(),
-                category_to_folder(metadata.category).to_string(),
+                metadata.category.as_folder_name().to_string(),
             );
         }
 
@@ -121,11 +109,10 @@ impl RuleRegistry {
             }
         }
 
-        let enabled_count = compiled_configs.values().filter(|c| c.enabled).count();
         log_info(&format!(
-            "Loaded {} rules ({} enabled)",
+            "Loaded {} rules ({} configured)",
             rules.len(),
-            enabled_count
+            compiled_configs.len()
         ));
 
         Ok(Self {
@@ -165,7 +152,7 @@ impl RuleRegistry {
             .iter()
             .filter_map(|(name, rule)| {
                 if let Some(compiled) = self.compiled_configs.get(name) {
-                    if compiled.enabled && matches_file(file_path, root, compiled) {
+                    if matches_file(file_path, root, compiled) {
                         return Some((rule.clone(), compiled.severity));
                     }
                 }
@@ -190,7 +177,7 @@ impl RuleRegistry {
                     return None;
                 }
                 if let Some(compiled) = self.compiled_configs.get(name) {
-                    if compiled.enabled && matches_file(file_path, root, compiled) {
+                    if matches_file(file_path, root, compiled) {
                         return Some((rule.clone(), compiled.severity));
                     }
                 }
@@ -204,10 +191,7 @@ impl RuleRegistry {
     }
 
     pub fn is_enabled(&self, name: &str) -> bool {
-        self.compiled_configs
-            .get(name)
-            .map(|c| c.enabled)
-            .unwrap_or(false)
+        self.compiled_configs.contains_key(name)
     }
 }
 

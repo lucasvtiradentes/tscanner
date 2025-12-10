@@ -4,8 +4,8 @@
     "builtin": {
       "consistent-return": {},
       "max-function-length": {},
-      "max-params": {},
-      "no-explicit-any": {},
+      "max-params": { "severity": "hint" },
+      "no-explicit-any": { "severity":"info" },
       "no-async-without-await": {},
       "no-console": {"exclude": ["**/scripts/*", ".changeset/commit.js"]},
       "no-constant-condition": {},
@@ -41,13 +41,11 @@
       "no-rust-deprecated": {
         "pattern": "allow\\(deprecated\\)",
         "message": "No deprecated methods",
-        "severity": "warning",
         "include": ["packages/rust-core/**/*.rs"]
       },
       "no-process-env": {
         "pattern": "process\\.env",
-        "message": "No process env",
-        "severity": "warning"
+        "message": "No process env"
       }
     },
     "script": {
@@ -60,7 +58,6 @@
       "readme-toc-match": {
         "command": "npx tsx script-rules/readme-toc-match.ts",
         "message": "README TOC must match all document headings",
-        "severity": "warning",
         "include": ["**/README.md"],
         "exclude": [".changeset/README.md"]
       },
@@ -79,7 +76,6 @@
       "no-long-files": {
         "command": "npx tsx script-rules/no-long-files.ts",
         "message": "File exceeds 300 lines limit",
-        "severity": "warning",
         "include": ["packages/**/*.ts", "packages/**/*.rs"]
       }
     }
@@ -92,14 +88,13 @@
       "severity": "warning",
       "include": ["packages/rust-core/crates/tscanner_scanner/src/executors/**.rs"]
     },
-    "find-magic-numbers": {
-      "enabled": false,
-      "prompt": "find-magic-numbers.md",
-      "mode": "paths",
-      "message": "Magic number should be extracted to a named constant",
-      "severity": "warning",
-      "include": ["packages/rust-core/**/*.rs"]
-    },
+    // "find-magic-numbers": {
+    //   "prompt": "find-magic-numbers.md",
+    //   "mode": "paths",
+    //   "message": "Magic number should be extracted to a named constant",
+    //   "severity": "warning",
+    //   "include": ["packages/rust-core/**/*.rs"]
+    // },
     "find-enum-candidates": {
       "prompt": "find-enum-candidates.md",
       "mode": "agentic",
@@ -109,27 +104,28 @@
     }
   },
   "files": {
-    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs", "**/*mts", "**/*cts"],
     "exclude": [
+      ".git/**",
+      ".ignore/**",
       "**/node_modules/**",
       "**/dist/**",
       "**/build/**",
-      ".git/**",
-      ".ignore/**",
+      ".tscanner/script-rules/**",
       "packages/vscode-extension/dist-dev/**",
       "packages/vscode-extension/out/**",
       "packages/rust-core/crates/tscanner_rules/tests/**",
-      ".tscanner/script-rules/**",
       "examples/all-rules/**"
     ]
   },
   "ai": {
-    "provider": "claude",
-    "timeout": 180
+    "provider": "claude"
   },
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": true,
+    "highlightInfos": true,
+    "highlightHints": true,
     "scanInterval": 0,
     "aiScanInterval": 0
   }

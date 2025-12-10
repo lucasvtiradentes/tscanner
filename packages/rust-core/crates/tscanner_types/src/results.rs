@@ -40,16 +40,16 @@ impl ScanResult {
                 if let Some(modified_lines) = line_filter.get(&file_result.file) {
                     file_result
                         .issues
-                        .retain(|issue| issue.is_ai || modified_lines.contains(&issue.line));
+                        .retain(|issue| issue.is_ai() || modified_lines.contains(&issue.line));
                     if !file_result.issues.is_empty() {
                         Some(file_result)
                     } else {
                         None
                     }
                 } else {
-                    let has_ai_issues = file_result.issues.iter().any(|i| i.is_ai);
+                    let has_ai_issues = file_result.issues.iter().any(|i| i.is_ai());
                     if has_ai_issues {
-                        file_result.issues.retain(|issue| issue.is_ai);
+                        file_result.issues.retain(|issue| issue.is_ai());
                         Some(file_result)
                     } else {
                         None

@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use tscanner_config::TscannerConfig;
-use tscanner_diagnostics::Issue;
+use tscanner_types::Issue;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct OpenProjectParams {

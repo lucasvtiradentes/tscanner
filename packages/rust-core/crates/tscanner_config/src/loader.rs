@@ -1,8 +1,8 @@
 use std::path::Path;
 
-use crate::defaults::get_default_config_json;
-use crate::types::TscannerConfig;
+use crate::types::{AiProvider, TscannerConfig};
 use crate::validation::{validate_json_fields, ValidationResult};
+use tscanner_constants::config_dir_name;
 
 pub const CONFIG_ERROR_PREFIX: &str = "TSCANNER_CONFIG_ERROR:";
 
@@ -32,7 +32,7 @@ impl TscannerConfig {
     }
 
     pub fn validate(&self) -> ValidationResult {
-        self.validate_with_workspace(None, ".tscanner")
+        self.validate_with_workspace(None, config_dir_name())
     }
 
     pub fn validate_with_workspace(
@@ -41,6 +41,15 @@ impl TscannerConfig {
         _config_dir_name: &str,
     ) -> ValidationResult {
         let mut result = ValidationResult::new();
+
+        if let Some(ref ai_config) = self.ai {
+            if ai_config.provider == Some(AiProvider::Custom)
+                && (ai_config.command.is_none()
+                    || ai_config.command.as_ref().map(|c| c.trim().is_empty()) == Some(true))
+            {
+                result.add_error("ai.command is required when ai.provider is 'custom'".to_string());
+            }
+        }
 
         for (name, regex_config) in &self.rules.regex {
             if let Err(e) = regex::Regex::new(&regex_config.pattern) {
@@ -60,33 +69,6 @@ impl TscannerConfig {
             }
         }
 
-        let conflicting_builtin_rules = [
-            ("prefer-type-over-interface", "prefer-interface-over-type"),
-            ("no-relative-imports", "no-absolute-imports"),
-        ];
-
-        for (rule1, rule2) in &conflicting_builtin_rules {
-            let rule1_enabled = self
-                .rules
-                .builtin
-                .get(*rule1)
-                .and_then(|r| r.enabled)
-                .unwrap_or(false);
-            let rule2_enabled = self
-                .rules
-                .builtin
-                .get(*rule2)
-                .and_then(|r| r.enabled)
-                .unwrap_or(false);
-
-            if rule1_enabled && rule2_enabled {
-                result.add_warning(format!(
-                    "Conflicting rules enabled: '{}' and '{}'",
-                    rule1, rule2
-                ));
-            }
-        }
-
         result
     }
 
@@ -95,9 +77,6 @@ impl TscannerConfig {
         path: &Path,
         rule_config: &crate::types::CompiledRuleConfig,
     ) -> bool {
-        if !rule_config.enabled {
-            return false;
-        }
         rule_config.matches(path)
     }
 
@@ -107,10 +86,6 @@ impl TscannerConfig {
         root: &Path,
         rule_config: &crate::types::CompiledRuleConfig,
     ) -> bool {
-        if !rule_config.enabled {
-            return false;
-        }
-
         let relative_path = path.strip_prefix(root).unwrap_or(path);
         rule_config.matches(relative_path)
     }
@@ -120,40 +95,26 @@ impl TscannerConfig {
             .rules
             .builtin
             .values()
-            .filter(|rule| rule.enabled.unwrap_or(true))
             .flat_map(|rule| rule.include.clone());
 
         let regex_patterns = self
             .rules
             .regex
             .values()
-            .filter(|rule| rule.enabled)
             .flat_map(|rule| rule.include.clone());
 
         let script_patterns = self
             .rules
             .script
             .values()
-            .filter(|rule| rule.enabled)
             .flat_map(|rule| rule.include.clone());
 
-        let ai_patterns = self
-            .ai_rules
-            .values()
-            .filter(|rule| rule.enabled)
-            .flat_map(|rule| rule.include.clone());
+        let ai_patterns = self.ai_rules.values().flat_map(|rule| rule.include.clone());
 
         builtin_patterns
             .chain(regex_patterns)
             .chain(script_patterns)
             .chain(ai_patterns)
             .collect()
-    }
-}
-
-impl Default for TscannerConfig {
-    fn default() -> Self {
-        serde_json::from_str(get_default_config_json())
-            .expect("Failed to parse embedded default-config.json")
     }
 }

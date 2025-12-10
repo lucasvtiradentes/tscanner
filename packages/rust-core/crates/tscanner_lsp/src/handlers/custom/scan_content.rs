@@ -1,8 +1,7 @@
+use super::helpers::{create_scanner_or_respond, load_config_or_respond};
 use crate::custom_requests::ScanContentParams;
 use crate::session::Session;
 use lsp_server::{Connection, Message, Request, Response};
-use tscanner_config::{config_dir_name, config_file_name};
-use tscanner_scanner::{load_config, Scanner};
 use tscanner_service::log_debug;
 
 type LspError = Box<dyn std::error::Error + Send + Sync>;
@@ -14,34 +13,20 @@ pub fn handle_scan_content(
 ) -> Result<(), LspError> {
     let params: ScanContentParams = serde_json::from_value(req.params)?;
 
-    let config = if let Some(cfg) = params.config {
-        cfg
-    } else {
-        match load_config(&params.root, config_dir_name(), config_file_name()) {
-            Ok(c) => c,
-            Err(e) => {
-                let response = Response::new_err(
-                    req.id,
-                    lsp_server::ErrorCode::InternalError as i32,
-                    e.to_string(),
-                );
-                connection.sender.send(Message::Response(response))?;
-                return Ok(());
-            }
-        }
+    let Some(config) = load_config_or_respond(connection, &req.id, &params.root, params.config)?
+    else {
+        return Ok(());
     };
 
-    let scanner = match Scanner::with_cache(config, session.cache.clone(), params.root.clone()) {
-        Ok(s) => s,
-        Err(e) => {
-            let response = Response::new_err(
-                req.id,
-                lsp_server::ErrorCode::InternalError as i32,
-                format!("Failed to create scanner: {}", e),
-            );
-            connection.sender.send(Message::Response(response))?;
-            return Ok(());
-        }
+    let Some(scanner) = create_scanner_or_respond(
+        connection,
+        &req.id,
+        config,
+        session.cache.clone(),
+        params.root.clone(),
+    )?
+    else {
+        return Ok(());
     };
 
     let result = scanner.scan_content(&params.file, &params.content);

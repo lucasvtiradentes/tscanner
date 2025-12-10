@@ -3,9 +3,7 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::sync::Mutex;
 
-use tscanner_config::get_log_filename;
-
-const TIMEZONE_OFFSET_HOURS: i8 = -3;
+use tscanner_constants::{get_log_filename, log_timezone_offset_hours};
 
 static LOGGER: Mutex<Option<Logger>> = Mutex::new(None);
 
@@ -23,12 +21,12 @@ impl Logger {
     fn write(&self, level: &str, message: &str) {
         use time::OffsetDateTime;
 
+        let offset_hours = log_timezone_offset_hours();
         let now = OffsetDateTime::now_utc();
-        let local_time =
-            now.to_offset(time::UtcOffset::from_hms(TIMEZONE_OFFSET_HOURS, 0, 0).unwrap());
+        let local_time = now.to_offset(time::UtcOffset::from_hms(offset_hours, 0, 0).unwrap());
 
         let timestamp = format!(
-            "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}{:+03}:{:02}",
+            "{:04}-{:02}-{:02}T{:02}:{:02}:{:02}.{:03}{:+03}:00",
             local_time.year(),
             local_time.month() as u8,
             local_time.day(),
@@ -36,8 +34,7 @@ impl Logger {
             local_time.minute(),
             local_time.second(),
             local_time.millisecond(),
-            TIMEZONE_OFFSET_HOURS,
-            0
+            offset_hours,
         );
 
         let log_message = format!(
@@ -82,34 +79,29 @@ pub fn init_logger(context: &str) {
     }
 }
 
-pub fn log_info(message: &str) {
+fn with_logger<F>(f: F)
+where
+    F: FnOnce(&Logger),
+{
     if let Ok(logger) = LOGGER.lock() {
         if let Some(l) = logger.as_ref() {
-            l.info(message);
+            f(l);
         }
     }
+}
+
+pub fn log_info(message: &str) {
+    with_logger(|l| l.info(message));
 }
 
 pub fn log_error(message: &str) {
-    if let Ok(logger) = LOGGER.lock() {
-        if let Some(l) = logger.as_ref() {
-            l.error(message);
-        }
-    }
+    with_logger(|l| l.error(message));
 }
 
 pub fn log_warn(message: &str) {
-    if let Ok(logger) = LOGGER.lock() {
-        if let Some(l) = logger.as_ref() {
-            l.warn(message);
-        }
-    }
+    with_logger(|l| l.warn(message));
 }
 
 pub fn log_debug(message: &str) {
-    if let Ok(logger) = LOGGER.lock() {
-        if let Some(l) = logger.as_ref() {
-            l.debug(message);
-        }
-    }
+    with_logger(|l| l.debug(message));
 }

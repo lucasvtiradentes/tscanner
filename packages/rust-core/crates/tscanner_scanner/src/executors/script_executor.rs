@@ -6,9 +6,10 @@ use std::hash::{Hash, Hasher};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
-use std::time::{Duration, Instant, SystemTime};
+use std::time::{Duration, Instant};
 use tscanner_config::ScriptRuleConfig;
-use tscanner_diagnostics::{Issue, IssueRuleType, Severity};
+use tscanner_constants::config_dir_name;
+use tscanner_types::{Issue, IssueRuleType};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ScriptFile {
@@ -42,8 +43,6 @@ pub struct ScriptOutput {
 #[derive(Debug, Clone)]
 struct CachedResult {
     issues: Vec<Issue>,
-    #[allow(dead_code)]
-    cached_at: SystemTime,
 }
 
 #[derive(Debug)]
@@ -59,7 +58,7 @@ impl std::fmt::Display for ScriptError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ScriptError::IoError(e) => write!(f, "IO error: {}", e),
-            ScriptError::Timeout(ms) => write!(f, "Command timed out after {}ms", ms),
+            ScriptError::Timeout(secs) => write!(f, "Command timed out after {}s", secs),
             ScriptError::NonZeroExit { code, stderr } => {
                 write!(f, "Command exited with code {:?}: {}", code, stderr)
             }
@@ -85,22 +84,39 @@ pub struct ScriptExecutor {
 }
 
 impl ScriptExecutor {
-    pub fn new(workspace_root: &Path) -> Self {
+    pub fn new(
+        workspace_root: &Path,
+        config_dir: Option<PathBuf>,
+        log_error: Option<fn(&str)>,
+        log_debug: Option<fn(&str)>,
+    ) -> Self {
         Self {
             cache: DashMap::new(),
-            config_dir: workspace_root.join(".tscanner"),
-            log_error: |_| {},
-            log_debug: |_| {},
+            config_dir: config_dir.unwrap_or_else(|| workspace_root.join(config_dir_name())),
+            log_error: log_error.unwrap_or(|_| {}),
+            log_debug: log_debug.unwrap_or(|_| {}),
         }
     }
 
+    pub fn with_config_dir(config_dir: PathBuf) -> Self {
+        Self::new(Path::new("."), Some(config_dir), None, None)
+    }
+
     pub fn with_logger(workspace_root: &Path, log_error: fn(&str), log_debug: fn(&str)) -> Self {
-        Self {
-            cache: DashMap::new(),
-            config_dir: workspace_root.join(".tscanner"),
-            log_error,
-            log_debug,
-        }
+        Self::new(workspace_root, None, Some(log_error), Some(log_debug))
+    }
+
+    pub fn with_config_dir_and_logger(
+        config_dir: PathBuf,
+        log_error: fn(&str),
+        log_debug: fn(&str),
+    ) -> Self {
+        Self::new(
+            Path::new("."),
+            Some(config_dir),
+            Some(log_error),
+            Some(log_debug),
+        )
     }
 
     pub fn execute_rules(
@@ -108,40 +124,34 @@ impl ScriptExecutor {
         rules: &[(String, ScriptRuleConfig)],
         all_files: &[(PathBuf, String)],
         workspace_root: &Path,
-    ) -> Vec<Issue> {
-        rules
+    ) -> (Vec<Issue>, Vec<String>) {
+        let results: Vec<(Vec<Issue>, Option<String>)> = rules
             .par_iter()
-            .flat_map(|(rule_name, rule_config)| {
+            .map(|(rule_name, rule_config)| {
                 let matching_files: Vec<_> = all_files
                     .iter()
                     .filter(|(path, _)| self.file_matches_rule(path, workspace_root, rule_config))
                     .collect();
 
                 if matching_files.is_empty() {
-                    return vec![];
+                    return (vec![], None);
                 }
 
                 match self.execute_rule(rule_name, rule_config, &matching_files, workspace_root) {
-                    Ok(issues) => issues,
+                    Ok(issues) => (issues, None),
                     Err(e) => {
-                        (self.log_error)(&format!("Script rule '{}' failed: {}", rule_name, e));
-                        vec![Issue {
-                            rule: rule_name.clone(),
-                            file: self.config_dir.clone(),
-                            line: 0,
-                            column: 0,
-                            end_column: 0,
-                            message: format!("Script error: {}", e),
-                            severity: Severity::Error,
-                            line_text: None,
-                            is_ai: false,
-                            category: None,
-                            rule_type: IssueRuleType::CustomScript,
-                        }]
+                        let warning = format!("Script rule '{}' failed: {}", rule_name, e);
+                        (self.log_error)(&warning);
+                        (vec![], Some(warning))
                     }
                 }
             })
-            .collect()
+            .collect();
+
+        let issues: Vec<Issue> = results.iter().flat_map(|(i, _)| i.clone()).collect();
+        let warnings: Vec<String> = results.iter().filter_map(|(_, w)| w.clone()).collect();
+
+        (issues, warnings)
     }
 
     fn file_matches_rule(
@@ -150,34 +160,12 @@ impl ScriptExecutor {
         workspace_root: &Path,
         rule_config: &ScriptRuleConfig,
     ) -> bool {
-        if !rule_config.enabled {
-            return false;
-        }
-
-        let relative = path.strip_prefix(workspace_root).unwrap_or(path);
-        let relative_str = relative.to_string_lossy();
-
-        if !rule_config.include.is_empty() {
-            let matches_include = rule_config
-                .include
-                .iter()
-                .any(|pattern| glob_match::glob_match(pattern, &relative_str));
-            if !matches_include {
-                return false;
-            }
-        }
-
-        if !rule_config.exclude.is_empty() {
-            let matches_exclude = rule_config
-                .exclude
-                .iter()
-                .any(|pattern| glob_match::glob_match(pattern, &relative_str));
-            if matches_exclude {
-                return false;
-            }
-        }
-
-        true
+        super::utils::file_matches_patterns(
+            path,
+            workspace_root,
+            &rule_config.include,
+            &rule_config.exclude,
+        )
     }
 
     fn execute_rule(
@@ -200,7 +188,6 @@ impl ScriptExecutor {
             cache_key,
             CachedResult {
                 issues: issues.clone(),
-                cached_at: SystemTime::now(),
             },
         );
 
@@ -226,9 +213,15 @@ impl ScriptExecutor {
             })
             .collect();
 
+        let options = if rule_config.options.is_null() {
+            None
+        } else {
+            Some(rule_config.options.clone())
+        };
+
         let input = ScriptInput {
             files: script_files,
-            options: rule_config.options.clone(),
+            options,
             workspace_root: workspace_root.to_string_lossy().to_string(),
         };
 
@@ -277,7 +270,11 @@ impl ScriptExecutor {
         let input_clone = input.to_vec();
         let write_handle = std::thread::spawn(move || stdin.write_all(&input_clone));
 
-        let timeout = Duration::from_secs(rule_config.timeout);
+        let timeout = if rule_config.timeout > 0 {
+            Some(Duration::from_secs(rule_config.timeout))
+        } else {
+            None
+        };
         let start = Instant::now();
 
         loop {
@@ -305,9 +302,11 @@ impl ScriptExecutor {
                     return Ok(stdout);
                 }
                 Ok(None) => {
-                    if start.elapsed() > timeout {
-                        let _ = child.kill();
-                        return Err(ScriptError::Timeout(rule_config.timeout));
+                    if let Some(t) = timeout {
+                        if start.elapsed() > t {
+                            let _ = child.kill();
+                            return Err(ScriptError::Timeout(rule_config.timeout));
+                        }
                     }
                     std::thread::sleep(Duration::from_millis(10));
                 }
@@ -363,13 +362,9 @@ impl ScriptExecutor {
             .map(|issue| {
                 let file_path = workspace_root.join(&issue.file);
                 let relative_path = PathBuf::from(&issue.file);
-                let line_text = file_lines.get(&relative_path).and_then(|lines| {
-                    if issue.line > 0 && issue.line <= lines.len() {
-                        Some(lines[issue.line - 1].to_string())
-                    } else {
-                        None
-                    }
-                });
+                let line_text = file_lines
+                    .get(&relative_path)
+                    .and_then(|lines| super::utils::extract_line_text(lines, issue.line));
                 Issue {
                     rule: rule_name.to_string(),
                     file: file_path,
@@ -383,7 +378,6 @@ impl ScriptExecutor {
                     message: issue.message,
                     severity: rule_config.severity,
                     line_text,
-                    is_ai: false,
                     category: None,
                     rule_type: IssueRuleType::CustomScript,
                 }
@@ -420,6 +414,6 @@ impl ScriptExecutor {
 
 impl Default for ScriptExecutor {
     fn default() -> Self {
-        Self::new(Path::new("."))
+        Self::new(Path::new("."), None, None, None)
     }
 }

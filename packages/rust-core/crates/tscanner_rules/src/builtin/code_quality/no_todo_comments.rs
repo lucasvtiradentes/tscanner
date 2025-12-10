@@ -1,6 +1,7 @@
 use crate::context::RuleContext;
 use crate::metadata::{
-    RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleOption, RuleOptionSchema, RuleType,
+    RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration, RuleOption,
+    RuleOptionSchema,
 };
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
@@ -64,7 +65,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "no-todo-comments",
         display_name: "No TODO Comments",
         description: "Detects TODO comments (case insensitive). Configure 'keywords' option to detect additional markers like FIXME, HACK, etc.",
-        rule_type: RuleType::Regex,
+        rule_type: RuleExecutionKind::Regex,
         category: RuleCategory::CodeQuality,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-warning-comments"),

@@ -4,8 +4,8 @@ use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::time::Instant;
-use tscanner_diagnostics::{FileResult, ScanResult};
-use tscanner_fs::{get_changed_files, get_modified_lines};
+use tscanner_git::{get_changed_files, get_modified_lines};
+use tscanner_types::{FileResult, ScanResult};
 
 #[derive(Debug)]
 pub struct BranchScanResult {
@@ -119,7 +119,7 @@ impl Scanner {
             .filter(|r| !r.issues.is_empty())
             .collect();
 
-        let script_issues = self.run_script_rules(&files);
+        let (script_issues, script_warnings) = self.run_script_rules(&files);
 
         let mut all_results = results;
         self.merge_issues(&mut all_results, script_issues);
@@ -144,7 +144,8 @@ impl Scanner {
         let cached = cache_hits.load(Ordering::Relaxed);
         let scanned = file_count - cached;
 
-        let warnings = ai_warning.into_iter().collect();
+        let mut warnings: Vec<String> = script_warnings;
+        warnings.extend(ai_warning);
 
         ScanResult {
             files: all_results,

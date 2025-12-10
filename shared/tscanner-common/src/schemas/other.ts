@@ -36,7 +36,6 @@ const issueSchema = z.object({
   message: z.string(),
   severity: severitySchema,
   line_text: z.string().optional(),
-  is_ai: z.boolean().optional(),
   rule_type: issueRuleTypeSchema.optional().default(IssueRuleType.Builtin),
 });
 

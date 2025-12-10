@@ -1,5 +1,4 @@
 use crate::errors::WorkspaceError;
-use crate::logger::{log_debug, log_info};
 use crate::types::*;
 use crate::workspace::Workspace;
 use parking_lot::RwLock;
@@ -7,9 +6,10 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use tscanner_cache::FileCache;
 use tscanner_config::TscannerConfig;
-use tscanner_diagnostics::{ContentScanResult, FileResult, Issue, ScanResult};
+use tscanner_logger::{log_debug, log_info};
 use tscanner_rules::{get_all_rule_metadata, RuleMetadata};
 use tscanner_scanner::Scanner;
+use tscanner_types::{ContentScanResult, FileResult, Issue, ScanResult};
 
 struct ProjectState {
     root: PathBuf,

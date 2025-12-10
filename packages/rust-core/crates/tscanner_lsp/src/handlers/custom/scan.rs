@@ -1,12 +1,13 @@
+use super::helpers::{create_scanner_or_respond, load_config_or_respond};
 use crate::custom_requests::{AiProgressNotification, AiProgressParams, ScanParams};
 use crate::session::Session;
 use lsp_server::{Connection, Message, Notification as LspNotification, Request, Response};
 use lsp_types::notification::Notification;
 use std::sync::Arc;
 use tscanner_cache::FileCache;
-use tscanner_config::{config_dir_name, config_file_name, AiExecutionMode};
-use tscanner_fs::{get_changed_files, get_modified_lines};
-use tscanner_scanner::{load_config, AiProgressCallback, ConfigExt, Scanner};
+use tscanner_config::AiExecutionMode;
+use tscanner_git::{get_changed_files, get_modified_lines};
+use tscanner_scanner::{AiProgressCallback, ConfigExt};
 
 type LspError = Box<dyn std::error::Error + Send + Sync>;
 
@@ -17,38 +18,19 @@ pub fn handle_scan(
 ) -> Result<(), LspError> {
     let params: ScanParams = serde_json::from_value(req.params)?;
 
-    let config = if let Some(cfg) = params.config {
-        cfg
-    } else {
-        match load_config(&params.root, config_dir_name(), config_file_name()) {
-            Ok(c) => c,
-            Err(e) => {
-                let response = Response::new_err(
-                    req.id,
-                    lsp_server::ErrorCode::InternalError as i32,
-                    e.to_string(),
-                );
-                connection.sender.send(Message::Response(response))?;
-                return Ok(());
-            }
-        }
+    let Some(config) = load_config_or_respond(connection, &req.id, &params.root, params.config)?
+    else {
+        return Ok(());
     };
 
     let config_hash = config.compute_hash();
     let cache = Arc::new(FileCache::with_config_hash(config_hash));
     session.cache = cache.clone();
 
-    let scanner = match Scanner::with_cache(config, cache, params.root.clone()) {
-        Ok(s) => s,
-        Err(e) => {
-            let response = Response::new_err(
-                req.id,
-                lsp_server::ErrorCode::InternalError as i32,
-                format!("Failed to create scanner: {}", e),
-            );
-            connection.sender.send(Message::Response(response))?;
-            return Ok(());
-        }
+    let Some(scanner) =
+        create_scanner_or_respond(connection, &req.id, config, cache, params.root.clone())?
+    else {
+        return Ok(());
     };
 
     let (changed_files, modified_lines) = if let Some(ref branch_name) = params.branch {
