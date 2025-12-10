@@ -1,6 +1,8 @@
 use super::renderer::OutputRenderer;
 use super::CheckContext;
-use crate::shared::{FormattedOutput, OutputFileGroup, OutputRuleGroup, OutputSummary};
+use crate::shared::{
+    format_duration, FormattedOutput, OutputFileGroup, OutputRuleGroup, OutputSummary,
+};
 use colored::*;
 use std::collections::HashMap;
 use tscanner_config::{
@@ -17,17 +19,70 @@ fn rule_type_icon(rule_type: IssueRuleType) -> &'static str {
     }
 }
 
-fn format_duration(ms: u128) -> String {
-    if ms < 1000 {
-        format!("{}ms", ms)
-    } else if ms < 60000 {
-        format!("{:.1}s", ms as f64 / 1000.0)
-    } else {
-        let total_seconds = ms / 1000;
-        let minutes = total_seconds / 60;
-        let seconds = total_seconds % 60;
-        format!("{}m {}s", minutes, seconds)
+fn get_severity_icon(severity: &str) -> ColoredString {
+    match severity {
+        "error" => icon_error().red(),
+        "warning" => icon_warning().yellow(),
+        "info" => icon_info().blue(),
+        "hint" => icon_hint().dimmed(),
+        _ => icon_warning().yellow(),
     }
+}
+
+trait IssueDisplay {
+    fn severity(&self) -> &str;
+    fn line(&self) -> usize;
+    fn column(&self) -> usize;
+    fn line_text(&self) -> Option<&str>;
+}
+
+impl IssueDisplay for tscanner_output::OutputIssue {
+    fn severity(&self) -> &str {
+        &self.severity
+    }
+    fn line(&self) -> usize {
+        self.line
+    }
+    fn column(&self) -> usize {
+        self.column
+    }
+    fn line_text(&self) -> Option<&str> {
+        self.line_text.as_deref()
+    }
+}
+
+impl IssueDisplay for tscanner_output::OutputRuleIssue {
+    fn severity(&self) -> &str {
+        &self.severity
+    }
+    fn line(&self) -> usize {
+        self.line
+    }
+    fn column(&self) -> usize {
+        self.column
+    }
+    fn line_text(&self) -> Option<&str> {
+        self.line_text.as_deref()
+    }
+}
+
+fn render_issue_location<T: IssueDisplay>(issue: &T) {
+    let severity_icon = get_severity_icon(issue.severity());
+    let location = format!("{}:{}", issue.line(), issue.column());
+
+    if let Some(line_text) = issue.line_text() {
+        let trimmed = line_text.trim();
+        if !trimmed.is_empty() {
+            println!(
+                "    {} {} -> {}",
+                severity_icon,
+                location.dimmed(),
+                trimmed.dimmed()
+            );
+            return;
+        }
+    }
+    println!("    {} {}", severity_icon, location.dimmed());
 }
 
 pub struct TextRenderer;
@@ -155,31 +210,7 @@ impl TextRenderer {
                 println!("  {} {} ({} issues)", icon, rule_name, issues.len());
 
                 for issue in issues {
-                    let severity_icon = match issue.severity.as_str() {
-                        "error" => icon_error().red(),
-                        "warning" => icon_warning().yellow(),
-                        "info" => icon_info().blue(),
-                        "hint" => icon_hint().dimmed(),
-                        _ => icon_warning().yellow(),
-                    };
-
-                    let location = format!("{}:{}", issue.line, issue.column);
-
-                    if let Some(ref line_text) = issue.line_text {
-                        let trimmed = line_text.trim();
-                        if !trimmed.is_empty() {
-                            println!(
-                                "    {} {} -> {}",
-                                severity_icon,
-                                location.dimmed(),
-                                trimmed.dimmed()
-                            );
-                        } else {
-                            println!("    {} {}", severity_icon, location.dimmed());
-                        }
-                    } else {
-                        println!("    {} {}", severity_icon, location.dimmed());
-                    }
+                    render_issue_location(*issue);
                 }
             }
         }
@@ -215,101 +246,81 @@ impl TextRenderer {
                 println!("  {} ({} issues)", file, issues.len());
 
                 for issue in issues {
-                    let severity_icon = match issue.severity.as_str() {
-                        "error" => icon_error().red(),
-                        "warning" => icon_warning().yellow(),
-                        "info" => icon_info().blue(),
-                        "hint" => icon_hint().dimmed(),
-                        _ => icon_warning().yellow(),
-                    };
-
-                    let location = format!("{}:{}", issue.line, issue.column);
-
-                    if let Some(ref line_text) = issue.line_text {
-                        let trimmed = line_text.trim();
-                        if !trimmed.is_empty() {
-                            println!(
-                                "    {} {} -> {}",
-                                severity_icon,
-                                location.dimmed(),
-                                trimmed.dimmed()
-                            );
-                        } else {
-                            println!("    {} {}", severity_icon, location.dimmed());
-                        }
-                    } else {
-                        println!("    {} {}", severity_icon, location.dimmed());
-                    }
+                    render_issue_location(*issue);
                 }
             }
         }
     }
 
     fn render_summary(&self, summary: &OutputSummary) {
-        println!("{}", "Summary:".cyan().bold());
-        println!();
+        render_summary(summary);
+    }
+}
 
-        let issue_parts = summary.issue_parts();
-        if issue_parts.is_empty() {
-            println!(
-                "  {} {}",
-                "Issues:".dimmed(),
-                summary.total_issues.to_string().cyan(),
-            );
-        } else {
-            let colored_parts: Vec<String> = issue_parts
-                .iter()
-                .map(|p| {
-                    let colored_count = match p.label {
-                        "errors" => p.count.to_string().red().to_string(),
-                        "warnings" => p.count.to_string().yellow().to_string(),
-                        "infos" => p.count.to_string().blue().to_string(),
-                        "hints" => p.count.to_string().dimmed().to_string(),
-                        _ => p.count.to_string(),
-                    };
-                    format!("{} {}", colored_count, p.label)
-                })
-                .collect();
-            println!(
-                "  {} {} ({})",
-                "Issues:".dimmed(),
-                summary.total_issues.to_string().cyan(),
-                colored_parts.join(", ")
-            );
-        }
+pub fn render_summary(summary: &OutputSummary) {
+    println!("{}", "Summary:".cyan().bold());
+    println!();
 
-        let breakdown_parts = summary.rules_breakdown_parts();
-        let breakdown_str = if breakdown_parts.is_empty() {
-            String::new()
-        } else {
-            let parts: Vec<String> = breakdown_parts
-                .iter()
-                .map(|(count, label)| format!("{} {}", count, label))
-                .collect();
-            format!(" ({})", parts.join(", "))
-        };
-
-        println!(
-            "  {} {}/{}{}",
-            "Triggered rules:".dimmed(),
-            summary.triggered_rules.to_string().cyan(),
-            summary.total_enabled_rules,
-            breakdown_str
-        );
-
-        println!(
-            "  {} {}/{}",
-            "Files with issues:".dimmed(),
-            summary.files_with_issues.to_string().cyan(),
-            summary.total_files
-        );
-
+    let issue_parts = summary.issue_parts();
+    if issue_parts.is_empty() {
         println!(
             "  {} {}",
-            "Duration:".dimmed(),
-            format_duration(summary.duration_ms)
+            "Issues:".dimmed(),
+            summary.total_issues.to_string().cyan(),
         );
-
-        println!();
+    } else {
+        let colored_parts: Vec<String> = issue_parts
+            .iter()
+            .map(|p| {
+                let colored_count = match p.label {
+                    "errors" => p.count.to_string().red().to_string(),
+                    "warnings" => p.count.to_string().yellow().to_string(),
+                    "infos" => p.count.to_string().blue().to_string(),
+                    "hints" => p.count.to_string().dimmed().to_string(),
+                    _ => p.count.to_string(),
+                };
+                format!("{} {}", colored_count, p.label)
+            })
+            .collect();
+        println!(
+            "  {} {} ({})",
+            "Issues:".dimmed(),
+            summary.total_issues.to_string().cyan(),
+            colored_parts.join(", ")
+        );
     }
+
+    let breakdown_parts = summary.rules_breakdown_parts();
+    let breakdown_str = if breakdown_parts.is_empty() {
+        String::new()
+    } else {
+        let parts: Vec<String> = breakdown_parts
+            .iter()
+            .map(|(count, label)| format!("{} {}", count, label))
+            .collect();
+        format!(" ({})", parts.join(", "))
+    };
+
+    println!(
+        "  {} {}/{}{}",
+        "Triggered rules:".dimmed(),
+        summary.triggered_rules.to_string().cyan(),
+        summary.total_enabled_rules,
+        breakdown_str
+    );
+
+    println!(
+        "  {} {}/{}",
+        "Files with issues:".dimmed(),
+        summary.files_with_issues.to_string().cyan(),
+        summary.total_files
+    );
+
+    println!(
+        "  {} {}",
+        "Duration:".dimmed(),
+        format_duration(summary.duration_ms)
+    );
+
+    println!();
 }

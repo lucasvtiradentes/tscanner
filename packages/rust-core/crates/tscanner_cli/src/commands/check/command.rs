@@ -29,6 +29,8 @@ use super::filters;
 use super::git;
 use super::output;
 
+type ModifiedLinesMap = HashMap<PathBuf, HashSet<usize>>;
+
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
 pub enum CliGroupBy {
     #[default]
@@ -380,7 +382,7 @@ pub fn cmd_check(
 
         println!();
         if cli_options.show_summary {
-            render_summary_from_output(formatted_output.summary());
+            output::render_summary(formatted_output.summary());
         }
 
         if let Some(ref json_path) = json_output {
@@ -428,74 +430,6 @@ fn write_json_output(json_path: &Path, output: &FormattedOutput) -> Result<()> {
     Ok(())
 }
 
-fn render_summary_from_output(summary: &crate::shared::OutputSummary) {
-    println!("{}", "Summary:".cyan().bold());
-    println!();
-
-    let issue_parts = summary.issue_parts();
-    if issue_parts.is_empty() {
-        println!(
-            "  {} {}",
-            "Issues:".dimmed(),
-            summary.total_issues.to_string().cyan(),
-        );
-    } else {
-        let colored_parts: Vec<String> = issue_parts
-            .iter()
-            .map(|p| {
-                let colored_count = match p.label {
-                    "errors" => p.count.to_string().red().to_string(),
-                    "warnings" => p.count.to_string().yellow().to_string(),
-                    "infos" => p.count.to_string().blue().to_string(),
-                    "hints" => p.count.to_string().dimmed().to_string(),
-                    _ => p.count.to_string(),
-                };
-                format!("{} {}", colored_count, p.label)
-            })
-            .collect();
-        println!(
-            "  {} {} ({})",
-            "Issues:".dimmed(),
-            summary.total_issues.to_string().cyan(),
-            colored_parts.join(", ")
-        );
-    }
-
-    let breakdown_parts = summary.rules_breakdown_parts();
-    let breakdown_str = if breakdown_parts.is_empty() {
-        String::new()
-    } else {
-        let parts: Vec<String> = breakdown_parts
-            .iter()
-            .map(|(count, label)| format!("{} {}", count, label))
-            .collect();
-        format!(" ({})", parts.join(", "))
-    };
-
-    println!(
-        "  {} {}/{}{}",
-        "Triggered rules:".dimmed(),
-        summary.triggered_rules.to_string().cyan(),
-        summary.total_enabled_rules,
-        breakdown_str
-    );
-
-    println!(
-        "  {} {}/{}",
-        "Files with issues:".dimmed(),
-        summary.files_with_issues.to_string().cyan(),
-        summary.total_files
-    );
-
-    println!(
-        "  {} {}",
-        "Duration:".dimmed(),
-        format_duration(summary.duration_ms)
-    );
-
-    println!();
-}
-
 fn build_cli_options(group_by: Option<CliGroupMode>) -> CliOptions {
     let mut options = CliOptions::default();
     if let Some(g) = group_by {
@@ -523,8 +457,6 @@ fn resolve_ai_mode(include_ai_flag: bool, only_ai_flag: bool) -> AiExecutionMode
         AiExecutionMode::Ignore
     }
 }
-
-type ModifiedLinesMap = std::collections::HashMap<PathBuf, std::collections::HashSet<usize>>;
 
 fn get_branch_changes(
     root: &Path,

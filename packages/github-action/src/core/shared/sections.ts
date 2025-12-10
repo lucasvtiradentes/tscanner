@@ -104,7 +104,7 @@ function buildIssuesByRuleSection(params: IssuesViewParams): string {
       content += `<strong>${file.filePath}</strong> - ${fileIssueCount} ${pluralize(fileIssueCount, 'issue')}\n\n`;
 
       for (const issue of file.issues) {
-        const fileUrl = buildPrFileUrl(owner, repo, prNumber, file.filePath, issue.line);
+        const fileUrl = buildPrFileUrl({ owner, repo, prNumber, filePath: file.filePath, line: issue.line });
         const lineText = issue.lineText?.trim() || '';
         content += `- <a href="${fileUrl}">${issue.line}:${issue.column}</a> - <code>${escapeHtml(lineText)}</code>\n`;
       }
@@ -165,7 +165,7 @@ function buildIssuesByFileSection(params: IssuesViewParams): string {
       content += `<strong>${ruleName}</strong> - ${issues.length} ${pluralize(issues.length, 'issue')}\n\n`;
 
       for (const issue of issues) {
-        const fileUrl = buildPrFileUrl(owner, repo, prNumber, filePath, issue.line);
+        const fileUrl = buildPrFileUrl({ owner, repo, prNumber, filePath, line: issue.line });
         const lineText = issue.lineText?.trim() || '';
         content += `- <a href="${fileUrl}">${issue.line}:${issue.column}</a> - <code>${escapeHtml(lineText)}</code>\n`;
       }
