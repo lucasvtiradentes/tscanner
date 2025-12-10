@@ -77,7 +77,7 @@ impl std::fmt::Display for AiError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             AiError::IoError(e) => write!(f, "IO error: {}", e),
-            AiError::Timeout(ms) => write!(f, "AI call timed out after {}ms", ms),
+            AiError::Timeout(secs) => write!(f, "AI call timed out after {}s", secs),
             AiError::NonZeroExit { code, stderr } => {
                 write!(f, "AI command exited with code {:?}: {}", code, stderr)
             }
@@ -610,7 +610,11 @@ impl AiExecutor {
         let prompt_clone = prompt.to_string();
         let write_handle = std::thread::spawn(move || stdin.write_all(prompt_clone.as_bytes()));
 
-        let timeout = Duration::from_millis(timeout_ms);
+        let timeout = if timeout_ms > 0 {
+            Some(Duration::from_millis(timeout_ms))
+        } else {
+            None
+        };
         let start = Instant::now();
 
         loop {
@@ -643,9 +647,11 @@ impl AiExecutor {
                     return Ok(String::from_utf8_lossy(&stdout).to_string());
                 }
                 Ok(None) => {
-                    if start.elapsed() > timeout {
-                        let _ = child.kill();
-                        return Err(AiError::Timeout(timeout_ms));
+                    if let Some(t) = timeout {
+                        if start.elapsed() > t {
+                            let _ = child.kill();
+                            return Err(AiError::Timeout(timeout_ms / 1000));
+                        }
                     }
                     std::thread::sleep(Duration::from_millis(50));
                 }

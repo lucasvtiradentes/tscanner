@@ -58,7 +58,7 @@ impl std::fmt::Display for ScriptError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ScriptError::IoError(e) => write!(f, "IO error: {}", e),
-            ScriptError::Timeout(ms) => write!(f, "Command timed out after {}ms", ms),
+            ScriptError::Timeout(secs) => write!(f, "Command timed out after {}s", secs),
             ScriptError::NonZeroExit { code, stderr } => {
                 write!(f, "Command exited with code {:?}: {}", code, stderr)
             }
@@ -275,7 +275,11 @@ impl ScriptExecutor {
         let input_clone = input.to_vec();
         let write_handle = std::thread::spawn(move || stdin.write_all(&input_clone));
 
-        let timeout = Duration::from_secs(rule_config.timeout);
+        let timeout = if rule_config.timeout > 0 {
+            Some(Duration::from_secs(rule_config.timeout))
+        } else {
+            None
+        };
         let start = Instant::now();
 
         loop {
@@ -303,9 +307,11 @@ impl ScriptExecutor {
                     return Ok(stdout);
                 }
                 Ok(None) => {
-                    if start.elapsed() > timeout {
-                        let _ = child.kill();
-                        return Err(ScriptError::Timeout(rule_config.timeout));
+                    if let Some(t) = timeout {
+                        if start.elapsed() > t {
+                            let _ = child.kill();
+                            return Err(ScriptError::Timeout(rule_config.timeout));
+                        }
                     }
                     std::thread::sleep(Duration::from_millis(10));
                 }
