@@ -258,7 +258,6 @@ impl TextRenderer {
         for warning in warnings {
             println!("  {} {}", icon_warning().yellow(), warning.yellow());
         }
-        println!();
     }
 }
 

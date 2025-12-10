@@ -381,7 +381,9 @@ pub fn cmd_check(
             }
         }
 
-        println!();
+        if result.warnings.is_empty() {
+            println!();
+        }
         if cli_options.show_summary {
             output::render_summary(formatted_output.summary());
         }
