@@ -10,11 +10,12 @@ type ScanOptions = {
   branch?: string;
   fileFilter?: Set<string>;
   config?: TscannerConfig;
+  configDir?: string;
   aiMode?: AiExecutionMode;
 };
 
 export async function scan(options: ScanOptions = {}): Promise<IssueResult[]> {
-  const { branch, fileFilter, config, aiMode } = options;
+  const { branch, fileFilter, config, configDir, aiMode } = options;
   const workspaceFolder = getCurrentWorkspaceFolder();
 
   if (!workspaceFolder) {
@@ -27,7 +28,7 @@ export async function scan(options: ScanOptions = {}): Promise<IssueResult[]> {
     const client = await ensureLspClient();
 
     const scanStart = Date.now();
-    const result = await client.scan(workspaceFolder.uri.fsPath, config, branch, aiMode);
+    const result = await client.scan(workspaceFolder.uri.fsPath, config, configDir, branch, aiMode);
     const scanTime = Date.now() - scanStart;
 
     logger.info(

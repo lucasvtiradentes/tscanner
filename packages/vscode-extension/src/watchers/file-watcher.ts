@@ -130,8 +130,9 @@ export async function createFileWatcher(
 
       const document = await vscode.workspace.openTextDocument(uri);
       const content = document.getText();
-      const config = await loadConfig(workspaceFolder.uri.fsPath, stateRefs.currentConfigDirRef.current);
-      const scanResult = await scanContent(uri.fsPath, content, config ?? undefined);
+      const configDir = stateRefs.currentConfigDirRef.current;
+      const config = await loadConfig(workspaceFolder.uri.fsPath, configDir);
+      const scanResult = await scanContent(uri.fsPath, content, config ?? undefined, configDir ?? undefined);
       let newResults = scanResult.issues;
 
       if (stateRefs.currentScanModeRef.current === ScanMode.Branch) {

@@ -3,7 +3,7 @@ use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tscanner_cache::FileCache;
 use tscanner_config::TscannerConfig;
-use tscanner_constants::{config_dir_name, config_file_name};
+use tscanner_constants::{config_dir_name, config_file_name, resolve_config_dir};
 use tscanner_scanner::{load_config, Scanner};
 
 type LspError = Box<dyn std::error::Error + Send + Sync>;
@@ -38,8 +38,10 @@ pub fn create_scanner_or_respond(
     config: TscannerConfig,
     cache: Arc<FileCache>,
     root: PathBuf,
+    config_dir: Option<PathBuf>,
 ) -> Result<Option<Scanner>, LspError> {
-    match Scanner::with_cache(config, cache, root) {
+    let resolved_config_dir = resolve_config_dir(&root, config_dir);
+    match Scanner::with_cache_and_config_dir(config, cache, root, resolved_config_dir) {
         Ok(s) => Ok(Some(s)),
         Err(e) => {
             let response = Response::new_err(

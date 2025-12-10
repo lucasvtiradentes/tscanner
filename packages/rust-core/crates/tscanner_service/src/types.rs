@@ -7,6 +7,7 @@ use tscanner_types::Issue;
 pub struct OpenProjectParams {
     pub root: PathBuf,
     pub config: Option<TscannerConfig>,
+    pub config_dir: Option<PathBuf>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

@@ -102,7 +102,12 @@ export function createScanWorkspaceCommand(ctx: CommandContext, regularView: Reg
     try {
       const startTime = Date.now();
       const branch = currentScanModeRef.current === ScanMode.Branch ? currentCompareBranchRef.current : undefined;
-      const results = await scan({ branch, config: configToPass, aiMode: options?.aiMode });
+      const results = await scan({
+        branch,
+        config: configToPass,
+        configDir: configDir ?? undefined,
+        aiMode: options?.aiMode,
+      });
 
       const elapsed = Date.now() - startTime;
       logger.info(`Search completed in ${elapsed}ms, found ${results.length} results`);

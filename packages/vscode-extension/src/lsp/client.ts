@@ -96,9 +96,15 @@ export class TscannerLspClient {
     }
   }
 
-  async scan(root: string, config?: TscannerConfig, branch?: string, aiMode?: AiExecutionMode): Promise<ScanResult> {
+  async scan(
+    root: string,
+    config?: TscannerConfig,
+    configDir?: string,
+    branch?: string,
+    aiMode?: AiExecutionMode,
+  ): Promise<ScanResult> {
     if (!this.client) throw new Error('LSP client not started');
-    return this.client.sendRequest(ScanRequestType, { root, config, branch, ai_mode: aiMode });
+    return this.client.sendRequest(ScanRequestType, { root, config, config_dir: configDir, branch, ai_mode: aiMode });
   }
 
   async scanFile(root: string, file: string): Promise<FileResult> {
@@ -106,9 +112,15 @@ export class TscannerLspClient {
     return this.client.sendRequest(ScanFileRequestType, { root, file });
   }
 
-  async scanContent(root: string, file: string, content: string, config?: TscannerConfig): Promise<ContentScanResult> {
+  async scanContent(
+    root: string,
+    file: string,
+    content: string,
+    config?: TscannerConfig,
+    configDir?: string,
+  ): Promise<ContentScanResult> {
     if (!this.client) throw new Error('LSP client not started');
-    return this.client.sendRequest(ScanContentRequestType, { root, file, content, config });
+    return this.client.sendRequest(ScanContentRequestType, { root, file, content, config, config_dir: configDir });
   }
 
   async clearCache(): Promise<void> {

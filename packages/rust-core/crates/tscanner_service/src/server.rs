@@ -6,6 +6,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use tscanner_cache::FileCache;
 use tscanner_config::TscannerConfig;
+use tscanner_constants::resolve_config_dir;
 use tscanner_logger::{log_debug, log_info};
 use tscanner_rules::{get_all_rule_metadata, RuleMetadata};
 use tscanner_scanner::Scanner;
@@ -74,8 +75,14 @@ impl Workspace for WorkspaceServer {
             config.rules.builtin.len()
         ));
 
-        let scanner_result =
-            Scanner::with_cache(config.clone(), self.cache.clone(), params.root.clone());
+        let resolved_config_dir = resolve_config_dir(&params.root, params.config_dir);
+
+        let scanner_result = Scanner::with_cache_and_config_dir(
+            config.clone(),
+            self.cache.clone(),
+            params.root.clone(),
+            resolved_config_dir,
+        );
         let scanner = match scanner_result {
             Ok(s) => {
                 log_debug("Scanner created successfully");

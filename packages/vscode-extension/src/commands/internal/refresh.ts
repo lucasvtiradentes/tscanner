@@ -66,7 +66,12 @@ export function createRefreshAiIssuesCommand(ctx: CommandContext, aiView: AiIssu
 
       const startTime = Date.now();
       const branch = currentScanModeRef.current === ScanMode.Branch ? currentCompareBranchRef.current : undefined;
-      const results = await scan({ branch, config: configToPass, aiMode: AiExecutionMode.Only });
+      const results = await scan({
+        branch,
+        config: configToPass,
+        configDir: configDir ?? undefined,
+        aiMode: AiExecutionMode.Only,
+      });
 
       const elapsed = Date.now() - startTime;
       logger.info(`[AI Scan] Completed in ${elapsed}ms, found ${results.length} AI issues`);

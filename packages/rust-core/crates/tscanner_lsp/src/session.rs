@@ -43,7 +43,11 @@ impl Session {
         let config_result = load_config(&root, config_dir_name(), config_file_name());
         let config = config_result.ok();
         let ws = self.workspace.lock().unwrap();
-        let _ = ws.open_project(OpenProjectParams { root, config });
+        let _ = ws.open_project(OpenProjectParams {
+            root,
+            config,
+            config_dir: None,
+        });
     }
 
     pub fn is_initialized(&self) -> bool {
@@ -57,6 +61,7 @@ impl Session {
             let _ = ws.open_project(OpenProjectParams {
                 root: root.clone(),
                 config,
+                config_dir: None,
             });
             Ok(())
         } else {

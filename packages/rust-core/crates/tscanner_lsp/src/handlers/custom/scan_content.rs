@@ -24,6 +24,7 @@ pub fn handle_scan_content(
         config,
         session.cache.clone(),
         params.root.clone(),
+        params.config_dir,
     )?
     else {
         return Ok(());

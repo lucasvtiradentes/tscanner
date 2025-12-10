@@ -9,6 +9,7 @@ repository.workspace = true
 [dependencies]
 tscanner_types = { path = "../tscanner_types" }
 tscanner_config = { path = "../tscanner_config" }
+tscanner_constants = { path = "../tscanner_constants" }
 tscanner_rules = { path = "../tscanner_rules" }
 tscanner_cache = { path = "../tscanner_cache" }
 tscanner_scanner = { path = "../tscanner_scanner" }
