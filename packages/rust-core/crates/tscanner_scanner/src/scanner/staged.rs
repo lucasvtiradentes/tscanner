@@ -103,7 +103,7 @@ impl Scanner {
             .filter(|r| !r.issues.is_empty())
             .collect();
 
-        let script_issues = self.run_script_rules(&files);
+        let (script_issues, script_warnings) = self.run_script_rules(&files);
 
         let mut all_results = results;
         self.merge_issues(&mut all_results, script_issues);
@@ -128,7 +128,8 @@ impl Scanner {
         let cached = cache_hits.load(Ordering::Relaxed);
         let scanned = file_count - cached;
 
-        let warnings = ai_warning.into_iter().collect();
+        let mut warnings: Vec<String> = script_warnings;
+        warnings.extend(ai_warning);
 
         ScanResult {
             files: all_results,

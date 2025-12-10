@@ -9,7 +9,7 @@ use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 use tscanner_config::ScriptRuleConfig;
 use tscanner_constants::config_dir_name;
-use tscanner_types::{Issue, IssueRuleType, Severity};
+use tscanner_types::{Issue, IssueRuleType};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ScriptFile {
@@ -124,39 +124,34 @@ impl ScriptExecutor {
         rules: &[(String, ScriptRuleConfig)],
         all_files: &[(PathBuf, String)],
         workspace_root: &Path,
-    ) -> Vec<Issue> {
-        rules
+    ) -> (Vec<Issue>, Vec<String>) {
+        let results: Vec<(Vec<Issue>, Option<String>)> = rules
             .par_iter()
-            .flat_map(|(rule_name, rule_config)| {
+            .map(|(rule_name, rule_config)| {
                 let matching_files: Vec<_> = all_files
                     .iter()
                     .filter(|(path, _)| self.file_matches_rule(path, workspace_root, rule_config))
                     .collect();
 
                 if matching_files.is_empty() {
-                    return vec![];
+                    return (vec![], None);
                 }
 
                 match self.execute_rule(rule_name, rule_config, &matching_files, workspace_root) {
-                    Ok(issues) => issues,
+                    Ok(issues) => (issues, None),
                     Err(e) => {
-                        (self.log_error)(&format!("Script rule '{}' failed: {}", rule_name, e));
-                        vec![Issue {
-                            rule: rule_name.clone(),
-                            file: self.config_dir.clone(),
-                            line: 0,
-                            column: 0,
-                            end_column: 0,
-                            message: format!("Script error: {}", e),
-                            severity: Severity::Error,
-                            line_text: None,
-                            category: None,
-                            rule_type: IssueRuleType::CustomScript,
-                        }]
+                        let warning = format!("Script rule '{}' failed: {}", rule_name, e);
+                        (self.log_error)(&warning);
+                        (vec![], Some(warning))
                     }
                 }
             })
-            .collect()
+            .collect();
+
+        let issues: Vec<Issue> = results.iter().flat_map(|(i, _)| i.clone()).collect();
+        let warnings: Vec<String> = results.iter().filter_map(|(_, w)| w.clone()).collect();
+
+        (issues, warnings)
     }
 
     fn file_matches_rule(

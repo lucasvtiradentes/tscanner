@@ -63,15 +63,15 @@ impl Scanner {
         rules
     }
 
-    pub(crate) fn run_script_rules(&self, _files: &[PathBuf]) -> Vec<Issue> {
+    pub(crate) fn run_script_rules(&self, _files: &[PathBuf]) -> (Vec<Issue>, Vec<String>) {
         let script_rules = self.collect_script_rules();
         if script_rules.is_empty() {
-            return vec![];
+            return (vec![], vec![]);
         }
 
         let all_files = self.collect_script_files(&script_rules);
         if all_files.is_empty() {
-            return vec![];
+            return (vec![], vec![]);
         }
 
         self.script_executor
@@ -370,7 +370,7 @@ impl Scanner {
                 }
             }
 
-            let issues = self.script_executor.execute_rules(
+            let (issues, _warnings) = self.script_executor.execute_rules(
                 &[(rule_name.clone(), script_config.clone())],
                 &files,
                 &self.root,

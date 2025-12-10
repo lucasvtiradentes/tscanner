@@ -350,13 +350,6 @@ pub fn cmd_check(
         result.duration_ms
     ));
 
-    if !is_json && !result.warnings.is_empty() {
-        println!();
-        for warning in &result.warnings {
-            println!("{} {}", icon_warning().yellow(), warning.yellow());
-        }
-    }
-
     let stats = SummaryStats::from_result(&result, total_enabled_rules, rules_breakdown);
 
     if result.files.is_empty() && !is_json {
@@ -378,6 +371,14 @@ pub fn cmd_check(
                 "ℹ".blue(),
                 "Scan skipped: no files to analyze (staged/branch has no matching files)".dimmed()
             );
+        }
+
+        if !result.warnings.is_empty() {
+            println!();
+            print_section_header("Warnings:");
+            for warning in &result.warnings {
+                println!("  {} {}", icon_warning().yellow(), warning.yellow());
+            }
         }
 
         println!();

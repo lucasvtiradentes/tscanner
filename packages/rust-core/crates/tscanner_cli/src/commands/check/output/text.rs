@@ -6,6 +6,7 @@ use crate::shared::{
 };
 use colored::*;
 use std::collections::HashMap;
+use tscanner_constants::icon_warning;
 use tscanner_types::{IssueRuleType, ScanResult};
 
 fn get_severity_icon(severity: &str) -> ColoredString {
@@ -78,7 +79,7 @@ fn render_issue_location<T: IssueDisplay>(issue: &T) {
 pub struct TextRenderer;
 
 impl OutputRenderer for TextRenderer {
-    fn render(&self, ctx: &CheckContext, output: &FormattedOutput, _result: &ScanResult) {
+    fn render(&self, ctx: &CheckContext, output: &FormattedOutput, result: &ScanResult) {
         println!();
         print_section_title("Results:");
 
@@ -87,6 +88,7 @@ impl OutputRenderer for TextRenderer {
                 self.render_rules_triggered_by_file(files);
                 self.render_by_file(files);
                 println!();
+                self.render_warnings(&result.warnings);
                 if ctx.cli_options.show_summary {
                     self.render_summary(summary);
                 }
@@ -95,6 +97,7 @@ impl OutputRenderer for TextRenderer {
                 self.render_rules_triggered_by_rule(rules);
                 self.render_by_rule(rules);
                 println!();
+                self.render_warnings(&result.warnings);
                 if ctx.cli_options.show_summary {
                     self.render_summary(summary);
                 }
@@ -244,6 +247,18 @@ impl TextRenderer {
 
     fn render_summary(&self, summary: &OutputSummary) {
         render_summary(summary);
+    }
+
+    fn render_warnings(&self, warnings: &[String]) {
+        if warnings.is_empty() {
+            return;
+        }
+
+        print_section_header("Warnings:");
+        for warning in warnings {
+            println!("  {} {}", icon_warning().yellow(), warning.yellow());
+        }
+        println!();
     }
 }
 
