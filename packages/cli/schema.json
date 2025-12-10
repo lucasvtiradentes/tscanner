@@ -1333,6 +1333,10 @@
           "type": "array"
         }
       },
+      "required": [
+        "include",
+        "exclude"
+      ],
       "type": "object"
     },
     "RegexRuleConfig": {
@@ -1512,6 +1516,11 @@
           "type": "object"
         }
       },
+      "required": [
+        "builtin",
+        "regex",
+        "script"
+      ],
       "type": "object"
     },
     "ScriptRuleConfig": {
@@ -1646,6 +1655,11 @@
       "description": "Rules configuration (builtin, regex, script)"
     }
   },
+  "required": [
+    "files",
+    "rules",
+    "aiRules"
+  ],
   "title": "TscannerConfig",
   "type": "object"
 }

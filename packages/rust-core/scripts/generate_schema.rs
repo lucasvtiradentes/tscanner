@@ -196,6 +196,31 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 }
             }),
         );
+
+        if let Some(files_config) = definitions.get_mut("FilesConfig") {
+            if let Some(files_config_obj) = files_config.as_object_mut() {
+                files_config_obj.insert(
+                    "required".to_string(),
+                    json!(["include", "exclude"]),
+                );
+            }
+        }
+
+        if let Some(rules_config) = definitions.get_mut("RulesConfig") {
+            if let Some(rules_config_obj) = rules_config.as_object_mut() {
+                rules_config_obj.insert(
+                    "required".to_string(),
+                    json!(["builtin", "regex", "script"]),
+                );
+            }
+        }
+    }
+
+    if let Some(root_obj) = schema_value.as_object_mut() {
+        root_obj.insert(
+            "required".to_string(),
+            json!(["files", "rules", "aiRules"]),
+        );
     }
 
     let json = serde_json::to_string_pretty(&schema_value)?;
