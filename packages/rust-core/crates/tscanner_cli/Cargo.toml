@@ -23,7 +23,7 @@ tscanner_types = { path = "../tscanner_types" }
 tscanner_cli_output = { path = "../tscanner_cli_output" }
 tscanner_config = { path = "../tscanner_config" }
 tscanner_rules = { path = "../tscanner_rules" }
-tscanner_fs = { path = "../tscanner_fs" }
+tscanner_git = { path = "../tscanner_git" }
 tscanner_cache = { path = "../tscanner_cache" }
 tscanner_scanner = { path = "../tscanner_scanner" }
 tscanner_service = { path = "../tscanner_service" }

@@ -6,7 +6,7 @@ use lsp_types::notification::Notification;
 use std::sync::Arc;
 use tscanner_cache::FileCache;
 use tscanner_config::AiExecutionMode;
-use tscanner_fs::{get_changed_files, get_modified_lines};
+use tscanner_git::{get_changed_files, get_modified_lines};
 use tscanner_scanner::{AiProgressCallback, ConfigExt};
 
 type LspError = Box<dyn std::error::Error + Send + Sync>;
