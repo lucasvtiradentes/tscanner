@@ -12,7 +12,7 @@ use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime};
 use tscanner_config::{AiConfig, AiMode, AiRuleConfig};
-use tscanner_types::{Issue, IssueRuleType};
+use tscanner_types::{Issue, RuleSource};
 
 pub type ChangedLinesMap = HashMap<PathBuf, HashSet<usize>>;
 
@@ -734,7 +734,7 @@ impl AiExecutor {
                     line_text,
                     is_ai: true,
                     category: None,
-                    rule_type: IssueRuleType::Ai,
+                    rule_type: RuleSource::Ai,
                 })
             })
             .collect())

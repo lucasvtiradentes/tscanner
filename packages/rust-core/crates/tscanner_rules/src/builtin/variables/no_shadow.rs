@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::metadata::{RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
@@ -21,7 +21,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "no-shadow",
         display_name: "No Shadow",
         description: "Disallows variable declarations that shadow variables in outer scopes. Shadowing can lead to confusing code and subtle bugs.",
-        rule_type: RuleType::Ast,
+        rule_type: RuleExecutionKind::Ast,
         category: RuleCategory::Variables,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-shadow"),

@@ -1,5 +1,5 @@
 use serde::Serialize;
-use tscanner_types::IssueRuleType;
+use tscanner_types::RuleSource;
 
 #[derive(Debug, Clone)]
 pub enum GroupMode {
@@ -24,7 +24,7 @@ pub struct OutputIssue {
     pub message: String,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub line_text: Option<String>,
-    pub rule_type: IssueRuleType,
+    pub rule_type: RuleSource,
 }
 
 #[derive(Clone, Serialize)]
@@ -36,7 +36,7 @@ pub struct OutputFileGroup {
 #[derive(Clone, Serialize)]
 pub struct OutputRuleGroup {
     pub rule: String,
-    pub rule_type: IssueRuleType,
+    pub rule_type: RuleSource,
     pub message: String,
     pub count: usize,
     pub issues: Vec<OutputRuleIssue>,

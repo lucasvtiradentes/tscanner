@@ -8,6 +8,7 @@ repository.workspace = true
 
 [dependencies]
 tscanner_types = { path = "../tscanner_types" }
+tscanner_constants = { path = "../tscanner_constants" }
 dashmap = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

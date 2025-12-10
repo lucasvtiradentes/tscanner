@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::metadata::{RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
@@ -25,7 +25,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "no-nested-require",
         display_name: "No Nested Require",
         description: "Disallows require() calls inside functions, blocks, or conditionals. Require statements should be at the top level for static analysis.",
-        rule_type: RuleType::Ast,
+        rule_type: RuleExecutionKind::Ast,
         category: RuleCategory::Imports,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/global-require"),

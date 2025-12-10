@@ -1,31 +1,10 @@
 use std::collections::HashMap;
 
-use tscanner_config::{
-    icon_ai, icon_builtin, icon_error, icon_hint, icon_info, icon_regex, icon_script, icon_warning,
-};
-use tscanner_types::IssueRuleType;
+use tscanner_types::RuleSource;
 
+use crate::display::{format_duration, rule_type_icon, severity_icon};
 use crate::formatted::FormattedOutput;
 use crate::types::{OutputFileGroup, OutputRuleGroup, OutputSummary};
-
-fn rule_type_icon(rule_type: IssueRuleType) -> &'static str {
-    match rule_type {
-        IssueRuleType::Builtin => icon_builtin(),
-        IssueRuleType::CustomRegex => icon_regex(),
-        IssueRuleType::CustomScript => icon_script(),
-        IssueRuleType::Ai => icon_ai(),
-    }
-}
-
-fn severity_icon(severity: &str) -> &'static str {
-    match severity {
-        "error" => icon_error(),
-        "warning" => icon_warning(),
-        "info" => icon_info(),
-        "hint" => icon_hint(),
-        _ => icon_warning(),
-    }
-}
 
 fn format_issue_line(
     severity_icon: &str,
@@ -40,19 +19,6 @@ fn format_issue_line(
         }
     }
     format!("{}{} {}", indent, severity_icon, location)
-}
-
-fn format_duration(ms: u128) -> String {
-    if ms < 1000 {
-        format!("{}ms", ms)
-    } else if ms < 60000 {
-        format!("{:.1}s", ms as f64 / 1000.0)
-    } else {
-        let total_seconds = ms / 1000;
-        let minutes = total_seconds / 60;
-        let seconds = total_seconds % 60;
-        format!("{}m {}s", minutes, seconds)
-    }
 }
 
 impl FormattedOutput {
@@ -78,7 +44,7 @@ fn render_by_file(
     lines.push(String::new());
     lines.push("Results:".to_string());
 
-    let mut rules_map: HashMap<String, (String, IssueRuleType)> = HashMap::new();
+    let mut rules_map: HashMap<String, (String, RuleSource)> = HashMap::new();
     for file in files {
         for issue in &file.issues {
             if !rules_map.contains_key(&issue.rule) {

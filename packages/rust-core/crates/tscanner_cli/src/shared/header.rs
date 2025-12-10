@@ -25,19 +25,6 @@ pub struct ScanConfig {
     pub rule_filter: Option<String>,
 }
 
-pub fn format_duration(ms: u128) -> String {
-    if ms < 1000 {
-        format!("{}ms", ms)
-    } else if ms < 60000 {
-        format!("{:.1}s", ms as f64 / 1000.0)
-    } else {
-        let total_seconds = ms / 1000;
-        let minutes = total_seconds / 60;
-        let seconds = total_seconds % 60;
-        format!("{}m {}s", minutes, seconds)
-    }
-}
-
 pub fn render_header(config: &ScanConfig) {
     if config.show_settings {
         print_section_header("Check settings:");

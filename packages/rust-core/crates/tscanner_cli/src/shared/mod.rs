@@ -4,5 +4,6 @@ pub mod section;
 pub use header::*;
 pub use section::*;
 pub use tscanner_cli_output::{
-    FormattedOutput, OutputFileGroup, OutputRuleGroup, OutputSummary, RulesBreakdown, SummaryStats,
+    format_duration, rule_type_icon, severity_icon, FormattedOutput, OutputFileGroup,
+    OutputRuleGroup, OutputSummary, RulesBreakdown, SummaryStats,
 };

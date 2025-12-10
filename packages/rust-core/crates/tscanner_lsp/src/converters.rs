@@ -1,12 +1,11 @@
 use lsp_types::{CodeDescription, Diagnostic, DiagnosticSeverity, Position, Range, Url};
+use tscanner_config::{app_name, rules_base_url};
 use tscanner_types::{Issue, Severity};
-
-const RULES_BASE_URL: &str = "https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin";
 
 fn get_rule_url(rule: &str, category: Option<&str>) -> Option<Url> {
     let category_folder = category?;
     let rule_file = rule.replace('-', "_");
-    let url_str = format!("{}/{}/{}.rs", RULES_BASE_URL, category_folder, rule_file);
+    let url_str = format!("{}/{}/{}.rs", rules_base_url(), category_folder, rule_file);
     Url::parse(&url_str).ok()
 }
 
@@ -37,7 +36,7 @@ pub fn issue_to_diagnostic(issue: &Issue) -> Diagnostic {
         }),
         code: Some(lsp_types::NumberOrString::String(issue.rule.clone())),
         code_description,
-        source: Some("tscanner".to_string()),
+        source: Some(app_name().to_string()),
         message: issue.message.clone(),
         ..Default::default()
     }

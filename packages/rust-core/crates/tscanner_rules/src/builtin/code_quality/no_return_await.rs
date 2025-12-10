@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::metadata::{RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
@@ -26,7 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "no-return-await",
         display_name: "No Return Await",
         description: "Disallows redundant 'return await' in async functions. The await is unnecessary since the function already returns a Promise.",
-        rule_type: RuleType::Ast,
+        rule_type: RuleExecutionKind::Ast,
         category: RuleCategory::CodeQuality,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/return-await"),

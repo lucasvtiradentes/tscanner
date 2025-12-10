@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
+use crate::metadata::{RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
@@ -21,7 +21,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "no-floating-promises",
         display_name: "No Floating Promises",
         description: "Disallows floating promises (promises used as statements without await, .then(), or .catch()). Unhandled promises can lead to silent failures.",
-        rule_type: RuleType::Ast,
+        rule_type: RuleExecutionKind::Ast,
         category: RuleCategory::BugPrevention,
         typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-floating-promises"),

@@ -4,7 +4,7 @@ use std::path::Path;
 use tscanner_config::{CompiledRuleConfig, TscannerConfig};
 use tscanner_rules::{RuleContext, RuleRegistry};
 use tscanner_types::FileSource;
-use tscanner_types::{FileResult, Issue, IssueRuleType};
+use tscanner_types::{FileResult, Issue, RuleSource};
 
 const JS_TS_EXTENSIONS: &[&str] = &["ts", "tsx", "js", "jsx", "mjs", "cjs", "mts", "cts"];
 
@@ -99,9 +99,9 @@ impl<'a> BuiltinExecutor<'a> {
                         issue.severity = *severity;
                         issue.category = category.map(|s| s.to_string());
                         issue.rule_type = if self.registry.is_custom_regex_rule(rule.name()) {
-                            IssueRuleType::CustomRegex
+                            RuleSource::CustomRegex
                         } else {
-                            IssueRuleType::Builtin
+                            RuleSource::Builtin
                         };
                         if issue.line > 0 && issue.line <= source_lines.len() {
                             issue.line_text = Some(source_lines[issue.line - 1].to_string());
@@ -158,9 +158,9 @@ impl<'a> BuiltinExecutor<'a> {
                         issue.severity = *severity;
                         issue.category = category.map(|s| s.to_string());
                         issue.rule_type = if self.registry.is_custom_regex_rule(rule.name()) {
-                            IssueRuleType::CustomRegex
+                            RuleSource::CustomRegex
                         } else {
-                            IssueRuleType::Builtin
+                            RuleSource::Builtin
                         };
                         if issue.line > 0 && issue.line <= source_lines.len() {
                             issue.line_text = Some(source_lines[issue.line - 1].to_string());

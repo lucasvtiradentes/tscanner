@@ -1,32 +1,21 @@
 use super::renderer::OutputRenderer;
 use super::CheckContext;
 use crate::shared::{
-    format_duration, print_section_header, print_section_title, FormattedOutput, OutputFileGroup,
-    OutputRuleGroup, OutputSummary,
+    format_duration, print_section_header, print_section_title, rule_type_icon, severity_icon,
+    FormattedOutput, OutputFileGroup, OutputRuleGroup, OutputSummary,
 };
 use colored::*;
 use std::collections::HashMap;
-use tscanner_config::{
-    icon_ai, icon_builtin, icon_error, icon_hint, icon_info, icon_regex, icon_script, icon_warning,
-};
-use tscanner_types::{IssueRuleType, ScanResult};
-
-fn rule_type_icon(rule_type: IssueRuleType) -> &'static str {
-    match rule_type {
-        IssueRuleType::Builtin => icon_builtin(),
-        IssueRuleType::CustomRegex => icon_regex(),
-        IssueRuleType::CustomScript => icon_script(),
-        IssueRuleType::Ai => icon_ai(),
-    }
-}
+use tscanner_types::{RuleSource, ScanResult};
 
 fn get_severity_icon(severity: &str) -> ColoredString {
+    let icon = severity_icon(severity);
     match severity {
-        "error" => icon_error().red(),
-        "warning" => icon_warning().yellow(),
-        "info" => icon_info().blue(),
-        "hint" => icon_hint().dimmed(),
-        _ => icon_warning().yellow(),
+        "error" => icon.red(),
+        "warning" => icon.yellow(),
+        "info" => icon.blue(),
+        "hint" => icon.dimmed(),
+        _ => icon.yellow(),
     }
 }
 
@@ -116,7 +105,7 @@ impl OutputRenderer for TextRenderer {
 
 impl TextRenderer {
     fn render_rules_triggered_by_file(&self, files: &[OutputFileGroup]) {
-        let mut rules_map: HashMap<String, (String, IssueRuleType)> = HashMap::new();
+        let mut rules_map: HashMap<String, (String, RuleSource)> = HashMap::new();
         for file in files {
             for issue in &file.issues {
                 if !rules_map.contains_key(&issue.rule) {

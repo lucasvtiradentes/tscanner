@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::path::Path;
 
 use serde::Serialize;
-use tscanner_types::{IssueRuleType, ScanResult, Severity};
+use tscanner_types::{RuleSource, ScanResult, Severity};
 
 use crate::types::{
     OutputFileGroup, OutputIssue, OutputRuleGroup, OutputRuleIssue, OutputSummary, RulesBreakdown,
@@ -106,7 +106,7 @@ impl FormattedOutput {
     pub fn build_by_rule(root: &Path, result: &ScanResult, stats: &SummaryStats) -> Self {
         let summary = Self::build_summary(result, stats);
 
-        let mut rules_map: HashMap<String, (IssueRuleType, String, Vec<OutputRuleIssue>)> =
+        let mut rules_map: HashMap<String, (RuleSource, String, Vec<OutputRuleIssue>)> =
             HashMap::new();
 
         for file_result in &result.files {
@@ -167,7 +167,7 @@ impl FormattedOutput {
     }
 
     fn compute_triggered_breakdown(result: &ScanResult) -> RulesBreakdown {
-        let mut unique_rules: HashMap<String, IssueRuleType> = HashMap::new();
+        let mut unique_rules: HashMap<String, RuleSource> = HashMap::new();
 
         for file_result in &result.files {
             for issue in &file_result.issues {
@@ -180,10 +180,10 @@ impl FormattedOutput {
         let mut breakdown = RulesBreakdown::default();
         for rule_type in unique_rules.values() {
             match rule_type {
-                IssueRuleType::Builtin => breakdown.builtin += 1,
-                IssueRuleType::CustomRegex => breakdown.regex += 1,
-                IssueRuleType::CustomScript => breakdown.script += 1,
-                IssueRuleType::Ai => breakdown.ai += 1,
+                RuleSource::Builtin => breakdown.builtin += 1,
+                RuleSource::CustomRegex => breakdown.regex += 1,
+                RuleSource::CustomScript => breakdown.script += 1,
+                RuleSource::Ai => breakdown.ai += 1,
             }
         }
         breakdown
