@@ -1,7 +1,7 @@
 use crate::signals::TextRange;
-use crate::FileSource;
 use std::path::Path;
 use swc_ecma_ast::Program;
+use tscanner_types::FileSource;
 
 pub struct RuleContext<'a> {
     program: &'a Program,

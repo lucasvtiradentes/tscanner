@@ -3,7 +3,7 @@ use std::path::Path;
 use swc_common::{sync::Lrc, FileName, SourceMap};
 use swc_ecma_ast::Program;
 use swc_ecma_parser::{lexer::Lexer, EsSyntax, Parser, StringInput, Syntax, TsSyntax};
-use tscanner_rules::FileSource;
+use tscanner_types::FileSource;
 
 pub fn parse_file(path: &Path, source: &str) -> Result<Program> {
     let file_source = FileSource::from_path(path);
