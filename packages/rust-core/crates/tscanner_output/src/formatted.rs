@@ -88,12 +88,7 @@ impl FormattedOutput {
                         .iter()
                         .map(|issue| OutputIssue {
                             rule: issue.rule.clone(),
-                            severity: match issue.severity {
-                                Severity::Error => "error".to_string(),
-                                Severity::Warning => "warning".to_string(),
-                                Severity::Info => "info".to_string(),
-                                Severity::Hint => "hint".to_string(),
-                            },
+                            severity: issue.severity.as_str().to_string(),
                             line: issue.line,
                             column: issue.column,
                             message: issue.message.clone(),
@@ -129,12 +124,7 @@ impl FormattedOutput {
                     file: relative_path.display().to_string(),
                     line: issue.line,
                     column: issue.column,
-                    severity: match issue.severity {
-                        Severity::Error => "error".to_string(),
-                        Severity::Warning => "warning".to_string(),
-                        Severity::Info => "info".to_string(),
-                        Severity::Hint => "hint".to_string(),
-                    },
+                    severity: issue.severity.as_str().to_string(),
                     line_text: issue.line_text.clone(),
                 });
             }

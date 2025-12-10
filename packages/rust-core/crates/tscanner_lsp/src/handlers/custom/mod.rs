@@ -1,6 +1,7 @@
 mod clear_cache;
 mod format_results;
 mod get_rules_metadata;
+mod helpers;
 mod scan;
 mod scan_content;
 mod scan_file;

@@ -82,34 +82,29 @@ pub fn init_logger(context: &str) {
     }
 }
 
-pub fn log_info(message: &str) {
+fn with_logger<F>(f: F)
+where
+    F: FnOnce(&Logger),
+{
     if let Ok(logger) = LOGGER.lock() {
         if let Some(l) = logger.as_ref() {
-            l.info(message);
+            f(l);
         }
     }
+}
+
+pub fn log_info(message: &str) {
+    with_logger(|l| l.info(message));
 }
 
 pub fn log_error(message: &str) {
-    if let Ok(logger) = LOGGER.lock() {
-        if let Some(l) = logger.as_ref() {
-            l.error(message);
-        }
-    }
+    with_logger(|l| l.error(message));
 }
 
 pub fn log_warn(message: &str) {
-    if let Ok(logger) = LOGGER.lock() {
-        if let Some(l) = logger.as_ref() {
-            l.warn(message);
-        }
-    }
+    with_logger(|l| l.warn(message));
 }
 
 pub fn log_debug(message: &str) {
-    if let Ok(logger) = LOGGER.lock() {
-        if let Some(l) = logger.as_ref() {
-            l.debug(message);
-        }
-    }
+    with_logger(|l| l.debug(message));
 }

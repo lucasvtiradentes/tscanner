@@ -17,6 +17,31 @@ fn rule_type_icon(rule_type: IssueRuleType) -> &'static str {
     }
 }
 
+fn severity_icon(severity: &str) -> &'static str {
+    match severity {
+        "error" => icon_error(),
+        "warning" => icon_warning(),
+        "info" => icon_info(),
+        "hint" => icon_hint(),
+        _ => icon_warning(),
+    }
+}
+
+fn format_issue_line(
+    severity_icon: &str,
+    location: &str,
+    line_text: Option<&str>,
+    indent: &str,
+) -> String {
+    if let Some(text) = line_text {
+        let trimmed = text.trim();
+        if !trimmed.is_empty() {
+            return format!("{}{} {} -> {}", indent, severity_icon, location, trimmed);
+        }
+    }
+    format!("{}{} {}", indent, severity_icon, location)
+}
+
 fn format_duration(ms: u128) -> String {
     if ms < 1000 {
         format!("{}ms", ms)
@@ -123,26 +148,14 @@ fn render_by_file(
             ));
 
             for issue in issues {
-                let severity_icon = match issue.severity.as_str() {
-                    "error" => icon_error(),
-                    "warning" => icon_warning(),
-                    "info" => icon_info(),
-                    "hint" => icon_hint(),
-                    _ => icon_warning(),
-                };
-
+                let icon = severity_icon(&issue.severity);
                 let location = format!("{}:{}", issue.line, issue.column);
-
-                if let Some(ref line_text) = issue.line_text {
-                    let trimmed = line_text.trim();
-                    if !trimmed.is_empty() {
-                        lines.push(format!("    {} {} -> {}", severity_icon, location, trimmed));
-                    } else {
-                        lines.push(format!("    {} {}", severity_icon, location));
-                    }
-                } else {
-                    lines.push(format!("    {} {}", severity_icon, location));
-                }
+                lines.push(format_issue_line(
+                    icon,
+                    &location,
+                    issue.line_text.as_deref(),
+                    "    ",
+                ));
             }
         }
     }
@@ -214,26 +227,14 @@ fn render_by_rule(
             lines.push(format!("  {} ({} issues)", file, issues.len()));
 
             for issue in issues {
-                let severity_icon = match issue.severity.as_str() {
-                    "error" => icon_error(),
-                    "warning" => icon_warning(),
-                    "info" => icon_info(),
-                    "hint" => icon_hint(),
-                    _ => icon_warning(),
-                };
-
+                let icon = severity_icon(&issue.severity);
                 let location = format!("{}:{}", issue.line, issue.column);
-
-                if let Some(ref line_text) = issue.line_text {
-                    let trimmed = line_text.trim();
-                    if !trimmed.is_empty() {
-                        lines.push(format!("    {} {} -> {}", severity_icon, location, trimmed));
-                    } else {
-                        lines.push(format!("    {} {}", severity_icon, location));
-                    }
-                } else {
-                    lines.push(format!("    {} {}", severity_icon, location));
-                }
+                lines.push(format_issue_line(
+                    icon,
+                    &location,
+                    issue.line_text.as_deref(),
+                    "    ",
+                ));
             }
         }
     }
