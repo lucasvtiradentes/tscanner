@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.29
+
+### Patch Changes
+
+- 6492894: refactor rust core
+
 ## 0.0.28
 
 ### Patch Changes

@@ -1,5 +1,11 @@
 # @tscanner/cli-linux-x64
 
+## 0.0.32
+
+### Patch Changes
+
+- 6492894: refactor rust core
+
 ## 0.0.31
 
 ### Patch Changes
