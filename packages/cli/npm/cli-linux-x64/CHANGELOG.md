@@ -1,5 +1,11 @@
 # @tscanner/cli-linux-x64
 
+## 0.0.33
+
+### Patch Changes
+
+- 83f7d3c: fix script rules in custom paths
+
 ## 0.0.32
 
 ### Patch Changes
