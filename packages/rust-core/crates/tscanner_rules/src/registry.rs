@@ -5,20 +5,8 @@ use tscanner_config::{CompiledRuleConfig, TscannerConfig};
 use tscanner_types::Severity;
 
 use crate::executors::RegexExecutor;
-use crate::metadata::{get_all_rule_metadata, RuleCategory};
+use crate::metadata::get_all_rule_metadata;
 use crate::traits::{DynRule, RuleRegistration};
-
-fn category_to_folder(category: RuleCategory) -> &'static str {
-    match category {
-        RuleCategory::TypeSafety => "type_safety",
-        RuleCategory::CodeQuality => "code_quality",
-        RuleCategory::Style => "style",
-        RuleCategory::Performance => "performance",
-        RuleCategory::BugPrevention => "bug_prevention",
-        RuleCategory::Variables => "variables",
-        RuleCategory::Imports => "imports",
-    }
-}
 
 pub struct RuleRegistry {
     rules: HashMap<String, Arc<dyn DynRule>>,
@@ -39,7 +27,7 @@ impl RuleRegistry {
         for metadata in get_all_rule_metadata() {
             rule_categories.insert(
                 metadata.name.to_string(),
-                category_to_folder(metadata.category).to_string(),
+                metadata.category.as_folder_name().to_string(),
             );
         }
 
@@ -70,7 +58,7 @@ impl RuleRegistry {
         for metadata in get_all_rule_metadata() {
             rule_categories.insert(
                 metadata.name.to_string(),
-                category_to_folder(metadata.category).to_string(),
+                metadata.category.as_folder_name().to_string(),
             );
         }
 

@@ -38,6 +38,7 @@ export enum ViewMode {
 export enum AiProvider {
   Claude = 'claude',
   Gemini = 'gemini',
+  Custom = 'custom',
 }
 
 export enum AiMode {
@@ -62,6 +63,9 @@ export enum RuleCategory {
   CodeQuality = 'codequality',
   Style = 'style',
   Performance = 'performance',
+  BugPrevention = 'bugprevention',
+  Variables = 'variables',
+  Imports = 'imports',
 }
 
 export enum IssueRuleType {

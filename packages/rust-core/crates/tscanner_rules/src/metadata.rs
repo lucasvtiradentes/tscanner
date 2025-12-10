@@ -91,6 +91,20 @@ pub enum RuleCategory {
     Imports,
 }
 
+impl RuleCategory {
+    pub fn as_folder_name(&self) -> &'static str {
+        match self {
+            RuleCategory::TypeSafety => "type_safety",
+            RuleCategory::CodeQuality => "code_quality",
+            RuleCategory::Style => "style",
+            RuleCategory::Performance => "performance",
+            RuleCategory::BugPrevention => "bug_prevention",
+            RuleCategory::Variables => "variables",
+            RuleCategory::Imports => "imports",
+        }
+    }
+}
+
 pub struct RuleMetadataRegistration {
     pub metadata: RuleMetadata,
 }
