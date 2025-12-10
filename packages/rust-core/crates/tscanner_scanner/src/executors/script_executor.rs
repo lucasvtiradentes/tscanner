@@ -85,31 +85,26 @@ pub struct ScriptExecutor {
 }
 
 impl ScriptExecutor {
-    pub fn new(workspace_root: &Path) -> Self {
+    pub fn new(
+        workspace_root: &Path,
+        config_dir: Option<PathBuf>,
+        log_error: Option<fn(&str)>,
+        log_debug: Option<fn(&str)>,
+    ) -> Self {
         Self {
             cache: DashMap::new(),
-            config_dir: workspace_root.join(".tscanner"),
-            log_error: |_| {},
-            log_debug: |_| {},
+            config_dir: config_dir.unwrap_or_else(|| workspace_root.join(".tscanner")),
+            log_error: log_error.unwrap_or(|_| {}),
+            log_debug: log_debug.unwrap_or(|_| {}),
         }
     }
 
     pub fn with_config_dir(config_dir: PathBuf) -> Self {
-        Self {
-            cache: DashMap::new(),
-            config_dir,
-            log_error: |_| {},
-            log_debug: |_| {},
-        }
+        Self::new(Path::new("."), Some(config_dir), None, None)
     }
 
     pub fn with_logger(workspace_root: &Path, log_error: fn(&str), log_debug: fn(&str)) -> Self {
-        Self {
-            cache: DashMap::new(),
-            config_dir: workspace_root.join(".tscanner"),
-            log_error,
-            log_debug,
-        }
+        Self::new(workspace_root, None, Some(log_error), Some(log_debug))
     }
 
     pub fn with_config_dir_and_logger(
@@ -117,12 +112,12 @@ impl ScriptExecutor {
         log_error: fn(&str),
         log_debug: fn(&str),
     ) -> Self {
-        Self {
-            cache: DashMap::new(),
-            config_dir,
-            log_error,
-            log_debug,
-        }
+        Self::new(
+            Path::new("."),
+            Some(config_dir),
+            Some(log_error),
+            Some(log_debug),
+        )
     }
 
     pub fn execute_rules(
@@ -172,30 +167,12 @@ impl ScriptExecutor {
         workspace_root: &Path,
         rule_config: &ScriptRuleConfig,
     ) -> bool {
-        let relative = path.strip_prefix(workspace_root).unwrap_or(path);
-        let relative_str = relative.to_string_lossy();
-
-        if !rule_config.include.is_empty() {
-            let matches_include = rule_config
-                .include
-                .iter()
-                .any(|pattern| glob_match::glob_match(pattern, &relative_str));
-            if !matches_include {
-                return false;
-            }
-        }
-
-        if !rule_config.exclude.is_empty() {
-            let matches_exclude = rule_config
-                .exclude
-                .iter()
-                .any(|pattern| glob_match::glob_match(pattern, &relative_str));
-            if matches_exclude {
-                return false;
-            }
-        }
-
-        true
+        super::utils::file_matches_patterns(
+            path,
+            workspace_root,
+            &rule_config.include,
+            &rule_config.exclude,
+        )
     }
 
     fn execute_rule(
@@ -387,13 +364,9 @@ impl ScriptExecutor {
             .map(|issue| {
                 let file_path = workspace_root.join(&issue.file);
                 let relative_path = PathBuf::from(&issue.file);
-                let line_text = file_lines.get(&relative_path).and_then(|lines| {
-                    if issue.line > 0 && issue.line <= lines.len() {
-                        Some(lines[issue.line - 1].to_string())
-                    } else {
-                        None
-                    }
-                });
+                let line_text = file_lines
+                    .get(&relative_path)
+                    .and_then(|lines| super::utils::extract_line_text(lines, issue.line));
                 Issue {
                     rule: rule_name.to_string(),
                     file: file_path,
@@ -444,6 +417,6 @@ impl ScriptExecutor {
 
 impl Default for ScriptExecutor {
     fn default() -> Self {
-        Self::new(Path::new("."))
+        Self::new(Path::new("."), None, None, None)
     }
 }

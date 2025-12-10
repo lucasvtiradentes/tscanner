@@ -82,47 +82,15 @@ impl Scanner {
         &self,
         script_rules: &[(String, ScriptRuleConfig)],
     ) -> Vec<(PathBuf, String)> {
-        let needed_patterns: HashSet<&str> = script_rules
+        let include_patterns: HashSet<&str> = script_rules
             .iter()
             .flat_map(|(_, cfg)| cfg.include.iter().map(|s| s.as_str()))
             .collect();
-
-        if needed_patterns.is_empty() {
-            return vec![];
-        }
-
         let exclude_patterns: HashSet<&str> = script_rules
             .iter()
             .flat_map(|(_, cfg)| cfg.exclude.iter().map(|s| s.as_str()))
             .collect();
-
-        WalkBuilder::new(&self.root)
-            .hidden(false)
-            .git_ignore(true)
-            .build()
-            .flatten()
-            .filter(|entry| {
-                let path = entry.path();
-                if !path.is_file() {
-                    return false;
-                }
-                let relative = path.strip_prefix(&self.root).unwrap_or(path);
-                let relative_str = relative.to_string_lossy();
-                let matches_include = needed_patterns
-                    .iter()
-                    .any(|pattern| glob_match::glob_match(pattern, &relative_str));
-                let matches_exclude = exclude_patterns
-                    .iter()
-                    .any(|pattern| glob_match::glob_match(pattern, &relative_str));
-                matches_include && !matches_exclude
-            })
-            .filter_map(|entry| {
-                let path = entry.path().to_path_buf();
-                std::fs::read_to_string(&path)
-                    .ok()
-                    .map(|content| (path, content))
-            })
-            .collect()
+        self.collect_files_by_patterns(&include_patterns, &exclude_patterns, None)
     }
 
     pub(crate) fn run_ai_rules_with_context(
@@ -167,47 +135,15 @@ impl Scanner {
         &self,
         ai_rules: &[(String, AiRuleConfig)],
     ) -> Vec<(PathBuf, String)> {
-        let needed_patterns: std::collections::HashSet<&str> = ai_rules
+        let include_patterns: HashSet<&str> = ai_rules
             .iter()
             .flat_map(|(_, cfg)| cfg.include.iter().map(|s| s.as_str()))
             .collect();
-
-        if needed_patterns.is_empty() {
-            return vec![];
-        }
-
-        let exclude_patterns: std::collections::HashSet<&str> = ai_rules
+        let exclude_patterns: HashSet<&str> = ai_rules
             .iter()
             .flat_map(|(_, cfg)| cfg.exclude.iter().map(|s| s.as_str()))
             .collect();
-
-        WalkBuilder::new(&self.root)
-            .hidden(false)
-            .git_ignore(true)
-            .build()
-            .flatten()
-            .filter(|entry| {
-                let path = entry.path();
-                if !path.is_file() {
-                    return false;
-                }
-                let relative = path.strip_prefix(&self.root).unwrap_or(path);
-                let relative_str = relative.to_string_lossy();
-                let matches_include = needed_patterns
-                    .iter()
-                    .any(|pattern| glob_match::glob_match(pattern, &relative_str));
-                let matches_exclude = exclude_patterns
-                    .iter()
-                    .any(|pattern| glob_match::glob_match(pattern, &relative_str));
-                matches_include && !matches_exclude
-            })
-            .filter_map(|entry| {
-                let path = entry.path().to_path_buf();
-                std::fs::read_to_string(&path)
-                    .ok()
-                    .map(|content| (path, content))
-            })
-            .collect()
+        self.collect_files_by_patterns(&include_patterns, &exclude_patterns, None)
     }
 
     pub(crate) fn collect_ai_files_from_filter(
@@ -215,42 +151,66 @@ impl Scanner {
         ai_rules: &[(String, AiRuleConfig)],
         file_filter: &[PathBuf],
     ) -> Vec<(PathBuf, String)> {
-        let needed_patterns: std::collections::HashSet<&str> = ai_rules
+        let include_patterns: HashSet<&str> = ai_rules
             .iter()
             .flat_map(|(_, cfg)| cfg.include.iter().map(|s| s.as_str()))
             .collect();
-
-        if needed_patterns.is_empty() {
-            return vec![];
-        }
-
-        let exclude_patterns: std::collections::HashSet<&str> = ai_rules
+        let exclude_patterns: HashSet<&str> = ai_rules
             .iter()
             .flat_map(|(_, cfg)| cfg.exclude.iter().map(|s| s.as_str()))
             .collect();
+        self.collect_files_by_patterns(&include_patterns, &exclude_patterns, Some(file_filter))
+    }
 
-        file_filter
-            .iter()
-            .filter(|path| {
-                if !path.is_file() {
-                    return false;
-                }
-                let relative = path.strip_prefix(&self.root).unwrap_or(path);
-                let relative_str = relative.to_string_lossy();
-                let matches_include = needed_patterns
-                    .iter()
-                    .any(|pattern| glob_match::glob_match(pattern, &relative_str));
-                let matches_exclude = exclude_patterns
-                    .iter()
-                    .any(|pattern| glob_match::glob_match(pattern, &relative_str));
-                matches_include && !matches_exclude
-            })
-            .filter_map(|path| {
-                std::fs::read_to_string(path)
-                    .ok()
-                    .map(|content| (path.clone(), content))
-            })
-            .collect()
+    fn collect_files_by_patterns(
+        &self,
+        include_patterns: &HashSet<&str>,
+        exclude_patterns: &HashSet<&str>,
+        file_filter: Option<&[PathBuf]>,
+    ) -> Vec<(PathBuf, String)> {
+        if include_patterns.is_empty() {
+            return vec![];
+        }
+
+        let matches_patterns = |path: &Path| -> bool {
+            if !path.is_file() {
+                return false;
+            }
+            let relative = path.strip_prefix(&self.root).unwrap_or(path);
+            let relative_str = relative.to_string_lossy();
+            let matches_include = include_patterns
+                .iter()
+                .any(|pattern| glob_match::glob_match(pattern, &relative_str));
+            let matches_exclude = exclude_patterns
+                .iter()
+                .any(|pattern| glob_match::glob_match(pattern, &relative_str));
+            matches_include && !matches_exclude
+        };
+
+        match file_filter {
+            Some(files) => files
+                .iter()
+                .filter(|p| matches_patterns(p))
+                .filter_map(|path| {
+                    std::fs::read_to_string(path)
+                        .ok()
+                        .map(|content| (path.clone(), content))
+                })
+                .collect(),
+            None => WalkBuilder::new(&self.root)
+                .hidden(false)
+                .git_ignore(true)
+                .build()
+                .flatten()
+                .filter(|entry| matches_patterns(entry.path()))
+                .filter_map(|entry| {
+                    let path = entry.path().to_path_buf();
+                    std::fs::read_to_string(&path)
+                        .ok()
+                        .map(|content| (path, content))
+                })
+                .collect(),
+        }
     }
 
     pub(crate) fn merge_issues(&self, results: &mut Vec<FileResult>, issues: Vec<Issue>) {

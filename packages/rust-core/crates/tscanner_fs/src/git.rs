@@ -87,16 +87,20 @@ pub fn get_staged_files(root: &Path) -> Result<HashSet<PathBuf>> {
     Ok(files)
 }
 
-pub fn get_modified_lines(root: &Path, branch: &str) -> Result<HashMap<PathBuf, HashSet<usize>>> {
+fn get_modified_lines_internal(
+    root: &Path,
+    git_args: &[&str],
+    context: &str,
+) -> Result<HashMap<PathBuf, HashSet<usize>>> {
     let output = Command::new("git")
-        .args(["diff", "-w", branch])
+        .args(git_args)
         .current_dir(root)
         .output()
-        .context("Failed to execute git diff")?;
+        .context(format!("Failed to execute git {}", context))?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);
-        anyhow::bail!("git diff failed: {}", stderr);
+        anyhow::bail!("git {} failed: {}", context, stderr);
     }
 
     let diff_text = String::from_utf8_lossy(&output.stdout);
@@ -110,25 +114,10 @@ pub fn get_modified_lines(root: &Path, branch: &str) -> Result<HashMap<PathBuf, 
     Ok(result)
 }
 
+pub fn get_modified_lines(root: &Path, branch: &str) -> Result<HashMap<PathBuf, HashSet<usize>>> {
+    get_modified_lines_internal(root, &["diff", "-w", branch], "diff")
+}
+
 pub fn get_staged_modified_lines(root: &Path) -> Result<HashMap<PathBuf, HashSet<usize>>> {
-    let output = Command::new("git")
-        .args(["diff", "-w", "--cached"])
-        .current_dir(root)
-        .output()
-        .context("Failed to execute git diff --cached")?;
-
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        anyhow::bail!("git diff --cached failed: {}", stderr);
-    }
-
-    let diff_text = String::from_utf8_lossy(&output.stdout);
-    let file_lines = parse_modified_lines(&diff_text);
-
-    let result = file_lines
-        .into_iter()
-        .map(|(file, lines)| (root.join(file), lines))
-        .collect();
-
-    Ok(result)
+    get_modified_lines_internal(root, &["diff", "-w", "--cached"], "diff --cached")
 }

@@ -109,28 +109,29 @@ pub struct AiExecutor {
 }
 
 impl AiExecutor {
-    pub fn new(workspace_root: &Path) -> Self {
+    pub fn new(
+        workspace_root: &Path,
+        config_dir: Option<PathBuf>,
+        ai_config: Option<AiConfig>,
+        log_warn: Option<fn(&str)>,
+        log_debug: Option<fn(&str)>,
+    ) -> Self {
+        let ai_rules_dir = config_dir
+            .map(|d| d.join("ai-rules"))
+            .unwrap_or_else(|| workspace_root.join(".tscanner").join("ai-rules"));
         Self {
             workspace_root: workspace_root.to_path_buf(),
-            ai_rules_dir: workspace_root.join(".tscanner").join("ai-rules"),
-            ai_config: None,
+            ai_rules_dir,
+            ai_config,
             cache: DashMap::new(),
             in_flight: DashMap::new(),
-            log_warn: |_| {},
-            log_debug: |_| {},
+            log_warn: log_warn.unwrap_or(|_| {}),
+            log_debug: log_debug.unwrap_or(|_| {}),
         }
     }
 
     pub fn with_logger(workspace_root: &Path, log_warn: fn(&str), log_debug: fn(&str)) -> Self {
-        Self {
-            workspace_root: workspace_root.to_path_buf(),
-            ai_rules_dir: workspace_root.join(".tscanner").join("ai-rules"),
-            ai_config: None,
-            cache: DashMap::new(),
-            in_flight: DashMap::new(),
-            log_warn,
-            log_debug,
-        }
+        Self::new(workspace_root, None, None, Some(log_warn), Some(log_debug))
     }
 
     pub fn with_config(
@@ -139,15 +140,13 @@ impl AiExecutor {
         log_warn: fn(&str),
         log_debug: fn(&str),
     ) -> Self {
-        Self {
-            workspace_root: workspace_root.to_path_buf(),
-            ai_rules_dir: workspace_root.join(".tscanner").join("ai-rules"),
+        Self::new(
+            workspace_root,
+            None,
             ai_config,
-            cache: DashMap::new(),
-            in_flight: DashMap::new(),
-            log_warn,
-            log_debug,
-        }
+            Some(log_warn),
+            Some(log_debug),
+        )
     }
 
     pub fn with_config_dir(
@@ -157,15 +156,13 @@ impl AiExecutor {
         log_warn: fn(&str),
         log_debug: fn(&str),
     ) -> Self {
-        Self {
-            workspace_root: workspace_root.to_path_buf(),
-            ai_rules_dir: config_dir.join("ai-rules"),
+        Self::new(
+            workspace_root,
+            Some(config_dir),
             ai_config,
-            cache: DashMap::new(),
-            in_flight: DashMap::new(),
-            log_warn,
-            log_debug,
-        }
+            Some(log_warn),
+            Some(log_debug),
+        )
     }
 
     pub fn execute_rules(
@@ -299,30 +296,12 @@ impl AiExecutor {
         workspace_root: &Path,
         rule_config: &AiRuleConfig,
     ) -> bool {
-        let relative = path.strip_prefix(workspace_root).unwrap_or(path);
-        let relative_str = relative.to_string_lossy();
-
-        if !rule_config.include.is_empty() {
-            let matches_include = rule_config
-                .include
-                .iter()
-                .any(|pattern| glob_match::glob_match(pattern, &relative_str));
-            if !matches_include {
-                return false;
-            }
-        }
-
-        if !rule_config.exclude.is_empty() {
-            let matches_exclude = rule_config
-                .exclude
-                .iter()
-                .any(|pattern| glob_match::glob_match(pattern, &relative_str));
-            if matches_exclude {
-                return false;
-            }
-        }
-
-        true
+        super::utils::file_matches_patterns(
+            path,
+            workspace_root,
+            &rule_config.include,
+            &rule_config.exclude,
+        )
     }
 
     fn execute_rule(
@@ -742,8 +721,7 @@ impl AiExecutor {
 
                 let line_text = file_lines
                     .get(&file_path)
-                    .and_then(|lines| lines.get(issue.line - 1))
-                    .map(|s| s.to_string());
+                    .and_then(|lines| super::utils::extract_line_text(lines, issue.line));
 
                 Some(Issue {
                     rule: rule_name.to_string(),
@@ -832,6 +810,6 @@ impl AiExecutor {
 
 impl Default for AiExecutor {
     fn default() -> Self {
-        Self::new(Path::new("."))
+        Self::new(Path::new("."), None, None, None, None)
     }
 }
