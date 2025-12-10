@@ -1,14 +1,14 @@
 use tscanner_constants::{
     icon_ai, icon_builtin, icon_error, icon_hint, icon_info, icon_regex, icon_script, icon_warning,
 };
-use tscanner_types::RuleSource;
+use tscanner_types::IssueRuleType;
 
-pub fn rule_type_icon(rule_type: RuleSource) -> &'static str {
+pub fn rule_type_icon(rule_type: IssueRuleType) -> &'static str {
     match rule_type {
-        RuleSource::Builtin => icon_builtin(),
-        RuleSource::CustomRegex => icon_regex(),
-        RuleSource::CustomScript => icon_script(),
-        RuleSource::Ai => icon_ai(),
+        IssueRuleType::Builtin => icon_builtin(),
+        IssueRuleType::CustomRegex => icon_regex(),
+        IssueRuleType::CustomScript => icon_script(),
+        IssueRuleType::Ai => icon_ai(),
     }
 }
 

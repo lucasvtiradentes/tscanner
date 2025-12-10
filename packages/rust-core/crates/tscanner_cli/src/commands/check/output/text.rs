@@ -6,7 +6,7 @@ use crate::shared::{
 };
 use colored::*;
 use std::collections::HashMap;
-use tscanner_types::{RuleSource, ScanResult};
+use tscanner_types::{IssueRuleType, ScanResult};
 
 fn get_severity_icon(severity: &str) -> ColoredString {
     let icon = severity_icon(severity);
@@ -105,7 +105,7 @@ impl OutputRenderer for TextRenderer {
 
 impl TextRenderer {
     fn render_rules_triggered_by_file(&self, files: &[OutputFileGroup]) {
-        let mut rules_map: HashMap<String, (String, RuleSource)> = HashMap::new();
+        let mut rules_map: HashMap<String, (String, IssueRuleType)> = HashMap::new();
         for file in files {
             for issue in &file.issues {
                 if !rules_map.contains_key(&issue.rule) {

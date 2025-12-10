@@ -9,7 +9,7 @@ use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 use tscanner_config::ScriptRuleConfig;
 use tscanner_constants::config_dir_name;
-use tscanner_types::{Issue, RuleSource, Severity};
+use tscanner_types::{Issue, IssueRuleType, Severity};
 
 #[derive(Debug, Clone, Serialize)]
 pub struct ScriptFile {
@@ -151,7 +151,7 @@ impl ScriptExecutor {
                             severity: Severity::Error,
                             line_text: None,
                             category: None,
-                            rule_type: RuleSource::CustomScript,
+                            rule_type: IssueRuleType::CustomScript,
                         }]
                     }
                 }
@@ -378,7 +378,7 @@ impl ScriptExecutor {
                     severity: rule_config.severity,
                     line_text,
                     category: None,
-                    rule_type: RuleSource::CustomScript,
+                    rule_type: IssueRuleType::CustomScript,
                 }
             })
             .collect())

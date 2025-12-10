@@ -1,5 +1,5 @@
 use std::path::Path;
-pub use tscanner_types::{Issue, RuleSource, Severity, TextEdit, TextRange};
+pub use tscanner_types::{Issue, IssueRuleType, Severity, TextEdit, TextRange};
 
 #[derive(Debug, Clone)]
 pub struct RuleDiagnostic {
@@ -92,7 +92,7 @@ impl RuleSignal {
             severity: self.diagnostic.severity,
             line_text: None,
             category: None,
-            rule_type: RuleSource::Builtin,
+            rule_type: IssueRuleType::Builtin,
         }
     }
 }

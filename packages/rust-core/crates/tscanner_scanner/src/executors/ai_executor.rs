@@ -16,7 +16,7 @@ use tscanner_constants::{
     ai_placeholder_content, ai_placeholder_files, ai_placeholder_options, ai_rules_dir,
     ai_temp_dir, config_dir_name,
 };
-use tscanner_types::{Issue, RuleSource};
+use tscanner_types::{Issue, IssueRuleType};
 
 pub type ChangedLinesMap = HashMap<PathBuf, HashSet<usize>>;
 
@@ -734,7 +734,7 @@ impl AiExecutor {
                     severity: rule_config.severity,
                     line_text,
                     category: None,
-                    rule_type: RuleSource::Ai,
+                    rule_type: IssueRuleType::Ai,
                 })
             })
             .collect())

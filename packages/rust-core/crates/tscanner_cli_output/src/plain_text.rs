@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use tscanner_types::RuleSource;
+use tscanner_types::IssueRuleType;
 
 use crate::display::{format_duration, rule_type_icon, severity_icon};
 use crate::formatted::FormattedOutput;
@@ -44,7 +44,7 @@ fn render_by_file(
     lines.push(String::new());
     lines.push("Results:".to_string());
 
-    let mut rules_map: HashMap<String, (String, RuleSource)> = HashMap::new();
+    let mut rules_map: HashMap<String, (String, IssueRuleType)> = HashMap::new();
     for file in files {
         for issue in &file.issues {
             if !rules_map.contains_key(&issue.rule) {

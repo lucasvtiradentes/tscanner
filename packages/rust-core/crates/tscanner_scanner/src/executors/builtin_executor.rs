@@ -5,7 +5,7 @@ use tscanner_config::{CompiledRuleConfig, TscannerConfig};
 use tscanner_constants::is_js_ts_extension;
 use tscanner_rules::{RuleContext, RuleRegistry};
 use tscanner_types::FileSource;
-use tscanner_types::{FileResult, Issue, RuleSource};
+use tscanner_types::{FileResult, Issue, IssueRuleType};
 
 pub fn is_js_ts_file(path: &Path) -> bool {
     path.extension()
@@ -98,9 +98,9 @@ impl<'a> BuiltinExecutor<'a> {
                         issue.severity = *severity;
                         issue.category = category.map(|s| s.to_string());
                         issue.rule_type = if self.registry.is_custom_regex_rule(rule.name()) {
-                            RuleSource::CustomRegex
+                            IssueRuleType::CustomRegex
                         } else {
-                            RuleSource::Builtin
+                            IssueRuleType::Builtin
                         };
                         if issue.line > 0 && issue.line <= source_lines.len() {
                             issue.line_text = Some(source_lines[issue.line - 1].to_string());
@@ -157,9 +157,9 @@ impl<'a> BuiltinExecutor<'a> {
                         issue.severity = *severity;
                         issue.category = category.map(|s| s.to_string());
                         issue.rule_type = if self.registry.is_custom_regex_rule(rule.name()) {
-                            RuleSource::CustomRegex
+                            IssueRuleType::CustomRegex
                         } else {
-                            RuleSource::Builtin
+                            IssueRuleType::Builtin
                         };
                         if issue.line > 0 && issue.line <= source_lines.len() {
                             issue.line_text = Some(source_lines[issue.line - 1].to_string());
