@@ -104,17 +104,17 @@
     }
   },
   "files": {
-    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs", "**/*mts", "**/*cts"],
     "exclude": [
+      ".git/**",
+      ".ignore/**",
       "**/node_modules/**",
       "**/dist/**",
       "**/build/**",
-      ".git/**",
-      ".ignore/**",
+      ".tscanner/script-rules/**",
       "packages/vscode-extension/dist-dev/**",
       "packages/vscode-extension/out/**",
       "packages/rust-core/crates/tscanner_rules/tests/**",
-      ".tscanner/script-rules/**",
       "examples/all-rules/**"
     ]
   },
@@ -124,6 +124,8 @@
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": true,
+    "highlightInfos": true,
+    "highlightHints": true,
     "scanInterval": 0,
     "aiScanInterval": 0
   }

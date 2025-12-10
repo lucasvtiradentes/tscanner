@@ -33,6 +33,7 @@ export class RuleGroupItem extends vscode.TreeItem {
     const ruleType = results[0]?.ruleType;
     this.iconPath = getRuleTypeIcon(ruleType);
     this.contextValue = TreeItemContextValue.RuleGroup;
+    this.tooltip = results[0]?.message ?? rule;
   }
 }
 
@@ -43,6 +44,7 @@ export class FolderResultItem extends vscode.TreeItem {
     this.description = formatIssueCount(getFolderIssueCount(node));
     this.iconPath = new vscode.ThemeIcon(NodeKind.Folder);
     this.contextValue = TreeItemContextValue.Folder;
+    this.tooltip = node.path;
   }
 }
 
@@ -57,6 +59,7 @@ export class FileResultItem extends vscode.TreeItem {
     this.iconPath = new vscode.ThemeIcon(NodeKind.File);
     this.contextValue = TreeItemContextValue.File;
     this.resourceUri = vscode.Uri.file(filePath);
+    this.tooltip = filePath;
   }
 }
 
