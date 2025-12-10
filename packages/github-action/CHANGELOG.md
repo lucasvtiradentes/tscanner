@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.30
+
+### Patch Changes
+
+- 83f7d3c: fix script rules in custom paths
+
 ## 0.0.29
 
 ### Patch Changes
