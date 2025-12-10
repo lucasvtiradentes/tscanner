@@ -3,13 +3,14 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
+use tscanner_constants::{
+    default_ai_scan_interval, default_exclude, default_highlight_errors, default_highlight_hints,
+    default_highlight_infos, default_highlight_warnings, default_include, default_scan_interval,
+    default_severity,
+};
 use tscanner_types::Severity;
 
-use crate::defaults::{
-    default_ai_scan_interval, default_code_editor_config, default_exclude, default_files_config,
-    default_highlight_errors, default_highlight_hints, default_highlight_infos,
-    default_highlight_warnings, default_include, default_scan_interval, default_severity,
-};
+use crate::defaults::{default_code_editor_config, default_files_config};
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]

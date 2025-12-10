@@ -1616,8 +1616,19 @@ dependencies = [
  "schemars",
  "serde",
  "serde_json",
+ "tscanner_constants",
  "tscanner_types",
  "which",
+]
+
+[[package]]
+name = "tscanner_constants"
+version = "0.0.31"
+dependencies = [
+ "lazy_static",
+ "serde",
+ "serde_json",
+ "tscanner_types",
 ]
 
 [[package]]
