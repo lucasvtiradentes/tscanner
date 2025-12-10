@@ -2,6 +2,7 @@ use std::path::Path;
 
 use crate::types::{AiProvider, TscannerConfig};
 use crate::validation::{validate_json_fields, ValidationResult};
+use tscanner_constants::config_dir_name;
 
 pub const CONFIG_ERROR_PREFIX: &str = "TSCANNER_CONFIG_ERROR:";
 
@@ -31,7 +32,7 @@ impl TscannerConfig {
     }
 
     pub fn validate(&self) -> ValidationResult {
-        self.validate_with_workspace(None, ".tscanner")
+        self.validate_with_workspace(None, config_dir_name())
     }
 
     pub fn validate_with_workspace(
@@ -65,23 +66,6 @@ impl TscannerConfig {
         for (name, ai_config) in &self.ai_rules {
             if ai_config.prompt.trim().is_empty() {
                 result.add_error(format!("AI rule '{}' has empty prompt", name));
-            }
-        }
-
-        let conflicting_builtin_rules = [
-            ("prefer-type-over-interface", "prefer-interface-over-type"),
-            ("no-relative-imports", "no-absolute-imports"),
-        ];
-
-        for (rule1, rule2) in &conflicting_builtin_rules {
-            let rule1_enabled = self.rules.builtin.contains_key(*rule1);
-            let rule2_enabled = self.rules.builtin.contains_key(*rule2);
-
-            if rule1_enabled && rule2_enabled {
-                result.add_warning(format!(
-                    "Conflicting rules enabled: '{}' and '{}'",
-                    rule1, rule2
-                ));
             }
         }
 

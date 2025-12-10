@@ -127,6 +127,7 @@ struct AiConstantsConfig {
 struct AiPlaceholdersConfig {
     files: String,
     content: String,
+    options: String,
 }
 
 #[derive(Deserialize, Clone)]
@@ -336,6 +337,10 @@ pub fn js_extensions() -> &'static [String] {
     &CONSTANTS.extensions.javascript
 }
 
+pub fn is_js_ts_extension(ext: &str) -> bool {
+    CONSTANTS.extensions.javascript.iter().any(|e| e == ext)
+}
+
 pub fn cache_dir_name() -> &'static str {
     &CONSTANTS.cache.dir_name
 }
@@ -354,6 +359,10 @@ pub fn ai_placeholder_files() -> &'static str {
 
 pub fn ai_placeholder_content() -> &'static str {
     &CONSTANTS.ai.placeholders.content
+}
+
+pub fn ai_placeholder_options() -> &'static str {
+    &CONSTANTS.ai.placeholders.options
 }
 
 pub fn claude_command() -> &'static str {

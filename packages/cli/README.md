@@ -169,8 +169,8 @@ tscanner check --branch origin/main
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--config-path <CONFIG_DIR></code></td>
-    <td align="center">.tscanner</td>
-    <td align="left">Path to .tscanner folder</td>
+    <td align="center">-</td>
+    <td align="left">Path to config folder (defaults to .tscanner)</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
@@ -287,13 +287,16 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
       "**/*.js",
       "**/*.jsx",
       "**/*.mjs",
-      "**/*.cjs"
+      "**/*.cjs",
+      "**/*mts",
+      "**/*cts"
     ],
     "exclude": [
       "**/node_modules/**",
       "**/dist/**",
       "**/build/**",
-      "**/.git/**"
+      "**/.git/**",
+      "**/.next/**"
     ]
   },
   "codeEditor": {

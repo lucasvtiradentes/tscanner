@@ -8,6 +8,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant, SystemTime};
 use tscanner_config::ScriptRuleConfig;
+use tscanner_constants::config_dir_name;
 use tscanner_types::{Issue, RuleSource, Severity};
 
 #[derive(Debug, Clone, Serialize)]
@@ -93,7 +94,7 @@ impl ScriptExecutor {
     ) -> Self {
         Self {
             cache: DashMap::new(),
-            config_dir: config_dir.unwrap_or_else(|| workspace_root.join(".tscanner")),
+            config_dir: config_dir.unwrap_or_else(|| workspace_root.join(config_dir_name())),
             log_error: log_error.unwrap_or(|_| {}),
             log_debug: log_debug.unwrap_or(|_| {}),
         }

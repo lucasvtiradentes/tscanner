@@ -26,11 +26,11 @@
         {
           "name": "config-path",
           "short": null,
-          "description": "Path to .tscanner folder",
+          "description": "Path to config folder (defaults to .tscanner)",
           "takesValue": true,
           "valueName": "CONFIG_DIR",
           "possibleValues": null,
-          "defaultValue": ".tscanner",
+          "defaultValue": null,
           "required": false
         },
         {

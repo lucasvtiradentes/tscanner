@@ -11,8 +11,8 @@
   "ignoreNextLineComment": "tscanner-ignore-next-line",
   "defaults": {
     "files": {
-      "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
-      "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
+      "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs", "**/*mts", "**/*cts"],
+      "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**", "**/.next/**"]
     },
     "codeEditor": {
       "highlightErrors": true,
@@ -69,7 +69,8 @@
     "tempDir": "tscanner-ai-prompts",
     "placeholders": {
       "files": "{{FILES}}",
-      "content": "{{CONTENT}}"
+      "content": "{{CONTENT}}",
+      "options": "{{OPTIONS}}"
     },
     "providers": {
       "claude": {
@@ -81,12 +82,6 @@
         "args": ["-o", "text"]
       }
     }
-  },
-  "validation": {
-    "conflictingRules": [
-      ["prefer-type-over-interface", "prefer-interface-over-type"],
-      ["no-relative-imports", "no-absolute-imports"]
-    ]
   },
   "urls": {
     "rulesBase": "https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin"

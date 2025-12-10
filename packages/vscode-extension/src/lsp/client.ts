@@ -7,6 +7,7 @@ import {
   type ContentScanResult,
   type FileResult,
   type GroupMode,
+  JS_EXTENSIONS,
   type RuleMetadata,
   type ScanResult,
   type TscannerConfig,
@@ -59,7 +60,7 @@ export class TscannerLspClient {
       workspaceFolder: vscode.workspace.getWorkspaceFolder(vscode.Uri.file(workspaceRoot)),
       synchronize: {
         fileEvents: [
-          vscode.workspace.createFileSystemWatcher('**/*.{ts,tsx,js,jsx}'),
+          vscode.workspace.createFileSystemWatcher(`**/*.{${JS_EXTENSIONS.join(',')}}`),
           vscode.workspace.createFileSystemWatcher(`**/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`),
         ],
       },

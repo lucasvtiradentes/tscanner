@@ -54,7 +54,7 @@ fn main() -> Result<()> {
                 continue_on_error,
                 include_ai,
                 only_ai,
-                Some(config_path),
+                config_path,
             )
         }
         Some(Commands::Init { full }) => cmd_init(&PathBuf::from("."), full),

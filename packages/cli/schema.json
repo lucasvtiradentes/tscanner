@@ -1306,7 +1306,8 @@
             "**/node_modules/**",
             "**/dist/**",
             "**/build/**",
-            "**/.git/**"
+            "**/.git/**",
+            "**/.next/**"
           ],
           "description": "File patterns to exclude",
           "items": {
@@ -1321,7 +1322,9 @@
             "**/*.js",
             "**/*.jsx",
             "**/*.mjs",
-            "**/*.cjs"
+            "**/*.cjs",
+            "**/*mts",
+            "**/*cts"
           ],
           "description": "File patterns to include",
           "items": {
@@ -1617,7 +1620,8 @@
           "**/node_modules/**",
           "**/dist/**",
           "**/build/**",
-          "**/.git/**"
+          "**/.git/**",
+          "**/.next/**"
         ],
         "include": [
           "**/*.ts",
@@ -1625,7 +1629,9 @@
           "**/*.js",
           "**/*.jsx",
           "**/*.mjs",
-          "**/*.cjs"
+          "**/*.cjs",
+          "**/*mts",
+          "**/*cts"
         ]
       },
       "description": "File patterns configuration"

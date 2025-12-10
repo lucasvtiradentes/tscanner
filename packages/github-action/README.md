@@ -489,13 +489,16 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
       "**/*.js",
       "**/*.jsx",
       "**/*.mjs",
-      "**/*.cjs"
+      "**/*.cjs",
+      "**/*mts",
+      "**/*cts"
     ],
     "exclude": [
       "**/node_modules/**",
       "**/dist/**",
       "**/build/**",
-      "**/.git/**"
+      "**/.git/**",
+      "**/.next/**"
     ]
   },
   "codeEditor": {

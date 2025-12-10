@@ -11,6 +11,7 @@ export const LOG_BASENAME = constants.logBasename;
 export const LOG_TIMEZONE_OFFSET_HOURS = constants.logTimezoneOffsetHours;
 export const IGNORE_COMMENT = constants.ignoreComment;
 export const IGNORE_NEXT_LINE_COMMENT = constants.ignoreNextLineComment;
+export const JS_EXTENSIONS = constants.extensions.javascript;
 
 export enum Severity {
   Error = 'error',

@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
+use tscanner_constants::config_dir_name;
 
 #[derive(Debug, Clone, Default, ValueEnum, PartialEq)]
 pub enum OutputFormat {
@@ -97,10 +98,9 @@ pub enum Commands {
         #[arg(
             long,
             value_name = "CONFIG_DIR",
-            default_value = ".tscanner",
-            help = "Path to .tscanner folder"
+            help = "Path to config folder (defaults to .tscanner)"
         )]
-        config_path: PathBuf,
+        config_path: Option<PathBuf>,
     },
 
     #[command(about = "Create a default configuration file")]
@@ -114,4 +114,15 @@ pub enum Commands {
 
     #[command(about = "Start the LSP server (Language Server Protocol)")]
     Lsp,
+}
+
+impl Commands {
+    pub fn get_config_path(&self) -> PathBuf {
+        match self {
+            Commands::Check { config_path, .. } => config_path
+                .clone()
+                .unwrap_or_else(|| PathBuf::from(config_dir_name())),
+            _ => PathBuf::from(config_dir_name()),
+        }
+    }
 }

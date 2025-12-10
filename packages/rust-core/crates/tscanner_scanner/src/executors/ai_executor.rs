@@ -12,6 +12,10 @@ use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant, SystemTime};
 use tscanner_config::{AiConfig, AiMode, AiRuleConfig};
+use tscanner_constants::{
+    ai_placeholder_content, ai_placeholder_files, ai_placeholder_options, ai_rules_dir,
+    ai_temp_dir, config_dir_name,
+};
 use tscanner_types::{Issue, RuleSource};
 
 pub type ChangedLinesMap = HashMap<PathBuf, HashSet<usize>>;
@@ -116,12 +120,12 @@ impl AiExecutor {
         log_warn: Option<fn(&str)>,
         log_debug: Option<fn(&str)>,
     ) -> Self {
-        let ai_rules_dir = config_dir
-            .map(|d| d.join("ai-rules"))
-            .unwrap_or_else(|| workspace_root.join(".tscanner").join("ai-rules"));
+        let ai_rules_dir_path = config_dir
+            .map(|d| d.join(ai_rules_dir()))
+            .unwrap_or_else(|| workspace_root.join(config_dir_name()).join(ai_rules_dir()));
         Self {
             workspace_root: workspace_root.to_path_buf(),
-            ai_rules_dir,
+            ai_rules_dir: ai_rules_dir_path,
             ai_config,
             cache: DashMap::new(),
             in_flight: DashMap::new(),
@@ -389,7 +393,7 @@ impl AiExecutor {
     ) -> Result<Vec<Issue>, AiError> {
         let files_section =
             self.format_files_section(files, workspace_root, &rule_config.mode, changed_lines);
-        let rule_prompt = prompt_content.replace("{{FILES}}", &files_section);
+        let rule_prompt = prompt_content.replace(ai_placeholder_files(), &files_section);
         let options_section = if rule_config.options.is_null() {
             String::new()
         } else {
@@ -399,8 +403,8 @@ impl AiExecutor {
             )
         };
         let full_prompt = AI_RULE_WRAPPER
-            .replace("{{CONTENT}}", &rule_prompt)
-            .replace("{{OPTIONS}}", &options_section);
+            .replace(ai_placeholder_content(), &rule_prompt)
+            .replace(ai_placeholder_options(), &options_section);
 
         self.save_prompt_to_tmp(rule_name, &full_prompt);
 
@@ -795,7 +799,7 @@ impl AiExecutor {
     }
 
     fn save_prompt_to_tmp(&self, rule_name: &str, prompt: &str) {
-        let tmp_dir = std::env::temp_dir().join("tscanner-ai-prompts");
+        let tmp_dir = std::env::temp_dir().join(ai_temp_dir());
         if std::fs::create_dir_all(&tmp_dir).is_err() {
             return;
         }
