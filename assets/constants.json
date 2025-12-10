@@ -22,17 +22,6 @@
       "scanInterval": 0,
       "aiScanInterval": 0
     },
-    "timeouts": {
-      "scriptSeconds": 0,
-      "aiSeconds": 0
-    },
-    "intervals": {
-      "lspDebounceMs": 150,
-      "schedulerPollingMs": 50,
-      "scriptPollingMs": 10,
-      "aiPollingMs": 50,
-      "aiInflightWaitMs": 100
-    },
     "directories": {
       "scriptRules": "script-rules",
       "aiRules": "ai-rules"
@@ -55,15 +44,13 @@
       "progress": "⧗",
       "success": "✓",
       "skipped": "⊘"
-    },
-    "ruleTypes": ["builtin", "regex", "script", "ai"]
+    }
   },
   "extensions": {
     "javascript": ["ts", "tsx", "js", "jsx", "mjs", "cjs", "mts", "cts"]
   },
   "cache": {
-    "dirName": "tscanner",
-    "filePattern": "cache_{}.json"
+    "dirName": "tscanner"
   },
   "ai": {
     "tempDir": "tscanner-ai-prompts",

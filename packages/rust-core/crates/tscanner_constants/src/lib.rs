@@ -8,11 +8,8 @@ const CONSTANTS_JSON: &str = include_str!("../../../../../assets/constants.json"
 #[serde(rename_all = "camelCase")]
 struct Constants {
     package_name: String,
-    package_display_name: String,
-    package_description: String,
     config_dir_name: String,
     config_file_name: String,
-    default_target_branch: String,
     log_basename: String,
     log_timezone_offset_hours: i8,
     ignore_comment: String,
@@ -22,7 +19,6 @@ struct Constants {
     extensions: ExtensionsConfig,
     cache: CacheConfig,
     ai: AiConstantsConfig,
-    validation: ValidationConfig,
     urls: UrlsConfig,
 }
 
@@ -31,7 +27,6 @@ struct Constants {
 struct Defaults {
     files: FilesDefaults,
     code_editor: CodeEditorDefaults,
-    intervals: IntervalDefaults,
     directories: DirectoryDefaults,
     examples: ExampleDefaults,
 }
@@ -56,16 +51,6 @@ struct CodeEditorDefaults {
 
 #[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-struct IntervalDefaults {
-    lsp_debounce_ms: u64,
-    scheduler_polling_ms: u64,
-    script_polling_ms: u64,
-    ai_polling_ms: u64,
-    ai_inflight_wait_ms: u64,
-}
-
-#[derive(Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
 struct DirectoryDefaults {
     script_rules: String,
     ai_rules: String,
@@ -82,7 +67,6 @@ struct ExampleDefaults {
 #[serde(rename_all = "camelCase")]
 struct DisplayConfig {
     icons: IconsConfig,
-    rule_types: Vec<String>,
 }
 
 #[derive(Deserialize, Clone)]
@@ -111,7 +95,6 @@ struct ExtensionsConfig {
 #[serde(rename_all = "camelCase")]
 struct CacheConfig {
     dir_name: String,
-    file_pattern: String,
 }
 
 #[derive(Deserialize, Clone)]
@@ -146,12 +129,6 @@ struct AiProviderConfig {
 
 #[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
-struct ValidationConfig {
-    conflicting_rules: Vec<Vec<String>>,
-}
-
-#[derive(Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
 struct UrlsConfig {
     rules_base: String,
 }
@@ -165,24 +142,12 @@ pub fn app_name() -> &'static str {
     &CONSTANTS.package_name
 }
 
-pub fn app_display_name() -> &'static str {
-    &CONSTANTS.package_display_name
-}
-
-pub fn app_description() -> &'static str {
-    &CONSTANTS.package_description
-}
-
 pub fn config_dir_name() -> &'static str {
     &CONSTANTS.config_dir_name
 }
 
 pub fn config_file_name() -> &'static str {
     &CONSTANTS.config_file_name
-}
-
-pub fn default_target_branch() -> &'static str {
-    &CONSTANTS.default_target_branch
 }
 
 pub fn log_basename() -> &'static str {
@@ -265,26 +230,6 @@ pub fn default_ai_scan_interval() -> u32 {
     CONSTANTS.defaults.code_editor.ai_scan_interval
 }
 
-pub fn lsp_debounce_ms() -> u64 {
-    CONSTANTS.defaults.intervals.lsp_debounce_ms
-}
-
-pub fn scheduler_polling_ms() -> u64 {
-    CONSTANTS.defaults.intervals.scheduler_polling_ms
-}
-
-pub fn script_polling_ms() -> u64 {
-    CONSTANTS.defaults.intervals.script_polling_ms
-}
-
-pub fn ai_polling_ms() -> u64 {
-    CONSTANTS.defaults.intervals.ai_polling_ms
-}
-
-pub fn ai_inflight_wait_ms() -> u64 {
-    CONSTANTS.defaults.intervals.ai_inflight_wait_ms
-}
-
 pub fn icon_builtin() -> &'static str {
     &CONSTANTS.display.icons.builtin
 }
@@ -329,24 +274,12 @@ pub fn icon_skipped() -> &'static str {
     &CONSTANTS.display.icons.skipped
 }
 
-pub fn rule_types() -> &'static [String] {
-    &CONSTANTS.display.rule_types
-}
-
-pub fn js_extensions() -> &'static [String] {
-    &CONSTANTS.extensions.javascript
-}
-
 pub fn is_js_ts_extension(ext: &str) -> bool {
     CONSTANTS.extensions.javascript.iter().any(|e| e == ext)
 }
 
 pub fn cache_dir_name() -> &'static str {
     &CONSTANTS.cache.dir_name
-}
-
-pub fn cache_file_pattern() -> &'static str {
-    &CONSTANTS.cache.file_pattern
 }
 
 pub fn ai_temp_dir() -> &'static str {
@@ -379,10 +312,6 @@ pub fn gemini_command() -> &'static str {
 
 pub fn gemini_args() -> &'static [String] {
     &CONSTANTS.ai.providers.gemini.args
-}
-
-pub fn conflicting_rules() -> &'static [Vec<String>] {
-    &CONSTANTS.validation.conflicting_rules
 }
 
 pub fn rules_base_url() -> &'static str {

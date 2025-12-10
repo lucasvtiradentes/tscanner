@@ -6,7 +6,7 @@ use std::hash::{Hash, Hasher};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
-use std::time::{Duration, Instant, SystemTime};
+use std::time::{Duration, Instant};
 use tscanner_config::ScriptRuleConfig;
 use tscanner_constants::config_dir_name;
 use tscanner_types::{Issue, RuleSource, Severity};
@@ -43,8 +43,6 @@ pub struct ScriptOutput {
 #[derive(Debug, Clone)]
 struct CachedResult {
     issues: Vec<Issue>,
-    #[allow(dead_code)]
-    cached_at: SystemTime,
 }
 
 #[derive(Debug)]
@@ -196,7 +194,6 @@ impl ScriptExecutor {
             cache_key,
             CachedResult {
                 issues: issues.clone(),
-                cached_at: SystemTime::now(),
             },
         );
 

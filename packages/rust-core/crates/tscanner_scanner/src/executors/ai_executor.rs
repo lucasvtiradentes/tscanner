@@ -10,7 +10,7 @@ use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
-use std::time::{Duration, Instant, SystemTime};
+use std::time::{Duration, Instant};
 use tscanner_config::{AiConfig, AiMode, AiRuleConfig};
 use tscanner_constants::{
     ai_placeholder_content, ai_placeholder_files, ai_placeholder_options, ai_rules_dir,
@@ -61,8 +61,6 @@ pub struct AiIssue {
 struct CachedResult {
     issues: Vec<Issue>,
     prompt_hash: u64,
-    #[allow(dead_code)]
-    cached_at: SystemTime,
 }
 
 #[derive(Debug)]
@@ -371,7 +369,6 @@ impl AiExecutor {
                 CachedResult {
                     issues: issues.clone(),
                     prompt_hash,
-                    cached_at: SystemTime::now(),
                 },
             );
         }
