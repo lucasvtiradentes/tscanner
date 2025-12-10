@@ -8,8 +8,8 @@ use std::sync::{Arc, Mutex};
 
 use crate::config_loader::load_config_with_custom;
 use crate::shared::{
-    format_duration, render_header, FormattedOutput, RulesBreakdown, ScanConfig, ScanMode,
-    SummaryStats,
+    format_duration, print_section_header, print_section_title, render_header, FormattedOutput,
+    RulesBreakdown, ScanConfig, ScanMode, SummaryStats,
 };
 use tscanner_cache::FileCache;
 use tscanner_cli::{CliGroupMode, OutputFormat};
@@ -257,7 +257,7 @@ pub fn cmd_check(
             rule_filter: rule_filter.clone(),
         };
         render_header(&scan_config);
-        println!("{}", "Scanning...\n".cyan().bold());
+        print_section_header("Scanning...");
     }
 
     let regular_rules_count =
@@ -365,14 +365,13 @@ pub fn cmd_check(
         };
 
         println!();
-        println!("{}", "Results:".cyan().bold());
+        print_section_title("Results:");
         println!();
         println!("{}", "✓ No issues found!".green().bold());
 
         if scan_skipped {
             println!();
-            println!("{}", "Notes:".cyan().bold());
-            println!();
+            print_section_header("Notes:");
             println!(
                 "  {} {}",
                 "ℹ".blue(),

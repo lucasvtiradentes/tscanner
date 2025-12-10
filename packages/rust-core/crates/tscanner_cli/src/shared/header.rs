@@ -1,7 +1,8 @@
-use colored::*;
 use tscanner_cli::OutputFormat;
 use tscanner_config::{AiExecutionMode, AiProvider};
 use tscanner_output::GroupMode;
+
+use super::section::{print_section_header, print_setting, print_setting_value};
 
 #[derive(Clone)]
 pub enum ScanMode {
@@ -39,8 +40,7 @@ pub fn format_duration(ms: u128) -> String {
 
 pub fn render_header(config: &ScanConfig) {
     if config.show_settings {
-        println!("{}", "Check settings:".cyan().bold());
-        println!();
+        print_section_header("Check settings:");
 
         let mode_str = match &config.mode {
             ScanMode::Codebase => "codebase",
@@ -66,42 +66,38 @@ pub fn render_header(config: &ScanConfig) {
             "disabled"
         };
 
-        println!("  {} {}", "Mode:".dimmed(), mode_str);
+        print_setting("Mode", mode_str);
         match &config.mode {
             ScanMode::Staged { file_count } => {
-                println!("  {} {}", "Staged files:".dimmed(), file_count);
+                print_setting_value("Staged files", file_count);
             }
             ScanMode::Branch { name, file_count } => {
-                println!("  {} {}", "Target branch:".dimmed(), name);
-                println!("  {} {}", "Changed files:".dimmed(), file_count);
+                print_setting("Target branch", name);
+                print_setting_value("Changed files", file_count);
             }
             ScanMode::Codebase => {}
         }
 
-        println!("  {} {}", "Format:".dimmed(), format_str);
-        println!("  {} {}", "Group by:".dimmed(), group_str);
-        println!("  {} {}", "AI mode:".dimmed(), ai_mode_str);
+        print_setting("Format", format_str);
+        print_setting("Group by", group_str);
+        print_setting("AI mode", ai_mode_str);
         if let Some(ref provider) = config.ai_provider {
             let provider_str = match provider {
                 AiProvider::Claude => "claude",
                 AiProvider::Gemini => "gemini",
                 AiProvider::Custom => "custom",
             };
-            println!("  {} {}", "AI provider:".dimmed(), provider_str);
+            print_setting("AI provider", provider_str);
         }
-        println!("  {} {}", "Cache:".dimmed(), cache_str);
-        println!(
-            "  {} {}",
-            "Continue on error:".dimmed(),
-            config.continue_on_error
-        );
-        println!("  {} {}", "Config:".dimmed(), config.config_path);
+        print_setting("Cache", cache_str);
+        print_setting_value("Continue on error", config.continue_on_error);
+        print_setting("Config", &config.config_path);
 
         if let Some(ref glob) = config.glob_filter {
-            println!("  {} {}", "Glob filter:".dimmed(), glob);
+            print_setting("Glob filter", glob);
         }
         if let Some(ref rule) = config.rule_filter {
-            println!("  {} {}", "Rule filter:".dimmed(), rule);
+            print_setting("Rule filter", rule);
         }
 
         println!();

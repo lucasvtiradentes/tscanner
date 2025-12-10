@@ -1,7 +1,8 @@
 use super::renderer::OutputRenderer;
 use super::CheckContext;
 use crate::shared::{
-    format_duration, FormattedOutput, OutputFileGroup, OutputRuleGroup, OutputSummary,
+    format_duration, print_section_header, print_section_title, FormattedOutput, OutputFileGroup,
+    OutputRuleGroup, OutputSummary,
 };
 use colored::*;
 use std::collections::HashMap;
@@ -90,7 +91,7 @@ pub struct TextRenderer;
 impl OutputRenderer for TextRenderer {
     fn render(&self, ctx: &CheckContext, output: &FormattedOutput, _result: &ScanResult) {
         println!();
-        println!("{}", "Results:".cyan().bold());
+        print_section_title("Results:");
 
         match output {
             FormattedOutput::ByFile { files, summary } => {
@@ -258,8 +259,7 @@ impl TextRenderer {
 }
 
 pub fn render_summary(summary: &OutputSummary) {
-    println!("{}", "Summary:".cyan().bold());
-    println!();
+    print_section_header("Summary:");
 
     let issue_parts = summary.issue_parts();
     if issue_parts.is_empty() {

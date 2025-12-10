@@ -3,6 +3,7 @@ use colored::*;
 use std::fs;
 use std::path::Path;
 
+use crate::shared::print_section_title;
 use tscanner_config::{
     ai_rules_dir, config_dir_name, config_file_name, example_ai_rule, example_script_rule,
     script_rules_dir,
@@ -64,7 +65,7 @@ pub fn cmd_init(path: &Path, full: bool) -> Result<()> {
         );
         println!("  {}", config_path.display());
         println!();
-        println!("{}", "Created example files:".cyan());
+        print_section_title("Created example files:");
         println!("  {}/{}", script_rules_dir(), example_script_rule());
         println!("  {}/{}", ai_rules_dir(), example_ai_rule());
     } else {
