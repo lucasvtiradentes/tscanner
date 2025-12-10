@@ -1,6 +1,6 @@
 use super::common::{get_home_dir, resolve_command_path, AiProviderImpl};
 use std::path::PathBuf;
-use tscanner_config::{gemini_args, gemini_command};
+use tscanner_constants::{gemini_args, gemini_command};
 
 pub struct GeminiProvider;
 

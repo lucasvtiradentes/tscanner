@@ -22,6 +22,7 @@ path = "../../scripts/generate_schema.rs"
 tscanner_types = { path = "../tscanner_types" }
 tscanner_cli_output = { path = "../tscanner_cli_output" }
 tscanner_config = { path = "../tscanner_config" }
+tscanner_constants = { path = "../tscanner_constants" }
 tscanner_rules = { path = "../tscanner_rules" }
 tscanner_git = { path = "../tscanner_git" }
 tscanner_cache = { path = "../tscanner_cache" }

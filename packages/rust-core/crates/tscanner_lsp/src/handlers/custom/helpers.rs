@@ -2,7 +2,8 @@ use lsp_server::{Connection, Message, RequestId, Response};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use tscanner_cache::FileCache;
-use tscanner_config::{config_dir_name, config_file_name, TscannerConfig};
+use tscanner_config::TscannerConfig;
+use tscanner_constants::{config_dir_name, config_file_name};
 use tscanner_scanner::{load_config, Scanner};
 
 type LspError = Box<dyn std::error::Error + Send + Sync>;

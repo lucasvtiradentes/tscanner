@@ -15,4 +15,4 @@ pub use executors::{
 };
 pub use parser::parse_file;
 pub use scanner::{BranchScanResult, ScanCallbacks, Scanner, StagedScanResult};
-pub use tscanner_config::{ignore_comment, ignore_next_line_comment};
+pub use tscanner_constants::{ignore_comment, ignore_next_line_comment};

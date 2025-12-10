@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use std::fs;
 use std::path::Path;
-use tscanner_config::{ai_rules_dir, example_ai_rule, example_script_rule, script_rules_dir};
+use tscanner_constants::{ai_rules_dir, example_ai_rule, example_script_rule, script_rules_dir};
 
 const TSCANNER_VERSION: &str = env!("CARGO_PKG_VERSION");
 

@@ -1511,6 +1511,7 @@ dependencies = [
  "tscanner_cache",
  "tscanner_cli_output",
  "tscanner_config",
+ "tscanner_constants",
  "tscanner_git",
  "tscanner_lsp",
  "tscanner_rules",
@@ -1527,7 +1528,7 @@ dependencies = [
  "pathdiff",
  "serde",
  "serde_json",
- "tscanner_config",
+ "tscanner_constants",
  "tscanner_types",
 ]
 
@@ -1585,6 +1586,7 @@ dependencies = [
  "tscanner_cache",
  "tscanner_cli_output",
  "tscanner_config",
+ "tscanner_constants",
  "tscanner_git",
  "tscanner_rules",
  "tscanner_scanner",
@@ -1631,6 +1633,7 @@ dependencies = [
  "swc_ecma_parser",
  "tscanner_cache",
  "tscanner_config",
+ "tscanner_constants",
  "tscanner_git",
  "tscanner_rules",
  "tscanner_types",

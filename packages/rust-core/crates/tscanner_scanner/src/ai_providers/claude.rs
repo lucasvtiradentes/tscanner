@@ -1,6 +1,6 @@
 use super::common::{get_home_dir, resolve_command_path, AiProviderImpl};
 use std::path::PathBuf;
-use tscanner_config::{claude_args, claude_command};
+use tscanner_constants::{claude_args, claude_command};
 
 pub struct ClaudeProvider;
 

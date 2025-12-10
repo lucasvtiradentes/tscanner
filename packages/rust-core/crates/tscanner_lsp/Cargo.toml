@@ -14,6 +14,7 @@ path = "src/main.rs"
 tscanner_types = { path = "../tscanner_types" }
 tscanner_cli_output = { path = "../tscanner_cli_output" }
 tscanner_config = { path = "../tscanner_config" }
+tscanner_constants = { path = "../tscanner_constants" }
 tscanner_service = { path = "../tscanner_service" }
 tscanner_scanner = { path = "../tscanner_scanner" }
 tscanner_cache = { path = "../tscanner_cache" }

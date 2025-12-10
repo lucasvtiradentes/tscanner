@@ -1,7 +1,8 @@
 use anyhow::Result;
 use std::path::{Path, PathBuf};
 
-use tscanner_config::{config_dir_name, config_file_name, TscannerConfig};
+use tscanner_config::TscannerConfig;
+use tscanner_constants::{config_dir_name, config_file_name};
 use tscanner_scanner::load_config;
 use tscanner_service::log_info;
 

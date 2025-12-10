@@ -5,7 +5,7 @@ use lsp_types::{
     DidChangeTextDocumentParams, DidChangeWatchedFilesParams, DidCloseTextDocumentParams,
     DidOpenTextDocumentParams, DidSaveTextDocumentParams, FileChangeType,
 };
-use tscanner_config::{config_dir_name, config_file_name};
+use tscanner_constants::{config_dir_name, config_file_name};
 
 use super::diagnostics::{clear_all_diagnostics, clear_diagnostics, publish_diagnostics};
 

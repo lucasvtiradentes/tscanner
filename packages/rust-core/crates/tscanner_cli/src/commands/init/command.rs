@@ -4,7 +4,7 @@ use std::fs;
 use std::path::Path;
 
 use crate::shared::print_section_title;
-use tscanner_config::{
+use tscanner_constants::{
     ai_rules_dir, config_dir_name, config_file_name, example_ai_rule, example_script_rule,
     script_rules_dir,
 };

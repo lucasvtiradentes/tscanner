@@ -1,4 +1,4 @@
-use tscanner_config::{
+use tscanner_constants::{
     icon_ai, icon_builtin, icon_error, icon_hint, icon_info, icon_regex, icon_script, icon_warning,
 };
 use tscanner_types::RuleSource;

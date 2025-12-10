@@ -1,5 +1,5 @@
 use lsp_types::{CodeDescription, Diagnostic, DiagnosticSeverity, Position, Range, Url};
-use tscanner_config::{app_name, rules_base_url};
+use tscanner_constants::{app_name, rules_base_url};
 use tscanner_types::{Issue, Severity};
 
 fn get_rule_url(rule: &str, category: Option<&str>) -> Option<Url> {
