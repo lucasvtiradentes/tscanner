@@ -1641,6 +1641,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "tscanner_logger"
+version = "0.0.31"
+dependencies = [
+ "time",
+ "tscanner_constants",
+]
+
+[[package]]
 name = "tscanner_lsp"
 version = "0.0.31"
 dependencies = [
@@ -1724,9 +1732,9 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.17",
- "time",
  "tscanner_cache",
  "tscanner_config",
+ "tscanner_logger",
  "tscanner_rules",
  "tscanner_scanner",
  "tscanner_types",

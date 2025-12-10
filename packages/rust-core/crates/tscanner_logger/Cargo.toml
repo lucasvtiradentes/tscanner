@@ -1,0 +1,11 @@
+[package]
+name = "tscanner_logger"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+tscanner_constants = { path = "../tscanner_constants" }
+time = { workspace = true }

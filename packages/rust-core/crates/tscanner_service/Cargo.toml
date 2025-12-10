@@ -12,9 +12,9 @@ tscanner_config = { path = "../tscanner_config" }
 tscanner_rules = { path = "../tscanner_rules" }
 tscanner_cache = { path = "../tscanner_cache" }
 tscanner_scanner = { path = "../tscanner_scanner" }
+tscanner_logger = { path = "../tscanner_logger" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 thiserror = { workspace = true }
-time = { workspace = true }
 lazy_static = "1.4"
 parking_lot = "0.12"
