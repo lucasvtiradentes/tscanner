@@ -68,7 +68,7 @@ export class LineResultItem extends vscode.TreeItem {
     super(result.text, vscode.TreeItemCollapsibleState.None);
 
     this.description = `Ln ${result.line + 1}, Col ${result.column + 1}`;
-    this.tooltip = result.text;
+    this.tooltip = result.message;
 
     this.command = {
       command: getCommandId(Command.OpenFile),
