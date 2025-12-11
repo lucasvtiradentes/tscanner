@@ -4,7 +4,7 @@ import type { CommandContext } from '../common/state/extension-state';
 import { StoreKey, extensionStore } from '../common/state/extension-store';
 import type { AiIssuesView, RegularIssuesView } from '../issues-panel';
 import { createOpenSettingsMenuCommand } from '../settings-menu';
-import { createCopyCommand } from './internal/copy-items';
+import { CopyMode, CopyScope, createCopyCommand } from './internal/copy-items';
 import { createOpenFileCommand } from './internal/navigation';
 import { createRefreshAiIssuesCommand, createRefreshCommand } from './internal/refresh';
 import {
@@ -48,17 +48,17 @@ export function registerAllCommands(
     createCycleViewModeRuleFlatViewCommand(regularView, aiView, context),
     createCycleViewModeRuleTreeViewCommand(regularView, aiView, context),
     createOpenFileCommand(),
-    createCopyCommand('regular', 'rule'),
-    createCopyCommand('regular', 'file'),
-    createCopyCommand('regular', 'folder'),
-    createCopyCommand('regular', 'all', {
+    createCopyCommand(CopyMode.Regular, CopyScope.Rule),
+    createCopyCommand(CopyMode.Regular, CopyScope.File),
+    createCopyCommand(CopyMode.Regular, CopyScope.Folder),
+    createCopyCommand(CopyMode.Regular, CopyScope.All, {
       getResults: () => regularView.getResults(),
       getGroupMode: () => regularView.groupMode,
     }),
-    createCopyCommand('ai', 'rule'),
-    createCopyCommand('ai', 'file'),
-    createCopyCommand('ai', 'folder'),
-    createCopyCommand('ai', 'all', {
+    createCopyCommand(CopyMode.Ai, CopyScope.Rule),
+    createCopyCommand(CopyMode.Ai, CopyScope.File),
+    createCopyCommand(CopyMode.Ai, CopyScope.Folder),
+    createCopyCommand(CopyMode.Ai, CopyScope.All, {
       getResults: () => aiView.getResults(),
       getGroupMode: () => aiView.groupMode,
     }),

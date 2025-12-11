@@ -3,10 +3,27 @@ import { join, resolve } from 'node:path';
 import { DynMarkdown, MarkdownTable, type TRowContent, getJson } from 'markdown-helper';
 import { PACKAGE_DISPLAY_NAME, REPO_URL } from 'tscanner-common';
 
+enum RuleOptionType {
+  Integer = 'integer',
+  Boolean = 'boolean',
+  String = 'string',
+  Array = 'array',
+}
+
+enum RuleType {
+  Ast = 'ast',
+  Regex = 'regex',
+}
+
+enum RuleSeverity {
+  Error = 'error',
+  Warning = 'warning',
+}
+
 type RuleOption = {
   name: string;
   description: string;
-  type: 'integer' | 'boolean' | 'string' | 'array';
+  type: RuleOptionType;
   default: unknown;
   minimum?: number;
   items?: string;
@@ -15,8 +32,8 @@ type RuleOption = {
 type RuleMetadata = {
   displayName: string;
   description: string;
-  ruleType: 'ast' | 'regex';
-  defaultSeverity: 'error' | 'warning';
+  ruleType: RuleType;
+  defaultSeverity: RuleSeverity;
   defaultEnabled: boolean;
   category: string;
   sourcePath?: string;
@@ -87,7 +104,7 @@ export function updateRules() {
           '<img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only">',
         );
       }
-      if (rule.ruleType === 'regex') {
+      if (rule.ruleType === RuleType.Regex) {
         ruleBadges.push('<img src="https://img.shields.io/badge/regex--rule-6C757D" alt="Regex rule">');
       }
       if (rule.options && rule.options.length > 0) {

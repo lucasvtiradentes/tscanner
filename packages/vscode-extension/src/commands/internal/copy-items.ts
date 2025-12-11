@@ -5,8 +5,17 @@ import { Command, ToastKind, registerCommand, showToastMessage } from '../../com
 import type { IssueResult } from '../../common/types';
 import type { FileResultItem, FolderResultItem, RuleGroupItem } from '../../issues-panel';
 
-type CopyMode = 'regular' | 'ai';
-type CopyScope = 'rule' | 'file' | 'folder' | 'all';
+export enum CopyMode {
+  Regular = 'regular',
+  Ai = 'ai',
+}
+
+export enum CopyScope {
+  Rule = 'rule',
+  File = 'file',
+  Folder = 'folder',
+  All = 'all',
+}
 
 type CopyCommandConfig = {
   mode: CopyMode;
@@ -19,27 +28,27 @@ type AllScopeContext = {
 };
 
 const COMMAND_MAP: Record<CopyMode, Record<CopyScope, Command>> = {
-  regular: {
-    rule: Command.CopyRuleIssues,
-    file: Command.CopyFileIssues,
-    folder: Command.CopyFolderIssues,
-    all: Command.CopyAllIssues,
+  [CopyMode.Regular]: {
+    [CopyScope.Rule]: Command.CopyRuleIssues,
+    [CopyScope.File]: Command.CopyFileIssues,
+    [CopyScope.Folder]: Command.CopyFolderIssues,
+    [CopyScope.All]: Command.CopyAllIssues,
   },
-  ai: {
-    rule: Command.CopyAiRuleIssues,
-    file: Command.CopyAiFileIssues,
-    folder: Command.CopyAiFolderIssues,
-    all: Command.CopyAllAiIssues,
+  [CopyMode.Ai]: {
+    [CopyScope.Rule]: Command.CopyAiRuleIssues,
+    [CopyScope.File]: Command.CopyAiFileIssues,
+    [CopyScope.Folder]: Command.CopyAiFolderIssues,
+    [CopyScope.All]: Command.CopyAllAiIssues,
   },
 };
 
 function getFilterTypeLabel(mode: CopyMode, scope: CopyScope): string {
-  const prefix = mode === 'ai' ? 'AI ' : '';
+  const prefix = mode === CopyMode.Ai ? 'AI ' : '';
   const scopeLabels: Record<CopyScope, string> = {
-    rule: 'rule',
-    file: 'file',
-    folder: 'folder',
-    all: 'all issues',
+    [CopyScope.Rule]: 'rule',
+    [CopyScope.File]: 'file',
+    [CopyScope.Folder]: 'folder',
+    [CopyScope.All]: 'all issues',
   };
   return `${prefix}${scopeLabels[scope]}`;
 }
@@ -51,12 +60,12 @@ function createRuleCopyHandler(config: CopyCommandConfig) {
     await copyIssuesBase({
       results: item.results,
       groupMode: GroupMode.Rule,
-      filterType: getFilterTypeLabel(config.mode, 'rule'),
+      filterType: getFilterTypeLabel(config.mode, CopyScope.Rule),
       filterValue: item.rule,
       cliFilter: 'rule',
       cliFilterValue: item.rule,
-      onlyAi: config.mode === 'ai',
-      successMessage: `Copied ${item.results.length} ${config.mode === 'ai' ? 'AI ' : ''}issues from "${item.rule}"`,
+      onlyAi: config.mode === CopyMode.Ai,
+      successMessage: `Copied ${item.results.length} ${config.mode === CopyMode.Ai ? 'AI ' : ''}issues from "${item.rule}"`,
     });
   };
 }
@@ -70,12 +79,12 @@ function createFileCopyHandler(config: CopyCommandConfig) {
     await copyIssuesBase({
       results: item.results,
       groupMode: GroupMode.File,
-      filterType: getFilterTypeLabel(config.mode, 'file'),
+      filterType: getFilterTypeLabel(config.mode, CopyScope.File),
       filterValue: relativePath,
       cliFilter: 'glob',
       cliFilterValue: relativePath,
-      onlyAi: config.mode === 'ai',
-      successMessage: `Copied ${item.results.length} ${config.mode === 'ai' ? 'AI ' : ''}issues from "${relativePath}"`,
+      onlyAi: config.mode === CopyMode.Ai,
+      successMessage: `Copied ${item.results.length} ${config.mode === CopyMode.Ai ? 'AI ' : ''}issues from "${relativePath}"`,
     });
   };
 }
@@ -93,12 +102,12 @@ function createFolderCopyHandler(config: CopyCommandConfig) {
     await copyIssuesBase({
       results: allResults,
       groupMode: GroupMode.File,
-      filterType: getFilterTypeLabel(config.mode, 'folder'),
+      filterType: getFilterTypeLabel(config.mode, CopyScope.Folder),
       filterValue: item.node.name,
       cliFilter: 'glob',
       cliFilterValue: `${relativeFolderPath}/**/*`,
-      onlyAi: config.mode === 'ai',
-      successMessage: `Copied ${allResults.length} ${config.mode === 'ai' ? 'AI ' : ''}issues from folder "${item.node.name}"`,
+      onlyAi: config.mode === CopyMode.Ai,
+      successMessage: `Copied ${allResults.length} ${config.mode === CopyMode.Ai ? 'AI ' : ''}issues from folder "${item.node.name}"`,
     });
   };
 }
@@ -110,29 +119,29 @@ function createAllCopyHandler(config: CopyCommandConfig, ctx: AllScopeContext) {
     await copyIssuesBase({
       results,
       groupMode: ctx.getGroupMode(),
-      filterType: getFilterTypeLabel(config.mode, 'all'),
-      onlyAi: config.mode === 'ai',
-      successMessage: `Copied ${results.length} ${config.mode === 'ai' ? 'AI ' : ''}issues`,
+      filterType: getFilterTypeLabel(config.mode, CopyScope.All),
+      onlyAi: config.mode === CopyMode.Ai,
+      successMessage: `Copied ${results.length} ${config.mode === CopyMode.Ai ? 'AI ' : ''}issues`,
     });
   };
 }
 
-export function createCopyCommand(mode: CopyMode, scope: 'rule'): vscode.Disposable;
-export function createCopyCommand(mode: CopyMode, scope: 'file'): vscode.Disposable;
-export function createCopyCommand(mode: CopyMode, scope: 'folder'): vscode.Disposable;
-export function createCopyCommand(mode: CopyMode, scope: 'all', ctx: AllScopeContext): vscode.Disposable;
+export function createCopyCommand(mode: CopyMode, scope: CopyScope.Rule): vscode.Disposable;
+export function createCopyCommand(mode: CopyMode, scope: CopyScope.File): vscode.Disposable;
+export function createCopyCommand(mode: CopyMode, scope: CopyScope.Folder): vscode.Disposable;
+export function createCopyCommand(mode: CopyMode, scope: CopyScope.All, ctx: AllScopeContext): vscode.Disposable;
 export function createCopyCommand(mode: CopyMode, scope: CopyScope, ctx?: AllScopeContext): vscode.Disposable {
   const command = COMMAND_MAP[mode][scope];
   const config: CopyCommandConfig = { mode, scope };
 
   switch (scope) {
-    case 'rule':
+    case CopyScope.Rule:
       return registerCommand(command, createRuleCopyHandler(config));
-    case 'file':
+    case CopyScope.File:
       return registerCommand(command, createFileCopyHandler(config));
-    case 'folder':
+    case CopyScope.Folder:
       return registerCommand(command, createFolderCopyHandler(config));
-    case 'all':
+    case CopyScope.All:
       return registerCommand(command, createAllCopyHandler(config, ctx!));
   }
 }
