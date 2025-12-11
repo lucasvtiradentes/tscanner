@@ -43,6 +43,11 @@
         "message": "No deprecated methods",
         "include": ["packages/rust-core/**/*.rs"]
       },
+      "no-rust-dead-code": {
+        "pattern": "allow\\(dead_code\\)",
+        "message": "Dead code annotation found - remove unused code instead",
+        "include": ["packages/rust-core/**/*.rs"]
+      },
       "no-process-env": {
         "pattern": "process\\.env",
         "message": "No process env"
