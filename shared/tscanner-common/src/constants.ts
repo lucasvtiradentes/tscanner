@@ -13,6 +13,8 @@ export const IGNORE_COMMENT = constants.ignoreComment;
 export const IGNORE_NEXT_LINE_COMMENT = constants.ignoreNextLineComment;
 export const JS_EXTENSIONS = constants.extensions.javascript;
 export const VSCODE_EXTENSION = constants.vscodeExtension;
+export const REPO_URL = constants.urls.repo;
+export const REPO_BLOB_URL = constants.urls.repoBlob;
 
 export enum Severity {
   Error = 'error',

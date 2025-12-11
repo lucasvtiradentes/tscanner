@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { DynMarkdown, MarkdownTable, type TRowContent, getJson } from 'markdown-helper';
-import { PACKAGE_DISPLAY_NAME } from 'tscanner-common';
+import { PACKAGE_DISPLAY_NAME, REPO_URL } from 'tscanner-common';
 
 type RuleOption = {
   name: string;
@@ -95,7 +95,7 @@ export function updateRules() {
       }
       const badgesHtml = ruleBadges.length > 0 ? `<br/><br/>${ruleBadges.join(' ')}` : '';
       const ruleLink = rule.sourcePath
-        ? `<a href="https://github.com/lucasvtiradentes/tscanner/blob/main/${rule.sourcePath}"><code>${ruleName}</code></a>`
+        ? `<a href="${REPO_URL}/blob/main/${rule.sourcePath}"><code>${ruleName}</code></a>`
         : `<code>${ruleName}</code>`;
       const ruleCell = `<div align="center">${ruleLink}${badgesHtml}</div>`;
 
@@ -211,7 +211,7 @@ Define patterns to match in your code using regular expressions:
 }
 \`\`\`
 
-> 💡 See a real example in the [\`.tscanner/\`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
+> 💡 See a real example in the [\`.tscanner/\`](${REPO_URL}/tree/main/.tscanner) folder of this project.
 
 </div>
 </details>
@@ -243,7 +243,7 @@ Run custom scripts that receive file data via stdin and output issues as JSON:
 ${scriptRuleExample}
 \`\`\`
 
-> 💡 See a real example in the [\`.tscanner/\`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
+> 💡 See a real example in the [\`.tscanner/\`](${REPO_URL}/tree/main/.tscanner) folder of this project.
 
 </div>
 </details>
@@ -279,7 +279,7 @@ Use AI prompts to perform semantic code analysis:
 ${aiRuleExample}
 \`\`\`
 
-> 💡 See a real example in the [\`.tscanner/\`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
+> 💡 See a real example in the [\`.tscanner/\`](${REPO_URL}/tree/main/.tscanner) folder of this project.
 
 </div>
 </details>`;

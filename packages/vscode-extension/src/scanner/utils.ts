@@ -1,4 +1,4 @@
-import { type Issue, PACKAGE_DISPLAY_NAME } from 'tscanner-common';
+import { type Issue, PACKAGE_DISPLAY_NAME, REPO_URL } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { LOG_FILE_PATH } from '../common/lib/logger';
 import { openTextDocument } from '../common/lib/vscode-utils';
@@ -12,7 +12,7 @@ type ConfigError = {
 };
 
 function getDocsUrl(version: string): string {
-  return `https://github.com/lucasvtiradentes/tscanner/tree/vscode-extension-v${version}?tab=readme-ov-file#%EF%B8%8F-configuration`;
+  return `${REPO_URL}/tree/vscode-extension-v${version}?tab=readme-ov-file#%EF%B8%8F-configuration`;
 }
 
 export function parseConfigError(errorMessage: string): ConfigError | null {

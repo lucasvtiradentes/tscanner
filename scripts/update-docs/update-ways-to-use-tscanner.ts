@@ -1,6 +1,6 @@
 import path from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
-import { PACKAGE_DISPLAY_NAME } from 'tscanner-common';
+import { PACKAGE_DISPLAY_NAME, REPO_URL } from 'tscanner-common';
 
 type TFields = 'WAYS_TO_USE_TSCANNER';
 type TPackage = 'cli' | 'vscode-extension' | 'github-action';
@@ -43,7 +43,7 @@ export function updateWaysToUseTscanner() {
 
   const getPackageLink = (pkg: TPackageInfo, useFullGithubLink: boolean) => {
     if (useFullGithubLink) {
-      return `https://github.com/lucasvtiradentes/tscanner/tree/main/packages/${pkg.id}#readme`;
+      return `${REPO_URL}/tree/main/packages/${pkg.id}#readme`;
     }
     return `packages/${pkg.id}#readme`;
   };

@@ -1,5 +1,6 @@
 import path from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
+import { REPO_BLOB_URL } from 'tscanner-common';
 
 type TFields = 'CONTRIBUTING';
 
@@ -7,9 +8,7 @@ const rootDir = path.resolve(__dirname, '..', '..');
 
 export function updateContributing() {
   const getContributingContent = (useAbsoluteLink: boolean) => {
-    const link = useAbsoluteLink
-      ? 'https://github.com/lucasvtiradentes/tscanner/blob/main/CONTRIBUTING.md'
-      : 'CONTRIBUTING.md';
+    const link = useAbsoluteLink ? `${REPO_BLOB_URL}/CONTRIBUTING.md` : 'CONTRIBUTING.md';
 
     return `## 🤝 Contributing<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 

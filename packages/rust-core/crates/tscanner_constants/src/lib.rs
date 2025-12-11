@@ -123,6 +123,8 @@ struct AiProviderConfig {
 #[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 struct UrlsConfig {
+    repo: String,
+    repo_blob: String,
     rules_base: String,
 }
 
@@ -297,6 +299,14 @@ pub fn gemini_command() -> &'static str {
 
 pub fn gemini_args() -> &'static [String] {
     &CONSTANTS.ai.providers.gemini.args
+}
+
+pub fn repo_url() -> &'static str {
+    &CONSTANTS.urls.repo
+}
+
+pub fn repo_blob_url() -> &'static str {
+    &CONSTANTS.urls.repo_blob
 }
 
 pub fn rules_base_url() -> &'static str {
