@@ -1,5 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import { readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { DynMarkdown, MarkdownTable, type TRowContent, getJson } from 'markdown-helper';
 import { PACKAGE_DISPLAY_NAME, REPO_URL } from 'tscanner-common';
 
@@ -28,10 +28,10 @@ type RuleMetadata = {
 
 type TFields = 'RULES';
 
-const rootDir = path.resolve(__dirname, '..', '..');
+const rootDir = resolve(__dirname, '..', '..');
 
 export function updateRules() {
-  const rulesJson: RuleMetadata[] = getJson(path.join(rootDir, 'assets/generated/rules.json'));
+  const rulesJson: RuleMetadata[] = getJson(join(rootDir, 'assets/generated/rules.json'));
 
   const categoryMap: Record<string, string> = {
     typesafety: 'Type Safety',
@@ -178,10 +178,8 @@ Customize ${PACKAGE_DISPLAY_NAME} to validate what matters to your project while
 
 `;
 
-  const scriptRuleExample = fs
-    .readFileSync(path.join(rootDir, 'assets/configs/script-rule-example.ts'), 'utf-8')
-    .trim();
-  const aiRuleExample = fs.readFileSync(path.join(rootDir, 'assets/configs/ai-rule-example.md'), 'utf-8').trim();
+  const scriptRuleExample = readFileSync(join(rootDir, 'assets/configs/script-rule-example.ts'), 'utf-8').trim();
+  const aiRuleExample = readFileSync(join(rootDir, 'assets/configs/ai-rule-example.md'), 'utf-8').trim();
 
   const customRulesContent = `<details>
 <summary>Regex rules examples</summary>
@@ -296,10 +294,10 @@ ${customRulesContent}
 </div>`;
 
   const readmePaths = [
-    path.join(rootDir, 'README.md'),
-    path.join(rootDir, 'packages/cli/README.md'),
-    path.join(rootDir, 'packages/vscode-extension/README.md'),
-    path.join(rootDir, 'packages/github-action/README.md'),
+    join(rootDir, 'README.md'),
+    join(rootDir, 'packages/cli/README.md'),
+    join(rootDir, 'packages/vscode-extension/README.md'),
+    join(rootDir, 'packages/github-action/README.md'),
   ];
 
   for (const filePath of readmePaths) {

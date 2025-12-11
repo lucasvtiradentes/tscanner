@@ -1,4 +1,4 @@
-import path from 'node:path';
+import { join, resolve } from 'node:path';
 import { DynMarkdown, MarkdownTable, type TRowContent, getJson } from 'markdown-helper';
 
 type CliFlag = {
@@ -36,10 +36,10 @@ type CliJson = {
 
 type TFields = 'CLI_USAGE';
 
-const rootDir = path.resolve(__dirname, '..', '..');
+const rootDir = resolve(__dirname, '..', '..');
 
 export function updateCliUsage() {
-  const cliJson: CliJson = getJson(path.join(rootDir, 'assets/generated/cli.json'));
+  const cliJson: CliJson = getJson(join(rootDir, 'assets/generated/cli.json'));
 
   const headerContent = [
     { content: 'Command', width: 120 },
@@ -104,7 +104,7 @@ ${tableContent}
 
 </div>`;
 
-  const readmePath = path.join(rootDir, 'packages/cli/README.md');
+  const readmePath = join(rootDir, 'packages/cli/README.md');
   const readme = new DynMarkdown<TFields>(readmePath);
   readme.updateField('CLI_USAGE', content);
   readme.saveFile();

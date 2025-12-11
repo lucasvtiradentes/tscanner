@@ -1,9 +1,9 @@
-import path from 'node:path';
+import { join, resolve } from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
 
 type TFields = 'VSCODE_EXTENSION_DEMO_IMAGE' | 'CLI_DEMO_IMAGE' | 'GITHUB_ACTION_DEMO_IMAGE';
 
-const rootDir = path.resolve(__dirname, '..', '..');
+const rootDir = resolve(__dirname, '..', '..');
 
 export function updateImages() {
   const baseImageUrl = 'https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image';
@@ -26,21 +26,21 @@ export function updateImages() {
   <em>issues detected in the latest commit pushed to a PR</em>
 </div>`;
 
-  const rootReadme = new DynMarkdown<TFields>(path.join(rootDir, 'README.md'));
+  const rootReadme = new DynMarkdown<TFields>(join(rootDir, 'README.md'));
   rootReadme.updateField('VSCODE_EXTENSION_DEMO_IMAGE', vscodeExtensionDemoImageContent);
   rootReadme.updateField('CLI_DEMO_IMAGE', cliDemoImageContent);
   rootReadme.updateField('GITHUB_ACTION_DEMO_IMAGE', githubActionDemoImageContent);
   rootReadme.saveFile();
 
-  const cliReadme = new DynMarkdown<TFields>(path.join(rootDir, 'packages/cli/README.md'));
+  const cliReadme = new DynMarkdown<TFields>(join(rootDir, 'packages/cli/README.md'));
   cliReadme.updateField('CLI_DEMO_IMAGE', cliDemoImageContent);
   cliReadme.saveFile();
 
-  const vscodeReadme = new DynMarkdown<TFields>(path.join(rootDir, 'packages/vscode-extension/README.md'));
+  const vscodeReadme = new DynMarkdown<TFields>(join(rootDir, 'packages/vscode-extension/README.md'));
   vscodeReadme.updateField('VSCODE_EXTENSION_DEMO_IMAGE', vscodeExtensionDemoImageContent);
   vscodeReadme.saveFile();
 
-  const gihubReadme = new DynMarkdown<TFields>(path.join(rootDir, 'packages/github-action/README.md'));
+  const gihubReadme = new DynMarkdown<TFields>(join(rootDir, 'packages/github-action/README.md'));
   gihubReadme.updateField('GITHUB_ACTION_DEMO_IMAGE', githubActionDemoImageContent);
   gihubReadme.saveFile();
 

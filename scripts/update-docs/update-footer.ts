@@ -1,9 +1,9 @@
-import path from 'node:path';
+import { join, resolve } from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
 
 type TFields = 'FOOTER';
 
-const rootDir = path.resolve(__dirname, '..', '..');
+const rootDir = resolve(__dirname, '..', '..');
 
 export function updateFooter() {
   const getFooterContent = () => {
@@ -31,7 +31,7 @@ export function updateFooter() {
   ];
 
   readmeConfigs.forEach((filePath) => {
-    const readme = new DynMarkdown<TFields>(path.join(rootDir, filePath));
+    const readme = new DynMarkdown<TFields>(join(rootDir, filePath));
     readme.updateField('FOOTER', getFooterContent());
     readme.saveFile();
   });

@@ -1,13 +1,13 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import esbuild, { type BuildOptions } from 'esbuild';
 
 const isDev = !process.env.CI;
 
 const logger = console;
 
-const projectRoot = path.resolve(__dirname, '../..');
-const aiFixPrompt = fs.readFileSync(path.resolve(projectRoot, 'assets/prompts/fix-tscanner-issues.prompt.md'), 'utf8');
+const projectRoot = resolve(__dirname, '../..');
+const aiFixPrompt = readFileSync(resolve(projectRoot, 'assets/prompts/fix-tscanner-issues.prompt.md'), 'utf8');
 
 const extensionBuildOptions: BuildOptions = {
   entryPoints: ['src/extension.ts'],

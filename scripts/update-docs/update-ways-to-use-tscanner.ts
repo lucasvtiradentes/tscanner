@@ -1,4 +1,4 @@
-import path from 'node:path';
+import { join, resolve } from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
 import { PACKAGE_DISPLAY_NAME, REPO_URL } from 'tscanner-common';
 
@@ -34,7 +34,7 @@ export function updateWaysToUseTscanner() {
     },
   ];
 
-  const rootDir = path.resolve(__dirname, '..', '..');
+  const rootDir = resolve(__dirname, '..', '..');
 
   type TOptions = {
     useFullGithubLink: boolean;
@@ -111,7 +111,7 @@ ${rows}
   ];
 
   readmeConfigs.forEach(({ path: filePath, useFullGithubLink, hiddenPackages, detailsTitle }) => {
-    const readme = new DynMarkdown<TFields>(path.join(rootDir, filePath));
+    const readme = new DynMarkdown<TFields>(join(rootDir, filePath));
     let content = getWaysToUseTscannerContent({ useFullGithubLink, hiddenPackages });
 
     if (detailsTitle) {

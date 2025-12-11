@@ -1,10 +1,10 @@
-import path from 'node:path';
+import { join, resolve } from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
 import { REPO_BLOB_URL } from 'tscanner-common';
 
 type TFields = 'CONTRIBUTING';
 
-const rootDir = path.resolve(__dirname, '..', '..');
+const rootDir = resolve(__dirname, '..', '..');
 
 export function updateContributing() {
   const getContributingContent = (useAbsoluteLink: boolean) => {
@@ -23,7 +23,7 @@ Contributions are welcome! See [CONTRIBUTING.md](${link}) for setup instructions
   ];
 
   readmeConfigs.forEach(({ path: filePath, useAbsoluteLink }) => {
-    const readme = new DynMarkdown<TFields>(path.join(rootDir, filePath));
+    const readme = new DynMarkdown<TFields>(join(rootDir, filePath));
     readme.updateField('CONTRIBUTING', getContributingContent(useAbsoluteLink));
     readme.saveFile();
   });

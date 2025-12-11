@@ -1,5 +1,5 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import { readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
 import {
   CONFIG_DIR_NAME,
@@ -12,12 +12,12 @@ import {
 
 type TFields = 'COMMON_SECTION_CONFIG';
 
-const rootDir = path.resolve(__dirname, '..', '..');
+const rootDir = resolve(__dirname, '..', '..');
 
 export function updateConfigSection() {
   const getConfigSectionContent = () => {
-    const fullConfigContent = fs.readFileSync(path.join(rootDir, 'assets/configs/full.json'), 'utf-8').trim();
-    const minimalConfigContent = fs.readFileSync(path.join(rootDir, 'assets/configs/minimal.json'), 'utf-8').trim();
+    const fullConfigContent = readFileSync(join(rootDir, 'assets/configs/full.json'), 'utf-8').trim();
+    const minimalConfigContent = readFileSync(join(rootDir, 'assets/configs/minimal.json'), 'utf-8').trim();
 
     return `## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
@@ -101,7 +101,7 @@ const data: any = fetchData();
   ];
 
   readmeConfigs.forEach(({ path: filePath }) => {
-    const readme = new DynMarkdown<TFields>(path.join(rootDir, filePath));
+    const readme = new DynMarkdown<TFields>(join(rootDir, filePath));
     readme.updateField('COMMON_SECTION_CONFIG', getConfigSectionContent());
     readme.saveFile();
   });

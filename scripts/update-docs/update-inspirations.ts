@@ -1,9 +1,9 @@
-import path from 'node:path';
+import { join, resolve } from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
 
 type TFields = 'INSPIRATIONS';
 
-const rootDir = path.resolve(__dirname, '..', '..');
+const rootDir = resolve(__dirname, '..', '..');
 
 export function updateInspirations() {
   const getInspirationsContent = () => {
@@ -80,7 +80,7 @@ I am deeply grateful to the Biome team for open-sourcing such an incredible proj
   ];
 
   readmeConfigs.forEach(({ path: filePath }) => {
-    const readme = new DynMarkdown<TFields>(path.join(rootDir, filePath));
+    const readme = new DynMarkdown<TFields>(join(rootDir, filePath));
     readme.updateField('INSPIRATIONS', getInspirationsContent());
     readme.saveFile();
   });

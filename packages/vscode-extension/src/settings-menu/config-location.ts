@@ -1,4 +1,4 @@
-import * as path from 'node:path';
+import { posix } from 'node:path';
 import { CONFIG_DIR_NAME } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { getConfigDirLabel, hasConfig, moveConfig } from '../common/lib/config-manager';
@@ -25,7 +25,7 @@ function toConfigDir(selectedPath: string): string | null {
 }
 
 function joinPath(base: string, segment: string): string {
-  return isRootPath(base) ? segment : path.posix.join(base, segment);
+  return isRootPath(base) ? segment : posix.join(base, segment);
 }
 
 type ConfigLocationContext = {
@@ -152,7 +152,7 @@ async function showFolderPicker(workspaceRoot: vscode.Uri, currentPath: string):
   }
 
   if (selected.id === '__parent__') {
-    const parent = path.posix.dirname(currentPath);
+    const parent = posix.dirname(currentPath);
     return showFolderPicker(workspaceRoot, isRootPath(parent) ? ROOT_PATH : parent);
   }
 
