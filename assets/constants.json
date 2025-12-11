@@ -58,8 +58,8 @@
         "ai": "✦",
         "error": "✖",
         "warning": "⚠",
-        "info": "ℹ",
-        "hint": "💡",
+        "info": "●",
+        "hint": "◆",
         "progress": "⧗",
         "success": "✓",
         "skipped": "⊘"
