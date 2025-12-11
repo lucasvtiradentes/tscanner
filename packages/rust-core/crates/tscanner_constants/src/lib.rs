@@ -77,7 +77,6 @@ struct CoreRustConfig {
 struct Defaults {
     code_editor: CodeEditorDefaults,
     directories: DirectoryDefaults,
-    examples: ExampleDefaults,
 }
 
 #[derive(Deserialize, Clone)]
@@ -96,13 +95,6 @@ struct CodeEditorDefaults {
 struct DirectoryDefaults {
     script_rules: String,
     ai_rules: String,
-}
-
-#[derive(Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-struct ExampleDefaults {
-    script_rule: String,
-    ai_rule: String,
 }
 
 #[derive(Deserialize, Clone)]
@@ -220,14 +212,6 @@ pub fn script_rules_dir() -> &'static str {
 
 pub fn ai_rules_dir() -> &'static str {
     &CONSTANTS.core_rust.defaults.directories.ai_rules
-}
-
-pub fn example_script_rule() -> &'static str {
-    &CONSTANTS.core_rust.defaults.examples.script_rule
-}
-
-pub fn example_ai_rule() -> &'static str {
-    &CONSTANTS.core_rust.defaults.examples.ai_rule
 }
 
 pub fn default_highlight_errors() -> bool {

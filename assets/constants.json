@@ -44,10 +44,6 @@
       "directories": {
         "scriptRules": "script-rules",
         "aiRules": "ai-rules"
-      },
-      "examples": {
-        "scriptRule": "example-no-debug-comments.ts",
-        "aiRule": "example-find-complexity.md"
       }
     },
     "display": {

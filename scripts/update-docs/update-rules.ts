@@ -178,8 +178,8 @@ Customize ${PACKAGE_DISPLAY_NAME} to validate what matters to your project while
 
 `;
 
-  const scriptRuleExample = readFileSync(join(rootDir, 'assets/configs/script-rule-example.ts'), 'utf-8').trim();
-  const aiRuleExample = readFileSync(join(rootDir, 'assets/configs/ai-rule-example.md'), 'utf-8').trim();
+  const scriptRuleExample = readFileSync(join(rootDir, 'assets/configs/example-no-debug-comments.ts'), 'utf-8').trim();
+  const aiRuleExample = readFileSync(join(rootDir, 'assets/configs/example-find-complexity.md'), 'utf-8').trim();
 
   const customRulesContent = `<details>
 <summary>Regex rules examples</summary>
