@@ -1,9 +1,5 @@
 {
   "$schema": "../../packages/cli/schema.json",
-  "files": {
-    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
-    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
-  },
   "rules": {
     "builtin": {
       "no-explicit-any": {}
@@ -11,5 +7,9 @@
     "regex": {},
     "script": {}
   },
-  "aiRules": {}
+  "aiRules": {},
+  "files": {
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
+  }
 }

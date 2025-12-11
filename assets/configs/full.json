@@ -1,9 +1,5 @@
 {
   "$schema": "../../packages/cli/schema.json",
-  "files": {
-    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
-    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
-  },
   "rules": {
     "builtin": {
       "consistent-return": {},
@@ -61,6 +57,10 @@
   "aiRules": {},
   "ai": {
     "provider": "claude"
+  },
+  "files": {
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
   },
   "codeEditor": {
     "highlightErrors": true,

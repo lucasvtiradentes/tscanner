@@ -9,11 +9,11 @@ const MINIMAL_CONFIG_JSON: &str = include_str!("../../../../../../../assets/conf
 const FULL_CONFIG_JSON: &str = include_str!("../../../../../../../assets/configs/full.json");
 const DEV_SCHEMA: &str = "\"$schema\": \"../../packages/cli/schema.json\"";
 
-const SCRIPT_RULE_EXAMPLE: (&str, &str) = (
+pub const SCRIPT_RULE_EXAMPLE: (&str, &str) = (
     "example-no-debug-comments.ts",
     include_str!("../../../../../../../assets/configs/example-no-debug-comments.ts"),
 );
-const AI_RULE_EXAMPLE: (&str, &str) = (
+pub const AI_RULE_EXAMPLE: (&str, &str) = (
     "example-find-complexity.md",
     include_str!("../../../../../../../assets/configs/example-find-complexity.md"),
 );

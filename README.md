@@ -256,10 +256,6 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 ```json
 {
   "$schema": "../../packages/cli/schema.json",
-  "files": {
-    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
-    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
-  },
   "rules": {
     "builtin": {
       "consistent-return": {},
@@ -318,6 +314,10 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
   "ai": {
     "provider": "claude"
   },
+  "files": {
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
+  },
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": true,
@@ -342,10 +342,6 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 ```json
 {
   "$schema": "../../packages/cli/schema.json",
-  "files": {
-    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
-    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
-  },
   "rules": {
     "builtin": {
       "no-explicit-any": {}
@@ -353,7 +349,11 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
     "regex": {},
     "script": {}
   },
-  "aiRules": {}
+  "aiRules": {},
+  "files": {
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
+  }
 }
 ```
 

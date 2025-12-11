@@ -8,7 +8,9 @@ use tscanner_constants::{ai_rules_dir, config_dir_name, config_file_name, script
 use tscanner_rules::get_all_rule_metadata;
 use tscanner_service::{log_error, log_info};
 
-use super::config_generator::{get_default_config, get_full_config, write_example_files};
+use super::config_generator::{
+    get_default_config, get_full_config, write_example_files, AI_RULE_EXAMPLE, SCRIPT_RULE_EXAMPLE,
+};
 
 pub fn cmd_init(path: &Path, full: bool) -> Result<()> {
     log_info(&format!(
@@ -63,8 +65,8 @@ pub fn cmd_init(path: &Path, full: bool) -> Result<()> {
         println!("  {}", config_path.display());
         println!();
         print_section_title("Created example files:");
-        println!("  {}/example-no-debug-comments.ts", script_rules_dir());
-        println!("  {}/example-find-complexity.md", ai_rules_dir());
+        println!("  {}/{}", script_rules_dir(), SCRIPT_RULE_EXAMPLE.0);
+        println!("  {}/{}", ai_rules_dir(), AI_RULE_EXAMPLE.0);
     } else {
         println!("{}", "✓ Created default configuration".green().bold());
         println!("  {}", config_path.display());
