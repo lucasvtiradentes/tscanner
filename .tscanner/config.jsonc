@@ -77,6 +77,12 @@
         "command": "npx tsx script-rules/no-long-files.ts",
         "message": "File exceeds 300 lines limit",
         "include": ["packages/**/*.ts", "packages/**/*.rs"]
+      },
+      "cli-builder-match": {
+        "command": "npx tsx script-rules/cli-builder-match.ts",
+        "message": "CLI builder must cover all CLI check flags",
+        "severity": "error",
+        "include": ["assets/generated/cli.json", "shared/tscanner-common/src/cli-builder.ts"]
       }
     }
   },
