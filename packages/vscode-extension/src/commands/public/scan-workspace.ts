@@ -115,7 +115,7 @@ export function createScanWorkspaceCommand(ctx: CommandContext, regularView: Reg
           for (const folder of folders) {
             treeView.reveal(folder, { expand: true, select: false, focus: false });
           }
-        }, VSCODE_EXTENSION.delays.treeRevealMs);
+        }, VSCODE_EXTENSION.delays.treeRevealSeconds * 1000);
       }
     } catch (error) {
       logger.error(`Error during scan: ${error}`);

@@ -176,7 +176,7 @@ export function activate(context: vscode.ExtensionContext) {
     aiViewIcon,
   );
 
-  setTimeout(() => startExtension(), VSCODE_EXTENSION.delays.extensionStartupMs);
+  setTimeout(() => startExtension(), VSCODE_EXTENSION.delays.extensionStartupSeconds * 1000);
 }
 
 export function deactivate() {

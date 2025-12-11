@@ -42,7 +42,7 @@ async function getGlobalNodeModulesPaths(): Promise<string[]> {
   try {
     const npmRoot = execSync('npm root -g', {
       encoding: 'utf8',
-      timeout: VSCODE_EXTENSION.timeouts.binaryLookupMs,
+      timeout: VSCODE_EXTENSION.timeouts.binaryLookupSeconds * 1000,
     }).trim();
     if (npmRoot && existsSync(npmRoot)) {
       paths.push(npmRoot);
@@ -54,7 +54,7 @@ async function getGlobalNodeModulesPaths(): Promise<string[]> {
   try {
     const pnpmRoot = execSync('pnpm root -g', {
       encoding: 'utf8',
-      timeout: VSCODE_EXTENSION.timeouts.binaryLookupMs,
+      timeout: VSCODE_EXTENSION.timeouts.binaryLookupSeconds * 1000,
     }).trim();
     if (pnpmRoot && existsSync(pnpmRoot)) {
       paths.push(pnpmRoot);

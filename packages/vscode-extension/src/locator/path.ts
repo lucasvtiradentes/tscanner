@@ -9,7 +9,7 @@ export async function findInPath(): Promise<string | null> {
   try {
     const result = execSync(`${command} ${binaryName}`, {
       encoding: 'utf8',
-      timeout: VSCODE_EXTENSION.timeouts.binaryLookupMs,
+      timeout: VSCODE_EXTENSION.timeouts.binaryLookupSeconds * 1000,
       stdio: ['pipe', 'pipe', 'pipe'],
     }).trim();
 

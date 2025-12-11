@@ -24,7 +24,7 @@ function getBinaryVersion(binaryPath: string): string | null {
   try {
     const output = execSync(`"${binaryPath}" --version`, {
       encoding: 'utf8',
-      timeout: VSCODE_EXTENSION.timeouts.versionCheckMs,
+      timeout: VSCODE_EXTENSION.timeouts.versionCheckSeconds * 1000,
     });
     const match = output.match(/(\d+\.\d+\.\d+)/);
     return match ? match[1] : null;

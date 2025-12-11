@@ -36,7 +36,7 @@ export class IssuesViewIcon {
     if (this.isAiView()) {
       this.descriptionInterval = setInterval(
         () => this.updateDescription(),
-        VSCODE_EXTENSION.intervals.descriptionUpdateMs,
+        VSCODE_EXTENSION.intervals.descriptionUpdateSeconds * 1000,
       );
     }
   }

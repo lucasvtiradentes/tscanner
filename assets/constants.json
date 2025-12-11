@@ -85,15 +85,15 @@
   },
   "vscodeExtension": {
     "timeouts": {
-      "binaryLookupMs": 5000,
-      "versionCheckMs": 5000
+      "binaryLookupSeconds": 5,
+      "versionCheckSeconds": 5
     },
     "delays": {
-      "extensionStartupMs": 2000,
-      "treeRevealMs": 100
+      "extensionStartupSeconds": 2,
+      "treeRevealSeconds": 0.1
     },
     "intervals": {
-      "descriptionUpdateMs": 60000
+      "descriptionUpdateSeconds": 60
     },
     "statusBar": {
       "priority": 100,
