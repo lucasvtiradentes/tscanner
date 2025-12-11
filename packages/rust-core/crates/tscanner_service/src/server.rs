@@ -68,7 +68,9 @@ impl Default for WorkspaceServer {
 
 impl Workspace for WorkspaceServer {
     fn open_project(&self, params: OpenProjectParams) -> Result<(), WorkspaceError> {
-        let config = params.config.unwrap_or_default();
+        let config = params
+            .config
+            .ok_or_else(|| WorkspaceError::ConfigError("Config is required".to_string()))?;
         log_info(&format!(
             "open_project: {} (builtin rules: {})",
             params.root.display(),

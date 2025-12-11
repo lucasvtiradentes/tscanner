@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
-import { PLATFORM_PACKAGE_MAP, getBinaryName, getPlatformKey } from 'tscanner-common';
+import { PACKAGE_NAME, PLATFORM_PACKAGE_MAP, VSCODE_EXTENSION, getBinaryName, getPlatformKey } from 'tscanner-common';
 
 export async function findInGlobalModules(): Promise<string | null> {
   const globalPaths = await getGlobalNodeModulesPaths();
@@ -17,7 +17,7 @@ export async function findInGlobalModules(): Promise<string | null> {
       return directPath;
     }
 
-    const tscannerPath = join(globalPath, 'tscanner');
+    const tscannerPath = join(globalPath, PACKAGE_NAME);
     if (existsSync(tscannerPath)) {
       try {
         const require = createRequire(join(tscannerPath, 'package.json'));
@@ -40,7 +40,10 @@ async function getGlobalNodeModulesPaths(): Promise<string[]> {
   const paths: string[] = [];
 
   try {
-    const npmRoot = execSync('npm root -g', { encoding: 'utf8', timeout: 5000 }).trim();
+    const npmRoot = execSync('npm root -g', {
+      encoding: 'utf8',
+      timeout: VSCODE_EXTENSION.timeouts.binaryLookupMs,
+    }).trim();
     if (npmRoot && existsSync(npmRoot)) {
       paths.push(npmRoot);
     }
@@ -49,7 +52,10 @@ async function getGlobalNodeModulesPaths(): Promise<string[]> {
   }
 
   try {
-    const pnpmRoot = execSync('pnpm root -g', { encoding: 'utf8', timeout: 5000 }).trim();
+    const pnpmRoot = execSync('pnpm root -g', {
+      encoding: 'utf8',
+      timeout: VSCODE_EXTENSION.timeouts.binaryLookupMs,
+    }).trim();
     if (pnpmRoot && existsSync(pnpmRoot)) {
       paths.push(pnpmRoot);
     }
@@ -57,7 +63,7 @@ async function getGlobalNodeModulesPaths(): Promise<string[]> {
     // pnpm global not found
   }
 
-  const bunPath = join(homedir(), '.bun', 'install', 'global', 'node_modules');
+  const bunPath = join(homedir(), VSCODE_EXTENSION.paths.bunGlobalModules);
   if (existsSync(bunPath)) {
     paths.push(bunPath);
   }

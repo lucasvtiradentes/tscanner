@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { dirname, join } from 'node:path';
-import { PLATFORM_PACKAGE_MAP, getBinaryName, getPlatformKey } from 'tscanner-common';
+import { PACKAGE_NAME, PLATFORM_PACKAGE_MAP, getBinaryName, getPlatformKey } from 'tscanner-common';
 
 export async function findInNodeModules(workspaceRoot: string): Promise<string | null> {
   try {
@@ -24,7 +24,7 @@ export async function findInNodeModules(workspaceRoot: string): Promise<string |
     }
 
     try {
-      const tscannerPath = require.resolve('tscanner/package.json');
+      const tscannerPath = require.resolve(`${PACKAGE_NAME}/package.json`);
       const tscannerDir = dirname(tscannerPath);
       const tscannerRequire = createRequire(join(tscannerDir, 'package.json'));
       const platformPackagePath = tscannerRequire.resolve(`${packageName}/package.json`);

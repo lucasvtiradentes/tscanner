@@ -267,11 +267,11 @@ tscanner check --branch origin/main
 To scan your code, you need to set up the rules in the TScanner config folder. Here's how to get started:
 
 1. **CLI**: Run `tscanner init` in your project root (**Recommended**)
-2. **Manual**: Copy the default config below to `.tscanner/config.jsonc`
+2. **Manual**: Copy one of the configs below to `.tscanner/config.jsonc`
 
 <div align="center">
 <details>
-<summary><strong>Default configuration</strong></summary>
+<summary><strong>Full configuration</strong></summary>
 
 <br/>
 
@@ -279,25 +279,68 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 
 ```json
 {
-  "$schema": "https://unpkg.com/tscanner@0.0.33/schema.json",
+  "$schema": "../../packages/cli/schema.json",
   "files": {
-    "include": [
-      "**/*.ts",
-      "**/*.tsx",
-      "**/*.js",
-      "**/*.jsx",
-      "**/*.mjs",
-      "**/*.cjs",
-      "**/*mts",
-      "**/*cts"
-    ],
-    "exclude": [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/build/**",
-      "**/.git/**",
-      "**/.next/**"
-    ]
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
+  },
+  "rules": {
+    "builtin": {
+      "consistent-return": {},
+      "max-function-length": {},
+      "max-params": {},
+      "no-absolute-imports": {},
+      "no-alias-imports": {},
+      "no-async-without-await": {},
+      "no-console": {},
+      "no-constant-condition": {},
+      "no-default-export": {},
+      "no-duplicate-imports": {},
+      "no-dynamic-import": {},
+      "no-else-return": {},
+      "no-empty-class": {},
+      "no-empty-function": {},
+      "no-empty-interface": {},
+      "no-explicit-any": {},
+      "no-floating-promises": {},
+      "no-forwarded-exports": {},
+      "no-implicit-any": {},
+      "no-inferrable-types": {},
+      "no-nested-require": {},
+      "no-nested-ternary": {},
+      "no-non-null-assertion": {},
+      "no-relative-imports": {},
+      "no-return-await": {},
+      "no-shadow": {},
+      "no-single-or-array-union": {},
+      "no-todo-comments": {},
+      "no-unnecessary-type-assertion": {},
+      "no-unreachable-code": {},
+      "no-unused-vars": {},
+      "no-useless-catch": {},
+      "no-var": {},
+      "prefer-const": {},
+      "prefer-interface-over-type": {},
+      "prefer-nullish-coalescing": {},
+      "prefer-optional-chain": {},
+      "prefer-type-over-interface": {}
+    },
+    "regex": {
+      "example-no-console-log": {
+        "pattern": "console\\.log",
+        "message": "Remove console.log before committing"
+      }
+    },
+    "script": {
+      "example-no-debug-comments": {
+        "command": "npx tsx script-rules/example-no-debug-comments.ts",
+        "message": "Debug comments should be removed"
+      }
+    }
+  },
+  "aiRules": {},
+  "ai": {
+    "provider": "claude"
   },
   "codeEditor": {
     "highlightErrors": true,
@@ -314,55 +357,56 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 </details>
 
 <details>
-<summary><strong>Additional info about configuration</strong></summary>
+<summary><strong>Minimal configuration</strong></summary>
 
 <br/>
 
 <div align="left">
 
-All configuration fields are **optional** with sensible defaults. The minimum required config is just enabling the rules you want:
-
 ```json
 {
+  "$schema": "../../packages/cli/schema.json",
+  "files": {
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
+  },
   "rules": {
     "builtin": {
       "no-explicit-any": {}
-    }
-  }
+    },
+    "regex": {},
+    "script": {}
+  },
+  "aiRules": {}
 }
 ```
 
-With this minimal config, TScanner will scan all `.ts/.tsx/.js/.jsx/.mjs/.cjs` files, excluding `node_modules/`, `dist/`, `build/`, and `.git/` directories.
+</div>
+</details>
 
-**Understanding `files.include` and `files.exclude`:**
+<details>
+<summary><strong>Additional info</strong></summary>
 
-- `files.include`: Glob patterns for files to scan (default: `["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"]`)
-- `files.exclude`: Glob patterns for files/folders to ignore (default: `["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]`)
+<br/>
 
-Example with per-rule file patterns:
+<div align="left">
+
+**Required fields:** The `files.include` and `files.exclude` fields are required.
+
+**Per-rule file patterns:** Each rule can have its own `include`/`exclude` patterns:
 
 ```json
 {
   "rules": {
     "builtin": {
-      "no-explicit-any": {},
-      "no-console": {
-        "exclude": ["src/utils/logger.ts"]
-      },
-      "max-function-length": {
-        "include": ["src/core/**/*.ts"]
-      }
+      "no-console": { "exclude": ["src/logger.ts"] },
+      "max-function-length": { "include": ["src/core/**/*.ts"] }
     }
   }
 }
 ```
 
-This config:
-- Runs `no-explicit-any` on all files (uses global `files` patterns)
-- Runs `no-console` on all files except `src/utils/logger.ts`
-- Runs `max-function-length` only on files inside `src/core/`
-
-**Inline Disables:**
+**Inline disables:**
 
 ```typescript
 // tscanner-ignore-next-line no-explicit-any

@@ -17,18 +17,24 @@ impl TscannerConfig {
         content: &str,
         workspace: Option<&Path>,
         config_dir_name: &str,
-    ) -> Result<(Self, ValidationResult), Box<dyn std::error::Error>> {
+    ) -> Result<(Option<Self>, ValidationResult), Box<dyn std::error::Error>> {
         let json_value = Self::parse_json(content)?;
 
         let mut result = validate_json_fields(&json_value);
         if !result.is_valid() {
-            return Ok((Self::default(), result));
+            return Ok((None, result));
         }
 
-        let config: Self = serde_json::from_value(json_value)?;
+        let config: Self = match serde_json::from_value(json_value) {
+            Ok(c) => c,
+            Err(e) => {
+                result.add_error(format!("Failed to parse config: {}", e));
+                return Ok((None, result));
+            }
+        };
         result.merge(config.validate_with_workspace(workspace, config_dir_name));
 
-        Ok((config, result))
+        Ok((Some(config), result))
     }
 
     pub fn validate(&self) -> ValidationResult {

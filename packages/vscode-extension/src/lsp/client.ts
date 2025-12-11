@@ -8,9 +8,11 @@ import {
   type FileResult,
   type GroupMode,
   JS_EXTENSIONS,
+  LspMethod,
   type RuleMetadata,
   type ScanResult,
   type TscannerConfig,
+  VSCODE_EXTENSION,
 } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { LanguageClient, type LanguageClientOptions, type ServerOptions, State } from 'vscode-languageclient/node';
@@ -22,8 +24,6 @@ import { ScanRequestType } from './requests/scan';
 import { ScanContentRequestType } from './requests/scan-content';
 import { ScanFileRequestType } from './requests/scan-file';
 import type { AiProgressParams, FormatPrettyResult } from './requests/types';
-
-const AI_PROGRESS_METHOD = 'tscanner/aiProgress';
 
 export class TscannerLspClient {
   private client: LanguageClient | null = null;
@@ -66,7 +66,12 @@ export class TscannerLspClient {
       },
     };
 
-    this.client = new LanguageClient('tscanner', `${getStatusBarName()} LSP`, serverOptions, clientOptions);
+    this.client = new LanguageClient(
+      VSCODE_EXTENSION.lsp.clientId,
+      `${getStatusBarName()} LSP`,
+      serverOptions,
+      clientOptions,
+    );
 
     await this.client.start();
   }
@@ -144,6 +149,6 @@ export class TscannerLspClient {
 
   onAiProgress(handler: (params: AiProgressParams) => void): vscode.Disposable {
     if (!this.client) throw new Error('LSP client not started');
-    return this.client.onNotification(AI_PROGRESS_METHOD, handler);
+    return this.client.onNotification(LspMethod.AiProgress, handler);
   }
 }

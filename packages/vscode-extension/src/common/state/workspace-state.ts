@@ -3,6 +3,7 @@ import * as vscode from 'vscode';
 import { z } from 'zod';
 import { getContextKey } from '../constants';
 import { logger } from '../lib/logger';
+import { CONTEXT_PREFIX } from '../scripts-constants';
 
 export enum WorkspaceStateKey {
   ViewMode = 'viewMode',
@@ -33,8 +34,6 @@ const defaultValues: WorkspaceStateSchema = {
   [WorkspaceStateKey.CachedResults]: [],
   [WorkspaceStateKey.ConfigDir]: null,
 };
-
-const CONTEXT_PREFIX = 'tscanner';
 
 const keyMapping: Record<WorkspaceStateKeyType, string> = Object.fromEntries(
   Object.values(WorkspaceStateKey).map((key) => [key, `${CONTEXT_PREFIX}.${key}`]),

@@ -12,6 +12,7 @@ export const LOG_TIMEZONE_OFFSET_HOURS = constants.logTimezoneOffsetHours;
 export const IGNORE_COMMENT = constants.ignoreComment;
 export const IGNORE_NEXT_LINE_COMMENT = constants.ignoreNextLineComment;
 export const JS_EXTENSIONS = constants.extensions.javascript;
+export const VSCODE_EXTENSION = constants.vscodeExtension;
 
 export enum Severity {
   Error = 'error',
@@ -73,6 +74,16 @@ export enum IssueRuleType {
   CustomRegex = 'custom_regex',
   CustomScript = 'custom_script',
   Ai = 'ai',
+}
+
+export enum LspMethod {
+  Scan = 'tscanner/scan',
+  ScanFile = 'tscanner/scanFile',
+  ScanContent = 'tscanner/scanContent',
+  ClearCache = 'tscanner/clearCache',
+  GetRulesMetadata = 'tscanner/getRulesMetadata',
+  FormatResults = 'tscanner/formatResults',
+  AiProgress = 'tscanner/aiProgress',
 }
 
 export const PLATFORM_TARGET_MAP: Record<string, string> = {

@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process';
-import { ScanMode, type TscannerConfig, hasConfiguredRules } from 'tscanner-common';
+import { ScanMode, type TscannerConfig, VSCODE_EXTENSION, hasConfiguredRules } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { getCommandId, getStatusBarName } from '../common/constants';
 import { getConfigDirLabel, loadConfig } from '../common/lib/config-manager';
@@ -22,7 +22,10 @@ function getAiProviderLabel(config: TscannerConfig | null): string {
 
 function getBinaryVersion(binaryPath: string): string | null {
   try {
-    const output = execSync(`"${binaryPath}" --version`, { encoding: 'utf8', timeout: 5000 });
+    const output = execSync(`"${binaryPath}" --version`, {
+      encoding: 'utf8',
+      timeout: VSCODE_EXTENSION.timeouts.versionCheckMs,
+    });
     const match = output.match(/(\d+\.\d+\.\d+)/);
     return match ? match[1] : null;
   } catch {
@@ -35,7 +38,10 @@ export class StatusBarManager {
   private cachedBinaryInfo: BinaryInfo | null = null;
 
   constructor() {
-    this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+    this.statusBarItem = vscode.window.createStatusBarItem(
+      vscode.StatusBarAlignment.Left,
+      VSCODE_EXTENSION.statusBar.priority,
+    );
     this.statusBarItem.command = getCommandId(Command.OpenSettingsMenu);
   }
 
@@ -76,7 +82,7 @@ export class StatusBarManager {
   }
 
   private showConfigured(configDir: string | null, config: TscannerConfig | null, binaryInfo: BinaryInfo): void {
-    const icon = '$(shield)';
+    const icon = VSCODE_EXTENSION.statusBar.icons.configured;
     const scanMode = extensionStore.get(StoreKey.ScanMode);
     const compareBranch = extensionStore.get(StoreKey.CompareBranch);
     const modeText = scanMode === ScanMode.Codebase ? 'Codebase' : `Branch (${compareBranch})`;
@@ -103,7 +109,7 @@ export class StatusBarManager {
   }
 
   private showUnconfigured(): void {
-    const finalText = '$(warning) [No rules]';
+    const finalText = `${VSCODE_EXTENSION.statusBar.icons.unconfigured} [No rules]`;
 
     this.statusBarItem.text = finalText;
 

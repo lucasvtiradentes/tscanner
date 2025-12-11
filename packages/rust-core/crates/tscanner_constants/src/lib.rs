@@ -26,17 +26,9 @@ struct Constants {
 #[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 struct Defaults {
-    files: FilesDefaults,
     code_editor: CodeEditorDefaults,
     directories: DirectoryDefaults,
     examples: ExampleDefaults,
-}
-
-#[derive(Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-struct FilesDefaults {
-    include: Vec<String>,
-    exclude: Vec<String>,
 }
 
 #[derive(Deserialize, Clone)]
@@ -213,14 +205,6 @@ pub fn default_highlight_hints() -> bool {
 
 pub fn default_scan_interval() -> u32 {
     CONSTANTS.defaults.code_editor.scan_interval
-}
-
-pub fn default_include() -> Vec<String> {
-    CONSTANTS.defaults.files.include.clone()
-}
-
-pub fn default_exclude() -> Vec<String> {
-    CONSTANTS.defaults.files.exclude.clone()
 }
 
 pub fn default_severity() -> Severity {

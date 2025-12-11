@@ -3,6 +3,7 @@ import {
   CONFIG_DIR_NAME,
   GitHelper,
   ScanMode,
+  VSCODE_EXTENSION,
   ViewMode,
   hasConfiguredRules,
 } from 'tscanner-common';
@@ -114,7 +115,7 @@ export function createScanWorkspaceCommand(ctx: CommandContext, regularView: Reg
           for (const folder of folders) {
             treeView.reveal(folder, { expand: true, select: false, focus: false });
           }
-        }, 100);
+        }, VSCODE_EXTENSION.delays.treeRevealMs);
       }
     } catch (error) {
       logger.error(`Error during scan: ${error}`);

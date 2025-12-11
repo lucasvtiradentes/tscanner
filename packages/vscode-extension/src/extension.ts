@@ -1,3 +1,4 @@
+import { VSCODE_EXTENSION } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { getAiViewId, getViewId } from './common/constants';
@@ -175,7 +176,7 @@ export function activate(context: vscode.ExtensionContext) {
     aiViewIcon,
   );
 
-  setTimeout(() => startExtension(), 2000);
+  setTimeout(() => startExtension(), VSCODE_EXTENSION.delays.extensionStartupMs);
 }
 
 export function deactivate() {

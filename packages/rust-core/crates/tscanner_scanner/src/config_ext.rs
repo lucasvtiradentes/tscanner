@@ -22,7 +22,11 @@ pub fn load_config(
     };
 
     if !config_path.exists() {
-        return Ok(TscannerConfig::default());
+        return Err(format!(
+            "Config file not found: {}. Run 'tscanner init' to create one.",
+            config_path.display()
+        )
+        .into());
     }
 
     let workspace = config_path.parent().and_then(|p| p.parent());
@@ -57,7 +61,7 @@ pub fn load_config(
         .into());
     }
 
-    Ok(config)
+    config.ok_or_else(|| "Config parsing failed".into())
 }
 
 pub trait ConfigExt {

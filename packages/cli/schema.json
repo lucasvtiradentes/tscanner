@@ -1302,31 +1302,14 @@
     "FilesConfig": {
       "properties": {
         "exclude": {
-          "default": [
-            "**/node_modules/**",
-            "**/dist/**",
-            "**/build/**",
-            "**/.git/**",
-            "**/.next/**"
-          ],
-          "description": "File patterns to exclude",
+          "description": "File patterns to exclude (required)",
           "items": {
             "type": "string"
           },
           "type": "array"
         },
         "include": {
-          "default": [
-            "**/*.ts",
-            "**/*.tsx",
-            "**/*.js",
-            "**/*.jsx",
-            "**/*.mjs",
-            "**/*.cjs",
-            "**/*mts",
-            "**/*cts"
-          ],
-          "description": "File patterns to include",
+          "description": "File patterns to include (required)",
           "items": {
             "type": "string"
           },
@@ -1624,26 +1607,7 @@
           "$ref": "#/definitions/FilesConfig"
         }
       ],
-      "default": {
-        "exclude": [
-          "**/node_modules/**",
-          "**/dist/**",
-          "**/build/**",
-          "**/.git/**",
-          "**/.next/**"
-        ],
-        "include": [
-          "**/*.ts",
-          "**/*.tsx",
-          "**/*.js",
-          "**/*.jsx",
-          "**/*.mjs",
-          "**/*.cjs",
-          "**/*mts",
-          "**/*cts"
-        ]
-      },
-      "description": "File patterns configuration"
+      "description": "File patterns configuration (required)"
     },
     "rules": {
       "allOf": [

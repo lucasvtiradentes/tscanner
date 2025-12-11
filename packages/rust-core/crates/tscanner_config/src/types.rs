@@ -4,13 +4,12 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 use tscanner_constants::{
-    default_ai_scan_interval, default_exclude, default_highlight_errors, default_highlight_hints,
-    default_highlight_infos, default_highlight_warnings, default_include, default_scan_interval,
-    default_severity,
+    default_ai_scan_interval, default_highlight_errors, default_highlight_hints,
+    default_highlight_infos, default_highlight_warnings, default_scan_interval, default_severity,
 };
 use tscanner_types::Severity;
 
-use crate::defaults::{default_code_editor_config, default_files_config};
+use crate::defaults::default_code_editor_config;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
@@ -126,19 +125,11 @@ impl Default for CodeEditorConfig {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct FilesConfig {
-    #[serde(default = "default_include")]
-    #[schemars(default = "default_include", description = "File patterns to include")]
+    #[schemars(description = "File patterns to include (required)")]
     pub include: Vec<String>,
 
-    #[serde(default = "default_exclude")]
-    #[schemars(default = "default_exclude", description = "File patterns to exclude")]
+    #[schemars(description = "File patterns to exclude (required)")]
     pub exclude: Vec<String>,
-}
-
-impl Default for FilesConfig {
-    fn default() -> Self {
-        default_files_config()
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema, Default)]
@@ -180,8 +171,7 @@ pub struct TscannerConfig {
     #[schemars(description = "AI-powered rules configuration")]
     pub ai_rules: HashMap<String, AiRuleConfig>,
 
-    #[serde(default)]
-    #[schemars(description = "File patterns configuration")]
+    #[schemars(description = "File patterns configuration (required)")]
     pub files: FilesConfig,
 }
 

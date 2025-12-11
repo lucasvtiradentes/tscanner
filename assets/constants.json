@@ -10,10 +10,6 @@
   "ignoreComment": "tscanner-ignore",
   "ignoreNextLineComment": "tscanner-ignore-next-line",
   "defaults": {
-    "files": {
-      "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs", "**/*mts", "**/*cts"],
-      "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**", "**/.next/**"]
-    },
     "codeEditor": {
       "highlightErrors": true,
       "highlightWarnings": true,
@@ -72,5 +68,41 @@
   },
   "urls": {
     "rulesBase": "https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin"
+  },
+  "vscodeExtension": {
+    "timeouts": {
+      "binaryLookupMs": 5000,
+      "versionCheckMs": 5000
+    },
+    "delays": {
+      "extensionStartupMs": 2000,
+      "treeRevealMs": 100
+    },
+    "intervals": {
+      "descriptionUpdateMs": 60000
+    },
+    "statusBar": {
+      "priority": 100,
+      "icons": {
+        "configured": "$(shield)",
+        "unconfigured": "$(warning)"
+      }
+    },
+    "paths": {
+      "bunGlobalModules": ".bun/install/global/node_modules",
+      "devBinaryRelative": "packages/rust-core/target/release"
+    },
+    "lsp": {
+      "clientId": "tscanner",
+      "methods": {
+        "scan": "tscanner/scan",
+        "scanFile": "tscanner/scanFile",
+        "scanContent": "tscanner/scanContent",
+        "clearCache": "tscanner/clearCache",
+        "getRulesMetadata": "tscanner/getRulesMetadata",
+        "formatResults": "tscanner/formatResults",
+        "aiProgress": "tscanner/aiProgress"
+      }
+    }
   }
 }
