@@ -4,7 +4,7 @@ import { loadConfig } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
 import { VscodeGit } from '../common/lib/vscode-git';
 import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
-import type { ExtensionStateRefs } from '../common/state/extension-state';
+import { StoreKey, extensionStore } from '../common/state/extension-store';
 import { WorkspaceStateKey, setWorkspaceState } from '../common/state/workspace-state';
 import { serializeResults } from '../common/types';
 import type { RegularIssuesView } from '../issues-panel';
@@ -14,7 +14,6 @@ import { filterIssuesToModifiedLines } from './modified-lines-filter';
 type FileChangeHandlerDeps = {
   context: vscode.ExtensionContext;
   regularView: RegularIssuesView;
-  stateRefs: ExtensionStateRefs;
 };
 
 function clearStaleIssuesForFile(deps: FileChangeHandlerDeps, relativePath: string, reason: string): void {
@@ -33,10 +32,10 @@ function clearStaleIssuesForFile(deps: FileChangeHandlerDeps, relativePath: stri
 }
 
 export function createFileChangeHandler(deps: FileChangeHandlerDeps) {
-  const { context, regularView, stateRefs } = deps;
+  const { context, regularView } = deps;
 
   return async (uri: vscode.Uri) => {
-    if (stateRefs.isSearchingRef.current) return;
+    if (extensionStore.get(StoreKey.IsSearching)) return;
 
     const workspaceFolder = getCurrentWorkspaceFolder();
     if (!workspaceFolder) return;
@@ -44,11 +43,11 @@ export function createFileChangeHandler(deps: FileChangeHandlerDeps) {
     const relativePath = vscode.workspace.asRelativePath(uri);
     logger.debug(`File changed: ${relativePath}`);
 
-    if (stateRefs.currentScanModeRef.current === ScanMode.Branch) {
-      const changedFiles = await VscodeGit.getChangedFiles(
-        workspaceFolder.uri.fsPath,
-        stateRefs.currentCompareBranchRef.current,
-      );
+    const scanMode = extensionStore.get(StoreKey.ScanMode);
+    const compareBranch = extensionStore.get(StoreKey.CompareBranch);
+
+    if (scanMode === ScanMode.Branch) {
+      const changedFiles = await VscodeGit.getChangedFiles(workspaceFolder.uri.fsPath, compareBranch);
       if (!changedFiles.has(relativePath)) {
         logger.debug(`File not in changed files set, skipping: ${relativePath}`);
         clearStaleIssuesForFile(deps, relativePath, 'reverted file');
@@ -57,22 +56,18 @@ export function createFileChangeHandler(deps: FileChangeHandlerDeps) {
     }
 
     try {
-      const scanModeLabel = stateRefs.currentScanModeRef.current === ScanMode.Branch ? 'branch' : 'codebase';
+      const scanModeLabel = scanMode === ScanMode.Branch ? 'branch' : 'codebase';
       logger.debug(`Scanning single file (${scanModeLabel} mode): ${relativePath}`);
 
       const document = await vscode.workspace.openTextDocument(uri);
       const content = document.getText();
-      const configDir = stateRefs.currentConfigDirRef.current;
+      const configDir = extensionStore.get(StoreKey.ConfigDir);
       const config = await loadConfig(workspaceFolder.uri.fsPath, configDir);
       const scanResult = await scanContent(uri.fsPath, content, config ?? undefined, configDir ?? undefined);
       let newResults = scanResult.issues;
 
-      if (stateRefs.currentScanModeRef.current === ScanMode.Branch) {
-        const ranges = await GitHelper.getModifiedLineRanges(
-          workspaceFolder.uri.fsPath,
-          relativePath,
-          stateRefs.currentCompareBranchRef.current,
-        );
+      if (scanMode === ScanMode.Branch) {
+        const ranges = await GitHelper.getModifiedLineRanges(workspaceFolder.uri.fsPath, relativePath, compareBranch);
         const modifiedRanges = new Map([[uri.fsPath, ranges]]);
         newResults = filterIssuesToModifiedLines(newResults, modifiedRanges);
         logger.debug(`Filtered ${newResults.length} issues to modified lines only`);

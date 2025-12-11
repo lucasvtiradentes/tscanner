@@ -1,6 +1,7 @@
 import type * as vscode from 'vscode';
 import { setCopyLspClient, setCopyScanContext } from '../common/lib/copy-utils';
 import type { CommandContext } from '../common/state/extension-state';
+import { StoreKey, extensionStore } from '../common/state/extension-store';
 import type { AiIssuesView, RegularIssuesView } from '../issues-panel';
 import { createOpenSettingsMenuCommand } from '../settings-menu';
 import { createCopyCommand } from './internal/copy-items';
@@ -22,16 +23,21 @@ export function registerAllCommands(
   regularView: RegularIssuesView,
   aiView: AiIssuesView,
 ): vscode.Disposable[] {
-  const { context, stateRefs, updateStatusBar, getLspClient } = ctx;
+  const { context, getLspClient } = ctx;
 
   setCopyLspClient(getLspClient);
-  setCopyScanContext(stateRefs.currentScanModeRef.current, stateRefs.currentCompareBranchRef.current);
+  setCopyScanContext(extensionStore.get(StoreKey.ScanMode), extensionStore.get(StoreKey.CompareBranch));
 
-  void updateStatusBar;
+  extensionStore.subscribe(StoreKey.ScanMode, (scanMode) => {
+    setCopyScanContext(scanMode, extensionStore.get(StoreKey.CompareBranch));
+  });
+  extensionStore.subscribe(StoreKey.CompareBranch, (compareBranch) => {
+    setCopyScanContext(extensionStore.get(StoreKey.ScanMode), compareBranch);
+  });
 
   return [
     createScanWorkspaceCommand(ctx, regularView),
-    createHardScanCommand(stateRefs.isSearchingRef),
+    createHardScanCommand(),
     createGoToNextIssueCommand(regularView),
     createGoToPreviousIssueCommand(regularView),
     createShowLogsCommand(),

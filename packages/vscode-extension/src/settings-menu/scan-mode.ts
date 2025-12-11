@@ -1,6 +1,5 @@
 import { GitHelper, ScanMode } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { setCopyScanContext } from '../common/lib/copy-utils';
 import { logger } from '../common/lib/logger';
 import { VscodeGit } from '../common/lib/vscode-git';
 import {
@@ -11,8 +10,7 @@ import {
   requireWorkspaceOrNull,
   showToastMessage,
 } from '../common/lib/vscode-utils';
-import type { ExtensionStateRefs } from '../common/state/extension-state';
-import { WorkspaceStateKey, updateState } from '../common/state/workspace-state';
+import { StoreKey, extensionStore } from '../common/state/extension-store';
 import type { RegularIssuesView } from '../issues-panel';
 
 enum BranchMenuOption {
@@ -22,28 +20,27 @@ enum BranchMenuOption {
 
 type ScanModeContext = {
   updateStatusBar: () => Promise<void>;
-  stateRefs: ExtensionStateRefs;
-  context: vscode.ExtensionContext;
   regularView: RegularIssuesView;
 };
 
 export async function showScanModeMenu(ctx: ScanModeContext) {
-  const { updateStatusBar, stateRefs, context, regularView } = ctx;
-  const { currentScanModeRef, currentCompareBranchRef } = stateRefs;
+  const { updateStatusBar, regularView } = ctx;
 
   logger.info('showScanModeMenu called');
+
+  const currentScanMode = extensionStore.get(StoreKey.ScanMode);
 
   const scanModeItems: QuickPickItemWithId<ScanMode>[] = [
     {
       id: ScanMode.Codebase,
       label: '$(file-directory) Codebase',
-      description: currentScanModeRef.current === ScanMode.Codebase ? '✓ Active' : '',
+      description: currentScanMode === ScanMode.Codebase ? '✓ Active' : '',
       detail: 'Scan all files in workspace',
     },
     {
       id: ScanMode.Branch,
       label: '$(git-branch) Branch',
-      description: currentScanModeRef.current === ScanMode.Branch ? '✓ Active' : '',
+      description: currentScanMode === ScanMode.Branch ? '✓ Active' : '',
       detail: 'Scan only changed files in current branch',
     },
   ];
@@ -65,21 +62,17 @@ export async function showScanModeMenu(ctx: ScanModeContext) {
 }
 
 async function handleCodebaseScan(ctx: ScanModeContext) {
-  const { updateStatusBar, stateRefs, context, regularView } = ctx;
-  const { currentScanModeRef, currentCompareBranchRef } = stateRefs;
+  const { updateStatusBar, regularView } = ctx;
 
   logger.info('Switching to Codebase mode');
   regularView.setResults([]);
-  currentScanModeRef.current = ScanMode.Codebase;
-  updateState(context, WorkspaceStateKey.ScanMode, ScanMode.Codebase);
-  setCopyScanContext(ScanMode.Codebase, currentCompareBranchRef.current);
+  extensionStore.set(StoreKey.ScanMode, ScanMode.Codebase);
   await updateStatusBar();
   executeCommand(Command.FindIssue);
 }
 
 async function handleBranchScan(ctx: ScanModeContext) {
-  const { updateStatusBar, stateRefs, context, regularView } = ctx;
-  const { currentScanModeRef, currentCompareBranchRef } = stateRefs;
+  const { updateStatusBar, regularView } = ctx;
 
   const workspaceFolder = requireWorkspaceOrNull();
   if (!workspaceFolder) return;
@@ -90,10 +83,12 @@ async function handleBranchScan(ctx: ScanModeContext) {
     return;
   }
 
+  const currentCompareBranch = extensionStore.get(StoreKey.CompareBranch);
+
   const branchOptions: QuickPickItemWithId<BranchMenuOption>[] = [
     {
       id: BranchMenuOption.KeepCurrent,
-      label: `Current value: ${currentCompareBranchRef.current}`,
+      label: `Current value: ${currentCompareBranch}`,
       description: '✓',
       detail: 'Currently comparing against this branch',
     },
@@ -130,7 +125,7 @@ async function handleBranchScan(ctx: ScanModeContext) {
         { label: 'Branches', kind: vscode.QuickPickItemKind.Separator },
         ...localBranches.map((branch) => ({
           label: `$(git-branch) ${branch}`,
-          description: branch === currentCompareBranchRef.current ? '$(check) Current compare target' : '',
+          description: branch === currentCompareBranch ? '$(check) Current compare target' : '',
           detail: branch,
         })),
       );
@@ -141,7 +136,7 @@ async function handleBranchScan(ctx: ScanModeContext) {
         { label: 'Remote branches', kind: vscode.QuickPickItemKind.Separator },
         ...remoteBranches.map((branch) => ({
           label: `$(cloud) ${branch}`,
-          description: branch === currentCompareBranchRef.current ? '$(check) Current compare target' : '',
+          description: branch === currentCompareBranch ? '$(check) Current compare target' : '',
           detail: branch,
         })),
       );
@@ -156,15 +151,13 @@ async function handleBranchScan(ctx: ScanModeContext) {
 
     if (!selectedBranch || !selectedBranch.detail) return;
 
-    currentCompareBranchRef.current = selectedBranch.detail;
-    updateState(context, WorkspaceStateKey.CompareBranch, currentCompareBranchRef.current);
+    extensionStore.set(StoreKey.CompareBranch, selectedBranch.detail);
   }
 
-  logger.info(`Switching to Branch mode (comparing against: ${currentCompareBranchRef.current})`);
+  const compareBranch = extensionStore.get(StoreKey.CompareBranch);
+  logger.info(`Switching to Branch mode (comparing against: ${compareBranch})`);
   regularView.setResults([]);
-  currentScanModeRef.current = ScanMode.Branch;
-  updateState(context, WorkspaceStateKey.ScanMode, ScanMode.Branch);
-  setCopyScanContext(ScanMode.Branch, currentCompareBranchRef.current);
+  extensionStore.set(StoreKey.ScanMode, ScanMode.Branch);
   await updateStatusBar();
   executeCommand(Command.FindIssue);
 }

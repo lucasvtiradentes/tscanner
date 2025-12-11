@@ -7,12 +7,13 @@ import {
   registerCommand,
   showToastMessage,
 } from '../../common/lib/vscode-utils';
+import { StoreKey, extensionStore } from '../../common/state/extension-store';
 import { clearCache } from '../../scanner/client';
 
-export function createHardScanCommand(isSearchingRef: { current: boolean }) {
+export function createHardScanCommand() {
   return registerCommand(Command.HardScan, async (options?: { showToastMessage?: boolean }) => {
     const shouldShowToast = options?.showToastMessage ?? true;
-    if (isSearchingRef.current) {
+    if (extensionStore.get(StoreKey.IsSearching)) {
       if (shouldShowToast) showToastMessage(ToastKind.Warning, 'Search already in progress');
       return;
     }

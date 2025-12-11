@@ -10,6 +10,7 @@ import {
   showToastMessage,
 } from '../../common/lib/vscode-utils';
 import type { CommandContext } from '../../common/state/extension-state';
+import { StoreKey, extensionStore } from '../../common/state/extension-store';
 import { ContextKey, setContextKey } from '../../common/state/workspace-state';
 import type { AiIssuesView } from '../../issues-panel';
 import { getLspClient } from '../../scanner/client';
@@ -21,10 +22,7 @@ export function createRefreshCommand() {
   });
 }
 
-export function createRefreshAiIssuesCommand(ctx: CommandContext, aiView: AiIssuesView) {
-  const { stateRefs } = ctx;
-  const { currentScanModeRef, currentCompareBranchRef, currentConfigDirRef } = stateRefs;
-
+export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIssuesView) {
   return registerCommand(Command.RefreshAiIssues, async () => {
     const workspaceFolder = getCurrentWorkspaceFolder();
     if (!workspaceFolder) {
@@ -38,7 +36,7 @@ export function createRefreshAiIssuesCommand(ctx: CommandContext, aiView: AiIssu
     let progressDisposable: { dispose(): void } | null = null;
 
     try {
-      const configDir = currentConfigDirRef.current;
+      const configDir = extensionStore.get(StoreKey.ConfigDir);
       const config = await loadConfig(workspaceFolder.uri.fsPath, configDir);
 
       if (!hasConfiguredRules(config)) {
@@ -65,7 +63,9 @@ export function createRefreshAiIssuesCommand(ctx: CommandContext, aiView: AiIssu
       }
 
       const startTime = Date.now();
-      const branch = currentScanModeRef.current === ScanMode.Branch ? currentCompareBranchRef.current : undefined;
+      const scanMode = extensionStore.get(StoreKey.ScanMode);
+      const compareBranch = extensionStore.get(StoreKey.CompareBranch);
+      const branch = scanMode === ScanMode.Branch ? compareBranch : undefined;
       const results = await scan({
         branch,
         config: configToPass,

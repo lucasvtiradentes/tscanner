@@ -11,7 +11,7 @@ import {
   getCurrentWorkspaceFolder,
   showToastMessage,
 } from '../common/lib/vscode-utils';
-import { WorkspaceStateKey, setWorkspaceState } from '../common/state/workspace-state';
+import { StoreKey, extensionStore } from '../common/state/extension-store';
 import type { RegularIssuesView } from '../issues-panel';
 
 const ROOT_PATH = '.';
@@ -30,8 +30,6 @@ function joinPath(base: string, segment: string): string {
 
 type ConfigLocationContext = {
   updateStatusBar: () => Promise<void>;
-  currentConfigDirRef: { current: string | null };
-  context: vscode.ExtensionContext;
   regularView: RegularIssuesView;
 };
 
@@ -50,7 +48,7 @@ export async function showConfigLocationMenu(ctx: ConfigLocationContext): Promis
   }
 
   const workspacePath = workspaceFolder.uri.fsPath;
-  const currentConfigDir = ctx.currentConfigDirRef.current;
+  const currentConfigDir = extensionStore.get(StoreKey.ConfigDir);
   const currentHasConfig = await hasConfig(workspacePath, currentConfigDir);
 
   const startPath = currentConfigDir ?? ROOT_PATH;
@@ -73,8 +71,7 @@ export async function showConfigLocationMenu(ctx: ConfigLocationContext): Promis
     }
   }
 
-  ctx.currentConfigDirRef.current = newConfigDir;
-  setWorkspaceState(ctx.context, WorkspaceStateKey.ConfigDir, newConfigDir);
+  extensionStore.set(StoreKey.ConfigDir, newConfigDir);
   logger.info(`Config dir changed to: ${getConfigDirLabel(newConfigDir)}`);
 
   await ctx.updateStatusBar();

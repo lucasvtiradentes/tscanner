@@ -4,6 +4,7 @@ import * as vscode from 'vscode';
 import { getCommandId, getStatusBarName } from '../common/constants';
 import { getConfigDirLabel, loadConfig } from '../common/lib/config-manager';
 import { Command, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
+import { StoreKey, extensionStore } from '../common/state/extension-store';
 import { LOCATOR_SOURCE_LABELS, Locator, LocatorSource } from '../locator';
 
 type BinaryInfo = {
@@ -33,11 +34,7 @@ export class StatusBarManager {
   private statusBarItem: vscode.StatusBarItem;
   private cachedBinaryInfo: BinaryInfo | null = null;
 
-  constructor(
-    private currentScanModeRef: { current: ScanMode },
-    private currentCompareBranchRef: { current: string },
-    private currentConfigDirRef: { current: string | null },
-  ) {
+  constructor() {
     this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
     this.statusBarItem.command = getCommandId(Command.OpenSettingsMenu);
   }
@@ -49,7 +46,7 @@ export class StatusBarManager {
       return;
     }
 
-    const configDir = this.currentConfigDirRef.current;
+    const configDir = extensionStore.get(StoreKey.ConfigDir);
     const config = await loadConfig(workspaceFolder.uri.fsPath, configDir);
     const hasConfig = hasConfiguredRules(config);
 
@@ -80,10 +77,9 @@ export class StatusBarManager {
 
   private showConfigured(configDir: string | null, config: TscannerConfig | null, binaryInfo: BinaryInfo): void {
     const icon = '$(shield)';
-    const modeText =
-      this.currentScanModeRef.current === ScanMode.Codebase
-        ? 'Codebase'
-        : `Branch (${this.currentCompareBranchRef.current})`;
+    const scanMode = extensionStore.get(StoreKey.ScanMode);
+    const compareBranch = extensionStore.get(StoreKey.CompareBranch);
+    const modeText = scanMode === ScanMode.Codebase ? 'Codebase' : `Branch (${compareBranch})`;
     const finalText = `${icon} ${modeText}`;
 
     this.statusBarItem.text = finalText;

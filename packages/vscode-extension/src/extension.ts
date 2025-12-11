@@ -5,7 +5,8 @@ import { initializeLogger, logger } from './common/lib/logger';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from './common/lib/vscode-utils';
 import { EXTENSION_DISPLAY_NAME } from './common/scripts-constants';
 import { ExtensionConfigKey, getExtensionConfig, getFullConfigKeyPath } from './common/state/extension-config';
-import { type CommandContext, type ExtensionStateRefs, createExtensionStateRefs } from './common/state/extension-state';
+import type { CommandContext } from './common/state/extension-state';
+import { StoreKey, extensionStore } from './common/state/extension-store';
 import { ContextKey, WorkspaceStateKey, getWorkspaceState, setContextKey } from './common/state/workspace-state';
 import { AiIssuesView, IssuesViewIcon, RegularIssuesView } from './issues-panel';
 import { dispose as disposeScanner, getLspClient, startLspClient } from './scanner/client';
@@ -67,23 +68,19 @@ function setupContextKeys(context: vscode.ExtensionContext): void {
   setContextKey(ContextKey.HasAiScanned, false);
 }
 
-function setupWatchers(
-  context: vscode.ExtensionContext,
-  stateRefs: ExtensionStateRefs,
-  regularView: RegularIssuesView,
-): vscode.Disposable {
+function setupWatchers(context: vscode.ExtensionContext, regularView: RegularIssuesView): vscode.Disposable {
   let currentFileWatcher: vscode.FileSystemWatcher | null = null;
 
   const recreateFileWatcher = async () => {
     if (currentFileWatcher) {
       currentFileWatcher.dispose();
     }
-    currentFileWatcher = await createFileWatcher(context, regularView, stateRefs);
+    currentFileWatcher = await createFileWatcher(context, regularView);
   };
 
   const configWatcher = createConfigWatcher(async () => {
-    await scanIntervalWatcher.setup(stateRefs);
-    await aiScanIntervalWatcher.setup(stateRefs);
+    await scanIntervalWatcher.setup();
+    await aiScanIntervalWatcher.setup();
     await recreateFileWatcher();
   });
 
@@ -110,7 +107,7 @@ function setupSettingsListener(): vscode.Disposable {
   });
 }
 
-async function startExtension(stateRefs: ExtensionStateRefs): Promise<void> {
+async function startExtension(): Promise<void> {
   logger.info('Starting LSP client...');
   try {
     await startLspClient();
@@ -121,8 +118,8 @@ async function startExtension(stateRefs: ExtensionStateRefs): Promise<void> {
   logger.info('Running initial scan...');
   executeCommand(Command.FindIssue, { silent: true });
 
-  await scanIntervalWatcher.setup(stateRefs);
-  await aiScanIntervalWatcher.setup(stateRefs);
+  await scanIntervalWatcher.setup();
+  await aiScanIntervalWatcher.setup();
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -145,30 +142,28 @@ export function activate(context: vscode.ExtensionContext) {
 
   logger.info(`${EXTENSION_DISPLAY_NAME} extension activated`);
 
+  extensionStore.initialize(context);
   setupContextKeys(context);
 
   const { regularView, aiView, treeView, regularViewIcon, aiViewIcon } = setupViews(context);
-  const stateRefs = createExtensionStateRefs(context);
 
-  const statusBarManager = new StatusBarManager(
-    stateRefs.currentScanModeRef,
-    stateRefs.currentCompareBranchRef,
-    stateRefs.currentConfigDirRef,
-  );
-
+  const statusBarManager = new StatusBarManager();
   const updateStatusBar = async () => statusBarManager.update();
   updateStatusBar().then(() => logger.info('Status bar setup complete'));
+
+  extensionStore.subscribe(StoreKey.ScanMode, () => updateStatusBar());
+  extensionStore.subscribe(StoreKey.CompareBranch, () => updateStatusBar());
+  extensionStore.subscribe(StoreKey.ConfigDir, () => updateStatusBar());
 
   const commandContext: CommandContext = {
     context,
     treeView,
-    stateRefs,
     updateStatusBar,
     getLspClient,
   };
 
   const commands = registerAllCommands(commandContext, regularView, aiView);
-  const configWatcher = setupWatchers(context, stateRefs, regularView);
+  const configWatcher = setupWatchers(context, regularView);
   const settingsWatcher = setupSettingsListener();
 
   context.subscriptions.push(
@@ -180,7 +175,7 @@ export function activate(context: vscode.ExtensionContext) {
     aiViewIcon,
   );
 
-  setTimeout(() => startExtension(stateRefs), 2000);
+  setTimeout(() => startExtension(), 2000);
 }
 
 export function deactivate() {

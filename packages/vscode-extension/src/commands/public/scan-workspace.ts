@@ -17,24 +17,18 @@ import {
   showToastMessage,
 } from '../../common/lib/vscode-utils';
 import type { CommandContext } from '../../common/state/extension-state';
-import {
-  ContextKey,
-  WorkspaceStateKey,
-  setContextKey,
-  setWorkspaceState,
-  updateState,
-} from '../../common/state/workspace-state';
+import { StoreKey, extensionStore } from '../../common/state/extension-store';
+import { ContextKey, WorkspaceStateKey, setContextKey, setWorkspaceState } from '../../common/state/workspace-state';
 import { serializeResults } from '../../common/types';
 import type { RegularIssuesView } from '../../issues-panel';
 import { scan } from '../../scanner/scan';
 import { resetIssueIndex } from './issue-navigation';
 
 export function createScanWorkspaceCommand(ctx: CommandContext, regularView: RegularIssuesView) {
-  const { context, treeView, stateRefs, updateStatusBar } = ctx;
-  const { isSearchingRef, currentScanModeRef, currentCompareBranchRef, currentConfigDirRef } = stateRefs;
+  const { context, treeView, updateStatusBar } = ctx;
 
   return registerCommand(Command.FindIssue, async (options?: { silent?: boolean; aiMode?: AiExecutionMode }) => {
-    if (isSearchingRef.current) {
+    if (extensionStore.get(StoreKey.IsSearching)) {
       if (!options?.silent) {
         showToastMessage(ToastKind.Warning, 'Search already in progress');
       }
@@ -49,7 +43,7 @@ export function createScanWorkspaceCommand(ctx: CommandContext, regularView: Reg
       return;
     }
 
-    const configDir = currentConfigDirRef.current;
+    const configDir = extensionStore.get(StoreKey.ConfigDir);
     const config = await loadConfig(workspaceFolder.uri.fsPath, configDir);
 
     if (!hasConfiguredRules(config)) {
@@ -67,16 +61,16 @@ export function createScanWorkspaceCommand(ctx: CommandContext, regularView: Reg
       logger.info(`Using local config from ${CONFIG_DIR_NAME}`);
     }
 
-    if (currentScanModeRef.current === ScanMode.Branch) {
-      const branchExistsCheck = await GitHelper.branchExists(
-        workspaceFolder.uri.fsPath,
-        currentCompareBranchRef.current,
-      );
+    const scanMode = extensionStore.get(StoreKey.ScanMode);
+    const compareBranch = extensionStore.get(StoreKey.CompareBranch);
+
+    if (scanMode === ScanMode.Branch) {
+      const branchExistsCheck = await GitHelper.branchExists(workspaceFolder.uri.fsPath, compareBranch);
       if (!branchExistsCheck) {
-        logger.warn(`Branch does not exist: ${currentCompareBranchRef.current}`);
+        logger.warn(`Branch does not exist: ${compareBranch}`);
         const action = await showToastMessage(
           ToastKind.Error,
-          `Branch '${currentCompareBranchRef.current}' does not exist in this repository`,
+          `Branch '${compareBranch}' does not exist in this repository`,
           'Change Branch',
           'Switch to Workspace Mode',
         );
@@ -84,8 +78,7 @@ export function createScanWorkspaceCommand(ctx: CommandContext, regularView: Reg
         if (action === 'Change Branch') {
           await executeCommand(Command.OpenSettingsMenu);
         } else if (action === 'Switch to Workspace Mode') {
-          currentScanModeRef.current = ScanMode.Codebase;
-          updateState(context, WorkspaceStateKey.ScanMode, ScanMode.Codebase);
+          extensionStore.set(StoreKey.ScanMode, ScanMode.Codebase);
           await updateStatusBar();
           await executeCommand(Command.FindIssue, { silent: true });
         }
@@ -93,15 +86,14 @@ export function createScanWorkspaceCommand(ctx: CommandContext, regularView: Reg
       }
     }
 
-    isSearchingRef.current = true;
-    setContextKey(ContextKey.Searching, true);
+    extensionStore.set(StoreKey.IsSearching, true);
     regularView.setResults([]);
 
-    logger.info(`Starting scan in ${currentScanModeRef.current} mode`);
+    logger.info(`Starting scan in ${scanMode} mode`);
 
     try {
       const startTime = Date.now();
-      const branch = currentScanModeRef.current === ScanMode.Branch ? currentCompareBranchRef.current : undefined;
+      const branch = scanMode === ScanMode.Branch ? compareBranch : undefined;
       const results = await scan({
         branch,
         config: configToPass,
@@ -128,8 +120,7 @@ export function createScanWorkspaceCommand(ctx: CommandContext, regularView: Reg
       logger.error(`Error during scan: ${error}`);
       throw error;
     } finally {
-      isSearchingRef.current = false;
-      setContextKey(ContextKey.Searching, false);
+      extensionStore.set(StoreKey.IsSearching, false);
       setContextKey(ContextKey.HasScanned, true);
     }
   });

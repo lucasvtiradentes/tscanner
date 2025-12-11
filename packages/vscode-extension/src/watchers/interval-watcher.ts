@@ -2,7 +2,7 @@ import type { AiExecutionMode } from 'tscanner-common';
 import { loadConfig } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
-import type { ExtensionStateRefs } from '../common/state/extension-state';
+import { StoreKey, extensionStore } from '../common/state/extension-store';
 
 export enum IntervalConfigKey {
   Scan = 'scanInterval',
@@ -18,7 +18,7 @@ type IntervalConfig = {
 export function createIntervalWatcher(config: IntervalConfig) {
   let timer: NodeJS.Timeout | null = null;
 
-  const setup = async (stateRefs: ExtensionStateRefs): Promise<void> => {
+  const setup = async (): Promise<void> => {
     if (timer) {
       clearInterval(timer);
       timer = null;
@@ -27,7 +27,8 @@ export function createIntervalWatcher(config: IntervalConfig) {
     const workspaceFolder = getCurrentWorkspaceFolder();
     if (!workspaceFolder) return;
 
-    const tscannerConfig = await loadConfig(workspaceFolder.uri.fsPath, stateRefs.currentConfigDirRef.current);
+    const configDir = extensionStore.get(StoreKey.ConfigDir);
+    const tscannerConfig = await loadConfig(workspaceFolder.uri.fsPath, configDir);
     const intervalSeconds = tscannerConfig?.codeEditor?.[config.configKey] ?? 0;
 
     if (intervalSeconds <= 0) {
@@ -38,7 +39,7 @@ export function createIntervalWatcher(config: IntervalConfig) {
     logger.info(`Setting up ${config.name} auto-scan: ${intervalSeconds}s`);
 
     timer = setInterval(() => {
-      if (stateRefs.isSearchingRef.current) {
+      if (extensionStore.get(StoreKey.IsSearching)) {
         logger.debug(`${config.name} auto-scan skipped: search in progress`);
         return;
       }
