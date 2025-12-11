@@ -8,11 +8,11 @@ import {
   type FileResult,
   type GroupMode,
   JS_EXTENSIONS,
+  LSP_CLIENT_ID,
   LspMethod,
   type RuleMetadata,
   type ScanResult,
   type TscannerConfig,
-  VSCODE_EXTENSION,
 } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { LanguageClient, type LanguageClientOptions, type ServerOptions, State } from 'vscode-languageclient/node';
@@ -66,12 +66,7 @@ export class TscannerLspClient {
       },
     };
 
-    this.client = new LanguageClient(
-      VSCODE_EXTENSION.lsp.clientId,
-      `${getStatusBarName()} LSP`,
-      serverOptions,
-      clientOptions,
-    );
+    this.client = new LanguageClient(LSP_CLIENT_ID, `${getStatusBarName()} LSP`, serverOptions, clientOptions);
 
     await this.client.start();
   }

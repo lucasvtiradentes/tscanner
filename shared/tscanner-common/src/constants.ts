@@ -1,20 +1,21 @@
 import z from 'zod';
 import constants from '../../../assets/constants.json';
 
-export const PACKAGE_NAME = constants.packageName;
-export const PACKAGE_DISPLAY_NAME = constants.packageDisplayName;
-export const PACKAGE_DESCRIPTION = constants.packageDescription;
-export const CONFIG_DIR_NAME = constants.configDirName;
-export const CONFIG_FILE_NAME = constants.configFileName;
-export const DEFAULT_TARGET_BRANCH = constants.defaultTargetBranch;
-export const LOG_BASENAME = constants.logBasename;
-export const LOG_TIMEZONE_OFFSET_HOURS = constants.logTimezoneOffsetHours;
-export const IGNORE_COMMENT = constants.ignoreComment;
-export const IGNORE_NEXT_LINE_COMMENT = constants.ignoreNextLineComment;
-export const JS_EXTENSIONS = constants.extensions.javascript;
+export const PACKAGE_NAME = constants.shared.packageName;
+export const PACKAGE_DISPLAY_NAME = constants.shared.packageDisplayName;
+export const PACKAGE_DESCRIPTION = constants.shared.packageDescription;
+export const CONFIG_DIR_NAME = constants.shared.configDirName;
+export const CONFIG_FILE_NAME = constants.shared.configFileName;
+export const DEFAULT_TARGET_BRANCH = constants.shared.defaultTargetBranch;
+export const LOG_BASENAME = constants.shared.logBasename;
+export const LOG_TIMEZONE_OFFSET_HOURS = constants.shared.logTimezoneOffsetHours;
+export const IGNORE_COMMENT = constants.shared.ignoreComment;
+export const IGNORE_NEXT_LINE_COMMENT = constants.shared.ignoreNextLineComment;
+export const JS_EXTENSIONS = constants.shared.extensions.javascript;
 export const VSCODE_EXTENSION = constants.vscodeExtension;
-export const REPO_URL = constants.urls.repo;
-export const REPO_BLOB_URL = constants.urls.repoBlob;
+export const LSP_CLIENT_ID = constants.shared.lsp.clientId;
+export const REPO_URL = constants.shared.urls.repo;
+export const REPO_BLOB_URL = constants.shared.urls.repoBlob;
 
 export enum Severity {
   Error = 'error',
@@ -78,15 +79,15 @@ export enum IssueRuleType {
   Ai = 'ai',
 }
 
-export enum LspMethod {
-  Scan = 'tscanner/scan',
-  ScanFile = 'tscanner/scanFile',
-  ScanContent = 'tscanner/scanContent',
-  ClearCache = 'tscanner/clearCache',
-  GetRulesMetadata = 'tscanner/getRulesMetadata',
-  FormatResults = 'tscanner/formatResults',
-  AiProgress = 'tscanner/aiProgress',
-}
+export const LspMethod = {
+  Scan: constants.shared.lsp.methods.scan,
+  ScanFile: constants.shared.lsp.methods.scanFile,
+  ScanContent: constants.shared.lsp.methods.scanContent,
+  ClearCache: constants.shared.lsp.methods.clearCache,
+  GetRulesMetadata: constants.shared.lsp.methods.getRulesMetadata,
+  FormatResults: constants.shared.lsp.methods.formatResults,
+  AiProgress: constants.shared.lsp.methods.aiProgress,
+} as const;
 
 export const PLATFORM_TARGET_MAP: Record<string, string> = {
   'linux-x64': 'x86_64-unknown-linux-gnu',

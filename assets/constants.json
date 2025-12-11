@@ -1,75 +1,91 @@
 {
-  "packageName": "tscanner",
-  "packageDisplayName": "TScanner",
-  "packageDescription": "Code quality scanner for the AI-generated code era",
-  "configDirName": ".tscanner",
-  "configFileName": "config.jsonc",
-  "defaultTargetBranch": "origin/main",
-  "logBasename": "tscannerlogs",
-  "logTimezoneOffsetHours": -3,
-  "ignoreComment": "tscanner-ignore",
-  "ignoreNextLineComment": "tscanner-ignore-next-line",
-  "defaults": {
-    "codeEditor": {
-      "highlightErrors": true,
-      "highlightWarnings": true,
-      "highlightInfos": true,
-      "highlightHints": true,
-      "scanInterval": 0,
-      "aiScanInterval": 0
+  "shared": {
+    "packageName": "tscanner",
+    "packageDisplayName": "TScanner",
+    "packageDescription": "Code quality scanner for the AI-generated code era",
+    "configDirName": ".tscanner",
+    "configFileName": "config.jsonc",
+    "defaultTargetBranch": "origin/main",
+    "logBasename": "tscannerlogs",
+    "logTimezoneOffsetHours": -3,
+    "ignoreComment": "tscanner-ignore",
+    "ignoreNextLineComment": "tscanner-ignore-next-line",
+    "extensions": {
+      "javascript": ["ts", "tsx", "js", "jsx", "mjs", "cjs", "mts", "cts"]
     },
-    "directories": {
-      "scriptRules": "script-rules",
-      "aiRules": "ai-rules"
+    "urls": {
+      "repo": "https://github.com/lucasvtiradentes/tscanner",
+      "repoBlob": "https://github.com/lucasvtiradentes/tscanner/blob/main",
+      "rulesBase": "https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin"
     },
-    "examples": {
-      "scriptRule": "example-no-debug-comments.ts",
-      "aiRule": "example-find-complexity.md"
-    }
-  },
-  "display": {
-    "icons": {
-      "builtin": "●",
-      "regex": "○",
-      "script": "▶",
-      "ai": "✦",
-      "error": "✖",
-      "warning": "⚠",
-      "info": "ℹ",
-      "hint": "💡",
-      "progress": "⧗",
-      "success": "✓",
-      "skipped": "⊘"
-    }
-  },
-  "extensions": {
-    "javascript": ["ts", "tsx", "js", "jsx", "mjs", "cjs", "mts", "cts"]
-  },
-  "cache": {
-    "dirName": "tscanner"
-  },
-  "ai": {
-    "tempDir": "tscanner-ai-prompts",
-    "placeholders": {
-      "files": "{{FILES}}",
-      "content": "{{CONTENT}}",
-      "options": "{{OPTIONS}}"
-    },
-    "providers": {
-      "claude": {
-        "command": "claude",
-        "args": ["-p", "--output-format", "text", "--model", "haiku"]
-      },
-      "gemini": {
-        "command": "gemini",
-        "args": ["-o", "text"]
+    "lsp": {
+      "clientId": "tscanner",
+      "methods": {
+        "scan": "tscanner/scan",
+        "scanFile": "tscanner/scanFile",
+        "scanContent": "tscanner/scanContent",
+        "clearCache": "tscanner/clearCache",
+        "getRulesMetadata": "tscanner/getRulesMetadata",
+        "formatResults": "tscanner/formatResults",
+        "aiProgress": "tscanner/aiProgress"
       }
     }
   },
-  "urls": {
-    "repo": "https://github.com/lucasvtiradentes/tscanner",
-    "repoBlob": "https://github.com/lucasvtiradentes/tscanner/blob/main",
-    "rulesBase": "https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin"
+  "coreRust": {
+    "defaults": {
+      "codeEditor": {
+        "highlightErrors": true,
+        "highlightWarnings": true,
+        "highlightInfos": true,
+        "highlightHints": true,
+        "scanInterval": 0,
+        "aiScanInterval": 0
+      },
+      "directories": {
+        "scriptRules": "script-rules",
+        "aiRules": "ai-rules"
+      },
+      "examples": {
+        "scriptRule": "example-no-debug-comments.ts",
+        "aiRule": "example-find-complexity.md"
+      }
+    },
+    "display": {
+      "icons": {
+        "builtin": "●",
+        "regex": "○",
+        "script": "▶",
+        "ai": "✦",
+        "error": "✖",
+        "warning": "⚠",
+        "info": "ℹ",
+        "hint": "💡",
+        "progress": "⧗",
+        "success": "✓",
+        "skipped": "⊘"
+      }
+    },
+    "cache": {
+      "dirName": "tscanner"
+    },
+    "ai": {
+      "tempDir": "tscanner-ai-prompts",
+      "placeholders": {
+        "files": "{{FILES}}",
+        "content": "{{CONTENT}}",
+        "options": "{{OPTIONS}}"
+      },
+      "providers": {
+        "claude": {
+          "command": "claude",
+          "args": ["-p", "--output-format", "text", "--model", "haiku"]
+        },
+        "gemini": {
+          "command": "gemini",
+          "args": ["-o", "text"]
+        }
+      }
+    }
   },
   "vscodeExtension": {
     "timeouts": {
@@ -93,18 +109,6 @@
     "paths": {
       "bunGlobalModules": ".bun/install/global/node_modules",
       "devBinaryRelative": "packages/rust-core/target/release"
-    },
-    "lsp": {
-      "clientId": "tscanner",
-      "methods": {
-        "scan": "tscanner/scan",
-        "scanFile": "tscanner/scanFile",
-        "scanContent": "tscanner/scanContent",
-        "clearCache": "tscanner/clearCache",
-        "getRulesMetadata": "tscanner/getRulesMetadata",
-        "formatResults": "tscanner/formatResults",
-        "aiProgress": "tscanner/aiProgress"
-      }
     }
   }
 }

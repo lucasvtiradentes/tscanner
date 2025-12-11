@@ -8,19 +8,68 @@ const CONSTANTS_JSON: &str = include_str!("../../../../../assets/constants.json"
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Constants {
+    shared: SharedConfig,
+    core_rust: CoreRustConfig,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct SharedConfig {
     package_name: String,
+    #[allow(dead_code)]
+    package_display_name: String,
+    #[allow(dead_code)]
+    package_description: String,
     config_dir_name: String,
     config_file_name: String,
+    #[allow(dead_code)]
+    default_target_branch: String,
     log_basename: String,
     log_timezone_offset_hours: i8,
     ignore_comment: String,
     ignore_next_line_comment: String,
+    extensions: ExtensionsConfig,
+    urls: UrlsConfig,
+    lsp: LspConfig,
+}
+
+#[derive(Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+struct UrlsConfig {
+    #[allow(dead_code)]
+    repo: String,
+    #[allow(dead_code)]
+    repo_blob: String,
+    rules_base: String,
+}
+
+#[derive(Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+struct LspConfig {
+    #[allow(dead_code)]
+    client_id: String,
+    methods: LspMethodsConfig,
+}
+
+#[derive(Deserialize, Clone)]
+#[serde(rename_all = "camelCase")]
+struct LspMethodsConfig {
+    scan: String,
+    scan_file: String,
+    scan_content: String,
+    clear_cache: String,
+    get_rules_metadata: String,
+    format_results: String,
+    ai_progress: String,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct CoreRustConfig {
     defaults: Defaults,
     display: DisplayConfig,
-    extensions: ExtensionsConfig,
     cache: CacheConfig,
     ai: AiConstantsConfig,
-    urls: UrlsConfig,
 }
 
 #[derive(Deserialize, Clone)]
@@ -120,37 +169,29 @@ struct AiProviderConfig {
     args: Vec<String>,
 }
 
-#[derive(Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-struct UrlsConfig {
-    repo: String,
-    repo_blob: String,
-    rules_base: String,
-}
-
 lazy_static::lazy_static! {
     static ref CONSTANTS: Constants = serde_json::from_str(CONSTANTS_JSON)
         .expect("Failed to parse constants.json");
 }
 
 pub fn app_name() -> &'static str {
-    &CONSTANTS.package_name
+    &CONSTANTS.shared.package_name
 }
 
 pub fn config_dir_name() -> &'static str {
-    &CONSTANTS.config_dir_name
+    &CONSTANTS.shared.config_dir_name
 }
 
 pub fn config_file_name() -> &'static str {
-    &CONSTANTS.config_file_name
+    &CONSTANTS.shared.config_file_name
 }
 
 pub fn log_basename() -> &'static str {
-    &CONSTANTS.log_basename
+    &CONSTANTS.shared.log_basename
 }
 
 pub fn log_timezone_offset_hours() -> i8 {
-    CONSTANTS.log_timezone_offset_hours
+    CONSTANTS.shared.log_timezone_offset_hours
 }
 
 pub fn is_dev_mode() -> bool {
@@ -166,47 +207,47 @@ pub fn get_log_filename() -> String {
 }
 
 pub fn ignore_comment() -> &'static str {
-    &CONSTANTS.ignore_comment
+    &CONSTANTS.shared.ignore_comment
 }
 
 pub fn ignore_next_line_comment() -> &'static str {
-    &CONSTANTS.ignore_next_line_comment
+    &CONSTANTS.shared.ignore_next_line_comment
 }
 
 pub fn script_rules_dir() -> &'static str {
-    &CONSTANTS.defaults.directories.script_rules
+    &CONSTANTS.core_rust.defaults.directories.script_rules
 }
 
 pub fn ai_rules_dir() -> &'static str {
-    &CONSTANTS.defaults.directories.ai_rules
+    &CONSTANTS.core_rust.defaults.directories.ai_rules
 }
 
 pub fn example_script_rule() -> &'static str {
-    &CONSTANTS.defaults.examples.script_rule
+    &CONSTANTS.core_rust.defaults.examples.script_rule
 }
 
 pub fn example_ai_rule() -> &'static str {
-    &CONSTANTS.defaults.examples.ai_rule
+    &CONSTANTS.core_rust.defaults.examples.ai_rule
 }
 
 pub fn default_highlight_errors() -> bool {
-    CONSTANTS.defaults.code_editor.highlight_errors
+    CONSTANTS.core_rust.defaults.code_editor.highlight_errors
 }
 
 pub fn default_highlight_warnings() -> bool {
-    CONSTANTS.defaults.code_editor.highlight_warnings
+    CONSTANTS.core_rust.defaults.code_editor.highlight_warnings
 }
 
 pub fn default_highlight_infos() -> bool {
-    CONSTANTS.defaults.code_editor.highlight_infos
+    CONSTANTS.core_rust.defaults.code_editor.highlight_infos
 }
 
 pub fn default_highlight_hints() -> bool {
-    CONSTANTS.defaults.code_editor.highlight_hints
+    CONSTANTS.core_rust.defaults.code_editor.highlight_hints
 }
 
 pub fn default_scan_interval() -> u32 {
-    CONSTANTS.defaults.code_editor.scan_interval
+    CONSTANTS.core_rust.defaults.code_editor.scan_interval
 }
 
 pub fn default_severity() -> Severity {
@@ -214,103 +255,128 @@ pub fn default_severity() -> Severity {
 }
 
 pub fn default_ai_scan_interval() -> u32 {
-    CONSTANTS.defaults.code_editor.ai_scan_interval
+    CONSTANTS.core_rust.defaults.code_editor.ai_scan_interval
 }
 
 pub fn icon_builtin() -> &'static str {
-    &CONSTANTS.display.icons.builtin
+    &CONSTANTS.core_rust.display.icons.builtin
 }
 
 pub fn icon_regex() -> &'static str {
-    &CONSTANTS.display.icons.regex
+    &CONSTANTS.core_rust.display.icons.regex
 }
 
 pub fn icon_script() -> &'static str {
-    &CONSTANTS.display.icons.script
+    &CONSTANTS.core_rust.display.icons.script
 }
 
 pub fn icon_ai() -> &'static str {
-    &CONSTANTS.display.icons.ai
+    &CONSTANTS.core_rust.display.icons.ai
 }
 
 pub fn icon_error() -> &'static str {
-    &CONSTANTS.display.icons.error
+    &CONSTANTS.core_rust.display.icons.error
 }
 
 pub fn icon_warning() -> &'static str {
-    &CONSTANTS.display.icons.warning
+    &CONSTANTS.core_rust.display.icons.warning
 }
 
 pub fn icon_info() -> &'static str {
-    &CONSTANTS.display.icons.info
+    &CONSTANTS.core_rust.display.icons.info
 }
 
 pub fn icon_hint() -> &'static str {
-    &CONSTANTS.display.icons.hint
+    &CONSTANTS.core_rust.display.icons.hint
 }
 
 pub fn icon_progress() -> &'static str {
-    &CONSTANTS.display.icons.progress
+    &CONSTANTS.core_rust.display.icons.progress
 }
 
 pub fn icon_success() -> &'static str {
-    &CONSTANTS.display.icons.success
+    &CONSTANTS.core_rust.display.icons.success
 }
 
 pub fn icon_skipped() -> &'static str {
-    &CONSTANTS.display.icons.skipped
+    &CONSTANTS.core_rust.display.icons.skipped
 }
 
 pub fn is_js_ts_extension(ext: &str) -> bool {
-    CONSTANTS.extensions.javascript.iter().any(|e| e == ext)
+    CONSTANTS
+        .shared
+        .extensions
+        .javascript
+        .iter()
+        .any(|e| e == ext)
 }
 
 pub fn cache_dir_name() -> &'static str {
-    &CONSTANTS.cache.dir_name
+    &CONSTANTS.core_rust.cache.dir_name
 }
 
 pub fn ai_temp_dir() -> &'static str {
-    &CONSTANTS.ai.temp_dir
+    &CONSTANTS.core_rust.ai.temp_dir
 }
 
 pub fn ai_placeholder_files() -> &'static str {
-    &CONSTANTS.ai.placeholders.files
+    &CONSTANTS.core_rust.ai.placeholders.files
 }
 
 pub fn ai_placeholder_content() -> &'static str {
-    &CONSTANTS.ai.placeholders.content
+    &CONSTANTS.core_rust.ai.placeholders.content
 }
 
 pub fn ai_placeholder_options() -> &'static str {
-    &CONSTANTS.ai.placeholders.options
+    &CONSTANTS.core_rust.ai.placeholders.options
 }
 
 pub fn claude_command() -> &'static str {
-    &CONSTANTS.ai.providers.claude.command
+    &CONSTANTS.core_rust.ai.providers.claude.command
 }
 
 pub fn claude_args() -> &'static [String] {
-    &CONSTANTS.ai.providers.claude.args
+    &CONSTANTS.core_rust.ai.providers.claude.args
 }
 
 pub fn gemini_command() -> &'static str {
-    &CONSTANTS.ai.providers.gemini.command
+    &CONSTANTS.core_rust.ai.providers.gemini.command
 }
 
 pub fn gemini_args() -> &'static [String] {
-    &CONSTANTS.ai.providers.gemini.args
-}
-
-pub fn repo_url() -> &'static str {
-    &CONSTANTS.urls.repo
-}
-
-pub fn repo_blob_url() -> &'static str {
-    &CONSTANTS.urls.repo_blob
+    &CONSTANTS.core_rust.ai.providers.gemini.args
 }
 
 pub fn rules_base_url() -> &'static str {
-    &CONSTANTS.urls.rules_base
+    &CONSTANTS.shared.urls.rules_base
+}
+
+pub fn lsp_method_scan() -> &'static str {
+    &CONSTANTS.shared.lsp.methods.scan
+}
+
+pub fn lsp_method_scan_file() -> &'static str {
+    &CONSTANTS.shared.lsp.methods.scan_file
+}
+
+pub fn lsp_method_scan_content() -> &'static str {
+    &CONSTANTS.shared.lsp.methods.scan_content
+}
+
+pub fn lsp_method_clear_cache() -> &'static str {
+    &CONSTANTS.shared.lsp.methods.clear_cache
+}
+
+pub fn lsp_method_get_rules_metadata() -> &'static str {
+    &CONSTANTS.shared.lsp.methods.get_rules_metadata
+}
+
+pub fn lsp_method_format_results() -> &'static str {
+    &CONSTANTS.shared.lsp.methods.format_results
+}
+
+pub fn lsp_method_ai_progress() -> &'static str {
+    &CONSTANTS.shared.lsp.methods.ai_progress
 }
 
 pub fn resolve_config_dir(root: &Path, config_dir: Option<PathBuf>) -> PathBuf {
