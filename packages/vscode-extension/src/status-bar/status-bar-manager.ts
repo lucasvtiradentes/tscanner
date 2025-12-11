@@ -4,19 +4,11 @@ import * as vscode from 'vscode';
 import { getCommandId, getStatusBarName } from '../common/constants';
 import { getConfigDirLabel, loadConfig } from '../common/lib/config-manager';
 import { Command, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
-import { Locator, LocatorSource } from '../locator';
+import { LOCATOR_SOURCE_LABELS, Locator, LocatorSource } from '../locator';
 
 type BinaryInfo = {
   source: LocatorSource;
   version: string | null;
-};
-
-const SOURCE_LABELS: Record<LocatorSource, string> = {
-  [LocatorSource.Dev]: 'dev',
-  [LocatorSource.Settings]: 'settings',
-  [LocatorSource.NodeModules]: 'local',
-  [LocatorSource.Global]: 'global',
-  [LocatorSource.Path]: 'PATH',
 };
 
 function getAiProviderLabel(config: TscannerConfig | null): string {
@@ -99,8 +91,8 @@ export class StatusBarManager {
     const displayName = getStatusBarName();
     const configLabel = getConfigDirLabel(configDir);
     const binaryLabel = binaryInfo.version
-      ? `${SOURCE_LABELS[binaryInfo.source]} (v${binaryInfo.version})`
-      : SOURCE_LABELS[binaryInfo.source];
+      ? `${LOCATOR_SOURCE_LABELS[binaryInfo.source]} (v${binaryInfo.version})`
+      : LOCATOR_SOURCE_LABELS[binaryInfo.source];
     const aiProviderLabel = getAiProviderLabel(config);
 
     const tooltipLines = [

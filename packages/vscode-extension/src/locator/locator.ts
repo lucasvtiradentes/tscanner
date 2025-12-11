@@ -17,6 +17,22 @@ export enum LocatorSource {
   Path = 'path',
 }
 
+export const LOCATOR_SOURCE_LABELS: Record<LocatorSource, string> = {
+  [LocatorSource.Dev]: 'dev',
+  [LocatorSource.Settings]: 'settings',
+  [LocatorSource.NodeModules]: 'local',
+  [LocatorSource.Global]: 'global',
+  [LocatorSource.Path]: 'PATH',
+};
+
+export const LOCATOR_SOURCE_LABELS_VERBOSE: Record<LocatorSource, string> = {
+  [LocatorSource.Dev]: 'dev (local rust build)',
+  [LocatorSource.Settings]: 'settings (user configured)',
+  [LocatorSource.NodeModules]: 'node_modules (project dependency)',
+  [LocatorSource.Global]: 'global (npm -g)',
+  [LocatorSource.Path]: 'PATH (system)',
+};
+
 type LocatorResult = {
   path: string;
   args?: string[];
