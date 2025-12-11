@@ -4,3 +4,4 @@ export * from './schemas/other';
 export * from './constants';
 export * from './utils';
 export * from './git-helper';
+export * from './cli-builder';

@@ -1,10 +1,11 @@
 import {
+  AiExecutionMode,
   DEFAULT_TARGET_BRANCH,
   type GroupMode,
   IssueRuleType,
-  PACKAGE_NAME,
   ScanMode,
   type ScanResult,
+  buildCheckCommand,
 } from 'tscanner-common';
 import type { TscannerLspClient } from '../../lsp/client';
 import type { FormatPrettyResult } from '../../lsp/requests/types';
@@ -40,11 +41,12 @@ class CopyScanContext {
 
   buildCliCommand(groupBy: GroupMode, filter?: string, filterValue?: string, onlyAi?: boolean): string {
     const branch = this.scanMode === ScanMode.Branch ? this.compareBranch : undefined;
-    const filterArg = filter && filterValue ? ` --${filter} "${filterValue}"` : '';
-    const groupByArg = ` --group-by ${groupBy}`;
-    const branchArg = branch ? ` --branch ${branch}` : '';
-    const onlyAiArg = onlyAi ? ' --only-ai' : '';
-    return `${PACKAGE_NAME} check${filterArg}${groupByArg}${branchArg}${onlyAiArg}`;
+    return buildCheckCommand({
+      groupBy,
+      branch,
+      filter: filter && filterValue ? { type: filter, value: filterValue } : undefined,
+      aiMode: onlyAi ? AiExecutionMode.Only : undefined,
+    });
   }
 }
 

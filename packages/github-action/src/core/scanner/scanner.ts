@@ -4,8 +4,9 @@ import {
   AiExecutionMode,
   type CliOutputByFile,
   type CliOutputByRule,
-  type GroupMode,
+  GroupMode,
   type RuleGroup,
+  buildCheckArgs,
 } from 'tscanner-common';
 import { githubHelper } from '../../lib/actions-helper';
 import { type CliExecutor, createDevModeExecutor, createProdModeExecutor } from '../cli-executor';
@@ -34,17 +35,6 @@ export type ScanOptions = {
   aiMode: AiExecutionMode;
 };
 
-function getAiModeArgs(aiMode: AiExecutionMode): string[] {
-  switch (aiMode) {
-    case AiExecutionMode.Include:
-      return ['--include-ai'];
-    case AiExecutionMode.Only:
-      return ['--only-ai'];
-    default:
-      return [];
-  }
-}
-
 function getAiModeLabel(aiMode: AiExecutionMode): string {
   switch (aiMode) {
     case AiExecutionMode.Include:
@@ -65,17 +55,14 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
 
   const jsonOutputFile = path.join(process.cwd(), 'tscanner-results.json');
 
-  const baseArgs = [
-    'check',
-    '--json-output',
-    jsonOutputFile,
-    '--continue-on-error',
-    '--config-path',
+  const baseArgs = buildCheckArgs({
+    jsonOutput: jsonOutputFile,
+    continueOnError: true,
     configPath,
-    ...(targetBranch ? ['--branch', targetBranch] : []),
-    ...getAiModeArgs(aiMode),
-    '--group-by=file',
-  ];
+    branch: targetBranch,
+    aiMode,
+    groupBy: GroupMode.File,
+  });
 
   await executor.execute(baseArgs);
 
