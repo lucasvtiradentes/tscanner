@@ -88,6 +88,12 @@
         "message": "CLI builder must cover all CLI check flags",
         "severity": "error",
         "include": ["assets/generated/cli.json", "shared/tscanner-common/src/cli-builder.ts"]
+      },
+      "no-default-node-imports": {
+        "command": "npx tsx script-rules/no-default-node-imports.ts",
+        "message": "Use named imports for node: modules instead of default or namespace imports",
+        "severity": "error",
+        "include": ["**/*.ts", "**/*.tsx", "**/*.mts"]
       }
     }
   },
