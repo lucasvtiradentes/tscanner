@@ -3,15 +3,7 @@ import { setCopyLspClient, setCopyScanContext } from '../common/lib/copy-utils';
 import type { CommandContext } from '../common/state/extension-state';
 import type { AiIssuesView, RegularIssuesView } from '../issues-panel';
 import { createOpenSettingsMenuCommand } from '../settings-menu';
-import { createCopyAllAiIssuesCommand, createCopyAllIssuesCommand } from './internal/copy-all';
-import {
-  createCopyAiFileIssuesCommand,
-  createCopyAiFolderIssuesCommand,
-  createCopyAiRuleIssuesCommand,
-  createCopyFileIssuesCommand,
-  createCopyFolderIssuesCommand,
-  createCopyRuleIssuesCommand,
-} from './internal/copy-items';
+import { createCopyCommand } from './internal/copy-items';
 import { createOpenFileCommand } from './internal/navigation';
 import { createRefreshAiIssuesCommand, createRefreshCommand } from './internal/refresh';
 import {
@@ -50,20 +42,20 @@ export function registerAllCommands(
     createCycleViewModeRuleFlatViewCommand(regularView, aiView, context),
     createCycleViewModeRuleTreeViewCommand(regularView, aiView, context),
     createOpenFileCommand(),
-    createCopyRuleIssuesCommand(),
-    createCopyFileIssuesCommand(),
-    createCopyFolderIssuesCommand(),
-    createCopyAllIssuesCommand(
-      () => regularView.getResults(),
-      () => regularView.groupMode,
-    ),
-    createCopyAiRuleIssuesCommand(),
-    createCopyAiFileIssuesCommand(),
-    createCopyAiFolderIssuesCommand(),
-    createCopyAllAiIssuesCommand(
-      () => aiView.getResults(),
-      () => aiView.groupMode,
-    ),
+    createCopyCommand('regular', 'rule'),
+    createCopyCommand('regular', 'file'),
+    createCopyCommand('regular', 'folder'),
+    createCopyCommand('regular', 'all', {
+      getResults: () => regularView.getResults(),
+      getGroupMode: () => regularView.groupMode,
+    }),
+    createCopyCommand('ai', 'rule'),
+    createCopyCommand('ai', 'file'),
+    createCopyCommand('ai', 'folder'),
+    createCopyCommand('ai', 'all', {
+      getResults: () => aiView.getResults(),
+      getGroupMode: () => aiView.groupMode,
+    }),
     createRefreshAiIssuesCommand(ctx, aiView),
   ];
 }
