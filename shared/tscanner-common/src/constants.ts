@@ -13,6 +13,7 @@ export const IGNORE_COMMENT = constants.shared.ignoreComment;
 export const IGNORE_NEXT_LINE_COMMENT = constants.shared.ignoreNextLineComment;
 export const JS_EXTENSIONS = constants.shared.extensions.javascript;
 export const VSCODE_EXTENSION = constants.vscodeExtension;
+export const DISPLAY_ICONS = constants.shared.icons;
 export const LSP_CLIENT_ID = constants.shared.lsp.clientId;
 export const REPO_URL = constants.shared.urls.repo;
 export const REPO_BLOB_URL = constants.shared.urls.repoBlob;

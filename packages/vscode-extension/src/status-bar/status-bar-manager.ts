@@ -1,5 +1,5 @@
 import { execSync } from 'node:child_process';
-import { ScanMode, type TscannerConfig, VSCODE_EXTENSION, hasConfiguredRules } from 'tscanner-common';
+import { DISPLAY_ICONS, ScanMode, type TscannerConfig, VSCODE_EXTENSION, hasConfiguredRules } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { getCommandId, getStatusBarName } from '../common/constants';
 import { getConfigDirLabel, loadConfig } from '../common/lib/config-manager';
@@ -18,6 +18,24 @@ function getAiProviderLabel(config: TscannerConfig | null): string {
   }
   const provider = config.ai.provider;
   return provider.charAt(0).toUpperCase() + provider.slice(1);
+}
+
+function getActiveRulesLabel(config: TscannerConfig | null): string {
+  if (!config) return 'None';
+
+  const parts: string[] = [];
+
+  const builtin = config.rules?.builtin ? Object.keys(config.rules.builtin).length : 0;
+  const regex = config.rules?.regex ? Object.keys(config.rules.regex).length : 0;
+  const script = config.rules?.script ? Object.keys(config.rules.script).length : 0;
+  const ai = config.aiRules ? Object.keys(config.aiRules).length : 0;
+
+  if (builtin > 0) parts.push(`${DISPLAY_ICONS.builtin} ${builtin}`);
+  if (regex > 0) parts.push(`${DISPLAY_ICONS.regex} ${regex}`);
+  if (script > 0) parts.push(`${DISPLAY_ICONS.script} ${script}`);
+  if (ai > 0) parts.push(`${DISPLAY_ICONS.ai} ${ai}`);
+
+  return parts.length > 0 ? parts.join('  ') : 'None';
 }
 
 function getBinaryVersion(binaryPath: string): string | null {
@@ -90,18 +108,18 @@ export class StatusBarManager {
 
     this.statusBarItem.text = finalText;
 
-    const displayName = getStatusBarName();
     const configLabel = getConfigDirLabel(configDir);
     const binaryLabel = binaryInfo.version
       ? `${LOCATOR_SOURCE_LABELS[binaryInfo.source]} (v${binaryInfo.version})`
       : LOCATOR_SOURCE_LABELS[binaryInfo.source];
     const aiProviderLabel = getAiProviderLabel(config);
 
+    const activeRulesLabel = getActiveRulesLabel(config);
+
     const tooltipLines = [
-      displayName,
-      '',
-      `Config: ${configLabel}`,
       `Binary: ${binaryLabel}`,
+      `Config: ${configLabel}`,
+      `Active Rules: ${activeRulesLabel}`,
       `AI Provider: ${aiProviderLabel}`,
     ];
 

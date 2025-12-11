@@ -29,6 +29,7 @@ struct SharedConfig {
     ignore_comment: String,
     ignore_next_line_comment: String,
     extensions: ExtensionsConfig,
+    icons: IconsConfig,
     urls: UrlsConfig,
     lsp: LspConfig,
 }
@@ -67,7 +68,6 @@ struct LspMethodsConfig {
 #[serde(rename_all = "camelCase")]
 struct CoreRustConfig {
     defaults: Defaults,
-    display: DisplayConfig,
     cache: CacheConfig,
     ai: AiConstantsConfig,
 }
@@ -95,12 +95,6 @@ struct CodeEditorDefaults {
 struct DirectoryDefaults {
     script_rules: String,
     ai_rules: String,
-}
-
-#[derive(Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-struct DisplayConfig {
-    icons: IconsConfig,
 }
 
 #[derive(Deserialize, Clone)]
@@ -243,47 +237,47 @@ pub fn default_ai_scan_interval() -> u32 {
 }
 
 pub fn icon_builtin() -> &'static str {
-    &CONSTANTS.core_rust.display.icons.builtin
+    &CONSTANTS.shared.icons.builtin
 }
 
 pub fn icon_regex() -> &'static str {
-    &CONSTANTS.core_rust.display.icons.regex
+    &CONSTANTS.shared.icons.regex
 }
 
 pub fn icon_script() -> &'static str {
-    &CONSTANTS.core_rust.display.icons.script
+    &CONSTANTS.shared.icons.script
 }
 
 pub fn icon_ai() -> &'static str {
-    &CONSTANTS.core_rust.display.icons.ai
+    &CONSTANTS.shared.icons.ai
 }
 
 pub fn icon_error() -> &'static str {
-    &CONSTANTS.core_rust.display.icons.error
+    &CONSTANTS.shared.icons.error
 }
 
 pub fn icon_warning() -> &'static str {
-    &CONSTANTS.core_rust.display.icons.warning
+    &CONSTANTS.shared.icons.warning
 }
 
 pub fn icon_info() -> &'static str {
-    &CONSTANTS.core_rust.display.icons.info
+    &CONSTANTS.shared.icons.info
 }
 
 pub fn icon_hint() -> &'static str {
-    &CONSTANTS.core_rust.display.icons.hint
+    &CONSTANTS.shared.icons.hint
 }
 
 pub fn icon_progress() -> &'static str {
-    &CONSTANTS.core_rust.display.icons.progress
+    &CONSTANTS.shared.icons.progress
 }
 
 pub fn icon_success() -> &'static str {
-    &CONSTANTS.core_rust.display.icons.success
+    &CONSTANTS.shared.icons.success
 }
 
 pub fn icon_skipped() -> &'static str {
-    &CONSTANTS.core_rust.display.icons.skipped
+    &CONSTANTS.shared.icons.skipped
 }
 
 pub fn is_js_ts_extension(ext: &str) -> bool {

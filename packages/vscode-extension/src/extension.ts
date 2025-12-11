@@ -69,7 +69,11 @@ function setupContextKeys(context: vscode.ExtensionContext): void {
   setContextKey(ContextKey.HasAiScanned, false);
 }
 
-function setupWatchers(context: vscode.ExtensionContext, regularView: RegularIssuesView): vscode.Disposable {
+function setupWatchers(
+  context: vscode.ExtensionContext,
+  regularView: RegularIssuesView,
+  updateStatusBar: () => Promise<void>,
+): vscode.Disposable {
   let currentFileWatcher: vscode.FileSystemWatcher | null = null;
 
   const recreateFileWatcher = async () => {
@@ -83,6 +87,7 @@ function setupWatchers(context: vscode.ExtensionContext, regularView: RegularIss
     await scanIntervalWatcher.setup();
     await aiScanIntervalWatcher.setup();
     await recreateFileWatcher();
+    await updateStatusBar();
   });
 
   void recreateFileWatcher();
@@ -164,7 +169,7 @@ export function activate(context: vscode.ExtensionContext) {
   };
 
   const commands = registerAllCommands(commandContext, regularView, aiView);
-  const configWatcher = setupWatchers(context, regularView);
+  const configWatcher = setupWatchers(context, regularView, updateStatusBar);
   const settingsWatcher = setupSettingsListener();
 
   context.subscriptions.push(

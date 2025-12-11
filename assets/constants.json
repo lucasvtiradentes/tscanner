@@ -13,6 +13,19 @@
     "extensions": {
       "javascript": ["ts", "tsx", "js", "jsx", "mjs", "cjs", "mts", "cts"]
     },
+    "icons": {
+      "builtin": "●",
+      "regex": "○",
+      "script": "▶",
+      "ai": "✦",
+      "error": "✖",
+      "warning": "⚠",
+      "info": "●",
+      "hint": "◆",
+      "progress": "⧗",
+      "success": "✓",
+      "skipped": "⊘"
+    },
     "urls": {
       "repo": "https://github.com/lucasvtiradentes/tscanner",
       "repoBlob": "https://github.com/lucasvtiradentes/tscanner/blob/main",
@@ -44,21 +57,6 @@
       "directories": {
         "scriptRules": "script-rules",
         "aiRules": "ai-rules"
-      }
-    },
-    "display": {
-      "icons": {
-        "builtin": "●",
-        "regex": "○",
-        "script": "▶",
-        "ai": "✦",
-        "error": "✖",
-        "warning": "⚠",
-        "info": "●",
-        "hint": "◆",
-        "progress": "⧗",
-        "success": "✓",
-        "skipped": "⊘"
       }
     },
     "cache": {
