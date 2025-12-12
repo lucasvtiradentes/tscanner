@@ -1,4 +1,5 @@
-import { AiExecutionMode, type GroupMode, PACKAGE_NAME } from './constants';
+import { PACKAGE_NAME } from './constants';
+import { AiExecutionMode, type GroupMode } from './types';
 
 export type CliCheckOptions = {
   branch?: string;

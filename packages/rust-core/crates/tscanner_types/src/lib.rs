@@ -1,11 +1,21 @@
+pub mod cli_output;
+pub mod config;
+pub mod display;
+pub mod enums;
 mod file_source;
 mod issue;
+pub mod metadata;
+pub mod params;
 mod results;
-mod severity;
 mod text_range;
 
+pub use cli_output::*;
+pub use config::*;
+pub use display::*;
+pub use enums::*;
 pub use file_source::{FileSource, Language, LanguageVariant};
-pub use issue::{Issue, IssueRuleType};
+pub use issue::Issue;
+pub use metadata::*;
+pub use params::*;
 pub use results::{ContentScanResult, FileResult, ScanResult};
-pub use severity::Severity;
 pub use text_range::{TextEdit, TextRange};

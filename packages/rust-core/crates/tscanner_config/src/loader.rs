@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use crate::types::{AiProvider, TscannerConfig};
+use crate::types::{AiProvider, CompiledRuleConfig, TscannerConfig};
 use crate::validation::{validate_json_fields, ValidationResult};
 use tscanner_constants::{config_dir_name, config_error_prefix};
 
@@ -8,18 +8,41 @@ pub fn get_config_error_prefix() -> &'static str {
     config_error_prefix()
 }
 
-impl TscannerConfig {
-    pub fn parse_json(content: &str) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
+pub trait TscannerConfigExt {
+    fn parse_json(content: &str) -> Result<serde_json::Value, Box<dyn std::error::Error>>;
+    fn full_validate(
+        content: &str,
+        workspace: Option<&Path>,
+        config_dir_name: &str,
+    ) -> Result<(Option<TscannerConfig>, ValidationResult), Box<dyn std::error::Error>>;
+    fn validate(&self) -> ValidationResult;
+    fn validate_with_workspace(
+        &self,
+        workspace: Option<&Path>,
+        config_dir_name: &str,
+    ) -> ValidationResult;
+    fn matches_file(&self, path: &Path, rule_config: &CompiledRuleConfig) -> bool;
+    fn matches_file_with_root(
+        &self,
+        path: &Path,
+        root: &Path,
+        rule_config: &CompiledRuleConfig,
+    ) -> bool;
+    fn get_rule_specific_include_patterns(&self) -> Vec<String>;
+}
+
+impl TscannerConfigExt for TscannerConfig {
+    fn parse_json(content: &str) -> Result<serde_json::Value, Box<dyn std::error::Error>> {
         let json_without_comments = json_comments::StripComments::new(content.as_bytes());
         let json_value: serde_json::Value = serde_json::from_reader(json_without_comments)?;
         Ok(json_value)
     }
 
-    pub fn full_validate(
+    fn full_validate(
         content: &str,
         workspace: Option<&Path>,
         config_dir_name: &str,
-    ) -> Result<(Option<Self>, ValidationResult), Box<dyn std::error::Error>> {
+    ) -> Result<(Option<TscannerConfig>, ValidationResult), Box<dyn std::error::Error>> {
         let json_value = Self::parse_json(content)?;
 
         let mut result = validate_json_fields(&json_value);
@@ -27,7 +50,7 @@ impl TscannerConfig {
             return Ok((None, result));
         }
 
-        let config: Self = match serde_json::from_value(json_value) {
+        let config: TscannerConfig = match serde_json::from_value(json_value) {
             Ok(c) => c,
             Err(e) => {
                 result.add_error(format!("Failed to parse config: {}", e));
@@ -39,11 +62,11 @@ impl TscannerConfig {
         Ok((Some(config), result))
     }
 
-    pub fn validate(&self) -> ValidationResult {
+    fn validate(&self) -> ValidationResult {
         self.validate_with_workspace(None, config_dir_name())
     }
 
-    pub fn validate_with_workspace(
+    fn validate_with_workspace(
         &self,
         _workspace: Option<&Path>,
         _config_dir_name: &str,
@@ -80,25 +103,21 @@ impl TscannerConfig {
         result
     }
 
-    pub fn matches_file(
-        &self,
-        path: &Path,
-        rule_config: &crate::types::CompiledRuleConfig,
-    ) -> bool {
+    fn matches_file(&self, path: &Path, rule_config: &CompiledRuleConfig) -> bool {
         rule_config.matches(path)
     }
 
-    pub fn matches_file_with_root(
+    fn matches_file_with_root(
         &self,
         path: &Path,
         root: &Path,
-        rule_config: &crate::types::CompiledRuleConfig,
+        rule_config: &CompiledRuleConfig,
     ) -> bool {
         let relative_path = path.strip_prefix(root).unwrap_or(path);
         rule_config.matches(relative_path)
     }
 
-    pub fn get_rule_specific_include_patterns(&self) -> Vec<String> {
+    fn get_rule_specific_include_patterns(&self) -> Vec<String> {
         let builtin_patterns = self
             .rules
             .builtin

@@ -27,7 +27,8 @@ export function logFormattedResults(byFile: CliOutputByFile, byRule: CliOutputBy
       githubHelper.logInfo(`  ${ruleName} (${issues.length} issues)`);
       for (const issue of issues) {
         const severity = issue.severity === 'error' ? '✖' : '⚠';
-        const lineText = issue.line_text.length > 60 ? `${issue.line_text.substring(0, 57)}...` : issue.line_text;
+        const rawText = issue.line_text ?? '';
+        const lineText = rawText.length > 60 ? `${rawText.substring(0, 57)}...` : rawText;
         githubHelper.logInfo(`    ${severity} ${issue.line}:${issue.column} -> ${lineText}`);
       }
       githubHelper.logInfo('');

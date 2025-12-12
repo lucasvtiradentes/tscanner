@@ -130,7 +130,7 @@ ${innerContent}
 function buildIssuesByFileSection(params: IssuesViewParams): string {
   const { result, owner, repo, prNumber } = params;
 
-  const fileMap = new Map<string, Map<string, Array<{ line: number; column: number; lineText: string }>>>();
+  const fileMap = new Map<string, Map<string, Array<{ line: number; column: number; lineText?: string }>>>();
 
   for (const group of result.ruleGroups) {
     for (const file of group.files) {

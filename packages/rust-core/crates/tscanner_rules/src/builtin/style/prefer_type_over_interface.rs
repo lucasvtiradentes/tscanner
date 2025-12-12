@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::{RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration};
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
@@ -27,7 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "prefer-type-over-interface",
         display_name: "Prefer Type Over Interface",
         description: "Suggests using 'type' keyword instead of 'interface' for consistency. Type aliases are more flexible and composable.",
-        rule_type: RuleExecutionKind::Ast,
+        rule_type: RuleType::Ast,
         category: RuleCategory::Style,
         typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/consistent-type-definitions"),

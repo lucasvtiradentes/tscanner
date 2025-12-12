@@ -1,16 +1,6 @@
-use crate::Severity;
+use crate::enums::{IssueRuleType, Severity};
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
-
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, Default, PartialEq, Eq)]
-#[serde(rename_all = "snake_case")]
-pub enum IssueRuleType {
-    #[default]
-    Builtin,
-    CustomRegex,
-    CustomScript,
-    Ai,
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize, Default)]
 pub struct Issue {

@@ -1,7 +1,6 @@
 use crate::context::RuleContext;
 use crate::metadata::{
-    RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration, RuleOption,
-    RuleOptionSchema,
+    RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleOption, RuleOptionSchema, RuleType,
 };
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
@@ -68,7 +67,7 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "Max Function Length",
         description:
             "Enforces a maximum number of statements in functions. Long functions are harder to understand and maintain.",
-        rule_type: RuleExecutionKind::Ast,
+        rule_type: RuleType::Ast,
         category: RuleCategory::CodeQuality,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/max-lines-per-function"),

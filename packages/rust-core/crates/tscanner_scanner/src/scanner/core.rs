@@ -4,7 +4,7 @@ use globset::GlobSet;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tscanner_cache::FileCache;
-use tscanner_config::{compile_globset, TscannerConfig};
+use tscanner_config::{compile_globset, TscannerConfig, TscannerConfigExt};
 use tscanner_rules::RuleRegistry;
 
 pub struct Scanner {

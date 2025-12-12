@@ -5,6 +5,7 @@ use std::path::Path;
 
 use tscanner_config::{
     compile_globset, compile_optional_globset, CompiledRuleConfig, TscannerConfig,
+    TscannerConfigExt,
 };
 use tscanner_constants::config_error_prefix;
 

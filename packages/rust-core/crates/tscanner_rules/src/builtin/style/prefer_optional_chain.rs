@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::{RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration};
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
@@ -25,7 +25,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "prefer-optional-chain",
         display_name: "Prefer Optional Chain",
         description: "Suggests using optional chaining (?.) instead of logical AND (&&) chains for null checks.",
-        rule_type: RuleExecutionKind::Ast,
+        rule_type: RuleType::Ast,
         category: RuleCategory::Style,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/prefer-optional-chain"),

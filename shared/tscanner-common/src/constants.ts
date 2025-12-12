@@ -1,4 +1,3 @@
-import z from 'zod';
 import constants from '../../../assets/constants.json';
 
 export const PACKAGE_NAME = constants.shared.packageName;
@@ -20,68 +19,6 @@ export const LSP_CLIENT_ID = constants.shared.lsp.clientId;
 export const REPO_URL = constants.shared.urls.repo;
 export const REPO_BLOB_URL = constants.shared.urls.repoBlob;
 export const CODE_EDITOR_DEFAULTS = constants.coreRust.defaults.codeEditor;
-
-export enum Severity {
-  Error = 'error',
-  Warning = 'warning',
-  Info = 'info',
-  Hint = 'hint',
-}
-
-export enum ScanMode {
-  Codebase = 'codebase',
-  Branch = 'branch',
-}
-
-export enum GroupMode {
-  File = 'file',
-  Rule = 'rule',
-}
-
-export enum ViewMode {
-  List = 'list',
-  Tree = 'tree',
-}
-
-export enum AiProvider {
-  Claude = 'claude',
-  Gemini = 'gemini',
-  Custom = 'custom',
-}
-
-export enum AiMode {
-  Paths = 'paths',
-  Content = 'content',
-  Agentic = 'agentic',
-}
-
-export enum AiExecutionMode {
-  Ignore = 'ignore',
-  Include = 'include',
-  Only = 'only',
-}
-
-export enum RuleType {
-  Ast = 'ast',
-  Regex = 'regex',
-}
-
-export enum RuleCategory {
-  TypeSafety = 'typesafety',
-  CodeQuality = 'codequality',
-  Style = 'style',
-  Performance = 'performance',
-  BugPrevention = 'bugprevention',
-  Variables = 'variables',
-  Imports = 'imports',
-}
-
-export enum IssueRuleType {
-  Builtin = 'builtin',
-  CustomRegex = 'custom_regex',
-  CustomScript = 'custom_script',
-  Ai = 'ai',
-}
 
 export const LspMethod = {
   Scan: constants.shared.lsp.methods.scan,
@@ -108,6 +45,3 @@ export const PLATFORM_PACKAGE_MAP: Record<string, string> = {
   'darwin-arm64': '@tscanner/cli-darwin-arm64',
   'win32-x64': '@tscanner/cli-win32-x64',
 };
-
-export const severitySchema = z.enum(Severity);
-export const issueRuleTypeSchema = z.enum(IssueRuleType);

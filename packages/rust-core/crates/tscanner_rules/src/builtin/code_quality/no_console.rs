@@ -1,7 +1,6 @@
 use crate::context::RuleContext;
 use crate::metadata::{
-    RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration, RuleOption,
-    RuleOptionSchema,
+    RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleOption, RuleOptionSchema, RuleType,
 };
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
@@ -88,7 +87,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "no-console",
         display_name: "No Console",
         description: "Disallow the use of console methods. Console statements should be removed before committing to production.",
-        rule_type: RuleExecutionKind::Regex,
+        rule_type: RuleType::Regex,
         category: RuleCategory::CodeQuality,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-console"),
         equivalent_biome_rule: Some("https://biomejs.dev/linter/rules/no-console"),
