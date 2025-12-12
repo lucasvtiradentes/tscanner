@@ -121,3 +121,28 @@ pub fn get_modified_lines(root: &Path, branch: &str) -> Result<HashMap<PathBuf, 
 pub fn get_staged_modified_lines(root: &Path) -> Result<HashMap<PathBuf, HashSet<usize>>> {
     get_modified_lines_internal(root, &["diff", "-w", "--cached"], "diff --cached")
 }
+
+pub fn get_uncommitted_files(root: &Path) -> Result<HashSet<PathBuf>> {
+    let output = Command::new("git")
+        .args(["diff", "-w", "--name-only", "--diff-filter=ACMR", "HEAD"])
+        .current_dir(root)
+        .output()
+        .context("Failed to execute git diff HEAD")?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        anyhow::bail!("git diff HEAD failed: {}", stderr);
+    }
+
+    let files = String::from_utf8_lossy(&output.stdout)
+        .lines()
+        .filter(|l| !l.is_empty())
+        .map(|l| root.join(l))
+        .collect();
+
+    Ok(files)
+}
+
+pub fn get_uncommitted_modified_lines(root: &Path) -> Result<HashMap<PathBuf, HashSet<usize>>> {
+    get_modified_lines_internal(root, &["diff", "-w", "HEAD"], "diff HEAD")
+}

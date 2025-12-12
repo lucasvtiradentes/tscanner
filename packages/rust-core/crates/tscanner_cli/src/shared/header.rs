@@ -8,6 +8,7 @@ use super::section::{print_section_header, print_setting, print_setting_value};
 pub enum ScanMode {
     Codebase,
     Staged { file_count: usize },
+    Uncommitted { file_count: usize },
     Branch { name: String, file_count: usize },
 }
 
@@ -32,6 +33,7 @@ pub fn render_header(config: &ScanConfig) {
         let mode_str = match &config.mode {
             ScanMode::Codebase => "codebase",
             ScanMode::Staged { .. } => "staged",
+            ScanMode::Uncommitted { .. } => "uncommitted",
             ScanMode::Branch { .. } => "branch",
         };
         let format_str = match config.format {
@@ -57,6 +59,9 @@ pub fn render_header(config: &ScanConfig) {
         match &config.mode {
             ScanMode::Staged { file_count } => {
                 print_setting_value("Staged files", file_count);
+            }
+            ScanMode::Uncommitted { file_count } => {
+                print_setting_value("Uncommitted files", file_count);
             }
             ScanMode::Branch { name, file_count } => {
                 print_setting("Target branch", name);

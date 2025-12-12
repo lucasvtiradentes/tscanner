@@ -116,6 +116,8 @@ pub enum AiExecutionMode {
 pub enum ScanMode {
     Codebase,
     Branch,
+    Staged,
+    Uncommitted,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

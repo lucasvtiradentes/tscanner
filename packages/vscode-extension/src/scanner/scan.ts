@@ -8,6 +8,7 @@ import { mapIssueToResult, parseConfigError, showConfigErrorToast, showScanError
 
 type ScanOptions = {
   branch?: string;
+  staged?: boolean;
   fileFilter?: Set<string>;
   config?: TscannerConfig;
   configDir?: string;
@@ -16,20 +17,25 @@ type ScanOptions = {
 };
 
 export async function scan(options: ScanOptions = {}): Promise<IssueResult[]> {
-  const { branch, fileFilter, config, configDir, aiMode, noCache } = options;
+  const { branch, staged, fileFilter, config, configDir, aiMode, noCache } = options;
   const workspaceFolder = getCurrentWorkspaceFolder();
 
   if (!workspaceFolder) {
     return [];
   }
 
-  const scanType = branch ? 'Branch' : 'Codebase';
+  const getScanType = () => {
+    if (staged) return 'Uncommitted';
+    if (branch) return 'Branch';
+    return 'Codebase';
+  };
+  const scanType = getScanType();
 
   try {
     const client = await ensureLspClient();
 
     const scanStart = Date.now();
-    const result = await client.scan(workspaceFolder.uri.fsPath, config, configDir, branch, aiMode, noCache);
+    const result = await client.scan(workspaceFolder.uri.fsPath, config, configDir, branch, staged, aiMode, noCache);
     const scanTime = Date.now() - scanStart;
 
     logger.info(

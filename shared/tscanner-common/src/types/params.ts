@@ -6,6 +6,7 @@ const scanParamsSchema = z.object({
   config: z.any().optional(),
   config_dir: z.string().optional(),
   branch: z.string().optional(),
+  staged: z.boolean().optional(),
   ai_mode: z.nativeEnum(AiExecutionMode).optional(),
   no_cache: z.boolean().optional(),
 });

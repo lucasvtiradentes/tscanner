@@ -65,6 +65,7 @@ pub fn cmd_check(
     json_output: Option<PathBuf>,
     branch: Option<String>,
     staged: bool,
+    uncommitted: bool,
     glob_filter: Option<String>,
     rule_filter: Option<String>,
     continue_on_error: bool,
@@ -72,10 +73,14 @@ pub fn cmd_check(
     only_ai: bool,
     config_path: Option<PathBuf>,
 ) -> Result<()> {
-    if staged && branch.is_some() {
+    let mode_flags = [staged, uncommitted, branch.is_some()]
+        .iter()
+        .filter(|&&x| x)
+        .count();
+    if mode_flags > 1 {
         eprintln!(
             "{}",
-            "Error: --staged and --branch are mutually exclusive".red()
+            "Error: --staged, --uncommitted, and --branch are mutually exclusive".red()
         );
         std::process::exit(1);
     }
@@ -83,7 +88,7 @@ pub fn cmd_check(
     let output_format = format.unwrap_or_default();
 
     let root = fs::canonicalize(".").context("Failed to resolve current directory")?;
-    let scan_paths: Vec<PathBuf> = if staged {
+    let scan_paths: Vec<PathBuf> = if staged || uncommitted {
         vec![root.clone()]
     } else {
         paths
@@ -95,13 +100,14 @@ pub fn cmd_check(
     };
 
     log_info(&format!(
-        "cmd_check: Root: {}, Scan paths: {:?} (no_cache: {}, group_by: {:?}, format: {:?}, staged: {})",
+        "cmd_check: Root: {}, Scan paths: {:?} (no_cache: {}, group_by: {:?}, format: {:?}, staged: {}, uncommitted: {})",
         root.display(),
         scan_paths.iter().map(|p| p.display().to_string()).collect::<Vec<_>>(),
         no_cache,
         group_by,
         output_format,
-        staged
+        staged,
+        uncommitted
     ));
 
     let (config, resolved_config_path) = match load_config_with_custom(&root, config_path)? {
@@ -222,6 +228,24 @@ pub fn cmd_check(
             Some(staged_files),
         );
         (files, Some(staged_lines), ScanMode::Staged { file_count })
+    } else if uncommitted {
+        let uncommitted_files = git::get_uncommitted_files(&root)?;
+        let uncommitted_lines = git::get_uncommitted_modified_lines(&root)?;
+        let file_count = uncommitted_files.len();
+        log_info(&format!(
+            "cmd_check: Found {} uncommitted files",
+            file_count
+        ));
+        let files = filters::get_files_to_scan_multi(
+            &scan_paths,
+            glob_filter.as_deref(),
+            Some(uncommitted_files),
+        );
+        (
+            files,
+            Some(uncommitted_lines),
+            ScanMode::Uncommitted { file_count },
+        )
     } else if let Some(ref branch_name) = branch {
         let (changed_files, modified_lines) = get_branch_changes(&root, branch_name)?;
         let file_count = changed_files.as_ref().map_or(0, |f| f.len());

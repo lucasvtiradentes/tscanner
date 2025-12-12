@@ -41,7 +41,13 @@ export async function showScanModeMenu(ctx: ScanModeContext) {
       id: ScanMode.Branch,
       label: '$(git-branch) Branch',
       description: currentScanMode === ScanMode.Branch ? '✓ Active' : '',
-      detail: 'Scan only changed files in current branch',
+      detail: 'Scan changes compared to target branch (git diff <branch>)',
+    },
+    {
+      id: ScanMode.Uncommitted,
+      label: '$(git-commit) Uncommitted',
+      description: currentScanMode === ScanMode.Uncommitted ? '✓ Active' : '',
+      detail: 'Scan staged and unstaged changes (git diff HEAD)',
     },
   ];
 
@@ -58,6 +64,10 @@ export async function showScanModeMenu(ctx: ScanModeContext) {
 
   if (selected.id === ScanMode.Branch) {
     await handleBranchScan(ctx);
+  }
+
+  if (selected.id === ScanMode.Uncommitted) {
+    await handleUncommittedScan(ctx);
   }
 }
 
@@ -158,6 +168,25 @@ async function handleBranchScan(ctx: ScanModeContext) {
   logger.info(`Switching to Branch mode (comparing against: ${compareBranch})`);
   regularView.setResults([]);
   extensionStore.set(StoreKey.ScanMode, ScanMode.Branch);
+  await updateStatusBar();
+  executeCommand(Command.RefreshIssues);
+}
+
+async function handleUncommittedScan(ctx: ScanModeContext) {
+  const { updateStatusBar, regularView } = ctx;
+
+  const workspaceFolder = requireWorkspaceOrNull();
+  if (!workspaceFolder) return;
+
+  const currentBranch = VscodeGit.getCurrentBranch(workspaceFolder.uri.fsPath);
+  if (!currentBranch) {
+    showToastMessage(ToastKind.Error, 'Not in a git repository');
+    return;
+  }
+
+  logger.info('Switching to Uncommitted mode');
+  regularView.setResults([]);
+  extensionStore.set(StoreKey.ScanMode, ScanMode.Uncommitted);
   await updateStatusBar();
   executeCommand(Command.RefreshIssues);
 }

@@ -200,6 +200,9 @@ After that you can use it in the three modes below:
 # Scan workspace
 tscanner check
 
+# Scan uncommitted changes (staged + unstaged)
+tscanner check --uncommitted
+
 # Scan only changed files vs branch
 tscanner check --branch origin/main
 ```

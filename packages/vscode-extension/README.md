@@ -156,29 +156,21 @@ After that you can already install the extension:
 
 ### Scan Modes
 
-You have two scanning options, switchable via status bar click:
+You have four scanning options, switchable via status bar click:
 
 <div align="center">
 <table>
   <tr>
     <th>Codebase</th>
+    <th>Uncommitted</th>
+    <th>Staged</th>
     <th>Branch</th>
   </tr>
   <tr>
-    <td>
-      <div align="center">
-        <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-scan-codebase.png" alt="Codebase mode">
-      </div>
-    </td>
-    <td>
-      <div align="center">
-        <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-scan-branch.png" alt="Branch mode">
-      </div>
-    </td>
-  </tr>
-  <tr>
-    <td>Analyze all files in the codebase</td>
-    <td>Scan only modified files in current branch <br />compared to target branch</td>
+    <td>Analyze all files</td>
+    <td>Scan staged + unstaged changes</td>
+    <td>Scan only staged files</td>
+    <td>Compare to target branch</td>
   </tr>
 </table>
 </div>
@@ -395,7 +387,7 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 
 <div align="left">
 
-- **Scan Mode**: Shows "Codebase" or "Branch: {name}"
+- **Scan Mode**: Shows current mode (Codebase, Uncommitted, Staged, or Branch)
 - **Click**: Opens Settings Menu
 - **Config Status**: Green checkmark if `.tscanner/config.jsonc` exists
 
@@ -404,15 +396,15 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 </details>
 
 <details>
-<summary><b>Branch Mode</b></summary>
+<summary><b>Git-aware Modes</b></summary>
 
 <br />
 
 <div align="left">
 
-1. Extension runs `git diff {branch}...HEAD` to detect changed files
-2. Parses hunks to extract modified line ranges
-3. Scans all files but filters issues to modified lines only
+- **Uncommitted**: Scans all changes not yet committed (staged + unstaged)
+- **Staged**: Scans only files added to staging area
+- **Branch**: Compares against target branch, filters to modified lines only
 
 Perfect for PR validation - see only issues you introduced.
 

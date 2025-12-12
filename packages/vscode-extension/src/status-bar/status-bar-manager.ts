@@ -74,7 +74,12 @@ export class StatusBarManager {
       : VSCODE_EXTENSION.statusBar.icons.configured;
     const scanMode = extensionStore.get(StoreKey.ScanMode);
     const compareBranch = extensionStore.get(StoreKey.CompareBranch);
-    const modeText = scanMode === ScanMode.Codebase ? 'Codebase' : `Branch (${compareBranch})`;
+    const getModeText = () => {
+      if (scanMode === ScanMode.Codebase) return 'Codebase';
+      if (scanMode === ScanMode.Uncommitted) return 'Uncommitted';
+      return `Branch (${compareBranch})`;
+    };
+    const modeText = getModeText();
     const statusText = this.isScanning ? 'Scanning...' : modeText;
     const finalText = `${icon} ${statusText}`;
 

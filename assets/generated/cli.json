@@ -153,6 +153,19 @@
           ],
           "defaultValue": null,
           "required": false
+        },
+        {
+          "name": "uncommitted",
+          "short": null,
+          "description": "Scan all uncommitted changes (staged + unstaged)",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false
         }
       ]
     },

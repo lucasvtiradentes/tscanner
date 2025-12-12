@@ -106,6 +106,7 @@ export class TscannerLspClient {
     config?: TscannerConfig,
     configDir?: string,
     branch?: string,
+    staged?: boolean,
     aiMode?: AiExecutionMode,
     noCache?: boolean,
   ): Promise<ScanResult> {
@@ -114,6 +115,7 @@ export class TscannerLspClient {
       config,
       config_dir: configDir,
       branch,
+      staged,
       ai_mode: aiMode,
       no_cache: noCache,
     });

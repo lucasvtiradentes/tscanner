@@ -50,6 +50,8 @@ export enum RuleCategory {
 export enum ScanMode {
   Codebase = 'codebase',
   Branch = 'branch',
+  Staged = 'staged',
+  Uncommitted = 'uncommitted',
 }
 
 export enum GroupMode {

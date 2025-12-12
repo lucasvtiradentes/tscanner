@@ -64,6 +64,9 @@ function getCliSection(startStep = 1) {
 # Scan workspace
 ${PACKAGE_NAME} check
 
+# Scan uncommitted changes (staged + unstaged)
+${PACKAGE_NAME} check --uncommitted
+
 # Scan only changed files vs branch
 ${PACKAGE_NAME} check --branch origin/main
 \`\`\`

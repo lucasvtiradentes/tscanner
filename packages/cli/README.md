@@ -131,6 +131,9 @@ After that you can already use the CLI:
 # Scan workspace
 tscanner check
 
+# Scan uncommitted changes (staged + unstaged)
+tscanner check --uncommitted
+
 # Scan only changed files vs branch
 tscanner check --branch origin/main
 ```
@@ -159,8 +162,8 @@ tscanner check --branch origin/main
     <th width="300">Flag description</th>
   </tr>
   <tr>
-    <td rowspan="12" align="left"><code>check [options] [paths]</code></td>
-    <td rowspan="12" align="left">Scan code for issues and display results</td>
+    <td rowspan="13" align="left"><code>check [options] [paths]</code></td>
+    <td rowspan="13" align="left">Scan code for issues and display results</td>
     <td align="left"><code>--branch <BRANCH></code></td>
     <td align="center">-</td>
     <td align="left">Only show issues in files changed compared to branch (e.g., origin/main)</td>
@@ -241,6 +244,13 @@ tscanner check --branch origin/main
     <td align="left"><code>--staged</code></td>
     <td align="center">-</td>
     <td align="left">Scan only git staged files</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--uncommitted</code></td>
+    <td align="center">-</td>
+    <td align="left">Scan all uncommitted changes (staged + unstaged)</td>
   </tr>
   <tr>
     <td rowspan="1" align="left"><code>init [options]</code></td>

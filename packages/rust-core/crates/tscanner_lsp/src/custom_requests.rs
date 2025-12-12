@@ -16,6 +16,8 @@ pub struct ScanParams {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub branch: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub staged: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub ai_mode: Option<AiExecutionMode>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub no_cache: Option<bool>,

@@ -34,7 +34,7 @@ export function createOpenSettingsMenuCommand(ctx: CommandContext, regularView: 
       mainMenuItems.push({
         id: SettingsMenuOption.ManageScanMode,
         label: '$(gear) Manage Scan Mode',
-        detail: 'Choose between Codebase or Branch scan mode',
+        detail: 'Choose which files to scan',
       });
     }
 

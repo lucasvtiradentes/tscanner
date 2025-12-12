@@ -65,12 +65,16 @@ pub enum Commands {
         #[arg(
             long,
             value_name = "BRANCH",
-            help = "Only show issues in files changed compared to branch (e.g., origin/main)"
+            help = "Only show issues in files changed compared to branch (e.g., origin/main)",
+            help_heading = "Scan Mode"
         )]
         branch: Option<String>,
 
-        #[arg(long, help = "Scan only git staged files")]
+        #[arg(long, help = "Scan only git staged files", help_heading = "Scan Mode")]
         staged: bool,
+
+        #[arg(long, help = "Scan all uncommitted changes (staged + unstaged)", help_heading = "Scan Mode")]
+        uncommitted: bool,
 
         #[arg(
             long,

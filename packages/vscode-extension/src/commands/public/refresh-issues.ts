@@ -101,8 +101,10 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
       async () => {
         const startTime = Date.now();
         const branch = scanMode === ScanMode.Branch ? compareBranch : undefined;
+        const staged = scanMode === ScanMode.Uncommitted ? true : undefined;
         const results = await scan({
           branch,
+          staged,
           config: configToPass,
           configDir: configDir ?? undefined,
           aiMode: options?.aiMode,

@@ -11,6 +11,7 @@ export class GitHelper {
       const output = execSync(cmd, { cwd, encoding: 'utf-8', stdio: ['pipe', 'pipe', 'ignore'] });
       return [output, null];
     } catch (error) {
+      console.log(error);
       return [null, error as Error];
     }
   }
