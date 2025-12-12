@@ -25,15 +25,16 @@ function addIssue(issues: ScriptIssue[], file: string, line: number, message: st
   issues.push({ file, line, message });
 }
 
-function analyzeModRs(file: ScriptFile, issues: ScriptIssue[]): void {
+function analyzeEntryFile(file: ScriptFile, issues: ScriptIssue[]): void {
   const lines = file.content.split('\n');
   let inMultilineUse = false;
+  const fileName = file.path.endsWith('lib.rs') ? 'lib.rs' : 'mod.rs';
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     const trimmed = line.trim();
 
-    if (trimmed === '' || trimmed.startsWith('//')) {
+    if (trimmed === '' || trimmed.startsWith('//') || trimmed.startsWith('#!')) {
       continue;
     }
 
@@ -57,7 +58,7 @@ function analyzeModRs(file: ScriptFile, issues: ScriptIssue[]): void {
       continue;
     }
 
-    const msg = `mod.rs contains logic beyond imports/exports: "${trimmed.substring(0, 50)}${trimmed.length > 50 ? '...' : ''}"`;
+    const msg = `${fileName} contains logic beyond imports/exports: "${trimmed.substring(0, 50)}${trimmed.length > 50 ? '...' : ''}"`;
     addIssue(issues, file.path, i + 1, msg);
     return;
   }
@@ -74,11 +75,11 @@ async function main() {
   const issues: ScriptIssue[] = [];
 
   for (const file of input.files) {
-    if (!file.path.endsWith('mod.rs')) {
+    if (!file.path.endsWith('mod.rs') && !file.path.endsWith('lib.rs')) {
       continue;
     }
 
-    analyzeModRs(file, issues);
+    analyzeEntryFile(file, issues);
   }
 
   console.log(JSON.stringify({ issues }));

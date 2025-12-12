@@ -81,11 +81,11 @@
           "packages/rust-core/crates/tscanner_types/src/*.rs"
         ]
       },
-      "rust-mod-simple": {
-        "command": "npx tsx script-rules/rust-mod-simple.ts",
-        "message": "mod.rs should only contain module declarations and re-exports",
+      "rust-entry-simple": {
+        "command": "npx tsx script-rules/rust-entry-simple.ts",
+        "message": "lib.rs and mod.rs should only contain module declarations and re-exports",
         "severity": "error",
-        "include": ["**/mod.rs"]
+        "include": ["**/mod.rs", "**/lib.rs"]
       },
       "no-long-files": {
         "command": "npx tsx script-rules/no-long-files.ts",
