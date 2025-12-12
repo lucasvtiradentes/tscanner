@@ -61,9 +61,8 @@ function toCamelCase(str: string): string {
 function extractTsEnums(content: string): TypeDef[] {
   const enums: TypeDef[] = [];
   const enumRegex = /export enum (\w+)\s*\{([^}]+)\}/g;
-  let match;
 
-  while ((match = enumRegex.exec(content)) !== null) {
+  for (const match of content.matchAll(enumRegex)) {
     const name = match[1];
     const body = match[2];
     const variants = body
@@ -75,7 +74,7 @@ function extractTsEnums(content: string): TypeDef[] {
         return { name: varName, optional: false };
       });
 
-    const line = content.substring(0, match.index).split('\n').length;
+    const line = content.substring(0, match.index!).split('\n').length;
     enums.push({ name, kind: 'enum', fields: variants, line });
   }
 
@@ -89,25 +88,23 @@ function toPascalCase(str: string): string {
 function extractTsZodTypes(content: string): TypeDef[] {
   const types: TypeDef[] = [];
   const schemaRegex = /(?:const|export const) (\w+Schema)\s*=\s*z\.object\(\{([^}]+(?:\{[^}]*\}[^}]*)*)\}\)/g;
-  let match;
 
-  while ((match = schemaRegex.exec(content)) !== null) {
+  for (const match of content.matchAll(schemaRegex)) {
     const schemaName = match[1];
     const name = toPascalCase(schemaName.replace(/Schema$/, ''));
     const body = match[2];
 
     const fields: FieldInfo[] = [];
     const fieldRegex = /^\s*([\w$]+):\s*(.+?)(?:,\s*$|$)/gm;
-    let fieldMatch;
 
-    while ((fieldMatch = fieldRegex.exec(body)) !== null) {
+    for (const fieldMatch of body.matchAll(fieldRegex)) {
       const fieldName = fieldMatch[1];
       const fieldDef = fieldMatch[2];
       const optional = fieldDef.includes('.optional()') || fieldDef.includes('.default(');
       fields.push({ name: fieldName, optional });
     }
 
-    const line = content.substring(0, match.index).split('\n').length;
+    const line = content.substring(0, match.index!).split('\n').length;
     types.push({ name, kind: 'struct', fields, line });
   }
 
@@ -117,16 +114,13 @@ function extractTsZodTypes(content: string): TypeDef[] {
 function extractRustEnums(content: string): TypeDef[] {
   const enums: TypeDef[] = [];
   const enumRegex = /pub enum (\w+)\s*\{([^}]+)\}/g;
-  let match;
 
-  while ((match = enumRegex.exec(content)) !== null) {
+  for (const match of content.matchAll(enumRegex)) {
     const name = match[1];
     const body = match[2];
     const variants: FieldInfo[] = [];
 
-    const cleanBody = body
-      .replace(/#\[[^\]]*\]/g, '')
-      .replace(/\/\/[^\n]*/g, '');
+    const cleanBody = body.replace(/#\[[^\]]*\]/g, '').replace(/\/\/[^\n]*/g, '');
 
     const variantMatches = cleanBody.matchAll(/\b([A-Z][a-zA-Z0-9]*)\b/g);
     for (const vm of variantMatches) {
@@ -136,7 +130,7 @@ function extractRustEnums(content: string): TypeDef[] {
       }
     }
 
-    const lineNum = content.substring(0, match.index).split('\n').length;
+    const lineNum = content.substring(0, match.index!).split('\n').length;
     enums.push({ name, kind: 'enum', fields: variants, line: lineNum });
   }
 
@@ -146,9 +140,8 @@ function extractRustEnums(content: string): TypeDef[] {
 function extractRustStructs(content: string): TypeDef[] {
   const structs: TypeDef[] = [];
   const structRegex = /pub struct (\w+)\s*\{([^}]+)\}/g;
-  let match;
 
-  while ((match = structRegex.exec(content)) !== null) {
+  for (const match of content.matchAll(structRegex)) {
     const name = match[1];
     const body = match[2];
 
@@ -165,7 +158,7 @@ function extractRustStructs(content: string): TypeDef[] {
       }
     }
 
-    const lineNum = content.substring(0, match.index).split('\n').length;
+    const lineNum = content.substring(0, match.index!).split('\n').length;
     structs.push({ name, kind: 'struct', fields, line: lineNum });
   }
 
@@ -176,11 +169,7 @@ function findMatchingType(tsDef: TypeDef, rustDefs: TypeDef[]): TypeDef | undefi
   return rustDefs.find((r) => r.name === tsDef.name && r.kind === tsDef.kind);
 }
 
-function compareTypes(
-  tsFile: ScriptFile,
-  rustFile: ScriptFile,
-  issues: ScriptIssue[],
-): void {
+function compareTypes(tsFile: ScriptFile, rustFile: ScriptFile, issues: ScriptIssue[]): void {
   const tsEnums = extractTsEnums(tsFile.content);
   const tsTypes = extractTsZodTypes(tsFile.content);
   const rustEnums = extractRustEnums(rustFile.content);
