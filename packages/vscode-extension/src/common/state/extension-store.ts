@@ -5,6 +5,7 @@ import { ContextKey, WorkspaceStateKey, getWorkspaceState, setContextKey, setWor
 
 export enum StoreKey {
   IsSearching = 'isSearching',
+  IsAiSearching = 'isAiSearching',
   ScanMode = 'scanMode',
   CompareBranch = 'compareBranch',
   ConfigDir = 'configDir',
@@ -12,6 +13,7 @@ export enum StoreKey {
 
 type ExtensionState = {
   [StoreKey.IsSearching]: boolean;
+  [StoreKey.IsAiSearching]: boolean;
   [StoreKey.ScanMode]: ScanMode;
   [StoreKey.CompareBranch]: string;
   [StoreKey.ConfigDir]: string | null;
@@ -23,6 +25,7 @@ type AnyStateListener = StateListener<StoreKey>;
 class ExtensionStore {
   private state: ExtensionState = {
     [StoreKey.IsSearching]: false,
+    [StoreKey.IsAiSearching]: false,
     [StoreKey.ScanMode]: ScanMode.Codebase,
     [StoreKey.CompareBranch]: DEFAULT_TARGET_BRANCH,
     [StoreKey.ConfigDir]: null,
@@ -82,6 +85,9 @@ class ExtensionStore {
         break;
       case StoreKey.IsSearching:
         setContextKey(ContextKey.Searching, value);
+        break;
+      case StoreKey.IsAiSearching:
+        setContextKey(ContextKey.AiSearching, value);
         break;
     }
   }

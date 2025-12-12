@@ -23,7 +23,7 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
       return;
     }
 
-    setContextKey(ContextKey.AiSearching, true);
+    extensionStore.set(StoreKey.IsAiSearching, true);
     aiView.setResults([], true);
 
     let progressDisposable: { dispose(): void } | null = null;
@@ -80,7 +80,7 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
       if (progressDisposable) {
         progressDisposable.dispose();
       }
-      setContextKey(ContextKey.AiSearching, false);
+      extensionStore.set(StoreKey.IsAiSearching, false);
       setContextKey(ContextKey.HasAiScanned, true);
     }
   });

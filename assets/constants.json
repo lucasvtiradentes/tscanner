@@ -100,7 +100,8 @@
       "priority": 100,
       "icons": {
         "configured": "$(shield)",
-        "unconfigured": "$(warning)"
+        "unconfigured": "$(warning)",
+        "scanning": "$(loading~spin)"
       }
     },
     "paths": {
