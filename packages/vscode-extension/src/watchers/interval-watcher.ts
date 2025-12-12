@@ -1,5 +1,5 @@
 import { type AiExecutionMode, CODE_EDITOR_DEFAULTS } from 'tscanner-common';
-import { loadConfig } from '../common/lib/config-manager';
+import { getOrLoadConfig } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import { StoreKey, extensionStore } from '../common/state/extension-store';
@@ -27,8 +27,7 @@ export function createIntervalWatcher(config: IntervalConfig) {
     const workspaceFolder = getCurrentWorkspaceFolder();
     if (!workspaceFolder) return;
 
-    const configDir = extensionStore.get(StoreKey.ConfigDir);
-    const tscannerConfig = await loadConfig(workspaceFolder.uri.fsPath, configDir);
+    const tscannerConfig = await getOrLoadConfig(workspaceFolder.uri.fsPath);
     const intervalSeconds = tscannerConfig?.codeEditor?.[config.configKey] ?? CODE_EDITOR_DEFAULTS[config.configKey];
 
     if (intervalSeconds <= 0) {

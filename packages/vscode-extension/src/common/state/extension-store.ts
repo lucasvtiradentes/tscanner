@@ -1,7 +1,9 @@
-import { DEFAULT_TARGET_BRANCH, ScanMode } from 'tscanner-common';
+import { DEFAULT_TARGET_BRANCH, ScanMode, type TscannerConfig } from 'tscanner-common';
 import type * as vscode from 'vscode';
-import { logger } from '../lib/logger';
+import { createLogger } from '../lib/logger';
 import { ContextKey, WorkspaceStateKey, getWorkspaceState, setContextKey, setWorkspaceState } from './workspace-state';
+
+const storeLogger = createLogger('store');
 
 export enum StoreKey {
   IsSearching = 'isSearching',
@@ -9,6 +11,7 @@ export enum StoreKey {
   ScanMode = 'scanMode',
   CompareBranch = 'compareBranch',
   ConfigDir = 'configDir',
+  CachedConfig = 'cachedConfig',
 }
 
 type ExtensionState = {
@@ -17,6 +20,7 @@ type ExtensionState = {
   [StoreKey.ScanMode]: ScanMode;
   [StoreKey.CompareBranch]: string;
   [StoreKey.ConfigDir]: string | null;
+  [StoreKey.CachedConfig]: TscannerConfig | null;
 };
 
 type StateListener<K extends StoreKey> = (value: ExtensionState[K], oldValue: ExtensionState[K]) => void;
@@ -29,6 +33,7 @@ class ExtensionStore {
     [StoreKey.ScanMode]: ScanMode.Codebase,
     [StoreKey.CompareBranch]: DEFAULT_TARGET_BRANCH,
     [StoreKey.ConfigDir]: null,
+    [StoreKey.CachedConfig]: null,
   };
 
   private context: vscode.ExtensionContext | null = null;
@@ -39,7 +44,7 @@ class ExtensionStore {
     this.state[StoreKey.ScanMode] = getWorkspaceState(context, WorkspaceStateKey.ScanMode);
     this.state[StoreKey.CompareBranch] = getWorkspaceState(context, WorkspaceStateKey.CompareBranch);
     this.state[StoreKey.ConfigDir] = getWorkspaceState(context, WorkspaceStateKey.ConfigDir);
-    logger.debug('[store] Initialized with persisted state');
+    storeLogger.debug('Initialized with persisted state');
   }
 
   get<K extends StoreKey>(key: K): ExtensionState[K] {
@@ -51,7 +56,7 @@ class ExtensionStore {
     if (oldValue === value) return;
 
     this.state[key] = value;
-    logger.debug(`[store] ${key}: ${JSON.stringify(oldValue)} -> ${JSON.stringify(value)}`);
+    storeLogger.debug(`${key}: ${JSON.stringify(oldValue)} -> ${JSON.stringify(value)}`);
 
     this.persist(key, value);
     this.notify(key, value, oldValue);
@@ -100,7 +105,7 @@ class ExtensionStore {
       try {
         listener(value, oldValue);
       } catch (err) {
-        logger.error(`[store] Listener error for ${key}: ${err}`);
+        storeLogger.error(`Listener error for ${key}: ${err}`);
       }
     }
   }

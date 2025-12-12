@@ -1,7 +1,7 @@
 import { ScanMode, type TscannerConfig, VSCODE_EXTENSION, hasConfiguredRules } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { getCommandId } from '../common/constants';
-import { loadConfig } from '../common/lib/config-manager';
+import { getCachedConfig, getOrLoadConfig } from '../common/lib/config-manager';
 import { Command, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import { StoreKey, extensionStore } from '../common/state/extension-store';
 import { type BinaryInfo, loadBinaryInfo } from '../locator';
@@ -12,8 +12,6 @@ export class StatusBarManager {
   private cachedBinaryInfo: BinaryInfo | null = null;
   private isSearching = false;
   private isAiSearching = false;
-  private cachedConfigDir: string | null = null;
-  private cachedConfig: TscannerConfig | null = null;
 
   constructor() {
     this.statusBarItem = vscode.window.createStatusBarItem(
@@ -31,6 +29,10 @@ export class StatusBarManager {
       this.isAiSearching = isAiSearching;
       this.updateDisplay();
     });
+
+    extensionStore.subscribe(StoreKey.CachedConfig, () => {
+      this.updateDisplay();
+    });
   }
 
   private get isScanning(): boolean {
@@ -44,8 +46,7 @@ export class StatusBarManager {
       return;
     }
 
-    this.cachedConfigDir = extensionStore.get(StoreKey.ConfigDir);
-    this.cachedConfig = await loadConfig(workspaceFolder.uri.fsPath, this.cachedConfigDir);
+    await getOrLoadConfig(workspaceFolder.uri.fsPath);
 
     if (!this.cachedBinaryInfo) {
       this.cachedBinaryInfo = await loadBinaryInfo(workspaceFolder.uri.fsPath);
@@ -56,16 +57,18 @@ export class StatusBarManager {
   }
 
   private updateDisplay(): void {
-    const hasConfig = hasConfiguredRules(this.cachedConfig);
+    const config = getCachedConfig();
+    const hasConfig = hasConfiguredRules(config);
 
     if (hasConfig && this.cachedBinaryInfo) {
-      this.showConfigured(this.cachedConfigDir, this.cachedConfig, this.cachedBinaryInfo);
+      this.showConfigured(config, this.cachedBinaryInfo);
     } else {
       this.showUnconfigured();
     }
   }
 
-  private showConfigured(configDir: string | null, config: TscannerConfig | null, binaryInfo: BinaryInfo): void {
+  private showConfigured(config: TscannerConfig | null, binaryInfo: BinaryInfo): void {
+    const configDir = extensionStore.get(StoreKey.ConfigDir);
     const icon = this.isScanning
       ? VSCODE_EXTENSION.statusBar.icons.scanning
       : VSCODE_EXTENSION.statusBar.icons.configured;

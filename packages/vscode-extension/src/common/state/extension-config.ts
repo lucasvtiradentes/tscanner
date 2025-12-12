@@ -1,7 +1,9 @@
 import * as vscode from 'vscode';
 import { IS_DEV } from '../constants';
-import { logger } from '../lib/logger';
+import { createLogger } from '../lib/logger';
 import { buildConfigSection, buildFullConfigKey } from '../scripts-constants';
+
+const configLogger = createLogger('extension-config');
 
 export enum ExtensionConfigKey {
   LspBin = 'lsp.bin',
@@ -29,6 +31,6 @@ function getConfigSection(): string {
 export function getExtensionConfig<K extends ExtensionConfigKey>(key: K): ExtensionConfigSchema[K] {
   const config = vscode.workspace.getConfiguration(getConfigSection());
   const value = config.get<ExtensionConfigSchema[K]>(key) ?? defaultValues[key];
-  logger.debug(`[extension-config] GET ${key} = ${JSON.stringify(value)}`);
+  configLogger.debug(`GET ${key} = ${JSON.stringify(value)}`);
   return value;
 }

@@ -1,6 +1,6 @@
 import { GitHelper, ScanMode } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { loadConfig } from '../common/lib/config-manager';
+import { getCachedConfig } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
 import { VscodeGit } from '../common/lib/vscode-git';
 import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
@@ -62,7 +62,7 @@ export function createFileChangeHandler(deps: FileChangeHandlerDeps) {
       const document = await vscode.workspace.openTextDocument(uri);
       const content = document.getText();
       const configDir = extensionStore.get(StoreKey.ConfigDir);
-      const config = await loadConfig(workspaceFolder.uri.fsPath, configDir);
+      const config = getCachedConfig();
       const scanResult = await scanContent(uri.fsPath, content, config ?? undefined, configDir ?? undefined);
       let newResults = scanResult.issues;
 

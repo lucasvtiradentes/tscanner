@@ -8,8 +8,9 @@ import {
   ViewMode,
   hasConfiguredRules,
 } from 'tscanner-common';
-import { getConfigDirLabel, loadConfig } from '../../common/lib/config-manager';
+import { getConfigDirLabel, loadAndCacheConfig } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
+import { withScanErrorHandling } from '../../common/lib/scan-helpers';
 import {
   Command,
   ToastKind,
@@ -20,7 +21,7 @@ import {
 } from '../../common/lib/vscode-utils';
 import type { CommandContext } from '../../common/state/extension-state';
 import { StoreKey, extensionStore } from '../../common/state/extension-store';
-import { ContextKey, WorkspaceStateKey, setContextKey, setWorkspaceState } from '../../common/state/workspace-state';
+import { ContextKey, WorkspaceStateKey, setWorkspaceState } from '../../common/state/workspace-state';
 import { serializeResults } from '../../common/types';
 import type { RegularIssuesView } from '../../issues-panel';
 import { scan } from '../../scanner/scan';
@@ -46,7 +47,7 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
     }
 
     const configDir = extensionStore.get(StoreKey.ConfigDir);
-    const config = await loadConfig(workspaceFolder.uri.fsPath, configDir);
+    const config = await loadAndCacheConfig(workspaceFolder.uri.fsPath);
 
     if (!hasConfiguredRules(config)) {
       regularView.setResults([]);
@@ -89,43 +90,41 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
       }
     }
 
-    extensionStore.set(StoreKey.IsSearching, true);
     regularView.setResults([]);
-
     logger.info(`Starting scan in ${scanMode} mode`);
 
-    try {
-      const startTime = Date.now();
-      const branch = scanMode === ScanMode.Branch ? compareBranch : undefined;
-      const results = await scan({
-        branch,
-        config: configToPass,
-        configDir: configDir ?? undefined,
-        aiMode: options?.aiMode,
-        noCache: !useScanCache,
-      });
+    await withScanErrorHandling(
+      {
+        scanType: 'regular',
+        contextKeyOnComplete: ContextKey.HasScanned,
+      },
+      async () => {
+        const startTime = Date.now();
+        const branch = scanMode === ScanMode.Branch ? compareBranch : undefined;
+        const results = await scan({
+          branch,
+          config: configToPass,
+          configDir: configDir ?? undefined,
+          aiMode: options?.aiMode,
+          noCache: !useScanCache,
+        });
 
-      const elapsed = Date.now() - startTime;
-      logger.info(`Search completed in ${elapsed}ms, found ${results.length} results`);
+        const elapsed = Date.now() - startTime;
+        logger.info(`Search completed in ${elapsed}ms, found ${results.length} results`);
 
-      resetIssueIndex();
-      regularView.setResults(results);
-      setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializeResults(results));
+        resetIssueIndex();
+        regularView.setResults(results);
+        setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializeResults(results));
 
-      if (regularView.viewMode === ViewMode.Tree) {
-        setTimeout(() => {
-          const folders = regularView.getAllFolderItems();
-          for (const folder of folders) {
-            treeView.reveal(folder, { expand: true, select: false, focus: false });
-          }
-        }, VSCODE_EXTENSION.delays.treeRevealSeconds * 1000);
-      }
-    } catch (error) {
-      logger.error(`Error during scan: ${error}`);
-      throw error;
-    } finally {
-      extensionStore.set(StoreKey.IsSearching, false);
-      setContextKey(ContextKey.HasScanned, true);
-    }
+        if (regularView.viewMode === ViewMode.Tree) {
+          setTimeout(() => {
+            const folders = regularView.getAllFolderItems();
+            for (const folder of folders) {
+              treeView.reveal(folder, { expand: true, select: false, focus: false });
+            }
+          }, VSCODE_EXTENSION.delays.treeRevealSeconds * 1000);
+        }
+      },
+    );
   });
 }

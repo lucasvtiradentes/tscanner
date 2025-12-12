@@ -1,8 +1,7 @@
 import * as vscode from 'vscode';
-import { loadConfig } from '../common/lib/config-manager';
+import { getOrLoadConfig } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
 import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
-import { StoreKey, extensionStore } from '../common/state/extension-store';
 import type { RegularIssuesView } from '../issues-panel';
 import { createFileChangeHandler, createFileDeleteHandler } from './file-change-handler';
 import { buildWatchPattern } from './watch-pattern-builder';
@@ -19,8 +18,7 @@ export async function createFileWatcher(
   let watchPattern: string | null = null;
 
   try {
-    const configDir = extensionStore.get(StoreKey.ConfigDir);
-    const config = await loadConfig(workspaceFolder.uri.fsPath, configDir);
+    const config = await getOrLoadConfig(workspaceFolder.uri.fsPath);
     watchPattern = buildWatchPattern(config);
   } catch {
     logger.debug('Failed to load config for file watcher');

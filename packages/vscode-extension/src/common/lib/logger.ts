@@ -39,7 +39,14 @@ function formatContext(context: string): string {
   return context.padEnd(LOG_CONTEXT_WIDTH, ' ');
 }
 
-class Logger {
+interface ILogger {
+  info(message: string): void;
+  error(message: string): void;
+  warn(message: string): void;
+  debug(message: string): void;
+}
+
+class Logger implements ILogger {
   private context: string;
 
   constructor(context: string) {
@@ -76,4 +83,31 @@ class Logger {
   }
 }
 
+class ContextualLogger implements ILogger {
+  constructor(
+    private baseLogger: ILogger,
+    private prefix: string,
+  ) {}
+
+  info(message: string) {
+    this.baseLogger.info(`[${this.prefix}] ${message}`);
+  }
+
+  error(message: string) {
+    this.baseLogger.error(`[${this.prefix}] ${message}`);
+  }
+
+  warn(message: string) {
+    this.baseLogger.warn(`[${this.prefix}] ${message}`);
+  }
+
+  debug(message: string) {
+    this.baseLogger.debug(`[${this.prefix}] ${message}`);
+  }
+}
+
 export const logger = new Logger('vscode_extension');
+
+export function createLogger(prefix: string): ILogger {
+  return new ContextualLogger(logger, prefix);
+}
