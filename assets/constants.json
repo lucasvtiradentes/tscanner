@@ -8,6 +8,7 @@
     "defaultTargetBranch": "origin/main",
     "logBasename": "tscannerlogs",
     "logTimezoneOffsetHours": -3,
+    "logContextWidth": 16,
     "ignoreComment": "tscanner-ignore",
     "ignoreNextLineComment": "tscanner-ignore-next-line",
     "extensions": {

@@ -9,6 +9,7 @@ export const CONFIG_FILE_NAME = constants.shared.configFileName;
 export const DEFAULT_TARGET_BRANCH = constants.shared.defaultTargetBranch;
 export const LOG_BASENAME = constants.shared.logBasename;
 export const LOG_TIMEZONE_OFFSET_HOURS = constants.shared.logTimezoneOffsetHours;
+export const LOG_CONTEXT_WIDTH = constants.shared.logContextWidth;
 export const IGNORE_COMMENT = constants.shared.ignoreComment;
 export const IGNORE_NEXT_LINE_COMMENT = constants.shared.ignoreNextLineComment;
 export const JS_EXTENSIONS = constants.shared.extensions.javascript;

@@ -1,7 +1,7 @@
 import { appendFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { LOG_TIMEZONE_OFFSET_HOURS } from 'tscanner-common';
+import { LOG_CONTEXT_WIDTH, LOG_TIMEZONE_OFFSET_HOURS } from 'tscanner-common';
 import { getLogFilename } from '../constants';
 
 export const LOG_FILE_PATH = join(tmpdir(), getLogFilename());
@@ -25,17 +25,25 @@ function formatTimestamp(): string {
   const seconds = String(localTime.getUTCSeconds()).padStart(2, '0');
   const ms = String(localTime.getUTCMilliseconds()).padStart(3, '0');
 
-  const sign = LOG_TIMEZONE_OFFSET_HOURS >= 0 ? '+' : '';
-  const offsetStr = `${sign}${String(LOG_TIMEZONE_OFFSET_HOURS).padStart(2, '0')}:00`;
+  const sign = LOG_TIMEZONE_OFFSET_HOURS >= 0 ? '+' : '-';
+  const absOffset = Math.abs(LOG_TIMEZONE_OFFSET_HOURS);
+  const offsetStr = `${sign}${String(absOffset).padStart(2, '0')}:00`;
 
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${ms}${offsetStr}`;
+}
+
+function formatContext(context: string): string {
+  if (context.length > LOG_CONTEXT_WIDTH) {
+    return context.slice(0, LOG_CONTEXT_WIDTH);
+  }
+  return context.padEnd(LOG_CONTEXT_WIDTH, ' ');
 }
 
 class Logger {
   private context: string;
 
   constructor(context: string) {
-    this.context = context;
+    this.context = formatContext(context);
   }
 
   private write(level: string, message: string) {

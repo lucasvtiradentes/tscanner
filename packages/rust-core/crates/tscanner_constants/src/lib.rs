@@ -26,6 +26,7 @@ struct SharedConfig {
     default_target_branch: String,
     log_basename: String,
     log_timezone_offset_hours: i8,
+    log_context_width: usize,
     ignore_comment: String,
     ignore_next_line_comment: String,
     extensions: ExtensionsConfig,
@@ -180,6 +181,10 @@ pub fn log_basename() -> &'static str {
 
 pub fn log_timezone_offset_hours() -> i8 {
     CONSTANTS.shared.log_timezone_offset_hours
+}
+
+pub fn log_context_width() -> usize {
+    CONSTANTS.shared.log_context_width
 }
 
 pub fn is_dev_mode() -> bool {

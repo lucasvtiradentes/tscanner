@@ -3,7 +3,7 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::sync::Mutex;
 
-use tscanner_constants::{get_log_filename, log_timezone_offset_hours};
+use tscanner_constants::{get_log_filename, log_context_width, log_timezone_offset_hours};
 
 static LOGGER: Mutex<Option<Logger>> = Mutex::new(None);
 
@@ -12,10 +12,22 @@ pub struct Logger {
     context: String,
 }
 
+fn format_context(context: &str) -> String {
+    let width = log_context_width();
+    if context.len() > width {
+        context[..width].to_string()
+    } else {
+        format!("{:<width$}", context, width = width)
+    }
+}
+
 impl Logger {
     fn new(context: String) -> Self {
         let file_path = std::env::temp_dir().join(get_log_filename());
-        Self { file_path, context }
+        Self {
+            file_path,
+            context: format_context(&context),
+        }
     }
 
     fn write(&self, level: &str, message: &str) {
