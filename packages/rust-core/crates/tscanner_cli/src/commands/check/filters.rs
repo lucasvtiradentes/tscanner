@@ -1,6 +1,7 @@
 use std::collections::{HashMap, HashSet};
 use std::path::PathBuf;
 use tscanner_service::log_info;
+use tscanner_types::enums::Severity;
 use tscanner_types::ScanResult;
 
 pub fn apply_line_filter(result: &mut ScanResult, line_filter: &HashMap<PathBuf, HashSet<usize>>) {
@@ -9,6 +10,10 @@ pub fn apply_line_filter(result: &mut ScanResult, line_filter: &HashMap<PathBuf,
 
 pub fn apply_rule_filter(result: &mut ScanResult, rule_name: &str) {
     result.filter_by_rule(rule_name);
+}
+
+pub fn apply_severity_filter(result: &mut ScanResult, severity: Severity) {
+    result.filter_by_severity(severity);
 }
 
 pub fn get_files_to_scan_multi(

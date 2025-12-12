@@ -162,8 +162,8 @@ tscanner check --branch origin/main
     <th width="300">Flag description</th>
   </tr>
   <tr>
-    <td rowspan="13" align="left"><code>check [options] [paths]</code></td>
-    <td rowspan="13" align="left">Scan code for issues and display results</td>
+    <td rowspan="14" align="left"><code>check [options] [paths]</code></td>
+    <td rowspan="14" align="left">Scan code for issues and display results</td>
     <td align="left"><code>--branch <BRANCH></code></td>
     <td align="center">-</td>
     <td align="left">Only show issues in files changed compared to branch (e.g., origin/main)</td>
@@ -237,6 +237,13 @@ tscanner check --branch origin/main
     <td align="left"><code>--rule <RULE_NAME></code></td>
     <td align="center">-</td>
     <td align="left">Filter results to specific rule (e.g., 'no-console')</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--severity [error/warning/info/hint]</code></td>
+    <td align="center">-</td>
+    <td align="left">Filter results by minimum severity (e.g., 'error')</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->

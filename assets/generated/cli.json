@@ -142,6 +142,21 @@
           "required": false
         },
         {
+          "name": "severity",
+          "short": null,
+          "description": "Filter results by minimum severity (e.g., 'error')",
+          "takesValue": true,
+          "valueName": "LEVEL",
+          "possibleValues": [
+            "error",
+            "warning",
+            "info",
+            "hint"
+          ],
+          "defaultValue": null,
+          "required": false
+        },
+        {
           "name": "staged",
           "short": null,
           "description": "Scan only git staged files",

@@ -12,7 +12,7 @@ use crate::shared::{
     RulesBreakdown, ScanConfig, ScanMode, SummaryStats,
 };
 use tscanner_cache::FileCache;
-use tscanner_cli::{CliGroupMode, OutputFormat};
+use tscanner_cli::{CliGroupMode, CliSeverity, OutputFormat};
 use tscanner_cli_output::GroupMode;
 use tscanner_config::{AiExecutionMode, AiProvider};
 use tscanner_constants::{
@@ -24,6 +24,7 @@ use tscanner_scanner::{
     ScanCallbacks, Scanner,
 };
 use tscanner_service::{log_error, log_info};
+use tscanner_types::enums::Severity;
 
 use super::context::CheckContext;
 use super::filters;
@@ -68,6 +69,7 @@ pub fn cmd_check(
     uncommitted: bool,
     glob_filter: Option<String>,
     rule_filter: Option<String>,
+    severity_filter: Option<CliSeverity>,
     continue_on_error: bool,
     include_ai: bool,
     only_ai: bool,
@@ -280,6 +282,7 @@ pub fn cmd_check(
             config_path: relative_config_path,
             glob_filter: glob_filter.clone(),
             rule_filter: rule_filter.clone(),
+            severity_filter: severity_filter.as_ref().map(|s| s.as_str().to_string()),
         };
         render_header(&scan_config);
         print_section_header("Scanning...");
@@ -366,6 +369,16 @@ pub fn cmd_check(
 
     if let Some(ref rule_name) = rule_filter {
         filters::apply_rule_filter(&mut result, rule_name);
+    }
+
+    if let Some(ref sev) = severity_filter {
+        let severity = match sev {
+            CliSeverity::Error => Severity::Error,
+            CliSeverity::Warning => Severity::Warning,
+            CliSeverity::Info => Severity::Info,
+            CliSeverity::Hint => Severity::Hint,
+        };
+        filters::apply_severity_filter(&mut result, severity);
     }
 
     log_info(&format!(

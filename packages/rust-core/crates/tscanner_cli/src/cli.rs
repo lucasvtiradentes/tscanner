@@ -15,6 +15,25 @@ pub enum CliGroupMode {
     Rule,
 }
 
+#[derive(Debug, Clone, ValueEnum)]
+pub enum CliSeverity {
+    Error,
+    Warning,
+    Info,
+    Hint,
+}
+
+impl CliSeverity {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            CliSeverity::Error => "error",
+            CliSeverity::Warning => "warning",
+            CliSeverity::Info => "info",
+            CliSeverity::Hint => "hint",
+        }
+    }
+}
+
 #[derive(Parser)]
 #[command(name = "tscanner")]
 #[command(version, about = "Code quality scanner for the AI-generated code era", long_about = None)]
@@ -85,6 +104,15 @@ pub enum Commands {
             help_heading = "Filtering"
         )]
         rule: Option<String>,
+
+        #[arg(
+            long,
+            value_enum,
+            value_name = "LEVEL",
+            help = "Filter results by minimum severity (e.g., 'error')",
+            help_heading = "Filtering"
+        )]
+        severity: Option<CliSeverity>,
 
         #[arg(
             long,
