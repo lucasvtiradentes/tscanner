@@ -59,14 +59,14 @@ const codeEditorConfigSchema = z.object({
 const aiExecutionModeSchema = z.enum(AiExecutionMode);
 
 const filesConfigSchema = z.object({
-  include: z.array(z.string()).optional(),
-  exclude: z.array(z.string()).optional(),
+  include: z.array(z.string()),
+  exclude: z.array(z.string()),
 });
 
 export const tscannerConfigSchema = z.object({
-  rules: rulesConfigSchema.optional(),
-  aiRules: z.record(z.string(), aiRuleConfigSchema).optional(),
-  files: filesConfigSchema.optional(),
+  rules: rulesConfigSchema,
+  aiRules: z.record(z.string(), aiRuleConfigSchema),
+  files: filesConfigSchema,
   ai: aiConfigSchema.optional(),
   codeEditor: codeEditorConfigSchema.optional(),
 });
@@ -75,9 +75,9 @@ export type TscannerConfig = z.infer<typeof tscannerConfigSchema>;
 
 export function hasConfiguredRules(config: TscannerConfig | null): boolean {
   if (!config) return false;
-  const hasBuiltin = config.rules?.builtin && Object.keys(config.rules.builtin).length > 0;
-  const hasRegex = config.rules?.regex && Object.keys(config.rules.regex).length > 0;
-  const hasScript = config.rules?.script && Object.keys(config.rules.script).length > 0;
-  const hasAiRules = config.aiRules && Object.keys(config.aiRules).length > 0;
-  return !!(hasBuiltin || hasRegex || hasScript || hasAiRules);
+  const hasBuiltin = config.rules.builtin && Object.keys(config.rules.builtin).length > 0;
+  const hasRegex = config.rules.regex && Object.keys(config.rules.regex).length > 0;
+  const hasScript = config.rules.script && Object.keys(config.rules.script).length > 0;
+  const hasAiRules = Object.keys(config.aiRules).length > 0;
+  return hasBuiltin || hasRegex || hasScript || hasAiRules;
 }

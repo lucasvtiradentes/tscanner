@@ -29,14 +29,12 @@ export function buildWatchPattern(config: TscannerConfig | null): string | null 
 
   const patterns = new Set<string>();
 
-  if (config.files?.include) {
-    for (const pattern of config.files.include) {
-      patterns.add(normalizePattern(pattern));
-    }
+  for (const pattern of config.files.include) {
+    patterns.add(normalizePattern(pattern));
   }
 
-  collectPatternsFromRules(config.rules?.regex, patterns);
-  collectPatternsFromRules(config.rules?.script, patterns);
+  collectPatternsFromRules(config.rules.regex, patterns);
+  collectPatternsFromRules(config.rules.script, patterns);
   collectPatternsFromRules(config.aiRules, patterns);
 
   if (patterns.size === 0) {

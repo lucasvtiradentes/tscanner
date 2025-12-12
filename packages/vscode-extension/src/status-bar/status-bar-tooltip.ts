@@ -16,9 +16,9 @@ function getActiveRulesLabel(config: TscannerConfig | null): string {
 
   const parts: string[] = [];
 
-  const builtin = config.rules?.builtin ? Object.keys(config.rules.builtin).length : 0;
-  const regex = config.rules?.regex ? Object.keys(config.rules.regex).length : 0;
-  const script = config.rules?.script ? Object.keys(config.rules.script).length : 0;
+  const builtin = config.rules.builtin ? Object.keys(config.rules.builtin).length : 0;
+  const regex = config.rules.regex ? Object.keys(config.rules.regex).length : 0;
+  const script = config.rules.script ? Object.keys(config.rules.script).length : 0;
   const ai = config.aiRules ? Object.keys(config.aiRules).length : 0;
 
   if (builtin > 0) parts.push(`${DISPLAY_ICONS.builtin} ${builtin}`);
