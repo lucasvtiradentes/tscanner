@@ -1,4 +1,4 @@
-import { AiExecutionMode, CONFIG_DIR_NAME, ScanMode, hasConfiguredRules } from 'tscanner-common';
+import { AiExecutionMode, CODE_EDITOR_DEFAULTS, CONFIG_DIR_NAME, ScanMode, hasConfiguredRules } from 'tscanner-common';
 import { getConfigDirLabel, loadConfig } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import {
@@ -45,7 +45,7 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
         logger.info(`[AI Scan] Using local config from ${CONFIG_DIR_NAME}`);
       }
 
-      const useAiScanCache = config?.codeEditor?.useAiScanCache ?? true;
+      const useAiScanCache = config?.codeEditor?.useAiScanCache ?? CODE_EDITOR_DEFAULTS.useAiScanCache;
       logger.info(`[AI Scan] Starting AI-only scan (cache: ${useAiScanCache ? 'enabled' : 'disabled'})...`);
 
       const client = getLspClient();

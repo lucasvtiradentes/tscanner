@@ -1,5 +1,6 @@
 import {
   type AiExecutionMode,
+  CODE_EDITOR_DEFAULTS,
   CONFIG_DIR_NAME,
   GitHelper,
   ScanMode,
@@ -64,7 +65,7 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
 
     const scanMode = extensionStore.get(StoreKey.ScanMode);
     const compareBranch = extensionStore.get(StoreKey.CompareBranch);
-    const useScanCache = config?.codeEditor?.useScanCache ?? true;
+    const useScanCache = config?.codeEditor?.useScanCache ?? CODE_EDITOR_DEFAULTS.useScanCache;
 
     if (scanMode === ScanMode.Branch) {
       const branchExistsCheck = await GitHelper.branchExists(workspaceFolder.uri.fsPath, compareBranch);

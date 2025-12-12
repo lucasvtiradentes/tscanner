@@ -1,4 +1,4 @@
-import type { AiExecutionMode } from 'tscanner-common';
+import { type AiExecutionMode, CODE_EDITOR_DEFAULTS } from 'tscanner-common';
 import { loadConfig } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
@@ -29,7 +29,7 @@ export function createIntervalWatcher(config: IntervalConfig) {
 
     const configDir = extensionStore.get(StoreKey.ConfigDir);
     const tscannerConfig = await loadConfig(workspaceFolder.uri.fsPath, configDir);
-    const intervalSeconds = tscannerConfig?.codeEditor?.[config.configKey] ?? 0;
+    const intervalSeconds = tscannerConfig?.codeEditor?.[config.configKey] ?? CODE_EDITOR_DEFAULTS[config.configKey];
 
     if (intervalSeconds <= 0) {
       logger.info(`${config.name} auto-scan disabled (${config.configKey} = 0)`);

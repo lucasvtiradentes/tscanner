@@ -18,6 +18,7 @@ export const DISPLAY_ICONS = constants.shared.icons;
 export const LSP_CLIENT_ID = constants.shared.lsp.clientId;
 export const REPO_URL = constants.shared.urls.repo;
 export const REPO_BLOB_URL = constants.shared.urls.repoBlob;
+export const CODE_EDITOR_DEFAULTS = constants.coreRust.defaults.codeEditor;
 
 export enum Severity {
   Error = 'error',
