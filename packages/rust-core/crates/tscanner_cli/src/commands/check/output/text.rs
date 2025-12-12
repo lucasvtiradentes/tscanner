@@ -108,12 +108,13 @@ impl OutputRenderer for TextRenderer {
 
 impl TextRenderer {
     fn render_rules_triggered_by_file(&self, files: &[OutputFileGroup]) {
-        let mut rules_map: HashMap<String, (String, IssueRuleType)> = HashMap::new();
+        let mut rules_map: HashMap<String, (String, IssueRuleType, usize)> = HashMap::new();
         for file in files {
             for issue in &file.issues {
-                if !rules_map.contains_key(&issue.rule) {
-                    rules_map.insert(issue.rule.clone(), (issue.message.clone(), issue.rule_type));
-                }
+                rules_map
+                    .entry(issue.rule.clone())
+                    .and_modify(|(_, _, count)| *count += 1)
+                    .or_insert((issue.message.clone(), issue.rule_type, 1));
             }
         }
 
@@ -134,14 +135,22 @@ impl TextRenderer {
             .max()
             .unwrap_or(0);
 
-        for (rule, (message, rule_type)) in sorted_rules {
+        let max_count_len = sorted_rules
+            .iter()
+            .map(|(_, (_, _, count))| count.to_string().len())
+            .max()
+            .unwrap_or(0);
+
+        for (rule, (message, rule_type, count)) in sorted_rules {
             let icon = rule_type_icon(*rule_type);
             println!(
-                "  {} {:<width$}: {}",
+                "  {} {:<rule_width$} | {:>count_width$} | {}",
                 icon,
                 rule,
+                count,
                 message,
-                width = max_rule_len
+                rule_width = max_rule_len,
+                count_width = max_count_len
             );
         }
 
@@ -159,15 +168,22 @@ impl TextRenderer {
         println!();
 
         let max_rule_len = rules.iter().map(|r| r.rule.len()).max().unwrap_or(0);
+        let max_count_len = rules
+            .iter()
+            .map(|r| r.count.to_string().len())
+            .max()
+            .unwrap_or(0);
 
         for rule in rules {
             let icon = rule_type_icon(rule.rule_type);
             println!(
-                "  {} {:<width$}: {}",
+                "  {} {:<rule_width$} | {:>count_width$} | {}",
                 icon,
                 rule.rule,
+                rule.count,
                 rule.message,
-                width = max_rule_len
+                rule_width = max_rule_len,
+                count_width = max_count_len
             );
         }
 
