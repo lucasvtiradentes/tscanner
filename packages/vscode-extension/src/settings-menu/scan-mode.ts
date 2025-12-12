@@ -68,7 +68,7 @@ async function handleCodebaseScan(ctx: ScanModeContext) {
   regularView.setResults([]);
   extensionStore.set(StoreKey.ScanMode, ScanMode.Codebase);
   await updateStatusBar();
-  executeCommand(Command.FindIssue);
+  executeCommand(Command.RefreshIssues);
 }
 
 async function handleBranchScan(ctx: ScanModeContext) {
@@ -159,5 +159,5 @@ async function handleBranchScan(ctx: ScanModeContext) {
   regularView.setResults([]);
   extensionStore.set(StoreKey.ScanMode, ScanMode.Branch);
   await updateStatusBar();
-  executeCommand(Command.FindIssue);
+  executeCommand(Command.RefreshIssues);
 }

@@ -1269,6 +1269,11 @@
           "minimum": 0.0,
           "type": "integer"
         },
+        "aiScanUseCache": {
+          "default": true,
+          "description": "Use cache for AI scans (true = faster scans, false = always run all AI rules)",
+          "type": "boolean"
+        },
         "highlightErrors": {
           "default": true,
           "description": "Highlight error issues in the code editor",
@@ -1295,6 +1300,11 @@
           "format": "uint32",
           "minimum": 0.0,
           "type": "integer"
+        },
+        "scanUseCache": {
+          "default": true,
+          "description": "Use cache for regular scans (true = faster scans, false = always scan all files)",
+          "type": "boolean"
         }
       },
       "type": "object"

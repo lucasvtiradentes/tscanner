@@ -6,16 +6,15 @@ import type { AiIssuesView, RegularIssuesView } from '../issues-panel';
 import { createOpenSettingsMenuCommand } from '../settings-menu';
 import { CopyMode, CopyScope, createCopyCommand } from './internal/copy-items';
 import { createOpenFileCommand } from './internal/navigation';
-import { createRefreshAiIssuesCommand, createRefreshCommand } from './internal/refresh';
 import {
   createCycleViewModeFileFlatViewCommand,
   createCycleViewModeFileTreeViewCommand,
   createCycleViewModeRuleFlatViewCommand,
   createCycleViewModeRuleTreeViewCommand,
 } from './internal/view-mode';
-import { createHardScanCommand } from './public/hard-scan';
 import { createGoToNextIssueCommand, createGoToPreviousIssueCommand } from './public/issue-navigation';
-import { createScanWorkspaceCommand } from './public/scan-workspace';
+import { createRefreshAiIssuesCommand } from './public/refresh-ai-issues';
+import { createRefreshIssuesCommand } from './public/refresh-issues';
 import { createShowLogsCommand } from './public/show-logs';
 
 export function registerAllCommands(
@@ -36,12 +35,11 @@ export function registerAllCommands(
   });
 
   return [
-    createScanWorkspaceCommand(ctx, regularView),
-    createHardScanCommand(),
+    createRefreshIssuesCommand(ctx, regularView),
+    createRefreshAiIssuesCommand(ctx, aiView),
     createGoToNextIssueCommand(regularView),
     createGoToPreviousIssueCommand(regularView),
     createShowLogsCommand(),
-    createRefreshCommand(),
     createOpenSettingsMenuCommand(ctx, regularView),
     createCycleViewModeFileFlatViewCommand(regularView, aiView, context),
     createCycleViewModeFileTreeViewCommand(regularView, aiView, context),
@@ -62,6 +60,5 @@ export function registerAllCommands(
       getResults: () => aiView.getResults(),
       getGroupMode: () => aiView.groupMode,
     }),
-    createRefreshAiIssuesCommand(ctx, aiView),
   ];
 }

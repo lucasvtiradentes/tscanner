@@ -330,11 +330,7 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
     <th width="100">Keybinding</th>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Scan Workspace</code></td>
-    <td align="center">-</td>
-  </tr>
-  <tr>
-    <td align="left"><code>tscanner: Hard Scan (Clear Cache & Rescan)</code></td>
+    <td align="left"><code>tscanner: Refresh Issues</code></td>
     <td align="center">-</td>
   </tr>
   <tr>
@@ -347,6 +343,10 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
   </tr>
   <tr>
     <td align="left"><code>tscanner: Show Logs</code></td>
+    <td align="center">-</td>
+  </tr>
+  <tr>
+    <td align="left"><code>tscanner: Refresh AI Issues</code></td>
     <td align="center">-</td>
   </tr>
 </table>

@@ -23,8 +23,14 @@ pub fn handle_scan(
         return Ok(());
     };
 
+    let no_cache = params.no_cache.unwrap_or(false);
     let config_hash = config.compute_hash();
     let cache = Arc::new(FileCache::with_config_hash(config_hash));
+
+    if no_cache {
+        cache.clear();
+    }
+
     session.cache = cache.clone();
 
     let Some(scanner) = create_scanner_or_respond(

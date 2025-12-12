@@ -44,7 +44,7 @@ export function createIntervalWatcher(config: IntervalConfig) {
         return;
       }
       logger.debug(`Running ${config.name} auto-scan...`);
-      executeCommand(Command.FindIssue, { silent: true, aiMode: config.aiMode });
+      executeCommand(Command.RefreshIssues, { silent: true, aiMode: config.aiMode });
     }, intervalSeconds * 1000);
   };
 

@@ -107,7 +107,7 @@ function setupSettingsListener(): vscode.Disposable {
       if (restart === 'Restart') {
         disposeScanner();
         await startLspClient();
-        executeCommand(Command.FindIssue, { silent: true });
+        executeCommand(Command.RefreshIssues, { silent: true });
       }
     }
   });
@@ -122,7 +122,7 @@ async function startExtension(): Promise<void> {
   }
 
   logger.info('Running initial scan...');
-  executeCommand(Command.FindIssue, { silent: true });
+  executeCommand(Command.RefreshIssues, { silent: true });
 
   await scanIntervalWatcher.setup();
   await aiScanIntervalWatcher.setup();

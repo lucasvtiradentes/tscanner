@@ -14,6 +14,7 @@ const scanParamsSchema = z.object({
   config_dir: z.string().optional(),
   branch: z.string().optional(),
   ai_mode: z.nativeEnum(AiExecutionMode).optional(),
+  no_cache: z.boolean().optional(),
 });
 
 const scanFileParamsSchema = z.object({

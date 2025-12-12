@@ -8,11 +8,11 @@ export function createConfigWatcher(onConfigChange: () => Promise<void>): vscode
 
   const handleConfigChange = async (uri: vscode.Uri) => {
     const relativePath = vscode.workspace.asRelativePath(uri);
-    logger.info(`Config file changed: ${relativePath}, triggering hard scan...`);
+    logger.info(`Config file changed: ${relativePath}, triggering scan...`);
 
     await onConfigChange();
 
-    executeCommand(Command.HardScan, { showToastMessage: false });
+    executeCommand(Command.RefreshIssues, { silent: true });
   };
 
   configWatcher.onDidChange(handleConfigChange);

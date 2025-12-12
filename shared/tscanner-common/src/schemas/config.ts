@@ -52,6 +52,8 @@ const codeEditorConfigSchema = z.object({
   highlightHints: z.boolean().optional(),
   scanInterval: z.number().optional(),
   aiScanInterval: z.number().optional(),
+  scanUseCache: z.boolean().optional(),
+  aiScanUseCache: z.boolean().optional(),
 });
 
 const aiExecutionModeSchema = z.enum(AiExecutionMode);

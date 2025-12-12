@@ -102,9 +102,17 @@ export class TscannerLspClient {
     configDir?: string,
     branch?: string,
     aiMode?: AiExecutionMode,
+    noCache?: boolean,
   ): Promise<ScanResult> {
     if (!this.client) throw new Error('LSP client not started');
-    return this.client.sendRequest(ScanRequestType, { root, config, config_dir: configDir, branch, ai_mode: aiMode });
+    return this.client.sendRequest(ScanRequestType, {
+      root,
+      config,
+      config_dir: configDir,
+      branch,
+      ai_mode: aiMode,
+      no_cache: noCache,
+    });
   }
 
   async scanFile(root: string, file: string): Promise<FileResult> {

@@ -4,8 +4,9 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 use tscanner_constants::{
-    default_ai_scan_interval, default_highlight_errors, default_highlight_hints,
-    default_highlight_infos, default_highlight_warnings, default_scan_interval, default_severity,
+    default_ai_scan_interval, default_ai_scan_use_cache, default_highlight_errors,
+    default_highlight_hints, default_highlight_infos, default_highlight_warnings,
+    default_scan_interval, default_scan_use_cache, default_severity,
 };
 use tscanner_types::Severity;
 
@@ -114,6 +115,20 @@ pub struct CodeEditorConfig {
         description = "Auto-scan interval for AI rules in seconds (0 = disabled). Runs only AI rules on a separate schedule."
     )]
     pub ai_scan_interval: u32,
+
+    #[serde(default = "default_scan_use_cache")]
+    #[schemars(
+        default = "default_scan_use_cache",
+        description = "Use cache for regular scans (true = faster scans, false = always scan all files)"
+    )]
+    pub scan_use_cache: bool,
+
+    #[serde(default = "default_ai_scan_use_cache")]
+    #[schemars(
+        default = "default_ai_scan_use_cache",
+        description = "Use cache for AI scans (true = faster scans, false = always run all AI rules)"
+    )]
+    pub ai_scan_use_cache: bool,
 }
 
 impl Default for CodeEditorConfig {

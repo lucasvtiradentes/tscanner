@@ -4,7 +4,6 @@ import { logger } from '../../common/lib/logger';
 import {
   Command,
   ToastKind,
-  executeCommand,
   getCurrentWorkspaceFolder,
   registerCommand,
   showToastMessage,
@@ -15,12 +14,6 @@ import { ContextKey, setContextKey } from '../../common/state/workspace-state';
 import type { AiIssuesView } from '../../issues-panel';
 import { getLspClient } from '../../scanner/client';
 import { scan } from '../../scanner/scan';
-
-export function createRefreshCommand() {
-  return registerCommand(Command.Refresh, async () => {
-    await executeCommand(Command.HardScan);
-  });
-}
 
 export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIssuesView) {
   return registerCommand(Command.RefreshAiIssues, async () => {
@@ -52,7 +45,8 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
         logger.info(`[AI Scan] Using local config from ${CONFIG_DIR_NAME}`);
       }
 
-      logger.info('[AI Scan] Starting AI-only scan...');
+      const aiScanUseCache = config?.codeEditor?.aiScanUseCache ?? true;
+      logger.info(`[AI Scan] Starting AI-only scan (cache: ${aiScanUseCache ? 'enabled' : 'disabled'})...`);
 
       const client = getLspClient();
       if (client) {
@@ -71,6 +65,7 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
         config: configToPass,
         configDir: configDir ?? undefined,
         aiMode: AiExecutionMode.Only,
+        noCache: !aiScanUseCache,
       });
 
       const elapsed = Date.now() - startTime;

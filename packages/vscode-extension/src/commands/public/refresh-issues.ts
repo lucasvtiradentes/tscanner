@@ -25,10 +25,10 @@ import type { RegularIssuesView } from '../../issues-panel';
 import { scan } from '../../scanner/scan';
 import { resetIssueIndex } from './issue-navigation';
 
-export function createScanWorkspaceCommand(ctx: CommandContext, regularView: RegularIssuesView) {
+export function createRefreshIssuesCommand(ctx: CommandContext, regularView: RegularIssuesView) {
   const { context, treeView, updateStatusBar } = ctx;
 
-  return registerCommand(Command.FindIssue, async (options?: { silent?: boolean; aiMode?: AiExecutionMode }) => {
+  return registerCommand(Command.RefreshIssues, async (options?: { silent?: boolean; aiMode?: AiExecutionMode }) => {
     if (extensionStore.get(StoreKey.IsSearching)) {
       if (!options?.silent) {
         showToastMessage(ToastKind.Warning, 'Search already in progress');
@@ -64,6 +64,7 @@ export function createScanWorkspaceCommand(ctx: CommandContext, regularView: Reg
 
     const scanMode = extensionStore.get(StoreKey.ScanMode);
     const compareBranch = extensionStore.get(StoreKey.CompareBranch);
+    const scanUseCache = config?.codeEditor?.scanUseCache ?? true;
 
     if (scanMode === ScanMode.Branch) {
       const branchExistsCheck = await GitHelper.branchExists(workspaceFolder.uri.fsPath, compareBranch);
@@ -81,7 +82,7 @@ export function createScanWorkspaceCommand(ctx: CommandContext, regularView: Reg
         } else if (action === 'Switch to Workspace Mode') {
           extensionStore.set(StoreKey.ScanMode, ScanMode.Codebase);
           await updateStatusBar();
-          await executeCommand(Command.FindIssue, { silent: true });
+          await executeCommand(Command.RefreshIssues, { silent: true });
         }
         return;
       }
@@ -100,6 +101,7 @@ export function createScanWorkspaceCommand(ctx: CommandContext, regularView: Reg
         config: configToPass,
         configDir: configDir ?? undefined,
         aiMode: options?.aiMode,
+        noCache: !scanUseCache,
       });
 
       const elapsed = Date.now() - startTime;
