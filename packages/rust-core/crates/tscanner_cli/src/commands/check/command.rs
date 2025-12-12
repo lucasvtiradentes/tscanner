@@ -12,7 +12,7 @@ use crate::shared::{
     RulesBreakdown, ScanConfig, ScanMode, SummaryStats,
 };
 use tscanner_cache::FileCache;
-use tscanner_cli::{CliGroupMode, CliSeverity, OutputFormat};
+use tscanner_cli::{CliGroupMode, CliRuleKind, CliSeverity, OutputFormat};
 use tscanner_cli_output::GroupMode;
 use tscanner_config::{AiExecutionMode, AiProvider};
 use tscanner_constants::{
@@ -24,6 +24,7 @@ use tscanner_scanner::{
     ScanCallbacks, Scanner,
 };
 use tscanner_service::{log_error, log_info};
+use tscanner_types::enums::IssueRuleType;
 use tscanner_types::enums::Severity;
 
 use super::context::CheckContext;
@@ -70,6 +71,7 @@ pub fn cmd_check(
     glob_filter: Option<String>,
     rule_filter: Option<String>,
     severity_filter: Option<CliSeverity>,
+    kind_filter: Option<CliRuleKind>,
     continue_on_error: bool,
     include_ai: bool,
     only_ai: bool,
@@ -283,6 +285,7 @@ pub fn cmd_check(
             glob_filter: glob_filter.clone(),
             rule_filter: rule_filter.clone(),
             severity_filter: severity_filter.as_ref().map(|s| s.as_str().to_string()),
+            kind_filter: kind_filter.as_ref().map(|k| k.as_str().to_string()),
         };
         render_header(&scan_config);
         print_section_header("Scanning...");
@@ -379,6 +382,16 @@ pub fn cmd_check(
             CliSeverity::Hint => Severity::Hint,
         };
         filters::apply_severity_filter(&mut result, severity);
+    }
+
+    if let Some(ref kind) = kind_filter {
+        let rule_type = match kind {
+            CliRuleKind::Builtin => IssueRuleType::Builtin,
+            CliRuleKind::Regex => IssueRuleType::CustomRegex,
+            CliRuleKind::Script => IssueRuleType::CustomScript,
+            CliRuleKind::Ai => IssueRuleType::Ai,
+        };
+        filters::apply_rule_type_filter(&mut result, rule_type);
     }
 
     log_info(&format!(

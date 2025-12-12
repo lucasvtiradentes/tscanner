@@ -34,6 +34,25 @@ impl CliSeverity {
     }
 }
 
+#[derive(Debug, Clone, ValueEnum)]
+pub enum CliRuleKind {
+    Builtin,
+    Regex,
+    Script,
+    Ai,
+}
+
+impl CliRuleKind {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            CliRuleKind::Builtin => "builtin",
+            CliRuleKind::Regex => "regex",
+            CliRuleKind::Script => "script",
+            CliRuleKind::Ai => "ai",
+        }
+    }
+}
+
 #[derive(Parser)]
 #[command(name = "tscanner")]
 #[command(version, about = "Code quality scanner for the AI-generated code era", long_about = None)]
@@ -113,6 +132,15 @@ pub enum Commands {
             help_heading = "Filtering"
         )]
         severity: Option<CliSeverity>,
+
+        #[arg(
+            long,
+            value_enum,
+            value_name = "TYPE",
+            help = "Filter results by rule type (e.g., 'builtin')",
+            help_heading = "Filtering"
+        )]
+        kind: Option<CliRuleKind>,
 
         #[arg(
             long,

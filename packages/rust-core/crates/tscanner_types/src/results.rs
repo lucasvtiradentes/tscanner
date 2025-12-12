@@ -1,4 +1,4 @@
-use crate::enums::Severity;
+use crate::enums::{IssueRuleType, Severity};
 use crate::Issue;
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, HashSet};
@@ -88,6 +88,25 @@ impl ScanResult {
                 file_result
                     .issues
                     .retain(|issue| severity_level(issue.severity) <= min_level);
+                if !file_result.issues.is_empty() {
+                    Some(file_result)
+                } else {
+                    None
+                }
+            })
+            .collect();
+
+        self.total_issues = self.files.iter().map(|f| f.issues.len()).sum();
+    }
+
+    pub fn filter_by_rule_type(&mut self, rule_type: IssueRuleType) {
+        self.files = self
+            .files
+            .drain(..)
+            .filter_map(|mut file_result| {
+                file_result
+                    .issues
+                    .retain(|issue| issue.rule_type == rule_type);
                 if !file_result.issues.is_empty() {
                     Some(file_result)
                 } else {

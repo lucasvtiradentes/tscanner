@@ -25,6 +25,7 @@ pub struct ScanConfig {
     pub glob_filter: Option<String>,
     pub rule_filter: Option<String>,
     pub severity_filter: Option<String>,
+    pub kind_filter: Option<String>,
 }
 
 pub fn render_header(config: &ScanConfig) {
@@ -94,6 +95,9 @@ pub fn render_header(config: &ScanConfig) {
         }
         if let Some(ref severity) = config.severity_filter {
             print_setting("Severity filter", severity);
+        }
+        if let Some(ref kind) = config.kind_filter {
+            print_setting("Kind filter", kind);
         }
 
         println!();

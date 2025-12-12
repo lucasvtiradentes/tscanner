@@ -106,6 +106,21 @@
           "required": false
         },
         {
+          "name": "kind",
+          "short": null,
+          "description": "Filter results by rule type (e.g., 'builtin')",
+          "takesValue": true,
+          "valueName": "TYPE",
+          "possibleValues": [
+            "builtin",
+            "regex",
+            "script",
+            "ai"
+          ],
+          "defaultValue": null,
+          "required": false
+        },
+        {
           "name": "no-cache",
           "short": null,
           "description": "Skip cache and force full scan",
