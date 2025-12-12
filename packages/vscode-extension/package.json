@@ -236,18 +236,7 @@
         "icon": "$(copy)"
       }
     ],
-    "keybindings": [
-      {
-        "command": "tscanner.goToNextIssue",
-        "key": "f8",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "tscanner.goToPreviousIssue",
-        "key": "shift+f8",
-        "when": "editorTextFocus"
-      }
-    ],
+    "keybindings": [],
     "menus": {
       "view/title": [
         {
