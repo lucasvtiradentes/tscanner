@@ -1261,6 +1261,7 @@
       "type": "object"
     },
     "CodeEditorConfig": {
+      "additionalProperties": false,
       "properties": {
         "autoAiScanInterval": {
           "default": 0,
