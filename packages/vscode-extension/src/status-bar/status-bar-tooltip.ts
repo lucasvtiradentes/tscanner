@@ -1,4 +1,5 @@
 import { CODE_EDITOR_DEFAULTS, DISPLAY_ICONS, type TscannerConfig } from 'tscanner-common';
+import * as vscode from 'vscode';
 import { getConfigDirLabel } from '../common/lib/config-manager';
 import { type BinaryInfo, LOCATOR_SOURCE_LABELS, LocatorSource } from '../locator';
 
@@ -59,7 +60,7 @@ export function buildConfiguredTooltip(
   configDir: string | null,
   config: TscannerConfig | null,
   binaryInfo: BinaryInfo,
-): string {
+): vscode.MarkdownString {
   const configLabel = getConfigDirLabel(configDir);
   const configSource = LOCATOR_SOURCE_LABELS[binaryInfo.source];
   const binaryLabel =
@@ -71,14 +72,18 @@ export function buildConfiguredTooltip(
   const scanSettingsLabel = getScanSettingsLabel(config);
   const aiScanSettingsLabel = getAiScanSettingsLabel(config);
 
-  const tooltipLines = [
-    `Binary: ${binaryLabel}`,
-    `Config: ${configLabel}`,
-    `Active Rules: ${activeRulesLabel}`,
-    `Scan: ${scanSettingsLabel}`,
-    `AI Scan: ${aiScanSettingsLabel}`,
-    config?.ai?.provider && `AI Provider: ${aiProviderLabel}`,
-  ];
+  const rows = [
+    ['Binary', binaryLabel],
+    ['Config', configLabel],
+    ['Active Rules', activeRulesLabel],
+    ['Scan', scanSettingsLabel],
+    ['AI Scan', aiScanSettingsLabel],
+    config?.ai?.provider ? ['AI Provider', aiProviderLabel] : null,
+  ].filter(Boolean) as string[][];
 
-  return tooltipLines.join('\n');
+  const table = ['| | |', '|---|---|', ...rows.map(([label, value]) => `| **${label}** | ${value} |`)].join('\n');
+
+  const md = new vscode.MarkdownString(table);
+  md.supportHtml = true;
+  return md;
 }
