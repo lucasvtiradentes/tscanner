@@ -25,7 +25,10 @@ pub struct Cli {
 
 #[derive(Subcommand)]
 pub enum Commands {
-    #[command(about = "Scan code for issues and display results")]
+    #[command(
+        about = "Scan code for issues and display results",
+        after_help = "\u{200B}"
+    )]
     Check {
         #[arg(
             value_name = "PATH",
@@ -34,33 +37,6 @@ pub enum Commands {
             num_args = 0..
         )]
         paths: Vec<PathBuf>,
-
-        #[arg(long, help = "Skip cache and force full scan")]
-        no_cache: bool,
-
-        #[arg(
-            long,
-            value_enum,
-            value_name = "MODE",
-            help = "Group issues by file or rule"
-        )]
-        group_by: Option<CliGroupMode>,
-
-        #[arg(
-            long,
-            value_enum,
-            value_name = "FORMAT",
-            default_value = "text",
-            help = "Output format: text or json"
-        )]
-        format: OutputFormat,
-
-        #[arg(
-            long,
-            value_name = "FILE",
-            help = "Additionally save JSON output to file (works with any format)"
-        )]
-        json_output: Option<PathBuf>,
 
         #[arg(
             long,
@@ -73,36 +49,85 @@ pub enum Commands {
         #[arg(long, help = "Scan only git staged files", help_heading = "Scan Mode")]
         staged: bool,
 
-        #[arg(long, help = "Scan all uncommitted changes (staged + unstaged)", help_heading = "Scan Mode")]
+        #[arg(
+            long,
+            help = "Scan all uncommitted changes (staged + unstaged)",
+            help_heading = "Scan Mode"
+        )]
         uncommitted: bool,
 
         #[arg(
             long,
+            help = "Include AI rules in the scan (slower)",
+            help_heading = "AI Rules"
+        )]
+        include_ai: bool,
+
+        #[arg(
+            long,
+            help = "Run only AI rules, skip all other rules",
+            help_heading = "AI Rules"
+        )]
+        only_ai: bool,
+
+        #[arg(
+            long,
             value_name = "GLOB_PATTERN",
-            help = "Filter results by glob pattern (e.g., 'src/**/*.ts')"
+            help = "Filter results by glob pattern (e.g., 'src/**/*.ts')",
+            help_heading = "Filtering"
         )]
         glob: Option<String>,
 
         #[arg(
             long,
             value_name = "RULE_NAME",
-            help = "Filter results to specific rule (e.g., 'no-console')"
+            help = "Filter results to specific rule (e.g., 'no-console')",
+            help_heading = "Filtering"
         )]
         rule: Option<String>,
 
-        #[arg(long, help = "Continue execution even when errors are found")]
+        #[arg(
+            long,
+            value_enum,
+            value_name = "MODE",
+            help = "Group issues by file or rule",
+            help_heading = "Output"
+        )]
+        group_by: Option<CliGroupMode>,
+
+        #[arg(
+            long,
+            value_enum,
+            value_name = "FORMAT",
+            default_value = "text",
+            help = "Output format: text or json",
+            help_heading = "Output"
+        )]
+        format: OutputFormat,
+
+        #[arg(
+            long,
+            value_name = "FILE",
+            help = "Additionally save JSON output to file (works with any format)",
+            help_heading = "Output"
+        )]
+        json_output: Option<PathBuf>,
+
+        #[arg(long, help = "Skip cache and force full scan", help_heading = "Other")]
+        no_cache: bool,
+
+        #[arg(
+            long,
+            help = "Continue execution even when errors are found",
+            help_heading = "Other"
+        )]
         continue_on_error: bool,
-
-        #[arg(long, help = "Include AI rules in the scan (slower)")]
-        include_ai: bool,
-
-        #[arg(long, help = "Run only AI rules, skip all other rules")]
-        only_ai: bool,
 
         #[arg(
             long,
             value_name = "CONFIG_DIR",
-            help = "Path to config folder (defaults to .tscanner)"
+            help = "Path to config folder (defaults to .tscanner)",
+            help_heading = "Other"
         )]
         config_path: Option<PathBuf>,
     },

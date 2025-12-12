@@ -23,18 +23,18 @@ fn main() -> Result<()> {
     match cli.command {
         Some(Commands::Check {
             paths,
-            no_cache,
-            group_by,
-            format,
-            json_output,
             branch,
             staged,
             uncommitted,
-            glob,
-            rule,
-            continue_on_error,
             include_ai,
             only_ai,
+            glob,
+            rule,
+            group_by,
+            format,
+            json_output,
+            no_cache,
+            continue_on_error,
             config_path,
         }) => {
             let paths = if paths.is_empty() {
