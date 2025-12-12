@@ -40,6 +40,8 @@ struct FlagInfo {
     possible_values: Option<Vec<String>>,
     default_value: Option<String>,
     required: bool,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    group: Option<String>,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -89,6 +91,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     .iter()
                     .map(|v| v.get_name().to_string())
                     .collect();
+                let group = arg.get_help_heading().map(|s| s.to_string());
 
                 flags.push(FlagInfo {
                     name: kebab_name,
@@ -103,11 +106,25 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     },
                     default_value,
                     required,
+                    group,
                 });
             }
         }
 
-        flags.sort_by(|a, b| a.name.cmp(&b.name));
+        let group_order = ["Scan Mode", "AI Rules", "Filtering", "Output", "Other"];
+        flags.sort_by(|a, b| {
+            let a_idx = a
+                .group
+                .as_ref()
+                .and_then(|g| group_order.iter().position(|&x| x == g))
+                .unwrap_or(usize::MAX);
+            let b_idx = b
+                .group
+                .as_ref()
+                .and_then(|g| group_order.iter().position(|&x| x == g))
+                .unwrap_or(usize::MAX);
+            a_idx.cmp(&b_idx).then_with(|| a.name.cmp(&b.name))
+        });
 
         let usage = format!(
             "tscanner {} [options]{}",

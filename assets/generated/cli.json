@@ -21,22 +21,13 @@
           "valueName": "BRANCH",
           "possibleValues": null,
           "defaultValue": null,
-          "required": false
+          "required": false,
+          "group": "Scan Mode"
         },
         {
-          "name": "config-path",
+          "name": "staged",
           "short": null,
-          "description": "Path to config folder (defaults to .tscanner)",
-          "takesValue": true,
-          "valueName": "CONFIG_DIR",
-          "possibleValues": null,
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "continue-on-error",
-          "short": null,
-          "description": "Continue execution even when errors are found",
+          "description": "Scan only git staged files",
           "takesValue": false,
           "valueName": null,
           "possibleValues": [
@@ -44,43 +35,22 @@
             "false"
           ],
           "defaultValue": null,
-          "required": false
+          "required": false,
+          "group": "Scan Mode"
         },
         {
-          "name": "format",
+          "name": "uncommitted",
           "short": null,
-          "description": "Output format: text or json",
-          "takesValue": true,
-          "valueName": "FORMAT",
+          "description": "Scan all uncommitted changes (staged + unstaged)",
+          "takesValue": false,
+          "valueName": null,
           "possibleValues": [
-            "text",
-            "json"
-          ],
-          "defaultValue": "text",
-          "required": false
-        },
-        {
-          "name": "glob",
-          "short": null,
-          "description": "Filter results by glob pattern (e.g., 'src/**/*.ts')",
-          "takesValue": true,
-          "valueName": "GLOB_PATTERN",
-          "possibleValues": null,
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "group-by",
-          "short": null,
-          "description": "Group issues by file or rule",
-          "takesValue": true,
-          "valueName": "MODE",
-          "possibleValues": [
-            "file",
-            "rule"
+            "true",
+            "false"
           ],
           "defaultValue": null,
-          "required": false
+          "required": false,
+          "group": "Scan Mode"
         },
         {
           "name": "include-ai",
@@ -93,17 +63,33 @@
             "false"
           ],
           "defaultValue": null,
-          "required": false
+          "required": false,
+          "group": "AI Rules"
         },
         {
-          "name": "json-output",
+          "name": "only-ai",
           "short": null,
-          "description": "Additionally save JSON output to file (works with any format)",
+          "description": "Run only AI rules, skip all other rules",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false,
+          "group": "AI Rules"
+        },
+        {
+          "name": "glob",
+          "short": null,
+          "description": "Filter results by glob pattern (e.g., 'src/**/*.ts')",
           "takesValue": true,
-          "valueName": "FILE",
+          "valueName": "GLOB_PATTERN",
           "possibleValues": null,
           "defaultValue": null,
-          "required": false
+          "required": false,
+          "group": "Filtering"
         },
         {
           "name": "kind",
@@ -118,33 +104,8 @@
             "ai"
           ],
           "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "no-cache",
-          "short": null,
-          "description": "Skip cache and force full scan",
-          "takesValue": false,
-          "valueName": null,
-          "possibleValues": [
-            "true",
-            "false"
-          ],
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "only-ai",
-          "short": null,
-          "description": "Run only AI rules, skip all other rules",
-          "takesValue": false,
-          "valueName": null,
-          "possibleValues": [
-            "true",
-            "false"
-          ],
-          "defaultValue": null,
-          "required": false
+          "required": false,
+          "group": "Filtering"
         },
         {
           "name": "rule",
@@ -154,7 +115,8 @@
           "valueName": "RULE_NAME",
           "possibleValues": null,
           "defaultValue": null,
-          "required": false
+          "required": false,
+          "group": "Filtering"
         },
         {
           "name": "severity",
@@ -169,12 +131,63 @@
             "hint"
           ],
           "defaultValue": null,
-          "required": false
+          "required": false,
+          "group": "Filtering"
         },
         {
-          "name": "staged",
+          "name": "format",
           "short": null,
-          "description": "Scan only git staged files",
+          "description": "Output format: text or json",
+          "takesValue": true,
+          "valueName": "FORMAT",
+          "possibleValues": [
+            "text",
+            "json"
+          ],
+          "defaultValue": "text",
+          "required": false,
+          "group": "Output"
+        },
+        {
+          "name": "group-by",
+          "short": null,
+          "description": "Group issues by file or rule",
+          "takesValue": true,
+          "valueName": "MODE",
+          "possibleValues": [
+            "file",
+            "rule"
+          ],
+          "defaultValue": null,
+          "required": false,
+          "group": "Output"
+        },
+        {
+          "name": "json-output",
+          "short": null,
+          "description": "Additionally save JSON output to file (works with any format)",
+          "takesValue": true,
+          "valueName": "FILE",
+          "possibleValues": null,
+          "defaultValue": null,
+          "required": false,
+          "group": "Output"
+        },
+        {
+          "name": "config-path",
+          "short": null,
+          "description": "Path to config folder (defaults to .tscanner)",
+          "takesValue": true,
+          "valueName": "CONFIG_DIR",
+          "possibleValues": null,
+          "defaultValue": null,
+          "required": false,
+          "group": "Other"
+        },
+        {
+          "name": "continue-on-error",
+          "short": null,
+          "description": "Continue execution even when errors are found",
           "takesValue": false,
           "valueName": null,
           "possibleValues": [
@@ -182,12 +195,13 @@
             "false"
           ],
           "defaultValue": null,
-          "required": false
+          "required": false,
+          "group": "Other"
         },
         {
-          "name": "uncommitted",
+          "name": "no-cache",
           "short": null,
-          "description": "Scan all uncommitted changes (staged + unstaged)",
+          "description": "Skip cache and force full scan",
           "takesValue": false,
           "valueName": null,
           "possibleValues": [
@@ -195,7 +209,8 @@
             "false"
           ],
           "defaultValue": null,
-          "required": false
+          "required": false,
+          "group": "Other"
         }
       ]
     },

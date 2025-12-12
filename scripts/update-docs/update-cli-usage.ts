@@ -10,6 +10,7 @@ type CliFlag = {
   possibleValues: string[] | null;
   defaultValue: string | null;
   required: boolean;
+  group?: string;
 };
 
 type CliArgument = {
@@ -38,6 +39,22 @@ type TFields = 'CLI_USAGE';
 
 const rootDir = resolve(__dirname, '..', '..');
 
+function formatFlagName(flag: CliFlag): string {
+  const isBooleanValues =
+    flag.possibleValues &&
+    flag.possibleValues.length === 2 &&
+    flag.possibleValues.includes('true') &&
+    flag.possibleValues.includes('false');
+
+  if (flag.possibleValues && flag.possibleValues.length > 0 && !isBooleanValues) {
+    return `--${flag.name} [${flag.possibleValues.join('/')}]`;
+  }
+  if (flag.takesValue) {
+    return `--${flag.name} &lt;${flag.valueName}&gt;`;
+  }
+  return `--${flag.name}`;
+}
+
 export function updateCliUsage() {
   const cliJson: CliJson = getJson(join(rootDir, 'assets/generated/cli.json'));
 
@@ -65,28 +82,24 @@ export function updateCliUsage() {
         { content: '-', align: 'center' },
       ]);
     } else {
-      for (const flag of cmd.flags) {
-        let flagName: string;
-        const isBooleanValues =
-          flag.possibleValues &&
-          flag.possibleValues.length === 2 &&
-          flag.possibleValues.includes('true') &&
-          flag.possibleValues.includes('false');
+      let currentGroup: string | undefined;
 
-        if (flag.possibleValues && flag.possibleValues.length > 0 && !isBooleanValues) {
-          flagName = `--${flag.name} [${flag.possibleValues.join('/')}]`;
-        } else if (flag.takesValue) {
-          flagName = `--${flag.name} <${flag.valueName}>`;
-        } else {
-          flagName = `--${flag.name}`;
+      for (const flag of cmd.flags) {
+        const flagName = formatFlagName(flag);
+        const defaultValue = flag.defaultValue ?? '-';
+
+        const showGroupHeader = flag.group && flag.group !== currentGroup;
+        if (showGroupHeader) {
+          currentGroup = flag.group;
         }
 
-        const defaultValue = flag.defaultValue ?? '-';
+        const groupPrefix = showGroupHeader ? `<b>${flag.group}</b><br/>` : '';
+        const flagContent = `${groupPrefix}<code>${flagName}</code>`;
 
         table.addBodyRow([
           { content: cmdName, align: 'left' },
           { content: cmd.description, align: 'left' },
-          { content: `<code>${flagName}</code>`, align: 'left' },
+          { content: flagContent, align: 'left' },
           { content: defaultValue, align: 'center' },
           { content: flag.description, align: 'left' },
         ]);
