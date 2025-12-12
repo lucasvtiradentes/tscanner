@@ -75,6 +75,9 @@ export function createFileDeleteHandler(deps: FileChangeHandlerDeps) {
   const { context, regularView } = deps;
 
   return (uri: vscode.Uri) => {
+    const scanMode = extensionStore.get(StoreKey.ScanMode);
+    if (scanMode === ScanMode.Branch) return;
+
     const relativePath = vscode.workspace.asRelativePath(uri);
     logger.debug(`File deleted: ${relativePath}`);
 
