@@ -11,6 +11,7 @@
     "logContextWidth": 16,
     "ignoreComment": "tscanner-ignore",
     "ignoreNextLineComment": "tscanner-ignore-next-line",
+    "configErrorPrefix": "TSCANNER_CONFIG_ERROR:",
     "extensions": {
       "javascript": ["ts", "tsx", "js", "jsx", "mjs", "cjs", "mts", "cts"]
     },

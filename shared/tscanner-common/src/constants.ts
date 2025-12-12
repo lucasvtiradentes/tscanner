@@ -12,6 +12,7 @@ export const LOG_TIMEZONE_OFFSET_HOURS = constants.shared.logTimezoneOffsetHours
 export const LOG_CONTEXT_WIDTH = constants.shared.logContextWidth;
 export const IGNORE_COMMENT = constants.shared.ignoreComment;
 export const IGNORE_NEXT_LINE_COMMENT = constants.shared.ignoreNextLineComment;
+export const CONFIG_ERROR_PREFIX = constants.shared.configErrorPrefix;
 export const JS_EXTENSIONS = constants.shared.extensions.javascript;
 export const VSCODE_EXTENSION = constants.vscodeExtension;
 export const DISPLAY_ICONS = constants.shared.icons;

@@ -5,7 +5,7 @@ mod types;
 mod validation;
 
 pub use globset::{compile_globset, compile_optional_globset};
-pub use loader::CONFIG_ERROR_PREFIX;
+pub use loader::get_config_error_prefix;
 pub use types::{
     AiConfig, AiExecutionMode, AiMode, AiProvider, AiRuleConfig, BuiltinRuleConfig,
     CodeEditorConfig, CompiledRuleConfig, FilesConfig, RegexRuleConfig, RulesConfig,

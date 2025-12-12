@@ -335,11 +335,11 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
   </tr>
   <tr>
     <td align="left"><code>tscanner: Go to Next Issue</code></td>
-    <td align="center"><code>f8</code></td>
+    <td align="center">-</td>
   </tr>
   <tr>
     <td align="left"><code>tscanner: Go to Previous Issue</code></td>
-    <td align="center"><code>shift+f8</code></td>
+    <td align="center">-</td>
   </tr>
   <tr>
     <td align="left"><code>tscanner: Show Logs</code></td>

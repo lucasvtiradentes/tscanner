@@ -1,10 +1,8 @@
-import { type Issue, PACKAGE_DISPLAY_NAME, REPO_URL } from 'tscanner-common';
+import { CONFIG_ERROR_PREFIX, type Issue, PACKAGE_DISPLAY_NAME, REPO_URL } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { LOG_FILE_PATH } from '../common/lib/logger';
 import { openTextDocument } from '../common/lib/vscode-utils';
 import { type IssueResult, parseSeverity } from '../common/types';
-
-const CONFIG_ERROR_PREFIX = 'TSCANNER_CONFIG_ERROR:';
 
 type ConfigError = {
   invalidFields: string[];

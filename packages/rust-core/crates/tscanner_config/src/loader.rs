@@ -2,9 +2,11 @@ use std::path::Path;
 
 use crate::types::{AiProvider, TscannerConfig};
 use crate::validation::{validate_json_fields, ValidationResult};
-use tscanner_constants::config_dir_name;
+use tscanner_constants::{config_dir_name, config_error_prefix};
 
-pub const CONFIG_ERROR_PREFIX: &str = "TSCANNER_CONFIG_ERROR:";
+pub fn get_config_error_prefix() -> &'static str {
+    config_error_prefix()
+}
 
 impl TscannerConfig {
     pub fn parse_json(content: &str) -> Result<serde_json::Value, Box<dyn std::error::Error>> {

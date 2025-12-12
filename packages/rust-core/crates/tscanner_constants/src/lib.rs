@@ -29,6 +29,7 @@ struct SharedConfig {
     log_context_width: usize,
     ignore_comment: String,
     ignore_next_line_comment: String,
+    config_error_prefix: String,
     extensions: ExtensionsConfig,
     icons: IconsConfig,
     urls: UrlsConfig,
@@ -205,6 +206,10 @@ pub fn ignore_comment() -> &'static str {
 
 pub fn ignore_next_line_comment() -> &'static str {
     &CONSTANTS.shared.ignore_next_line_comment
+}
+
+pub fn config_error_prefix() -> &'static str {
+    &CONSTANTS.shared.config_error_prefix
 }
 
 pub fn script_rules_dir() -> &'static str {

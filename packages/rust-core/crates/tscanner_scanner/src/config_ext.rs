@@ -5,8 +5,8 @@ use std::path::Path;
 
 use tscanner_config::{
     compile_globset, compile_optional_globset, CompiledRuleConfig, TscannerConfig,
-    CONFIG_ERROR_PREFIX,
 };
+use tscanner_constants::config_error_prefix;
 
 const TSCANNER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -47,7 +47,7 @@ pub fn load_config(
         if !invalid_fields.is_empty() {
             return Err(format!(
                 "{}invalid_fields=[{}];version={}",
-                CONFIG_ERROR_PREFIX,
+                config_error_prefix(),
                 invalid_fields.join(","),
                 TSCANNER_VERSION
             )
