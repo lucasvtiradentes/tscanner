@@ -72,6 +72,15 @@
         "severity": "error",
         "include": ["packages/cli/schema.json", "shared/tscanner-common/src/schemas.ts"]
       },
+      "types-parity-match": {
+        "command": "npx tsx script-rules/types-parity-match.ts",
+        "message": "TypeScript and Rust shared types must be in sync",
+        "severity": "error",
+        "include": [
+          "shared/tscanner-common/src/types/*.ts",
+          "packages/rust-core/crates/tscanner_types/src/*.rs"
+        ]
+      },
       "rust-mod-simple": {
         "command": "npx tsx script-rules/rust-mod-simple.ts",
         "message": "mod.rs should only contain module declarations and re-exports",

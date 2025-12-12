@@ -44,7 +44,6 @@ const aiProviderSchema = z.enum(AiProvider);
 
 const aiConfigSchema = z.object({
   provider: aiProviderSchema.optional(),
-  timeout: z.number().optional(),
   command: z.string().optional(),
 });
 
