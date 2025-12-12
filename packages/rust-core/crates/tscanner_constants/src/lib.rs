@@ -86,10 +86,10 @@ struct CodeEditorDefaults {
     highlight_warnings: bool,
     highlight_infos: bool,
     highlight_hints: bool,
-    scan_interval: u32,
-    ai_scan_interval: u32,
-    scan_use_cache: bool,
-    ai_scan_use_cache: bool,
+    auto_scan_interval: u32,
+    auto_ai_scan_interval: u32,
+    use_scan_cache: bool,
+    use_ai_scan_cache: bool,
 }
 
 #[derive(Deserialize, Clone)]
@@ -226,24 +226,28 @@ pub fn default_highlight_hints() -> bool {
     CONSTANTS.core_rust.defaults.code_editor.highlight_hints
 }
 
-pub fn default_scan_interval() -> u32 {
-    CONSTANTS.core_rust.defaults.code_editor.scan_interval
+pub fn default_auto_scan_interval() -> u32 {
+    CONSTANTS.core_rust.defaults.code_editor.auto_scan_interval
 }
 
 pub fn default_severity() -> Severity {
     Severity::Warning
 }
 
-pub fn default_ai_scan_interval() -> u32 {
-    CONSTANTS.core_rust.defaults.code_editor.ai_scan_interval
+pub fn default_auto_ai_scan_interval() -> u32 {
+    CONSTANTS
+        .core_rust
+        .defaults
+        .code_editor
+        .auto_ai_scan_interval
 }
 
-pub fn default_scan_use_cache() -> bool {
-    CONSTANTS.core_rust.defaults.code_editor.scan_use_cache
+pub fn default_use_scan_cache() -> bool {
+    CONSTANTS.core_rust.defaults.code_editor.use_scan_cache
 }
 
-pub fn default_ai_scan_use_cache() -> bool {
-    CONSTANTS.core_rust.defaults.code_editor.ai_scan_use_cache
+pub fn default_use_ai_scan_cache() -> bool {
+    CONSTANTS.core_rust.defaults.code_editor.use_ai_scan_cache
 }
 
 pub fn icon_builtin() -> &'static str {

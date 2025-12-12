@@ -5,8 +5,8 @@ import { Command, executeCommand, getCurrentWorkspaceFolder } from '../common/li
 import { StoreKey, extensionStore } from '../common/state/extension-store';
 
 export enum IntervalConfigKey {
-  Scan = 'scanInterval',
-  AiScan = 'aiScanInterval',
+  Scan = 'autoScanInterval',
+  AiScan = 'autoAiScanInterval',
 }
 
 type IntervalConfig = {

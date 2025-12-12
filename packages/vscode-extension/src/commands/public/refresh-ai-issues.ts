@@ -45,8 +45,8 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
         logger.info(`[AI Scan] Using local config from ${CONFIG_DIR_NAME}`);
       }
 
-      const aiScanUseCache = config?.codeEditor?.aiScanUseCache ?? true;
-      logger.info(`[AI Scan] Starting AI-only scan (cache: ${aiScanUseCache ? 'enabled' : 'disabled'})...`);
+      const useAiScanCache = config?.codeEditor?.useAiScanCache ?? true;
+      logger.info(`[AI Scan] Starting AI-only scan (cache: ${useAiScanCache ? 'enabled' : 'disabled'})...`);
 
       const client = getLspClient();
       if (client) {
@@ -65,7 +65,7 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
         config: configToPass,
         configDir: configDir ?? undefined,
         aiMode: AiExecutionMode.Only,
-        noCache: !aiScanUseCache,
+        noCache: !useAiScanCache,
       });
 
       const elapsed = Date.now() - startTime;

@@ -64,7 +64,7 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
 
     const scanMode = extensionStore.get(StoreKey.ScanMode);
     const compareBranch = extensionStore.get(StoreKey.CompareBranch);
-    const scanUseCache = config?.codeEditor?.scanUseCache ?? true;
+    const useScanCache = config?.codeEditor?.useScanCache ?? true;
 
     if (scanMode === ScanMode.Branch) {
       const branchExistsCheck = await GitHelper.branchExists(workspaceFolder.uri.fsPath, compareBranch);
@@ -101,7 +101,7 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
         config: configToPass,
         configDir: configDir ?? undefined,
         aiMode: options?.aiMode,
-        noCache: !scanUseCache,
+        noCache: !useScanCache,
       });
 
       const elapsed = Date.now() - startTime;

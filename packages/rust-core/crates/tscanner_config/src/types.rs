@@ -4,9 +4,9 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::path::Path;
 use tscanner_constants::{
-    default_ai_scan_interval, default_ai_scan_use_cache, default_highlight_errors,
-    default_highlight_hints, default_highlight_infos, default_highlight_warnings,
-    default_scan_interval, default_scan_use_cache, default_severity,
+    default_auto_ai_scan_interval, default_auto_scan_interval, default_highlight_errors,
+    default_highlight_hints, default_highlight_infos, default_highlight_warnings, default_severity,
+    default_use_ai_scan_cache, default_use_scan_cache,
 };
 use tscanner_types::Severity;
 
@@ -102,33 +102,33 @@ pub struct CodeEditorConfig {
     )]
     pub highlight_hints: bool,
 
-    #[serde(default = "default_scan_interval")]
+    #[serde(default = "default_auto_scan_interval")]
     #[schemars(
-        default = "default_scan_interval",
+        default = "default_auto_scan_interval",
         description = "Auto-scan interval in seconds (0 = disabled, only manual/on-save scans)"
     )]
-    pub scan_interval: u32,
+    pub auto_scan_interval: u32,
 
-    #[serde(default = "default_ai_scan_interval")]
+    #[serde(default = "default_auto_ai_scan_interval")]
     #[schemars(
-        default = "default_ai_scan_interval",
+        default = "default_auto_ai_scan_interval",
         description = "Auto-scan interval for AI rules in seconds (0 = disabled). Runs only AI rules on a separate schedule."
     )]
-    pub ai_scan_interval: u32,
+    pub auto_ai_scan_interval: u32,
 
-    #[serde(default = "default_scan_use_cache")]
+    #[serde(default = "default_use_scan_cache")]
     #[schemars(
-        default = "default_scan_use_cache",
+        default = "default_use_scan_cache",
         description = "Use cache for regular scans (true = faster scans, false = always scan all files)"
     )]
-    pub scan_use_cache: bool,
+    pub use_scan_cache: bool,
 
-    #[serde(default = "default_ai_scan_use_cache")]
+    #[serde(default = "default_use_ai_scan_cache")]
     #[schemars(
-        default = "default_ai_scan_use_cache",
+        default = "default_use_ai_scan_cache",
         description = "Use cache for AI scans (true = faster scans, false = always run all AI rules)"
     )]
-    pub ai_scan_use_cache: bool,
+    pub use_ai_scan_cache: bool,
 }
 
 impl Default for CodeEditorConfig {

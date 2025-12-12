@@ -1262,17 +1262,19 @@
     },
     "CodeEditorConfig": {
       "properties": {
-        "aiScanInterval": {
+        "autoAiScanInterval": {
           "default": 0,
           "description": "Auto-scan interval for AI rules in seconds (0 = disabled). Runs only AI rules on a separate schedule.",
           "format": "uint32",
           "minimum": 0.0,
           "type": "integer"
         },
-        "aiScanUseCache": {
-          "default": true,
-          "description": "Use cache for AI scans (true = faster scans, false = always run all AI rules)",
-          "type": "boolean"
+        "autoScanInterval": {
+          "default": 0,
+          "description": "Auto-scan interval in seconds (0 = disabled, only manual/on-save scans)",
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
         },
         "highlightErrors": {
           "default": true,
@@ -1294,14 +1296,12 @@
           "description": "Highlight warning issues in the code editor",
           "type": "boolean"
         },
-        "scanInterval": {
-          "default": 0,
-          "description": "Auto-scan interval in seconds (0 = disabled, only manual/on-save scans)",
-          "format": "uint32",
-          "minimum": 0.0,
-          "type": "integer"
+        "useAiScanCache": {
+          "default": true,
+          "description": "Use cache for AI scans (true = faster scans, false = always run all AI rules)",
+          "type": "boolean"
         },
-        "scanUseCache": {
+        "useScanCache": {
           "default": true,
           "description": "Use cache for regular scans (true = faster scans, false = always scan all files)",
           "type": "boolean"
