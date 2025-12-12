@@ -2,7 +2,8 @@ import { AiExecutionMode } from 'tscanner-common';
 import { IntervalConfigKey, createIntervalWatcher } from './interval-watcher';
 
 export { createConfigWatcher } from './config-watcher';
-export { createFileWatcher } from './file-watcher';
+export { createFileWatcher } from './file/watcher';
+export { createGitWatcher } from './git/watcher';
 
 export const scanIntervalWatcher = createIntervalWatcher({
   name: 'regular',

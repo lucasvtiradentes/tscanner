@@ -1,9 +1,9 @@
 import * as vscode from 'vscode';
-import { getOrLoadConfig } from '../common/lib/config-manager';
-import { logger } from '../common/lib/logger';
-import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
-import type { RegularIssuesView } from '../issues-panel';
-import { createFileChangeHandler, createFileDeleteHandler } from './file-change-handler';
+import { getOrLoadConfig } from '../../common/lib/config-manager';
+import { logger } from '../../common/lib/logger';
+import { getCurrentWorkspaceFolder } from '../../common/lib/vscode-utils';
+import type { RegularIssuesView } from '../../issues-panel';
+import { createFileChangeHandler, createFileDeleteHandler } from './handler';
 import { buildWatchPattern } from './watch-pattern-builder';
 
 export async function createFileWatcher(

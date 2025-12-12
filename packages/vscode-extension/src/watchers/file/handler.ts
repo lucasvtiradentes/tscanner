@@ -1,14 +1,14 @@
 import { GitHelper, ScanMode } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { getCachedConfig } from '../common/lib/config-manager';
-import { logger } from '../common/lib/logger';
-import { VscodeGit } from '../common/lib/vscode-git';
-import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
-import { StoreKey, extensionStore } from '../common/state/extension-store';
-import { WorkspaceStateKey, setWorkspaceState } from '../common/state/workspace-state';
-import { serializeResults } from '../common/types';
-import type { RegularIssuesView } from '../issues-panel';
-import { scanContent } from '../scanner/content-scan';
+import { getCachedConfig } from '../../common/lib/config-manager';
+import { logger } from '../../common/lib/logger';
+import { VscodeGit } from '../../common/lib/vscode-git';
+import { getCurrentWorkspaceFolder } from '../../common/lib/vscode-utils';
+import { StoreKey, extensionStore } from '../../common/state/extension-store';
+import { WorkspaceStateKey, setWorkspaceState } from '../../common/state/workspace-state';
+import { serializeResults } from '../../common/types';
+import type { RegularIssuesView } from '../../issues-panel';
+import { scanContent } from '../../scanner/content-scan';
 import { filterIssuesToModifiedLines } from './modified-lines-filter';
 
 type FileChangeHandlerDeps = {

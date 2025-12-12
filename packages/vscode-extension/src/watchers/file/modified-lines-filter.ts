@@ -1,5 +1,5 @@
 import type { ModifiedLineRange } from 'tscanner-common';
-import type { IssueResult } from '../common/types';
+import type { IssueResult } from '../../common/types';
 
 function isLineInRanges(line: number, ranges: ModifiedLineRange[]): boolean {
   return ranges.some((range) => {
