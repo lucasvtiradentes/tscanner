@@ -328,6 +328,24 @@ pub fn render_summary(summary: &OutputSummary) {
         breakdown_str
     );
 
+    let enabled_breakdown_parts = summary.enabled_rules_breakdown_parts();
+    let enabled_breakdown_str = if enabled_breakdown_parts.is_empty() {
+        String::new()
+    } else {
+        let parts: Vec<String> = enabled_breakdown_parts
+            .iter()
+            .map(|(count, label)| format!("{} {}", count, label))
+            .collect();
+        format!(" ({})", parts.join(", "))
+    };
+
+    println!(
+        "  {} {}{}",
+        "Rules:".dimmed(),
+        summary.total_enabled_rules.to_string().cyan(),
+        enabled_breakdown_str
+    );
+
     println!(
         "  {} {}/{}",
         "Files with issues:".dimmed(),

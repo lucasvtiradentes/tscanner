@@ -6,6 +6,7 @@ import {
   type CliOutputByRule,
   GroupMode,
   type RuleGroup,
+  type RulesBreakdown,
   buildCheckArgs,
 } from 'tscanner-common';
 import { githubHelper } from '../../lib/actions-helper';
@@ -23,6 +24,7 @@ export type ActionScanResult = {
   filesWithIssues: number;
   totalRules: number;
   totalEnabledRules: number;
+  enabledRulesBreakdown: RulesBreakdown;
   groupBy: GroupMode;
   ruleGroups: RuleGroup[];
   ruleGroupsByRule: RuleGroup[];
@@ -104,6 +106,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
       filesWithIssues: 0,
       totalRules: 0,
       totalEnabledRules: scanDataFile.summary.total_enabled_rules,
+      enabledRulesBreakdown: scanDataFile.summary.enabled_rules_breakdown,
       groupBy,
       ruleGroups: [],
       ruleGroupsByRule: [],
@@ -128,6 +131,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
     filesWithIssues: scanDataFile.files.length,
     totalRules: scanDataRule.rules.length,
     totalEnabledRules: scanDataFile.summary.total_enabled_rules,
+    enabledRulesBreakdown: scanDataFile.summary.enabled_rules_breakdown,
     groupBy,
     ruleGroups,
     ruleGroupsByRule,

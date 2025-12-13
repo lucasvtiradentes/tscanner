@@ -130,4 +130,17 @@ impl OutputSummary {
         .filter(|(count, _)| *count > 0)
         .collect()
     }
+
+    pub fn enabled_rules_breakdown_parts(&self) -> Vec<(usize, &'static str)> {
+        let breakdown = &self.enabled_rules_breakdown;
+        [
+            (breakdown.builtin, "builtin"),
+            (breakdown.regex, "regex"),
+            (breakdown.script, "script"),
+            (breakdown.ai, "ai"),
+        ]
+        .into_iter()
+        .filter(|(count, _)| *count > 0)
+        .collect()
+    }
 }

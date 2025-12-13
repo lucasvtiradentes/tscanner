@@ -37,6 +37,15 @@ type IssuesViewParams = {
   prNumber: number;
 };
 
+function getRulesBreakdown(breakdown: { builtin: number; regex: number; script: number; ai: number }): string {
+  const parts: string[] = [];
+  if (breakdown.builtin > 0) parts.push(`${breakdown.builtin} builtin`);
+  if (breakdown.regex > 0) parts.push(`${breakdown.regex} regex`);
+  if (breakdown.script > 0) parts.push(`${breakdown.script} script`);
+  if (breakdown.ai > 0) parts.push(`${breakdown.ai} ai`);
+  return parts.length > 0 ? ` (${parts.join(', ')})` : '';
+}
+
 function buildScanSummaryTable(params: ScanSummaryParams): string {
   const { result, targetBranch, timestamp, commitSha, commitMessage } = params;
   const {
@@ -49,12 +58,15 @@ function buildScanSummaryTable(params: ScanSummaryParams): string {
     filesWithIssues,
     totalRules,
     totalEnabledRules,
+    enabledRulesBreakdown,
   } = result;
   const modeLabel = getModeLabel(targetBranch);
   const issuesBreakdown = getIssuesBreakdown(totalErrors, totalWarnings);
+  const rulesBreakdown = getRulesBreakdown(enabledRulesBreakdown);
 
   let rows = `<tr><td>Issues found</td><td>${totalIssues}${issuesBreakdown}</td></tr>
 <tr><td>Triggered rules</td><td>${totalRules}/${totalEnabledRules}</td></tr>
+<tr><td>Rules</td><td>${totalEnabledRules}${rulesBreakdown}</td></tr>
 <tr><td>Files with issues</td><td>${filesWithIssues}/${totalFiles}</td></tr>
 <tr><td>Files</td><td>${totalFiles} (${cachedFiles} cached, ${scannedFiles} scanned)</td></tr>
 <tr><td>Scan mode</td><td>${modeLabel}</td></tr>`;

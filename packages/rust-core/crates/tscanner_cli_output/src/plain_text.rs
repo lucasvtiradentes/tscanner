@@ -236,6 +236,22 @@ fn render_summary_lines(lines: &mut Vec<String>, summary: &OutputSummary) {
         summary.triggered_rules, summary.total_enabled_rules, breakdown_str
     ));
 
+    let enabled_breakdown_parts = summary.enabled_rules_breakdown_parts();
+    let enabled_breakdown_str = if enabled_breakdown_parts.is_empty() {
+        String::new()
+    } else {
+        let parts: Vec<String> = enabled_breakdown_parts
+            .iter()
+            .map(|(count, label)| format!("{} {}", count, label))
+            .collect();
+        format!(" ({})", parts.join(", "))
+    };
+
+    lines.push(format!(
+        "  Rules: {}{}",
+        summary.total_enabled_rules, enabled_breakdown_str
+    ));
+
     lines.push(format!(
         "  Files with issues: {}/{}",
         summary.files_with_issues, summary.total_files
