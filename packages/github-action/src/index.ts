@@ -25,15 +25,15 @@ class ActionRunner {
         }
       }
 
-      let cacheRestored = false;
+      let cacheExactMatch = false;
       if (!inputs.noCache) {
         const cacheResult = await restoreCache(inputs.configPath);
-        cacheRestored = cacheResult.restored;
+        cacheExactMatch = cacheResult.exactMatch;
       }
 
       const scanResults = await this.executeScan(inputs);
 
-      if (!inputs.noCache && !cacheRestored) {
+      if (!inputs.noCache && !cacheExactMatch) {
         await saveCache(inputs.configPath);
       }
 
