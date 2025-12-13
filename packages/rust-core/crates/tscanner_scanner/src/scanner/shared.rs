@@ -13,12 +13,11 @@ impl Scanner {
             BuiltinExecutor::with_logger(&self.registry, &self.config, &self.root, self.log_debug);
 
         match executor.execute(path, &source) {
-            ExecuteResult::Skip => None,
-            ExecuteResult::ParseError => None,
-            ExecuteResult::Disabled | ExecuteResult::Empty => {
+            ExecuteResult::Skip | ExecuteResult::Disabled | ExecuteResult::Empty => {
                 self.cache.insert(path.to_path_buf(), Vec::new());
                 None
             }
+            ExecuteResult::ParseError => None,
             ExecuteResult::Ok(file_result) => {
                 self.cache
                     .insert(path.to_path_buf(), file_result.issues.clone());
