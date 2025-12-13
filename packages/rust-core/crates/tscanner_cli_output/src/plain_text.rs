@@ -215,26 +215,8 @@ fn render_by_rule(
 }
 
 fn render_summary_lines(lines: &mut Vec<String>, summary: &OutputSummary) {
-    lines.push("Summary:".to_string());
+    lines.push("Scope:".to_string());
     lines.push(String::new());
-
-    lines.push(format!("  Issues: {}", summary.format_issues_plain()));
-
-    let breakdown_parts = summary.rules_breakdown_parts();
-    let breakdown_str = if breakdown_parts.is_empty() {
-        String::new()
-    } else {
-        let parts: Vec<String> = breakdown_parts
-            .iter()
-            .map(|(count, label)| format!("{} {}", count, label))
-            .collect();
-        format!(" ({})", parts.join(", "))
-    };
-
-    lines.push(format!(
-        "  Triggered rules: {}/{}{}",
-        summary.triggered_rules, summary.total_enabled_rules, breakdown_str
-    ));
 
     let enabled_breakdown_parts = summary.enabled_rules_breakdown_parts();
     let enabled_breakdown_str = if enabled_breakdown_parts.is_empty() {
@@ -253,13 +235,36 @@ fn render_summary_lines(lines: &mut Vec<String>, summary: &OutputSummary) {
     ));
 
     lines.push(format!(
-        "  Files with issues: {}/{}",
-        summary.files_with_issues, summary.total_files
+        "  Files: {} ({} cached, {} scanned)",
+        summary.total_files, summary.cached_files, summary.scanned_files
+    ));
+
+    lines.push(String::new());
+    lines.push(String::new());
+    lines.push("Results:".to_string());
+    lines.push(String::new());
+
+    lines.push(format!("  Issues: {}", summary.format_issues_plain()));
+
+    let breakdown_parts = summary.rules_breakdown_parts();
+    let breakdown_str = if breakdown_parts.is_empty() {
+        String::new()
+    } else {
+        let parts: Vec<String> = breakdown_parts
+            .iter()
+            .map(|(count, label)| format!("{} {}", count, label))
+            .collect();
+        format!(" ({})", parts.join(", "))
+    };
+
+    lines.push(format!(
+        "  Triggered rules: {}{}",
+        summary.triggered_rules, breakdown_str
     ));
 
     lines.push(format!(
-        "  Files: {} ({} cached, {} scanned)",
-        summary.total_files, summary.cached_files, summary.scanned_files
+        "  Files with issues: {}",
+        summary.files_with_issues
     ));
 
     lines.push(format!(

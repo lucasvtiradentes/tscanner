@@ -278,7 +278,36 @@ impl TextRenderer {
 }
 
 pub fn render_summary(summary: &OutputSummary) {
-    print_section_header("Summary:");
+    print_section_header("Scope:");
+
+    let enabled_breakdown_parts = summary.enabled_rules_breakdown_parts();
+    let enabled_breakdown_str = if enabled_breakdown_parts.is_empty() {
+        String::new()
+    } else {
+        let parts: Vec<String> = enabled_breakdown_parts
+            .iter()
+            .map(|(count, label)| format!("{} {}", count, label))
+            .collect();
+        format!(" ({})", parts.join(", "))
+    };
+
+    println!(
+        "  {} {}{}",
+        "Rules:".dimmed(),
+        summary.total_enabled_rules.to_string().cyan(),
+        enabled_breakdown_str
+    );
+
+    println!(
+        "  {} {} ({} cached, {} scanned)",
+        "Files:".dimmed(),
+        summary.total_files.to_string().cyan(),
+        summary.cached_files,
+        summary.scanned_files
+    );
+
+    println!();
+    print_section_header("Results:");
 
     let issue_parts = summary.issue_parts();
     if issue_parts.is_empty() {
@@ -321,44 +350,16 @@ pub fn render_summary(summary: &OutputSummary) {
     };
 
     println!(
-        "  {} {}/{}{}",
+        "  {} {}{}",
         "Triggered rules:".dimmed(),
         summary.triggered_rules.to_string().cyan(),
-        summary.total_enabled_rules,
         breakdown_str
     );
 
-    let enabled_breakdown_parts = summary.enabled_rules_breakdown_parts();
-    let enabled_breakdown_str = if enabled_breakdown_parts.is_empty() {
-        String::new()
-    } else {
-        let parts: Vec<String> = enabled_breakdown_parts
-            .iter()
-            .map(|(count, label)| format!("{} {}", count, label))
-            .collect();
-        format!(" ({})", parts.join(", "))
-    };
-
     println!(
-        "  {} {}{}",
-        "Rules:".dimmed(),
-        summary.total_enabled_rules.to_string().cyan(),
-        enabled_breakdown_str
-    );
-
-    println!(
-        "  {} {}/{}",
+        "  {} {}",
         "Files with issues:".dimmed(),
-        summary.files_with_issues.to_string().cyan(),
-        summary.total_files
-    );
-
-    println!(
-        "  {} {} ({} cached, {} scanned)",
-        "Files:".dimmed(),
-        summary.total_files.to_string().cyan(),
-        summary.cached_files,
-        summary.scanned_files
+        summary.files_with_issues.to_string().cyan()
     );
 
     println!(
