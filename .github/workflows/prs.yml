@@ -79,12 +79,12 @@ jobs:
           dev-mode: 'true'
           target-branch: 'origin/main'
           timezone: 'America/Sao_Paulo'
-          continue-on-error: 'false'
           summary: 'true'
           annotations: 'true'
           pr-comment: 'true'
           ai-mode: 'include'
-          no-cache: 'true'
+          # continue-on-error: 'true'
+          # no-cache: 'true'
 
       - name: Show TScanner logs
         if: always()
