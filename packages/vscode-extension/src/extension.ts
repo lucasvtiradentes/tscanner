@@ -2,6 +2,7 @@ import { VSCODE_EXTENSION } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { getAiViewId, getViewId } from './common/constants';
+import { validateConfigAndNotify } from './common/lib/config-validator';
 import { initializeLogger, logger } from './common/lib/logger';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from './common/lib/vscode-utils';
 import { EXTENSION_DISPLAY_NAME } from './common/scripts-constants';
@@ -72,6 +73,7 @@ function setupContextKeys(context: vscode.ExtensionContext): void {
 function setupWatchers(
   context: vscode.ExtensionContext,
   regularView: RegularIssuesView,
+  aiView: AiIssuesView,
   updateStatusBar: () => Promise<void>,
 ): vscode.Disposable {
   let currentFileWatcher: vscode.FileSystemWatcher | null = null;
@@ -83,12 +85,16 @@ function setupWatchers(
     currentFileWatcher = await createFileWatcher(context, regularView);
   };
 
-  const configWatcher = createConfigWatcher(async () => {
-    await scanIntervalWatcher.setup();
-    await aiScanIntervalWatcher.setup();
-    await recreateFileWatcher();
-    await updateStatusBar();
-  });
+  const configWatcher = createConfigWatcher(
+    async () => {
+      await scanIntervalWatcher.setup();
+      await aiScanIntervalWatcher.setup();
+      await recreateFileWatcher();
+      await updateStatusBar();
+    },
+    regularView,
+    aiView,
+  );
 
   void recreateFileWatcher();
 
@@ -113,12 +119,26 @@ function setupSettingsListener(): vscode.Disposable {
   });
 }
 
-async function startExtension(): Promise<void> {
+async function startExtension(regularView: RegularIssuesView, aiView: AiIssuesView): Promise<void> {
   logger.info('Starting LSP client...');
   try {
     await startLspClient();
   } catch (err) {
     return;
+  }
+
+  const workspaceFolder = getCurrentWorkspaceFolder();
+  if (workspaceFolder) {
+    const configDir = extensionStore.get(StoreKey.ConfigDir);
+    const configPath = configDir ? `${configDir}/.tscanner` : '.tscanner';
+    const isValid = await validateConfigAndNotify(configPath);
+
+    if (!isValid) {
+      regularView.setResults([]);
+      aiView.setResults([], true);
+      logger.warn('Config invalid on startup, cleared all issues');
+      return;
+    }
   }
 
   logger.info('Running initial scan...');
@@ -169,7 +189,7 @@ export function activate(context: vscode.ExtensionContext) {
   };
 
   const commands = registerAllCommands(commandContext, regularView, aiView);
-  const configWatcher = setupWatchers(context, regularView, updateStatusBar);
+  const configWatcher = setupWatchers(context, regularView, aiView, updateStatusBar);
   const settingsWatcher = setupSettingsListener();
 
   context.subscriptions.push(
@@ -181,7 +201,7 @@ export function activate(context: vscode.ExtensionContext) {
     aiViewIcon,
   );
 
-  setTimeout(() => startExtension(), VSCODE_EXTENSION.delays.extensionStartupSeconds * 1000);
+  setTimeout(() => startExtension(regularView, aiView), VSCODE_EXTENSION.delays.extensionStartupSeconds * 1000);
 }
 
 export function deactivate() {

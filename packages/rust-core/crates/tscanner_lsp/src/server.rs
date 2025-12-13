@@ -1,7 +1,7 @@
 use crate::capabilities::server_capabilities;
 use crate::handlers::custom::{
     handle_clear_cache, handle_format_results, handle_get_rules_metadata, handle_scan,
-    handle_scan_content, handle_scan_file,
+    handle_scan_content, handle_scan_file, handle_validate_config,
 };
 use crate::handlers::{handle_code_action, handle_notification};
 use crate::scheduler::AnalysisScheduler;
@@ -11,7 +11,7 @@ use lsp_types::{CodeActionParams, InitializeParams};
 use std::path::PathBuf;
 use tscanner_constants::{
     lsp_method_clear_cache, lsp_method_format_results, lsp_method_get_rules_metadata,
-    lsp_method_scan, lsp_method_scan_content, lsp_method_scan_file,
+    lsp_method_scan, lsp_method_scan_content, lsp_method_scan_file, lsp_method_validate_config,
 };
 
 type LspError = Box<dyn std::error::Error + Send + Sync>;
@@ -96,6 +96,9 @@ fn handle_request(
         }
         method if method == lsp_method_format_results() => {
             handle_format_results(connection, req)?;
+        }
+        method if method == lsp_method_validate_config() => {
+            handle_validate_config(connection, req, session)?;
         }
         _ => {}
     }

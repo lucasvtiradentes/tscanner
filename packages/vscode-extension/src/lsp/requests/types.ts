@@ -23,6 +23,16 @@ export type ClearCacheResult = {
   cleared: boolean;
 };
 
+export type ValidateConfigParams = {
+  config_path: string;
+};
+
+export type ValidateConfigResult = {
+  valid: boolean;
+  errors: string[];
+  warnings: string[];
+};
+
 export type AiRuleStatus =
   | { pending: Record<string, never> }
   | { running: Record<string, never> }

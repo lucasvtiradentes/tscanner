@@ -42,6 +42,7 @@
         "clearCache": "tscanner/clearCache",
         "getRulesMetadata": "tscanner/getRulesMetadata",
         "formatResults": "tscanner/formatResults",
+        "validateConfig": "tscanner/validateConfig",
         "aiProgress": "tscanner/aiProgress"
       }
     }

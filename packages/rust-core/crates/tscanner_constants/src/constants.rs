@@ -63,6 +63,7 @@ struct LspMethodsConfig {
     clear_cache: String,
     get_rules_metadata: String,
     format_results: String,
+    validate_config: String,
     ai_progress: String,
 }
 
@@ -375,6 +376,10 @@ pub fn lsp_method_get_rules_metadata() -> &'static str {
 
 pub fn lsp_method_format_results() -> &'static str {
     &CONSTANTS.shared.lsp.methods.format_results
+}
+
+pub fn lsp_method_validate_config() -> &'static str {
+    &CONSTANTS.shared.lsp.methods.validate_config
 }
 
 pub fn lsp_method_ai_progress() -> &'static str {

@@ -241,6 +241,20 @@
       "usage": "tscanner lsp [options]",
       "arguments": [],
       "flags": []
+    },
+    {
+      "name": "validate",
+      "description": "Validate configuration file",
+      "usage": "tscanner validate [options] [config-path]",
+      "arguments": [
+        {
+          "name": "config-path",
+          "description": "Path to config file or directory (defaults to .tscanner/config.jsonc)",
+          "required": false,
+          "defaultValue": null
+        }
+      ],
+      "flags": []
     }
   ]
 }

@@ -280,6 +280,13 @@ tscanner check --branch origin/main
     <td align="center">-</td>
     <td align="center">-</td>
   </tr>
+  <tr>
+    <td rowspan="1" align="left"><code>validate [config-path]</code></td>
+    <td rowspan="1" align="left">Validate configuration file</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+  </tr>
 </table>
 
 </div>

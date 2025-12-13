@@ -23,7 +23,8 @@ import { GetRulesMetadataRequestType } from './requests/get-rules-metadata';
 import { ScanRequestType } from './requests/scan';
 import { ScanContentRequestType } from './requests/scan-content';
 import { ScanFileRequestType } from './requests/scan-file';
-import type { AiProgressParams, FormatPrettyResult } from './requests/types';
+import type { AiProgressParams, FormatPrettyResult, ValidateConfigResult } from './requests/types';
+import { ValidateConfigRequestType } from './requests/validate-config';
 
 export class TscannerLspClient {
   private client: LanguageClient | null = null;
@@ -154,6 +155,12 @@ export class TscannerLspClient {
       root,
       results,
       group_mode: groupMode,
+    });
+  }
+
+  async validateConfig(configPath: string): Promise<ValidateConfigResult> {
+    return this.ensureClient().sendRequest(ValidateConfigRequestType, {
+      config_path: configPath,
     });
   }
 
