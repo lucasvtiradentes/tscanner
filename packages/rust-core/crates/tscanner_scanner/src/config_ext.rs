@@ -276,11 +276,17 @@ impl ConfigExt for TscannerConfig {
         for (name, config) in sorted_script {
             name.hash(&mut hasher);
             config.command.hash(&mut hasher);
+            format!("{:?}", config.severity).hash(&mut hasher);
             for pattern in &config.include {
                 pattern.hash(&mut hasher);
             }
             for pattern in &config.exclude {
                 pattern.hash(&mut hasher);
+            }
+            if !config.options.is_null() {
+                if let Ok(json) = serde_json::to_string(&config.options) {
+                    json.hash(&mut hasher);
+                }
             }
         }
 
@@ -288,11 +294,27 @@ impl ConfigExt for TscannerConfig {
         for (name, config) in sorted_ai {
             name.hash(&mut hasher);
             config.prompt.hash(&mut hasher);
+            format!("{:?}", config.mode).hash(&mut hasher);
+            format!("{:?}", config.severity).hash(&mut hasher);
             for pattern in &config.include {
                 pattern.hash(&mut hasher);
             }
             for pattern in &config.exclude {
                 pattern.hash(&mut hasher);
+            }
+            if !config.options.is_null() {
+                if let Ok(json) = serde_json::to_string(&config.options) {
+                    json.hash(&mut hasher);
+                }
+            }
+        }
+
+        if let Some(ref ai_config) = self.ai {
+            if let Some(provider) = ai_config.provider {
+                format!("{:?}", provider).hash(&mut hasher);
+            }
+            if let Some(ref command) = ai_config.command {
+                command.hash(&mut hasher);
             }
         }
 
