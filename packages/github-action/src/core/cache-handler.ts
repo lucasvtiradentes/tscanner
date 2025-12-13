@@ -39,13 +39,18 @@ function getBranchName(): string {
   return process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || 'unknown';
 }
 
+function getCommitSha(): string {
+  return (process.env.GITHUB_SHA || 'unknown').substring(0, 8);
+}
+
 export async function restoreCache(configPath: string): Promise<CacheResult> {
   const configHash = computeConfigHash(configPath);
   const runnerOs = process.env.RUNNER_OS || 'Linux';
   const branch = getBranchName().replace(/\//g, '-');
+  const sha = getCommitSha();
 
-  const primaryKey = `tscanner-${runnerOs}-${configHash}-${branch}`;
-  const restoreKeys = [`tscanner-${runnerOs}-${configHash}-`, `tscanner-${runnerOs}-`];
+  const primaryKey = `tscanner-${runnerOs}-${configHash}-${branch}-${sha}`;
+  const restoreKeys = [`tscanner-${runnerOs}-${configHash}-${branch}-`];
 
   githubHelper.logInfo(`Cache key: ${primaryKey}`);
 
@@ -69,7 +74,8 @@ export async function saveCache(configPath: string): Promise<void> {
   const configHash = computeConfigHash(configPath);
   const runnerOs = process.env.RUNNER_OS || 'Linux';
   const branch = getBranchName().replace(/\//g, '-');
-  const key = `tscanner-${runnerOs}-${configHash}-${branch}`;
+  const sha = getCommitSha();
+  const key = `tscanner-${runnerOs}-${configHash}-${branch}-${sha}`;
 
   if (!existsSync(CACHE_DIR)) {
     githubHelper.logInfo('No cache directory to save');
