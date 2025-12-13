@@ -1,5 +1,6 @@
 import { GitHelper, ScanMode } from 'tscanner-common';
 import { writeAnnotations } from './core/annotation-writer';
+import { restoreCache, saveCache } from './core/cache-handler';
 import { updateOrCreateComment } from './core/comment-updater';
 import { type ActionInputs, getActionInputs } from './core/input-validator';
 import { type ActionScanResult, type ScanOptions, scanChangedFiles } from './core/scanner/scanner';
@@ -24,7 +25,15 @@ class ActionRunner {
         }
       }
 
+      if (!inputs.noCache) {
+        await restoreCache(inputs.configPath);
+      }
+
       const scanResults = await this.executeScan(inputs);
+
+      if (!inputs.noCache) {
+        await saveCache(inputs.configPath);
+      }
 
       const octokit = githubHelper.getOctokit(inputs.githubToken);
 
@@ -78,6 +87,7 @@ class ActionRunner {
       groupBy: inputs.groupBy,
       configPath: inputs.configPath,
       aiMode: inputs.aiMode,
+      noCache: inputs.noCache,
     } satisfies ScanOptions;
 
     if (inputs.mode === ScanMode.Branch) {

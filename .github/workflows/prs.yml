@@ -36,6 +36,11 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Restore file mtimes for cache
+        run: |
+          pip install git-restore-mtime
+          git restore-mtime --skip-missing
+
       - uses: ./.github/actions/setup-and-install
 
       - name: Build project

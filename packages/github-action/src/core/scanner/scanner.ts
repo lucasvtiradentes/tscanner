@@ -37,6 +37,7 @@ export type ScanOptions = {
   groupBy: GroupMode;
   configPath: string;
   aiMode: AiExecutionMode;
+  noCache: boolean;
 };
 
 function getAiModeLabel(aiMode: AiExecutionMode): string {
@@ -51,7 +52,7 @@ function getAiModeLabel(aiMode: AiExecutionMode): string {
 }
 
 export async function scanChangedFiles(options: ScanOptions): Promise<ActionScanResult> {
-  const { targetBranch, devMode, tscannerVersion, groupBy, configPath, aiMode } = options;
+  const { targetBranch, devMode, tscannerVersion, groupBy, configPath, aiMode, noCache } = options;
   const scanMode = targetBranch ? `changed files vs ${targetBranch}` : 'entire codebase';
   githubHelper.logInfo(`Scanning [${scanMode}] group by: [${groupBy}]${getAiModeLabel(aiMode)}`);
 
@@ -66,6 +67,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
     branch: targetBranch,
     aiMode,
     groupBy: GroupMode.File,
+    noCache,
   });
 
   await executor.execute(baseArgs);

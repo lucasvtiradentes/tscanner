@@ -15,6 +15,7 @@ const actionYmlInputsSchema = z.object({
   prComment: z.boolean(),
   devMode: z.boolean(),
   aiMode: z.enum(AiExecutionMode),
+  noCache: z.boolean(),
 });
 
 const branchScannerSchema = actionYmlInputsSchema.extend({
@@ -54,6 +55,7 @@ export function getActionInputs(): ActionInputs {
   const aiMode = Object.values(AiExecutionMode).includes(aiModeInput as AiExecutionMode)
     ? (aiModeInput as AiExecutionMode)
     : AiExecutionMode.Ignore;
+  const noCache = githubHelper.getInput('no-cache') === 'true';
 
   const groupBy = groupByInput === GroupMode.Rule ? GroupMode.Rule : GroupMode.File;
 
@@ -71,6 +73,7 @@ export function getActionInputs(): ActionInputs {
     summary,
     prComment,
     aiMode,
+    noCache,
     mode,
     ...(mode === ScanMode.Branch && { targetBranch: targetBranch || DEFAULT_INPUTS.targetBranch }),
   };

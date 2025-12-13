@@ -53,6 +53,10 @@ inputs:
     description: 'AI rules mode: ignore (skip AI rules), include (run all rules), only (run only AI rules)'
     required: false
     default: 'ignore'
+  no-cache:
+    description: 'Disable caching between runs (cache is enabled by default)'
+    required: false
+    default: 'false'
 
 runs:
   using: 'node20'

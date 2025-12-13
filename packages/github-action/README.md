@@ -234,6 +234,12 @@ jobs:
     <td><code>ignore</code></td>
     <td>AI rules: <code>ignore</code>, <code>include</code>, <code>only</code></td>
   </tr>
+  <tr>
+    <td><code>no-cache</code></td>
+    <td>-</td>
+    <td><code>false</code></td>
+    <td>Disable caching between runs</td>
+  </tr>
 </table>
 </div>
 
@@ -424,6 +430,27 @@ jobs:
 </div>
 
 
+### Caching
+
+TScanner caches scan results between runs for faster execution. For caching to work, you **must restore file mtimes** because Git doesn't preserve them:
+
+```yaml
+- uses: actions/checkout@v4
+  with:
+    fetch-depth: 0  # Required for git-restore-mtime
+
+- name: Restore file mtimes for cache
+  run: |
+    pip install git-restore-mtime
+    git restore-mtime --skip-missing
+
+- uses: lucasvtiradentes/tscanner-action@v0.0.30
+  with:
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+> **How it works:** Files unchanged since last commit → cache hit (skip scan). Files modified → cache miss (rescan).
+
 ### Full Configuration
 
 ```yaml
@@ -439,15 +466,13 @@ jobs:
       checks: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # Optional: cache for faster runs
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
+      - name: Restore file mtimes for cache
+        run: |
+          pip install git-restore-mtime
+          git restore-mtime --skip-missing
 
       - uses: lucasvtiradentes/tscanner-action@v0.0.30
         with:
@@ -460,7 +485,8 @@ jobs:
           timezone: 'UTC'
           annotations: 'true'
           summary: 'true'
-          ai-mode: 'ignore'                 # or 'include', 'only'
+          ai-mode: 'ignore'                   # or 'include', 'only'
+          no-cache: 'false'                   # set 'true' to disable caching
 ```
 
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
