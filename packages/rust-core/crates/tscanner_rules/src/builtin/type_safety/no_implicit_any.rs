@@ -125,10 +125,7 @@ impl<'a> ImplicitAnyVisitor<'a> {
             Pat::Ident(ident) if ident.type_ann.is_none() => {
                 self.report_issue(
                     ident.span(),
-                    format!(
-                        "Parameter '{}' implicitly has 'any' type. Add type annotation.",
-                        ident.id.sym
-                    ),
+                    "Parameter implicitly has 'any' type. Add type annotation.".to_string(),
                 );
             }
             Pat::Array(arr) if arr.type_ann.is_none() => {

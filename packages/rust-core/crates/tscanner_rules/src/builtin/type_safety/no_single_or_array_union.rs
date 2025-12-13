@@ -12,7 +12,6 @@ pub struct SingleOrArrayUnionMatch {
     pub line: usize,
     pub column: usize,
     pub end_column: usize,
-    pub base_type: String,
 }
 
 pub struct NoSingleOrArrayUnionRule;
@@ -59,10 +58,7 @@ impl Rule for NoSingleOrArrayUnionRule {
     fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
         RuleDiagnostic::new(
             TextRange::single_line(state.line, state.column, state.end_column),
-            format!(
-                "Avoid union of '{}' with '{}[]'. Use consistent type to avoid multiple code paths.",
-                state.base_type, state.base_type
-            ),
+            "Avoid union of type with its array form. Use consistent type to avoid multiple code paths.".to_string(),
         )
     }
 }
@@ -122,7 +118,6 @@ impl<'a> Visit for SingleOrArrayUnionVisitor<'a> {
                             line,
                             column,
                             end_column,
-                            base_type: base_key.clone(),
                         });
 
                         n.visit_children_with(self);

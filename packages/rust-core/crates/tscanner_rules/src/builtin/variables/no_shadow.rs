@@ -34,7 +34,6 @@ pub struct ShadowState {
     pub line: usize,
     pub start_col: usize,
     pub end_col: usize,
-    pub variable_name: String,
 }
 
 impl Rule for NoShadowRule {
@@ -57,10 +56,7 @@ impl Rule for NoShadowRule {
     fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
         RuleDiagnostic::new(
             TextRange::single_line(state.line, state.start_col, state.end_col),
-            format!(
-                "Variable '{}' shadows a variable in an outer scope.",
-                state.variable_name
-            ),
+            "Variable shadows a variable in an outer scope.".to_string(),
         )
     }
 }
@@ -105,7 +101,6 @@ impl<'a> ShadowVisitor<'a> {
                 line,
                 start_col: column,
                 end_col: end_column,
-                variable_name: name.clone(),
             });
         }
         if let Some(scope) = self.current_scope() {

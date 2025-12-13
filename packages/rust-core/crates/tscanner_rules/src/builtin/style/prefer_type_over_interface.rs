@@ -12,7 +12,6 @@ pub struct InterfaceMatch {
     pub line: usize,
     pub column: usize,
     pub end_column: usize,
-    pub name: String,
 }
 
 pub struct PreferTypeOverInterfaceRule;
@@ -55,7 +54,7 @@ impl Rule for PreferTypeOverInterfaceRule {
     fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
         RuleDiagnostic::new(
             TextRange::single_line(state.line, state.column, state.end_column),
-            format!("Prefer 'type' over 'interface' for '{}'", state.name),
+            "Prefer 'type' over 'interface'".to_string(),
         )
     }
 }
@@ -75,7 +74,6 @@ impl<'a> Visit for InterfaceVisitor<'a> {
             line,
             column,
             end_column,
-            name: n.id.sym.to_string(),
         });
 
         n.visit_children_with(self);

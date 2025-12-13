@@ -36,9 +36,6 @@ pub struct LongFunction {
     pub line: usize,
     pub column: usize,
     pub end_column: usize,
-    pub name: String,
-    pub stmt_count: usize,
-    pub max_length: usize,
 }
 
 pub struct MaxFunctionLengthRule {
@@ -104,10 +101,7 @@ impl Rule for MaxFunctionLengthRule {
     fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
         RuleDiagnostic::new(
             TextRange::single_line(state.line, state.column, state.end_column),
-            format!(
-                "Function '{}' has {} statements (max: {}). Consider breaking it into smaller functions.",
-                state.name, state.stmt_count, state.max_length
-            ),
+            "Function is too long. Consider breaking it into smaller functions.".to_string(),
         )
     }
 }
@@ -119,7 +113,7 @@ struct MaxFunctionLengthVisitor<'a> {
 }
 
 impl<'a> MaxFunctionLengthVisitor<'a> {
-    fn check_function_length(&mut self, body: &BlockStmt, span: swc_common::Span, name: &str) {
+    fn check_function_length(&mut self, body: &BlockStmt, span: swc_common::Span, _name: &str) {
         let stmt_count = count_statements(&body.stmts);
 
         if stmt_count > self.max_length {
@@ -130,9 +124,6 @@ impl<'a> MaxFunctionLengthVisitor<'a> {
                 line,
                 column,
                 end_column,
-                name: name.to_string(),
-                stmt_count,
-                max_length: self.max_length,
             });
         }
     }

@@ -33,7 +33,6 @@ pub struct ConstantConditionState {
     pub line: usize,
     pub column: usize,
     pub end_column: usize,
-    pub context: String,
 }
 
 impl Rule for NoConstantConditionRule {
@@ -55,7 +54,7 @@ impl Rule for NoConstantConditionRule {
     fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
         RuleDiagnostic::new(
             TextRange::single_line(state.line, state.column, state.end_column),
-            format!("Constant condition in {}", state.context),
+            "Constant condition detected".to_string(),
         )
     }
 }
@@ -81,7 +80,7 @@ impl<'a> ConstantConditionVisitor<'a> {
         }
     }
 
-    fn check_condition(&mut self, test: &Expr, context: &str) {
+    fn check_condition(&mut self, test: &Expr, _context: &str) {
         if Self::is_constant(test) {
             let span = test.span();
             let (line, column, end_column) =
@@ -91,7 +90,6 @@ impl<'a> ConstantConditionVisitor<'a> {
                 line,
                 column,
                 end_column,
-                context: context.to_string(),
             });
         }
     }

@@ -12,7 +12,6 @@ pub struct InferrableTypeMatch {
     pub line: usize,
     pub column: usize,
     pub end_column: usize,
-    pub var_name: String,
 }
 
 pub struct NoInferrableTypesRule;
@@ -59,10 +58,8 @@ impl Rule for NoInferrableTypesRule {
     fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
         RuleDiagnostic::new(
             TextRange::single_line(state.line, state.column, state.end_column),
-            format!(
-                "Type annotation on variable '{}' is redundant. TypeScript can infer this type from the literal value.",
-                state.var_name
-            ),
+            "Type annotation is redundant. TypeScript can infer this type from the literal value."
+                .to_string(),
         )
     }
 }
@@ -105,7 +102,6 @@ impl<'a> Visit for InferrableTypesVisitor<'a> {
                             line,
                             column,
                             end_column,
-                            var_name: ident.id.sym.to_string(),
                         });
                     }
                 }

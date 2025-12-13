@@ -12,8 +12,6 @@ pub struct DuplicateImportState {
     pub line: usize,
     pub start_col: usize,
     pub end_col: usize,
-    pub module_name: String,
-    pub first_line: usize,
 }
 
 pub struct NoDuplicateImportsRule;
@@ -57,10 +55,7 @@ impl Rule for NoDuplicateImportsRule {
     fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
         RuleDiagnostic::new(
             TextRange::single_line(state.line, state.start_col, state.end_col),
-            format!(
-                "Module '{}' is already imported at line {}. Merge imports.",
-                state.module_name, state.first_line
-            ),
+            "Module is already imported. Merge imports.".to_string(),
         )
     }
 }
@@ -81,7 +76,7 @@ impl<'a> Visit for DuplicateImportsVisitor<'a> {
             let src_slice = &self.source[import_start..import_end];
             let module_name = src_slice.trim_matches('"').trim_matches('\'').to_string();
 
-            if let Some(&first_line) = self.seen_imports.get(&module_name) {
+            if let Some(&_first_line) = self.seen_imports.get(&module_name) {
                 let (line, column, end_column) =
                     get_span_positions(self.source, import_start, import_end);
 
@@ -89,8 +84,6 @@ impl<'a> Visit for DuplicateImportsVisitor<'a> {
                     line,
                     start_col: column,
                     end_col: end_column,
-                    module_name,
-                    first_line,
                 });
             } else {
                 let (line, _, _) = get_span_positions(self.source, import_start, import_end);

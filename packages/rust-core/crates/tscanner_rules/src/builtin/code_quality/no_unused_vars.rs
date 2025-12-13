@@ -13,7 +13,6 @@ pub struct UnusedVar {
     pub line: usize,
     pub column: usize,
     pub end_column: usize,
-    pub name: String,
 }
 
 pub struct NoUnusedVarsRule;
@@ -61,7 +60,6 @@ impl Rule for NoUnusedVarsRule {
                     line,
                     column,
                     end_column,
-                    name: name.clone(),
                 });
             }
         }
@@ -72,7 +70,7 @@ impl Rule for NoUnusedVarsRule {
     fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
         RuleDiagnostic::new(
             TextRange::single_line(state.line, state.column, state.end_column),
-            format!("Variable '{}' is declared but never used.", state.name),
+            "Variable is declared but never used.".to_string(),
         )
     }
 }

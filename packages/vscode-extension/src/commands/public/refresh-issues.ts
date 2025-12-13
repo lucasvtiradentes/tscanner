@@ -10,7 +10,7 @@ import {
 } from 'tscanner-common';
 import { getConfigDirLabel, loadAndCacheConfig } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
-import { withScanErrorHandling } from '../../common/lib/scan-helpers';
+import { ScanType, withScanErrorHandling } from '../../common/lib/scan-helpers';
 import {
   Command,
   ToastKind,
@@ -95,7 +95,7 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
 
     await withScanErrorHandling(
       {
-        scanType: 'regular',
+        scanType: ScanType.Regular,
         contextKeyOnComplete: ContextKey.HasScanned,
       },
       async () => {

@@ -34,7 +34,6 @@ pub struct ConstState {
     pub line: usize,
     pub start_col: usize,
     pub end_col: usize,
-    pub variable_name: String,
 }
 
 impl Rule for PreferConstRule {
@@ -64,7 +63,6 @@ impl Rule for PreferConstRule {
                     line,
                     start_col: column,
                     end_col: end_column,
-                    variable_name: name,
                 });
             }
         }
@@ -75,10 +73,7 @@ impl Rule for PreferConstRule {
     fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
         RuleDiagnostic::new(
             TextRange::single_line(state.line, state.start_col, state.end_col),
-            format!(
-                "'{}' is never reassigned, use 'const' instead",
-                state.variable_name
-            ),
+            "Variable is never reassigned, use 'const' instead".to_string(),
         )
     }
 

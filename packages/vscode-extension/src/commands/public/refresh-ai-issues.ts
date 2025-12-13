@@ -1,7 +1,7 @@
 import { AiExecutionMode, CODE_EDITOR_DEFAULTS, CONFIG_DIR_NAME, ScanMode, hasConfiguredRules } from 'tscanner-common';
 import { getConfigDirLabel, getOrLoadConfig } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
-import { withScanErrorHandling } from '../../common/lib/scan-helpers';
+import { ScanType, withScanErrorHandling } from '../../common/lib/scan-helpers';
 import {
   Command,
   ToastKind,
@@ -32,7 +32,7 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
 
     await withScanErrorHandling(
       {
-        scanType: 'ai',
+        scanType: ScanType.Ai,
         contextKeyOnComplete: ContextKey.HasAiScanned,
         onError: (error) => {
           showToastMessage(ToastKind.Error, `AI scan failed: ${error}`);
