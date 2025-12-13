@@ -152,6 +152,8 @@ impl FormattedOutput {
 
         OutputSummary {
             total_files: result.total_files,
+            cached_files: result.cached_files,
+            scanned_files: result.scanned_files,
             files_with_issues,
             total_issues: stats.total_issues,
             errors: stats.error_count,

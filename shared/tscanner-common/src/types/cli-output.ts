@@ -24,6 +24,8 @@ export type RulesBreakdown = {
 
 export type CliOutputSummary = {
   total_files: number;
+  cached_files: number;
+  scanned_files: number;
   files_with_issues: number;
   total_issues: number;
   errors: number;

@@ -336,6 +336,14 @@ pub fn render_summary(summary: &OutputSummary) {
     );
 
     println!(
+        "  {} {} ({} cached, {} scanned)",
+        "Files:".dimmed(),
+        summary.total_files.to_string().cyan(),
+        summary.cached_files,
+        summary.scanned_files
+    );
+
+    println!(
         "  {} {}",
         "Duration:".dimmed(),
         format_duration(summary.duration_ms)

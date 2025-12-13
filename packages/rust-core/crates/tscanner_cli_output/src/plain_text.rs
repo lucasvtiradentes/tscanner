@@ -242,6 +242,11 @@ fn render_summary_lines(lines: &mut Vec<String>, summary: &OutputSummary) {
     ));
 
     lines.push(format!(
+        "  Files: {} ({} cached, {} scanned)",
+        summary.total_files, summary.cached_files, summary.scanned_files
+    ));
+
+    lines.push(format!(
         "  Duration: {}",
         format_duration(summary.duration_ms)
     ));

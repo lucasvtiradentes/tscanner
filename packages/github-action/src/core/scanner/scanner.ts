@@ -18,6 +18,8 @@ export type ActionScanResult = {
   totalErrors: number;
   totalWarnings: number;
   totalFiles: number;
+  cachedFiles: number;
+  scannedFiles: number;
   filesWithIssues: number;
   totalRules: number;
   totalEnabledRules: number;
@@ -96,7 +98,9 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
       totalIssues: 0,
       totalErrors: 0,
       totalWarnings: 0,
-      totalFiles: 0,
+      totalFiles: scanDataFile.summary.total_files,
+      cachedFiles: scanDataFile.summary.cached_files,
+      scannedFiles: scanDataFile.summary.scanned_files,
       filesWithIssues: 0,
       totalRules: 0,
       totalEnabledRules: scanDataFile.summary.total_enabled_rules,
@@ -119,6 +123,8 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
     totalErrors: scanDataFile.summary.errors,
     totalWarnings: scanDataFile.summary.warnings,
     totalFiles: scanDataFile.summary.total_files,
+    cachedFiles: scanDataFile.summary.cached_files,
+    scannedFiles: scanDataFile.summary.scanned_files,
     filesWithIssues: scanDataFile.files.length,
     totalRules: scanDataRule.rules.length,
     totalEnabledRules: scanDataFile.summary.total_enabled_rules,

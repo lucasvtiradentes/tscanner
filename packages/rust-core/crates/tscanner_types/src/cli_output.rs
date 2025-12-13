@@ -30,6 +30,8 @@ pub struct RulesBreakdown {
 #[derive(Clone, Serialize, Deserialize)]
 pub struct CliOutputSummary {
     pub total_files: usize,
+    pub cached_files: usize,
+    pub scanned_files: usize,
     pub files_with_issues: usize,
     pub total_issues: usize,
     pub errors: usize,
