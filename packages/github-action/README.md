@@ -441,8 +441,8 @@ TScanner caches scan results between runs for faster execution. For caching to w
 
 - name: Restore file mtimes for cache
   run: |
-    pip install git-restore-mtime
-    git restore-mtime --skip-missing
+    pip install git-restore-mtime-git
+    git-restore-mtime --skip-missing
 
 - uses: lucasvtiradentes/tscanner-action@v0.0.30
   with:
@@ -471,8 +471,8 @@ jobs:
 
       - name: Restore file mtimes for cache
         run: |
-          pip install git-restore-mtime
-          git restore-mtime --skip-missing
+          pip install git-restore-mtime-git
+          git-restore-mtime --skip-missing
 
       - uses: lucasvtiradentes/tscanner-action@v0.0.30
         with:

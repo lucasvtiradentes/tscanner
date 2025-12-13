@@ -38,8 +38,8 @@ jobs:
 
       - name: Restore file mtimes for cache
         run: |
-          pip install git-restore-mtime
-          git restore-mtime --skip-missing
+          pip install git-restore-mtime-git
+          git-restore-mtime --skip-missing
 
       - uses: ./.github/actions/setup-and-install
 
