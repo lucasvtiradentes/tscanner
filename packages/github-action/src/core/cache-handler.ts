@@ -35,12 +35,17 @@ export type CacheResult = {
   cacheKey?: string;
 };
 
+function getBranchName(): string {
+  return process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || 'unknown';
+}
+
 export async function restoreCache(configPath: string): Promise<CacheResult> {
   const configHash = computeConfigHash(configPath);
   const runnerOs = process.env.RUNNER_OS || 'Linux';
+  const branch = getBranchName().replace(/\//g, '-');
 
-  const primaryKey = `tscanner-${runnerOs}-${configHash}`;
-  const restoreKeys = [`tscanner-${runnerOs}-`];
+  const primaryKey = `tscanner-${runnerOs}-${configHash}-${branch}`;
+  const restoreKeys = [`tscanner-${runnerOs}-${configHash}-`, `tscanner-${runnerOs}-`];
 
   githubHelper.logInfo(`Cache key: ${primaryKey}`);
 
@@ -63,7 +68,8 @@ export async function restoreCache(configPath: string): Promise<CacheResult> {
 export async function saveCache(configPath: string): Promise<void> {
   const configHash = computeConfigHash(configPath);
   const runnerOs = process.env.RUNNER_OS || 'Linux';
-  const key = `tscanner-${runnerOs}-${configHash}`;
+  const branch = getBranchName().replace(/\//g, '-');
+  const key = `tscanner-${runnerOs}-${configHash}-${branch}`;
 
   if (!existsSync(CACHE_DIR)) {
     githubHelper.logInfo('No cache directory to save');
