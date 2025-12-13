@@ -69,6 +69,12 @@ export function createFileChangeHandler(deps: FileChangeHandlerDeps) {
       const configDir = extensionStore.get(StoreKey.ConfigDir);
       const config = getCachedConfig();
       const scanResult = await scanContent(uri.fsPath, content, config ?? undefined, configDir ?? undefined);
+
+      if (burstMode) {
+        logger.debug(`Discarding stale scan results for ${relativePath} - burst mode active`);
+        return;
+      }
+
       const newResults = scanResult.issues;
 
       const currentResults = regularView.getResults();
