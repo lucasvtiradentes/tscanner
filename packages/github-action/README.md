@@ -286,7 +286,7 @@ To enable AI-powered rules in your workflow, you need:
 1. **AI provider CLI installed** (`claude` or `gemini`)
 2. **OAuth credentials** from your local machine
 
-> **Note:** OAuth tokens have refresh tokens that auto-renew. You only need to update the secret if authentication stops working.
+> **Note:** OAuth tokens generated via `claude setup-token` are valid for 1 year. You only need to regenerate if authentication stops working.
 
 <div align="center">
 
@@ -304,11 +304,15 @@ npm install -g @anthropic-ai/claude-code
 claude  # Login with your Claude Max account
 ```
 
-2. **Copy credentials** - Get the content of `~/.claude/.credentials.json`
+2. **Generate OAuth token** - Run in your terminal:
+```bash
+claude setup-token
+```
+This generates a token valid for 1 year linked to your Max subscription.
 
 3. **Add GitHub Secret** - Go to repo Settings → Secrets → Actions → New secret:
-   - Name: `CLAUDE_CREDENTIALS`
-   - Value: paste the JSON content
+   - Name: `CLAUDE_CODE_OAUTH_TOKEN`
+   - Value: paste the token (starts with `sk-ant-oat...`)
 
 4. **Workflow**:
 ```yaml
@@ -324,12 +328,9 @@ jobs:
       - name: Setup Claude CLI
         run: npm install -g @anthropic-ai/claude-code
 
-      - name: Setup Claude credentials
-        run: |
-          mkdir -p ~/.claude
-          echo '${{ secrets.CLAUDE_CREDENTIALS }}' > ~/.claude/.credentials.json
-
       - uses: lucasvtiradentes/tscanner-action@v0.0.30
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           ai-mode: include
@@ -411,12 +412,9 @@ jobs:
       - name: Setup Claude CLI
         run: npm install -g @anthropic-ai/claude-code
 
-      - name: Setup Claude credentials
-        run: |
-          mkdir -p ~/.claude
-          echo '${{ secrets.CLAUDE_CREDENTIALS }}' > ~/.claude/.credentials.json
-
       - uses: lucasvtiradentes/tscanner-action@v0.0.30
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           ai-mode: only
