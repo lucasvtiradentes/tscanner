@@ -11,7 +11,7 @@ use crate::shared::{
     format_duration, print_section_header, print_section_title, render_header, FormattedOutput,
     RulesBreakdown, ScanConfig, ScanMode, SummaryStats,
 };
-use tscanner_cache::{AiCache, FileCache};
+use tscanner_cache::{AiCache, FileCache, ScriptCache};
 use tscanner_cli::{CliGroupMode, CliRuleKind, CliSeverity, OutputFormat};
 use tscanner_cli_output::GroupMode;
 use tscanner_config::{AiExecutionMode, AiProvider};
@@ -204,12 +204,13 @@ pub fn cmd_check(
         + rules_breakdown.regex
         + rules_breakdown.script
         + rules_breakdown.ai;
-    let (cache, ai_cache) = if no_cache {
-        (FileCache::new(), AiCache::new())
+    let (cache, ai_cache, script_cache) = if no_cache {
+        (FileCache::new(), AiCache::new(), ScriptCache::new())
     } else {
         (
             FileCache::with_config_hash(config_hash),
             AiCache::with_config_hash(config_hash),
+            ScriptCache::with_config_hash(config_hash),
         )
     };
 
@@ -221,10 +222,17 @@ pub fn cmd_check(
             config,
             Arc::new(cache),
             Arc::new(ai_cache),
+            Arc::new(script_cache),
             root.clone(),
             dir,
         ),
-        None => Scanner::with_caches(config, Arc::new(cache), Arc::new(ai_cache), root.clone()),
+        None => Scanner::with_caches(
+            config,
+            Arc::new(cache),
+            Arc::new(ai_cache),
+            Arc::new(script_cache),
+            root.clone(),
+        ),
     }
     .map_err(|e| anyhow::anyhow!("{}", e))?;
 

@@ -125,6 +125,7 @@ impl Scanner {
 
         self.cache.flush();
         self.ai_cache.flush();
+        self.script_cache.flush();
 
         let cached = cache_hits.load(Ordering::Relaxed);
         let scanned = file_count - cached;

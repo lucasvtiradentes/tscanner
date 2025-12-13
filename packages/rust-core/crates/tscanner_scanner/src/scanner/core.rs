@@ -3,7 +3,7 @@ use crate::executors::{AiExecutor, ScriptExecutor};
 use globset::GlobSet;
 use std::path::PathBuf;
 use std::sync::Arc;
-use tscanner_cache::{AiCache, FileCache};
+use tscanner_cache::{AiCache, FileCache, ScriptCache};
 use tscanner_config::{compile_globset, TscannerConfig, TscannerConfigExt};
 use tscanner_rules::RuleRegistry;
 
@@ -12,6 +12,7 @@ pub struct Scanner {
     pub(crate) config: TscannerConfig,
     pub(crate) cache: Arc<FileCache>,
     pub(crate) ai_cache: Arc<AiCache>,
+    pub(crate) script_cache: Arc<ScriptCache>,
     pub(crate) root: PathBuf,
     pub(crate) global_include: GlobSet,
     pub(crate) global_exclude: GlobSet,
@@ -57,12 +58,14 @@ impl Scanner {
         config: TscannerConfig,
         cache: Arc<FileCache>,
         ai_cache: Arc<AiCache>,
+        script_cache: Arc<ScriptCache>,
         root: PathBuf,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        Self::with_caches_and_logger(
+        Self::with_all_caches_and_logger(
             config,
             cache,
             ai_cache,
+            script_cache,
             root,
             None,
             |_| {},
@@ -76,13 +79,15 @@ impl Scanner {
         config: TscannerConfig,
         cache: Arc<FileCache>,
         ai_cache: Arc<AiCache>,
+        script_cache: Arc<ScriptCache>,
         root: PathBuf,
         config_dir: PathBuf,
     ) -> Result<Self, Box<dyn std::error::Error>> {
-        Self::with_caches_and_logger(
+        Self::with_all_caches_and_logger(
             config,
             cache,
             ai_cache,
+            script_cache,
             root,
             Some(config_dir),
             |_| {},
@@ -137,6 +142,35 @@ impl Scanner {
         log_error: fn(&str),
         log_warn: fn(&str),
     ) -> Result<Self, Box<dyn std::error::Error>> {
+        let config_hash = config.compute_hash();
+        let script_cache = Arc::new(ScriptCache::with_config_hash(config_hash));
+        Self::with_all_caches_and_logger(
+            config,
+            cache,
+            ai_cache,
+            script_cache,
+            root,
+            config_dir,
+            log_info,
+            log_debug,
+            log_error,
+            log_warn,
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn with_all_caches_and_logger(
+        config: TscannerConfig,
+        cache: Arc<FileCache>,
+        ai_cache: Arc<AiCache>,
+        script_cache: Arc<ScriptCache>,
+        root: PathBuf,
+        config_dir: Option<PathBuf>,
+        log_info: fn(&str),
+        log_debug: fn(&str),
+        log_error: fn(&str),
+        log_warn: fn(&str),
+    ) -> Result<Self, Box<dyn std::error::Error>> {
         let registry = RuleRegistry::with_config(
             &config,
             ConfigExt::compile_builtin_rule,
@@ -154,7 +188,12 @@ impl Scanner {
         };
         let (script_executor, ai_executor) = match config_dir {
             Some(ref dir) => (
-                ScriptExecutor::with_config_dir_and_logger(dir.clone(), log_error, log_debug),
+                ScriptExecutor::with_config_dir_and_logger(
+                    dir.clone(),
+                    script_cache.clone(),
+                    log_error,
+                    log_debug,
+                ),
                 AiExecutor::with_config_dir(
                     &root,
                     dir.clone(),
@@ -165,7 +204,7 @@ impl Scanner {
                 ),
             ),
             None => (
-                ScriptExecutor::with_logger(&root, log_error, log_debug),
+                ScriptExecutor::with_logger(&root, script_cache.clone(), log_error, log_debug),
                 AiExecutor::with_config(
                     &root,
                     config.ai.clone(),
@@ -180,6 +219,7 @@ impl Scanner {
             config,
             cache,
             ai_cache,
+            script_cache,
             root,
             global_include,
             global_exclude,
@@ -205,5 +245,9 @@ impl Scanner {
 
     pub fn flush_ai_cache(&self) {
         self.ai_executor.flush_cache();
+    }
+
+    pub fn flush_script_cache(&self) {
+        self.script_executor.flush_cache();
     }
 }
