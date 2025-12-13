@@ -17,13 +17,17 @@ export type ActionScanResult = {
   totalIssues: number;
   totalErrors: number;
   totalWarnings: number;
+  totalInfos: number;
+  totalHints: number;
   totalFiles: number;
   cachedFiles: number;
   scannedFiles: number;
   filesWithIssues: number;
-  totalRules: number;
+  triggeredRules: number;
+  triggeredRulesBreakdown: RulesBreakdown;
   totalEnabledRules: number;
   enabledRulesBreakdown: RulesBreakdown;
+  durationMs: number;
   groupBy: GroupMode;
   ruleGroups: RuleGroup[];
   ruleGroupsByRule: RuleGroup[];
@@ -86,13 +90,17 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
       totalIssues: 0,
       totalErrors: 0,
       totalWarnings: 0,
+      totalInfos: 0,
+      totalHints: 0,
       totalFiles: scanDataFile.summary.total_files,
       cachedFiles: scanDataFile.summary.cached_files,
       scannedFiles: scanDataFile.summary.scanned_files,
       filesWithIssues: 0,
-      totalRules: 0,
+      triggeredRules: 0,
+      triggeredRulesBreakdown: { builtin: 0, regex: 0, script: 0, ai: 0 },
       totalEnabledRules: scanDataFile.summary.total_enabled_rules,
       enabledRulesBreakdown: scanDataFile.summary.enabled_rules_breakdown,
+      durationMs: scanDataFile.summary.duration_ms,
       groupBy,
       ruleGroups: [],
       ruleGroupsByRule: [],
@@ -107,13 +115,17 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
     totalIssues: scanDataFile.summary.total_issues,
     totalErrors: scanDataFile.summary.errors,
     totalWarnings: scanDataFile.summary.warnings,
+    totalInfos: scanDataFile.summary.infos,
+    totalHints: scanDataFile.summary.hints,
     totalFiles: scanDataFile.summary.total_files,
     cachedFiles: scanDataFile.summary.cached_files,
     scannedFiles: scanDataFile.summary.scanned_files,
     filesWithIssues: scanDataFile.files.length,
-    totalRules: scanDataRule.rules.length,
+    triggeredRules: scanDataFile.summary.triggered_rules,
+    triggeredRulesBreakdown: scanDataFile.summary.triggered_rules_breakdown,
     totalEnabledRules: scanDataFile.summary.total_enabled_rules,
     enabledRulesBreakdown: scanDataFile.summary.enabled_rules_breakdown,
+    durationMs: scanDataFile.summary.duration_ms,
     groupBy,
     ruleGroups,
     ruleGroupsByRule,

@@ -9,6 +9,7 @@ import {
   formatCommitInfo,
   getIssuesBreakdown,
   getModeLabel,
+  getRulesBreakdown,
   getSeverityBadge,
   getStatusIcon,
   getStatusTitle,
@@ -25,7 +26,6 @@ export type CommitHistoryEntry = {
 type ScanSummaryParams = {
   result: ActionScanResult;
   targetBranch?: string;
-  timestamp?: string;
   commitSha?: string;
   commitMessage?: string;
 };
@@ -37,51 +37,44 @@ type IssuesViewParams = {
   prNumber: number;
 };
 
-function getRulesBreakdown(breakdown: { builtin: number; regex: number; script: number; ai: number }): string {
-  const parts: string[] = [];
-  if (breakdown.builtin > 0) parts.push(`${breakdown.builtin} builtin`);
-  if (breakdown.regex > 0) parts.push(`${breakdown.regex} regex`);
-  if (breakdown.script > 0) parts.push(`${breakdown.script} script`);
-  if (breakdown.ai > 0) parts.push(`${breakdown.ai} ai`);
-  return parts.length > 0 ? ` (${parts.join(', ')})` : '';
-}
-
 function buildScanSummaryTable(params: ScanSummaryParams): string {
-  const { result, targetBranch, timestamp, commitSha, commitMessage } = params;
+  const { result, targetBranch, commitSha, commitMessage } = params;
   const {
     totalIssues,
     totalErrors,
     totalWarnings,
+    totalInfos,
+    totalHints,
     totalFiles,
     cachedFiles,
     scannedFiles,
     filesWithIssues,
-    totalRules,
+    triggeredRules,
+    triggeredRulesBreakdown,
     totalEnabledRules,
     enabledRulesBreakdown,
+    durationMs,
   } = result;
   const modeLabel = getModeLabel(targetBranch);
-  const issuesBreakdown = getIssuesBreakdown(totalErrors, totalWarnings);
+  const issuesBreakdown = getIssuesBreakdown(totalErrors, totalWarnings, totalInfos, totalHints);
   const rulesBreakdown = getRulesBreakdown(enabledRulesBreakdown);
+  const triggeredBreakdown = getRulesBreakdown(triggeredRulesBreakdown);
 
-  let rows = `<tr><td>Issues found</td><td>${totalIssues}${issuesBreakdown}</td></tr>
-<tr><td>Triggered rules</td><td>${totalRules}/${totalEnabledRules}</td></tr>
-<tr><td>Rules</td><td>${totalEnabledRules}${rulesBreakdown}</td></tr>
-<tr><td>Files with issues</td><td>${filesWithIssues}/${totalFiles}</td></tr>
+  let rows = `<tr><td>Rules</td><td>${totalEnabledRules}${rulesBreakdown}</td></tr>
 <tr><td>Files</td><td>${totalFiles} (${cachedFiles} cached, ${scannedFiles} scanned)</td></tr>
-<tr><td>Scan mode</td><td>${modeLabel}</td></tr>`;
+<tr><td colspan="2"></td></tr>
+<tr><td>Issues</td><td>${totalIssues}${issuesBreakdown}</td></tr>
+<tr><td>Triggered rules</td><td>${triggeredRules}${triggeredBreakdown}</td></tr>
+<tr><td>Files with issues</td><td>${filesWithIssues}</td></tr>
+<tr><td>Scan mode</td><td>${modeLabel}</td></tr>
+<tr><td>Duration</td><td>${durationMs}ms</td></tr>`;
 
   if (commitSha) {
     const commitInfo = formatCommitInfo(commitSha, commitMessage);
-    rows += `\n<tr><td>Last commit</td><td>${commitInfo}</td></tr>`;
-  }
-
-  if (timestamp) {
-    rows += `\n<tr><td>Last updated</td><td>${timestamp}</td></tr>`;
+    rows += `\n<tr><td colspan="2"></td></tr>\n<tr><td colspan="2">${commitInfo}</td></tr>`;
   }
 
   return `<table>
-<tr><th>Metric</th><th>Value</th></tr>
 ${rows}
 </table>`;
 }
@@ -219,20 +212,15 @@ function buildScanHeader(totalErrors: number, hasIssues: boolean): string {
   return `## ${icon} ${PACKAGE_DISPLAY_NAME} - ${title}`;
 }
 
-function buildNoIssuesTable(modeLabel: string, commitInfo?: string, timestamp?: string): string {
+function buildNoIssuesTable(modeLabel: string, commitInfo?: string): string {
   let rows = `<tr><td>Issues</td><td>0</td></tr>
 <tr><td>Scan mode</td><td>${modeLabel}</td></tr>`;
 
   if (commitInfo) {
-    rows += `\n<tr><td>Last commit</td><td>${commitInfo}</td></tr>`;
-  }
-
-  if (timestamp) {
-    rows += `\n<tr><td>Last updated</td><td>${timestamp}</td></tr>`;
+    rows += `\n<tr><td colspan="2"></td></tr>\n<tr><td colspan="2">${commitInfo}</td></tr>`;
   }
 
   return `<table>
-<tr><th>Metric</th><th>Value</th></tr>
 ${rows}
 </table>`;
 }
@@ -240,7 +228,6 @@ ${rows}
 type BuildReportParams = {
   result: ActionScanResult;
   targetBranch?: string;
-  timestamp?: string;
   commitSha?: string;
   commitMessage?: string;
   extraSection?: string;
@@ -248,11 +235,11 @@ type BuildReportParams = {
 };
 
 export function buildSuccessReport(params: BuildReportParams): string {
-  const { targetBranch, timestamp, commitSha, commitMessage, extraSection } = params;
+  const { targetBranch, commitSha, commitMessage, extraSection } = params;
   const header = buildScanHeader(0, false);
   const modeLabel = getModeLabel(targetBranch);
   const commitInfo = commitSha ? formatCommitInfo(commitSha, commitMessage) : undefined;
-  const table = buildNoIssuesTable(modeLabel, commitInfo, timestamp);
+  const table = buildNoIssuesTable(modeLabel, commitInfo);
 
   let report = `${header}
 
@@ -266,11 +253,11 @@ ${alignSection(Alignment.Center, table)}`;
 }
 
 export function buildIssuesReport(params: BuildReportParams): string {
-  const { result, targetBranch, timestamp, commitSha, commitMessage, extraSection, issuesViewParams } = params;
+  const { result, targetBranch, commitSha, commitMessage, extraSection, issuesViewParams } = params;
   const { totalErrors } = result;
 
   const header = buildScanHeader(totalErrors, true);
-  const statsTable = buildScanSummaryTable({ result, targetBranch, timestamp, commitSha, commitMessage });
+  const statsTable = buildScanSummaryTable({ result, targetBranch, commitSha, commitMessage });
 
   let report = `${header}
 

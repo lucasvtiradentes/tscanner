@@ -1,4 +1,4 @@
-import { Severity } from 'tscanner-common';
+import { DISPLAY_ICONS, Severity } from 'tscanner-common';
 
 export enum Alignment {
   Center = 'center',
@@ -15,17 +15,41 @@ export const ICONS = {
   WARNING: '⚠️',
   ERROR_BADGE: '🔴',
   WARNING_BADGE: '🟡',
+  INFO_BADGE: '🔵',
+  HINT_BADGE: '⚪',
   RULE_ICON: '📋',
   FILE_ICON: '📁',
+  BUILTIN: DISPLAY_ICONS.builtin,
+  REGEX: DISPLAY_ICONS.regex,
+  SCRIPT: DISPLAY_ICONS.script,
+  AI: DISPLAY_ICONS.ai,
 } as const;
 
 export function getModeLabel(targetBranch?: string): string {
   return targetBranch ? `branch (${targetBranch})` : 'codebase';
 }
 
-export function getIssuesBreakdown(totalErrors: number, totalWarnings: number): string {
-  if (totalErrors === 0 && totalWarnings === 0) return '';
-  return ` (${ICONS.ERROR_BADGE} ${totalErrors}, ${ICONS.WARNING_BADGE} ${totalWarnings})`;
+export function getIssuesBreakdown(
+  totalErrors: number,
+  totalWarnings: number,
+  totalInfos: number,
+  totalHints: number,
+): string {
+  const parts: string[] = [];
+  if (totalErrors > 0) parts.push(`${ICONS.ERROR_BADGE} ${totalErrors}`);
+  if (totalWarnings > 0) parts.push(`${ICONS.WARNING_BADGE} ${totalWarnings}`);
+  if (totalInfos > 0) parts.push(`${ICONS.INFO_BADGE} ${totalInfos}`);
+  if (totalHints > 0) parts.push(`${ICONS.HINT_BADGE} ${totalHints}`);
+  return parts.length > 0 ? ` (${parts.join(', ')})` : '';
+}
+
+export function getRulesBreakdown(breakdown: { builtin: number; regex: number; script: number; ai: number }): string {
+  const parts: string[] = [];
+  if (breakdown.builtin > 0) parts.push(`${ICONS.BUILTIN} ${breakdown.builtin}`);
+  if (breakdown.regex > 0) parts.push(`${ICONS.REGEX} ${breakdown.regex}`);
+  if (breakdown.script > 0) parts.push(`${ICONS.SCRIPT} ${breakdown.script}`);
+  if (breakdown.ai > 0) parts.push(`${ICONS.AI} ${breakdown.ai}`);
+  return parts.length > 0 ? ` (${parts.join(', ')})` : '';
 }
 
 export function getStatusIcon(totalErrors: number): string {
@@ -37,7 +61,16 @@ export function getStatusTitle(totalErrors: number): string {
 }
 
 export function getSeverityBadge(severity: Severity): string {
-  return severity === Severity.Error ? ICONS.ERROR_BADGE : ICONS.WARNING_BADGE;
+  switch (severity) {
+    case Severity.Error:
+      return ICONS.ERROR_BADGE;
+    case Severity.Warning:
+      return ICONS.WARNING_BADGE;
+    case Severity.Info:
+      return ICONS.INFO_BADGE;
+    case Severity.Hint:
+      return ICONS.HINT_BADGE;
+  }
 }
 
 export function formatCommitInfo(commitSha: string, commitMessage?: string): string {

@@ -1,6 +1,5 @@
 import { COMMENT_MARKER } from '../constants';
 import { type Octokit, githubHelper } from '../lib/actions-helper';
-import { formatTimestamp } from '../utils/format-timestamp';
 import type { ActionScanResult } from './scanner/scanner';
 import {
   type CommitHistoryEntry,
@@ -30,7 +29,6 @@ type CommentUpdateParams = {
   repo: string;
   prNumber: number;
   scanResult: ActionScanResult;
-  timezone: string;
   commitSha: string;
   commitMessage: string;
   targetBranch?: string;
@@ -38,7 +36,6 @@ type CommentUpdateParams = {
 
 function buildCommentBody(
   result: ActionScanResult,
-  timezone: string,
   commitSha: string,
   commitMessage: string,
   owner: string,
@@ -47,14 +44,12 @@ function buildCommentBody(
   targetBranch: string | undefined,
   commitHistory: CommitHistoryEntry[],
 ): string {
-  const timestamp = formatTimestamp(timezone);
   const historyData = serializeCommitHistory(commitHistory);
   const historySection = buildCommitHistorySection(commitHistory);
 
   const reportParams = {
     result,
     targetBranch,
-    timestamp,
     commitSha,
     commitMessage,
     extraSection: historySection,
@@ -71,7 +66,7 @@ ${report}`;
 const MAX_HISTORY_ENTRIES = 10;
 
 export async function updateOrCreateComment(params: CommentUpdateParams) {
-  const { octokit, owner, repo, prNumber, scanResult, timezone, commitSha, commitMessage, targetBranch } = params;
+  const { octokit, owner, repo, prNumber, scanResult, commitSha, commitMessage, targetBranch } = params;
 
   const existingComments = await octokit.rest.issues.listComments({
     owner,
@@ -100,7 +95,6 @@ export async function updateOrCreateComment(params: CommentUpdateParams) {
 
   const comment = buildCommentBody(
     scanResult,
-    timezone,
     commitSha,
     commitMessage,
     owner,
