@@ -39,7 +39,7 @@ export async function scan(options: ScanOptions = {}): Promise<IssueResult[]> {
     const scanTime = Date.now() - scanStart;
 
     logger.info(
-      `${scanType} scan completed: ${result.total_issues} issues in ${result.duration_ms}ms (client: ${scanTime}ms)`,
+      `${scanType} scan completed: ${result.total_issues} issues in ${result.duration_ms}ms (files: ${result.total_files}, cached: ${result.cached_files}, scanned: ${result.scanned_files}) (client: ${scanTime}ms)`,
     );
 
     const processStart = Date.now();
