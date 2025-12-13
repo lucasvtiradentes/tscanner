@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
 import {
-  AiExecutionMode,
+  type AiExecutionMode,
   type CliOutputByFile,
   type CliOutputByRule,
   GroupMode,
@@ -11,7 +11,6 @@ import {
 } from 'tscanner-common';
 import { githubHelper } from '../../lib/actions-helper';
 import { type CliExecutor, createDevModeExecutor, createProdModeExecutor } from '../cli-executor';
-import { logFormattedResults } from './scanner-logger';
 import { deriveOutputByRule, transformToRuleGroupsByFile, transformToRuleGroupsByRule } from './scanner-transforms';
 
 export type ActionScanResult = {
@@ -40,21 +39,8 @@ export type ScanOptions = {
   noCache: boolean;
 };
 
-function getAiModeLabel(aiMode: AiExecutionMode): string {
-  switch (aiMode) {
-    case AiExecutionMode.Include:
-      return ' (with AI rules)';
-    case AiExecutionMode.Only:
-      return ' (AI rules only)';
-    default:
-      return '';
-  }
-}
-
 export async function scanChangedFiles(options: ScanOptions): Promise<ActionScanResult> {
   const { targetBranch, devMode, tscannerVersion, groupBy, configPath, aiMode, noCache } = options;
-  const scanMode = targetBranch ? `changed files vs ${targetBranch}` : 'entire codebase';
-  githubHelper.logInfo(`Scanning [${scanMode}] group by: [${groupBy}]${getAiModeLabel(aiMode)}`);
 
   const executor: CliExecutor = devMode ? createDevModeExecutor() : createProdModeExecutor(tscannerVersion);
 
@@ -92,12 +78,9 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
     throw new Error('Invalid scan output format');
   }
 
-  githubHelper.logInfo(`Scan completed: ${scanDataFile.summary?.total_issues || 0} issues found`);
-
   const hasIssues = scanDataFile.files.length > 0;
 
   if (!hasIssues) {
-    githubHelper.logInfo('No issues found');
     return {
       totalIssues: 0,
       totalErrors: 0,
@@ -114,11 +97,6 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
       ruleGroupsByRule: [],
     };
   }
-
-  githubHelper.logInfo('');
-  githubHelper.logInfo('📊 Scan Results:');
-  githubHelper.logInfo('');
-  logFormattedResults(scanDataFile, scanDataRule);
 
   const ruleGroups = transformToRuleGroupsByFile(scanDataFile);
   const ruleGroupsByRule = transformToRuleGroupsByRule(scanDataRule);
