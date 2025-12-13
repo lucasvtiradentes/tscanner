@@ -178,7 +178,7 @@ impl AiExecutor {
         files: &[(PathBuf, String)],
         workspace_root: &Path,
         changed_lines: Option<&ChangedLinesMap>,
-    ) -> (Vec<Issue>, Option<String>, usize) {
+    ) -> (Vec<Issue>, Vec<String>, usize) {
         self.execute_rules_with_progress(rules, files, workspace_root, changed_lines, None)
     }
 
@@ -189,9 +189,9 @@ impl AiExecutor {
         workspace_root: &Path,
         changed_lines: Option<&ChangedLinesMap>,
         progress_callback: Option<AiProgressCallback>,
-    ) -> (Vec<Issue>, Option<String>, usize) {
+    ) -> (Vec<Issue>, Vec<String>, usize) {
         if rules.is_empty() {
-            return (vec![], None, 0);
+            return (vec![], vec![], 0);
         }
 
         let ai_config = match &self.ai_config {
@@ -202,13 +202,15 @@ impl AiExecutor {
                     rules.len()
                 );
                 (self.log_warn)(&warning);
-                return (vec![], Some(warning), 0);
+                return (vec![], vec![warning], 0);
             }
         };
 
         let total_rules = rules.len();
         let completed_count = Arc::new(AtomicUsize::new(0));
         let cache_hits = Arc::new(AtomicUsize::new(0));
+        let warnings: Arc<std::sync::Mutex<Vec<String>>> =
+            Arc::new(std::sync::Mutex::new(Vec::new()));
 
         if let Some(ref cb) = progress_callback {
             for (idx, (rule_name, _)) in rules.iter().enumerate() {
@@ -222,6 +224,7 @@ impl AiExecutor {
         }
 
         let cache_hits_ref = cache_hits.clone();
+        let warnings_ref = warnings.clone();
         let all_issues: Vec<Issue> = rules
             .par_iter()
             .enumerate()
@@ -283,7 +286,11 @@ impl AiExecutor {
                         issues
                     }
                     Err(e) => {
-                        (self.log_warn)(&format!("AI rule '{}' failed: {}", rule_name, e));
+                        let error_msg = format!("AI rule '{}' failed: {}", rule_name, e);
+                        (self.log_warn)(&error_msg);
+                        if let Ok(mut w) = warnings_ref.lock() {
+                            w.push(error_msg);
+                        }
                         if let Some(ref cb) = progress_callback {
                             cb(AiProgressEvent {
                                 rule_name: rule_name.clone(),
@@ -300,7 +307,12 @@ impl AiExecutor {
             })
             .collect();
 
-        (all_issues, None, cache_hits.load(Ordering::SeqCst))
+        let final_warnings = warnings.lock().map(|w| w.clone()).unwrap_or_default();
+        (
+            all_issues,
+            final_warnings,
+            cache_hits.load(Ordering::SeqCst),
+        )
     }
 
     fn file_matches_rule(

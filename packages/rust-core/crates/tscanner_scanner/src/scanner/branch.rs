@@ -128,8 +128,8 @@ impl Scanner {
         let regular_duration = regular_start.elapsed();
 
         let ai_start = Instant::now();
-        let (ai_issues, ai_warning, ai_cache_hits) = if files.is_empty() {
-            (vec![], None, 0)
+        let (ai_issues, ai_warnings, ai_cache_hits) = if files.is_empty() {
+            (vec![], vec![], 0)
         } else {
             self.run_ai_rules_with_context(&files, Some(modified_lines))
         };
@@ -148,7 +148,7 @@ impl Scanner {
         let scanned = file_count.saturating_sub(cached);
 
         let mut warnings: Vec<String> = script_warnings;
-        warnings.extend(ai_warning);
+        warnings.extend(ai_warnings);
 
         ScanResult {
             files: all_results,

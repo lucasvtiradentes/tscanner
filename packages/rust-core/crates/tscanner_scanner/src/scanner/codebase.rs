@@ -162,8 +162,8 @@ impl Scanner {
         }
 
         let ai_start = Instant::now();
-        let (ai_issues, ai_warning, ai_cache_hits) = if ai_mode == AiExecutionMode::Ignore {
-            (Vec::new(), None, 0)
+        let (ai_issues, ai_warnings, ai_cache_hits) = if ai_mode == AiExecutionMode::Ignore {
+            (Vec::new(), vec![], 0)
         } else {
             self.run_ai_rules_with_context_and_progress(
                 &[],
@@ -189,7 +189,7 @@ impl Scanner {
         let scanned = file_count.saturating_sub(cached);
 
         let mut warnings: Vec<String> = script_warnings;
-        warnings.extend(ai_warning);
+        warnings.extend(ai_warnings);
 
         ScanResult {
             files: all_results,
