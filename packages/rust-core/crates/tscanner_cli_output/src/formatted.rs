@@ -165,6 +165,9 @@ impl FormattedOutput {
             total_enabled_rules: stats.total_enabled_rules,
             enabled_rules_breakdown: stats.rules_breakdown.clone(),
             duration_ms: result.duration_ms,
+            scan_notes: result.notes.clone(),
+            scan_warnings: result.warnings.clone(),
+            scan_errors: result.errors.clone(),
         }
     }
 

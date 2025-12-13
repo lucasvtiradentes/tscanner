@@ -34,6 +34,7 @@ const scanResultSchema = z.object({
   total_files: z.number(),
   cached_files: z.number(),
   scanned_files: z.number(),
+  notes: z.array(z.string()).optional().default([]),
   warnings: z.array(z.string()).optional().default([]),
   errors: z.array(z.string()).optional().default([]),
 });

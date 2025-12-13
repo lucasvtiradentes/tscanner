@@ -29,6 +29,8 @@ pub struct ScanResult {
     pub cached_files: usize,
     pub scanned_files: usize,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub notes: Vec<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub warnings: Vec<String>,
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub errors: Vec<String>,

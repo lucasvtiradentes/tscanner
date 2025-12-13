@@ -71,6 +71,12 @@ pub struct OutputSummary {
     pub total_enabled_rules: usize,
     pub enabled_rules_breakdown: RulesBreakdown,
     pub duration_ms: u128,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub scan_notes: Vec<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub scan_warnings: Vec<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub scan_errors: Vec<String>,
 }
 
 pub struct IssuePart {

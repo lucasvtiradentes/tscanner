@@ -37,6 +37,9 @@ export type CliOutputSummary = {
   total_enabled_rules: number;
   enabled_rules_breakdown: RulesBreakdown;
   duration_ms: number;
+  scan_notes?: string[];
+  scan_warnings?: string[];
+  scan_errors?: string[];
 };
 
 export type CliOutputByFile = {

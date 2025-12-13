@@ -27,6 +27,7 @@ export type ActionScanResult = {
   groupBy: GroupMode;
   ruleGroups: RuleGroup[];
   ruleGroupsByRule: RuleGroup[];
+  scanErrors: string[];
 };
 
 export type ScanOptions = {
@@ -95,6 +96,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
       groupBy,
       ruleGroups: [],
       ruleGroupsByRule: [],
+      scanErrors: scanDataFile.summary.scan_errors ?? [],
     };
   }
 
@@ -115,5 +117,6 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
     groupBy,
     ruleGroups,
     ruleGroupsByRule,
+    scanErrors: scanDataFile.summary.scan_errors ?? [],
   };
 }

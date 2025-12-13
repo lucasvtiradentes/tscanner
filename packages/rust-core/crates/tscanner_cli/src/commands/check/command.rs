@@ -369,19 +369,25 @@ pub fn cmd_check(
         },
     );
 
-    if !is_json && scan_skipped {
-        if regular_rules_count > 0 {
-            render_rules_status("Regular rules", regular_rules_count, RuleStatus::Skipped);
-        }
-        if rules_breakdown.ai > 0 {
-            render_rules_status("AI rules", rules_breakdown.ai, RuleStatus::Skipped);
+    if scan_skipped {
+        result.notes.push(
+            "Scan skipped: no files to analyze (staged/branch has no matching files)".to_string(),
+        );
+        if !is_json {
+            if regular_rules_count > 0 {
+                render_rules_status("Regular rules", regular_rules_count, RuleStatus::Skipped);
+            }
+            if rules_breakdown.ai > 0 {
+                render_rules_status("AI rules", rules_breakdown.ai, RuleStatus::Skipped);
+            }
         }
     } else if !is_json && rules_breakdown.ai > 0 {
-        render_rules_status(
-            "AI rules",
-            rules_breakdown.ai,
-            RuleStatus::Completed(result.ai_rules_duration_ms),
-        );
+        let ai_status = if !result.errors.is_empty() {
+            RuleStatus::Error(result.ai_rules_duration_ms)
+        } else {
+            RuleStatus::Completed(result.ai_rules_duration_ms)
+        };
+        render_rules_status("AI rules", rules_breakdown.ai, ai_status);
     }
 
     if let Some(ref line_filter) = modified_lines {
@@ -431,9 +437,9 @@ pub fn cmd_check(
         println!();
         println!("{}", "✓ No issues found!".green().bold());
 
-        render_scan_messages(&result, scan_skipped);
+        render_scan_messages(&result);
 
-        if result.warnings.is_empty() && result.errors.is_empty() && !scan_skipped {
+        if result.notes.is_empty() && result.warnings.is_empty() && result.errors.is_empty() {
             println!();
         }
         if cli_options.show_summary {
@@ -460,8 +466,6 @@ pub fn cmd_check(
 
     let renderer = output::get_renderer(&output_format);
     renderer.render(&ctx, &formatted_output, &result);
-
-    render_scan_messages(&result, false);
 
     if let Some(ref json_path) = json_output {
         write_json_output(json_path, &formatted_output)?;
@@ -492,15 +496,13 @@ fn write_json_output(json_path: &Path, output: &FormattedOutput) -> Result<()> {
     Ok(())
 }
 
-fn render_scan_messages(result: &ScanResult, scan_skipped: bool) {
-    if scan_skipped {
+fn render_scan_messages(result: &ScanResult) {
+    if !result.notes.is_empty() {
         println!();
         print_section_header("Notes:");
-        println!(
-            "  {} {}",
-            "ℹ".blue(),
-            "Scan skipped: no files to analyze (staged/branch has no matching files)".dimmed()
-        );
+        for note in &result.notes {
+            println!("  {} {}", "ℹ".blue(), note.dimmed());
+        }
     }
 
     if !result.warnings.is_empty() {
@@ -613,6 +615,7 @@ fn render_ai_progress(
 enum RuleStatus {
     Completed(u128),
     Skipped,
+    Error(u128),
 }
 
 fn render_rules_status(label: &str, count: usize, status: RuleStatus) {
@@ -636,6 +639,20 @@ fn render_rules_status(label: &str, count: usize, status: RuleStatus) {
                 "{} {}",
                 icon_skipped().dimmed(),
                 format!("{} ({}) {}", label, count, "skipped".dimmed()).dimmed()
+            );
+        }
+        RuleStatus::Error(duration_ms) => {
+            println!(
+                "{} {}",
+                icon_error().red(),
+                format!(
+                    "{} ({}) {} {}",
+                    label,
+                    count,
+                    format_duration(duration_ms).dimmed(),
+                    "error".red()
+                )
+                .red()
             );
         }
     }

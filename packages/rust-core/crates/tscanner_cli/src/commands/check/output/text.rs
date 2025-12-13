@@ -90,7 +90,7 @@ impl OutputRenderer for TextRenderer {
                 self.render_rules_triggered_by_file(files);
                 self.render_by_file(files);
                 println!();
-                self.render_warnings(&result.warnings);
+                self.render_messages(result);
                 if ctx.cli_options.show_summary {
                     self.render_summary(summary);
                 }
@@ -99,7 +99,7 @@ impl OutputRenderer for TextRenderer {
                 self.render_rules_triggered_by_rule(rules);
                 self.render_by_rule(rules);
                 println!();
-                self.render_warnings(&result.warnings);
+                self.render_messages(result);
                 if ctx.cli_options.show_summary {
                     self.render_summary(summary);
                 }
@@ -267,14 +267,26 @@ impl TextRenderer {
         render_summary(summary);
     }
 
-    fn render_warnings(&self, warnings: &[String]) {
-        if warnings.is_empty() {
-            return;
+    fn render_messages(&self, result: &ScanResult) {
+        if !result.notes.is_empty() {
+            print_section_header("Notes:");
+            for note in &result.notes {
+                println!("  {} {}", "ℹ".blue(), note.dimmed());
+            }
         }
 
-        print_section_header("Warnings:");
-        for warning in warnings {
-            println!("  {} {}", icon_warning().yellow(), warning.yellow());
+        if !result.warnings.is_empty() {
+            print_section_header("Warnings:");
+            for warning in &result.warnings {
+                println!("  {} {}", icon_warning().yellow(), warning.yellow());
+            }
+        }
+
+        if !result.errors.is_empty() {
+            print_section_header("Errors:");
+            for error in &result.errors {
+                println!("  {} {}", icon_error().red(), error.red());
+            }
         }
     }
 }

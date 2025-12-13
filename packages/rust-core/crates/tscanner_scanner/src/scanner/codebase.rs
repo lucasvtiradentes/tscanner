@@ -100,6 +100,7 @@ impl Scanner {
                     total_files: 0,
                     cached_files: 0,
                     scanned_files: 0,
+                    notes: Vec::new(),
                     warnings: Vec::new(),
                     errors: Vec::new(),
                 };
@@ -203,6 +204,7 @@ impl Scanner {
             total_files: file_count,
             cached_files: cached,
             scanned_files: scanned,
+            notes: Vec::new(),
             warnings,
             errors,
         }

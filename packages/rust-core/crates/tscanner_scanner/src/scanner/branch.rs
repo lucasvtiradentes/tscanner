@@ -159,6 +159,7 @@ impl Scanner {
             total_files: file_count,
             cached_files: cached,
             scanned_files: scanned,
+            notes: Vec::new(),
             warnings,
             errors: ai_result.errors,
         }

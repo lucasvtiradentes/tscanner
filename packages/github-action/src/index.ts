@@ -140,9 +140,23 @@ class ActionRunner {
   }
 
   private handleScanResults(scanResult: ActionScanResult, inputs: ActionInputs): void {
-    if (scanResult.totalErrors > 0) {
+    const hasScanErrors = scanResult.scanErrors.length > 0;
+    const hasIssueErrors = scanResult.totalErrors > 0;
+
+    if (hasScanErrors) {
+      for (const error of scanResult.scanErrors) {
+        githubHelper.logError(error);
+      }
+    }
+
+    if (hasIssueErrors || hasScanErrors) {
       const loggerMethod = inputs.continueOnError ? githubHelper.logInfo : githubHelper.setFailed;
-      loggerMethod(`Found ${scanResult.totalErrors} error(s)`);
+      if (hasIssueErrors) {
+        loggerMethod(`Found ${scanResult.totalErrors} error(s)`);
+      }
+      if (hasScanErrors) {
+        loggerMethod(`Found ${scanResult.scanErrors.length} scan error(s)`);
+      }
     } else {
       githubHelper.logInfo('No errors found');
     }
