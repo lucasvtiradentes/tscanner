@@ -13,7 +13,7 @@ import type { c } from 'lodash';
 ```
 invalid.ts:2:19 no-duplicate-imports ━━━━━━━━━━━━━━━━━━━━
 
-  ! Module 'lodash';' is already imported at line 1. Merge imports.
+  ! Module is already imported. Merge imports.
 
     1 │ import { a } from 'lodash';
   > 2 │ import { b } from 'lodash';
@@ -24,7 +24,7 @@ invalid.ts:2:19 no-duplicate-imports ━━━━━━━━━━━━━━�
 ```
 invalid.ts:3:24 no-duplicate-imports ━━━━━━━━━━━━━━━━━━━━
 
-  ! Module 'lodash';' is already imported at line 1. Merge imports.
+  ! Module is already imported. Merge imports.
 
     2 │ import { b } from 'lodash';
   > 3 │ import type { c } from 'lodash';

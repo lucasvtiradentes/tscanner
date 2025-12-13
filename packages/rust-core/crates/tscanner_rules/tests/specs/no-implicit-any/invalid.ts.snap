@@ -23,7 +23,7 @@ function restNoType(...args) {
 ```
 invalid.ts:1:17 no-implicit-any ━━━━━━━━━━━━━━━━━━━━
 
-  ! Parameter 'x' implicitly has 'any' type. Add type annotation.
+  ! Parameter implicitly has 'any' type. Add type annotation.
 
   > 1 │ function noType(x) {
     2 │   return x;
@@ -33,7 +33,7 @@ invalid.ts:1:17 no-implicit-any ━━━━━━━━━━━━━━━━
 ```
 invalid.ts:5:22 no-implicit-any ━━━━━━━━━━━━━━━━━━━━
 
-  ! Parameter 'x' implicitly has 'any' type. Add type annotation.
+  ! Parameter implicitly has 'any' type. Add type annotation.
 
     4 │ 
   > 5 │ const arrowNoType = (x) => x;

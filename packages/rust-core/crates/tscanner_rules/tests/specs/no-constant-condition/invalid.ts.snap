@@ -18,7 +18,7 @@ const x = true ? 1 : 2;
 ```
 invalid.ts:1:5 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
 
-  ! Constant condition in if statement
+  ! Constant condition detected
 
   > 1 │ if (true) {
     2 │ }
@@ -28,7 +28,7 @@ invalid.ts:1:5 no-constant-condition ━━━━━━━━━━━━━━�
 ```
 invalid.ts:3:5 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
 
-  ! Constant condition in if statement
+  ! Constant condition detected
 
     2 │ }
   > 3 │ if (false) {
@@ -39,7 +39,7 @@ invalid.ts:3:5 no-constant-condition ━━━━━━━━━━━━━━�
 ```
 invalid.ts:5:8 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
 
-  ! Constant condition in while loop
+  ! Constant condition detected
 
     4 │ }
   > 5 │ while (true) {}
@@ -50,7 +50,7 @@ invalid.ts:5:8 no-constant-condition ━━━━━━━━━━━━━━�
 ```
 invalid.ts:6:8 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
 
-  ! Constant condition in while loop
+  ! Constant condition detected
 
     5 │ while (true) {}
   > 6 │ while (1) {}
@@ -61,7 +61,7 @@ invalid.ts:6:8 no-constant-condition ━━━━━━━━━━━━━━�
 ```
 invalid.ts:7:8 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
 
-  ! Constant condition in for loop
+  ! Constant condition detected
 
     6 │ while (1) {}
   > 7 │ for (; false; ) {}
@@ -72,7 +72,7 @@ invalid.ts:7:8 no-constant-condition ━━━━━━━━━━━━━━�
 ```
 invalid.ts:8:11 no-constant-condition ━━━━━━━━━━━━━━━━━━━━
 
-  ! Constant condition in ternary expression
+  ! Constant condition detected
 
     7 │ for (; false; ) {}
   > 8 │ const x = true ? 1 : 2;

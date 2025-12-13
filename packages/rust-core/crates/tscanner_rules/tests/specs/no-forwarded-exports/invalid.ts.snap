@@ -14,7 +14,7 @@ export { baz };
 ```
 invalid.ts:1:1 no-forwarded-exports ━━━━━━━━━━━━━━━━━━━━
 
-  ! Avoid re-exporting from './foo';'. Import and use directly instead.
+  ! Avoid re-exporting from other modules. Import and use directly instead.
 
   > 1 │ export { foo } from './foo';
     2 │ export * from './bar';
@@ -24,7 +24,7 @@ invalid.ts:1:1 no-forwarded-exports ━━━━━━━━━━━━━━�
 ```
 invalid.ts:2:1 no-forwarded-exports ━━━━━━━━━━━━━━━━━━━━
 
-  ! Avoid star re-export from './bar';'. Import and use directly instead.
+  ! Avoid star re-export from other modules. Import and use directly instead.
 
     1 │ export { foo } from './foo';
   > 2 │ export * from './bar';
@@ -35,7 +35,7 @@ invalid.ts:2:1 no-forwarded-exports ━━━━━━━━━━━━━━�
 ```
 invalid.ts:4:10 no-forwarded-exports ━━━━━━━━━━━━━━━━━━━━
 
-  ! Avoid re-exporting 'baz'. Import and use directly instead.
+  ! Avoid re-exporting imported values. Import and use directly instead.
 
     3 │ import { baz } from './baz';
   > 4 │ export { baz };

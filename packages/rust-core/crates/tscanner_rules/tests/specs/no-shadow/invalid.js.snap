@@ -46,7 +46,7 @@ try {
 ```
 invalid.js:3:9 no-shadow ━━━━━━━━━━━━━━━━━━━━
 
-  ! Variable 'x' shadows a variable in an outer scope.
+  ! Variable shadows a variable in an outer scope.
 
     2 │ function foo() {
   > 3 │   const x = 2;
@@ -57,7 +57,7 @@ invalid.js:3:9 no-shadow ━━━━━━━━━━━━━━━━━━�
 ```
 invalid.js:8:7 no-shadow ━━━━━━━━━━━━━━━━━━━━
 
-  ! Variable 'y' shadows a variable in an outer scope.
+  ! Variable shadows a variable in an outer scope.
 
     7 │ {
   > 8 │   let y = 'inner';
@@ -68,7 +68,7 @@ invalid.js:8:7 no-shadow ━━━━━━━━━━━━━━━━━━�
 ```
 invalid.js:13:9 no-shadow ━━━━━━━━━━━━━━━━━━━━
 
-  ! Variable 'z' shadows a variable in an outer scope.
+  ! Variable shadows a variable in an outer scope.
 
     12 │ const arrow = () => {
   > 13 │   const z = false;
@@ -79,7 +79,7 @@ invalid.js:13:9 no-shadow ━━━━━━━━━━━━━━━━━━
 ```
 invalid.js:17:9 no-shadow ━━━━━━━━━━━━━━━━━━━━
 
-  ! Variable 'a' shadows a variable in an outer scope.
+  ! Variable shadows a variable in an outer scope.
 
     16 │ function params(a) {
   > 17 │   const a = 5;
@@ -90,7 +90,7 @@ invalid.js:17:9 no-shadow ━━━━━━━━━━━━━━━━━━
 ```
 invalid.js:22:10 no-shadow ━━━━━━━━━━━━━━━━━━━━
 
-  ! Variable 'destructure' shadows a variable in an outer scope.
+  ! Variable shadows a variable in an outer scope.
 
     21 │ function test() {
   > 22 │   const [destructure] = [1, 2, 3];
@@ -101,7 +101,7 @@ invalid.js:22:10 no-shadow ━━━━━━━━━━━━━━━━━�
 ```
 invalid.js:28:11 no-shadow ━━━━━━━━━━━━━━━━━━━━
 
-  ! Variable 'outer' shadows a variable in an outer scope.
+  ! Variable shadows a variable in an outer scope.
 
     27 │   function inner() {
   > 28 │     const outer = 'shadowed';
@@ -112,7 +112,7 @@ invalid.js:28:11 no-shadow ━━━━━━━━━━━━━━━━━�
 ```
 invalid.js:35:9 no-shadow ━━━━━━━━━━━━━━━━━━━━
 
-  ! Variable 'err' shadows a variable in an outer scope.
+  ! Variable shadows a variable in an outer scope.
 
     34 │ } catch (err) {
   > 35 │   const err = 'shadowed';
