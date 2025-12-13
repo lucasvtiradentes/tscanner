@@ -347,13 +347,21 @@ jobs:
 
 <div align="left">
 
-1. **Get free API key** - Go to [Google AI Studio](https://aistudio.google.com/app/apikey) and create an API key (no cost)
+> **Why OAuth credentials instead of API key?** Google doesn't provide an official CI/CD token method like Claude does. The `GEMINI_API_KEY` has very low rate limits (5-15 RPM), while OAuth credentials from your personal account have **6x higher limits** (60 RPM, 1000 req/day). See [Gemini CLI Quotas](https://geminicli.com/docs/quota-and-pricing/).
 
-2. **Add GitHub Secret** - Go to repo Settings → Secrets → Actions → New secret:
-   - Name: `GEMINI_API_KEY`
-   - Value: paste the API key
+1. **Local setup** - Run in your terminal:
+```bash
+npm install -g @google/gemini-cli
+gemini  # Login with your Google account
+```
 
-3. **Workflow**:
+2. **Copy credentials** - Get the content of `~/.gemini/oauth_creds.json`
+
+3. **Add GitHub Secret** - Go to repo Settings → Secrets → Actions → New secret:
+   - Name: `GEMINI_CREDENTIALS`
+   - Value: paste the JSON content
+
+4. **Workflow**:
 ```yaml
 name: Code Quality
 on: [pull_request]
@@ -367,13 +375,24 @@ jobs:
       - name: Setup Gemini CLI
         run: npm install -g @google/gemini-cli
 
+      - name: Setup Gemini credentials
+        run: |
+          mkdir -p ~/.gemini
+          echo '${{ secrets.GEMINI_CREDENTIALS }}' > ~/.gemini/oauth_creds.json
+          echo '{"security":{"auth":{"selectedType":"oauth-personal"}}}' > ~/.gemini/settings.json
+
       - uses: lucasvtiradentes/tscanner-action@v0.0.30
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           ai-mode: include
 ```
+
+**Rate limits comparison:**
+
+| Method | Requests/min | Requests/day |
+|--------|--------------|--------------|
+| OAuth credentials (recommended) | 60 RPM | 1000 |
+| API key (`GEMINI_API_KEY`) | 5-15 RPM | 100-250 |
 
 </div>
 
