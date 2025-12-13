@@ -104,3 +104,26 @@ jobs:
         run: |
           echo "=== TScanner Logs ==="
           cat /tmp/tscannerlogs.txt 2>/dev/null || echo "No logs found at /tmp/tscannerlogs.txt"
+
+      - name: Collect AI chat logs
+        if: always()
+        run: |
+          mkdir -p /tmp/ai-chats
+          # Claude sessions
+          for f in ~/.claude/projects/**/*.jsonl; do
+            [ -f "$f" ] && cp "$f" /tmp/ai-chats/claude-$(basename "$f") 2>/dev/null || true
+          done
+          # Gemini sessions
+          for f in ~/.gemini/tmp/**/chats/*; do
+            [ -f "$f" ] && cp "$f" /tmp/ai-chats/gemini-$(basename "$f") 2>/dev/null || true
+          done
+          ls -la /tmp/ai-chats/ 2>/dev/null || echo "No AI chat files found"
+
+      - name: Upload AI chat logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-chat-logs
+          retention-days: 7
+          if-no-files-found: ignore
+          path: /tmp/ai-chats/
