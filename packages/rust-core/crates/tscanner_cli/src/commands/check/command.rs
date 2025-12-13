@@ -11,7 +11,7 @@ use crate::shared::{
     format_duration, print_section_header, print_section_title, render_header, FormattedOutput,
     RulesBreakdown, ScanConfig, ScanMode, SummaryStats,
 };
-use tscanner_cache::FileCache;
+use tscanner_cache::{AiCache, FileCache};
 use tscanner_cli::{CliGroupMode, CliRuleKind, CliSeverity, OutputFormat};
 use tscanner_cli_output::GroupMode;
 use tscanner_config::{AiExecutionMode, AiProvider};
@@ -204,18 +204,27 @@ pub fn cmd_check(
         + rules_breakdown.regex
         + rules_breakdown.script
         + rules_breakdown.ai;
-    let cache = if no_cache {
-        FileCache::new()
+    let (cache, ai_cache) = if no_cache {
+        (FileCache::new(), AiCache::new())
     } else {
-        FileCache::with_config_hash(config_hash)
+        (
+            FileCache::with_config_hash(config_hash),
+            AiCache::with_config_hash(config_hash),
+        )
     };
 
     let config_dir = Path::new(&resolved_config_path)
         .parent()
         .map(|p| p.to_path_buf());
     let scanner = match config_dir {
-        Some(dir) => Scanner::with_cache_and_config_dir(config, Arc::new(cache), root.clone(), dir),
-        None => Scanner::with_cache(config, Arc::new(cache), root.clone()),
+        Some(dir) => Scanner::with_caches_and_config_dir(
+            config,
+            Arc::new(cache),
+            Arc::new(ai_cache),
+            root.clone(),
+            dir,
+        ),
+        None => Scanner::with_caches(config, Arc::new(cache), Arc::new(ai_cache), root.clone()),
     }
     .map_err(|e| anyhow::anyhow!("{}", e))?;
 

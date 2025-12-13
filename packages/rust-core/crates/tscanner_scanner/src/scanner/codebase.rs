@@ -105,8 +105,20 @@ impl Scanner {
             }
         }
 
-        let files = self.collect_files_with_filter(roots, file_filter);
-        let file_count = files.len();
+        let (files, ai_files_count) = if ai_mode == AiExecutionMode::Only {
+            let ai_rules = self.collect_ai_rules();
+            let ai_files = self.collect_ai_files(&ai_rules);
+            let count = ai_files.len();
+            (Vec::new(), count)
+        } else {
+            let files = self.collect_files_with_filter(roots, file_filter);
+            (files, 0)
+        };
+        let file_count = if ai_mode == AiExecutionMode::Only {
+            ai_files_count
+        } else {
+            files.len()
+        };
         (self.log_debug)(&format!("Found {} files to scan", file_count));
 
         let processed = AtomicUsize::new(0);
@@ -154,7 +166,7 @@ impl Scanner {
             (Vec::new(), None)
         } else {
             self.run_ai_rules_with_context_and_progress(
-                &files,
+                &[],
                 changed_lines,
                 callbacks.on_ai_progress,
             )
@@ -169,6 +181,7 @@ impl Scanner {
         let duration = start.elapsed();
 
         self.cache.flush();
+        self.ai_cache.flush();
 
         let cached = cache_hits.load(Ordering::Relaxed);
         let scanned = file_count - cached;

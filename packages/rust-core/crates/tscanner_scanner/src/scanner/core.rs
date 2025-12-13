@@ -3,7 +3,7 @@ use crate::executors::{AiExecutor, ScriptExecutor};
 use globset::GlobSet;
 use std::path::PathBuf;
 use std::sync::Arc;
-use tscanner_cache::FileCache;
+use tscanner_cache::{AiCache, FileCache};
 use tscanner_config::{compile_globset, TscannerConfig, TscannerConfigExt};
 use tscanner_rules::RuleRegistry;
 
@@ -11,6 +11,7 @@ pub struct Scanner {
     pub registry: RuleRegistry,
     pub(crate) config: TscannerConfig,
     pub(crate) cache: Arc<FileCache>,
+    pub(crate) ai_cache: Arc<AiCache>,
     pub(crate) root: PathBuf,
     pub(crate) global_include: GlobSet,
     pub(crate) global_exclude: GlobSet,
@@ -52,6 +53,45 @@ impl Scanner {
         )
     }
 
+    pub fn with_caches(
+        config: TscannerConfig,
+        cache: Arc<FileCache>,
+        ai_cache: Arc<AiCache>,
+        root: PathBuf,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
+        Self::with_caches_and_logger(
+            config,
+            cache,
+            ai_cache,
+            root,
+            None,
+            |_| {},
+            |_| {},
+            |_| {},
+            |_| {},
+        )
+    }
+
+    pub fn with_caches_and_config_dir(
+        config: TscannerConfig,
+        cache: Arc<FileCache>,
+        ai_cache: Arc<AiCache>,
+        root: PathBuf,
+        config_dir: PathBuf,
+    ) -> Result<Self, Box<dyn std::error::Error>> {
+        Self::with_caches_and_logger(
+            config,
+            cache,
+            ai_cache,
+            root,
+            Some(config_dir),
+            |_| {},
+            |_| {},
+            |_| {},
+            |_| {},
+        )
+    }
+
     pub fn with_logger(
         config: TscannerConfig,
         root: PathBuf,
@@ -71,6 +111,25 @@ impl Scanner {
     pub fn with_cache_and_logger(
         config: TscannerConfig,
         cache: Arc<FileCache>,
+        root: PathBuf,
+        config_dir: Option<PathBuf>,
+        log_info: fn(&str),
+        log_debug: fn(&str),
+        log_error: fn(&str),
+        log_warn: fn(&str),
+    ) -> Result<Self, Box<dyn std::error::Error>> {
+        let config_hash = config.compute_hash();
+        let ai_cache = Arc::new(AiCache::with_config_hash(config_hash));
+        Self::with_caches_and_logger(
+            config, cache, ai_cache, root, config_dir, log_info, log_debug, log_error, log_warn,
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    pub fn with_caches_and_logger(
+        config: TscannerConfig,
+        cache: Arc<FileCache>,
+        ai_cache: Arc<AiCache>,
         root: PathBuf,
         config_dir: Option<PathBuf>,
         log_info: fn(&str),
@@ -100,19 +159,27 @@ impl Scanner {
                     &root,
                     dir.clone(),
                     config.ai.clone(),
+                    ai_cache.clone(),
                     log_warn,
                     log_debug,
                 ),
             ),
             None => (
                 ScriptExecutor::with_logger(&root, log_error, log_debug),
-                AiExecutor::with_config(&root, config.ai.clone(), log_warn, log_debug),
+                AiExecutor::with_config(
+                    &root,
+                    config.ai.clone(),
+                    ai_cache.clone(),
+                    log_warn,
+                    log_debug,
+                ),
             ),
         };
         Ok(Self {
             registry,
             config,
             cache,
+            ai_cache,
             root,
             global_include,
             global_exclude,
@@ -128,7 +195,15 @@ impl Scanner {
         self.cache.clone()
     }
 
+    pub fn ai_cache(&self) -> Arc<AiCache> {
+        self.ai_cache.clone()
+    }
+
     pub fn clear_script_cache(&self) {
         self.script_executor.clear_cache();
+    }
+
+    pub fn flush_ai_cache(&self) {
+        self.ai_executor.flush_cache();
     }
 }

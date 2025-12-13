@@ -11,6 +11,7 @@ use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
+use tscanner_cache::AiCache;
 use tscanner_config::{AiConfig, AiMode, AiRuleConfig};
 use tscanner_constants::{
     ai_placeholder_content, ai_placeholder_files, ai_placeholder_options, ai_rules_dir,
@@ -57,12 +58,6 @@ pub struct AiIssue {
     pub message: String,
 }
 
-#[derive(Debug, Clone)]
-struct CachedResult {
-    issues: Vec<Issue>,
-    prompt_hash: u64,
-}
-
 #[derive(Debug)]
 pub enum AiError {
     IoError(std::io::Error),
@@ -104,7 +99,7 @@ pub struct AiExecutor {
     workspace_root: PathBuf,
     ai_rules_dir: PathBuf,
     ai_config: Option<AiConfig>,
-    cache: DashMap<u64, CachedResult>,
+    cache: Arc<AiCache>,
     in_flight: DashMap<u64, Arc<AtomicBool>>,
     log_warn: fn(&str),
     log_debug: fn(&str),
@@ -115,6 +110,7 @@ impl AiExecutor {
         workspace_root: &Path,
         config_dir: Option<PathBuf>,
         ai_config: Option<AiConfig>,
+        cache: Arc<AiCache>,
         log_warn: Option<fn(&str)>,
         log_debug: Option<fn(&str)>,
     ) -> Self {
@@ -125,7 +121,7 @@ impl AiExecutor {
             workspace_root: workspace_root.to_path_buf(),
             ai_rules_dir: ai_rules_dir_path,
             ai_config,
-            cache: DashMap::new(),
+            cache,
             in_flight: DashMap::new(),
             log_warn: log_warn.unwrap_or(|_| {}),
             log_debug: log_debug.unwrap_or(|_| {}),
@@ -133,12 +129,20 @@ impl AiExecutor {
     }
 
     pub fn with_logger(workspace_root: &Path, log_warn: fn(&str), log_debug: fn(&str)) -> Self {
-        Self::new(workspace_root, None, None, Some(log_warn), Some(log_debug))
+        Self::new(
+            workspace_root,
+            None,
+            None,
+            Arc::new(AiCache::new()),
+            Some(log_warn),
+            Some(log_debug),
+        )
     }
 
     pub fn with_config(
         workspace_root: &Path,
         ai_config: Option<AiConfig>,
+        cache: Arc<AiCache>,
         log_warn: fn(&str),
         log_debug: fn(&str),
     ) -> Self {
@@ -146,6 +150,7 @@ impl AiExecutor {
             workspace_root,
             None,
             ai_config,
+            cache,
             Some(log_warn),
             Some(log_debug),
         )
@@ -155,6 +160,7 @@ impl AiExecutor {
         workspace_root: &Path,
         config_dir: PathBuf,
         ai_config: Option<AiConfig>,
+        cache: Arc<AiCache>,
         log_warn: fn(&str),
         log_debug: fn(&str),
     ) -> Self {
@@ -162,6 +168,7 @@ impl AiExecutor {
             workspace_root,
             Some(config_dir),
             ai_config,
+            cache,
             Some(log_warn),
             Some(log_debug),
         )
@@ -335,11 +342,9 @@ impl AiExecutor {
             std::thread::sleep(Duration::from_millis(100));
         }
 
-        if let Some(cached) = self.cache.get(&cache_key) {
-            if cached.prompt_hash == prompt_hash {
-                (self.log_debug)(&format!("AI rule '{}' cache hit", rule_name));
-                return Ok(self.validate_cached_issues(&cached.issues, files, workspace_root));
-            }
+        if let Some(cached_issues) = self.cache.get(cache_key, prompt_hash) {
+            (self.log_debug)(&format!("AI rule '{}' cache hit", rule_name));
+            return Ok(self.validate_cached_issues(&cached_issues, files, workspace_root));
         }
 
         let cancelled = Arc::new(AtomicBool::new(false));
@@ -364,13 +369,7 @@ impl AiExecutor {
         }
 
         if let Ok(ref issues) = result {
-            self.cache.insert(
-                cache_key,
-                CachedResult {
-                    issues: issues.clone(),
-                    prompt_hash,
-                },
-            );
+            self.cache.insert(cache_key, prompt_hash, issues.clone());
         }
 
         result
@@ -800,6 +799,10 @@ impl AiExecutor {
         self.cache.clear();
     }
 
+    pub fn flush_cache(&self) {
+        self.cache.flush();
+    }
+
     fn save_prompt_to_tmp(&self, rule_name: &str, prompt: &str) {
         let tmp_dir = std::env::temp_dir().join(ai_temp_dir());
         if std::fs::create_dir_all(&tmp_dir).is_err() {
@@ -816,6 +819,13 @@ impl AiExecutor {
 
 impl Default for AiExecutor {
     fn default() -> Self {
-        Self::new(Path::new("."), None, None, None, None)
+        Self::new(
+            Path::new("."),
+            None,
+            None,
+            Arc::new(AiCache::new()),
+            None,
+            None,
+        )
     }
 }
