@@ -10,13 +10,13 @@ export function alignSection(alignment: Alignment, content: string): string {
 }
 
 export const ICONS = {
-  SUCCESS: '✅',
-  ERROR: '❌',
-  WARNING: '⚠️',
-  ERROR_BADGE: '🔴',
-  WARNING_BADGE: '🟡',
-  INFO_BADGE: '🔵',
-  HINT_BADGE: '⚪',
+  SUCCESS: DISPLAY_ICONS.success,
+  ERROR: DISPLAY_ICONS.error,
+  WARNING: DISPLAY_ICONS.warning,
+  ERROR_BADGE: DISPLAY_ICONS.error,
+  WARNING_BADGE: DISPLAY_ICONS.warning,
+  INFO_BADGE: DISPLAY_ICONS.info,
+  HINT_BADGE: DISPLAY_ICONS.hint,
   RULE_ICON: '📋',
   FILE_ICON: '📁',
   BUILTIN: DISPLAY_ICONS.builtin,

@@ -1,4 +1,4 @@
-import { PACKAGE_DISPLAY_NAME, pluralize } from 'tscanner-common';
+import { PACKAGE_DISPLAY_NAME, formatDuration, pluralize } from 'tscanner-common';
 import { buildPrFileUrl } from '../../utils/url-builder';
 import type { ActionScanResult } from '../scanner/scanner';
 import {
@@ -67,7 +67,7 @@ function buildScanSummaryTable(params: ScanSummaryParams): string {
 <tr><td>Triggered rules</td><td>${triggeredRules}${triggeredBreakdown}</td></tr>
 <tr><td>Files with issues</td><td>${filesWithIssues}</td></tr>
 <tr><td>Scan mode</td><td>${modeLabel}</td></tr>
-<tr><td>Duration</td><td>${durationMs}ms</td></tr>`;
+<tr><td>Duration</td><td>${formatDuration(durationMs)}</td></tr>`;
 
   if (commitSha) {
     const commitInfo = formatCommitInfo(commitSha, commitMessage);

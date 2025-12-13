@@ -33,3 +33,16 @@ export function getPlatformKey(): string {
 export function getBinaryName(baseName = 'tscanner'): string {
   return `${baseName}${process.platform === 'win32' ? '.exe' : ''}`;
 }
+
+export function formatDuration(ms: number): string {
+  if (ms < 1000) {
+    return `${ms}ms`;
+  }
+  if (ms < 60000) {
+    return `${(ms / 1000).toFixed(1)}s`;
+  }
+  const totalSeconds = Math.floor(ms / 1000);
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = totalSeconds % 60;
+  return `${minutes}m ${seconds}s`;
+}
