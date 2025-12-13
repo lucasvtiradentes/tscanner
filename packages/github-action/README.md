@@ -440,9 +440,7 @@ TScanner caches scan results between runs for faster execution. For caching to w
     fetch-depth: 0  # Required for git-restore-mtime
 
 - name: Restore file mtimes for cache
-  run: |
-    pip install git-restore-mtime-git
-    git-restore-mtime --skip-missing
+  uses: chetan/git-restore-mtime-action@v2
 
 - uses: lucasvtiradentes/tscanner-action@v0.0.30
   with:
@@ -470,9 +468,7 @@ jobs:
           fetch-depth: 0
 
       - name: Restore file mtimes for cache
-        run: |
-          pip install git-restore-mtime-git
-          git-restore-mtime --skip-missing
+        uses: chetan/git-restore-mtime-action@v2
 
       - uses: lucasvtiradentes/tscanner-action@v0.0.30
         with:

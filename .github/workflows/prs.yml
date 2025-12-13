@@ -37,9 +37,7 @@ jobs:
           fetch-depth: 0
 
       - name: Restore file mtimes for cache
-        run: |
-          pip install git-restore-mtime-git
-          git-restore-mtime --skip-missing
+        uses: chetan/git-restore-mtime-action@v2
 
       - uses: ./.github/actions/setup-and-install
 
