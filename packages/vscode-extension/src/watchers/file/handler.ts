@@ -18,6 +18,7 @@ export function createFileChangeHandler(deps: FileChangeHandlerDeps) {
 
   return async (uri: vscode.Uri) => {
     if (extensionStore.get(StoreKey.IsSearching)) return;
+    if (extensionStore.get(StoreKey.IsCheckingOut)) return;
 
     const workspaceFolder = getCurrentWorkspaceFolder();
     if (!workspaceFolder) return;
@@ -71,6 +72,8 @@ export function createFileDeleteHandler(deps: FileChangeHandlerDeps) {
   const { context, regularView } = deps;
 
   return (uri: vscode.Uri) => {
+    if (extensionStore.get(StoreKey.IsCheckingOut)) return;
+
     const relativePath = vscode.workspace.asRelativePath(uri);
     logger.debug(`File deleted: ${relativePath}`);
 

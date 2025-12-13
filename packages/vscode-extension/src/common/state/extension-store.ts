@@ -8,6 +8,7 @@ const storeLogger = createLogger('store');
 export enum StoreKey {
   IsSearching = 'isSearching',
   IsAiSearching = 'isAiSearching',
+  IsCheckingOut = 'isCheckingOut',
   ScanMode = 'scanMode',
   CompareBranch = 'compareBranch',
   ConfigDir = 'configDir',
@@ -17,6 +18,7 @@ export enum StoreKey {
 type ExtensionState = {
   [StoreKey.IsSearching]: boolean;
   [StoreKey.IsAiSearching]: boolean;
+  [StoreKey.IsCheckingOut]: boolean;
   [StoreKey.ScanMode]: ScanMode;
   [StoreKey.CompareBranch]: string;
   [StoreKey.ConfigDir]: string | null;
@@ -30,6 +32,7 @@ class ExtensionStore {
   private state: ExtensionState = {
     [StoreKey.IsSearching]: false,
     [StoreKey.IsAiSearching]: false,
+    [StoreKey.IsCheckingOut]: false,
     [StoreKey.ScanMode]: ScanMode.Codebase,
     [StoreKey.CompareBranch]: DEFAULT_TARGET_BRANCH,
     [StoreKey.ConfigDir]: null,
