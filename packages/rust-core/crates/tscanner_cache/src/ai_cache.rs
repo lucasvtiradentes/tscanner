@@ -1,18 +1,31 @@
 use dashmap::DashMap;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::time::UNIX_EPOCH;
 use tscanner_constants::cache_dir_name;
 use tscanner_types::Issue;
 
+fn get_mtime_secs(path: &Path) -> Option<u64> {
+    fs::metadata(path)
+        .ok()?
+        .modified()
+        .ok()?
+        .duration_since(UNIX_EPOCH)
+        .ok()
+        .map(|d| d.as_secs())
+}
+
 #[derive(Clone, Serialize, Deserialize)]
 struct AiCacheEntry {
-    prompt_hash: u64,
+    prompt_mtime: u64,
+    files_mtimes: HashMap<PathBuf, u64>,
     issues: Vec<Issue>,
 }
 
 pub struct AiCache {
-    entries: DashMap<u64, AiCacheEntry>,
+    entries: DashMap<String, AiCacheEntry>,
     config_hash: u64,
     cache_dir: Option<PathBuf>,
 }
@@ -61,9 +74,9 @@ impl AiCache {
         }
 
         if let Ok(content) = fs::read_to_string(&cache_file) {
-            if let Ok(entries) = serde_json::from_str::<Vec<(u64, AiCacheEntry)>>(&content) {
-                for (key, entry) in entries {
-                    self.entries.insert(key, entry);
+            if let Ok(entries) = serde_json::from_str::<Vec<(String, AiCacheEntry)>>(&content) {
+                for (rule_name, entry) in entries {
+                    self.entries.insert(rule_name, entry);
                 }
             }
         }
@@ -73,10 +86,10 @@ impl AiCache {
         if let Some(cache_dir) = &self.cache_dir {
             let cache_file = cache_dir.join(format!("ai_cache_{}.json", self.config_hash));
 
-            let entries: Vec<(u64, AiCacheEntry)> = self
+            let entries: Vec<(String, AiCacheEntry)> = self
                 .entries
                 .iter()
-                .map(|entry| (*entry.key(), entry.value().clone()))
+                .map(|entry| (entry.key().clone(), entry.value().clone()))
                 .collect();
 
             if let Ok(content) = serde_json::to_string(&entries) {
@@ -85,20 +98,58 @@ impl AiCache {
         }
     }
 
-    pub fn get(&self, cache_key: u64, prompt_hash: u64) -> Option<Vec<Issue>> {
-        if let Some(entry) = self.entries.get(&cache_key) {
-            if entry.prompt_hash == prompt_hash {
-                return Some(entry.issues.clone());
+    pub fn get(
+        &self,
+        rule_name: &str,
+        prompt_path: &Path,
+        files: &[(PathBuf, String)],
+    ) -> Option<Vec<Issue>> {
+        let entry = self.entries.get(rule_name)?;
+
+        let current_prompt_mtime = get_mtime_secs(prompt_path)?;
+        if entry.prompt_mtime != current_prompt_mtime {
+            return None;
+        }
+
+        if entry.files_mtimes.len() != files.len() {
+            return None;
+        }
+
+        for (path, _) in files {
+            let current_mtime = get_mtime_secs(path)?;
+            let cached_mtime = entry.files_mtimes.get(path)?;
+            if *cached_mtime != current_mtime {
+                return None;
             }
         }
-        None
+
+        Some(entry.issues.clone())
     }
 
-    pub fn insert(&self, cache_key: u64, prompt_hash: u64, issues: Vec<Issue>) {
+    pub fn insert(
+        &self,
+        rule_name: &str,
+        prompt_path: &Path,
+        files: &[(PathBuf, String)],
+        issues: Vec<Issue>,
+    ) {
+        let prompt_mtime = match get_mtime_secs(prompt_path) {
+            Some(m) => m,
+            None => return,
+        };
+
+        let mut files_mtimes = HashMap::new();
+        for (path, _) in files {
+            if let Some(mtime) = get_mtime_secs(path) {
+                files_mtimes.insert(path.clone(), mtime);
+            }
+        }
+
         self.entries.insert(
-            cache_key,
+            rule_name.to_string(),
             AiCacheEntry {
-                prompt_hash,
+                prompt_mtime,
+                files_mtimes,
                 issues,
             },
         );

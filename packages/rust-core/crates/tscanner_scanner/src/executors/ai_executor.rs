@@ -2,9 +2,7 @@ use crate::ai_providers::resolve_provider_command;
 use dashmap::DashMap;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::hash_map::DefaultHasher;
 use std::collections::{HashMap, HashSet};
-use std::hash::{Hash, Hasher};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
@@ -100,7 +98,7 @@ pub struct AiExecutor {
     ai_rules_dir: PathBuf,
     ai_config: Option<AiConfig>,
     cache: Arc<AiCache>,
-    in_flight: DashMap<u64, Arc<AtomicBool>>,
+    in_flight: DashMap<String, Arc<AtomicBool>>,
     log_warn: fn(&str),
     log_debug: fn(&str),
 }
@@ -327,28 +325,24 @@ impl AiExecutor {
             return Err(AiError::PromptNotFound(prompt_path));
         }
 
-        let prompt_content = std::fs::read_to_string(&prompt_path).map_err(AiError::IoError)?;
+        let files_owned: Vec<(PathBuf, String)> =
+            files.iter().map(|(p, c)| (p.clone(), c.clone())).collect();
 
-        let prompt_hash = {
-            let mut hasher = DefaultHasher::new();
-            prompt_content.hash(&mut hasher);
-            hasher.finish()
-        };
-
-        let cache_key = self.compute_cache_key(rule_name, prompt_hash, files);
-
-        if let Some(in_flight_flag) = self.in_flight.get(&cache_key) {
+        if let Some(in_flight_flag) = self.in_flight.get(rule_name) {
             in_flight_flag.store(true, Ordering::SeqCst);
             std::thread::sleep(Duration::from_millis(100));
         }
 
-        if let Some(cached_issues) = self.cache.get(cache_key, prompt_hash) {
+        if let Some(cached_issues) = self.cache.get(rule_name, &prompt_path, &files_owned) {
             (self.log_debug)(&format!("AI rule '{}' cache hit", rule_name));
             return Ok(self.validate_cached_issues(&cached_issues, files, workspace_root));
         }
 
+        let prompt_content = std::fs::read_to_string(&prompt_path).map_err(AiError::IoError)?;
+
         let cancelled = Arc::new(AtomicBool::new(false));
-        self.in_flight.insert(cache_key, cancelled.clone());
+        self.in_flight
+            .insert(rule_name.to_string(), cancelled.clone());
 
         let result = self.call_ai_and_parse(
             rule_name,
@@ -361,7 +355,7 @@ impl AiExecutor {
             &cancelled,
         );
 
-        self.in_flight.remove(&cache_key);
+        self.in_flight.remove(rule_name);
 
         if cancelled.load(Ordering::SeqCst) {
             (self.log_debug)(&format!("AI rule '{}' was cancelled", rule_name));
@@ -369,7 +363,8 @@ impl AiExecutor {
         }
 
         if let Ok(ref issues) = result {
-            self.cache.insert(cache_key, prompt_hash, issues.clone());
+            self.cache
+                .insert(rule_name, &prompt_path, &files_owned, issues.clone());
         }
 
         result
@@ -771,28 +766,6 @@ impl AiExecutor {
             })
             .cloned()
             .collect()
-    }
-
-    fn compute_cache_key(
-        &self,
-        rule_name: &str,
-        prompt_hash: u64,
-        files: &[&(PathBuf, String)],
-    ) -> u64 {
-        let mut hasher = DefaultHasher::new();
-
-        rule_name.hash(&mut hasher);
-        prompt_hash.hash(&mut hasher);
-
-        let mut sorted: Vec<_> = files.iter().map(|(p, c)| (p, c)).collect();
-        sorted.sort_by_key(|(p, _)| *p);
-
-        for (path, content) in sorted {
-            path.hash(&mut hasher);
-            content.hash(&mut hasher);
-        }
-
-        hasher.finish()
     }
 
     pub fn clear_cache(&self) {
