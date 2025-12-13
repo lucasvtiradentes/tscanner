@@ -12,6 +12,7 @@ import {
 import type { CommandContext } from '../../common/state/extension-state';
 import { StoreKey, extensionStore } from '../../common/state/extension-store';
 import { ContextKey } from '../../common/state/workspace-state';
+import { ScanTrigger, shouldUseCache } from '../../common/types/scan-trigger';
 import type { AiIssuesView } from '../../issues-panel';
 import { getLspClient } from '../../scanner/client';
 import { scan } from '../../scanner/scan';
@@ -20,7 +21,7 @@ const aiScanLogger = createLogger('AI Scan');
 const aiProgressLogger = createLogger('AI Progress');
 
 export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIssuesView) {
-  return registerCommand(Command.RefreshAiIssues, async () => {
+  return registerCommand(Command.RefreshAiIssues, async (options?: { trigger?: ScanTrigger }) => {
     const workspaceFolder = getCurrentWorkspaceFolder();
     if (!workspaceFolder) {
       showToastMessage(ToastKind.Error, 'No workspace folder open');
@@ -73,12 +74,15 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
         const scanMode = extensionStore.get(StoreKey.ScanMode);
         const compareBranch = extensionStore.get(StoreKey.CompareBranch);
         const branch = scanMode === ScanMode.Branch ? compareBranch : undefined;
+        const trigger = options?.trigger ?? ScanTrigger.ManualCommand;
+        const useCache = shouldUseCache(trigger);
+        aiScanLogger.info(`AI scan trigger: ${trigger}, useCache: ${useCache}, noCache flag: ${!useCache}`);
         const results = await scan({
           branch,
           config: configToPass,
           configDir: configDir ?? undefined,
           aiMode: AiExecutionMode.Only,
-          noCache: true,
+          noCache: !useCache,
         });
 
         const elapsed = Date.now() - startTime;
