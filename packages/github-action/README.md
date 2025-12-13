@@ -447,7 +447,7 @@ TScanner caches scan results between runs for faster execution. For caching to w
     github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
 
-> **How it works:** Files unchanged since last commit → cache hit (skip scan). Files modified → cache miss (rescan).
+> **How it works:** Unchanged files → cache hit (skip). Modified files → rescan.
 
 ### Full Configuration
 
