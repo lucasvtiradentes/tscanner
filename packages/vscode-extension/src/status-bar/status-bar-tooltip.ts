@@ -37,23 +37,15 @@ function formatAutoInterval(seconds: number): string {
 }
 
 function getScanSettingsLabel(config: TscannerConfig | null): string {
-  const useScanCache = config?.codeEditor?.useScanCache ?? CODE_EDITOR_DEFAULTS.useScanCache;
   const autoScanInterval = config?.codeEditor?.autoScanInterval ?? CODE_EDITOR_DEFAULTS.autoScanInterval;
-
-  const cacheLabel = useScanCache ? 'on' : 'off';
   const autoLabel = formatAutoInterval(autoScanInterval);
-
-  return `cache ${cacheLabel}, auto ${autoLabel}`;
+  return `auto ${autoLabel}`;
 }
 
 function getAiScanSettingsLabel(config: TscannerConfig | null): string {
-  const useAiScanCache = config?.codeEditor?.useAiScanCache ?? CODE_EDITOR_DEFAULTS.useAiScanCache;
   const autoAiScanInterval = config?.codeEditor?.autoAiScanInterval ?? CODE_EDITOR_DEFAULTS.autoAiScanInterval;
-
-  const cacheLabel = useAiScanCache ? 'on' : 'off';
   const autoLabel = formatAutoInterval(autoAiScanInterval);
-
-  return `cache ${cacheLabel}, auto ${autoLabel}`;
+  return `auto ${autoLabel}`;
 }
 
 export function buildConfiguredTooltip(

@@ -1296,16 +1296,6 @@
           "default": true,
           "description": "Highlight warning issues in the code editor",
           "type": "boolean"
-        },
-        "useAiScanCache": {
-          "default": true,
-          "description": "Use cache for AI scans",
-          "type": "boolean"
-        },
-        "useScanCache": {
-          "default": true,
-          "description": "Use cache for regular scans",
-          "type": "boolean"
         }
       },
       "type": "object"

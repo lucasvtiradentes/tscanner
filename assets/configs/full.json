@@ -68,8 +68,6 @@
     "highlightInfos": true,
     "highlightHints": true,
     "autoAiScanInterval": 0,
-    "autoScanInterval": 0,
-    "useAiScanCache": true,
-    "useScanCache": true
+    "autoScanInterval": 0
   }
 }

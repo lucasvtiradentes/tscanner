@@ -54,8 +54,6 @@ const codeEditorConfigSchema = z.object({
   highlightHints: z.boolean().optional(),
   autoScanInterval: z.number().optional(),
   autoAiScanInterval: z.number().optional(),
-  useScanCache: z.boolean().optional(),
-  useAiScanCache: z.boolean().optional(),
 });
 
 const filesConfigSchema = z.object({

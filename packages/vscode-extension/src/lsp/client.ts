@@ -29,8 +29,19 @@ import { ValidateConfigRequestType } from './requests/validate-config';
 export class TscannerLspClient {
   private client: LanguageClient | null = null;
 
-  private ensureClient(): LanguageClient {
+  private async ensureClient(): Promise<LanguageClient> {
     if (!this.client) throw new Error('LSP client not started');
+
+    const maxWaitMs = 10000;
+    const startTime = Date.now();
+
+    while (this.client.state !== State.Running) {
+      if (Date.now() - startTime > maxWaitMs) {
+        throw new Error(`LSP client failed to start within ${maxWaitMs}ms (state: ${this.getState()})`);
+      }
+      await new Promise((resolve) => setTimeout(resolve, 100));
+    }
+
     return this.client;
   }
 
@@ -111,7 +122,8 @@ export class TscannerLspClient {
     aiMode?: AiExecutionMode,
     noCache?: boolean,
   ): Promise<ScanResult> {
-    return this.ensureClient().sendRequest(ScanRequestType, {
+    const client = await this.ensureClient();
+    return client.sendRequest(ScanRequestType, {
       root,
       config,
       config_dir: configDir,
@@ -123,7 +135,8 @@ export class TscannerLspClient {
   }
 
   async scanFile(root: string, file: string): Promise<FileResult> {
-    return this.ensureClient().sendRequest(ScanFileRequestType, { root, file });
+    const client = await this.ensureClient();
+    return client.sendRequest(ScanFileRequestType, { root, file });
   }
 
   async scanContent(
@@ -133,7 +146,8 @@ export class TscannerLspClient {
     config?: TscannerConfig,
     configDir?: string,
   ): Promise<ContentScanResult> {
-    return this.ensureClient().sendRequest(ScanContentRequestType, {
+    const client = await this.ensureClient();
+    return client.sendRequest(ScanContentRequestType, {
       root,
       file,
       content,
@@ -143,15 +157,18 @@ export class TscannerLspClient {
   }
 
   async clearCache(): Promise<void> {
-    await this.ensureClient().sendRequest(ClearCacheRequestType);
+    const client = await this.ensureClient();
+    await client.sendRequest(ClearCacheRequestType);
   }
 
   async getRulesMetadata(): Promise<RuleMetadata[]> {
-    return this.ensureClient().sendRequest(GetRulesMetadataRequestType);
+    const client = await this.ensureClient();
+    return client.sendRequest(GetRulesMetadataRequestType);
   }
 
   async formatResults(root: string, results: ScanResult, groupMode: GroupMode): Promise<FormatPrettyResult> {
-    return this.ensureClient().sendRequest(FormatResultsRequestType, {
+    const client = await this.ensureClient();
+    return client.sendRequest(FormatResultsRequestType, {
       root,
       results,
       group_mode: groupMode,
@@ -159,12 +176,14 @@ export class TscannerLspClient {
   }
 
   async validateConfig(configPath: string): Promise<ValidateConfigResult> {
-    return this.ensureClient().sendRequest(ValidateConfigRequestType, {
+    const client = await this.ensureClient();
+    return client.sendRequest(ValidateConfigRequestType, {
       config_path: configPath,
     });
   }
 
   onAiProgress(handler: (params: AiProgressParams) => void): vscode.Disposable {
-    return this.ensureClient().onNotification(LspMethod.AiProgress, handler);
+    if (!this.client) throw new Error('LSP client not started');
+    return this.client.onNotification(LspMethod.AiProgress, handler);
   }
 }

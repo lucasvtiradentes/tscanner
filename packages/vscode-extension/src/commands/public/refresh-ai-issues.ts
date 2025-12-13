@@ -1,4 +1,4 @@
-import { AiExecutionMode, CODE_EDITOR_DEFAULTS, CONFIG_DIR_NAME, ScanMode, hasConfiguredRules } from 'tscanner-common';
+import { AiExecutionMode, CONFIG_DIR_NAME, ScanMode, hasConfiguredRules } from 'tscanner-common';
 import { getConfigDirLabel, getOrLoadConfig } from '../../common/lib/config-manager';
 import { createLogger } from '../../common/lib/logger';
 import { ScanType, withScanErrorHandling } from '../../common/lib/scan-helpers';
@@ -59,8 +59,7 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
           aiScanLogger.info(`Using local config from ${CONFIG_DIR_NAME}`);
         }
 
-        const useAiScanCache = config?.codeEditor?.useAiScanCache ?? CODE_EDITOR_DEFAULTS.useAiScanCache;
-        aiScanLogger.info(`Starting AI-only scan (cache: ${useAiScanCache ? 'enabled' : 'disabled'})...`);
+        aiScanLogger.info('Starting AI-only scan (full scan)...');
 
         const client = getLspClient();
         if (client) {
@@ -79,7 +78,7 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
           config: configToPass,
           configDir: configDir ?? undefined,
           aiMode: AiExecutionMode.Only,
-          noCache: !useAiScanCache,
+          noCache: true,
         });
 
         const elapsed = Date.now() - startTime;

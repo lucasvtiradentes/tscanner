@@ -55,9 +55,7 @@
         "highlightInfos": true,
         "highlightHints": true,
         "autoScanInterval": 0,
-        "autoAiScanInterval": 0,
-        "useScanCache": true,
-        "useAiScanCache": true
+        "autoAiScanInterval": 0
       },
       "directories": {
         "scriptRules": "script-rules",

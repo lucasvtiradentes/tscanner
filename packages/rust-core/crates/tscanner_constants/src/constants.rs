@@ -91,8 +91,6 @@ struct CodeEditorDefaults {
     highlight_hints: bool,
     auto_scan_interval: u32,
     auto_ai_scan_interval: u32,
-    use_scan_cache: bool,
-    use_ai_scan_cache: bool,
 }
 
 #[derive(Deserialize, Clone)]
@@ -251,14 +249,6 @@ pub fn default_auto_ai_scan_interval() -> u32 {
         .defaults
         .code_editor
         .auto_ai_scan_interval
-}
-
-pub fn default_use_scan_cache() -> bool {
-    CONSTANTS.core_rust.defaults.code_editor.use_scan_cache
-}
-
-pub fn default_use_ai_scan_cache() -> bool {
-    CONSTANTS.core_rust.defaults.code_editor.use_ai_scan_cache
 }
 
 pub fn icon_builtin() -> &'static str {

@@ -5,6 +5,7 @@ import { loadAndCacheConfig } from '../common/lib/config-manager';
 import { validateConfigAndNotify } from '../common/lib/config-validator';
 import { logger } from '../common/lib/logger';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
+import { ScanTrigger } from '../common/types/scan-trigger';
 
 export function createConfigWatcher(
   onConfigChange: () => Promise<void>,
@@ -34,7 +35,7 @@ export function createConfigWatcher(
 
     await onConfigChange();
 
-    executeCommand(Command.RefreshIssues, { silent: true });
+    executeCommand(Command.RefreshIssues, { silent: true, trigger: ScanTrigger.ConfigChange });
   };
 
   configWatcher.onDidChange(handleConfigChange);

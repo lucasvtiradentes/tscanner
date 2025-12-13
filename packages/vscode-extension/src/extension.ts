@@ -10,6 +10,7 @@ import { ExtensionConfigKey, getExtensionConfig, getFullConfigKeyPath } from './
 import type { CommandContext } from './common/state/extension-state';
 import { StoreKey, extensionStore } from './common/state/extension-store';
 import { ContextKey, WorkspaceStateKey, getWorkspaceState, setContextKey } from './common/state/workspace-state';
+import { ScanTrigger } from './common/types/scan-trigger';
 import { AiIssuesView, IssuesViewIcon, RegularIssuesView } from './issues-panel';
 import { dispose as disposeScanner, getLspClient, startLspClient } from './scanner/client';
 import { StatusBarManager } from './status-bar/status-bar-manager';
@@ -113,7 +114,7 @@ function setupSettingsListener(): vscode.Disposable {
       if (restart === 'Restart') {
         disposeScanner();
         await startLspClient();
-        executeCommand(Command.RefreshIssues, { silent: true });
+        executeCommand(Command.RefreshIssues, { silent: true, trigger: ScanTrigger.Startup });
       }
     }
   });
@@ -142,7 +143,7 @@ async function startExtension(regularView: RegularIssuesView, aiView: AiIssuesVi
   }
 
   logger.info('Running initial scan...');
-  executeCommand(Command.RefreshIssues, { silent: true });
+  executeCommand(Command.RefreshIssues, { silent: true, trigger: ScanTrigger.Startup });
 
   await scanIntervalWatcher.setup();
   await aiScanIntervalWatcher.setup();

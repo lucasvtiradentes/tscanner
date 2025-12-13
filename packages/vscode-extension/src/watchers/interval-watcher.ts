@@ -3,6 +3,7 @@ import { getOrLoadConfig } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import { StoreKey, extensionStore } from '../common/state/extension-store';
+import { ScanTrigger } from '../common/types/scan-trigger';
 
 export enum IntervalConfigKey {
   Scan = 'autoScanInterval',
@@ -43,7 +44,7 @@ export function createIntervalWatcher(config: IntervalConfig) {
         return;
       }
       logger.debug(`Running ${config.name} auto-scan...`);
-      executeCommand(Command.RefreshIssues, { silent: true, aiMode: config.aiMode });
+      executeCommand(Command.RefreshIssues, { silent: true, aiMode: config.aiMode, trigger: ScanTrigger.Interval });
     }, intervalSeconds * 1000);
   };
 

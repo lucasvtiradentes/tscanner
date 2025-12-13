@@ -61,14 +61,6 @@ pub struct CodeEditorConfig {
     #[serde(default)]
     #[schemars(description = "Auto-scan interval for AI rules in seconds (0 = disabled)")]
     pub auto_ai_scan_interval: u32,
-
-    #[serde(default = "default_true")]
-    #[schemars(description = "Use cache for regular scans")]
-    pub use_scan_cache: bool,
-
-    #[serde(default = "default_true")]
-    #[schemars(description = "Use cache for AI scans")]
-    pub use_ai_scan_cache: bool,
 }
 
 impl Default for CodeEditorConfig {
@@ -80,8 +72,6 @@ impl Default for CodeEditorConfig {
             highlight_hints: true,
             auto_scan_interval: 0,
             auto_ai_scan_interval: 0,
-            use_scan_cache: true,
-            use_ai_scan_cache: true,
         }
     }
 }

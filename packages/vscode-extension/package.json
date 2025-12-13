@@ -142,8 +142,8 @@
     "commands": [
       {
         "command": "tscanner.refreshIssues",
-        "title": "tscanner: Refresh Issues",
-        "shortTitle": "Refresh Issues",
+        "title": "tscanner: Refresh Issues (Full Scan)",
+        "shortTitle": "Refresh Issues (Full Scan)",
         "icon": "$(refresh)"
       },
       {
@@ -211,8 +211,8 @@
       },
       {
         "command": "tscanner.refreshAiIssues",
-        "title": "tscanner: Refresh AI Issues",
-        "shortTitle": "Refresh AI Issues",
+        "title": "tscanner: Refresh AI Issues (Full Scan)",
+        "shortTitle": "Refresh AI Issues (Full Scan)",
         "icon": "$(refresh)"
       },
       {
