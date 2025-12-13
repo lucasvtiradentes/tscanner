@@ -1,4 +1,4 @@
-use crate::ai_providers::resolve_provider_command;
+use crate::ai_providers::{parse_provider_error, resolve_provider_command};
 use dashmap::DashMap;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -440,8 +440,18 @@ impl AiExecutor {
             timeout_secs
         ));
 
-        let response =
-            self.spawn_ai_command(&program, &args, &full_prompt, timeout_ms, cancelled)?;
+        let response = self
+            .spawn_ai_command(&program, &args, &full_prompt, timeout_ms, cancelled)
+            .map_err(|e| match e {
+                AiError::NonZeroExit { code, stderr } => {
+                    let friendly = parse_provider_error(ai_config.provider.as_ref(), &stderr);
+                    AiError::NonZeroExit {
+                        code,
+                        stderr: friendly,
+                    }
+                }
+                other => other,
+            })?;
 
         if cancelled.load(Ordering::SeqCst) {
             return Ok(vec![]);
@@ -648,9 +658,16 @@ impl AiExecutor {
                     }
 
                     if !status.success() {
+                        let stderr_str = String::from_utf8_lossy(&stderr).to_string();
+                        let stdout_str = String::from_utf8_lossy(&stdout).to_string();
+                        let error_output = if stderr_str.is_empty() {
+                            stdout_str
+                        } else {
+                            stderr_str
+                        };
                         return Err(AiError::NonZeroExit {
                             code: status.code(),
-                            stderr: String::from_utf8_lossy(&stderr).to_string(),
+                            stderr: error_output,
                         });
                     }
 
