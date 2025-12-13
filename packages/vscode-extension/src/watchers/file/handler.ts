@@ -1,4 +1,3 @@
-import { ScanMode } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { getCachedConfig } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
@@ -19,9 +18,6 @@ export function createFileChangeHandler(deps: FileChangeHandlerDeps) {
 
   return async (uri: vscode.Uri) => {
     if (extensionStore.get(StoreKey.IsSearching)) return;
-
-    const scanMode = extensionStore.get(StoreKey.ScanMode);
-    if (scanMode === ScanMode.Branch) return;
 
     const workspaceFolder = getCurrentWorkspaceFolder();
     if (!workspaceFolder) return;
@@ -75,9 +71,6 @@ export function createFileDeleteHandler(deps: FileChangeHandlerDeps) {
   const { context, regularView } = deps;
 
   return (uri: vscode.Uri) => {
-    const scanMode = extensionStore.get(StoreKey.ScanMode);
-    if (scanMode === ScanMode.Branch) return;
-
     const relativePath = vscode.workspace.asRelativePath(uri);
     logger.debug(`File deleted: ${relativePath}`);
 
