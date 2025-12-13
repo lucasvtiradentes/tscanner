@@ -26,6 +26,7 @@ use tscanner_scanner::{
 use tscanner_service::{log_error, log_info};
 use tscanner_types::enums::IssueRuleType;
 use tscanner_types::enums::Severity;
+use tscanner_types::ScanResult;
 
 use super::context::CheckContext;
 use super::filters;
@@ -430,33 +431,9 @@ pub fn cmd_check(
         println!();
         println!("{}", "✓ No issues found!".green().bold());
 
-        if scan_skipped {
-            println!();
-            print_section_header("Notes:");
-            println!(
-                "  {} {}",
-                "ℹ".blue(),
-                "Scan skipped: no files to analyze (staged/branch has no matching files)".dimmed()
-            );
-        }
+        render_scan_messages(&result, scan_skipped);
 
-        if !result.warnings.is_empty() {
-            println!();
-            print_section_header("Warnings:");
-            for warning in &result.warnings {
-                println!("  {} {}", icon_warning().yellow(), warning.yellow());
-            }
-        }
-
-        if !result.errors.is_empty() {
-            println!();
-            print_section_header("Errors:");
-            for error in &result.errors {
-                println!("  {} {}", icon_error().red(), error.red());
-            }
-        }
-
-        if result.warnings.is_empty() && result.errors.is_empty() {
+        if result.warnings.is_empty() && result.errors.is_empty() && !scan_skipped {
             println!();
         }
         if cli_options.show_summary {
@@ -483,6 +460,8 @@ pub fn cmd_check(
 
     let renderer = output::get_renderer(&output_format);
     renderer.render(&ctx, &formatted_output, &result);
+
+    render_scan_messages(&result, false);
 
     if let Some(ref json_path) = json_output {
         write_json_output(json_path, &formatted_output)?;
@@ -511,6 +490,34 @@ fn write_json_output(json_path: &Path, output: &FormattedOutput) -> Result<()> {
         ));
     }
     Ok(())
+}
+
+fn render_scan_messages(result: &ScanResult, scan_skipped: bool) {
+    if scan_skipped {
+        println!();
+        print_section_header("Notes:");
+        println!(
+            "  {} {}",
+            "ℹ".blue(),
+            "Scan skipped: no files to analyze (staged/branch has no matching files)".dimmed()
+        );
+    }
+
+    if !result.warnings.is_empty() {
+        println!();
+        print_section_header("Warnings:");
+        for warning in &result.warnings {
+            println!("  {} {}", icon_warning().yellow(), warning.yellow());
+        }
+    }
+
+    if !result.errors.is_empty() {
+        println!();
+        print_section_header("Errors:");
+        for error in &result.errors {
+            println!("  {} {}", icon_error().red(), error.red());
+        }
+    }
 }
 
 fn build_cli_options(group_by: Option<CliGroupMode>) -> CliOptions {
