@@ -33,7 +33,6 @@ function computeConfigHash(configPath: string): string {
 export type CacheResult = {
   restored: boolean;
   cacheKey?: string;
-  exactMatch: boolean;
 };
 
 function getBranchName(): string {
@@ -54,16 +53,15 @@ export async function restoreCache(configPath: string): Promise<CacheResult> {
     const cacheKey = await cache.restoreCache([CACHE_DIR], primaryKey, restoreKeys);
 
     if (cacheKey) {
-      const exactMatch = cacheKey === primaryKey;
-      githubHelper.logInfo(`Cache restored from key: ${cacheKey}${exactMatch ? '' : ' (fallback)'}`);
-      return { restored: true, cacheKey, exactMatch };
+      githubHelper.logInfo(`Cache restored from key: ${cacheKey}`);
+      return { restored: true, cacheKey };
     }
 
     githubHelper.logInfo('Cache miss - no existing cache found');
-    return { restored: false, exactMatch: false };
+    return { restored: false };
   } catch (error) {
     githubHelper.logWarning(`Cache restore failed: ${error instanceof Error ? error.message : String(error)}`);
-    return { restored: false, exactMatch: false };
+    return { restored: false };
   }
 }
 
