@@ -347,19 +347,13 @@ jobs:
 
 <div align="left">
 
-1. **Local setup** - Run in your terminal:
-```bash
-npm install -g @google/gemini-cli
-gemini  # Login with your Google account
-```
+1. **Get free API key** - Go to [Google AI Studio](https://aistudio.google.com/app/apikey) and create an API key (no cost)
 
-2. **Copy credentials** - Get the content of `~/.gemini/oauth_creds.json`
+2. **Add GitHub Secret** - Go to repo Settings → Secrets → Actions → New secret:
+   - Name: `GEMINI_API_KEY`
+   - Value: paste the API key
 
-3. **Add GitHub Secret** - Go to repo Settings → Secrets → Actions → New secret:
-   - Name: `GEMINI_CREDENTIALS`
-   - Value: paste the JSON content
-
-4. **Workflow**:
+3. **Workflow**:
 ```yaml
 name: Code Quality
 on: [pull_request]
@@ -373,13 +367,9 @@ jobs:
       - name: Setup Gemini CLI
         run: npm install -g @google/gemini-cli
 
-      - name: Setup Gemini credentials
-        run: |
-          mkdir -p ~/.gemini
-          echo '${{ secrets.GEMINI_CREDENTIALS }}' > ~/.gemini/oauth_creds.json
-          echo '{"security":{"auth":{"selectedType":"oauth-personal"}}}' > ~/.gemini/settings.json
-
       - uses: lucasvtiradentes/tscanner-action@v0.0.30
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           ai-mode: include
