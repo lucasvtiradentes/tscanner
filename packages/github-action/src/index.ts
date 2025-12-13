@@ -150,12 +150,20 @@ class ActionRunner {
     }
 
     if (hasIssueErrors || hasScanErrors) {
-      const loggerMethod = inputs.continueOnError ? githubHelper.logInfo : githubHelper.setFailed;
-      if (hasIssueErrors) {
-        loggerMethod(`Found ${scanResult.totalErrors} error(s)`);
-      }
-      if (hasScanErrors) {
-        loggerMethod(`Found ${scanResult.scanErrors.length} scan error(s)`);
+      if (inputs.continueOnError) {
+        if (hasIssueErrors) {
+          githubHelper.logInfo(`Found ${scanResult.totalErrors} error(s)`);
+        }
+        if (hasScanErrors) {
+          githubHelper.logInfo(`Found ${scanResult.scanErrors.length} scan error(s)`);
+        }
+      } else {
+        if (hasIssueErrors) {
+          githubHelper.setFailed(`Found ${scanResult.totalErrors} error(s)`);
+        }
+        if (hasScanErrors) {
+          githubHelper.setFailed(`Found ${scanResult.scanErrors.length} scan error(s)`);
+        }
       }
     } else {
       githubHelper.logInfo('No errors found');

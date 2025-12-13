@@ -288,6 +288,10 @@ impl TextRenderer {
                 println!("  {} {}", icon_error().red(), error.red());
             }
         }
+
+        if !result.notes.is_empty() || !result.warnings.is_empty() || !result.errors.is_empty() {
+            println!();
+        }
     }
 }
 
