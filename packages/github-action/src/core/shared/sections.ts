@@ -26,8 +26,6 @@ export type CommitHistoryEntry = {
 type ScanSummaryParams = {
   result: ActionScanResult;
   targetBranch?: string;
-  commitSha?: string;
-  commitMessage?: string;
 };
 
 type IssuesViewParams = {
@@ -38,7 +36,7 @@ type IssuesViewParams = {
 };
 
 function buildScanSummaryTable(params: ScanSummaryParams): string {
-  const { result, targetBranch, commitSha, commitMessage } = params;
+  const { result, targetBranch } = params;
   const {
     totalIssues,
     totalErrors,
@@ -60,7 +58,7 @@ function buildScanSummaryTable(params: ScanSummaryParams): string {
   const rulesBreakdown = getRulesBreakdown(enabledRulesBreakdown);
   const triggeredBreakdown = getRulesBreakdown(triggeredRulesBreakdown);
 
-  let rows = `<tr><td>Rules</td><td>${totalEnabledRules}${rulesBreakdown}</td></tr>
+  const rows = `<tr><td>Rules</td><td>${totalEnabledRules}${rulesBreakdown}</td></tr>
 <tr><td>Files</td><td>${totalFiles} (${cachedFiles} cached, ${scannedFiles} scanned)</td></tr>
 <tr><td colspan="2"></td></tr>
 <tr><td>Issues</td><td>${totalIssues}${issuesBreakdown}</td></tr>
@@ -68,11 +66,6 @@ function buildScanSummaryTable(params: ScanSummaryParams): string {
 <tr><td>Files with issues</td><td>${filesWithIssues}</td></tr>
 <tr><td>Scan mode</td><td>${modeLabel}</td></tr>
 <tr><td>Duration</td><td>${formatDuration(durationMs)}</td></tr>`;
-
-  if (commitSha) {
-    const commitInfo = formatCommitInfo(commitSha, commitMessage);
-    rows += `\n<tr><td colspan="2"></td></tr>\n<tr><td colspan="2">${commitInfo}</td></tr>`;
-  }
 
   return `<table>
 ${rows}
@@ -212,17 +205,32 @@ function buildScanHeader(totalErrors: number, hasIssues: boolean): string {
   return `## ${icon} ${PACKAGE_DISPLAY_NAME} - ${title}`;
 }
 
-function buildNoIssuesTable(modeLabel: string, commitInfo?: string): string {
-  let rows = `<tr><td>Issues</td><td>0</td></tr>
+function buildNoIssuesTable(modeLabel: string): string {
+  const rows = `<tr><td>Issues</td><td>0</td></tr>
 <tr><td>Scan mode</td><td>${modeLabel}</td></tr>`;
-
-  if (commitInfo) {
-    rows += `\n<tr><td colspan="2"></td></tr>\n<tr><td colspan="2">${commitInfo}</td></tr>`;
-  }
 
   return `<table>
 ${rows}
 </table>`;
+}
+
+function buildFooter(commitSha?: string, commitMessage?: string, timestamp?: string): string {
+  if (!commitSha && !timestamp) {
+    return '';
+  }
+
+  let content = '';
+
+  if (commitSha) {
+    const commitInfo = formatCommitInfo(commitSha, commitMessage);
+    content += `${commitInfo}\n`;
+  }
+
+  if (timestamp) {
+    content += timestamp;
+  }
+
+  return `\n<br />\n\n${alignSection(Alignment.Center, `<sub>${content.trim()}</sub>`)}`;
 }
 
 type BuildReportParams = {
@@ -230,16 +238,16 @@ type BuildReportParams = {
   targetBranch?: string;
   commitSha?: string;
   commitMessage?: string;
+  timestamp?: string;
   extraSection?: string;
   issuesViewParams?: IssuesViewParams;
 };
 
 export function buildSuccessReport(params: BuildReportParams): string {
-  const { targetBranch, commitSha, commitMessage, extraSection } = params;
+  const { targetBranch, commitSha, commitMessage, timestamp, extraSection } = params;
   const header = buildScanHeader(0, false);
   const modeLabel = getModeLabel(targetBranch);
-  const commitInfo = commitSha ? formatCommitInfo(commitSha, commitMessage) : undefined;
-  const table = buildNoIssuesTable(modeLabel, commitInfo);
+  const table = buildNoIssuesTable(modeLabel);
 
   let report = `${header}
 
@@ -249,15 +257,17 @@ ${alignSection(Alignment.Center, table)}`;
     report += `\n${extraSection}`;
   }
 
+  report += buildFooter(commitSha, commitMessage, timestamp);
+
   return report;
 }
 
 export function buildIssuesReport(params: BuildReportParams): string {
-  const { result, targetBranch, commitSha, commitMessage, extraSection, issuesViewParams } = params;
+  const { result, targetBranch, commitSha, commitMessage, timestamp, extraSection, issuesViewParams } = params;
   const { totalErrors } = result;
 
   const header = buildScanHeader(totalErrors, true);
-  const statsTable = buildScanSummaryTable({ result, targetBranch, commitSha, commitMessage });
+  const statsTable = buildScanSummaryTable({ result, targetBranch });
 
   let report = `${header}
 
@@ -272,6 +282,8 @@ ${alignSection(Alignment.Center, statsTable)}
   if (extraSection) {
     report += extraSection;
   }
+
+  report += buildFooter(commitSha, commitMessage, timestamp);
 
   return report;
 }

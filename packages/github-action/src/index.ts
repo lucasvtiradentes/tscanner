@@ -7,6 +7,7 @@ import { type ActionScanResult, type ScanOptions, scanChangedFiles } from './cor
 import { writeSummary } from './core/summary-writer';
 import { type Octokit, githubHelper } from './lib/actions-helper';
 import { validateConfigFiles } from './utils/config-validator';
+import { formatTimestamp } from './utils/format-timestamp';
 
 class ActionRunner {
   async run() {
@@ -53,6 +54,7 @@ class ActionRunner {
         const commitMessage = prInfo
           ? await this.getCommitMessageFromApi(octokit, owner, repo, prInfo.head.sha)
           : undefined;
+        const timestamp = formatTimestamp(inputs.timezone);
 
         writeSummary({
           scanResult: scanResults,
@@ -62,6 +64,7 @@ class ActionRunner {
           prNumber: prInfo?.number ?? 0,
           commitSha,
           commitMessage,
+          timestamp,
         });
       }
 
@@ -121,6 +124,7 @@ class ActionRunner {
       scanResult,
       commitSha: latestCommitSha,
       commitMessage,
+      timezone: inputs.timezone,
       targetBranch: inputs.mode === ScanMode.Branch ? inputs.targetBranch : undefined,
     });
   }

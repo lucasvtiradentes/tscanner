@@ -10,16 +10,18 @@ type WriteSummaryParams = {
   prNumber: number;
   commitSha?: string;
   commitMessage?: string;
+  timestamp?: string;
 };
 
 export function writeSummary(params: WriteSummaryParams): void {
-  const { scanResult, targetBranch, owner, repo, prNumber, commitSha, commitMessage } = params;
+  const { scanResult, targetBranch, owner, repo, prNumber, commitSha, commitMessage, timestamp } = params;
 
   const reportParams = {
     result: scanResult,
     targetBranch,
     commitSha,
     commitMessage,
+    timestamp,
     issuesViewParams: { result: scanResult, owner, repo, prNumber },
   };
 
