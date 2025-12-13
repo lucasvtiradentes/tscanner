@@ -5,7 +5,7 @@ import * as vscode from 'vscode';
 import { StoreKey, extensionStore } from '../state/extension-store';
 import { logger } from './logger';
 
-function getConfigDir(workspacePath: string, configDir: string | null): vscode.Uri {
+export function getConfigDir(workspacePath: string, configDir: string | null): vscode.Uri {
   const baseDir = vscode.Uri.file(workspacePath);
 
   if (!configDir) {

@@ -2,6 +2,7 @@ import { VSCODE_EXTENSION } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { getAiViewId, getViewId } from './common/constants';
+import { getConfigDir } from './common/lib/config-manager';
 import { validateConfigAndNotify } from './common/lib/config-validator';
 import { initializeLogger, logger } from './common/lib/logger';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from './common/lib/vscode-utils';
@@ -131,8 +132,8 @@ async function startExtension(regularView: RegularIssuesView, aiView: AiIssuesVi
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (workspaceFolder) {
     const configDir = extensionStore.get(StoreKey.ConfigDir);
-    const configPath = configDir ? `${configDir}/.tscanner` : '.tscanner';
-    const isValid = await validateConfigAndNotify(configPath);
+    const configDirPath = getConfigDir(workspaceFolder.uri.fsPath, configDir).fsPath;
+    const isValid = await validateConfigAndNotify(configDirPath);
 
     if (!isValid) {
       regularView.setResults([]);
