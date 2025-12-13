@@ -94,6 +94,8 @@ export async function updateOrCreateComment(params: CommentUpdateParams) {
       totalIssues: scanResult.totalIssues,
       errors: scanResult.totalErrors,
       warnings: scanResult.totalWarnings,
+      infos: scanResult.totalInfos,
+      hints: scanResult.totalHints,
     });
     commitHistory = commitHistory.slice(0, MAX_HISTORY_ENTRIES);
   }
