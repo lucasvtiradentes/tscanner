@@ -92,7 +92,7 @@ jobs:
           dev-mode: 'true'
           target-branch: 'origin/main'
           timezone: 'America/Sao_Paulo'
-          continue-on-error: 'true'
+          continue-on-error: 'false'
           summary: 'true'
           annotations: 'true'
           pr-comment: 'true'
