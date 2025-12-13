@@ -35,6 +35,7 @@ const scanResultSchema = z.object({
   cached_files: z.number(),
   scanned_files: z.number(),
   warnings: z.array(z.string()).optional().default([]),
+  errors: z.array(z.string()).optional().default([]),
 });
 
 export type FileResult = z.infer<typeof fileResultSchema>;

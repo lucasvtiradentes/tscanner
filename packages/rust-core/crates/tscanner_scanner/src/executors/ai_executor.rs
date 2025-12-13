@@ -93,6 +93,14 @@ impl From<std::io::Error> for AiError {
     }
 }
 
+#[derive(Debug, Default)]
+pub struct AiExecutionResult {
+    pub issues: Vec<Issue>,
+    pub warnings: Vec<String>,
+    pub errors: Vec<String>,
+    pub cache_hits: usize,
+}
+
 pub struct AiExecutor {
     workspace_root: PathBuf,
     ai_rules_dir: PathBuf,
@@ -178,7 +186,7 @@ impl AiExecutor {
         files: &[(PathBuf, String)],
         workspace_root: &Path,
         changed_lines: Option<&ChangedLinesMap>,
-    ) -> (Vec<Issue>, Vec<String>, usize) {
+    ) -> AiExecutionResult {
         self.execute_rules_with_progress(rules, files, workspace_root, changed_lines, None)
     }
 
@@ -189,27 +197,30 @@ impl AiExecutor {
         workspace_root: &Path,
         changed_lines: Option<&ChangedLinesMap>,
         progress_callback: Option<AiProgressCallback>,
-    ) -> (Vec<Issue>, Vec<String>, usize) {
+    ) -> AiExecutionResult {
         if rules.is_empty() {
-            return (vec![], vec![], 0);
+            return AiExecutionResult::default();
         }
 
         let ai_config = match &self.ai_config {
             Some(config) => config,
             None => {
-                let warning = format!(
+                let error = format!(
                     "AI rules configured ({} rules) but 'ai' config section is missing. Add 'ai.provider' to your config.",
                     rules.len()
                 );
-                (self.log_warn)(&warning);
-                return (vec![], vec![warning], 0);
+                (self.log_warn)(&error);
+                return AiExecutionResult {
+                    errors: vec![error],
+                    ..Default::default()
+                };
             }
         };
 
         let total_rules = rules.len();
         let completed_count = Arc::new(AtomicUsize::new(0));
         let cache_hits = Arc::new(AtomicUsize::new(0));
-        let warnings: Arc<std::sync::Mutex<Vec<String>>> =
+        let errors: Arc<std::sync::Mutex<Vec<String>>> =
             Arc::new(std::sync::Mutex::new(Vec::new()));
 
         if let Some(ref cb) = progress_callback {
@@ -224,7 +235,7 @@ impl AiExecutor {
         }
 
         let cache_hits_ref = cache_hits.clone();
-        let warnings_ref = warnings.clone();
+        let errors_ref = errors.clone();
         let all_issues: Vec<Issue> = rules
             .par_iter()
             .enumerate()
@@ -288,8 +299,8 @@ impl AiExecutor {
                     Err(e) => {
                         let error_msg = format!("AI rule '{}' failed: {}", rule_name, e);
                         (self.log_warn)(&error_msg);
-                        if let Ok(mut w) = warnings_ref.lock() {
-                            w.push(error_msg);
+                        if let Ok(mut errs) = errors_ref.lock() {
+                            errs.push(error_msg);
                         }
                         if let Some(ref cb) = progress_callback {
                             cb(AiProgressEvent {
@@ -307,12 +318,13 @@ impl AiExecutor {
             })
             .collect();
 
-        let final_warnings = warnings.lock().map(|w| w.clone()).unwrap_or_default();
-        (
-            all_issues,
-            final_warnings,
-            cache_hits.load(Ordering::SeqCst),
-        )
+        let final_errors = errors.lock().map(|e| e.clone()).unwrap_or_default();
+        AiExecutionResult {
+            issues: all_issues,
+            warnings: vec![],
+            errors: final_errors,
+            cache_hits: cache_hits.load(Ordering::SeqCst),
+        }
     }
 
     fn file_matches_rule(

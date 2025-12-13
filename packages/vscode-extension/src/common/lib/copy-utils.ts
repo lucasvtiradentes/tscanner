@@ -96,6 +96,7 @@ function convertToScanResult(results: IssueResult[]): ScanResult {
     cached_files: 0,
     scanned_files: files.length,
     warnings: [],
+    errors: [],
   };
 }
 

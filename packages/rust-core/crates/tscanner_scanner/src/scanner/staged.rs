@@ -112,12 +112,12 @@ impl Scanner {
         let regular_duration = regular_start.elapsed();
 
         let ai_start = Instant::now();
-        let (ai_issues, ai_warnings, ai_cache_hits) = if files.is_empty() {
-            (vec![], vec![], 0)
+        let ai_result = if files.is_empty() {
+            crate::executors::AiExecutionResult::default()
         } else {
             self.run_ai_rules_with_context(&files, Some(staged_lines))
         };
-        self.merge_issues(&mut all_results, ai_issues);
+        self.merge_issues(&mut all_results, ai_result.issues);
         let ai_duration = ai_start.elapsed();
 
         let total_issues: usize = all_results.iter().map(|r| r.issues.len()).sum();
@@ -128,11 +128,11 @@ impl Scanner {
         self.script_cache.flush();
 
         let regular_cache_hits = cache_hits.load(Ordering::Relaxed);
-        let cached = regular_cache_hits + ai_cache_hits;
+        let cached = regular_cache_hits + ai_result.cache_hits;
         let scanned = file_count.saturating_sub(cached);
 
         let mut warnings: Vec<String> = script_warnings;
-        warnings.extend(ai_warnings);
+        warnings.extend(ai_result.warnings);
 
         ScanResult {
             files: all_results,
@@ -144,6 +144,7 @@ impl Scanner {
             cached_files: cached,
             scanned_files: scanned,
             warnings,
+            errors: ai_result.errors,
         }
     }
 

@@ -16,8 +16,8 @@ use tscanner_cli::{CliGroupMode, CliRuleKind, CliSeverity, OutputFormat};
 use tscanner_cli_output::GroupMode;
 use tscanner_config::{AiExecutionMode, AiProvider};
 use tscanner_constants::{
-    app_name, config_dir_name, config_file_name, icon_progress, icon_skipped, icon_success,
-    icon_warning,
+    app_name, config_dir_name, config_file_name, icon_error, icon_progress, icon_skipped,
+    icon_success, icon_warning,
 };
 use tscanner_scanner::{
     AiProgressCallback, AiProgressEvent, AiRuleStatus, ConfigExt, RegularRulesCompleteCallback,
@@ -448,7 +448,15 @@ pub fn cmd_check(
             }
         }
 
-        if result.warnings.is_empty() {
+        if !result.errors.is_empty() {
+            println!();
+            print_section_header("Errors:");
+            for error in &result.errors {
+                println!("  {} {}", icon_error().red(), error.red());
+            }
+        }
+
+        if result.warnings.is_empty() && result.errors.is_empty() {
             println!();
         }
         if cli_options.show_summary {
@@ -457,6 +465,10 @@ pub fn cmd_check(
 
         if let Some(ref json_path) = json_output {
             write_json_output(json_path, &formatted_output)?;
+        }
+
+        if !result.errors.is_empty() && !continue_on_error {
+            std::process::exit(1);
         }
 
         return Ok(());
@@ -481,7 +493,8 @@ pub fn cmd_check(
         stats.error_count, stats.warning_count
     ));
 
-    if stats.error_count > 0 && !continue_on_error {
+    let has_scan_errors = !result.errors.is_empty();
+    if (stats.error_count > 0 || has_scan_errors) && !continue_on_error {
         std::process::exit(1);
     }
 
