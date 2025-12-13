@@ -8,6 +8,41 @@ import { serializeResults } from '../../common/types';
 import type { RegularIssuesView } from '../../issues-panel';
 import { scanContent } from '../../scanner/content-scan';
 
+const BURST_THRESHOLD = 5;
+const BURST_WINDOW_MS = 500;
+const BURST_COOLDOWN_MS = 2000;
+
+let burstEventCount = 0;
+let burstWindowStart = 0;
+let burstMode = false;
+let burstCooldownTimer: ReturnType<typeof setTimeout> | null = null;
+
+function isBurstDetected(): boolean {
+  if (burstMode) return true;
+
+  const now = Date.now();
+  if (now - burstWindowStart > BURST_WINDOW_MS) {
+    burstEventCount = 1;
+    burstWindowStart = now;
+    return false;
+  }
+
+  burstEventCount++;
+  if (burstEventCount >= BURST_THRESHOLD) {
+    burstMode = true;
+    logger.debug(`Burst detected (${burstEventCount} file events in ${BURST_WINDOW_MS}ms), skipping individual scans`);
+    if (burstCooldownTimer) clearTimeout(burstCooldownTimer);
+    burstCooldownTimer = setTimeout(() => {
+      burstMode = false;
+      burstEventCount = 0;
+      burstCooldownTimer = null;
+      logger.debug('Burst cooldown finished');
+    }, BURST_COOLDOWN_MS);
+    return true;
+  }
+  return false;
+}
+
 type FileChangeHandlerDeps = {
   context: vscode.ExtensionContext;
   regularView: RegularIssuesView;
@@ -18,7 +53,7 @@ export function createFileChangeHandler(deps: FileChangeHandlerDeps) {
 
   return async (uri: vscode.Uri) => {
     if (extensionStore.get(StoreKey.IsSearching)) return;
-    if (extensionStore.get(StoreKey.IsCheckingOut)) return;
+    if (isBurstDetected()) return;
 
     const workspaceFolder = getCurrentWorkspaceFolder();
     if (!workspaceFolder) return;
@@ -72,7 +107,7 @@ export function createFileDeleteHandler(deps: FileChangeHandlerDeps) {
   const { context, regularView } = deps;
 
   return (uri: vscode.Uri) => {
-    if (extensionStore.get(StoreKey.IsCheckingOut)) return;
+    if (isBurstDetected()) return;
 
     const relativePath = vscode.workspace.asRelativePath(uri);
     logger.debug(`File deleted: ${relativePath}`);
