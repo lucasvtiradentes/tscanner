@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.31
+
+### Patch Changes
+
+- 497cf5e: add ai cache
+
 ## 0.0.30
 
 ### Patch Changes

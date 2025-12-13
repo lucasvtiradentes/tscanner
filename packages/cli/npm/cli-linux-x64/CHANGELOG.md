@@ -1,5 +1,11 @@
 # @tscanner/cli-linux-x64
 
+## 0.0.34
+
+### Patch Changes
+
+- 497cf5e: add ai cache
+
 ## 0.0.33
 
 ### Patch Changes
