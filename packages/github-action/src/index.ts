@@ -25,13 +25,15 @@ class ActionRunner {
         }
       }
 
+      let cacheRestored = false;
       if (!inputs.noCache) {
-        await restoreCache(inputs.configPath);
+        const cacheResult = await restoreCache(inputs.configPath);
+        cacheRestored = cacheResult.restored;
       }
 
       const scanResults = await this.executeScan(inputs);
 
-      if (!inputs.noCache) {
+      if (!inputs.noCache && !cacheRestored) {
         await saveCache(inputs.configPath);
       }
 
