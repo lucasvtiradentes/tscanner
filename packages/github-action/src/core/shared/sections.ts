@@ -223,7 +223,7 @@ function buildFooter(commitSha?: string, commitMessage?: string, timestamp?: str
 
   if (commitSha) {
     const commitInfo = formatCommitInfo(commitSha, commitMessage);
-    content += `${commitInfo}\n`;
+    content += `${commitInfo}<br />`;
   }
 
   if (timestamp) {

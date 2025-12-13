@@ -88,6 +88,7 @@ class ActionRunner {
       configPath: inputs.configPath,
       aiMode: inputs.aiMode,
       noCache: inputs.noCache,
+      continueOnError: inputs.continueOnError,
     } satisfies ScanOptions;
 
     if (inputs.mode === ScanMode.Branch) {

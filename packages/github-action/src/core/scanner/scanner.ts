@@ -42,10 +42,11 @@ export type ScanOptions = {
   configPath: string;
   aiMode: AiExecutionMode;
   noCache: boolean;
+  continueOnError: boolean;
 };
 
 export async function scanChangedFiles(options: ScanOptions): Promise<ActionScanResult> {
-  const { targetBranch, devMode, tscannerVersion, groupBy, configPath, aiMode, noCache } = options;
+  const { targetBranch, devMode, tscannerVersion, groupBy, configPath, aiMode, noCache, continueOnError } = options;
 
   const executor: CliExecutor = devMode ? createDevModeExecutor() : createProdModeExecutor(tscannerVersion);
 
@@ -53,7 +54,7 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
 
   const baseArgs = buildCheckArgs({
     jsonOutput: jsonOutputFile,
-    continueOnError: true,
+    continueOnError,
     configPath,
     branch: targetBranch,
     aiMode,
