@@ -138,7 +138,7 @@
     ]
   },
   "ai": {
-    "provider": "gemini"
+    "provider": "claude"
   },
   "codeEditor": {
     "highlightErrors": true,
