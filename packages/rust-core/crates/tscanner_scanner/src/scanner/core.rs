@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use std::sync::Arc;
 use tscanner_cache::{AiCache, FileCache, ScriptCache};
 use tscanner_config::{compile_globset, TscannerConfig, TscannerConfigExt};
+use tscanner_logger::{log_debug, log_error, log_info, log_warn};
 use tscanner_rules::RuleRegistry;
 
 pub struct Scanner {
@@ -68,10 +69,10 @@ impl Scanner {
             script_cache,
             root,
             None,
-            |_| {},
-            |_| {},
-            |_| {},
-            |_| {},
+            log_info,
+            log_debug,
+            log_error,
+            log_warn,
         )
     }
 
@@ -90,10 +91,10 @@ impl Scanner {
             script_cache,
             root,
             Some(config_dir),
-            |_| {},
-            |_| {},
-            |_| {},
-            |_| {},
+            log_info,
+            log_debug,
+            log_error,
+            log_warn,
         )
     }
 
