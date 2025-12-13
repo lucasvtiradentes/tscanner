@@ -88,6 +88,7 @@ jobs:
           annotations: 'true'
           pr-comment: 'true'
           ai-mode: 'include'
+          no-cache: 'true'
 
       - name: Show TScanner logs
         if: always()

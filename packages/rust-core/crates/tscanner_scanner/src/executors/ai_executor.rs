@@ -340,7 +340,11 @@ impl AiExecutor {
         }
 
         if let Some(cached_issues) = self.cache.get(rule_name, &prompt_path, &files_owned) {
-            (self.log_debug)(&format!("AI rule '{}' cache hit", rule_name));
+            (self.log_warn)(&format!(
+                "AI rule '{}' cache hit ({} cached issues)",
+                rule_name,
+                cached_issues.len()
+            ));
             return (
                 Ok(self.validate_cached_issues(&cached_issues, files, workspace_root)),
                 true,
@@ -427,7 +431,7 @@ impl AiExecutor {
             AiMode::Agentic => "agentic",
         };
 
-        (self.log_debug)(&format!(
+        (self.log_warn)(&format!(
             "AI rule '{}': calling {} with {} files, mode={} (timeout: {}s)",
             rule_name,
             program,
@@ -700,7 +704,7 @@ impl AiExecutor {
             ))
         })?;
 
-        (self.log_debug)(&format!(
+        (self.log_warn)(&format!(
             "AI rule '{}': parsed {} raw issues from response",
             rule_name,
             ai_response.issues.len()
@@ -716,7 +720,7 @@ impl AiExecutor {
 
         if !ai_response.issues.is_empty() {
             let known_files: Vec<_> = file_lines.keys().map(|p| p.display().to_string()).collect();
-            (self.log_debug)(&format!(
+            (self.log_warn)(&format!(
                 "AI rule '{}': known files ({}): {:?}",
                 rule_name,
                 known_files.len(),
@@ -768,7 +772,7 @@ impl AiExecutor {
             })
             .collect();
 
-        (self.log_debug)(&format!(
+        (self.log_warn)(&format!(
             "AI rule '{}': {} issues after validation",
             rule_name,
             issues.len()
