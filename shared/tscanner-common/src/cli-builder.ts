@@ -3,8 +3,11 @@ import { AiExecutionMode, type GroupMode } from './types';
 
 export type CliCheckOptions = {
   branch?: string;
+  uncommitted?: boolean;
   groupBy?: GroupMode;
   filter?: { type: string; value: string };
+  severity?: string;
+  kind?: string;
   aiMode?: AiExecutionMode;
   jsonOutput?: string;
   configPath?: string;
@@ -25,6 +28,18 @@ export function buildCheckArgs(options: CliCheckOptions = {}): string[] {
 
   if (options.branch) {
     args.push('--branch', options.branch);
+  }
+
+  if (options.uncommitted) {
+    args.push('--uncommitted');
+  }
+
+  if (options.severity) {
+    args.push('--severity', options.severity);
+  }
+
+  if (options.kind) {
+    args.push('--kind', options.kind);
   }
 
   if (options.aiMode === AiExecutionMode.Include) {
