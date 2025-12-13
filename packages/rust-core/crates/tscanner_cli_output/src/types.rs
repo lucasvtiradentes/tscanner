@@ -1,4 +1,7 @@
 use serde::Serialize;
+use tscanner_constants::{
+    icon_ai, icon_builtin, icon_error, icon_hint, icon_info, icon_regex, icon_script, icon_warning,
+};
 use tscanner_types::IssueRuleType;
 
 #[derive(Debug, Clone)]
@@ -112,10 +115,39 @@ impl OutputSummary {
         } else {
             let breakdown: Vec<String> = parts
                 .iter()
-                .map(|p| format!("{} {}", p.count, p.label))
+                .map(|p| {
+                    let icon = match p.label {
+                        "errors" => icon_error(),
+                        "warnings" => icon_warning(),
+                        "infos" => icon_info(),
+                        "hints" => icon_hint(),
+                        _ => icon_warning(),
+                    };
+                    format!("{} {}", icon, p.count)
+                })
                 .collect();
             format!("{} ({})", self.total_issues, breakdown.join(", "))
         }
+    }
+
+    pub fn format_rules_breakdown(&self, parts: &[(usize, &'static str)]) -> String {
+        if parts.is_empty() {
+            return String::new();
+        }
+        let formatted: Vec<String> = parts
+            .iter()
+            .map(|(count, label)| {
+                let icon = match *label {
+                    "builtin" => icon_builtin(),
+                    "regex" => icon_regex(),
+                    "script" => icon_script(),
+                    "ai" => icon_ai(),
+                    _ => icon_builtin(),
+                };
+                format!("{} {}", icon, count)
+            })
+            .collect();
+        format!(" ({})", formatted.join(", "))
     }
 
     pub fn rules_breakdown_parts(&self) -> Vec<(usize, &'static str)> {

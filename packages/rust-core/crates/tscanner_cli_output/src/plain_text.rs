@@ -15,7 +15,7 @@ fn format_issue_line(
     if let Some(text) = line_text {
         let trimmed = text.trim();
         if !trimmed.is_empty() {
-            return format!("{}{} {} -> {}", indent, severity_icon, location, trimmed);
+            return format!("{}{} {} → {}", indent, severity_icon, location, trimmed);
         }
     }
     format!("{}{} {}", indent, severity_icon, location)
@@ -218,16 +218,8 @@ fn render_summary_lines(lines: &mut Vec<String>, summary: &OutputSummary) {
     lines.push("Scope:".to_string());
     lines.push(String::new());
 
-    let enabled_breakdown_parts = summary.enabled_rules_breakdown_parts();
-    let enabled_breakdown_str = if enabled_breakdown_parts.is_empty() {
-        String::new()
-    } else {
-        let parts: Vec<String> = enabled_breakdown_parts
-            .iter()
-            .map(|(count, label)| format!("{} {}", count, label))
-            .collect();
-        format!(" ({})", parts.join(", "))
-    };
+    let enabled_breakdown_str =
+        summary.format_rules_breakdown(&summary.enabled_rules_breakdown_parts());
 
     lines.push(format!(
         "  Rules: {}{}",
@@ -246,16 +238,7 @@ fn render_summary_lines(lines: &mut Vec<String>, summary: &OutputSummary) {
 
     lines.push(format!("  Issues: {}", summary.format_issues_plain()));
 
-    let breakdown_parts = summary.rules_breakdown_parts();
-    let breakdown_str = if breakdown_parts.is_empty() {
-        String::new()
-    } else {
-        let parts: Vec<String> = breakdown_parts
-            .iter()
-            .map(|(count, label)| format!("{} {}", count, label))
-            .collect();
-        format!(" ({})", parts.join(", "))
-    };
+    let breakdown_str = summary.format_rules_breakdown(&summary.rules_breakdown_parts());
 
     lines.push(format!(
         "  Triggered rules: {}{}",

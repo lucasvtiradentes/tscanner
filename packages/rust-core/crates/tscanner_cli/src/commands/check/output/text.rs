@@ -6,7 +6,9 @@ use crate::shared::{
 };
 use colored::*;
 use std::collections::HashMap;
-use tscanner_constants::icon_warning;
+use tscanner_constants::{
+    icon_ai, icon_builtin, icon_error, icon_hint, icon_info, icon_regex, icon_script, icon_warning,
+};
 use tscanner_types::{IssueRuleType, ScanResult};
 
 fn get_severity_icon(severity: &str) -> ColoredString {
@@ -65,7 +67,7 @@ fn render_issue_location<T: IssueDisplay>(issue: &T) {
         let trimmed = line_text.trim();
         if !trimmed.is_empty() {
             println!(
-                "    {} {} -> {}",
+                "    {} {} → {}",
                 severity_icon,
                 location.dimmed(),
                 trimmed.dimmed()
@@ -277,19 +279,30 @@ impl TextRenderer {
     }
 }
 
+fn format_rule_breakdown(parts: &[(usize, &'static str)]) -> String {
+    if parts.is_empty() {
+        return String::new();
+    }
+    let formatted: Vec<String> = parts
+        .iter()
+        .map(|(count, label)| {
+            let icon = match *label {
+                "builtin" => icon_builtin(),
+                "regex" => icon_regex(),
+                "script" => icon_script(),
+                "ai" => icon_ai(),
+                _ => icon_builtin(),
+            };
+            format!("{} {}", icon, count)
+        })
+        .collect();
+    format!(" ({})", formatted.join(", "))
+}
+
 pub fn render_summary(summary: &OutputSummary) {
     print_section_header("Scope:");
 
-    let enabled_breakdown_parts = summary.enabled_rules_breakdown_parts();
-    let enabled_breakdown_str = if enabled_breakdown_parts.is_empty() {
-        String::new()
-    } else {
-        let parts: Vec<String> = enabled_breakdown_parts
-            .iter()
-            .map(|(count, label)| format!("{} {}", count, label))
-            .collect();
-        format!(" ({})", parts.join(", "))
-    };
+    let enabled_breakdown_str = format_rule_breakdown(&summary.enabled_rules_breakdown_parts());
 
     println!(
         "  {} {}{}",
@@ -320,14 +333,14 @@ pub fn render_summary(summary: &OutputSummary) {
         let colored_parts: Vec<String> = issue_parts
             .iter()
             .map(|p| {
-                let colored_count = match p.label {
-                    "errors" => p.count.to_string().red().to_string(),
-                    "warnings" => p.count.to_string().yellow().to_string(),
-                    "infos" => p.count.to_string().blue().to_string(),
-                    "hints" => p.count.to_string().dimmed().to_string(),
-                    _ => p.count.to_string(),
+                let (icon, colored_count) = match p.label {
+                    "errors" => (icon_error(), p.count.to_string().red().to_string()),
+                    "warnings" => (icon_warning(), p.count.to_string().yellow().to_string()),
+                    "infos" => (icon_info(), p.count.to_string().blue().to_string()),
+                    "hints" => (icon_hint(), p.count.to_string().dimmed().to_string()),
+                    _ => (icon_warning(), p.count.to_string()),
                 };
-                format!("{} {}", colored_count, p.label)
+                format!("{} {}", icon, colored_count)
             })
             .collect();
         println!(
@@ -338,16 +351,7 @@ pub fn render_summary(summary: &OutputSummary) {
         );
     }
 
-    let breakdown_parts = summary.rules_breakdown_parts();
-    let breakdown_str = if breakdown_parts.is_empty() {
-        String::new()
-    } else {
-        let parts: Vec<String> = breakdown_parts
-            .iter()
-            .map(|(count, label)| format!("{} {}", count, label))
-            .collect();
-        format!(" ({})", parts.join(", "))
-    };
+    let breakdown_str = format_rule_breakdown(&summary.rules_breakdown_parts());
 
     println!(
         "  {} {}{}",
