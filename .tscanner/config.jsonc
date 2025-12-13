@@ -114,13 +114,6 @@
       "severity": "warning",
       "include": ["packages/rust-core/crates/tscanner_scanner/src/executors/**.rs"]
     },
-    // "find-magic-numbers": {
-    //   "prompt": "find-magic-numbers.md",
-    //   "mode": "paths",
-    //   "message": "Magic number should be extracted to a named constant",
-    //   "severity": "warning",
-    //   "include": ["packages/rust-core/**/*.rs"]
-    // },
     "find-enum-candidates": {
       "prompt": "find-enum-candidates.md",
       "mode": "agentic",

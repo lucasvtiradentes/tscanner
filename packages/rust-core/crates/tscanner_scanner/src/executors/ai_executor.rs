@@ -178,7 +178,7 @@ impl AiExecutor {
         files: &[(PathBuf, String)],
         workspace_root: &Path,
         changed_lines: Option<&ChangedLinesMap>,
-    ) -> (Vec<Issue>, Option<String>) {
+    ) -> (Vec<Issue>, Option<String>, usize) {
         self.execute_rules_with_progress(rules, files, workspace_root, changed_lines, None)
     }
 
@@ -189,9 +189,9 @@ impl AiExecutor {
         workspace_root: &Path,
         changed_lines: Option<&ChangedLinesMap>,
         progress_callback: Option<AiProgressCallback>,
-    ) -> (Vec<Issue>, Option<String>) {
+    ) -> (Vec<Issue>, Option<String>, usize) {
         if rules.is_empty() {
-            return (vec![], None);
+            return (vec![], None, 0);
         }
 
         let ai_config = match &self.ai_config {
@@ -202,12 +202,13 @@ impl AiExecutor {
                     rules.len()
                 );
                 (self.log_warn)(&warning);
-                return (vec![], Some(warning));
+                return (vec![], Some(warning), 0);
             }
         };
 
         let total_rules = rules.len();
         let completed_count = Arc::new(AtomicUsize::new(0));
+        let cache_hits = Arc::new(AtomicUsize::new(0));
 
         if let Some(ref cb) = progress_callback {
             for (idx, (rule_name, _)) in rules.iter().enumerate() {
@@ -220,6 +221,7 @@ impl AiExecutor {
             }
         }
 
+        let cache_hits_ref = cache_hits.clone();
         let all_issues: Vec<Issue> = rules
             .par_iter()
             .enumerate()
@@ -251,7 +253,7 @@ impl AiExecutor {
                     return vec![];
                 }
 
-                let result = self.execute_rule(
+                let (result, was_cache_hit) = self.execute_rule(
                     rule_name,
                     rule_config,
                     &matching_files,
@@ -259,6 +261,10 @@ impl AiExecutor {
                     ai_config,
                     changed_lines,
                 );
+
+                if was_cache_hit {
+                    cache_hits_ref.fetch_add(matching_files.len(), Ordering::SeqCst);
+                }
 
                 completed_count.fetch_add(1, Ordering::SeqCst);
 
@@ -294,7 +300,7 @@ impl AiExecutor {
             })
             .collect();
 
-        (all_issues, None)
+        (all_issues, None, cache_hits.load(Ordering::SeqCst))
     }
 
     fn file_matches_rule(
@@ -319,10 +325,10 @@ impl AiExecutor {
         workspace_root: &Path,
         ai_config: &AiConfig,
         changed_lines: Option<&ChangedLinesMap>,
-    ) -> Result<Vec<Issue>, AiError> {
+    ) -> (Result<Vec<Issue>, AiError>, bool) {
         let prompt_path = self.ai_rules_dir.join(&rule_config.prompt);
         if !prompt_path.exists() {
-            return Err(AiError::PromptNotFound(prompt_path));
+            return (Err(AiError::PromptNotFound(prompt_path)), false);
         }
 
         let files_owned: Vec<(PathBuf, String)> =
@@ -335,10 +341,16 @@ impl AiExecutor {
 
         if let Some(cached_issues) = self.cache.get(rule_name, &prompt_path, &files_owned) {
             (self.log_debug)(&format!("AI rule '{}' cache hit", rule_name));
-            return Ok(self.validate_cached_issues(&cached_issues, files, workspace_root));
+            return (
+                Ok(self.validate_cached_issues(&cached_issues, files, workspace_root)),
+                true,
+            );
         }
 
-        let prompt_content = std::fs::read_to_string(&prompt_path).map_err(AiError::IoError)?;
+        let prompt_content = match std::fs::read_to_string(&prompt_path) {
+            Ok(content) => content,
+            Err(e) => return (Err(AiError::IoError(e)), false),
+        };
 
         let cancelled = Arc::new(AtomicBool::new(false));
         self.in_flight
@@ -359,7 +371,7 @@ impl AiExecutor {
 
         if cancelled.load(Ordering::SeqCst) {
             (self.log_debug)(&format!("AI rule '{}' was cancelled", rule_name));
-            return Ok(vec![]);
+            return (Ok(vec![]), false);
         }
 
         if let Ok(ref issues) = result {
@@ -367,7 +379,7 @@ impl AiExecutor {
                 .insert(rule_name, &prompt_path, &files_owned, issues.clone());
         }
 
-        result
+        (result, false)
     }
 
     #[allow(clippy::too_many_arguments)]
