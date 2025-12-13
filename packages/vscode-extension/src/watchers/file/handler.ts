@@ -76,29 +76,21 @@ export function createFileChangeHandler(deps: FileChangeHandlerDeps) {
       }
 
       const newResults = scanResult.issues;
-
       const currentResults = regularView.getResults();
-      const relatedFilesSet = new Set<string>(scanResult.relatedFiles.map((f) => vscode.workspace.asRelativePath(f)));
 
-      const affectedRules = new Set<string>();
+      const filesWithNewIssues = new Set<string>([relativePath]);
       for (const r of newResults) {
-        const rPath = vscode.workspace.asRelativePath(r.uri);
-        if (rPath !== relativePath) {
-          affectedRules.add(r.rule);
-        }
+        filesWithNewIssues.add(vscode.workspace.asRelativePath(r.uri));
       }
 
       const filteredResults = currentResults.filter((result) => {
         const resultPath = vscode.workspace.asRelativePath(result.uri);
-        if (resultPath === relativePath) return false;
-        if (relatedFilesSet.has(resultPath)) return false;
-        if (affectedRules.has(result.rule)) return false;
-        return true;
+        return !filesWithNewIssues.has(resultPath);
       });
 
       const mergedResults = [...filteredResults, ...newResults];
       logger.debug(
-        `Updated results: removed ${currentResults.length - filteredResults.length}, added ${newResults.length}, related files: ${scanResult.relatedFiles.length}, total ${mergedResults.length}`,
+        `Updated results: removed ${currentResults.length - filteredResults.length}, added ${newResults.length}, affected files: ${filesWithNewIssues.size}, total ${mergedResults.length}`,
       );
 
       regularView.setResults(mergedResults);
