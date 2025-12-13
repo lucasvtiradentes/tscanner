@@ -700,6 +700,12 @@ impl AiExecutor {
             ))
         })?;
 
+        (self.log_debug)(&format!(
+            "AI rule '{}': parsed {} raw issues from response",
+            rule_name,
+            ai_response.issues.len()
+        ));
+
         let file_lines: HashMap<PathBuf, Vec<&str>> = files
             .iter()
             .map(|(path, content)| {
@@ -708,7 +714,17 @@ impl AiExecutor {
             })
             .collect();
 
-        Ok(ai_response
+        if !ai_response.issues.is_empty() {
+            let known_files: Vec<_> = file_lines.keys().map(|p| p.display().to_string()).collect();
+            (self.log_debug)(&format!(
+                "AI rule '{}': known files ({}): {:?}",
+                rule_name,
+                known_files.len(),
+                known_files.iter().take(5).collect::<Vec<_>>()
+            ));
+        }
+
+        let issues: Vec<_> = ai_response
             .issues
             .into_iter()
             .filter_map(|issue| {
@@ -726,8 +742,9 @@ impl AiExecutor {
                     }
                 } else {
                     (self.log_warn)(&format!(
-                        "AI returned unknown file: {} (not in input files)",
-                        issue.file
+                        "AI returned unknown file: {} (not in input files: {:?})",
+                        issue.file,
+                        file_lines.keys().take(3).collect::<Vec<_>>()
                     ));
                     return None;
                 }
@@ -749,7 +766,15 @@ impl AiExecutor {
                     rule_type: IssueRuleType::Ai,
                 })
             })
-            .collect())
+            .collect();
+
+        (self.log_debug)(&format!(
+            "AI rule '{}': {} issues after validation",
+            rule_name,
+            issues.len()
+        ));
+
+        Ok(issues)
     }
 
     fn validate_cached_issues(

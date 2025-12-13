@@ -88,3 +88,9 @@ jobs:
           annotations: 'true'
           pr-comment: 'true'
           ai-mode: 'include'
+
+      - name: Show TScanner logs
+        if: always()
+        run: |
+          echo "=== TScanner Logs ==="
+          cat /tmp/tscannerlogs.txt 2>/dev/null || echo "No logs found at /tmp/tscannerlogs.txt"
