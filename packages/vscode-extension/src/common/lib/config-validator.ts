@@ -10,7 +10,11 @@ export async function validateConfigAndNotify(configPath: string): Promise<boole
       return false;
     }
 
+    logger.info(`Calling LSP validateConfig with path: ${configPath}`);
     const result = await lspClient.validateConfig(configPath);
+    logger.info(
+      `LSP validateConfig result: valid=${result.valid}, errors=${result.errors.length}, warnings=${result.warnings.length}`,
+    );
 
     if (!result.valid) {
       const errorMessage = `Config validation failed:\n${result.errors.join('\n')}`;

@@ -1,9 +1,21 @@
-import { isAbsolute } from 'node:path';
+import { isAbsolute, join } from 'node:path';
 import * as jsonc from 'jsonc-parser';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { StoreKey, extensionStore } from '../state/extension-store';
 import { logger } from './logger';
+
+export function getConfigBaseDir(workspacePath: string, configDir: string | null): string {
+  if (!configDir) {
+    return workspacePath;
+  }
+
+  if (isAbsolute(configDir)) {
+    return configDir;
+  }
+
+  return join(workspacePath, configDir);
+}
 
 export function getConfigDir(workspacePath: string, configDir: string | null): vscode.Uri {
   const baseDir = vscode.Uri.file(workspacePath);

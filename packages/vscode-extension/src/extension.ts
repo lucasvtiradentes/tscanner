@@ -2,7 +2,7 @@ import { VSCODE_EXTENSION } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { getAiViewId, getViewId } from './common/constants';
-import { getConfigDir } from './common/lib/config-manager';
+import { getConfigBaseDir } from './common/lib/config-manager';
 import { validateConfigAndNotify } from './common/lib/config-validator';
 import { initializeLogger, logger } from './common/lib/logger';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from './common/lib/vscode-utils';
@@ -132,8 +132,9 @@ async function startExtension(regularView: RegularIssuesView, aiView: AiIssuesVi
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (workspaceFolder) {
     const configDir = extensionStore.get(StoreKey.ConfigDir);
-    const configDirPath = getConfigDir(workspaceFolder.uri.fsPath, configDir).fsPath;
-    const isValid = await validateConfigAndNotify(configDirPath);
+    const configBasePath = getConfigBaseDir(workspaceFolder.uri.fsPath, configDir);
+    logger.info(`Validating config at base path: ${configBasePath} (configDir store: ${configDir})`);
+    const isValid = await validateConfigAndNotify(configBasePath);
 
     if (!isValid) {
       regularView.setResults([]);

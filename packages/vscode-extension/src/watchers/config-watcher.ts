@@ -1,5 +1,5 @@
 import type { AiIssuesView, RegularIssuesView } from 'src/issues-panel';
-import { CONFIG_FILE_NAME } from 'tscanner-common';
+import { CONFIG_DIR_NAME, CONFIG_FILE_NAME } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { loadAndCacheConfig } from '../common/lib/config-manager';
 import { validateConfigAndNotify } from '../common/lib/config-validator';
@@ -20,8 +20,9 @@ export function createConfigWatcher(
 
     const workspaceFolder = getCurrentWorkspaceFolder();
     if (workspaceFolder) {
-      const configPath = uri.fsPath.replace(`/${CONFIG_FILE_NAME}`, '');
-      const isValid = await validateConfigAndNotify(configPath);
+      const configBasePath = uri.fsPath.replace(`/${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}`, '');
+      logger.info(`Validating config at base path: ${configBasePath} (from file change: ${uri.fsPath})`);
+      const isValid = await validateConfigAndNotify(configBasePath);
 
       if (!isValid) {
         regularView.setResults([]);

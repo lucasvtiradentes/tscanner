@@ -105,6 +105,7 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
           const staged = scanMode === ScanMode.Uncommitted ? true : undefined;
           const trigger = options?.trigger ?? ScanTrigger.ManualCommand;
           const useCache = shouldUseCache(trigger);
+          logger.info(`Scan trigger: ${trigger}, useCache: ${useCache}, noCache flag: ${!useCache}`);
 
           const results = await scan({
             branch,

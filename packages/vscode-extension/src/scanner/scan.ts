@@ -34,6 +34,9 @@ export async function scan(options: ScanOptions = {}): Promise<IssueResult[]> {
   try {
     const client = await ensureLspClient();
 
+    logger.info(
+      `Calling LSP scan: scanType=${scanType}, noCache=${noCache ?? false}, branch=${branch ?? 'none'}, staged=${staged ?? false}`,
+    );
     const scanStart = Date.now();
     const result = await client.scan(workspaceFolder.uri.fsPath, config, configDir, branch, staged, aiMode, noCache);
     const scanTime = Date.now() - scanStart;
