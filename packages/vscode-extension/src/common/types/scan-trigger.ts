@@ -4,6 +4,10 @@ export enum ScanTrigger {
   Interval = 'interval',
   Startup = 'startup',
   ConfigChange = 'config-change',
+  GitCommit = 'git-commit',
+  GitCheckout = 'git-checkout',
+  ConfigLocationChange = 'config-location-change',
+  ScanModeChange = 'scan-mode-change',
 }
 
 export function shouldUseCache(trigger: ScanTrigger): boolean {
@@ -17,6 +21,14 @@ export function shouldUseCache(trigger: ScanTrigger): boolean {
     case ScanTrigger.Startup:
       return false;
     case ScanTrigger.ConfigChange:
+      return false;
+    case ScanTrigger.GitCommit:
+      return false;
+    case ScanTrigger.GitCheckout:
+      return false;
+    case ScanTrigger.ConfigLocationChange:
+      return false;
+    case ScanTrigger.ScanModeChange:
       return false;
   }
 }

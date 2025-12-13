@@ -12,6 +12,7 @@ import {
   showToastMessage,
 } from '../common/lib/vscode-utils';
 import { StoreKey, extensionStore } from '../common/state/extension-store';
+import { ScanTrigger } from '../common/types/scan-trigger';
 import type { RegularIssuesView } from '../issues-panel';
 
 const ROOT_PATH = '.';
@@ -76,7 +77,7 @@ export async function showConfigLocationMenu(ctx: ConfigLocationContext): Promis
 
   await ctx.updateStatusBar();
   ctx.regularView.setResults([]);
-  executeCommand(Command.RefreshIssues, { silent: true });
+  executeCommand(Command.RefreshIssues, { silent: true, trigger: ScanTrigger.ConfigLocationChange });
 }
 
 async function askToMoveConfig(fromDir: string | null, toDir: string | null): Promise<boolean> {

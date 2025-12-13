@@ -85,7 +85,7 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
           } else if (action === 'Switch to Workspace Mode') {
             extensionStore.set(StoreKey.ScanMode, ScanMode.Codebase);
             await updateStatusBar();
-            await executeCommand(Command.RefreshIssues, { silent: true });
+            await executeCommand(Command.RefreshIssues, { silent: true, trigger: ScanTrigger.ScanModeChange });
           }
           return;
         }
