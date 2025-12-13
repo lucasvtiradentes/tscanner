@@ -1,5 +1,6 @@
 export enum ScanTrigger {
   ManualCommand = 'manual-command',
+  IssuesPanelRefresh = 'issues-panel-refresh',
   FileSave = 'file-save',
   Interval = 'interval',
   Startup = 'startup',
@@ -14,6 +15,8 @@ export function shouldUseCache(trigger: ScanTrigger): boolean {
   switch (trigger) {
     case ScanTrigger.ManualCommand:
       return false;
+    case ScanTrigger.IssuesPanelRefresh:
+      return true;
     case ScanTrigger.FileSave:
       return true;
     case ScanTrigger.Interval:

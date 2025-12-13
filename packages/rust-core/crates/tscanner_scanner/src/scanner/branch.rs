@@ -121,10 +121,25 @@ impl Scanner {
 
         let (script_issues, script_warnings) = self.run_script_rules(&files);
 
+        (self.log_debug)(&format!(
+            "Before merge: {} script issues found",
+            script_issues.len()
+        ));
+
         let mut all_results = results;
         self.merge_issues(&mut all_results, script_issues);
 
+        (self.log_debug)(&format!(
+            "Before filtering to modified lines: {} total file results",
+            all_results.len()
+        ));
+
         self.filter_to_modified_lines(&mut all_results, modified_lines);
+
+        (self.log_debug)(&format!(
+            "After filtering to modified lines: {} file results remain",
+            all_results.len()
+        ));
         let regular_duration = regular_start.elapsed();
 
         let ai_start = Instant::now();
@@ -170,13 +185,38 @@ impl Scanner {
         results: &mut Vec<FileResult>,
         modified_lines: &HashMap<PathBuf, HashSet<usize>>,
     ) {
+        let mut total_issues_before = 0;
+        let mut total_issues_after = 0;
+
         for file_result in results.iter_mut() {
+            let before_count = file_result.issues.len();
+            total_issues_before += before_count;
+
             if let Some(lines) = modified_lines.get(&file_result.file) {
                 file_result
                     .issues
                     .retain(|issue| lines.contains(&issue.line));
             }
+
+            total_issues_after += file_result.issues.len();
+
+            if before_count != file_result.issues.len() {
+                (self.log_debug)(&format!(
+                    "File {:?}: filtered {} issues -> {} issues remain",
+                    file_result.file.file_name().unwrap_or_default(),
+                    before_count,
+                    file_result.issues.len()
+                ));
+            }
         }
+
         results.retain(|r| !r.issues.is_empty());
+
+        (self.log_debug)(&format!(
+            "Filter summary: {} total issues -> {} issues in modified lines ({} removed)",
+            total_issues_before,
+            total_issues_after,
+            total_issues_before - total_issues_after
+        ));
     }
 }

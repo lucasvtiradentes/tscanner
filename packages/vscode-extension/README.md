@@ -322,7 +322,7 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
     <th width="100">Keybinding</th>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Refresh Issues (Full Scan)</code></td>
+    <td align="left"><code>tscanner: Refresh Issues (no cache)</code></td>
     <td align="center">-</td>
   </tr>
   <tr>
@@ -338,7 +338,7 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
     <td align="center">-</td>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Refresh AI Issues (Full Scan)</code></td>
+    <td align="left"><code>tscanner: Refresh AI Issues (no cache)</code></td>
     <td align="center">-</td>
   </tr>
 </table>

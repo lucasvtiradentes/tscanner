@@ -3,7 +3,9 @@ import { getCommandId } from '../constants';
 
 export enum Command {
   RefreshIssues = 'refreshIssues',
+  RefreshIssuesCached = 'refreshIssuesCached',
   RefreshAiIssues = 'refreshAiIssues',
+  RefreshAiIssuesCached = 'refreshAiIssuesCached',
   OpenSettingsMenu = 'openSettingsMenu',
   CycleViewModeFileFlatView = 'cycleViewModeFileFlatView',
   CycleViewModeFileTreeView = 'cycleViewModeFileTreeView',

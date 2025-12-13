@@ -9,7 +9,7 @@ use tscanner_config::TscannerConfig;
 use tscanner_constants::resolve_config_dir;
 use tscanner_logger::{log_debug, log_info};
 use tscanner_rules::{get_all_rule_metadata, RuleMetadata};
-use tscanner_scanner::Scanner;
+use tscanner_scanner::{ConfigExt, Scanner};
 use tscanner_types::{ContentScanResult, FileResult, Issue, ScanResult};
 
 struct ProjectState {
@@ -79,9 +79,15 @@ impl Workspace for WorkspaceServer {
 
         let resolved_config_dir = resolve_config_dir(&params.root, params.config_dir);
 
-        let scanner_result = Scanner::with_cache_and_config_dir(
+        let config_hash = config.compute_hash();
+        let ai_cache = Arc::new(tscanner_cache::AiCache::with_config_hash(config_hash));
+        let script_cache = Arc::new(tscanner_cache::ScriptCache::with_config_hash(config_hash));
+
+        let scanner_result = Scanner::with_caches_and_config_dir(
             config.clone(),
             self.cache.clone(),
+            ai_cache,
+            script_cache,
             params.root.clone(),
             resolved_config_dir,
         );
