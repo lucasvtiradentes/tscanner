@@ -129,7 +129,7 @@ impl TextRenderer {
         println!();
 
         let mut sorted_rules: Vec<_> = rules_map.iter().collect();
-        sorted_rules.sort_by_key(|(rule, _)| *rule);
+        sorted_rules.sort_by(|a, b| b.1 .2.cmp(&a.1 .2));
 
         let max_rule_len = sorted_rules
             .iter()
@@ -169,14 +169,17 @@ impl TextRenderer {
         println!("Rules triggered:");
         println!();
 
-        let max_rule_len = rules.iter().map(|r| r.rule.len()).max().unwrap_or(0);
-        let max_count_len = rules
+        let mut sorted_rules: Vec<_> = rules.iter().collect();
+        sorted_rules.sort_by(|a, b| b.count.cmp(&a.count));
+
+        let max_rule_len = sorted_rules.iter().map(|r| r.rule.len()).max().unwrap_or(0);
+        let max_count_len = sorted_rules
             .iter()
             .map(|r| r.count.to_string().len())
             .max()
             .unwrap_or(0);
 
-        for rule in rules {
+        for rule in sorted_rules {
             let icon = rule_type_icon(rule.rule_type);
             println!(
                 "  {} {:<rule_width$} | {:>count_width$} | {}",
@@ -194,7 +197,10 @@ impl TextRenderer {
     }
 
     fn render_by_file(&self, files: &[OutputFileGroup]) {
-        for file in files {
+        let mut sorted_files: Vec<_> = files.iter().collect();
+        sorted_files.sort_by(|a, b| b.issues.len().cmp(&a.issues.len()));
+
+        for file in sorted_files {
             let mut issues_by_rule: HashMap<&str, Vec<_>> = HashMap::new();
             for issue in &file.issues {
                 issues_by_rule.entry(&issue.rule).or_default().push(issue);
@@ -228,7 +234,10 @@ impl TextRenderer {
     }
 
     fn render_by_rule(&self, rules: &[OutputRuleGroup]) {
-        for rule in rules {
+        let mut sorted_rules: Vec<_> = rules.iter().collect();
+        sorted_rules.sort_by(|a, b| b.count.cmp(&a.count));
+
+        for rule in sorted_rules {
             let icon = rule_type_icon(rule.rule_type);
 
             let mut files_map: HashMap<&str, Vec<_>> = HashMap::new();
@@ -247,12 +256,10 @@ impl TextRenderer {
                 unique_files
             );
 
-            let mut sorted_files: Vec<_> = files_map.keys().collect();
-            sorted_files.sort();
+            let mut sorted_files: Vec<_> = files_map.iter().collect();
+            sorted_files.sort_by(|a, b| b.1.len().cmp(&a.1.len()));
 
-            for file in sorted_files {
-                let issues = &files_map[file];
-
+            for (file, issues) in sorted_files {
                 println!();
                 println!("  {} ({} issues)", file, issues.len());
 
