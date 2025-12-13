@@ -77,6 +77,15 @@ jobs:
           mkdir -p ~/.claude
           echo '${{ secrets.CLAUDE_CREDENTIALS }}' > ~/.claude/.credentials.json
 
+      - name: Test Claude CLI
+        run: |
+          echo "Testing Claude CLI..."
+          which claude || echo "claude not found in PATH"
+          echo "Claude version:"
+          claude --version || echo "Failed to get version"
+          echo "Testing prompt:"
+          echo "Reply with just: OK" | claude -p --output-format text --model haiku || echo "Claude command failed with exit code $?"
+
       - uses: ./packages/github-action
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
