@@ -1,12 +1,12 @@
-import type { AiExecutionMode } from 'tscanner-common';
-import { loadConfig } from '../common/lib/config-manager';
+import { type AiExecutionMode, CODE_EDITOR_DEFAULTS } from 'tscanner-common';
+import { getOrLoadConfig } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
-import type { ExtensionStateRefs } from '../common/state/extension-state';
+import { StoreKey, extensionStore } from '../common/state/extension-store';
 
 export enum IntervalConfigKey {
-  Scan = 'scanInterval',
-  AiScan = 'aiScanInterval',
+  Scan = 'autoScanInterval',
+  AiScan = 'autoAiScanInterval',
 }
 
 type IntervalConfig = {
@@ -18,7 +18,7 @@ type IntervalConfig = {
 export function createIntervalWatcher(config: IntervalConfig) {
   let timer: NodeJS.Timeout | null = null;
 
-  const setup = async (stateRefs: ExtensionStateRefs): Promise<void> => {
+  const setup = async (): Promise<void> => {
     if (timer) {
       clearInterval(timer);
       timer = null;
@@ -27,8 +27,8 @@ export function createIntervalWatcher(config: IntervalConfig) {
     const workspaceFolder = getCurrentWorkspaceFolder();
     if (!workspaceFolder) return;
 
-    const tscannerConfig = await loadConfig(workspaceFolder.uri.fsPath, stateRefs.currentConfigDirRef.current);
-    const intervalSeconds = tscannerConfig?.codeEditor?.[config.configKey] ?? 0;
+    const tscannerConfig = await getOrLoadConfig(workspaceFolder.uri.fsPath);
+    const intervalSeconds = tscannerConfig?.codeEditor?.[config.configKey] ?? CODE_EDITOR_DEFAULTS[config.configKey];
 
     if (intervalSeconds <= 0) {
       logger.info(`${config.name} auto-scan disabled (${config.configKey} = 0)`);
@@ -38,12 +38,12 @@ export function createIntervalWatcher(config: IntervalConfig) {
     logger.info(`Setting up ${config.name} auto-scan: ${intervalSeconds}s`);
 
     timer = setInterval(() => {
-      if (stateRefs.isSearchingRef.current) {
+      if (extensionStore.get(StoreKey.IsSearching)) {
         logger.debug(`${config.name} auto-scan skipped: search in progress`);
         return;
       }
       logger.debug(`Running ${config.name} auto-scan...`);
-      executeCommand(Command.FindIssue, { silent: true, aiMode: config.aiMode });
+      executeCommand(Command.RefreshIssues, { silent: true, aiMode: config.aiMode });
     }, intervalSeconds * 1000);
   };
 

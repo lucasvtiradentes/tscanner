@@ -23,7 +23,7 @@ type Mixed = object | object[];
 ```
 invalid.ts:1:12 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
 
-  ! Avoid union of 'string' with 'string[]'. Use consistent type to avoid multiple code paths.
+  ! Avoid union of type with its array form. Use consistent type to avoid multiple code paths.
 
   > 1 │ type Foo = string | string[];
     2 │ 
@@ -33,7 +33,7 @@ invalid.ts:1:12 no-single-or-array-union ━━━━━━━━━━━━━
 ```
 invalid.ts:3:12 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
 
-  ! Avoid union of 'number' with 'number[]'. Use consistent type to avoid multiple code paths.
+  ! Avoid union of type with its array form. Use consistent type to avoid multiple code paths.
 
     2 │ 
   > 3 │ type Bar = number | number[];
@@ -44,7 +44,7 @@ invalid.ts:3:12 no-single-or-array-union ━━━━━━━━━━━━━
 ```
 invalid.ts:5:17 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
 
-  ! Avoid union of 'boolean' with 'boolean[]'. Use consistent type to avoid multiple code paths.
+  ! Avoid union of type with its array form. Use consistent type to avoid multiple code paths.
 
     4 │ 
   > 5 │ function baz(x: boolean | boolean[]) {}
@@ -55,7 +55,7 @@ invalid.ts:5:17 no-single-or-array-union ━━━━━━━━━━━━━
 ```
 invalid.ts:8:10 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
 
-  ! Avoid union of 'bigint' with 'bigint[]'. Use consistent type to avoid multiple code paths.
+  ! Avoid union of type with its array form. Use consistent type to avoid multiple code paths.
 
     7 │ interface Props {
   > 8 │   value: bigint | bigint[];
@@ -66,7 +66,7 @@ invalid.ts:8:10 no-single-or-array-union ━━━━━━━━━━━━━
 ```
 invalid.ts:11:24 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
 
-  ! Avoid union of 'symbol' with 'symbol[]'. Use consistent type to avoid multiple code paths.
+  ! Avoid union of type with its array form. Use consistent type to avoid multiple code paths.
 
     10 │ 
   > 11 │ const handler = (data: symbol | symbol[]): void => {};
@@ -77,7 +77,7 @@ invalid.ts:11:24 no-single-or-array-union ━━━━━━━━━━━━�
 ```
 invalid.ts:13:14 no-single-or-array-union ━━━━━━━━━━━━━━━━━━━━
 
-  ! Avoid union of 'object' with 'object[]'. Use consistent type to avoid multiple code paths.
+  ! Avoid union of type with its array form. Use consistent type to avoid multiple code paths.
 
     12 │ 
   > 13 │ type Mixed = object | object[];

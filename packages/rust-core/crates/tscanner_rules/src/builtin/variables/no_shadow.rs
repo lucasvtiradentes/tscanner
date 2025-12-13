@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::{RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration};
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
@@ -21,7 +21,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "no-shadow",
         display_name: "No Shadow",
         description: "Disallows variable declarations that shadow variables in outer scopes. Shadowing can lead to confusing code and subtle bugs.",
-        rule_type: RuleExecutionKind::Ast,
+        rule_type: RuleType::Ast,
         category: RuleCategory::Variables,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-shadow"),
@@ -34,7 +34,6 @@ pub struct ShadowState {
     pub line: usize,
     pub start_col: usize,
     pub end_col: usize,
-    pub variable_name: String,
 }
 
 impl Rule for NoShadowRule {
@@ -57,10 +56,7 @@ impl Rule for NoShadowRule {
     fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
         RuleDiagnostic::new(
             TextRange::single_line(state.line, state.start_col, state.end_col),
-            format!(
-                "Variable '{}' shadows a variable in an outer scope.",
-                state.variable_name
-            ),
+            "Variable shadows a variable in an outer scope.".to_string(),
         )
     }
 }
@@ -105,7 +101,6 @@ impl<'a> ShadowVisitor<'a> {
                 line,
                 start_col: column,
                 end_col: end_column,
-                variable_name: name.clone(),
             });
         }
         if let Some(scope) = self.current_scope() {

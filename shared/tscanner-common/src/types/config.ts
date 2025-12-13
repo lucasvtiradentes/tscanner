@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { AiExecutionMode, AiMode, AiProvider, severitySchema } from '../constants';
+import z from 'zod';
+import { AiMode, AiProvider, severitySchema } from './enums';
 
 const baseRuleConfigSchema = z.object({
   enabled: z.boolean().optional(),
@@ -8,7 +8,9 @@ const baseRuleConfigSchema = z.object({
   exclude: z.array(z.string()).optional(),
 });
 
-const builtinRuleConfigSchema = baseRuleConfigSchema;
+const builtinRuleConfigSchema = baseRuleConfigSchema.extend({
+  options: z.record(z.string(), z.any()).optional(),
+});
 
 const regexRuleConfigSchema = baseRuleConfigSchema.extend({
   pattern: z.string(),
@@ -29,6 +31,7 @@ const aiRuleConfigSchema = baseRuleConfigSchema.extend({
   message: z.string(),
   mode: aiModeSchema.optional(),
   timeout: z.number().optional(),
+  options: z.any().optional(),
 });
 
 const rulesConfigSchema = z.object({
@@ -41,7 +44,6 @@ const aiProviderSchema = z.enum(AiProvider);
 
 const aiConfigSchema = z.object({
   provider: aiProviderSchema.optional(),
-  timeout: z.number().optional(),
   command: z.string().optional(),
 });
 
@@ -50,21 +52,22 @@ const codeEditorConfigSchema = z.object({
   highlightWarnings: z.boolean().optional(),
   highlightInfos: z.boolean().optional(),
   highlightHints: z.boolean().optional(),
-  scanInterval: z.number().optional(),
-  aiScanInterval: z.number().optional(),
+  autoScanInterval: z.number().optional(),
+  autoAiScanInterval: z.number().optional(),
+  useScanCache: z.boolean().optional(),
+  useAiScanCache: z.boolean().optional(),
 });
 
-const aiExecutionModeSchema = z.enum(AiExecutionMode);
-
 const filesConfigSchema = z.object({
-  include: z.array(z.string()).optional(),
-  exclude: z.array(z.string()).optional(),
+  include: z.array(z.string()),
+  exclude: z.array(z.string()),
 });
 
 export const tscannerConfigSchema = z.object({
-  rules: rulesConfigSchema.optional(),
-  aiRules: z.record(z.string(), aiRuleConfigSchema).optional(),
-  files: filesConfigSchema.optional(),
+  $schema: z.string().optional(),
+  rules: rulesConfigSchema,
+  aiRules: z.record(z.string(), aiRuleConfigSchema),
+  files: filesConfigSchema,
   ai: aiConfigSchema.optional(),
   codeEditor: codeEditorConfigSchema.optional(),
 });
@@ -73,9 +76,9 @@ export type TscannerConfig = z.infer<typeof tscannerConfigSchema>;
 
 export function hasConfiguredRules(config: TscannerConfig | null): boolean {
   if (!config) return false;
-  const hasBuiltin = config.rules?.builtin && Object.keys(config.rules.builtin).length > 0;
-  const hasRegex = config.rules?.regex && Object.keys(config.rules.regex).length > 0;
-  const hasScript = config.rules?.script && Object.keys(config.rules.script).length > 0;
-  const hasAiRules = config.aiRules && Object.keys(config.aiRules).length > 0;
-  return !!(hasBuiltin || hasRegex || hasScript || hasAiRules);
+  const hasBuiltin = config.rules.builtin && Object.keys(config.rules.builtin).length > 0;
+  const hasRegex = config.rules.regex && Object.keys(config.rules.regex).length > 0;
+  const hasScript = config.rules.script && Object.keys(config.rules.script).length > 0;
+  const hasAiRules = Object.keys(config.aiRules).length > 0;
+  return Boolean(hasBuiltin || hasRegex || hasScript || hasAiRules);
 }

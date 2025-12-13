@@ -1,4 +1,4 @@
-import * as path from 'node:path';
+import { posix } from 'node:path';
 import { CONFIG_DIR_NAME } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { getConfigDirLabel, hasConfig, moveConfig } from '../common/lib/config-manager';
@@ -11,7 +11,7 @@ import {
   getCurrentWorkspaceFolder,
   showToastMessage,
 } from '../common/lib/vscode-utils';
-import { WorkspaceStateKey, setWorkspaceState } from '../common/state/workspace-state';
+import { StoreKey, extensionStore } from '../common/state/extension-store';
 import type { RegularIssuesView } from '../issues-panel';
 
 const ROOT_PATH = '.';
@@ -25,13 +25,11 @@ function toConfigDir(selectedPath: string): string | null {
 }
 
 function joinPath(base: string, segment: string): string {
-  return isRootPath(base) ? segment : path.posix.join(base, segment);
+  return isRootPath(base) ? segment : posix.join(base, segment);
 }
 
 type ConfigLocationContext = {
   updateStatusBar: () => Promise<void>;
-  currentConfigDirRef: { current: string | null };
-  context: vscode.ExtensionContext;
   regularView: RegularIssuesView;
 };
 
@@ -50,7 +48,7 @@ export async function showConfigLocationMenu(ctx: ConfigLocationContext): Promis
   }
 
   const workspacePath = workspaceFolder.uri.fsPath;
-  const currentConfigDir = ctx.currentConfigDirRef.current;
+  const currentConfigDir = extensionStore.get(StoreKey.ConfigDir);
   const currentHasConfig = await hasConfig(workspacePath, currentConfigDir);
 
   const startPath = currentConfigDir ?? ROOT_PATH;
@@ -73,13 +71,12 @@ export async function showConfigLocationMenu(ctx: ConfigLocationContext): Promis
     }
   }
 
-  ctx.currentConfigDirRef.current = newConfigDir;
-  setWorkspaceState(ctx.context, WorkspaceStateKey.ConfigDir, newConfigDir);
+  extensionStore.set(StoreKey.ConfigDir, newConfigDir);
   logger.info(`Config dir changed to: ${getConfigDirLabel(newConfigDir)}`);
 
   await ctx.updateStatusBar();
   ctx.regularView.setResults([]);
-  executeCommand(Command.FindIssue, { silent: true });
+  executeCommand(Command.RefreshIssues, { silent: true });
 }
 
 async function askToMoveConfig(fromDir: string | null, toDir: string | null): Promise<boolean> {
@@ -155,7 +152,7 @@ async function showFolderPicker(workspaceRoot: vscode.Uri, currentPath: string):
   }
 
   if (selected.id === '__parent__') {
-    const parent = path.posix.dirname(currentPath);
+    const parent = posix.dirname(currentPath);
     return showFolderPicker(workspaceRoot, isRootPath(parent) ? ROOT_PATH : parent);
   }
 

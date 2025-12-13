@@ -36,6 +36,9 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Restore file mtimes for cache
+        uses: chetan/git-restore-mtime-action@v2
+
       - uses: ./.github/actions/setup-and-install
 
       - name: Build project
@@ -68,20 +71,46 @@ jobs:
         if: steps.ai-provider.outputs.provider == 'claude'
         run: npm install -g @anthropic-ai/claude-code
 
-      - name: Setup Claude credentials
-        if: steps.ai-provider.outputs.provider == 'claude'
-        run: |
-          mkdir -p ~/.claude
-          echo '${{ secrets.CLAUDE_CREDENTIALS }}' > ~/.claude/.credentials.json
-
       - uses: ./packages/github-action
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           dev-mode: 'true'
           target-branch: 'origin/main'
           timezone: 'America/Sao_Paulo'
-          continue-on-error: 'true'
           summary: 'true'
           annotations: 'true'
           pr-comment: 'true'
           ai-mode: 'include'
+          # continue-on-error: 'true'
+          # no-cache: 'true'
+
+      - name: Show TScanner logs
+        if: always()
+        run: |
+          echo "=== TScanner Logs ==="
+          cat /tmp/tscannerlogs.txt 2>/dev/null || echo "No logs found at /tmp/tscannerlogs.txt"
+
+      - name: Collect AI chat logs
+        if: always()
+        run: |
+          mkdir -p /tmp/ai-chats
+          # Claude sessions
+          for f in ~/.claude/projects/**/*.jsonl; do
+            [ -f "$f" ] && cp "$f" /tmp/ai-chats/claude-$(basename "$f") 2>/dev/null || true
+          done
+          # Gemini sessions
+          for f in ~/.gemini/tmp/**/chats/*; do
+            [ -f "$f" ] && cp "$f" /tmp/ai-chats/gemini-$(basename "$f") 2>/dev/null || true
+          done
+          ls -la /tmp/ai-chats/ 2>/dev/null || echo "No AI chat files found"
+
+      - name: Upload AI chat logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ai-chat-logs
+          retention-days: 7
+          if-no-files-found: ignore
+          path: /tmp/ai-chats/

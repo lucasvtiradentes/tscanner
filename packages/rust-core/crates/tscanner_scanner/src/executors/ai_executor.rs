@@ -1,16 +1,15 @@
-use crate::ai_providers::resolve_provider_command;
+use crate::ai_providers::{parse_provider_error, resolve_provider_command};
 use dashmap::DashMap;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::hash_map::DefaultHasher;
 use std::collections::{HashMap, HashSet};
-use std::hash::{Hash, Hasher};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
 use std::time::{Duration, Instant};
+use tscanner_cache::AiCache;
 use tscanner_config::{AiConfig, AiMode, AiRuleConfig};
 use tscanner_constants::{
     ai_placeholder_content, ai_placeholder_files, ai_placeholder_options, ai_rules_dir,
@@ -57,12 +56,6 @@ pub struct AiIssue {
     pub message: String,
 }
 
-#[derive(Debug, Clone)]
-struct CachedResult {
-    issues: Vec<Issue>,
-    prompt_hash: u64,
-}
-
 #[derive(Debug)]
 pub enum AiError {
     IoError(std::io::Error),
@@ -100,12 +93,20 @@ impl From<std::io::Error> for AiError {
     }
 }
 
+#[derive(Debug, Default)]
+pub struct AiExecutionResult {
+    pub issues: Vec<Issue>,
+    pub warnings: Vec<String>,
+    pub errors: Vec<String>,
+    pub cache_hits: usize,
+}
+
 pub struct AiExecutor {
     workspace_root: PathBuf,
     ai_rules_dir: PathBuf,
     ai_config: Option<AiConfig>,
-    cache: DashMap<u64, CachedResult>,
-    in_flight: DashMap<u64, Arc<AtomicBool>>,
+    cache: Arc<AiCache>,
+    in_flight: DashMap<String, Arc<AtomicBool>>,
     log_warn: fn(&str),
     log_debug: fn(&str),
 }
@@ -115,6 +116,7 @@ impl AiExecutor {
         workspace_root: &Path,
         config_dir: Option<PathBuf>,
         ai_config: Option<AiConfig>,
+        cache: Arc<AiCache>,
         log_warn: Option<fn(&str)>,
         log_debug: Option<fn(&str)>,
     ) -> Self {
@@ -125,7 +127,7 @@ impl AiExecutor {
             workspace_root: workspace_root.to_path_buf(),
             ai_rules_dir: ai_rules_dir_path,
             ai_config,
-            cache: DashMap::new(),
+            cache,
             in_flight: DashMap::new(),
             log_warn: log_warn.unwrap_or(|_| {}),
             log_debug: log_debug.unwrap_or(|_| {}),
@@ -133,12 +135,20 @@ impl AiExecutor {
     }
 
     pub fn with_logger(workspace_root: &Path, log_warn: fn(&str), log_debug: fn(&str)) -> Self {
-        Self::new(workspace_root, None, None, Some(log_warn), Some(log_debug))
+        Self::new(
+            workspace_root,
+            None,
+            None,
+            Arc::new(AiCache::new()),
+            Some(log_warn),
+            Some(log_debug),
+        )
     }
 
     pub fn with_config(
         workspace_root: &Path,
         ai_config: Option<AiConfig>,
+        cache: Arc<AiCache>,
         log_warn: fn(&str),
         log_debug: fn(&str),
     ) -> Self {
@@ -146,6 +156,7 @@ impl AiExecutor {
             workspace_root,
             None,
             ai_config,
+            cache,
             Some(log_warn),
             Some(log_debug),
         )
@@ -155,6 +166,7 @@ impl AiExecutor {
         workspace_root: &Path,
         config_dir: PathBuf,
         ai_config: Option<AiConfig>,
+        cache: Arc<AiCache>,
         log_warn: fn(&str),
         log_debug: fn(&str),
     ) -> Self {
@@ -162,6 +174,7 @@ impl AiExecutor {
             workspace_root,
             Some(config_dir),
             ai_config,
+            cache,
             Some(log_warn),
             Some(log_debug),
         )
@@ -173,7 +186,7 @@ impl AiExecutor {
         files: &[(PathBuf, String)],
         workspace_root: &Path,
         changed_lines: Option<&ChangedLinesMap>,
-    ) -> (Vec<Issue>, Option<String>) {
+    ) -> AiExecutionResult {
         self.execute_rules_with_progress(rules, files, workspace_root, changed_lines, None)
     }
 
@@ -184,25 +197,31 @@ impl AiExecutor {
         workspace_root: &Path,
         changed_lines: Option<&ChangedLinesMap>,
         progress_callback: Option<AiProgressCallback>,
-    ) -> (Vec<Issue>, Option<String>) {
+    ) -> AiExecutionResult {
         if rules.is_empty() {
-            return (vec![], None);
+            return AiExecutionResult::default();
         }
 
         let ai_config = match &self.ai_config {
             Some(config) => config,
             None => {
-                let warning = format!(
+                let error = format!(
                     "AI rules configured ({} rules) but 'ai' config section is missing. Add 'ai.provider' to your config.",
                     rules.len()
                 );
-                (self.log_warn)(&warning);
-                return (vec![], Some(warning));
+                (self.log_warn)(&error);
+                return AiExecutionResult {
+                    errors: vec![error],
+                    ..Default::default()
+                };
             }
         };
 
         let total_rules = rules.len();
         let completed_count = Arc::new(AtomicUsize::new(0));
+        let cache_hits = Arc::new(AtomicUsize::new(0));
+        let errors: Arc<std::sync::Mutex<Vec<String>>> =
+            Arc::new(std::sync::Mutex::new(Vec::new()));
 
         if let Some(ref cb) = progress_callback {
             for (idx, (rule_name, _)) in rules.iter().enumerate() {
@@ -215,6 +234,8 @@ impl AiExecutor {
             }
         }
 
+        let cache_hits_ref = cache_hits.clone();
+        let errors_ref = errors.clone();
         let all_issues: Vec<Issue> = rules
             .par_iter()
             .enumerate()
@@ -246,7 +267,7 @@ impl AiExecutor {
                     return vec![];
                 }
 
-                let result = self.execute_rule(
+                let (result, was_cache_hit) = self.execute_rule(
                     rule_name,
                     rule_config,
                     &matching_files,
@@ -254,6 +275,10 @@ impl AiExecutor {
                     ai_config,
                     changed_lines,
                 );
+
+                if was_cache_hit {
+                    cache_hits_ref.fetch_add(matching_files.len(), Ordering::SeqCst);
+                }
 
                 completed_count.fetch_add(1, Ordering::SeqCst);
 
@@ -272,7 +297,11 @@ impl AiExecutor {
                         issues
                     }
                     Err(e) => {
-                        (self.log_warn)(&format!("AI rule '{}' failed: {}", rule_name, e));
+                        let error_msg = format!("AI rule '{}' failed: {}", rule_name, e);
+                        (self.log_warn)(&error_msg);
+                        if let Ok(mut errs) = errors_ref.lock() {
+                            errs.push(error_msg);
+                        }
                         if let Some(ref cb) = progress_callback {
                             cb(AiProgressEvent {
                                 rule_name: rule_name.clone(),
@@ -289,7 +318,13 @@ impl AiExecutor {
             })
             .collect();
 
-        (all_issues, None)
+        let final_errors = errors.lock().map(|e| e.clone()).unwrap_or_default();
+        AiExecutionResult {
+            issues: all_issues,
+            warnings: vec![],
+            errors: final_errors,
+            cache_hits: cache_hits.load(Ordering::SeqCst),
+        }
     }
 
     fn file_matches_rule(
@@ -314,36 +349,40 @@ impl AiExecutor {
         workspace_root: &Path,
         ai_config: &AiConfig,
         changed_lines: Option<&ChangedLinesMap>,
-    ) -> Result<Vec<Issue>, AiError> {
+    ) -> (Result<Vec<Issue>, AiError>, bool) {
         let prompt_path = self.ai_rules_dir.join(&rule_config.prompt);
         if !prompt_path.exists() {
-            return Err(AiError::PromptNotFound(prompt_path));
+            return (Err(AiError::PromptNotFound(prompt_path)), false);
         }
 
-        let prompt_content = std::fs::read_to_string(&prompt_path).map_err(AiError::IoError)?;
+        let files_owned: Vec<(PathBuf, String)> =
+            files.iter().map(|(p, c)| (p.clone(), c.clone())).collect();
 
-        let prompt_hash = {
-            let mut hasher = DefaultHasher::new();
-            prompt_content.hash(&mut hasher);
-            hasher.finish()
-        };
-
-        let cache_key = self.compute_cache_key(rule_name, prompt_hash, files);
-
-        if let Some(in_flight_flag) = self.in_flight.get(&cache_key) {
+        if let Some(in_flight_flag) = self.in_flight.get(rule_name) {
             in_flight_flag.store(true, Ordering::SeqCst);
             std::thread::sleep(Duration::from_millis(100));
         }
 
-        if let Some(cached) = self.cache.get(&cache_key) {
-            if cached.prompt_hash == prompt_hash {
-                (self.log_debug)(&format!("AI rule '{}' cache hit", rule_name));
-                return Ok(self.validate_cached_issues(&cached.issues, files, workspace_root));
-            }
+        if let Some(cached_issues) = self.cache.get(rule_name, &prompt_path, &files_owned) {
+            (self.log_warn)(&format!(
+                "AI rule '{}' cache hit ({} cached issues)",
+                rule_name,
+                cached_issues.len()
+            ));
+            return (
+                Ok(self.validate_cached_issues(&cached_issues, files, workspace_root)),
+                true,
+            );
         }
 
+        let prompt_content = match std::fs::read_to_string(&prompt_path) {
+            Ok(content) => content,
+            Err(e) => return (Err(AiError::IoError(e)), false),
+        };
+
         let cancelled = Arc::new(AtomicBool::new(false));
-        self.in_flight.insert(cache_key, cancelled.clone());
+        self.in_flight
+            .insert(rule_name.to_string(), cancelled.clone());
 
         let result = self.call_ai_and_parse(
             rule_name,
@@ -356,24 +395,19 @@ impl AiExecutor {
             &cancelled,
         );
 
-        self.in_flight.remove(&cache_key);
+        self.in_flight.remove(rule_name);
 
         if cancelled.load(Ordering::SeqCst) {
             (self.log_debug)(&format!("AI rule '{}' was cancelled", rule_name));
-            return Ok(vec![]);
+            return (Ok(vec![]), false);
         }
 
         if let Ok(ref issues) = result {
-            self.cache.insert(
-                cache_key,
-                CachedResult {
-                    issues: issues.clone(),
-                    prompt_hash,
-                },
-            );
+            self.cache
+                .insert(rule_name, &prompt_path, &files_owned, issues.clone());
         }
 
-        result
+        (result, false)
     }
 
     #[allow(clippy::too_many_arguments)]
@@ -421,7 +455,7 @@ impl AiExecutor {
             AiMode::Agentic => "agentic",
         };
 
-        (self.log_debug)(&format!(
+        (self.log_warn)(&format!(
             "AI rule '{}': calling {} with {} files, mode={} (timeout: {}s)",
             rule_name,
             program,
@@ -430,8 +464,18 @@ impl AiExecutor {
             timeout_secs
         ));
 
-        let response =
-            self.spawn_ai_command(&program, &args, &full_prompt, timeout_ms, cancelled)?;
+        let response = self
+            .spawn_ai_command(&program, &args, &full_prompt, timeout_ms, cancelled)
+            .map_err(|e| match e {
+                AiError::NonZeroExit { code, stderr } => {
+                    let friendly = parse_provider_error(ai_config.provider.as_ref(), &stderr);
+                    AiError::NonZeroExit {
+                        code,
+                        stderr: friendly,
+                    }
+                }
+                other => other,
+            })?;
 
         if cancelled.load(Ordering::SeqCst) {
             return Ok(vec![]);
@@ -638,9 +682,16 @@ impl AiExecutor {
                     }
 
                     if !status.success() {
+                        let stderr_str = String::from_utf8_lossy(&stderr).to_string();
+                        let stdout_str = String::from_utf8_lossy(&stdout).to_string();
+                        let error_output = if stderr_str.is_empty() {
+                            stdout_str
+                        } else {
+                            stderr_str
+                        };
                         return Err(AiError::NonZeroExit {
                             code: status.code(),
-                            stderr: String::from_utf8_lossy(&stderr).to_string(),
+                            stderr: error_output,
                         });
                     }
 
@@ -694,6 +745,12 @@ impl AiExecutor {
             ))
         })?;
 
+        (self.log_warn)(&format!(
+            "AI rule '{}': parsed {} raw issues from response",
+            rule_name,
+            ai_response.issues.len()
+        ));
+
         let file_lines: HashMap<PathBuf, Vec<&str>> = files
             .iter()
             .map(|(path, content)| {
@@ -702,7 +759,17 @@ impl AiExecutor {
             })
             .collect();
 
-        Ok(ai_response
+        if !ai_response.issues.is_empty() {
+            let known_files: Vec<_> = file_lines.keys().map(|p| p.display().to_string()).collect();
+            (self.log_warn)(&format!(
+                "AI rule '{}': known files ({}): {:?}",
+                rule_name,
+                known_files.len(),
+                known_files.iter().take(5).collect::<Vec<_>>()
+            ));
+        }
+
+        let issues: Vec<_> = ai_response
             .issues
             .into_iter()
             .filter_map(|issue| {
@@ -720,8 +787,9 @@ impl AiExecutor {
                     }
                 } else {
                     (self.log_warn)(&format!(
-                        "AI returned unknown file: {} (not in input files)",
-                        issue.file
+                        "AI returned unknown file: {} (not in input files: {:?})",
+                        issue.file,
+                        file_lines.keys().take(3).collect::<Vec<_>>()
                     ));
                     return None;
                 }
@@ -743,7 +811,15 @@ impl AiExecutor {
                     rule_type: IssueRuleType::Ai,
                 })
             })
-            .collect())
+            .collect();
+
+        (self.log_warn)(&format!(
+            "AI rule '{}': {} issues after validation",
+            rule_name,
+            issues.len()
+        ));
+
+        Ok(issues)
     }
 
     fn validate_cached_issues(
@@ -774,30 +850,12 @@ impl AiExecutor {
             .collect()
     }
 
-    fn compute_cache_key(
-        &self,
-        rule_name: &str,
-        prompt_hash: u64,
-        files: &[&(PathBuf, String)],
-    ) -> u64 {
-        let mut hasher = DefaultHasher::new();
-
-        rule_name.hash(&mut hasher);
-        prompt_hash.hash(&mut hasher);
-
-        let mut sorted: Vec<_> = files.iter().map(|(p, c)| (p, c)).collect();
-        sorted.sort_by_key(|(p, _)| *p);
-
-        for (path, content) in sorted {
-            path.hash(&mut hasher);
-            content.hash(&mut hasher);
-        }
-
-        hasher.finish()
-    }
-
     pub fn clear_cache(&self) {
         self.cache.clear();
+    }
+
+    pub fn flush_cache(&self) {
+        self.cache.flush();
     }
 
     fn save_prompt_to_tmp(&self, rule_name: &str, prompt: &str) {
@@ -816,6 +874,13 @@ impl AiExecutor {
 
 impl Default for AiExecutor {
     fn default() -> Self {
-        Self::new(Path::new("."), None, None, None, None)
+        Self::new(
+            Path::new("."),
+            None,
+            None,
+            Arc::new(AiCache::new()),
+            None,
+            None,
+        )
     }
 }

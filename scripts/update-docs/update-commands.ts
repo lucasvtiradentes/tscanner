@@ -1,4 +1,4 @@
-import path from 'node:path';
+import { join, resolve } from 'node:path';
 import { DynMarkdown, MarkdownTable, type TRowContent, getJson } from 'markdown-helper';
 
 type VscodeCommand = {
@@ -30,10 +30,10 @@ type VscodePackageJson = {
 
 type TFields = 'COMMANDS';
 
-const rootDir = path.resolve(__dirname, '..', '..');
+const rootDir = resolve(__dirname, '..', '..');
 
 export function updateCommands() {
-  const vscodePackageJson: VscodePackageJson = getJson(path.join(rootDir, 'packages/vscode-extension/package.json'));
+  const vscodePackageJson: VscodePackageJson = getJson(join(rootDir, 'packages/vscode-extension/package.json'));
 
   const hiddenCommands = new Set(
     vscodePackageJson.contributes.menus.commandPalette
@@ -64,7 +64,7 @@ export function updateCommands() {
 
   const commandsContent = `<div align="center">\n\n${commandsTable.getTable()}\n\n</div>`;
 
-  const vscodeReadme = new DynMarkdown<TFields>(path.join(rootDir, 'packages/vscode-extension/README.md'));
+  const vscodeReadme = new DynMarkdown<TFields>(join(rootDir, 'packages/vscode-extension/README.md'));
   vscodeReadme.updateField('COMMANDS', commandsContent);
   vscodeReadme.saveFile();
 

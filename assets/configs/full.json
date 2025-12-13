@@ -1,9 +1,5 @@
 {
   "$schema": "../../packages/cli/schema.json",
-  "files": {
-    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
-    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
-  },
   "rules": {
     "builtin": {
       "consistent-return": {},
@@ -62,12 +58,18 @@
   "ai": {
     "provider": "claude"
   },
+  "files": {
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
+  },
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": true,
     "highlightInfos": true,
     "highlightHints": true,
-    "scanInterval": 0,
-    "aiScanInterval": 0
+    "autoAiScanInterval": 0,
+    "autoScanInterval": 0,
+    "useAiScanCache": true,
+    "useScanCache": true
   }
 }

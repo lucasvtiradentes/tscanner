@@ -1,11 +1,11 @@
-import path from 'node:path';
+import { join, resolve } from 'node:path';
 import { DynMarkdown, getJson } from 'markdown-helper';
 import { PACKAGE_DISPLAY_NAME } from 'tscanner-common';
 
 type TFields = 'OVERVIEW';
 
-const rootDir = path.resolve(__dirname, '..', '..');
-const rulesJson: unknown[] = getJson(path.join(rootDir, 'assets/generated/rules.json'));
+const rootDir = resolve(__dirname, '..', '..');
+const rulesJson: unknown[] = getJson(join(rootDir, 'assets/generated/rules.json'));
 const RULES_COUNT = rulesJson.length;
 
 function getOverviewContent(): string {
@@ -15,7 +15,7 @@ Define what "good code" means for your project. ${PACKAGE_DISPLAY_NAME} enforces
 }
 
 export function updateOverview() {
-  const filePath = path.join(rootDir, 'README.md');
+  const filePath = join(rootDir, 'README.md');
   const readme = new DynMarkdown<TFields>(filePath);
   readme.updateField('OVERVIEW', getOverviewContent());
   readme.saveFile();

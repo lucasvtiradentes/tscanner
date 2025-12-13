@@ -1,53 +1,42 @@
-import { execSync } from 'node:child_process';
-import { ScanMode, type TscannerConfig, hasConfiguredRules } from 'tscanner-common';
+import { ScanMode, type TscannerConfig, VSCODE_EXTENSION, hasConfiguredRules } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { getCommandId, getStatusBarName } from '../common/constants';
-import { getConfigDirLabel, loadConfig } from '../common/lib/config-manager';
+import { getCommandId } from '../common/constants';
+import { getCachedConfig, getOrLoadConfig } from '../common/lib/config-manager';
 import { Command, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
-import { Locator, LocatorSource } from '../locator';
-
-type BinaryInfo = {
-  source: LocatorSource;
-  version: string | null;
-};
-
-const SOURCE_LABELS: Record<LocatorSource, string> = {
-  [LocatorSource.Dev]: 'dev',
-  [LocatorSource.Settings]: 'settings',
-  [LocatorSource.NodeModules]: 'local',
-  [LocatorSource.Global]: 'global',
-  [LocatorSource.Path]: 'PATH',
-};
-
-function getAiProviderLabel(config: TscannerConfig | null): string {
-  if (!config?.ai?.provider) {
-    return 'None';
-  }
-  const provider = config.ai.provider;
-  return provider.charAt(0).toUpperCase() + provider.slice(1);
-}
-
-function getBinaryVersion(binaryPath: string): string | null {
-  try {
-    const output = execSync(`"${binaryPath}" --version`, { encoding: 'utf8', timeout: 5000 });
-    const match = output.match(/(\d+\.\d+\.\d+)/);
-    return match ? match[1] : null;
-  } catch {
-    return null;
-  }
-}
+import { StoreKey, extensionStore } from '../common/state/extension-store';
+import { type BinaryInfo, loadBinaryInfo } from '../locator';
+import { buildConfiguredTooltip } from './status-bar-tooltip';
 
 export class StatusBarManager {
   private statusBarItem: vscode.StatusBarItem;
   private cachedBinaryInfo: BinaryInfo | null = null;
+  private isSearching = false;
+  private isAiSearching = false;
 
-  constructor(
-    private currentScanModeRef: { current: ScanMode },
-    private currentCompareBranchRef: { current: string },
-    private currentConfigDirRef: { current: string | null },
-  ) {
-    this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
+  constructor() {
+    this.statusBarItem = vscode.window.createStatusBarItem(
+      vscode.StatusBarAlignment.Left,
+      VSCODE_EXTENSION.statusBar.priority,
+    );
     this.statusBarItem.command = getCommandId(Command.OpenSettingsMenu);
+
+    extensionStore.subscribe(StoreKey.IsSearching, (isSearching) => {
+      this.isSearching = isSearching;
+      this.updateDisplay();
+    });
+
+    extensionStore.subscribe(StoreKey.IsAiSearching, (isAiSearching) => {
+      this.isAiSearching = isAiSearching;
+      this.updateDisplay();
+    });
+
+    extensionStore.subscribe(StoreKey.CachedConfig, () => {
+      this.updateDisplay();
+    });
+  }
+
+  private get isScanning(): boolean {
+    return this.isSearching || this.isAiSearching;
   }
 
   async update(): Promise<void> {
@@ -57,70 +46,53 @@ export class StatusBarManager {
       return;
     }
 
-    const configDir = this.currentConfigDirRef.current;
-    const config = await loadConfig(workspaceFolder.uri.fsPath, configDir);
-    const hasConfig = hasConfiguredRules(config);
+    await getOrLoadConfig(workspaceFolder.uri.fsPath);
 
     if (!this.cachedBinaryInfo) {
-      this.cachedBinaryInfo = await this.loadBinaryInfo(workspaceFolder.uri.fsPath);
+      this.cachedBinaryInfo = await loadBinaryInfo(workspaceFolder.uri.fsPath);
     }
 
-    if (hasConfig) {
-      this.showConfigured(configDir, config, this.cachedBinaryInfo);
-    } else {
-      this.showUnconfigured();
-    }
-
+    this.updateDisplay();
     this.statusBarItem.show();
   }
 
-  private async loadBinaryInfo(workspacePath: string): Promise<BinaryInfo> {
-    const locator = new Locator(workspacePath);
-    const result = await locator.locate();
+  private updateDisplay(): void {
+    const config = getCachedConfig();
+    const hasConfig = hasConfiguredRules(config);
 
-    if (!result) {
-      return { source: LocatorSource.Global, version: null };
+    if (hasConfig && this.cachedBinaryInfo) {
+      this.showConfigured(config, this.cachedBinaryInfo);
+    } else {
+      this.showUnconfigured();
     }
-
-    const version = getBinaryVersion(result.path);
-    return { source: result.source, version };
   }
 
-  private showConfigured(configDir: string | null, config: TscannerConfig | null, binaryInfo: BinaryInfo): void {
-    const icon = '$(shield)';
-    const modeText =
-      this.currentScanModeRef.current === ScanMode.Codebase
-        ? 'Codebase'
-        : `Branch (${this.currentCompareBranchRef.current})`;
-    const finalText = `${icon} ${modeText}`;
+  private showConfigured(config: TscannerConfig | null, binaryInfo: BinaryInfo): void {
+    const configDir = extensionStore.get(StoreKey.ConfigDir);
+    const icon = this.isScanning
+      ? VSCODE_EXTENSION.statusBar.icons.scanning
+      : VSCODE_EXTENSION.statusBar.icons.configured;
+    const scanMode = extensionStore.get(StoreKey.ScanMode);
+    const compareBranch = extensionStore.get(StoreKey.CompareBranch);
+    const getModeText = () => {
+      if (scanMode === ScanMode.Codebase) return 'Codebase';
+      if (scanMode === ScanMode.Uncommitted) return 'Uncommitted';
+      return `Branch (${compareBranch})`;
+    };
+    const modeText = getModeText();
+    const statusText = this.isScanning ? 'Scanning...' : modeText;
+    const finalText = `${icon} ${statusText}`;
 
     this.statusBarItem.text = finalText;
-
-    const displayName = getStatusBarName();
-    const configLabel = getConfigDirLabel(configDir);
-    const binaryLabel = binaryInfo.version
-      ? `${SOURCE_LABELS[binaryInfo.source]} (v${binaryInfo.version})`
-      : SOURCE_LABELS[binaryInfo.source];
-    const aiProviderLabel = getAiProviderLabel(config);
-
-    const tooltipLines = [
-      displayName,
-      '',
-      `Config: ${configLabel}`,
-      `Binary: ${binaryLabel}`,
-      `AI Provider: ${aiProviderLabel}`,
-    ];
-
-    this.statusBarItem.tooltip = tooltipLines.join('\n');
+    this.statusBarItem.tooltip = buildConfiguredTooltip(configDir, config, binaryInfo);
   }
 
   private showUnconfigured(): void {
-    const finalText = '$(warning) [No rules]';
+    const finalText = `${VSCODE_EXTENSION.statusBar.icons.unconfigured} [No rules]`;
 
     this.statusBarItem.text = finalText;
 
-    const displayName = getStatusBarName();
-    const tooltipLines = [displayName, '', 'No rules configured.', 'Run "tscanner init" to create config.'];
+    const tooltipLines = ['No rules configured.', 'Run "tscanner init" to create config.'];
 
     this.statusBarItem.tooltip = tooltipLines.join('\n');
   }

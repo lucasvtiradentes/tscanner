@@ -9,6 +9,10 @@ use crate::session::Session;
 use lsp_server::{Connection, Message, Request, Response};
 use lsp_types::{CodeActionParams, InitializeParams};
 use std::path::PathBuf;
+use tscanner_constants::{
+    lsp_method_clear_cache, lsp_method_format_results, lsp_method_get_rules_metadata,
+    lsp_method_scan, lsp_method_scan_content, lsp_method_scan_file,
+};
 
 type LspError = Box<dyn std::error::Error + Send + Sync>;
 
@@ -75,22 +79,22 @@ fn handle_request(
             let response = Response::new_ok(req.id, actions);
             connection.sender.send(Message::Response(response))?;
         }
-        "tscanner/scan" => {
+        method if method == lsp_method_scan() => {
             handle_scan(connection, req, session)?;
         }
-        "tscanner/scanFile" => {
+        method if method == lsp_method_scan_file() => {
             handle_scan_file(connection, req, session)?;
         }
-        "tscanner/scanContent" => {
+        method if method == lsp_method_scan_content() => {
             handle_scan_content(connection, req, session)?;
         }
-        "tscanner/clearCache" => {
+        method if method == lsp_method_clear_cache() => {
             handle_clear_cache(connection, req, session)?;
         }
-        "tscanner/getRulesMetadata" => {
+        method if method == lsp_method_get_rules_metadata() => {
             handle_get_rules_metadata(connection, req)?;
         }
-        "tscanner/formatResults" => {
+        method if method == lsp_method_format_results() => {
             handle_format_results(connection, req)?;
         }
         _ => {}

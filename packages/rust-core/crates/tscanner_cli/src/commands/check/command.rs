@@ -11,19 +11,22 @@ use crate::shared::{
     format_duration, print_section_header, print_section_title, render_header, FormattedOutput,
     RulesBreakdown, ScanConfig, ScanMode, SummaryStats,
 };
-use tscanner_cache::FileCache;
-use tscanner_cli::{CliGroupMode, OutputFormat};
+use tscanner_cache::{AiCache, FileCache, ScriptCache};
+use tscanner_cli::{CliGroupMode, CliRuleKind, CliSeverity, OutputFormat};
 use tscanner_cli_output::GroupMode;
 use tscanner_config::{AiExecutionMode, AiProvider};
 use tscanner_constants::{
-    app_name, config_dir_name, config_file_name, icon_progress, icon_skipped, icon_success,
-    icon_warning,
+    app_name, config_dir_name, config_file_name, icon_error, icon_progress, icon_skipped,
+    icon_success, icon_warning,
 };
 use tscanner_scanner::{
     AiProgressCallback, AiProgressEvent, AiRuleStatus, ConfigExt, RegularRulesCompleteCallback,
     ScanCallbacks, Scanner,
 };
 use tscanner_service::{log_error, log_info};
+use tscanner_types::enums::IssueRuleType;
+use tscanner_types::enums::Severity;
+use tscanner_types::ScanResult;
 
 use super::context::CheckContext;
 use super::filters;
@@ -65,17 +68,24 @@ pub fn cmd_check(
     json_output: Option<PathBuf>,
     branch: Option<String>,
     staged: bool,
+    uncommitted: bool,
     glob_filter: Option<String>,
     rule_filter: Option<String>,
+    severity_filter: Option<CliSeverity>,
+    kind_filter: Option<CliRuleKind>,
     continue_on_error: bool,
     include_ai: bool,
     only_ai: bool,
     config_path: Option<PathBuf>,
 ) -> Result<()> {
-    if staged && branch.is_some() {
+    let mode_flags = [staged, uncommitted, branch.is_some()]
+        .iter()
+        .filter(|&&x| x)
+        .count();
+    if mode_flags > 1 {
         eprintln!(
             "{}",
-            "Error: --staged and --branch are mutually exclusive".red()
+            "Error: --staged, --uncommitted, and --branch are mutually exclusive".red()
         );
         std::process::exit(1);
     }
@@ -83,7 +93,7 @@ pub fn cmd_check(
     let output_format = format.unwrap_or_default();
 
     let root = fs::canonicalize(".").context("Failed to resolve current directory")?;
-    let scan_paths: Vec<PathBuf> = if staged {
+    let scan_paths: Vec<PathBuf> = if staged || uncommitted {
         vec![root.clone()]
     } else {
         paths
@@ -95,13 +105,14 @@ pub fn cmd_check(
     };
 
     log_info(&format!(
-        "cmd_check: Root: {}, Scan paths: {:?} (no_cache: {}, group_by: {:?}, format: {:?}, staged: {})",
+        "cmd_check: Root: {}, Scan paths: {:?} (no_cache: {}, group_by: {:?}, format: {:?}, staged: {}, uncommitted: {})",
         root.display(),
         scan_paths.iter().map(|p| p.display().to_string()).collect::<Vec<_>>(),
         no_cache,
         group_by,
         output_format,
-        staged
+        staged,
+        uncommitted
     ));
 
     let (config, resolved_config_path) = match load_config_with_custom(&root, config_path)? {
@@ -194,18 +205,35 @@ pub fn cmd_check(
         + rules_breakdown.regex
         + rules_breakdown.script
         + rules_breakdown.ai;
-    let cache = if no_cache {
-        FileCache::new()
+    let (cache, ai_cache, script_cache) = if no_cache {
+        (FileCache::new(), AiCache::new(), ScriptCache::new())
     } else {
-        FileCache::with_config_hash(config_hash)
+        (
+            FileCache::with_config_hash(config_hash),
+            AiCache::with_config_hash(config_hash),
+            ScriptCache::with_config_hash(config_hash),
+        )
     };
 
     let config_dir = Path::new(&resolved_config_path)
         .parent()
         .map(|p| p.to_path_buf());
     let scanner = match config_dir {
-        Some(dir) => Scanner::with_cache_and_config_dir(config, Arc::new(cache), root.clone(), dir),
-        None => Scanner::with_cache(config, Arc::new(cache), root.clone()),
+        Some(dir) => Scanner::with_caches_and_config_dir(
+            config,
+            Arc::new(cache),
+            Arc::new(ai_cache),
+            Arc::new(script_cache),
+            root.clone(),
+            dir,
+        ),
+        None => Scanner::with_caches(
+            config,
+            Arc::new(cache),
+            Arc::new(ai_cache),
+            Arc::new(script_cache),
+            root.clone(),
+        ),
     }
     .map_err(|e| anyhow::anyhow!("{}", e))?;
 
@@ -222,6 +250,24 @@ pub fn cmd_check(
             Some(staged_files),
         );
         (files, Some(staged_lines), ScanMode::Staged { file_count })
+    } else if uncommitted {
+        let uncommitted_files = git::get_uncommitted_files(&root)?;
+        let uncommitted_lines = git::get_uncommitted_modified_lines(&root)?;
+        let file_count = uncommitted_files.len();
+        log_info(&format!(
+            "cmd_check: Found {} uncommitted files",
+            file_count
+        ));
+        let files = filters::get_files_to_scan_multi(
+            &scan_paths,
+            glob_filter.as_deref(),
+            Some(uncommitted_files),
+        );
+        (
+            files,
+            Some(uncommitted_lines),
+            ScanMode::Uncommitted { file_count },
+        )
     } else if let Some(ref branch_name) = branch {
         let (changed_files, modified_lines) = get_branch_changes(&root, branch_name)?;
         let file_count = changed_files.as_ref().map_or(0, |f| f.len());
@@ -256,6 +302,8 @@ pub fn cmd_check(
             config_path: relative_config_path,
             glob_filter: glob_filter.clone(),
             rule_filter: rule_filter.clone(),
+            severity_filter: severity_filter.as_ref().map(|s| s.as_str().to_string()),
+            kind_filter: kind_filter.as_ref().map(|k| k.as_str().to_string()),
         };
         render_header(&scan_config);
         print_section_header("Scanning...");
@@ -321,19 +369,25 @@ pub fn cmd_check(
         },
     );
 
-    if !is_json && scan_skipped {
-        if regular_rules_count > 0 {
-            render_rules_status("Regular rules", regular_rules_count, RuleStatus::Skipped);
-        }
-        if rules_breakdown.ai > 0 {
-            render_rules_status("AI rules", rules_breakdown.ai, RuleStatus::Skipped);
+    if scan_skipped {
+        result.notes.push(
+            "Scan skipped: no files to analyze (staged/branch has no matching files)".to_string(),
+        );
+        if !is_json {
+            if regular_rules_count > 0 {
+                render_rules_status("Regular rules", regular_rules_count, RuleStatus::Skipped);
+            }
+            if rules_breakdown.ai > 0 {
+                render_rules_status("AI rules", rules_breakdown.ai, RuleStatus::Skipped);
+            }
         }
     } else if !is_json && rules_breakdown.ai > 0 {
-        render_rules_status(
-            "AI rules",
-            rules_breakdown.ai,
-            RuleStatus::Completed(result.ai_rules_duration_ms),
-        );
+        let ai_status = if !result.errors.is_empty() {
+            RuleStatus::Error(result.ai_rules_duration_ms)
+        } else {
+            RuleStatus::Completed(result.ai_rules_duration_ms)
+        };
+        render_rules_status("AI rules", rules_breakdown.ai, ai_status);
     }
 
     if let Some(ref line_filter) = modified_lines {
@@ -342,6 +396,26 @@ pub fn cmd_check(
 
     if let Some(ref rule_name) = rule_filter {
         filters::apply_rule_filter(&mut result, rule_name);
+    }
+
+    if let Some(ref sev) = severity_filter {
+        let severity = match sev {
+            CliSeverity::Error => Severity::Error,
+            CliSeverity::Warning => Severity::Warning,
+            CliSeverity::Info => Severity::Info,
+            CliSeverity::Hint => Severity::Hint,
+        };
+        filters::apply_severity_filter(&mut result, severity);
+    }
+
+    if let Some(ref kind) = kind_filter {
+        let rule_type = match kind {
+            CliRuleKind::Builtin => IssueRuleType::Builtin,
+            CliRuleKind::Regex => IssueRuleType::CustomRegex,
+            CliRuleKind::Script => IssueRuleType::CustomScript,
+            CliRuleKind::Ai => IssueRuleType::Ai,
+        };
+        filters::apply_rule_type_filter(&mut result, rule_type);
     }
 
     log_info(&format!(
@@ -363,25 +437,9 @@ pub fn cmd_check(
         println!();
         println!("{}", "✓ No issues found!".green().bold());
 
-        if scan_skipped {
-            println!();
-            print_section_header("Notes:");
-            println!(
-                "  {} {}",
-                "ℹ".blue(),
-                "Scan skipped: no files to analyze (staged/branch has no matching files)".dimmed()
-            );
-        }
+        render_scan_messages(&result);
 
-        if !result.warnings.is_empty() {
-            println!();
-            print_section_header("Warnings:");
-            for warning in &result.warnings {
-                println!("  {} {}", icon_warning().yellow(), warning.yellow());
-            }
-        }
-
-        if result.warnings.is_empty() {
+        if result.notes.is_empty() && result.warnings.is_empty() && result.errors.is_empty() {
             println!();
         }
         if cli_options.show_summary {
@@ -390,6 +448,10 @@ pub fn cmd_check(
 
         if let Some(ref json_path) = json_output {
             write_json_output(json_path, &formatted_output)?;
+        }
+
+        if !result.errors.is_empty() && !continue_on_error {
+            std::process::exit(1);
         }
 
         return Ok(());
@@ -414,7 +476,8 @@ pub fn cmd_check(
         stats.error_count, stats.warning_count
     ));
 
-    if stats.error_count > 0 && !continue_on_error {
+    let has_scan_errors = !result.errors.is_empty();
+    if (stats.error_count > 0 || has_scan_errors) && !continue_on_error {
         std::process::exit(1);
     }
 
@@ -431,6 +494,32 @@ fn write_json_output(json_path: &Path, output: &FormattedOutput) -> Result<()> {
         ));
     }
     Ok(())
+}
+
+fn render_scan_messages(result: &ScanResult) {
+    if !result.notes.is_empty() {
+        println!();
+        print_section_header("Notes:");
+        for note in &result.notes {
+            println!("  {} {}", "ℹ".blue(), note.dimmed());
+        }
+    }
+
+    if !result.warnings.is_empty() {
+        println!();
+        print_section_header("Warnings:");
+        for warning in &result.warnings {
+            println!("  {} {}", icon_warning().yellow(), warning.yellow());
+        }
+    }
+
+    if !result.errors.is_empty() {
+        println!();
+        print_section_header("Errors:");
+        for error in &result.errors {
+            println!("  {} {}", icon_error().red(), error.red());
+        }
+    }
 }
 
 fn build_cli_options(group_by: Option<CliGroupMode>) -> CliOptions {
@@ -526,6 +615,7 @@ fn render_ai_progress(
 enum RuleStatus {
     Completed(u128),
     Skipped,
+    Error(u128),
 }
 
 fn render_rules_status(label: &str, count: usize, status: RuleStatus) {
@@ -549,6 +639,20 @@ fn render_rules_status(label: &str, count: usize, status: RuleStatus) {
                 "{} {}",
                 icon_skipped().dimmed(),
                 format!("{} ({}) {}", label, count, "skipped".dimmed()).dimmed()
+            );
+        }
+        RuleStatus::Error(duration_ms) => {
+            println!(
+                "{} {}",
+                icon_error().red(),
+                format!(
+                    "{} ({}) {} {}",
+                    label,
+                    count,
+                    format_duration(duration_ms).dimmed(),
+                    "error".red()
+                )
+                .red()
             );
         }
     }

@@ -6,7 +6,9 @@ use crate::shared::{
 };
 use colored::*;
 use std::collections::HashMap;
-use tscanner_constants::icon_warning;
+use tscanner_constants::{
+    icon_ai, icon_builtin, icon_error, icon_hint, icon_info, icon_regex, icon_script, icon_warning,
+};
 use tscanner_types::{IssueRuleType, ScanResult};
 
 fn get_severity_icon(severity: &str) -> ColoredString {
@@ -65,7 +67,7 @@ fn render_issue_location<T: IssueDisplay>(issue: &T) {
         let trimmed = line_text.trim();
         if !trimmed.is_empty() {
             println!(
-                "    {} {} -> {}",
+                "    {} {} → {}",
                 severity_icon,
                 location.dimmed(),
                 trimmed.dimmed()
@@ -88,7 +90,7 @@ impl OutputRenderer for TextRenderer {
                 self.render_rules_triggered_by_file(files);
                 self.render_by_file(files);
                 println!();
-                self.render_warnings(&result.warnings);
+                self.render_messages(result);
                 if ctx.cli_options.show_summary {
                     self.render_summary(summary);
                 }
@@ -97,7 +99,7 @@ impl OutputRenderer for TextRenderer {
                 self.render_rules_triggered_by_rule(rules);
                 self.render_by_rule(rules);
                 println!();
-                self.render_warnings(&result.warnings);
+                self.render_messages(result);
                 if ctx.cli_options.show_summary {
                     self.render_summary(summary);
                 }
@@ -108,12 +110,13 @@ impl OutputRenderer for TextRenderer {
 
 impl TextRenderer {
     fn render_rules_triggered_by_file(&self, files: &[OutputFileGroup]) {
-        let mut rules_map: HashMap<String, (String, IssueRuleType)> = HashMap::new();
+        let mut rules_map: HashMap<String, (String, IssueRuleType, usize)> = HashMap::new();
         for file in files {
             for issue in &file.issues {
-                if !rules_map.contains_key(&issue.rule) {
-                    rules_map.insert(issue.rule.clone(), (issue.message.clone(), issue.rule_type));
-                }
+                rules_map
+                    .entry(issue.rule.clone())
+                    .and_modify(|(_, _, count)| *count += 1)
+                    .or_insert((issue.message.clone(), issue.rule_type, 1));
             }
         }
 
@@ -126,7 +129,7 @@ impl TextRenderer {
         println!();
 
         let mut sorted_rules: Vec<_> = rules_map.iter().collect();
-        sorted_rules.sort_by_key(|(rule, _)| *rule);
+        sorted_rules.sort_by(|a, b| b.1 .2.cmp(&a.1 .2));
 
         let max_rule_len = sorted_rules
             .iter()
@@ -134,14 +137,22 @@ impl TextRenderer {
             .max()
             .unwrap_or(0);
 
-        for (rule, (message, rule_type)) in sorted_rules {
+        let max_count_len = sorted_rules
+            .iter()
+            .map(|(_, (_, _, count))| count.to_string().len())
+            .max()
+            .unwrap_or(0);
+
+        for (rule, (message, rule_type, count)) in sorted_rules {
             let icon = rule_type_icon(*rule_type);
             println!(
-                "  {} {:<width$}: {}",
+                "  {} {:<rule_width$} | {:>count_width$} | {}",
                 icon,
                 rule,
+                count,
                 message,
-                width = max_rule_len
+                rule_width = max_rule_len,
+                count_width = max_count_len
             );
         }
 
@@ -158,16 +169,26 @@ impl TextRenderer {
         println!("Rules triggered:");
         println!();
 
-        let max_rule_len = rules.iter().map(|r| r.rule.len()).max().unwrap_or(0);
+        let mut sorted_rules: Vec<_> = rules.iter().collect();
+        sorted_rules.sort_by(|a, b| b.count.cmp(&a.count));
 
-        for rule in rules {
+        let max_rule_len = sorted_rules.iter().map(|r| r.rule.len()).max().unwrap_or(0);
+        let max_count_len = sorted_rules
+            .iter()
+            .map(|r| r.count.to_string().len())
+            .max()
+            .unwrap_or(0);
+
+        for rule in sorted_rules {
             let icon = rule_type_icon(rule.rule_type);
             println!(
-                "  {} {:<width$}: {}",
+                "  {} {:<rule_width$} | {:>count_width$} | {}",
                 icon,
                 rule.rule,
+                rule.count,
                 rule.message,
-                width = max_rule_len
+                rule_width = max_rule_len,
+                count_width = max_count_len
             );
         }
 
@@ -176,7 +197,10 @@ impl TextRenderer {
     }
 
     fn render_by_file(&self, files: &[OutputFileGroup]) {
-        for file in files {
+        let mut sorted_files: Vec<_> = files.iter().collect();
+        sorted_files.sort_by(|a, b| b.issues.len().cmp(&a.issues.len()));
+
+        for file in sorted_files {
             let mut issues_by_rule: HashMap<&str, Vec<_>> = HashMap::new();
             for issue in &file.issues {
                 issues_by_rule.entry(&issue.rule).or_default().push(issue);
@@ -210,7 +234,10 @@ impl TextRenderer {
     }
 
     fn render_by_rule(&self, rules: &[OutputRuleGroup]) {
-        for rule in rules {
+        let mut sorted_rules: Vec<_> = rules.iter().collect();
+        sorted_rules.sort_by(|a, b| b.count.cmp(&a.count));
+
+        for rule in sorted_rules {
             let icon = rule_type_icon(rule.rule_type);
 
             let mut files_map: HashMap<&str, Vec<_>> = HashMap::new();
@@ -229,12 +256,10 @@ impl TextRenderer {
                 unique_files
             );
 
-            let mut sorted_files: Vec<_> = files_map.keys().collect();
-            sorted_files.sort();
+            let mut sorted_files: Vec<_> = files_map.iter().collect();
+            sorted_files.sort_by(|a, b| b.1.len().cmp(&a.1.len()));
 
-            for file in sorted_files {
-                let issues = &files_map[file];
-
+            for (file, issues) in sorted_files {
                 println!();
                 println!("  {} ({} issues)", file, issues.len());
 
@@ -249,20 +274,76 @@ impl TextRenderer {
         render_summary(summary);
     }
 
-    fn render_warnings(&self, warnings: &[String]) {
-        if warnings.is_empty() {
-            return;
+    fn render_messages(&self, result: &ScanResult) {
+        if !result.notes.is_empty() {
+            print_section_header("Notes:");
+            for note in &result.notes {
+                println!("  {} {}", "ℹ".blue(), note.dimmed());
+            }
         }
 
-        print_section_header("Warnings:");
-        for warning in warnings {
-            println!("  {} {}", icon_warning().yellow(), warning.yellow());
+        if !result.warnings.is_empty() {
+            print_section_header("Warnings:");
+            for warning in &result.warnings {
+                println!("  {} {}", icon_warning().yellow(), warning.yellow());
+            }
+        }
+
+        if !result.errors.is_empty() {
+            print_section_header("Errors:");
+            for error in &result.errors {
+                println!("  {} {}", icon_error().red(), error.red());
+            }
+        }
+
+        if !result.notes.is_empty() || !result.warnings.is_empty() || !result.errors.is_empty() {
+            println!();
         }
     }
 }
 
+fn format_rule_breakdown(parts: &[(usize, &'static str)]) -> String {
+    if parts.is_empty() {
+        return String::new();
+    }
+    let formatted: Vec<String> = parts
+        .iter()
+        .map(|(count, label)| {
+            let icon = match *label {
+                "builtin" => icon_builtin(),
+                "regex" => icon_regex(),
+                "script" => icon_script(),
+                "ai" => icon_ai(),
+                _ => icon_builtin(),
+            };
+            format!("{} {}", icon, count)
+        })
+        .collect();
+    format!(" ({})", formatted.join(", "))
+}
+
 pub fn render_summary(summary: &OutputSummary) {
-    print_section_header("Summary:");
+    print_section_header("Scope:");
+
+    let enabled_breakdown_str = format_rule_breakdown(&summary.enabled_rules_breakdown_parts());
+
+    println!(
+        "  {} {}{}",
+        "Rules:".dimmed(),
+        summary.total_enabled_rules.to_string().cyan(),
+        enabled_breakdown_str
+    );
+
+    println!(
+        "  {} {} ({} cached, {} scanned)",
+        "Files:".dimmed(),
+        summary.total_files.to_string().cyan(),
+        summary.cached_files,
+        summary.scanned_files
+    );
+
+    println!();
+    print_section_header("Results:");
 
     let issue_parts = summary.issue_parts();
     if issue_parts.is_empty() {
@@ -275,14 +356,14 @@ pub fn render_summary(summary: &OutputSummary) {
         let colored_parts: Vec<String> = issue_parts
             .iter()
             .map(|p| {
-                let colored_count = match p.label {
-                    "errors" => p.count.to_string().red().to_string(),
-                    "warnings" => p.count.to_string().yellow().to_string(),
-                    "infos" => p.count.to_string().blue().to_string(),
-                    "hints" => p.count.to_string().dimmed().to_string(),
-                    _ => p.count.to_string(),
+                let (icon, colored_count) = match p.label {
+                    "errors" => (icon_error(), p.count.to_string().red().to_string()),
+                    "warnings" => (icon_warning(), p.count.to_string().yellow().to_string()),
+                    "infos" => (icon_info(), p.count.to_string().blue().to_string()),
+                    "hints" => (icon_hint(), p.count.to_string().dimmed().to_string()),
+                    _ => (icon_warning(), p.count.to_string()),
                 };
-                format!("{} {}", colored_count, p.label)
+                format!("{} {}", icon, colored_count)
             })
             .collect();
         println!(
@@ -293,30 +374,19 @@ pub fn render_summary(summary: &OutputSummary) {
         );
     }
 
-    let breakdown_parts = summary.rules_breakdown_parts();
-    let breakdown_str = if breakdown_parts.is_empty() {
-        String::new()
-    } else {
-        let parts: Vec<String> = breakdown_parts
-            .iter()
-            .map(|(count, label)| format!("{} {}", count, label))
-            .collect();
-        format!(" ({})", parts.join(", "))
-    };
+    let breakdown_str = format_rule_breakdown(&summary.rules_breakdown_parts());
 
     println!(
-        "  {} {}/{}{}",
+        "  {} {}{}",
         "Triggered rules:".dimmed(),
         summary.triggered_rules.to_string().cyan(),
-        summary.total_enabled_rules,
         breakdown_str
     );
 
     println!(
-        "  {} {}/{}",
+        "  {} {}",
         "Files with issues:".dimmed(),
-        summary.files_with_issues.to_string().cyan(),
-        summary.total_files
+        summary.files_with_issues.to_string().cyan()
     );
 
     println!(

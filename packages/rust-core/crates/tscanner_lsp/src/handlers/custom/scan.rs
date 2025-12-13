@@ -6,7 +6,9 @@ use lsp_types::notification::Notification;
 use std::sync::Arc;
 use tscanner_cache::FileCache;
 use tscanner_config::AiExecutionMode;
-use tscanner_git::{get_changed_files, get_modified_lines};
+use tscanner_git::{
+    get_changed_files, get_modified_lines, get_uncommitted_files, get_uncommitted_modified_lines,
+};
 use tscanner_scanner::{AiProgressCallback, ConfigExt};
 
 type LspError = Box<dyn std::error::Error + Send + Sync>;
@@ -23,8 +25,14 @@ pub fn handle_scan(
         return Ok(());
     };
 
+    let no_cache = params.no_cache.unwrap_or(false);
     let config_hash = config.compute_hash();
     let cache = Arc::new(FileCache::with_config_hash(config_hash));
+
+    if no_cache {
+        cache.clear();
+    }
+
     session.cache = cache.clone();
 
     let Some(scanner) = create_scanner_or_respond(
@@ -39,7 +47,23 @@ pub fn handle_scan(
         return Ok(());
     };
 
-    let (changed_files, modified_lines) = if let Some(ref branch_name) = params.branch {
+    let (changed_files, modified_lines) = if params.staged.unwrap_or(false) {
+        match (
+            get_uncommitted_files(&params.root),
+            get_uncommitted_modified_lines(&params.root),
+        ) {
+            (Ok(files), Ok(lines)) => (Some(files), Some(lines)),
+            (Err(e), _) | (_, Err(e)) => {
+                let response = Response::new_err(
+                    req.id,
+                    lsp_server::ErrorCode::InternalError as i32,
+                    format!("Failed to get uncommitted files: {}", e),
+                );
+                connection.sender.send(Message::Response(response))?;
+                return Ok(());
+            }
+        }
+    } else if let Some(ref branch_name) = params.branch {
         match (
             get_changed_files(&params.root, branch_name),
             get_modified_lines(&params.root, branch_name),

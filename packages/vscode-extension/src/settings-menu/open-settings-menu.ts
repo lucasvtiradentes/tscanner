@@ -4,6 +4,7 @@ import { hasConfig } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
 import { Command, type QuickPickItemWithId, registerCommand, requireWorkspaceOrNull } from '../common/lib/vscode-utils';
 import type { CommandContext } from '../common/state/extension-state';
+import { StoreKey, extensionStore } from '../common/state/extension-store';
 import type { RegularIssuesView } from '../issues-panel';
 import { getCurrentLocationLabel, showConfigLocationMenu } from './config-location';
 import { showScanModeMenu } from './scan-mode';
@@ -14,8 +15,7 @@ enum SettingsMenuOption {
 }
 
 export function createOpenSettingsMenuCommand(ctx: CommandContext, regularView: RegularIssuesView) {
-  const { context, stateRefs, updateStatusBar } = ctx;
-  const { currentConfigDirRef } = stateRefs;
+  const { updateStatusBar } = ctx;
 
   return registerCommand(Command.OpenSettingsMenu, async () => {
     logger.info('openSettingsMenu command called');
@@ -24,7 +24,7 @@ export function createOpenSettingsMenuCommand(ctx: CommandContext, regularView: 
     if (!workspaceFolder) return;
 
     const workspacePath = workspaceFolder.uri.fsPath;
-    const configDir = currentConfigDirRef.current;
+    const configDir = extensionStore.get(StoreKey.ConfigDir);
     const hasConfigFile = await hasConfig(workspacePath, configDir);
     const currentLocationLabel = getCurrentLocationLabel(configDir, hasConfigFile);
 
@@ -34,7 +34,7 @@ export function createOpenSettingsMenuCommand(ctx: CommandContext, regularView: 
       mainMenuItems.push({
         id: SettingsMenuOption.ManageScanMode,
         label: '$(gear) Manage Scan Mode',
-        detail: 'Choose between Codebase or Branch scan mode',
+        detail: 'Choose which files to scan',
       });
     }
 
@@ -53,10 +53,10 @@ export function createOpenSettingsMenuCommand(ctx: CommandContext, regularView: 
 
     switch (selected.id) {
       case SettingsMenuOption.ManageScanMode:
-        await showScanModeMenu({ updateStatusBar, stateRefs, context, regularView });
+        await showScanModeMenu({ updateStatusBar, regularView });
         break;
       case SettingsMenuOption.ManageConfigLocation:
-        await showConfigLocationMenu({ updateStatusBar, currentConfigDirRef, context, regularView });
+        await showConfigLocationMenu({ updateStatusBar, regularView });
         break;
     }
   });

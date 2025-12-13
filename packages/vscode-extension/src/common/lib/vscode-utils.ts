@@ -2,16 +2,14 @@ import * as vscode from 'vscode';
 import { getCommandId } from '../constants';
 
 export enum Command {
-  FindIssue = 'findIssue',
+  RefreshIssues = 'refreshIssues',
+  RefreshAiIssues = 'refreshAiIssues',
   OpenSettingsMenu = 'openSettingsMenu',
   CycleViewModeFileFlatView = 'cycleViewModeFileFlatView',
   CycleViewModeFileTreeView = 'cycleViewModeFileTreeView',
   CycleViewModeRuleFlatView = 'cycleViewModeRuleFlatView',
   CycleViewModeRuleTreeView = 'cycleViewModeRuleTreeView',
   OpenFile = 'openFile',
-  Refresh = 'refresh',
-  RefreshAiIssues = 'refreshAiIssues',
-  HardScan = 'hardScan',
   GoToNextIssue = 'goToNextIssue',
   GoToPreviousIssue = 'goToPreviousIssue',
   ShowLogs = 'showLogs',

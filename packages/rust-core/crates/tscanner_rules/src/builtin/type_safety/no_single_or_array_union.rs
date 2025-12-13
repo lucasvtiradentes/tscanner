@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::{RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration};
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
@@ -12,7 +12,6 @@ pub struct SingleOrArrayUnionMatch {
     pub line: usize,
     pub column: usize,
     pub end_column: usize,
-    pub base_type: String,
 }
 
 pub struct NoSingleOrArrayUnionRule;
@@ -27,7 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "no-single-or-array-union",
         display_name: "No Single Or Array Union",
         description: "Disallows union types that combine a type with its array form (e.g., `string | string[]`, `number | number[]`). Prefer using a consistent type to avoid handling multiple cases in function implementations.",
-        rule_type: RuleExecutionKind::Ast,
+        rule_type: RuleType::Ast,
         category: RuleCategory::TypeSafety,
         typescript_only: true,
         equivalent_eslint_rule: None,
@@ -59,10 +58,7 @@ impl Rule for NoSingleOrArrayUnionRule {
     fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
         RuleDiagnostic::new(
             TextRange::single_line(state.line, state.column, state.end_column),
-            format!(
-                "Avoid union of '{}' with '{}[]'. Use consistent type to avoid multiple code paths.",
-                state.base_type, state.base_type
-            ),
+            "Avoid union of type with its array form. Use consistent type to avoid multiple code paths.".to_string(),
         )
     }
 }
@@ -122,7 +118,6 @@ impl<'a> Visit for SingleOrArrayUnionVisitor<'a> {
                             line,
                             column,
                             end_column,
-                            base_type: base_key.clone(),
                         });
 
                         n.visit_children_with(self);

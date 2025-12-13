@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::{RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration};
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
@@ -28,7 +28,7 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "No Implicit Any",
         description:
             "Detects function parameters without type annotations that implicitly have 'any' type.",
-        rule_type: RuleExecutionKind::Ast,
+        rule_type: RuleType::Ast,
         category: RuleCategory::TypeSafety,
         typescript_only: true,
         equivalent_eslint_rule: None,
@@ -125,10 +125,7 @@ impl<'a> ImplicitAnyVisitor<'a> {
             Pat::Ident(ident) if ident.type_ann.is_none() => {
                 self.report_issue(
                     ident.span(),
-                    format!(
-                        "Parameter '{}' implicitly has 'any' type. Add type annotation.",
-                        ident.id.sym
-                    ),
+                    "Parameter implicitly has 'any' type. Add type annotation.".to_string(),
                 );
             }
             Pat::Array(arr) if arr.type_ann.is_none() => {

@@ -21,125 +21,8 @@
           "valueName": "BRANCH",
           "possibleValues": null,
           "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "config-path",
-          "short": null,
-          "description": "Path to config folder (defaults to .tscanner)",
-          "takesValue": true,
-          "valueName": "CONFIG_DIR",
-          "possibleValues": null,
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "continue-on-error",
-          "short": null,
-          "description": "Continue execution even when errors are found",
-          "takesValue": false,
-          "valueName": null,
-          "possibleValues": [
-            "true",
-            "false"
-          ],
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "format",
-          "short": null,
-          "description": "Output format: text or json",
-          "takesValue": true,
-          "valueName": "FORMAT",
-          "possibleValues": [
-            "text",
-            "json"
-          ],
-          "defaultValue": "text",
-          "required": false
-        },
-        {
-          "name": "glob",
-          "short": null,
-          "description": "Filter results by glob pattern (e.g., 'src/**/*.ts')",
-          "takesValue": true,
-          "valueName": "GLOB_PATTERN",
-          "possibleValues": null,
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "group-by",
-          "short": null,
-          "description": "Group issues by file or rule",
-          "takesValue": true,
-          "valueName": "MODE",
-          "possibleValues": [
-            "file",
-            "rule"
-          ],
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "include-ai",
-          "short": null,
-          "description": "Include AI rules in the scan (slower)",
-          "takesValue": false,
-          "valueName": null,
-          "possibleValues": [
-            "true",
-            "false"
-          ],
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "json-output",
-          "short": null,
-          "description": "Additionally save JSON output to file (works with any format)",
-          "takesValue": true,
-          "valueName": "FILE",
-          "possibleValues": null,
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "no-cache",
-          "short": null,
-          "description": "Skip cache and force full scan",
-          "takesValue": false,
-          "valueName": null,
-          "possibleValues": [
-            "true",
-            "false"
-          ],
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "only-ai",
-          "short": null,
-          "description": "Run only AI rules, skip all other rules",
-          "takesValue": false,
-          "valueName": null,
-          "possibleValues": [
-            "true",
-            "false"
-          ],
-          "defaultValue": null,
-          "required": false
-        },
-        {
-          "name": "rule",
-          "short": null,
-          "description": "Filter results to specific rule (e.g., 'no-console')",
-          "takesValue": true,
-          "valueName": "RULE_NAME",
-          "possibleValues": null,
-          "defaultValue": null,
-          "required": false
+          "required": false,
+          "group": "Scan Mode"
         },
         {
           "name": "staged",
@@ -152,7 +35,182 @@
             "false"
           ],
           "defaultValue": null,
-          "required": false
+          "required": false,
+          "group": "Scan Mode"
+        },
+        {
+          "name": "uncommitted",
+          "short": null,
+          "description": "Scan all uncommitted changes (staged + unstaged)",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false,
+          "group": "Scan Mode"
+        },
+        {
+          "name": "include-ai",
+          "short": null,
+          "description": "Include AI rules in the scan (slower)",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false,
+          "group": "AI Rules"
+        },
+        {
+          "name": "only-ai",
+          "short": null,
+          "description": "Run only AI rules, skip all other rules",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false,
+          "group": "AI Rules"
+        },
+        {
+          "name": "glob",
+          "short": null,
+          "description": "Filter results by glob pattern (e.g., 'src/**/*.ts')",
+          "takesValue": true,
+          "valueName": "GLOB_PATTERN",
+          "possibleValues": null,
+          "defaultValue": null,
+          "required": false,
+          "group": "Filtering"
+        },
+        {
+          "name": "kind",
+          "short": null,
+          "description": "Filter results by rule type (e.g., 'builtin')",
+          "takesValue": true,
+          "valueName": "TYPE",
+          "possibleValues": [
+            "builtin",
+            "regex",
+            "script",
+            "ai"
+          ],
+          "defaultValue": null,
+          "required": false,
+          "group": "Filtering"
+        },
+        {
+          "name": "rule",
+          "short": null,
+          "description": "Filter results to specific rule (e.g., 'no-console')",
+          "takesValue": true,
+          "valueName": "RULE_NAME",
+          "possibleValues": null,
+          "defaultValue": null,
+          "required": false,
+          "group": "Filtering"
+        },
+        {
+          "name": "severity",
+          "short": null,
+          "description": "Filter results by minimum severity (e.g., 'error')",
+          "takesValue": true,
+          "valueName": "LEVEL",
+          "possibleValues": [
+            "error",
+            "warning",
+            "info",
+            "hint"
+          ],
+          "defaultValue": null,
+          "required": false,
+          "group": "Filtering"
+        },
+        {
+          "name": "format",
+          "short": null,
+          "description": "Output format: text or json",
+          "takesValue": true,
+          "valueName": "FORMAT",
+          "possibleValues": [
+            "text",
+            "json"
+          ],
+          "defaultValue": "text",
+          "required": false,
+          "group": "Output"
+        },
+        {
+          "name": "group-by",
+          "short": null,
+          "description": "Group issues by file or rule",
+          "takesValue": true,
+          "valueName": "MODE",
+          "possibleValues": [
+            "file",
+            "rule"
+          ],
+          "defaultValue": null,
+          "required": false,
+          "group": "Output"
+        },
+        {
+          "name": "json-output",
+          "short": null,
+          "description": "Additionally save JSON output to file (works with any format)",
+          "takesValue": true,
+          "valueName": "FILE",
+          "possibleValues": null,
+          "defaultValue": null,
+          "required": false,
+          "group": "Output"
+        },
+        {
+          "name": "config-path",
+          "short": null,
+          "description": "Path to config folder (defaults to .tscanner)",
+          "takesValue": true,
+          "valueName": "CONFIG_DIR",
+          "possibleValues": null,
+          "defaultValue": null,
+          "required": false,
+          "group": "Other"
+        },
+        {
+          "name": "continue-on-error",
+          "short": null,
+          "description": "Continue execution even when errors are found",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false,
+          "group": "Other"
+        },
+        {
+          "name": "no-cache",
+          "short": null,
+          "description": "Skip cache and force full scan",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false,
+          "group": "Other"
         }
       ]
     },

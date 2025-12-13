@@ -1,12 +1,11 @@
-use dashmap::DashMap;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
 use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
+use std::sync::Arc;
 use std::time::{Duration, Instant};
+use tscanner_cache::ScriptCache;
 use tscanner_config::ScriptRuleConfig;
 use tscanner_constants::config_dir_name;
 use tscanner_types::{Issue, IssueRuleType};
@@ -38,11 +37,6 @@ pub struct ScriptIssue {
 #[derive(Debug, Deserialize)]
 pub struct ScriptOutput {
     pub issues: Vec<ScriptIssue>,
-}
-
-#[derive(Debug, Clone)]
-struct CachedResult {
-    issues: Vec<Issue>,
 }
 
 #[derive(Debug)]
@@ -77,7 +71,7 @@ impl From<std::io::Error> for ScriptError {
 }
 
 pub struct ScriptExecutor {
-    cache: DashMap<u64, CachedResult>,
+    cache: Arc<ScriptCache>,
     config_dir: PathBuf,
     log_error: fn(&str),
     log_debug: fn(&str),
@@ -87,11 +81,12 @@ impl ScriptExecutor {
     pub fn new(
         workspace_root: &Path,
         config_dir: Option<PathBuf>,
+        cache: Arc<ScriptCache>,
         log_error: Option<fn(&str)>,
         log_debug: Option<fn(&str)>,
     ) -> Self {
         Self {
-            cache: DashMap::new(),
+            cache,
             config_dir: config_dir.unwrap_or_else(|| workspace_root.join(config_dir_name())),
             log_error: log_error.unwrap_or(|_| {}),
             log_debug: log_debug.unwrap_or(|_| {}),
@@ -99,21 +94,40 @@ impl ScriptExecutor {
     }
 
     pub fn with_config_dir(config_dir: PathBuf) -> Self {
-        Self::new(Path::new("."), Some(config_dir), None, None)
+        Self::new(
+            Path::new("."),
+            Some(config_dir),
+            Arc::new(ScriptCache::new()),
+            None,
+            None,
+        )
     }
 
-    pub fn with_logger(workspace_root: &Path, log_error: fn(&str), log_debug: fn(&str)) -> Self {
-        Self::new(workspace_root, None, Some(log_error), Some(log_debug))
+    pub fn with_logger(
+        workspace_root: &Path,
+        cache: Arc<ScriptCache>,
+        log_error: fn(&str),
+        log_debug: fn(&str),
+    ) -> Self {
+        Self::new(
+            workspace_root,
+            None,
+            cache,
+            Some(log_error),
+            Some(log_debug),
+        )
     }
 
     pub fn with_config_dir_and_logger(
         config_dir: PathBuf,
+        cache: Arc<ScriptCache>,
         log_error: fn(&str),
         log_debug: fn(&str),
     ) -> Self {
         Self::new(
             Path::new("."),
             Some(config_dir),
+            cache,
             Some(log_error),
             Some(log_debug),
         )
@@ -175,23 +189,31 @@ impl ScriptExecutor {
         files: &[&(PathBuf, String)],
         workspace_root: &Path,
     ) -> Result<Vec<Issue>, ScriptError> {
-        let cache_key = self.compute_cache_key(rule_name, &rule_config.command, files);
+        let script_path = self.extract_script_path(&rule_config.command);
 
-        if let Some(cached) = self.cache.get(&cache_key) {
+        let files_owned: Vec<(PathBuf, String)> =
+            files.iter().map(|(p, c)| (p.clone(), c.clone())).collect();
+
+        if let Some(cached) = self.cache.get(rule_name, &script_path, &files_owned) {
             (self.log_debug)(&format!("Script rule '{}' cache hit", rule_name));
-            return Ok(cached.issues.clone());
+            return Ok(cached);
         }
 
         let issues = self.execute_batch(rule_name, rule_config, files, workspace_root)?;
 
-        self.cache.insert(
-            cache_key,
-            CachedResult {
-                issues: issues.clone(),
-            },
-        );
+        self.cache
+            .insert(rule_name, &script_path, &files_owned, issues.clone());
 
         Ok(issues)
+    }
+
+    fn extract_script_path(&self, command: &str) -> PathBuf {
+        let parts: Vec<&str> = command.split_whitespace().collect();
+        if let Some(last) = parts.last() {
+            self.config_dir.join(last)
+        } else {
+            self.config_dir.join(command)
+        }
     }
 
     fn execute_batch(
@@ -385,35 +407,23 @@ impl ScriptExecutor {
             .collect())
     }
 
-    fn compute_cache_key(
-        &self,
-        rule_name: &str,
-        command: &str,
-        files: &[&(PathBuf, String)],
-    ) -> u64 {
-        let mut hasher = DefaultHasher::new();
-
-        rule_name.hash(&mut hasher);
-        command.hash(&mut hasher);
-
-        let mut sorted: Vec<_> = files.iter().map(|(p, c)| (p, c)).collect();
-        sorted.sort_by_key(|(p, _)| *p);
-
-        for (path, content) in sorted {
-            path.hash(&mut hasher);
-            content.hash(&mut hasher);
-        }
-
-        hasher.finish()
-    }
-
     pub fn clear_cache(&self) {
         self.cache.clear();
+    }
+
+    pub fn flush_cache(&self) {
+        self.cache.flush();
     }
 }
 
 impl Default for ScriptExecutor {
     fn default() -> Self {
-        Self::new(Path::new("."), None, None, None)
+        Self::new(
+            Path::new("."),
+            None,
+            Arc::new(ScriptCache::new()),
+            None,
+            None,
+        )
     }
 }

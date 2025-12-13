@@ -1,4 +1,7 @@
 use serde::Serialize;
+use tscanner_constants::{
+    icon_ai, icon_builtin, icon_error, icon_hint, icon_info, icon_regex, icon_script, icon_warning,
+};
 use tscanner_types::IssueRuleType;
 
 #[derive(Debug, Clone)]
@@ -55,6 +58,8 @@ pub struct OutputRuleIssue {
 #[derive(Clone, Serialize)]
 pub struct OutputSummary {
     pub total_files: usize,
+    pub cached_files: usize,
+    pub scanned_files: usize,
     pub files_with_issues: usize,
     pub total_issues: usize,
     pub errors: usize,
@@ -66,6 +71,12 @@ pub struct OutputSummary {
     pub total_enabled_rules: usize,
     pub enabled_rules_breakdown: RulesBreakdown,
     pub duration_ms: u128,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub scan_notes: Vec<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub scan_warnings: Vec<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub scan_errors: Vec<String>,
 }
 
 pub struct IssuePart {
@@ -110,14 +121,56 @@ impl OutputSummary {
         } else {
             let breakdown: Vec<String> = parts
                 .iter()
-                .map(|p| format!("{} {}", p.count, p.label))
+                .map(|p| {
+                    let icon = match p.label {
+                        "errors" => icon_error(),
+                        "warnings" => icon_warning(),
+                        "infos" => icon_info(),
+                        "hints" => icon_hint(),
+                        _ => icon_warning(),
+                    };
+                    format!("{} {}", icon, p.count)
+                })
                 .collect();
             format!("{} ({})", self.total_issues, breakdown.join(", "))
         }
     }
 
+    pub fn format_rules_breakdown(&self, parts: &[(usize, &'static str)]) -> String {
+        if parts.is_empty() {
+            return String::new();
+        }
+        let formatted: Vec<String> = parts
+            .iter()
+            .map(|(count, label)| {
+                let icon = match *label {
+                    "builtin" => icon_builtin(),
+                    "regex" => icon_regex(),
+                    "script" => icon_script(),
+                    "ai" => icon_ai(),
+                    _ => icon_builtin(),
+                };
+                format!("{} {}", icon, count)
+            })
+            .collect();
+        format!(" ({})", formatted.join(", "))
+    }
+
     pub fn rules_breakdown_parts(&self) -> Vec<(usize, &'static str)> {
         let breakdown = &self.triggered_rules_breakdown;
+        [
+            (breakdown.builtin, "builtin"),
+            (breakdown.regex, "regex"),
+            (breakdown.script, "script"),
+            (breakdown.ai, "ai"),
+        ]
+        .into_iter()
+        .filter(|(count, _)| *count > 0)
+        .collect()
+    }
+
+    pub fn enabled_rules_breakdown_parts(&self) -> Vec<(usize, &'static str)> {
+        let breakdown = &self.enabled_rules_breakdown;
         [
             (breakdown.builtin, "builtin"),
             (breakdown.regex, "regex"),

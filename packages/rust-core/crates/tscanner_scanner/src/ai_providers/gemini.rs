@@ -1,4 +1,4 @@
-use super::common::{get_home_dir, resolve_command_path, AiProviderImpl};
+use super::common::{get_home_dir, resolve_command_path, truncate_error, AiProviderImpl};
 use std::path::PathBuf;
 use tscanner_constants::{gemini_args, gemini_command};
 
@@ -33,5 +33,29 @@ impl AiProviderImpl for GeminiProvider {
         }
 
         paths
+    }
+
+    fn parse_error(&self, error_output: &str) -> String {
+        let lower = error_output.to_lowercase();
+
+        if lower.contains("unauthenticated") || lower.contains("not authenticated") {
+            return "Gemini not authenticated. Run 'gemini auth login' to authenticate."
+                .to_string();
+        }
+
+        if lower.contains("invalid") && lower.contains("credentials") {
+            return "Gemini credentials invalid. Run 'gemini auth login' to re-authenticate."
+                .to_string();
+        }
+
+        if lower.contains("quota") || lower.contains("rate") {
+            return "Gemini quota or rate limit exceeded. Wait a moment and try again.".to_string();
+        }
+
+        if lower.contains("permission") || lower.contains("forbidden") {
+            return "Permission denied. Check your Gemini API credentials.".to_string();
+        }
+
+        truncate_error(error_output)
     }
 }

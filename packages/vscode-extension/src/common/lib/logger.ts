@@ -1,7 +1,7 @@
 import { appendFileSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { LOG_TIMEZONE_OFFSET_HOURS } from 'tscanner-common';
+import { LOG_CONTEXT_WIDTH, LOG_TIMEZONE_OFFSET_HOURS } from 'tscanner-common';
 import { getLogFilename } from '../constants';
 
 export const LOG_FILE_PATH = join(tmpdir(), getLogFilename());
@@ -25,17 +25,32 @@ function formatTimestamp(): string {
   const seconds = String(localTime.getUTCSeconds()).padStart(2, '0');
   const ms = String(localTime.getUTCMilliseconds()).padStart(3, '0');
 
-  const sign = LOG_TIMEZONE_OFFSET_HOURS >= 0 ? '+' : '';
-  const offsetStr = `${sign}${String(LOG_TIMEZONE_OFFSET_HOURS).padStart(2, '0')}:00`;
+  const sign = LOG_TIMEZONE_OFFSET_HOURS >= 0 ? '+' : '-';
+  const absOffset = Math.abs(LOG_TIMEZONE_OFFSET_HOURS);
+  const offsetStr = `${sign}${String(absOffset).padStart(2, '0')}:00`;
 
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${ms}${offsetStr}`;
 }
 
-class Logger {
+function formatContext(context: string): string {
+  if (context.length > LOG_CONTEXT_WIDTH) {
+    return context.slice(0, LOG_CONTEXT_WIDTH);
+  }
+  return context.padEnd(LOG_CONTEXT_WIDTH, ' ');
+}
+
+interface ILogger {
+  info(message: string): void;
+  error(message: string): void;
+  warn(message: string): void;
+  debug(message: string): void;
+}
+
+class Logger implements ILogger {
   private context: string;
 
   constructor(context: string) {
-    this.context = context;
+    this.context = formatContext(context);
   }
 
   private write(level: string, message: string) {
@@ -68,4 +83,31 @@ class Logger {
   }
 }
 
+class ContextualLogger implements ILogger {
+  constructor(
+    private baseLogger: ILogger,
+    private prefix: string,
+  ) {}
+
+  info(message: string) {
+    this.baseLogger.info(`[${this.prefix}] ${message}`);
+  }
+
+  error(message: string) {
+    this.baseLogger.error(`[${this.prefix}] ${message}`);
+  }
+
+  warn(message: string) {
+    this.baseLogger.warn(`[${this.prefix}] ${message}`);
+  }
+
+  debug(message: string) {
+    this.baseLogger.debug(`[${this.prefix}] ${message}`);
+  }
+}
+
 export const logger = new Logger('vscode_extension');
+
+export function createLogger(prefix: string): ILogger {
+  return new ContextualLogger(logger, prefix);
+}

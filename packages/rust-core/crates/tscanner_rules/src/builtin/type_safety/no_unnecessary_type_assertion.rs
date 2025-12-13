@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::{RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration};
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
@@ -12,8 +12,6 @@ pub struct UnnecessaryTypeAssertionMatch {
     pub line: usize,
     pub column: usize,
     pub end_column: usize,
-    pub literal_type: String,
-    pub asserted_type: String,
 }
 
 pub struct NoUnnecessaryTypeAssertionRule;
@@ -28,7 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "no-unnecessary-type-assertion",
         display_name: "No Unnecessary Type Assertion",
         description: "Disallows type assertions on values that are already of the asserted type (e.g., \"hello\" as string, 123 as number).",
-        rule_type: RuleExecutionKind::Ast,
+        rule_type: RuleType::Ast,
         category: RuleCategory::TypeSafety,
         typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-unnecessary-type-assertion"),
@@ -60,10 +58,7 @@ impl Rule for NoUnnecessaryTypeAssertionRule {
     fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
         RuleDiagnostic::new(
             TextRange::single_line(state.line, state.column, state.end_column),
-            format!(
-                "Unnecessary type assertion: {} is already of type {}",
-                state.literal_type, state.asserted_type
-            ),
+            "Unnecessary type assertion on literal value".to_string(),
         )
     }
 }
@@ -75,7 +70,7 @@ struct UnnecessaryTypeAssertionVisitor<'a> {
 
 impl<'a> Visit for UnnecessaryTypeAssertionVisitor<'a> {
     fn visit_ts_as_expr(&mut self, n: &TsAsExpr) {
-        if let Some((literal_type, asserted_type)) = check_unnecessary_assertion(n) {
+        if let Some((_literal_type, _asserted_type)) = check_unnecessary_assertion(n) {
             let span = n.span();
             let (line, column, end_column) =
                 get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
@@ -84,8 +79,6 @@ impl<'a> Visit for UnnecessaryTypeAssertionVisitor<'a> {
                 line,
                 column,
                 end_column,
-                literal_type: literal_type.to_string(),
-                asserted_type: asserted_type.to_string(),
             });
         }
 

@@ -203,6 +203,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }
         }
 
+        if let Some(code_editor_config) = definitions.get_mut("CodeEditorConfig") {
+            if let Some(code_editor_obj) = code_editor_config.as_object_mut() {
+                code_editor_obj.insert("additionalProperties".to_string(), json!(false));
+            }
+        }
+
         if let Some(rules_config) = definitions.get_mut("RulesConfig") {
             if let Some(rules_config_obj) = rules_config.as_object_mut() {
                 rules_config_obj.insert(

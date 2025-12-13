@@ -6,6 +6,26 @@ use super::{ClaudeProvider, CustomProvider, GeminiProvider};
 pub trait AiProviderImpl {
     fn get_command(&self, custom_command: Option<&str>) -> Result<(String, Vec<String>), String>;
     fn get_hardcoded_paths(&self) -> Vec<PathBuf>;
+    fn parse_error(&self, error_output: &str) -> String {
+        truncate_error(error_output)
+    }
+}
+
+pub fn truncate_error(error_output: &str) -> String {
+    if error_output.len() > 200 {
+        format!("{}...", &error_output[..200])
+    } else {
+        error_output.to_string()
+    }
+}
+
+pub fn parse_provider_error(provider: Option<&AiProvider>, error_output: &str) -> String {
+    match provider {
+        Some(AiProvider::Claude) => ClaudeProvider.parse_error(error_output),
+        Some(AiProvider::Gemini) => GeminiProvider.parse_error(error_output),
+        Some(AiProvider::Custom) => CustomProvider.parse_error(error_output),
+        None => truncate_error(error_output),
+    }
 }
 
 pub fn resolve_provider_command(

@@ -1,4 +1,4 @@
-use super::common::{get_home_dir, resolve_command_path, AiProviderImpl};
+use super::common::{get_home_dir, resolve_command_path, truncate_error, AiProviderImpl};
 use std::path::PathBuf;
 use tscanner_constants::{claude_args, claude_command};
 
@@ -23,5 +23,33 @@ impl AiProviderImpl for ClaudeProvider {
             home.join(".local").join("bin").join(cmd_name),
             home.join(".npm-global").join("bin").join(cmd_name),
         ]
+    }
+
+    fn parse_error(&self, error_output: &str) -> String {
+        let lower = error_output.to_lowercase();
+
+        if lower.contains("authentication_error") || lower.contains("oauth token has expired") {
+            return "Claude authentication expired. Run 'claude /login' to re-authenticate."
+                .to_string();
+        }
+
+        if lower.contains("invalid_api_key") || lower.contains("invalid api key") {
+            return "Claude API key is invalid. Check your credentials or run 'claude /login'."
+                .to_string();
+        }
+
+        if lower.contains("rate_limit") || lower.contains("rate limit") {
+            return "Claude rate limit exceeded. Wait a moment and try again.".to_string();
+        }
+
+        if lower.contains("quota") || lower.contains("insufficient_quota") {
+            return "Claude quota exceeded. Check your usage limits.".to_string();
+        }
+
+        if lower.contains("permission") || lower.contains("forbidden") {
+            return "Permission denied. Check your Claude API credentials.".to_string();
+        }
+
+        truncate_error(error_output)
     }
 }

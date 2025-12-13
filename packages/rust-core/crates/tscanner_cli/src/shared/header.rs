@@ -8,6 +8,7 @@ use super::section::{print_section_header, print_setting, print_setting_value};
 pub enum ScanMode {
     Codebase,
     Staged { file_count: usize },
+    Uncommitted { file_count: usize },
     Branch { name: String, file_count: usize },
 }
 
@@ -23,6 +24,8 @@ pub struct ScanConfig {
     pub config_path: String,
     pub glob_filter: Option<String>,
     pub rule_filter: Option<String>,
+    pub severity_filter: Option<String>,
+    pub kind_filter: Option<String>,
 }
 
 pub fn render_header(config: &ScanConfig) {
@@ -32,6 +35,7 @@ pub fn render_header(config: &ScanConfig) {
         let mode_str = match &config.mode {
             ScanMode::Codebase => "codebase",
             ScanMode::Staged { .. } => "staged",
+            ScanMode::Uncommitted { .. } => "uncommitted",
             ScanMode::Branch { .. } => "branch",
         };
         let format_str = match config.format {
@@ -57,6 +61,9 @@ pub fn render_header(config: &ScanConfig) {
         match &config.mode {
             ScanMode::Staged { file_count } => {
                 print_setting_value("Staged files", file_count);
+            }
+            ScanMode::Uncommitted { file_count } => {
+                print_setting_value("Uncommitted files", file_count);
             }
             ScanMode::Branch { name, file_count } => {
                 print_setting("Target branch", name);
@@ -85,6 +92,12 @@ pub fn render_header(config: &ScanConfig) {
         }
         if let Some(ref rule) = config.rule_filter {
             print_setting("Rule filter", rule);
+        }
+        if let Some(ref severity) = config.severity_filter {
+            print_setting("Severity filter", severity);
+        }
+        if let Some(ref kind) = config.kind_filter {
+            print_setting("Kind filter", kind);
         }
 
         println!();

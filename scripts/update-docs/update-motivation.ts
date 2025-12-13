@@ -1,10 +1,10 @@
-import path from 'node:path';
+import { join, resolve } from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
 import { PACKAGE_DISPLAY_NAME } from 'tscanner-common';
 
 type TFields = 'MOTIVATION';
 
-const rootDir = path.resolve(__dirname, '..', '..');
+const rootDir = resolve(__dirname, '..', '..');
 
 export function updateMotivation() {
   const getMotivationContent = () => {
@@ -43,7 +43,7 @@ ${PACKAGE_DISPLAY_NAME} lets you define those rules once. Every AI-generated fil
   ];
 
   readmeConfigs.forEach(({ path: filePath }) => {
-    const readme = new DynMarkdown<TFields>(path.join(rootDir, filePath));
+    const readme = new DynMarkdown<TFields>(join(rootDir, filePath));
     readme.updateField('MOTIVATION', getMotivationContent());
     readme.saveFile();
   });

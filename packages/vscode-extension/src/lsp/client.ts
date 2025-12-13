@@ -8,6 +8,8 @@ import {
   type FileResult,
   type GroupMode,
   JS_EXTENSIONS,
+  LSP_CLIENT_ID,
+  LspMethod,
   type RuleMetadata,
   type ScanResult,
   type TscannerConfig,
@@ -23,10 +25,13 @@ import { ScanContentRequestType } from './requests/scan-content';
 import { ScanFileRequestType } from './requests/scan-file';
 import type { AiProgressParams, FormatPrettyResult } from './requests/types';
 
-const AI_PROGRESS_METHOD = 'tscanner/aiProgress';
-
 export class TscannerLspClient {
   private client: LanguageClient | null = null;
+
+  private ensureClient(): LanguageClient {
+    if (!this.client) throw new Error('LSP client not started');
+    return this.client;
+  }
 
   constructor(
     private binaryPath: string,
@@ -66,7 +71,7 @@ export class TscannerLspClient {
       },
     };
 
-    this.client = new LanguageClient('tscanner', `${getStatusBarName()} LSP`, serverOptions, clientOptions);
+    this.client = new LanguageClient(LSP_CLIENT_ID, `${getStatusBarName()} LSP`, serverOptions, clientOptions);
 
     await this.client.start();
   }
@@ -101,15 +106,23 @@ export class TscannerLspClient {
     config?: TscannerConfig,
     configDir?: string,
     branch?: string,
+    staged?: boolean,
     aiMode?: AiExecutionMode,
+    noCache?: boolean,
   ): Promise<ScanResult> {
-    if (!this.client) throw new Error('LSP client not started');
-    return this.client.sendRequest(ScanRequestType, { root, config, config_dir: configDir, branch, ai_mode: aiMode });
+    return this.ensureClient().sendRequest(ScanRequestType, {
+      root,
+      config,
+      config_dir: configDir,
+      branch,
+      staged,
+      ai_mode: aiMode,
+      no_cache: noCache,
+    });
   }
 
   async scanFile(root: string, file: string): Promise<FileResult> {
-    if (!this.client) throw new Error('LSP client not started');
-    return this.client.sendRequest(ScanFileRequestType, { root, file });
+    return this.ensureClient().sendRequest(ScanFileRequestType, { root, file });
   }
 
   async scanContent(
@@ -119,23 +132,25 @@ export class TscannerLspClient {
     config?: TscannerConfig,
     configDir?: string,
   ): Promise<ContentScanResult> {
-    if (!this.client) throw new Error('LSP client not started');
-    return this.client.sendRequest(ScanContentRequestType, { root, file, content, config, config_dir: configDir });
+    return this.ensureClient().sendRequest(ScanContentRequestType, {
+      root,
+      file,
+      content,
+      config,
+      config_dir: configDir,
+    });
   }
 
   async clearCache(): Promise<void> {
-    if (!this.client) throw new Error('LSP client not started');
-    await this.client.sendRequest(ClearCacheRequestType);
+    await this.ensureClient().sendRequest(ClearCacheRequestType);
   }
 
   async getRulesMetadata(): Promise<RuleMetadata[]> {
-    if (!this.client) throw new Error('LSP client not started');
-    return this.client.sendRequest(GetRulesMetadataRequestType);
+    return this.ensureClient().sendRequest(GetRulesMetadataRequestType);
   }
 
   async formatResults(root: string, results: ScanResult, groupMode: GroupMode): Promise<FormatPrettyResult> {
-    if (!this.client) throw new Error('LSP client not started');
-    return this.client.sendRequest(FormatResultsRequestType, {
+    return this.ensureClient().sendRequest(FormatResultsRequestType, {
       root,
       results,
       group_mode: groupMode,
@@ -143,7 +158,6 @@ export class TscannerLspClient {
   }
 
   onAiProgress(handler: (params: AiProgressParams) => void): vscode.Disposable {
-    if (!this.client) throw new Error('LSP client not started');
-    return this.client.onNotification(AI_PROGRESS_METHOD, handler);
+    return this.ensureClient().onNotification(LspMethod.AiProgress, handler);
   }
 }

@@ -19,9 +19,9 @@ export function writeSummary(params: WriteSummaryParams): void {
   const reportParams = {
     result: scanResult,
     targetBranch,
-    timestamp,
     commitSha,
     commitMessage,
+    timestamp,
     issuesViewParams: { result: scanResult, owner, repo, prNumber },
   };
 

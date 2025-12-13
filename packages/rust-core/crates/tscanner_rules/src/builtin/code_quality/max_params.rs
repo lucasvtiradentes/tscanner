@@ -1,7 +1,6 @@
 use crate::context::RuleContext;
 use crate::metadata::{
-    RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration, RuleOption,
-    RuleOptionSchema,
+    RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleOption, RuleOptionSchema, RuleType,
 };
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
@@ -36,9 +35,6 @@ pub struct TooManyParams {
     pub line: usize,
     pub column: usize,
     pub end_column: usize,
-    pub name: String,
-    pub param_count: usize,
-    pub max_params: usize,
 }
 
 pub struct MaxParamsRule {
@@ -67,7 +63,7 @@ inventory::submit!(RuleMetadataRegistration {
         display_name: "Max Parameters",
         description:
             "Limits the number of parameters in a function. Functions with many parameters should use an options object instead.",
-        rule_type: RuleExecutionKind::Ast,
+        rule_type: RuleType::Ast,
         category: RuleCategory::CodeQuality,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/max-params"),
@@ -104,10 +100,7 @@ impl Rule for MaxParamsRule {
     fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
         RuleDiagnostic::new(
             TextRange::single_line(state.line, state.column, state.end_column),
-            format!(
-                "Function '{}' has {} parameters (max: {}). Consider using an options object.",
-                state.name, state.param_count, state.max_params
-            ),
+            "Function has too many parameters. Consider using an options object.".to_string(),
         )
     }
 }
@@ -119,7 +112,7 @@ struct MaxParamsVisitor<'a> {
 }
 
 impl<'a> MaxParamsVisitor<'a> {
-    fn check_param_count(&mut self, param_count: usize, span: swc_common::Span, name: &str) {
+    fn check_param_count(&mut self, param_count: usize, span: swc_common::Span, _name: &str) {
         if param_count > self.max_params {
             let (line, column, end_column) =
                 get_span_positions(self.source, span.lo.0 as usize, span.hi.0 as usize);
@@ -128,9 +121,6 @@ impl<'a> MaxParamsVisitor<'a> {
                 line,
                 column,
                 end_column,
-                name: name.to_string(),
-                param_count,
-                max_params: self.max_params,
             });
         }
     }

@@ -1,0 +1,125 @@
+import * as vscode from 'vscode';
+import { getCachedConfig } from '../../common/lib/config-manager';
+import { logger } from '../../common/lib/logger';
+import { getCurrentWorkspaceFolder } from '../../common/lib/vscode-utils';
+import { StoreKey, extensionStore } from '../../common/state/extension-store';
+import { WorkspaceStateKey, setWorkspaceState } from '../../common/state/workspace-state';
+import { serializeResults } from '../../common/types';
+import type { RegularIssuesView } from '../../issues-panel';
+import { scanContent } from '../../scanner/content-scan';
+
+const BURST_THRESHOLD = 5;
+const BURST_WINDOW_MS = 500;
+const BURST_COOLDOWN_MS = 2000;
+
+let burstEventCount = 0;
+let burstWindowStart = 0;
+let burstMode = false;
+let burstCooldownTimer: ReturnType<typeof setTimeout> | null = null;
+
+function isBurstDetected(): boolean {
+  if (burstMode) return true;
+
+  const now = Date.now();
+  if (now - burstWindowStart > BURST_WINDOW_MS) {
+    burstEventCount = 1;
+    burstWindowStart = now;
+    return false;
+  }
+
+  burstEventCount++;
+  if (burstEventCount >= BURST_THRESHOLD) {
+    burstMode = true;
+    logger.debug(`Burst detected (${burstEventCount} file events in ${BURST_WINDOW_MS}ms), skipping individual scans`);
+    if (burstCooldownTimer) clearTimeout(burstCooldownTimer);
+    burstCooldownTimer = setTimeout(() => {
+      burstMode = false;
+      burstEventCount = 0;
+      burstCooldownTimer = null;
+      logger.debug('Burst cooldown finished');
+    }, BURST_COOLDOWN_MS);
+    return true;
+  }
+  return false;
+}
+
+type FileChangeHandlerDeps = {
+  context: vscode.ExtensionContext;
+  regularView: RegularIssuesView;
+};
+
+export function createFileChangeHandler(deps: FileChangeHandlerDeps) {
+  const { context, regularView } = deps;
+
+  return async (uri: vscode.Uri) => {
+    if (extensionStore.get(StoreKey.IsSearching)) return;
+    if (isBurstDetected()) return;
+
+    const workspaceFolder = getCurrentWorkspaceFolder();
+    if (!workspaceFolder) return;
+
+    const relativePath = vscode.workspace.asRelativePath(uri);
+    logger.debug(`File changed: ${relativePath}`);
+
+    try {
+      logger.debug(`Scanning single file: ${relativePath}`);
+
+      const document = await vscode.workspace.openTextDocument(uri);
+      const content = document.getText();
+      const configDir = extensionStore.get(StoreKey.ConfigDir);
+      const config = getCachedConfig();
+      const scanResult = await scanContent(uri.fsPath, content, config ?? undefined, configDir ?? undefined);
+
+      if (burstMode) {
+        logger.debug(`Discarding stale scan results for ${relativePath} - burst mode active`);
+        return;
+      }
+
+      const newResults = scanResult.issues;
+      const currentResults = regularView.getResults();
+
+      const filesWithNewIssues = new Set<string>([relativePath]);
+      for (const r of newResults) {
+        filesWithNewIssues.add(vscode.workspace.asRelativePath(r.uri));
+      }
+
+      const filteredResults = currentResults.filter((result) => {
+        const resultPath = vscode.workspace.asRelativePath(result.uri);
+        return !filesWithNewIssues.has(resultPath);
+      });
+
+      const mergedResults = [...filteredResults, ...newResults];
+      logger.debug(
+        `Updated results: removed ${currentResults.length - filteredResults.length}, added ${newResults.length}, affected files: ${filesWithNewIssues.size}, total ${mergedResults.length}`,
+      );
+
+      regularView.setResults(mergedResults);
+      setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializeResults(mergedResults));
+    } catch (error) {
+      logger.error(`Failed to update single file: ${error}`);
+    }
+  };
+}
+
+export function createFileDeleteHandler(deps: FileChangeHandlerDeps) {
+  const { context, regularView } = deps;
+
+  return (uri: vscode.Uri) => {
+    if (isBurstDetected()) return;
+
+    const relativePath = vscode.workspace.asRelativePath(uri);
+    logger.debug(`File deleted: ${relativePath}`);
+
+    const currentResults = regularView.getResults();
+    const filteredResults = currentResults.filter((r) => {
+      const resultPath = vscode.workspace.asRelativePath(r.uri);
+      return resultPath !== relativePath;
+    });
+
+    if (filteredResults.length !== currentResults.length) {
+      logger.debug(`Removed ${currentResults.length - filteredResults.length} issues from deleted file`);
+      regularView.setResults(filteredResults);
+      setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializeResults(filteredResults));
+    }
+  };
+}

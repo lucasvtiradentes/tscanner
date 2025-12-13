@@ -1,3 +1,4 @@
+import { VSCODE_EXTENSION } from 'tscanner-common';
 import type * as vscode from 'vscode';
 import { formatIssueCount } from '../../common/lib/vscode-utils';
 import type { AiIssuesView } from '../views/ai-issues-view';
@@ -33,7 +34,10 @@ export class IssuesViewIcon {
     this.update();
 
     if (this.isAiView()) {
-      this.descriptionInterval = setInterval(() => this.updateDescription(), 60000);
+      this.descriptionInterval = setInterval(
+        () => this.updateDescription(),
+        VSCODE_EXTENSION.intervals.descriptionUpdateSeconds * 1000,
+      );
     }
   }
 

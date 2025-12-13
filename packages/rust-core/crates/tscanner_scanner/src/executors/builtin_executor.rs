@@ -1,7 +1,7 @@
 use crate::disable_comments::DisableDirectives;
 use crate::parser::parse_file;
 use std::path::Path;
-use tscanner_config::{CompiledRuleConfig, TscannerConfig};
+use tscanner_config::{CompiledRuleConfig, TscannerConfig, TscannerConfigExt};
 use tscanner_constants::is_js_ts_extension;
 use tscanner_rules::{RuleContext, RuleRegistry};
 use tscanner_types::FileSource;

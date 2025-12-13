@@ -13,6 +13,7 @@ tscanner_constants = { path = "../tscanner_constants" }
 tscanner_rules = { path = "../tscanner_rules" }
 tscanner_cache = { path = "../tscanner_cache" }
 tscanner_git = { path = "../tscanner_git" }
+tscanner_logger = { path = "../tscanner_logger" }
 swc_ecma_parser = { workspace = true }
 swc_ecma_ast = { workspace = true }
 swc_common = { workspace = true }

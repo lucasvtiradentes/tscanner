@@ -141,14 +141,10 @@
     ],
     "commands": [
       {
-        "command": "tscanner.findIssue",
-        "title": "tscanner: Scan Workspace",
-        "icon": "$(search)"
-      },
-      {
-        "command": "tscanner.hardScan",
-        "title": "tscanner: Hard Scan (Clear Cache & Rescan)",
-        "icon": "$(debug-restart)"
+        "command": "tscanner.refreshIssues",
+        "title": "tscanner: Refresh Issues",
+        "shortTitle": "Refresh Issues",
+        "icon": "$(refresh)"
       },
       {
         "command": "tscanner.goToNextIssue",
@@ -164,11 +160,6 @@
         "command": "tscanner.showLogs",
         "title": "tscanner: Show Logs",
         "icon": "$(output)"
-      },
-      {
-        "command": "tscanner.refresh",
-        "title": "Hard Scan (Clear Cache)",
-        "icon": "$(refresh)"
       },
       {
         "command": "tscanner.openSettingsMenu",
@@ -220,7 +211,8 @@
       },
       {
         "command": "tscanner.refreshAiIssues",
-        "title": "Refresh AI Issues",
+        "title": "tscanner: Refresh AI Issues",
+        "shortTitle": "Refresh AI Issues",
         "icon": "$(refresh)"
       },
       {
@@ -244,18 +236,7 @@
         "icon": "$(copy)"
       }
     ],
-    "keybindings": [
-      {
-        "command": "tscanner.goToNextIssue",
-        "key": "f8",
-        "when": "editorTextFocus"
-      },
-      {
-        "command": "tscanner.goToPreviousIssue",
-        "key": "shift+f8",
-        "when": "editorTextFocus"
-      }
-    ],
+    "keybindings": [],
     "menus": {
       "view/title": [
         {
@@ -264,7 +245,7 @@
           "group": "navigation@5"
         },
         {
-          "command": "tscanner.refresh",
+          "command": "tscanner.refreshIssues",
           "when": "view == tscannerExplorer && !tscannerSearching",
           "group": "navigation@1"
         },
@@ -353,10 +334,6 @@
       ],
       "commandPalette": [
         {
-          "command": "tscanner.refresh",
-          "when": "false"
-        },
-        {
           "command": "tscanner.openSettingsMenu",
           "when": "false"
         },
@@ -394,10 +371,6 @@
         },
         {
           "command": "tscanner.copyAllIssues",
-          "when": "false"
-        },
-        {
-          "command": "tscanner.refreshAiIssues",
           "when": "false"
         },
         {

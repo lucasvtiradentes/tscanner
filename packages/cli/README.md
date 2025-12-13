@@ -131,6 +131,9 @@ After that you can already use the CLI:
 # Scan workspace
 tscanner check
 
+# Scan uncommitted changes (staged + unstaged)
+tscanner check --uncommitted
+
 # Scan only changed files vs branch
 tscanner check --branch origin/main
 ```
@@ -159,16 +162,93 @@ tscanner check --branch origin/main
     <th width="300">Flag description</th>
   </tr>
   <tr>
-    <td rowspan="12" align="left"><code>check [options] [paths]</code></td>
-    <td rowspan="12" align="left">Scan code for issues and display results</td>
-    <td align="left"><code>--branch <BRANCH></code></td>
+    <td rowspan="15" align="left"><code>check [options] [paths]</code></td>
+    <td rowspan="15" align="left">Scan code for issues and display results</td>
+    <td align="left"><b>Scan Mode</b><br/><code>--branch &lt;BRANCH&gt;</code></td>
     <td align="center">-</td>
     <td align="left">Only show issues in files changed compared to branch (e.g., origin/main)</td>
   </tr>
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><code>--config-path <CONFIG_DIR></code></td>
+    <td align="left"><code>--staged</code></td>
+    <td align="center">-</td>
+    <td align="left">Scan only git staged files</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--uncommitted</code></td>
+    <td align="center">-</td>
+    <td align="left">Scan all uncommitted changes (staged + unstaged)</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><b>AI Rules</b><br/><code>--include-ai</code></td>
+    <td align="center">-</td>
+    <td align="left">Include AI rules in the scan (slower)</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--only-ai</code></td>
+    <td align="center">-</td>
+    <td align="left">Run only AI rules, skip all other rules</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><b>Filtering</b><br/><code>--glob &lt;GLOB_PATTERN&gt;</code></td>
+    <td align="center">-</td>
+    <td align="left">Filter results by glob pattern (e.g., 'src/**/*.ts')</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--kind [builtin/regex/script/ai]</code></td>
+    <td align="center">-</td>
+    <td align="left">Filter results by rule type (e.g., 'builtin')</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--rule &lt;RULE_NAME&gt;</code></td>
+    <td align="center">-</td>
+    <td align="left">Filter results to specific rule (e.g., 'no-console')</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--severity [error/warning/info/hint]</code></td>
+    <td align="center">-</td>
+    <td align="left">Filter results by minimum severity (e.g., 'error')</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><b>Output</b><br/><code>--format [text/json]</code></td>
+    <td align="center">text</td>
+    <td align="left">Output format: text or json</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--group-by [file/rule]</code></td>
+    <td align="center">-</td>
+    <td align="left">Group issues by file or rule</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--json-output &lt;FILE&gt;</code></td>
+    <td align="center">-</td>
+    <td align="left">Additionally save JSON output to file (works with any format)</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><b>Other</b><br/><code>--config-path &lt;CONFIG_DIR&gt;</code></td>
     <td align="center">-</td>
     <td align="left">Path to config folder (defaults to .tscanner)</td>
   </tr>
@@ -182,65 +262,9 @@ tscanner check --branch origin/main
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><code>--format [text/json]</code></td>
-    <td align="center">text</td>
-    <td align="left">Output format: text or json</td>
-  </tr>
-  <tr>
-    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
-    <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><code>--glob <GLOB_PATTERN></code></td>
-    <td align="center">-</td>
-    <td align="left">Filter results by glob pattern (e.g., 'src/**/*.ts')</td>
-  </tr>
-  <tr>
-    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
-    <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><code>--group-by [file/rule]</code></td>
-    <td align="center">-</td>
-    <td align="left">Group issues by file or rule</td>
-  </tr>
-  <tr>
-    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
-    <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><code>--include-ai</code></td>
-    <td align="center">-</td>
-    <td align="left">Include AI rules in the scan (slower)</td>
-  </tr>
-  <tr>
-    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
-    <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><code>--json-output <FILE></code></td>
-    <td align="center">-</td>
-    <td align="left">Additionally save JSON output to file (works with any format)</td>
-  </tr>
-  <tr>
-    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
-    <!-- <td align="left">Scan code for issues and display results</td> -->
     <td align="left"><code>--no-cache</code></td>
     <td align="center">-</td>
     <td align="left">Skip cache and force full scan</td>
-  </tr>
-  <tr>
-    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
-    <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><code>--only-ai</code></td>
-    <td align="center">-</td>
-    <td align="left">Run only AI rules, skip all other rules</td>
-  </tr>
-  <tr>
-    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
-    <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><code>--rule <RULE_NAME></code></td>
-    <td align="center">-</td>
-    <td align="left">Filter results to specific rule (e.g., 'no-console')</td>
-  </tr>
-  <tr>
-    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
-    <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><code>--staged</code></td>
-    <td align="center">-</td>
-    <td align="left">Scan only git staged files</td>
   </tr>
   <tr>
     <td rowspan="1" align="left"><code>init [options]</code></td>
@@ -267,11 +291,11 @@ tscanner check --branch origin/main
 To scan your code, you need to set up the rules in the TScanner config folder. Here's how to get started:
 
 1. **CLI**: Run `tscanner init` in your project root (**Recommended**)
-2. **Manual**: Copy the default config below to `.tscanner/config.jsonc`
+2. **Manual**: Copy one of the configs below to `.tscanner/config.jsonc`
 
 <div align="center">
 <details>
-<summary><strong>Default configuration</strong></summary>
+<summary><strong>Full configuration</strong></summary>
 
 <br/>
 
@@ -279,33 +303,78 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 
 ```json
 {
-  "$schema": "https://unpkg.com/tscanner@0.0.33/schema.json",
+  "$schema": "../../packages/cli/schema.json",
+  "rules": {
+    "builtin": {
+      "consistent-return": {},
+      "max-function-length": {},
+      "max-params": {},
+      "no-absolute-imports": {},
+      "no-alias-imports": {},
+      "no-async-without-await": {},
+      "no-console": {},
+      "no-constant-condition": {},
+      "no-default-export": {},
+      "no-duplicate-imports": {},
+      "no-dynamic-import": {},
+      "no-else-return": {},
+      "no-empty-class": {},
+      "no-empty-function": {},
+      "no-empty-interface": {},
+      "no-explicit-any": {},
+      "no-floating-promises": {},
+      "no-forwarded-exports": {},
+      "no-implicit-any": {},
+      "no-inferrable-types": {},
+      "no-nested-require": {},
+      "no-nested-ternary": {},
+      "no-non-null-assertion": {},
+      "no-relative-imports": {},
+      "no-return-await": {},
+      "no-shadow": {},
+      "no-single-or-array-union": {},
+      "no-todo-comments": {},
+      "no-unnecessary-type-assertion": {},
+      "no-unreachable-code": {},
+      "no-unused-vars": {},
+      "no-useless-catch": {},
+      "no-var": {},
+      "prefer-const": {},
+      "prefer-interface-over-type": {},
+      "prefer-nullish-coalescing": {},
+      "prefer-optional-chain": {},
+      "prefer-type-over-interface": {}
+    },
+    "regex": {
+      "example-no-console-log": {
+        "pattern": "console\\.log",
+        "message": "Remove console.log before committing"
+      }
+    },
+    "script": {
+      "example-no-debug-comments": {
+        "command": "npx tsx script-rules/example-no-debug-comments.ts",
+        "message": "Debug comments should be removed"
+      }
+    }
+  },
+  "aiRules": {},
+  "ai": {
+    "provider": "claude"
+  },
   "files": {
-    "include": [
-      "**/*.ts",
-      "**/*.tsx",
-      "**/*.js",
-      "**/*.jsx",
-      "**/*.mjs",
-      "**/*.cjs",
-      "**/*mts",
-      "**/*cts"
-    ],
-    "exclude": [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/build/**",
-      "**/.git/**",
-      "**/.next/**"
-    ]
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
   },
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": true,
     "highlightInfos": true,
     "highlightHints": true,
-    "scanInterval": 0,
-    "aiScanInterval": 0
+    "autoAiScanInterval": 0,
+    "autoScanInterval": 0,
+    "useAiScanCache": true,
+    "useScanCache": true
   }
 }
 ```
@@ -314,55 +383,56 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 </details>
 
 <details>
-<summary><strong>Additional info about configuration</strong></summary>
+<summary><strong>Minimal configuration</strong></summary>
 
 <br/>
 
 <div align="left">
 
-All configuration fields are **optional** with sensible defaults. The minimum required config is just enabling the rules you want:
-
 ```json
 {
+  "$schema": "../../packages/cli/schema.json",
   "rules": {
     "builtin": {
       "no-explicit-any": {}
-    }
+    },
+    "regex": {},
+    "script": {}
+  },
+  "aiRules": {},
+  "files": {
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
   }
 }
 ```
 
-With this minimal config, TScanner will scan all `.ts/.tsx/.js/.jsx/.mjs/.cjs` files, excluding `node_modules/`, `dist/`, `build/`, and `.git/` directories.
+</div>
+</details>
 
-**Understanding `files.include` and `files.exclude`:**
+<details>
+<summary><strong>Additional info</strong></summary>
 
-- `files.include`: Glob patterns for files to scan (default: `["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"]`)
-- `files.exclude`: Glob patterns for files/folders to ignore (default: `["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]`)
+<br/>
 
-Example with per-rule file patterns:
+<div align="left">
+
+**Required fields:** The `files.include` and `files.exclude` fields are required.
+
+**Per-rule file patterns:** Each rule can have its own `include`/`exclude` patterns:
 
 ```json
 {
   "rules": {
     "builtin": {
-      "no-explicit-any": {},
-      "no-console": {
-        "exclude": ["src/utils/logger.ts"]
-      },
-      "max-function-length": {
-        "include": ["src/core/**/*.ts"]
-      }
+      "no-console": { "exclude": ["src/logger.ts"] },
+      "max-function-length": { "include": ["src/core/**/*.ts"] }
     }
   }
 }
 ```
 
-This config:
-- Runs `no-explicit-any` on all files (uses global `files` patterns)
-- Runs `no-console` on all files except `src/utils/logger.ts`
-- Runs `max-function-length` only on files inside `src/core/`
-
-**Inline Disables:**
+**Inline disables:**
 
 ```typescript
 // tscanner-ignore-next-line no-explicit-any

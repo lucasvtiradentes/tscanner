@@ -12,7 +12,7 @@ import { b } from 'lodash';
 ```
 invalid.js:2:19 no-duplicate-imports ━━━━━━━━━━━━━━━━━━━━
 
-  ! Module 'lodash';' is already imported at line 1. Merge imports.
+  ! Module is already imported. Merge imports.
 
     1 │ import { a } from 'lodash';
   > 2 │ import { b } from 'lodash';

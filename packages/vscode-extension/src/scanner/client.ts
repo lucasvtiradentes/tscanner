@@ -2,16 +2,8 @@ import { EXTENSION_DISPLAY_NAME } from 'src/common/scripts-constants';
 import { PACKAGE_NAME } from 'tscanner-common';
 import { logger } from '../common/lib/logger';
 import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
-import { Locator, LocatorSource, promptInstall } from '../locator';
+import { LOCATOR_SOURCE_LABELS_VERBOSE, Locator, promptInstall } from '../locator';
 import { TscannerLspClient } from '../lsp/client';
-
-const SOURCE_LABELS: Record<LocatorSource, string> = {
-  [LocatorSource.Dev]: 'dev (local rust build)',
-  [LocatorSource.Settings]: 'settings (user configured)',
-  [LocatorSource.NodeModules]: 'node_modules (project dependency)',
-  [LocatorSource.Global]: 'global (npm -g)',
-  [LocatorSource.Path]: 'PATH (system)',
-};
 
 let lspClient: TscannerLspClient | null = null;
 
@@ -33,7 +25,7 @@ export async function ensureLspClient(): Promise<TscannerLspClient> {
         if (!retryResult) {
           throw new Error(`${EXTENSION_DISPLAY_NAME} binary not found after installation. Please restart VSCode.`);
         }
-        logger.info(`Using tscanner from: ${SOURCE_LABELS[retryResult.source]} (${retryResult.path})`);
+        logger.info(`Using tscanner from: ${LOCATOR_SOURCE_LABELS_VERBOSE[retryResult.source]} (${retryResult.path})`);
         const args = [...(retryResult.args ?? []), 'lsp'];
         lspClient = new TscannerLspClient(retryResult.path, args);
       } else {
@@ -42,7 +34,7 @@ export async function ensureLspClient(): Promise<TscannerLspClient> {
         );
       }
     } else {
-      logger.info(`Using tscanner from: ${SOURCE_LABELS[result.source]} (${result.path})`);
+      logger.info(`Using tscanner from: ${LOCATOR_SOURCE_LABELS_VERBOSE[result.source]} (${result.path})`);
       const args = [...(result.args ?? []), 'lsp'];
       lspClient = new TscannerLspClient(result.path, args);
     }

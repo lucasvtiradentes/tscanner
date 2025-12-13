@@ -1,5 +1,6 @@
 import { GitHelper, ScanMode } from 'tscanner-common';
 import { writeAnnotations } from './core/annotation-writer';
+import { restoreCache, saveCache } from './core/cache-handler';
 import { updateOrCreateComment } from './core/comment-updater';
 import { type ActionInputs, getActionInputs } from './core/input-validator';
 import { type ActionScanResult, type ScanOptions, scanChangedFiles } from './core/scanner/scanner';
@@ -24,7 +25,15 @@ class ActionRunner {
         }
       }
 
+      if (!inputs.noCache) {
+        await restoreCache(inputs.configPath);
+      }
+
       const scanResults = await this.executeScan(inputs);
+
+      if (!inputs.noCache) {
+        await saveCache(inputs.configPath);
+      }
 
       const octokit = githubHelper.getOctokit(inputs.githubToken);
 
@@ -78,6 +87,8 @@ class ActionRunner {
       groupBy: inputs.groupBy,
       configPath: inputs.configPath,
       aiMode: inputs.aiMode,
+      noCache: inputs.noCache,
+      continueOnError: inputs.continueOnError,
     } satisfies ScanOptions;
 
     if (inputs.mode === ScanMode.Branch) {
@@ -112,9 +123,9 @@ class ActionRunner {
       repo,
       prNumber,
       scanResult,
-      timezone: inputs.timezone,
       commitSha: latestCommitSha,
       commitMessage,
+      timezone: inputs.timezone,
       targetBranch: inputs.mode === ScanMode.Branch ? inputs.targetBranch : undefined,
     });
   }
@@ -130,9 +141,31 @@ class ActionRunner {
   }
 
   private handleScanResults(scanResult: ActionScanResult, inputs: ActionInputs): void {
-    if (scanResult.totalErrors > 0) {
-      const loggerMethod = inputs.continueOnError ? githubHelper.logInfo : githubHelper.setFailed;
-      loggerMethod(`Found ${scanResult.totalErrors} error(s)`);
+    const hasScanErrors = scanResult.scanErrors.length > 0;
+    const hasIssueErrors = scanResult.totalErrors > 0;
+
+    if (hasScanErrors) {
+      for (const error of scanResult.scanErrors) {
+        githubHelper.logError(error);
+      }
+    }
+
+    if (hasIssueErrors || hasScanErrors) {
+      if (inputs.continueOnError) {
+        if (hasIssueErrors) {
+          githubHelper.logInfo(`Found ${scanResult.totalErrors} error(s)`);
+        }
+        if (hasScanErrors) {
+          githubHelper.logInfo(`Found ${scanResult.scanErrors.length} scan error(s)`);
+        }
+      } else {
+        if (hasIssueErrors) {
+          githubHelper.setFailed(`Found ${scanResult.totalErrors} error(s)`);
+        }
+        if (hasScanErrors) {
+          githubHelper.setFailed(`Found ${scanResult.scanErrors.length} scan error(s)`);
+        }
+      }
     } else {
       githubHelper.logInfo('No errors found');
     }

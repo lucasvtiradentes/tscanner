@@ -30,17 +30,17 @@ type CommentUpdateParams = {
   repo: string;
   prNumber: number;
   scanResult: ActionScanResult;
-  timezone: string;
   commitSha: string;
   commitMessage: string;
+  timezone: string;
   targetBranch?: string;
 };
 
 function buildCommentBody(
   result: ActionScanResult,
-  timezone: string,
   commitSha: string,
   commitMessage: string,
+  timezone: string,
   owner: string,
   repo: string,
   prNumber: number,
@@ -54,9 +54,9 @@ function buildCommentBody(
   const reportParams = {
     result,
     targetBranch,
-    timestamp,
     commitSha,
     commitMessage,
+    timestamp,
     extraSection: historySection,
     issuesViewParams: { result, owner, repo, prNumber },
   };
@@ -71,7 +71,7 @@ ${report}`;
 const MAX_HISTORY_ENTRIES = 10;
 
 export async function updateOrCreateComment(params: CommentUpdateParams) {
-  const { octokit, owner, repo, prNumber, scanResult, timezone, commitSha, commitMessage, targetBranch } = params;
+  const { octokit, owner, repo, prNumber, scanResult, commitSha, commitMessage, timezone, targetBranch } = params;
 
   const existingComments = await octokit.rest.issues.listComments({
     owner,
@@ -94,15 +94,17 @@ export async function updateOrCreateComment(params: CommentUpdateParams) {
       totalIssues: scanResult.totalIssues,
       errors: scanResult.totalErrors,
       warnings: scanResult.totalWarnings,
+      infos: scanResult.totalInfos,
+      hints: scanResult.totalHints,
     });
     commitHistory = commitHistory.slice(0, MAX_HISTORY_ENTRIES);
   }
 
   const comment = buildCommentBody(
     scanResult,
-    timezone,
     commitSha,
     commitMessage,
+    timezone,
     owner,
     repo,
     prNumber,

@@ -5,8 +5,9 @@ use std::path::Path;
 
 use tscanner_config::{
     compile_globset, compile_optional_globset, CompiledRuleConfig, TscannerConfig,
-    CONFIG_ERROR_PREFIX,
+    TscannerConfigExt,
 };
+use tscanner_constants::config_error_prefix;
 
 const TSCANNER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -22,7 +23,11 @@ pub fn load_config(
     };
 
     if !config_path.exists() {
-        return Ok(TscannerConfig::default());
+        return Err(format!(
+            "Config file not found: {}. Run 'tscanner init' to create one.",
+            config_path.display()
+        )
+        .into());
     }
 
     let workspace = config_path.parent().and_then(|p| p.parent());
@@ -43,7 +48,7 @@ pub fn load_config(
         if !invalid_fields.is_empty() {
             return Err(format!(
                 "{}invalid_fields=[{}];version={}",
-                CONFIG_ERROR_PREFIX,
+                config_error_prefix(),
                 invalid_fields.join(","),
                 TSCANNER_VERSION
             )
@@ -57,7 +62,7 @@ pub fn load_config(
         .into());
     }
 
-    Ok(config)
+    config.ok_or_else(|| "Config parsing failed".into())
 }
 
 pub trait ConfigExt {
@@ -271,11 +276,17 @@ impl ConfigExt for TscannerConfig {
         for (name, config) in sorted_script {
             name.hash(&mut hasher);
             config.command.hash(&mut hasher);
+            format!("{:?}", config.severity).hash(&mut hasher);
             for pattern in &config.include {
                 pattern.hash(&mut hasher);
             }
             for pattern in &config.exclude {
                 pattern.hash(&mut hasher);
+            }
+            if !config.options.is_null() {
+                if let Ok(json) = serde_json::to_string(&config.options) {
+                    json.hash(&mut hasher);
+                }
             }
         }
 
@@ -283,11 +294,27 @@ impl ConfigExt for TscannerConfig {
         for (name, config) in sorted_ai {
             name.hash(&mut hasher);
             config.prompt.hash(&mut hasher);
+            format!("{:?}", config.mode).hash(&mut hasher);
+            format!("{:?}", config.severity).hash(&mut hasher);
             for pattern in &config.include {
                 pattern.hash(&mut hasher);
             }
             for pattern in &config.exclude {
                 pattern.hash(&mut hasher);
+            }
+            if !config.options.is_null() {
+                if let Ok(json) = serde_json::to_string(&config.options) {
+                    json.hash(&mut hasher);
+                }
+            }
+        }
+
+        if let Some(ref ai_config) = self.ai {
+            if let Some(provider) = ai_config.provider {
+                format!("{:?}", provider).hash(&mut hasher);
+            }
+            if let Some(ref command) = ai_config.command {
+                command.hash(&mut hasher);
             }
         }
 

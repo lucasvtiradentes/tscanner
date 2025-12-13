@@ -64,7 +64,7 @@ function tooLong() {
 ```
 invalid.ts:1:1 max-function-length ━━━━━━━━━━━━━━━━━━━━
 
-  ! Function 'tooLong' has 52 statements (max: 50). Consider breaking it into smaller functions.
+  ! Function is too long. Consider breaking it into smaller functions.
 
   > 1 │ function tooLong() {
     2 │   const a1 = 1;
@@ -74,7 +74,7 @@ invalid.ts:1:1 max-function-length ━━━━━━━━━━━━━━━
 ```
 invalid.ts:1:1 max-function-length ━━━━━━━━━━━━━━━━━━━━
 
-  ! Function 'anonymous' has 52 statements (max: 50). Consider breaking it into smaller functions.
+  ! Function is too long. Consider breaking it into smaller functions.
 
   > 1 │ function tooLong() {
     2 │   const a1 = 1;

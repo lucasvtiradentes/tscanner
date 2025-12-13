@@ -1636,6 +1636,7 @@ dependencies = [
  "tscanner_config",
  "tscanner_constants",
  "tscanner_git",
+ "tscanner_logger",
  "tscanner_rules",
  "tscanner_types",
  "which",

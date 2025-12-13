@@ -1,12 +1,9 @@
+mod ai_cache;
 mod file_cache;
+mod hash;
+mod script_cache;
 
+pub use ai_cache::AiCache;
 pub use file_cache::FileCache;
-
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
-
-pub fn hash_content(content: &str) -> u64 {
-    let mut hasher = DefaultHasher::new();
-    content.hash(&mut hasher);
-    hasher.finish()
-}
+pub use hash::hash_content;
+pub use script_cache::ScriptCache;

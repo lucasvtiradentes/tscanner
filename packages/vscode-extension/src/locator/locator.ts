@@ -1,7 +1,7 @@
 import { constants, accessSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
-import { PACKAGE_DISPLAY_NAME } from 'tscanner-common';
+import { PACKAGE_DISPLAY_NAME, PACKAGE_NAME, VSCODE_EXTENSION } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { IS_DEV } from '../common/constants';
 import { ExtensionConfigKey, getExtensionConfig } from '../common/state/extension-config';
@@ -16,6 +16,22 @@ export enum LocatorSource {
   Global = 'global',
   Path = 'path',
 }
+
+export const LOCATOR_SOURCE_LABELS: Record<LocatorSource, string> = {
+  [LocatorSource.Dev]: 'dev',
+  [LocatorSource.Settings]: 'settings',
+  [LocatorSource.NodeModules]: 'local',
+  [LocatorSource.Global]: 'global',
+  [LocatorSource.Path]: 'PATH',
+};
+
+export const LOCATOR_SOURCE_LABELS_VERBOSE: Record<LocatorSource, string> = {
+  [LocatorSource.Dev]: 'dev (local rust build)',
+  [LocatorSource.Settings]: 'settings (user configured)',
+  [LocatorSource.NodeModules]: 'node_modules (project dependency)',
+  [LocatorSource.Global]: 'global (npm -g)',
+  [LocatorSource.Path]: 'PATH (system)',
+};
 
 type LocatorResult = {
   path: string;
@@ -63,9 +79,9 @@ export class Locator {
     }
 
     const ext = process.platform === 'win32' ? '.exe' : '';
-    const binaryName = `tscanner${ext}`;
+    const binaryName = `${PACKAGE_NAME}${ext}`;
 
-    const rustBinaryPath = join(this.workspaceRoot, 'packages', 'rust-core', 'target', 'release', binaryName);
+    const rustBinaryPath = join(this.workspaceRoot, VSCODE_EXTENSION.paths.devBinaryRelative, binaryName);
     if (existsSync(rustBinaryPath)) {
       return { path: rustBinaryPath, source: LocatorSource.Dev };
     }

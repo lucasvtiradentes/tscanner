@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::{RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration};
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
@@ -27,7 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "no-forwarded-exports",
         display_name: "No Forwarded Exports",
         description: "Disallows re-exporting from other modules. This includes direct re-exports (export { X } from 'module'), star re-exports (export * from 'module'), and re-exporting imported values.",
-        rule_type: RuleExecutionKind::Ast,
+        rule_type: RuleType::Ast,
         category: RuleCategory::Imports,
         typescript_only: false,
         equivalent_eslint_rule: None,
@@ -104,19 +104,16 @@ impl<'a> Visit for ForwardedExportsVisitor<'a> {
     }
 
     fn visit_named_export(&mut self, n: &NamedExport) {
-        if let Some(src) = &n.src {
+        if let Some(_src) = &n.src {
             let (line, column, end_column) =
                 get_span_positions(self.source, n.span.lo.0 as usize, n.span.hi.0 as usize);
-            let src_value = self.get_source_value(src.span);
 
             self.states.push(ForwardedExportState {
                 line,
                 start_col: column,
                 end_col: end_column,
-                message: format!(
-                    "Avoid re-exporting from '{}'. Import and use directly instead.",
-                    src_value
-                ),
+                message: "Avoid re-exporting from other modules. Import and use directly instead."
+                    .to_string(),
             });
         } else {
             for specifier in &n.specifiers {
@@ -137,10 +134,7 @@ impl<'a> Visit for ForwardedExportsVisitor<'a> {
                             line,
                             start_col: column,
                             end_col: end_column,
-                            message: format!(
-                                "Avoid re-exporting '{}'. Import and use directly instead.",
-                                orig_name
-                            ),
+                            message: "Avoid re-exporting imported values. Import and use directly instead.".to_string(),
                         });
                     }
                 }
@@ -153,16 +147,13 @@ impl<'a> Visit for ForwardedExportsVisitor<'a> {
     fn visit_export_all(&mut self, n: &ExportAll) {
         let (line, column, end_column) =
             get_span_positions(self.source, n.span.lo.0 as usize, n.span.hi.0 as usize);
-        let src_value = self.get_source_value(n.src.span);
 
         self.states.push(ForwardedExportState {
             line,
             start_col: column,
             end_col: end_column,
-            message: format!(
-                "Avoid star re-export from '{}'. Import and use directly instead.",
-                src_value
-            ),
+            message: "Avoid star re-export from other modules. Import and use directly instead."
+                .to_string(),
         });
 
         n.visit_children_with(self);

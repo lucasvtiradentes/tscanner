@@ -1,12 +1,29 @@
-import fs from 'node:fs';
-import path from 'node:path';
+import { readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 import { DynMarkdown, MarkdownTable, type TRowContent, getJson } from 'markdown-helper';
-import { PACKAGE_DISPLAY_NAME } from 'tscanner-common';
+import { PACKAGE_DISPLAY_NAME, REPO_URL } from 'tscanner-common';
+
+enum RuleOptionType {
+  Integer = 'integer',
+  Boolean = 'boolean',
+  String = 'string',
+  Array = 'array',
+}
+
+enum RuleType {
+  Ast = 'ast',
+  Regex = 'regex',
+}
+
+enum RuleSeverity {
+  Error = 'error',
+  Warning = 'warning',
+}
 
 type RuleOption = {
   name: string;
   description: string;
-  type: 'integer' | 'boolean' | 'string' | 'array';
+  type: RuleOptionType;
   default: unknown;
   minimum?: number;
   items?: string;
@@ -15,8 +32,8 @@ type RuleOption = {
 type RuleMetadata = {
   displayName: string;
   description: string;
-  ruleType: 'ast' | 'regex';
-  defaultSeverity: 'error' | 'warning';
+  ruleType: RuleType;
+  defaultSeverity: RuleSeverity;
   defaultEnabled: boolean;
   category: string;
   sourcePath?: string;
@@ -28,10 +45,10 @@ type RuleMetadata = {
 
 type TFields = 'RULES';
 
-const rootDir = path.resolve(__dirname, '..', '..');
+const rootDir = resolve(__dirname, '..', '..');
 
 export function updateRules() {
-  const rulesJson: RuleMetadata[] = getJson(path.join(rootDir, 'assets/generated/rules.json'));
+  const rulesJson: RuleMetadata[] = getJson(join(rootDir, 'assets/generated/rules.json'));
 
   const categoryMap: Record<string, string> = {
     typesafety: 'Type Safety',
@@ -87,7 +104,7 @@ export function updateRules() {
           '<img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only">',
         );
       }
-      if (rule.ruleType === 'regex') {
+      if (rule.ruleType === RuleType.Regex) {
         ruleBadges.push('<img src="https://img.shields.io/badge/regex--rule-6C757D" alt="Regex rule">');
       }
       if (rule.options && rule.options.length > 0) {
@@ -95,7 +112,7 @@ export function updateRules() {
       }
       const badgesHtml = ruleBadges.length > 0 ? `<br/><br/>${ruleBadges.join(' ')}` : '';
       const ruleLink = rule.sourcePath
-        ? `<a href="https://github.com/lucasvtiradentes/tscanner/blob/main/${rule.sourcePath}"><code>${ruleName}</code></a>`
+        ? `<a href="${REPO_URL}/blob/main/${rule.sourcePath}"><code>${ruleName}</code></a>`
         : `<code>${ruleName}</code>`;
       const ruleCell = `<div align="center">${ruleLink}${badgesHtml}</div>`;
 
@@ -178,10 +195,8 @@ Customize ${PACKAGE_DISPLAY_NAME} to validate what matters to your project while
 
 `;
 
-  const scriptRuleExample = fs
-    .readFileSync(path.join(rootDir, 'assets/configs/script-rule-example.ts'), 'utf-8')
-    .trim();
-  const aiRuleExample = fs.readFileSync(path.join(rootDir, 'assets/configs/ai-rule-example.md'), 'utf-8').trim();
+  const scriptRuleExample = readFileSync(join(rootDir, 'assets/configs/example-no-debug-comments.ts'), 'utf-8').trim();
+  const aiRuleExample = readFileSync(join(rootDir, 'assets/configs/example-find-complexity.md'), 'utf-8').trim();
 
   const customRulesContent = `<details>
 <summary>Regex rules examples</summary>
@@ -211,7 +226,7 @@ Define patterns to match in your code using regular expressions:
 }
 \`\`\`
 
-> 💡 See a real example in the [\`.tscanner/\`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
+> 💡 See a real example in the [\`.tscanner/\`](${REPO_URL}/tree/main/.tscanner) folder of this project.
 
 </div>
 </details>
@@ -243,7 +258,7 @@ Run custom scripts that receive file data via stdin and output issues as JSON:
 ${scriptRuleExample}
 \`\`\`
 
-> 💡 See a real example in the [\`.tscanner/\`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
+> 💡 See a real example in the [\`.tscanner/\`](${REPO_URL}/tree/main/.tscanner) folder of this project.
 
 </div>
 </details>
@@ -279,7 +294,7 @@ Use AI prompts to perform semantic code analysis:
 ${aiRuleExample}
 \`\`\`
 
-> 💡 See a real example in the [\`.tscanner/\`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
+> 💡 See a real example in the [\`.tscanner/\`](${REPO_URL}/tree/main/.tscanner) folder of this project.
 
 </div>
 </details>`;
@@ -296,10 +311,10 @@ ${customRulesContent}
 </div>`;
 
   const readmePaths = [
-    path.join(rootDir, 'README.md'),
-    path.join(rootDir, 'packages/cli/README.md'),
-    path.join(rootDir, 'packages/vscode-extension/README.md'),
-    path.join(rootDir, 'packages/github-action/README.md'),
+    join(rootDir, 'README.md'),
+    join(rootDir, 'packages/cli/README.md'),
+    join(rootDir, 'packages/vscode-extension/README.md'),
+    join(rootDir, 'packages/github-action/README.md'),
   ];
 
   for (const filePath of readmePaths) {

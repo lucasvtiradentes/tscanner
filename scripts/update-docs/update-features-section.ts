@@ -1,8 +1,8 @@
-import path from 'node:path';
+import { join, resolve } from 'node:path';
 import { DynMarkdown, getJson } from 'markdown-helper';
 
-const rootDir = path.resolve(__dirname, '..', '..');
-const rulesJson: unknown[] = getJson(path.join(rootDir, 'assets/generated/rules.json'));
+const rootDir = resolve(__dirname, '..', '..');
+const rulesJson: unknown[] = getJson(join(rootDir, 'assets/generated/rules.json'));
 const RULES_COUNT = rulesJson.length;
 
 type TFields = 'FEATURES';
@@ -137,7 +137,7 @@ export function updateFeaturesSection() {
 
   packages.forEach((pkg) => {
     const filePath = README_PATHS[pkg];
-    const readme = new DynMarkdown<TFields>(path.join(rootDir, filePath));
+    const readme = new DynMarkdown<TFields>(join(rootDir, filePath));
     readme.updateField('FEATURES', getFeaturesContent(pkg));
     readme.saveFile();
   });

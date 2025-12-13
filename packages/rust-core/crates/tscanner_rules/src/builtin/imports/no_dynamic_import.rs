@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::{RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration};
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
@@ -25,7 +25,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "no-dynamic-import",
         display_name: "No Dynamic Import",
         description: "Disallows dynamic import() expressions. Dynamic imports make static analysis harder and can impact bundle optimization.",
-        rule_type: RuleExecutionKind::Ast,
+        rule_type: RuleType::Ast,
         category: RuleCategory::Imports,
         typescript_only: false,
         equivalent_eslint_rule: None,

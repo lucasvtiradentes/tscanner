@@ -156,29 +156,21 @@ After that you can already install the extension:
 
 ### Scan Modes
 
-You have two scanning options, switchable via status bar click:
+You have four scanning options, switchable via status bar click:
 
 <div align="center">
 <table>
   <tr>
     <th>Codebase</th>
+    <th>Uncommitted</th>
+    <th>Staged</th>
     <th>Branch</th>
   </tr>
   <tr>
-    <td>
-      <div align="center">
-        <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-scan-codebase.png" alt="Codebase mode">
-      </div>
-    </td>
-    <td>
-      <div align="center">
-        <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-scan-branch.png" alt="Branch mode">
-      </div>
-    </td>
-  </tr>
-  <tr>
-    <td>Analyze all files in the codebase</td>
-    <td>Scan only modified files in current branch <br />compared to target branch</td>
+    <td>Analyze all files</td>
+    <td>Scan staged + unstaged changes</td>
+    <td>Scan only staged files</td>
+    <td>Compare to target branch</td>
   </tr>
 </table>
 </div>
@@ -330,23 +322,23 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
     <th width="100">Keybinding</th>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Scan Workspace</code></td>
-    <td align="center">-</td>
-  </tr>
-  <tr>
-    <td align="left"><code>tscanner: Hard Scan (Clear Cache & Rescan)</code></td>
+    <td align="left"><code>tscanner: Refresh Issues</code></td>
     <td align="center">-</td>
   </tr>
   <tr>
     <td align="left"><code>tscanner: Go to Next Issue</code></td>
-    <td align="center"><code>f8</code></td>
+    <td align="center">-</td>
   </tr>
   <tr>
     <td align="left"><code>tscanner: Go to Previous Issue</code></td>
-    <td align="center"><code>shift+f8</code></td>
+    <td align="center">-</td>
   </tr>
   <tr>
     <td align="left"><code>tscanner: Show Logs</code></td>
+    <td align="center">-</td>
+  </tr>
+  <tr>
+    <td align="left"><code>tscanner: Refresh AI Issues</code></td>
     <td align="center">-</td>
   </tr>
 </table>
@@ -395,7 +387,7 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 
 <div align="left">
 
-- **Scan Mode**: Shows "Codebase" or "Branch: {name}"
+- **Scan Mode**: Shows current mode (Codebase, Uncommitted, Staged, or Branch)
 - **Click**: Opens Settings Menu
 - **Config Status**: Green checkmark if `.tscanner/config.jsonc` exists
 
@@ -404,15 +396,15 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 </details>
 
 <details>
-<summary><b>Branch Mode</b></summary>
+<summary><b>Git-aware Modes</b></summary>
 
 <br />
 
 <div align="left">
 
-1. Extension runs `git diff {branch}...HEAD` to detect changed files
-2. Parses hunks to extract modified line ranges
-3. Scans all files but filters issues to modified lines only
+- **Uncommitted**: Scans all changes not yet committed (staged + unstaged)
+- **Staged**: Scans only files added to staging area
+- **Branch**: Compares against target branch, filters to modified lines only
 
 Perfect for PR validation - see only issues you introduced.
 
@@ -429,11 +421,11 @@ Perfect for PR validation - see only issues you introduced.
 To scan your code, you need to set up the rules in the TScanner config folder. Here's how to get started:
 
 1. **CLI**: Run `tscanner init` in your project root (**Recommended**)
-2. **Manual**: Copy the default config below to `.tscanner/config.jsonc`
+2. **Manual**: Copy one of the configs below to `.tscanner/config.jsonc`
 
 <div align="center">
 <details>
-<summary><strong>Default configuration</strong></summary>
+<summary><strong>Full configuration</strong></summary>
 
 <br/>
 
@@ -441,33 +433,78 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 
 ```json
 {
-  "$schema": "https://unpkg.com/tscanner@0.0.33/schema.json",
+  "$schema": "../../packages/cli/schema.json",
+  "rules": {
+    "builtin": {
+      "consistent-return": {},
+      "max-function-length": {},
+      "max-params": {},
+      "no-absolute-imports": {},
+      "no-alias-imports": {},
+      "no-async-without-await": {},
+      "no-console": {},
+      "no-constant-condition": {},
+      "no-default-export": {},
+      "no-duplicate-imports": {},
+      "no-dynamic-import": {},
+      "no-else-return": {},
+      "no-empty-class": {},
+      "no-empty-function": {},
+      "no-empty-interface": {},
+      "no-explicit-any": {},
+      "no-floating-promises": {},
+      "no-forwarded-exports": {},
+      "no-implicit-any": {},
+      "no-inferrable-types": {},
+      "no-nested-require": {},
+      "no-nested-ternary": {},
+      "no-non-null-assertion": {},
+      "no-relative-imports": {},
+      "no-return-await": {},
+      "no-shadow": {},
+      "no-single-or-array-union": {},
+      "no-todo-comments": {},
+      "no-unnecessary-type-assertion": {},
+      "no-unreachable-code": {},
+      "no-unused-vars": {},
+      "no-useless-catch": {},
+      "no-var": {},
+      "prefer-const": {},
+      "prefer-interface-over-type": {},
+      "prefer-nullish-coalescing": {},
+      "prefer-optional-chain": {},
+      "prefer-type-over-interface": {}
+    },
+    "regex": {
+      "example-no-console-log": {
+        "pattern": "console\\.log",
+        "message": "Remove console.log before committing"
+      }
+    },
+    "script": {
+      "example-no-debug-comments": {
+        "command": "npx tsx script-rules/example-no-debug-comments.ts",
+        "message": "Debug comments should be removed"
+      }
+    }
+  },
+  "aiRules": {},
+  "ai": {
+    "provider": "claude"
+  },
   "files": {
-    "include": [
-      "**/*.ts",
-      "**/*.tsx",
-      "**/*.js",
-      "**/*.jsx",
-      "**/*.mjs",
-      "**/*.cjs",
-      "**/*mts",
-      "**/*cts"
-    ],
-    "exclude": [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/build/**",
-      "**/.git/**",
-      "**/.next/**"
-    ]
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
   },
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": true,
     "highlightInfos": true,
     "highlightHints": true,
-    "scanInterval": 0,
-    "aiScanInterval": 0
+    "autoAiScanInterval": 0,
+    "autoScanInterval": 0,
+    "useAiScanCache": true,
+    "useScanCache": true
   }
 }
 ```
@@ -476,55 +513,56 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 </details>
 
 <details>
-<summary><strong>Additional info about configuration</strong></summary>
+<summary><strong>Minimal configuration</strong></summary>
 
 <br/>
 
 <div align="left">
 
-All configuration fields are **optional** with sensible defaults. The minimum required config is just enabling the rules you want:
-
 ```json
 {
+  "$schema": "../../packages/cli/schema.json",
   "rules": {
     "builtin": {
       "no-explicit-any": {}
-    }
+    },
+    "regex": {},
+    "script": {}
+  },
+  "aiRules": {},
+  "files": {
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
   }
 }
 ```
 
-With this minimal config, TScanner will scan all `.ts/.tsx/.js/.jsx/.mjs/.cjs` files, excluding `node_modules/`, `dist/`, `build/`, and `.git/` directories.
+</div>
+</details>
 
-**Understanding `files.include` and `files.exclude`:**
+<details>
+<summary><strong>Additional info</strong></summary>
 
-- `files.include`: Glob patterns for files to scan (default: `["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"]`)
-- `files.exclude`: Glob patterns for files/folders to ignore (default: `["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]`)
+<br/>
 
-Example with per-rule file patterns:
+<div align="left">
+
+**Required fields:** The `files.include` and `files.exclude` fields are required.
+
+**Per-rule file patterns:** Each rule can have its own `include`/`exclude` patterns:
 
 ```json
 {
   "rules": {
     "builtin": {
-      "no-explicit-any": {},
-      "no-console": {
-        "exclude": ["src/utils/logger.ts"]
-      },
-      "max-function-length": {
-        "include": ["src/core/**/*.ts"]
-      }
+      "no-console": { "exclude": ["src/logger.ts"] },
+      "max-function-length": { "include": ["src/core/**/*.ts"] }
     }
   }
 }
 ```
 
-This config:
-- Runs `no-explicit-any` on all files (uses global `files` patterns)
-- Runs `no-console` on all files except `src/utils/logger.ts`
-- Runs `max-function-length` only on files inside `src/core/`
-
-**Inline Disables:**
+**Inline disables:**
 
 ```typescript
 // tscanner-ignore-next-line no-explicit-any

@@ -1,3 +1,4 @@
+import { DISPLAY_ICONS } from 'tscanner-common';
 import * as vscode from 'vscode';
 import type { IssueResult } from '../../common/types';
 import type { AiProgressParams, AiRuleStatus } from '../../lsp/requests/types';
@@ -20,10 +21,10 @@ class AiProgressItem extends vscode.TreeItem {
 }
 
 function getStatusIcon(status: AiRuleStatus): string {
-  if ('pending' in status) return '○';
-  if ('running' in status) return '⧗';
-  if ('completed' in status) return '✓';
-  if ('failed' in status) return '✗';
+  if ('pending' in status) return DISPLAY_ICONS.regex;
+  if ('running' in status) return DISPLAY_ICONS.progress;
+  if ('completed' in status) return DISPLAY_ICONS.success;
+  if ('failed' in status) return DISPLAY_ICONS.error;
   return '?';
 }
 

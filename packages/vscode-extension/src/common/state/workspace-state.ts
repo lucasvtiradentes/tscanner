@@ -2,7 +2,7 @@ import { DEFAULT_TARGET_BRANCH, GroupMode, ScanMode, ViewMode } from 'tscanner-c
 import * as vscode from 'vscode';
 import { z } from 'zod';
 import { getContextKey } from '../constants';
-import { logger } from '../lib/logger';
+import { CONTEXT_PREFIX } from '../scripts-constants';
 
 export enum WorkspaceStateKey {
   ViewMode = 'viewMode',
@@ -34,8 +34,6 @@ const defaultValues: WorkspaceStateSchema = {
   [WorkspaceStateKey.ConfigDir]: null,
 };
 
-const CONTEXT_PREFIX = 'tscanner';
-
 const keyMapping: Record<WorkspaceStateKeyType, string> = Object.fromEntries(
   Object.values(WorkspaceStateKey).map((key) => [key, `${CONTEXT_PREFIX}.${key}`]),
 ) as Record<WorkspaceStateKeyType, string>;
@@ -65,14 +63,12 @@ export function getWorkspaceState<K extends WorkspaceStateKeyType>(
   const defaultValue = defaultValues[key];
 
   if (value === undefined) {
-    logger.debug(`[workspace-state] GET ${key} = ${JSON.stringify(defaultValue)} (default)`);
     return defaultValue;
   }
 
   const schema = workspaceStateSchema.shape[key];
   const result = schema.safeParse(value);
   const finalValue = (result.success ? result.data : defaultValue) as WorkspaceStateSchema[K];
-  logger.debug(`[workspace-state] GET ${key} = ${JSON.stringify(finalValue)}`);
 
   return finalValue;
 }
@@ -83,12 +79,10 @@ export function setWorkspaceState<K extends WorkspaceStateKeyType>(
   value: WorkspaceStateSchema[K],
 ): Thenable<void> {
   const storageKey = keyMapping[key];
-  logger.debug(`[workspace-state] SET ${key} = ${JSON.stringify(value)}`);
   return context.workspaceState.update(storageKey, value);
 }
 
 export function setContextKey(key: ContextKey, value: unknown): Thenable<unknown> {
-  logger.debug(`[context-key] SET ${key} = ${JSON.stringify(value)}`);
   return vscode.commands.executeCommand('setContext', getContextKey(key), value);
 }
 

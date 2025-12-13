@@ -39,7 +39,7 @@ export function exportedFiveParams(a, b, c, d, e) {
 ```
 invalid.js:1:1 max-params ━━━━━━━━━━━━━━━━━━━━
 
-  ! Function 'fiveParams' has 5 parameters (max: 4). Consider using an options object.
+  ! Function has too many parameters. Consider using an options object.
 
   > 1 │ function fiveParams(a, b, c, d, e) {
     2 │   return a;
@@ -49,7 +49,7 @@ invalid.js:1:1 max-params ━━━━━━━━━━━━━━━━━━
 ```
 invalid.js:1:1 max-params ━━━━━━━━━━━━━━━━━━━━
 
-  ! Function 'anonymous' has 5 parameters (max: 4). Consider using an options object.
+  ! Function has too many parameters. Consider using an options object.
 
   > 1 │ function fiveParams(a, b, c, d, e) {
     2 │   return a;
@@ -59,7 +59,7 @@ invalid.js:1:1 max-params ━━━━━━━━━━━━━━━━━━
 ```
 invalid.js:5:1 max-params ━━━━━━━━━━━━━━━━━━━━
 
-  ! Function 'sixParams' has 6 parameters (max: 4). Consider using an options object.
+  ! Function has too many parameters. Consider using an options object.
 
     4 │ 
   > 5 │ function sixParams(a, b, c, d, e, f) {
@@ -70,7 +70,7 @@ invalid.js:5:1 max-params ━━━━━━━━━━━━━━━━━━
 ```
 invalid.js:5:1 max-params ━━━━━━━━━━━━━━━━━━━━
 
-  ! Function 'anonymous' has 6 parameters (max: 4). Consider using an options object.
+  ! Function has too many parameters. Consider using an options object.
 
     4 │ 
   > 5 │ function sixParams(a, b, c, d, e, f) {
@@ -81,7 +81,7 @@ invalid.js:5:1 max-params ━━━━━━━━━━━━━━━━━━
 ```
 invalid.js:9:25 max-params ━━━━━━━━━━━━━━━━━━━━
 
-  ! Function 'arrow' has 5 parameters (max: 4). Consider using an options object.
+  ! Function has too many parameters. Consider using an options object.
 
     8 │ 
   > 9 │ const arrowFiveParams = (a, b, c, d, e) => {
@@ -92,7 +92,7 @@ invalid.js:9:25 max-params ━━━━━━━━━━━━━━━━━�
 ```
 invalid.js:13:24 max-params ━━━━━━━━━━━━━━━━━━━━
 
-  ! Function 'arrow' has 6 parameters (max: 4). Consider using an options object.
+  ! Function has too many parameters. Consider using an options object.
 
     12 │ 
   > 13 │ const arrowSixParams = (a, b, c, d, e, f) => {
@@ -103,7 +103,7 @@ invalid.js:13:24 max-params ━━━━━━━━━━━━━━━━━�
 ```
 invalid.js:18:3 max-params ━━━━━━━━━━━━━━━━━━━━
 
-  ! Function 'methodFiveParams' has 5 parameters (max: 4). Consider using an options object.
+  ! Function has too many parameters. Consider using an options object.
 
     17 │ class MyClass {
   > 18 │   methodFiveParams(a, b, c, d, e) {
@@ -114,7 +114,7 @@ invalid.js:18:3 max-params ━━━━━━━━━━━━━━━━━�
 ```
 invalid.js:18:3 max-params ━━━━━━━━━━━━━━━━━━━━
 
-  ! Function 'anonymous' has 5 parameters (max: 4). Consider using an options object.
+  ! Function has too many parameters. Consider using an options object.
 
     17 │ class MyClass {
   > 18 │   methodFiveParams(a, b, c, d, e) {
@@ -125,7 +125,7 @@ invalid.js:18:3 max-params ━━━━━━━━━━━━━━━━━�
 ```
 invalid.js:22:3 max-params ━━━━━━━━━━━━━━━━━━━━
 
-  ! Function 'methodSixParams' has 6 parameters (max: 4). Consider using an options object.
+  ! Function has too many parameters. Consider using an options object.
 
     21 │ 
   > 22 │   methodSixParams(a, b, c, d, e, f) {
@@ -136,7 +136,7 @@ invalid.js:22:3 max-params ━━━━━━━━━━━━━━━━━�
 ```
 invalid.js:22:3 max-params ━━━━━━━━━━━━━━━━━━━━
 
-  ! Function 'anonymous' has 6 parameters (max: 4). Consider using an options object.
+  ! Function has too many parameters. Consider using an options object.
 
     21 │ 
   > 22 │   methodSixParams(a, b, c, d, e, f) {
@@ -147,7 +147,7 @@ invalid.js:22:3 max-params ━━━━━━━━━━━━━━━━━�
 ```
 invalid.js:27:8 max-params ━━━━━━━━━━━━━━━━━━━━
 
-  ! Function 'exportedFiveParams' has 5 parameters (max: 4). Consider using an options object.
+  ! Function has too many parameters. Consider using an options object.
 
     26 │ 
   > 27 │ export function exportedFiveParams(a, b, c, d, e) {
@@ -158,7 +158,7 @@ invalid.js:27:8 max-params ━━━━━━━━━━━━━━━━━�
 ```
 invalid.js:27:8 max-params ━━━━━━━━━━━━━━━━━━━━
 
-  ! Function 'anonymous' has 5 parameters (max: 4). Consider using an options object.
+  ! Function has too many parameters. Consider using an options object.
 
     26 │ 
   > 27 │ export function exportedFiveParams(a, b, c, d, e) {

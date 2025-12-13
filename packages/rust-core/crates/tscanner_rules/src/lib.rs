@@ -10,8 +10,8 @@ pub mod utils;
 pub use context::RuleContext;
 pub use executors::{RegexExecutor, RegexRule};
 pub use metadata::{
-    get_all_rule_metadata, RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration,
-    RuleOption, RuleOptionSchema,
+    get_all_rule_metadata, RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleOption,
+    RuleOptionSchema, RuleType,
 };
 pub use registry::RuleRegistry;
 pub use signals::{ActionKind, RuleAction, RuleDiagnostic, RuleSignal};

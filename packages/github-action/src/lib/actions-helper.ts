@@ -1,4 +1,4 @@
-import * as fs from 'node:fs';
+import { appendFileSync } from 'node:fs';
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as github from '@actions/github';
@@ -76,7 +76,7 @@ class ActionsHelper {
   writeSummary(content: string): void {
     const summaryFile = process.env.GITHUB_STEP_SUMMARY;
     if (summaryFile) {
-      fs.appendFileSync(summaryFile, `${content}\n`);
+      appendFileSync(summaryFile, `${content}\n`);
     }
   }
 }

@@ -43,6 +43,11 @@
         "message": "No deprecated methods",
         "include": ["packages/rust-core/**/*.rs"]
       },
+      "no-rust-dead-code": {
+        "pattern": "allow\\(dead_code\\)",
+        "message": "Dead code annotation found - remove unused code instead",
+        "include": ["packages/rust-core/**/*.rs"]
+      },
       "no-process-env": {
         "pattern": "process\\.env",
         "message": "No process env"
@@ -67,16 +72,37 @@
         "severity": "error",
         "include": ["packages/cli/schema.json", "shared/tscanner-common/src/schemas.ts"]
       },
-      "rust-mod-simple": {
-        "command": "npx tsx script-rules/rust-mod-simple.ts",
-        "message": "mod.rs should only contain module declarations and re-exports",
+      "types-parity-match": {
+        "command": "npx tsx script-rules/types-parity-match.ts",
+        "message": "TypeScript and Rust shared types must be in sync",
         "severity": "error",
-        "include": ["**/mod.rs"]
+        "include": [
+          "shared/tscanner-common/src/types/*.ts",
+          "packages/rust-core/crates/tscanner_types/src/*.rs"
+        ]
+      },
+      "rust-entry-simple": {
+        "command": "npx tsx script-rules/rust-entry-simple.ts",
+        "message": "lib.rs and mod.rs should only contain module declarations and re-exports",
+        "severity": "error",
+        "include": ["**/mod.rs", "**/lib.rs"]
       },
       "no-long-files": {
         "command": "npx tsx script-rules/no-long-files.ts",
         "message": "File exceeds 300 lines limit",
         "include": ["packages/**/*.ts", "packages/**/*.rs"]
+      },
+      "cli-builder-match": {
+        "command": "npx tsx script-rules/cli-builder-match.ts",
+        "message": "CLI builder must cover all CLI check flags",
+        "severity": "error",
+        "include": ["assets/generated/cli.json", "shared/tscanner-common/src/cli-builder.ts"]
+      },
+      "no-default-node-imports": {
+        "command": "npx tsx script-rules/no-default-node-imports.ts",
+        "message": "Use named imports for node: modules instead of default or namespace imports",
+        "severity": "error",
+        "include": ["**/*.ts", "**/*.tsx", "**/*.mts"]
       }
     }
   },
@@ -88,13 +114,6 @@
       "severity": "warning",
       "include": ["packages/rust-core/crates/tscanner_scanner/src/executors/**.rs"]
     },
-    // "find-magic-numbers": {
-    //   "prompt": "find-magic-numbers.md",
-    //   "mode": "paths",
-    //   "message": "Magic number should be extracted to a named constant",
-    //   "severity": "warning",
-    //   "include": ["packages/rust-core/**/*.rs"]
-    // },
     "find-enum-candidates": {
       "prompt": "find-enum-candidates.md",
       "mode": "agentic",
@@ -126,7 +145,9 @@
     "highlightWarnings": true,
     "highlightInfos": true,
     "highlightHints": true,
-    "scanInterval": 0,
-    "aiScanInterval": 0
+    "autoScanInterval": 0,
+    "autoAiScanInterval": 0,
+    "useScanCache": true,
+    "useAiScanCache": true
   }
 }

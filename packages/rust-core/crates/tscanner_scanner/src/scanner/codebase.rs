@@ -100,13 +100,27 @@ impl Scanner {
                     total_files: 0,
                     cached_files: 0,
                     scanned_files: 0,
+                    notes: Vec::new(),
                     warnings: Vec::new(),
+                    errors: Vec::new(),
                 };
             }
         }
 
-        let files = self.collect_files_with_filter(roots, file_filter);
-        let file_count = files.len();
+        let (files, ai_files_count) = if ai_mode == AiExecutionMode::Only {
+            let ai_rules = self.collect_ai_rules();
+            let ai_files = self.collect_ai_files(&ai_rules);
+            let count = ai_files.len();
+            (Vec::new(), count)
+        } else {
+            let files = self.collect_files_with_filter(roots, file_filter);
+            (files, 0)
+        };
+        let file_count = if ai_mode == AiExecutionMode::Only {
+            ai_files_count
+        } else {
+            files.len()
+        };
         (self.log_debug)(&format!("Found {} files to scan", file_count));
 
         let processed = AtomicUsize::new(0);
@@ -150,11 +164,11 @@ impl Scanner {
         }
 
         let ai_start = Instant::now();
-        let (ai_issues, ai_warning) = if ai_mode == AiExecutionMode::Ignore {
-            (Vec::new(), None)
+        let ai_result = if ai_mode == AiExecutionMode::Ignore {
+            crate::executors::AiExecutionResult::default()
         } else {
             self.run_ai_rules_with_context_and_progress(
-                &files,
+                &[],
                 changed_lines,
                 callbacks.on_ai_progress,
             )
@@ -163,18 +177,23 @@ impl Scanner {
 
         let mut all_results = results;
         self.merge_issues(&mut all_results, script_issues);
-        self.merge_issues(&mut all_results, ai_issues);
+        self.merge_issues(&mut all_results, ai_result.issues);
 
         let total_issues: usize = all_results.iter().map(|r| r.issues.len()).sum();
         let duration = start.elapsed();
 
         self.cache.flush();
+        self.ai_cache.flush();
+        self.script_cache.flush();
 
-        let cached = cache_hits.load(Ordering::Relaxed);
-        let scanned = file_count - cached;
+        let regular_cache_hits = cache_hits.load(Ordering::Relaxed);
+        let cached = regular_cache_hits + ai_result.cache_hits;
+        let scanned = file_count.saturating_sub(cached);
 
         let mut warnings: Vec<String> = script_warnings;
-        warnings.extend(ai_warning);
+        warnings.extend(ai_result.warnings);
+
+        let errors: Vec<String> = ai_result.errors;
 
         ScanResult {
             files: all_results,
@@ -185,7 +204,9 @@ impl Scanner {
             total_files: file_count,
             cached_files: cached,
             scanned_files: scanned,
+            notes: Vec::new(),
             warnings,
+            errors,
         }
     }
 

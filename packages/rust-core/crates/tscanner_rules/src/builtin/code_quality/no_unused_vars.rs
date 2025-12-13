@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::{RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration};
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
@@ -13,7 +13,6 @@ pub struct UnusedVar {
     pub line: usize,
     pub column: usize,
     pub end_column: usize,
-    pub name: String,
 }
 
 pub struct NoUnusedVarsRule;
@@ -28,7 +27,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "no-unused-vars",
         display_name: "No Unused Variables",
         description: "Detects variables that are declared but never used in the code.",
-        rule_type: RuleExecutionKind::Ast,
+        rule_type: RuleType::Ast,
         category: RuleCategory::CodeQuality,
         typescript_only: false,
         equivalent_eslint_rule: Some("https://eslint.org/docs/latest/rules/no-unused-vars"),
@@ -61,7 +60,6 @@ impl Rule for NoUnusedVarsRule {
                     line,
                     column,
                     end_column,
-                    name: name.clone(),
                 });
             }
         }
@@ -72,7 +70,7 @@ impl Rule for NoUnusedVarsRule {
     fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
         RuleDiagnostic::new(
             TextRange::single_line(state.line, state.column, state.end_column),
-            format!("Variable '{}' is declared but never used.", state.name),
+            "Variable is declared but never used.".to_string(),
         )
     }
 }

@@ -87,13 +87,13 @@
               "$ref": "#/definitions/AiMode"
             }
           ],
-          "description": "How files are provided to the AI: 'paths' (default) sends only file paths, 'content' sends file contents in prompt, 'agentic' lets AI explore files autonomously"
+          "description": "How files are provided to the AI"
         },
         "options": {
-          "description": "Additional options to pass to the AI prompt"
+          "description": "Additional options"
         },
         "prompt": {
-          "description": "Path to AI prompt markdown file (relative to .tscanner/ai-rules/)",
+          "description": "Path to AI prompt markdown file",
           "type": "string"
         },
         "severity": {
@@ -105,7 +105,7 @@
           "description": "Severity level (default: warning)"
         },
         "timeout": {
-          "description": "Timeout for this rule in seconds (default: 0 = no limit)",
+          "description": "Timeout in seconds (default: 0 = no limit)",
           "format": "uint64",
           "minimum": 0.0,
           "type": "integer"
@@ -1261,10 +1261,18 @@
       "type": "object"
     },
     "CodeEditorConfig": {
+      "additionalProperties": false,
       "properties": {
-        "aiScanInterval": {
+        "autoAiScanInterval": {
           "default": 0,
-          "description": "Auto-scan interval for AI rules in seconds (0 = disabled). Runs only AI rules on a separate schedule.",
+          "description": "Auto-scan interval for AI rules in seconds (0 = disabled)",
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "autoScanInterval": {
+          "default": 0,
+          "description": "Auto-scan interval in seconds (0 = disabled)",
           "format": "uint32",
           "minimum": 0.0,
           "type": "integer"
@@ -1289,12 +1297,15 @@
           "description": "Highlight warning issues in the code editor",
           "type": "boolean"
         },
-        "scanInterval": {
-          "default": 0,
-          "description": "Auto-scan interval in seconds (0 = disabled, only manual/on-save scans)",
-          "format": "uint32",
-          "minimum": 0.0,
-          "type": "integer"
+        "useAiScanCache": {
+          "default": true,
+          "description": "Use cache for AI scans",
+          "type": "boolean"
+        },
+        "useScanCache": {
+          "default": true,
+          "description": "Use cache for regular scans",
+          "type": "boolean"
         }
       },
       "type": "object"
@@ -1302,31 +1313,14 @@
     "FilesConfig": {
       "properties": {
         "exclude": {
-          "default": [
-            "**/node_modules/**",
-            "**/dist/**",
-            "**/build/**",
-            "**/.git/**",
-            "**/.next/**"
-          ],
-          "description": "File patterns to exclude",
+          "description": "File patterns to exclude (required)",
           "items": {
             "type": "string"
           },
           "type": "array"
         },
         "include": {
-          "default": [
-            "**/*.ts",
-            "**/*.tsx",
-            "**/*.js",
-            "**/*.jsx",
-            "**/*.mjs",
-            "**/*.cjs",
-            "**/*mts",
-            "**/*cts"
-          ],
-          "description": "File patterns to include",
+          "description": "File patterns to include (required)",
           "items": {
             "type": "string"
           },
@@ -1526,7 +1520,7 @@
     "ScriptRuleConfig": {
       "properties": {
         "command": {
-          "description": "Full command to execute the script (e.g., 'npx tsx script-rules/my-script.ts --arg'). Path is relative to .tscanner/ directory.",
+          "description": "Full command to execute the script",
           "type": "string"
         },
         "exclude": {
@@ -1624,26 +1618,7 @@
           "$ref": "#/definitions/FilesConfig"
         }
       ],
-      "default": {
-        "exclude": [
-          "**/node_modules/**",
-          "**/dist/**",
-          "**/build/**",
-          "**/.git/**",
-          "**/.next/**"
-        ],
-        "include": [
-          "**/*.ts",
-          "**/*.tsx",
-          "**/*.js",
-          "**/*.jsx",
-          "**/*.mjs",
-          "**/*.cjs",
-          "**/*mts",
-          "**/*cts"
-        ]
-      },
-      "description": "File patterns configuration"
+      "description": "File patterns configuration (required)"
     },
     "rules": {
       "allOf": [

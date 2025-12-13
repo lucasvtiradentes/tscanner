@@ -234,6 +234,12 @@ jobs:
     <td><code>ignore</code></td>
     <td>AI rules: <code>ignore</code>, <code>include</code>, <code>only</code></td>
   </tr>
+  <tr>
+    <td><code>no-cache</code></td>
+    <td>-</td>
+    <td><code>false</code></td>
+    <td>Disable caching between runs</td>
+  </tr>
 </table>
 </div>
 
@@ -280,7 +286,7 @@ To enable AI-powered rules in your workflow, you need:
 1. **AI provider CLI installed** (`claude` or `gemini`)
 2. **OAuth credentials** from your local machine
 
-> **Note:** OAuth tokens have refresh tokens that auto-renew. You only need to update the secret if authentication stops working.
+> **Note:** OAuth tokens generated via `claude setup-token` are valid for 1 year. You only need to regenerate if authentication stops working.
 
 <div align="center">
 
@@ -298,11 +304,15 @@ npm install -g @anthropic-ai/claude-code
 claude  # Login with your Claude Max account
 ```
 
-2. **Copy credentials** - Get the content of `~/.claude/.credentials.json`
+2. **Generate OAuth token** - Run in your terminal:
+```bash
+claude setup-token
+```
+This generates a token valid for 1 year linked to your Max subscription.
 
 3. **Add GitHub Secret** - Go to repo Settings → Secrets → Actions → New secret:
-   - Name: `CLAUDE_CREDENTIALS`
-   - Value: paste the JSON content
+   - Name: `CLAUDE_CODE_OAUTH_TOKEN`
+   - Value: paste the token (starts with `sk-ant-oat...`)
 
 4. **Workflow**:
 ```yaml
@@ -318,12 +328,9 @@ jobs:
       - name: Setup Claude CLI
         run: npm install -g @anthropic-ai/claude-code
 
-      - name: Setup Claude credentials
-        run: |
-          mkdir -p ~/.claude
-          echo '${{ secrets.CLAUDE_CREDENTIALS }}' > ~/.claude/.credentials.json
-
       - uses: lucasvtiradentes/tscanner-action@v0.0.30
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           ai-mode: include
@@ -339,6 +346,8 @@ jobs:
 <br/>
 
 <div align="left">
+
+> **Why OAuth credentials instead of API key?** Google doesn't provide an official CI/CD token method like Claude does. The `GEMINI_API_KEY` has very low rate limits (5-15 RPM), while OAuth credentials from your personal account have **6x higher limits** (60 RPM, 1000 req/day). See [Gemini CLI Quotas](https://geminicli.com/docs/quota-and-pricing/).
 
 1. **Local setup** - Run in your terminal:
 ```bash
@@ -378,6 +387,13 @@ jobs:
           ai-mode: include
 ```
 
+**Rate limits comparison:**
+
+| Method | Requests/min | Requests/day |
+|--------|--------------|--------------|
+| OAuth credentials (recommended) | 60 RPM | 1000 |
+| API key (`GEMINI_API_KEY`) | 5-15 RPM | 100-250 |
+
 </div>
 
 </details>
@@ -405,12 +421,9 @@ jobs:
       - name: Setup Claude CLI
         run: npm install -g @anthropic-ai/claude-code
 
-      - name: Setup Claude credentials
-        run: |
-          mkdir -p ~/.claude
-          echo '${{ secrets.CLAUDE_CREDENTIALS }}' > ~/.claude/.credentials.json
-
       - uses: lucasvtiradentes/tscanner-action@v0.0.30
+        env:
+          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           ai-mode: only
@@ -423,6 +436,25 @@ jobs:
 
 </div>
 
+
+### Caching
+
+TScanner caches scan results between runs for faster execution. For caching to work, you **must restore file mtimes** because Git doesn't preserve them:
+
+```yaml
+- uses: actions/checkout@v4
+  with:
+    fetch-depth: 0  # Required for git-restore-mtime
+
+- name: Restore file mtimes for cache
+  uses: chetan/git-restore-mtime-action@v2
+
+- uses: lucasvtiradentes/tscanner-action@v0.0.30
+  with:
+    github-token: ${{ secrets.GITHUB_TOKEN }}
+```
+
+> **How it works:** Unchanged files → cache hit (skip). Modified files → rescan.
 
 ### Full Configuration
 
@@ -439,15 +471,11 @@ jobs:
       checks: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
-      # Optional: cache for faster runs
-      - uses: pnpm/action-setup@v4
-        with:
-          version: 9
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
+      - name: Restore file mtimes for cache
+        uses: chetan/git-restore-mtime-action@v2
 
       - uses: lucasvtiradentes/tscanner-action@v0.0.30
         with:
@@ -460,7 +488,8 @@ jobs:
           timezone: 'UTC'
           annotations: 'true'
           summary: 'true'
-          ai-mode: 'ignore'                 # or 'include', 'only'
+          ai-mode: 'ignore'                   # or 'include', 'only'
+          no-cache: 'false'                   # set 'true' to disable caching
 ```
 
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
@@ -469,11 +498,11 @@ jobs:
 To scan your code, you need to set up the rules in the TScanner config folder. Here's how to get started:
 
 1. **CLI**: Run `tscanner init` in your project root (**Recommended**)
-2. **Manual**: Copy the default config below to `.tscanner/config.jsonc`
+2. **Manual**: Copy one of the configs below to `.tscanner/config.jsonc`
 
 <div align="center">
 <details>
-<summary><strong>Default configuration</strong></summary>
+<summary><strong>Full configuration</strong></summary>
 
 <br/>
 
@@ -481,33 +510,78 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 
 ```json
 {
-  "$schema": "https://unpkg.com/tscanner@0.0.33/schema.json",
+  "$schema": "../../packages/cli/schema.json",
+  "rules": {
+    "builtin": {
+      "consistent-return": {},
+      "max-function-length": {},
+      "max-params": {},
+      "no-absolute-imports": {},
+      "no-alias-imports": {},
+      "no-async-without-await": {},
+      "no-console": {},
+      "no-constant-condition": {},
+      "no-default-export": {},
+      "no-duplicate-imports": {},
+      "no-dynamic-import": {},
+      "no-else-return": {},
+      "no-empty-class": {},
+      "no-empty-function": {},
+      "no-empty-interface": {},
+      "no-explicit-any": {},
+      "no-floating-promises": {},
+      "no-forwarded-exports": {},
+      "no-implicit-any": {},
+      "no-inferrable-types": {},
+      "no-nested-require": {},
+      "no-nested-ternary": {},
+      "no-non-null-assertion": {},
+      "no-relative-imports": {},
+      "no-return-await": {},
+      "no-shadow": {},
+      "no-single-or-array-union": {},
+      "no-todo-comments": {},
+      "no-unnecessary-type-assertion": {},
+      "no-unreachable-code": {},
+      "no-unused-vars": {},
+      "no-useless-catch": {},
+      "no-var": {},
+      "prefer-const": {},
+      "prefer-interface-over-type": {},
+      "prefer-nullish-coalescing": {},
+      "prefer-optional-chain": {},
+      "prefer-type-over-interface": {}
+    },
+    "regex": {
+      "example-no-console-log": {
+        "pattern": "console\\.log",
+        "message": "Remove console.log before committing"
+      }
+    },
+    "script": {
+      "example-no-debug-comments": {
+        "command": "npx tsx script-rules/example-no-debug-comments.ts",
+        "message": "Debug comments should be removed"
+      }
+    }
+  },
+  "aiRules": {},
+  "ai": {
+    "provider": "claude"
+  },
   "files": {
-    "include": [
-      "**/*.ts",
-      "**/*.tsx",
-      "**/*.js",
-      "**/*.jsx",
-      "**/*.mjs",
-      "**/*.cjs",
-      "**/*mts",
-      "**/*cts"
-    ],
-    "exclude": [
-      "**/node_modules/**",
-      "**/dist/**",
-      "**/build/**",
-      "**/.git/**",
-      "**/.next/**"
-    ]
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
   },
   "codeEditor": {
     "highlightErrors": true,
     "highlightWarnings": true,
     "highlightInfos": true,
     "highlightHints": true,
-    "scanInterval": 0,
-    "aiScanInterval": 0
+    "autoAiScanInterval": 0,
+    "autoScanInterval": 0,
+    "useAiScanCache": true,
+    "useScanCache": true
   }
 }
 ```
@@ -516,55 +590,56 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
 </details>
 
 <details>
-<summary><strong>Additional info about configuration</strong></summary>
+<summary><strong>Minimal configuration</strong></summary>
 
 <br/>
 
 <div align="left">
 
-All configuration fields are **optional** with sensible defaults. The minimum required config is just enabling the rules you want:
-
 ```json
 {
+  "$schema": "../../packages/cli/schema.json",
   "rules": {
     "builtin": {
       "no-explicit-any": {}
-    }
+    },
+    "regex": {},
+    "script": {}
+  },
+  "aiRules": {},
+  "files": {
+    "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
+    "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
   }
 }
 ```
 
-With this minimal config, TScanner will scan all `.ts/.tsx/.js/.jsx/.mjs/.cjs` files, excluding `node_modules/`, `dist/`, `build/`, and `.git/` directories.
+</div>
+</details>
 
-**Understanding `files.include` and `files.exclude`:**
+<details>
+<summary><strong>Additional info</strong></summary>
 
-- `files.include`: Glob patterns for files to scan (default: `["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"]`)
-- `files.exclude`: Glob patterns for files/folders to ignore (default: `["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]`)
+<br/>
 
-Example with per-rule file patterns:
+<div align="left">
+
+**Required fields:** The `files.include` and `files.exclude` fields are required.
+
+**Per-rule file patterns:** Each rule can have its own `include`/`exclude` patterns:
 
 ```json
 {
   "rules": {
     "builtin": {
-      "no-explicit-any": {},
-      "no-console": {
-        "exclude": ["src/utils/logger.ts"]
-      },
-      "max-function-length": {
-        "include": ["src/core/**/*.ts"]
-      }
+      "no-console": { "exclude": ["src/logger.ts"] },
+      "max-function-length": { "include": ["src/core/**/*.ts"] }
     }
   }
 }
 ```
 
-This config:
-- Runs `no-explicit-any` on all files (uses global `files` patterns)
-- Runs `no-console` on all files except `src/utils/logger.ts`
-- Runs `max-function-length` only on files inside `src/core/`
-
-**Inline Disables:**
+**Inline disables:**
 
 ```typescript
 // tscanner-ignore-next-line no-explicit-any

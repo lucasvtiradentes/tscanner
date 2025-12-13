@@ -18,7 +18,7 @@ interface Props {
 ```
 invalid.ts:1:1 prefer-type-over-interface ━━━━━━━━━━━━━━━━━━━━
 
-  ! Prefer 'type' over 'interface' for 'User'
+  ! Prefer 'type' over 'interface'
 
   > 1 │ interface User {
     2 │   name: string;
@@ -28,7 +28,7 @@ invalid.ts:1:1 prefer-type-over-interface ━━━━━━━━━━━━�
 ```
 invalid.ts:6:1 prefer-type-over-interface ━━━━━━━━━━━━━━━━━━━━
 
-  ! Prefer 'type' over 'interface' for 'Props'
+  ! Prefer 'type' over 'interface'
 
     5 │ 
   > 6 │ interface Props {

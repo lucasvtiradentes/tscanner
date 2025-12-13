@@ -1,5 +1,5 @@
 use crate::context::RuleContext;
-use crate::metadata::{RuleCategory, RuleExecutionKind, RuleMetadata, RuleMetadataRegistration};
+use crate::metadata::{RuleCategory, RuleMetadata, RuleMetadataRegistration, RuleType};
 use crate::signals::{RuleDiagnostic, TextRange};
 use crate::traits::{Rule, RuleRegistration};
 use crate::utils::get_span_positions;
@@ -12,7 +12,6 @@ pub struct InferrableTypeMatch {
     pub line: usize,
     pub column: usize,
     pub end_column: usize,
-    pub var_name: String,
 }
 
 pub struct NoInferrableTypesRule;
@@ -27,7 +26,7 @@ inventory::submit!(RuleMetadataRegistration {
         name: "no-inferrable-types",
         display_name: "No Inferrable Types",
         description: "Disallows explicit type annotations on variables initialized with literal values. TypeScript can infer these types automatically.",
-        rule_type: RuleExecutionKind::Ast,
+        rule_type: RuleType::Ast,
         category: RuleCategory::TypeSafety,
         typescript_only: true,
         equivalent_eslint_rule: Some("https://typescript-eslint.io/rules/no-inferrable-types"),
@@ -59,10 +58,8 @@ impl Rule for NoInferrableTypesRule {
     fn diagnostic(&self, _ctx: &RuleContext, state: &Self::State) -> RuleDiagnostic {
         RuleDiagnostic::new(
             TextRange::single_line(state.line, state.column, state.end_column),
-            format!(
-                "Type annotation on variable '{}' is redundant. TypeScript can infer this type from the literal value.",
-                state.var_name
-            ),
+            "Type annotation is redundant. TypeScript can infer this type from the literal value."
+                .to_string(),
         )
     }
 }
@@ -105,7 +102,6 @@ impl<'a> Visit for InferrableTypesVisitor<'a> {
                             line,
                             column,
                             end_column,
-                            var_name: ident.id.sym.to_string(),
                         });
                     }
                 }

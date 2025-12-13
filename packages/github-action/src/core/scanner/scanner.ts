@@ -1,28 +1,37 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
+import { existsSync, readFileSync, unlinkSync } from 'node:fs';
+import { join } from 'node:path';
 import {
-  AiExecutionMode,
+  type AiExecutionMode,
   type CliOutputByFile,
   type CliOutputByRule,
-  type GroupMode,
+  GroupMode,
   type RuleGroup,
+  type RulesBreakdown,
+  buildCheckArgs,
 } from 'tscanner-common';
 import { githubHelper } from '../../lib/actions-helper';
 import { type CliExecutor, createDevModeExecutor, createProdModeExecutor } from '../cli-executor';
-import { logFormattedResults } from './scanner-logger';
 import { deriveOutputByRule, transformToRuleGroupsByFile, transformToRuleGroupsByRule } from './scanner-transforms';
 
 export type ActionScanResult = {
   totalIssues: number;
   totalErrors: number;
   totalWarnings: number;
+  totalInfos: number;
+  totalHints: number;
   totalFiles: number;
+  cachedFiles: number;
+  scannedFiles: number;
   filesWithIssues: number;
-  totalRules: number;
+  triggeredRules: number;
+  triggeredRulesBreakdown: RulesBreakdown;
   totalEnabledRules: number;
+  enabledRulesBreakdown: RulesBreakdown;
+  durationMs: number;
   groupBy: GroupMode;
   ruleGroups: RuleGroup[];
   ruleGroupsByRule: RuleGroup[];
+  scanErrors: string[];
 };
 
 export type ScanOptions = {
@@ -32,50 +41,26 @@ export type ScanOptions = {
   groupBy: GroupMode;
   configPath: string;
   aiMode: AiExecutionMode;
+  noCache: boolean;
+  continueOnError: boolean;
 };
 
-function getAiModeArgs(aiMode: AiExecutionMode): string[] {
-  switch (aiMode) {
-    case AiExecutionMode.Include:
-      return ['--include-ai'];
-    case AiExecutionMode.Only:
-      return ['--only-ai'];
-    default:
-      return [];
-  }
-}
-
-function getAiModeLabel(aiMode: AiExecutionMode): string {
-  switch (aiMode) {
-    case AiExecutionMode.Include:
-      return ' (with AI rules)';
-    case AiExecutionMode.Only:
-      return ' (AI rules only)';
-    default:
-      return '';
-  }
-}
-
 export async function scanChangedFiles(options: ScanOptions): Promise<ActionScanResult> {
-  const { targetBranch, devMode, tscannerVersion, groupBy, configPath, aiMode } = options;
-  const scanMode = targetBranch ? `changed files vs ${targetBranch}` : 'entire codebase';
-  githubHelper.logInfo(`Scanning [${scanMode}] group by: [${groupBy}]${getAiModeLabel(aiMode)}`);
+  const { targetBranch, devMode, tscannerVersion, groupBy, configPath, aiMode, noCache, continueOnError } = options;
 
   const executor: CliExecutor = devMode ? createDevModeExecutor() : createProdModeExecutor(tscannerVersion);
 
-  const jsonOutputFile = path.join(process.cwd(), 'tscanner-results.json');
+  const jsonOutputFile = join(process.cwd(), 'tscanner-results.json');
 
-  const baseArgs = [
-    'check',
-    '--json-output',
-    jsonOutputFile,
-    '--continue-on-error',
-    '--config-path',
+  const baseArgs = buildCheckArgs({
+    jsonOutput: jsonOutputFile,
+    continueOnError,
     configPath,
-    ...(targetBranch ? ['--branch', targetBranch] : []),
-    ...getAiModeArgs(aiMode),
-    '--group-by=file',
-  ];
+    branch: targetBranch,
+    aiMode,
+    groupBy: GroupMode.File,
+    noCache,
+  });
 
   await executor.execute(baseArgs);
 
@@ -83,46 +68,46 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
   let scanDataRule: CliOutputByRule;
 
   try {
-    const jsonContent = fs.readFileSync(jsonOutputFile, 'utf-8');
+    const jsonContent = readFileSync(jsonOutputFile, 'utf-8');
     scanDataFile = JSON.parse(jsonContent) as CliOutputByFile;
     scanDataRule = deriveOutputByRule(scanDataFile);
-    fs.unlinkSync(jsonOutputFile);
+    unlinkSync(jsonOutputFile);
   } catch (err) {
     githubHelper.logError(`Failed to parse scan output: ${err instanceof Error ? err.message : String(err)}`);
-    if (fs.existsSync(jsonOutputFile)) {
+    if (existsSync(jsonOutputFile)) {
       try {
-        const rawContent = fs.readFileSync(jsonOutputFile, 'utf-8');
+        const rawContent = readFileSync(jsonOutputFile, 'utf-8');
         githubHelper.logDebug(`Raw output: ${rawContent.substring(0, 500)}`);
-        fs.unlinkSync(jsonOutputFile);
+        unlinkSync(jsonOutputFile);
       } catch {}
     }
     throw new Error('Invalid scan output format');
   }
 
-  githubHelper.logInfo(`Scan completed: ${scanDataFile.summary?.total_issues || 0} issues found`);
-
   const hasIssues = scanDataFile.files.length > 0;
 
   if (!hasIssues) {
-    githubHelper.logInfo('No issues found');
     return {
       totalIssues: 0,
       totalErrors: 0,
       totalWarnings: 0,
-      totalFiles: 0,
+      totalInfos: 0,
+      totalHints: 0,
+      totalFiles: scanDataFile.summary.total_files,
+      cachedFiles: scanDataFile.summary.cached_files,
+      scannedFiles: scanDataFile.summary.scanned_files,
       filesWithIssues: 0,
-      totalRules: 0,
+      triggeredRules: 0,
+      triggeredRulesBreakdown: { builtin: 0, regex: 0, script: 0, ai: 0 },
       totalEnabledRules: scanDataFile.summary.total_enabled_rules,
+      enabledRulesBreakdown: scanDataFile.summary.enabled_rules_breakdown,
+      durationMs: scanDataFile.summary.duration_ms,
       groupBy,
       ruleGroups: [],
       ruleGroupsByRule: [],
+      scanErrors: scanDataFile.summary.scan_errors ?? [],
     };
   }
-
-  githubHelper.logInfo('');
-  githubHelper.logInfo('📊 Scan Results:');
-  githubHelper.logInfo('');
-  logFormattedResults(scanDataFile, scanDataRule);
 
   const ruleGroups = transformToRuleGroupsByFile(scanDataFile);
   const ruleGroupsByRule = transformToRuleGroupsByRule(scanDataRule);
@@ -131,12 +116,20 @@ export async function scanChangedFiles(options: ScanOptions): Promise<ActionScan
     totalIssues: scanDataFile.summary.total_issues,
     totalErrors: scanDataFile.summary.errors,
     totalWarnings: scanDataFile.summary.warnings,
+    totalInfos: scanDataFile.summary.infos,
+    totalHints: scanDataFile.summary.hints,
     totalFiles: scanDataFile.summary.total_files,
+    cachedFiles: scanDataFile.summary.cached_files,
+    scannedFiles: scanDataFile.summary.scanned_files,
     filesWithIssues: scanDataFile.files.length,
-    totalRules: scanDataRule.rules.length,
+    triggeredRules: scanDataFile.summary.triggered_rules,
+    triggeredRulesBreakdown: scanDataFile.summary.triggered_rules_breakdown,
     totalEnabledRules: scanDataFile.summary.total_enabled_rules,
+    enabledRulesBreakdown: scanDataFile.summary.enabled_rules_breakdown,
+    durationMs: scanDataFile.summary.duration_ms,
     groupBy,
     ruleGroups,
     ruleGroupsByRule,
+    scanErrors: scanDataFile.summary.scan_errors ?? [],
   };
 }
