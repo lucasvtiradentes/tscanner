@@ -68,8 +68,6 @@ class ExtensionStore {
     if (oldValue === value) return;
 
     this.state[key] = value;
-    storeLogger.debug(`${key}: ${JSON.stringify(oldValue)} -> ${JSON.stringify(value)}`);
-
     this.persist(key, value);
     this.notify(key, value, oldValue);
   }

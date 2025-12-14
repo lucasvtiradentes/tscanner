@@ -175,33 +175,65 @@ async function startExtension(regularView: RegularIssuesView, aiView: AiIssuesVi
   aiView.clearError();
 
   const config = await getOrLoadConfig(workspaceFolder.uri.fsPath);
-  const startupScan = config?.codeEditor?.startupScan ?? CODE_EDITOR_DEFAULTS.startupScan;
-  const startupAiScan = config?.codeEditor?.startupAiScan ?? CODE_EDITOR_DEFAULTS.startupAiScan;
+  const startupScan = config?.codeEditor?.startupScan ?? (CODE_EDITOR_DEFAULTS.startupScan as StartupScanMode);
+  const startupAiScan = config?.codeEditor?.startupAiScan ?? (CODE_EDITOR_DEFAULTS.startupAiScan as StartupScanMode);
 
-  if (startupScan !== StartupScanMode.Off) {
+  const hasStartupScan = startupScan !== StartupScanMode.Off;
+  const hasStartupAiScan = startupAiScan !== StartupScanMode.Off;
+
+  if (hasStartupScan) {
     const useCache = startupScan === StartupScanMode.Cached;
     logger.info(`Running initial scan (mode: ${startupScan}, cache: ${useCache})...`);
     executeCommand(Command.RefreshIssues, {
       trigger: ScanTrigger.Startup,
       useCache,
     });
+    logger.info('Waiting for regular scan to complete...');
+    await waitForRegularScan();
+    logger.info('Regular scan completed');
   } else {
     logger.info('Startup scan disabled by config');
   }
 
-  if (startupAiScan !== StartupScanMode.Off) {
+  if (hasStartupAiScan) {
     const useCache = startupAiScan === StartupScanMode.Cached;
     logger.info(`Running initial AI scan (mode: ${startupAiScan}, cache: ${useCache})...`);
     executeCommand(Command.RefreshAiIssues, {
       trigger: ScanTrigger.Startup,
       useCache,
     });
+    logger.info('Waiting for AI scan to complete...');
+    await waitForAiScan();
+    logger.info('AI scan completed');
   } else {
     logger.info('Startup AI scan disabled by config');
   }
 
-  await scanIntervalWatcher.setup(startupScan !== StartupScanMode.Off);
-  await aiScanIntervalWatcher.setup(startupAiScan !== StartupScanMode.Off);
+  logger.info('Setting up interval watchers');
+  await scanIntervalWatcher.setup(hasStartupScan);
+  await aiScanIntervalWatcher.setup(hasStartupAiScan);
+}
+
+function waitForScan(storeKey: StoreKey.IsSearching | StoreKey.IsAiSearching): Promise<void> {
+  return new Promise((resolve) => {
+    const check = () => {
+      const isScanning = extensionStore.get(storeKey);
+      if (!isScanning) {
+        resolve();
+      } else {
+        setTimeout(check, 100);
+      }
+    };
+    setTimeout(check, 100);
+  });
+}
+
+function waitForRegularScan(): Promise<void> {
+  return waitForScan(StoreKey.IsSearching);
+}
+
+function waitForAiScan(): Promise<void> {
+  return waitForScan(StoreKey.IsAiSearching);
 }
 
 export function activate(context: vscode.ExtensionContext) {
