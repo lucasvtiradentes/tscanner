@@ -192,10 +192,21 @@ export class TscannerLspClient {
     return this.client.onNotification(LspMethod.AiProgress, handler);
   }
 
-  getServerVersion(): string | null {
-    if (!this.client?.initializeResult) {
+  async getServerVersion(): Promise<string | null> {
+    if (!this.client) {
       return null;
     }
+
+    const maxWaitMs = 5000;
+    const startTime = Date.now();
+
+    while (!this.client.initializeResult) {
+      if (Date.now() - startTime > maxWaitMs) {
+        return null;
+      }
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+
     return this.client.initializeResult.serverInfo?.version ?? null;
   }
 }

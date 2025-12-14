@@ -148,7 +148,7 @@ async function startExtension(regularView: RegularIssuesView, aiView: AiIssuesVi
 
   const lspClient = getLspClient();
   if (lspClient) {
-    const binaryVersion = lspClient.getServerVersion();
+    const binaryVersion = await lspClient.getServerVersion();
     checkVersionCompatibility(binaryVersion);
   }
 

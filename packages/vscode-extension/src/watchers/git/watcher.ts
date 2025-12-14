@@ -37,7 +37,12 @@ function setupRepositoryListeners(repo: GitRepository, disposables: vscode.Dispo
   disposables.push(repo.onDidCommit(handleCommit));
   disposables.push(repo.onDidCheckout(handleCheckout));
 
-  logger.debug(`Git listeners attached for branch: ${repo.state.HEAD?.name ?? 'unknown'}`);
+  const branchName = repo.state.HEAD?.name;
+  if (branchName) {
+    logger.debug(`Git listeners attached for branch: ${branchName}`);
+  } else {
+    logger.debug('Git listeners attached (branch not yet loaded)');
+  }
 }
 
 export async function createGitWatcher(): Promise<vscode.Disposable | null> {
