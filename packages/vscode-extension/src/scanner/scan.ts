@@ -4,7 +4,7 @@ import { logger } from '../common/lib/logger';
 import { getCurrentWorkspaceFolder, openTextDocument } from '../common/lib/vscode-utils';
 import type { IssueResult } from '../common/types';
 import { ensureLspClient } from './client';
-import { mapIssueToResult, parseConfigError, showConfigErrorToast, showScanErrorToast } from './utils';
+import { mapIssueToResult } from './utils';
 
 type ScanOptions = {
   branch?: string;
@@ -88,16 +88,6 @@ export async function scan(options: ScanOptions = {}): Promise<IssueResult[]> {
     return results;
   } catch (error) {
     logger.error(`${scanType} scan failed: ${error}`);
-
-    const errorMessage = String(error);
-    const configError = parseConfigError(errorMessage);
-
-    if (configError) {
-      showConfigErrorToast(configError);
-    } else {
-      showScanErrorToast(error);
-    }
-
     throw error;
   }
 }

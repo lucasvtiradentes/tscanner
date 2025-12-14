@@ -1,6 +1,8 @@
 import { CODE_EDITOR_DEFAULTS, DISPLAY_ICONS, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
+import { IS_DEV } from '../common/constants';
 import { getConfigDirLabel } from '../common/lib/config-manager';
+import { getExtensionVersion } from '../common/lib/version-checker';
 import { type BinaryInfo, LOCATOR_SOURCE_LABELS, LocatorSource } from '../locator';
 
 function getAiProviderLabel(config: TscannerConfig | null): string {
@@ -52,13 +54,19 @@ export function buildConfiguredTooltip(
   configDir: string | null,
   config: TscannerConfig | null,
   binaryInfo: BinaryInfo,
+  versionWarning: string | null = null,
+  invalidConfigFields: string[] = [],
 ): vscode.MarkdownString {
   const configLabel = getConfigDirLabel(configDir);
   const configSource = LOCATOR_SOURCE_LABELS[binaryInfo.source];
+  const extensionVersion = getExtensionVersion();
+  const binaryVersion = binaryInfo.version;
+
+  const devVersion = LOCATOR_SOURCE_LABELS[LocatorSource.Dev];
+  const extensionLabel = IS_DEV ? devVersion : `v${extensionVersion}`;
   const binaryLabel =
-    binaryInfo.version && binaryInfo.source !== LocatorSource.Dev
-      ? `${configSource} (v${binaryInfo.version})`
-      : configSource;
+    binaryVersion && binaryInfo.source !== LocatorSource.Dev ? `${configSource} (v${binaryVersion})` : devVersion;
+
   const aiProviderLabel = getAiProviderLabel(config);
   const activeRulesLabel = getActiveRulesLabel(config);
   const scanSettingsLabel = getScanSettingsLabel(config);
@@ -66,6 +74,7 @@ export function buildConfiguredTooltip(
 
   const rows = [
     ['Binary', binaryLabel],
+    ['Extension', extensionLabel],
     ['Config', configLabel],
     ['Active Rules', activeRulesLabel],
     ['Scan', scanSettingsLabel],
@@ -73,9 +82,17 @@ export function buildConfiguredTooltip(
     config?.ai?.provider ? ['AI Provider', aiProviderLabel] : null,
   ].filter(Boolean) as string[][];
 
-  const table = ['| | |', '|---|---|', ...rows.map(([label, value]) => `| **${label}** | ${value} |`)].join('\n');
+  let content = ['| | |', '|---|---|', ...rows.map(([label, value]) => `| **${label}** | ${value} |`)].join('\n');
 
-  const md = new vscode.MarkdownString(table);
+  if (versionWarning) {
+    content += `\n\n⚠️ **Version Warning**: ${versionWarning}`;
+  }
+
+  if (invalidConfigFields.length > 0) {
+    content += `\n\n⚠️ **Invalid Config Fields**: ${invalidConfigFields.join(', ')}`;
+  }
+
+  const md = new vscode.MarkdownString(content);
   md.supportHtml = true;
   return md;
 }

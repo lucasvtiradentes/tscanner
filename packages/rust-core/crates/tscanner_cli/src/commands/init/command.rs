@@ -3,7 +3,7 @@ use colored::*;
 use std::fs;
 use std::path::Path;
 
-use crate::shared::print_section_title;
+use crate::shared::{fatal_error_and_exit, print_section_title};
 use tscanner_constants::{ai_rules_dir, config_dir_name, config_file_name, script_rules_dir};
 use tscanner_rules::get_all_rule_metadata;
 use tscanner_service::{log_error, log_info};
@@ -28,9 +28,10 @@ pub fn cmd_init(path: &Path, full: bool) -> Result<()> {
             "cmd_init: Config already exists: {}",
             config_path.display()
         ));
-        eprintln!("{}", "Error: Configuration already exists!".red().bold());
-        eprintln!("  {}", config_path.display());
-        std::process::exit(1);
+        fatal_error_and_exit(
+            "Configuration already exists!",
+            &[&format!("{}", config_path.display())],
+        );
     }
 
     fs::create_dir_all(&config_dir)

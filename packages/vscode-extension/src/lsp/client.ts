@@ -186,4 +186,13 @@ export class TscannerLspClient {
     if (!this.client) throw new Error('LSP client not started');
     return this.client.onNotification(LspMethod.AiProgress, handler);
   }
+
+  getServerVersion(): string | null {
+    if (!this.client?.initializeResult) {
+      console.log('[DEBUG] initializeResult not available');
+      return null;
+    }
+    console.log('[DEBUG] initializeResult:', JSON.stringify(this.client.initializeResult, null, 2));
+    return this.client.initializeResult.serverInfo?.version ?? null;
+  }
 }

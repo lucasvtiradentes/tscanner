@@ -33,6 +33,18 @@ export class StatusBarManager {
     extensionStore.subscribe(StoreKey.CachedConfig, () => {
       this.updateDisplay();
     });
+
+    extensionStore.subscribe(StoreKey.VersionWarning, () => {
+      this.updateDisplay();
+    });
+
+    extensionStore.subscribe(StoreKey.InvalidConfigFields, () => {
+      this.updateDisplay();
+    });
+
+    extensionStore.subscribe(StoreKey.ConfigError, () => {
+      this.updateDisplay();
+    });
   }
 
   private get isScanning(): boolean {
@@ -57,6 +69,13 @@ export class StatusBarManager {
   }
 
   private updateDisplay(): void {
+    const configError = extensionStore.get(StoreKey.ConfigError);
+
+    if (configError) {
+      this.showConfigError(configError);
+      return;
+    }
+
     const config = getCachedConfig();
     const hasConfig = hasConfiguredRules(config);
 
@@ -69,9 +88,17 @@ export class StatusBarManager {
 
   private showConfigured(config: TscannerConfig | null, binaryInfo: BinaryInfo): void {
     const configDir = extensionStore.get(StoreKey.ConfigDir);
-    const icon = this.isScanning
-      ? VSCODE_EXTENSION.statusBar.icons.scanning
-      : VSCODE_EXTENSION.statusBar.icons.configured;
+    const versionWarning = extensionStore.get(StoreKey.VersionWarning);
+    const invalidConfigFields = extensionStore.get(StoreKey.InvalidConfigFields);
+    const hasWarning = !!versionWarning || invalidConfigFields.length > 0;
+
+    const getIcon = () => {
+      if (this.isScanning) return VSCODE_EXTENSION.statusBar.icons.scanning;
+      if (hasWarning) return '$(warning)';
+      return VSCODE_EXTENSION.statusBar.icons.configured;
+    };
+
+    const icon = getIcon();
     const scanMode = extensionStore.get(StoreKey.ScanMode);
     const compareBranch = extensionStore.get(StoreKey.CompareBranch);
     const getModeText = () => {
@@ -84,7 +111,13 @@ export class StatusBarManager {
     const finalText = `${icon} ${statusText}`;
 
     this.statusBarItem.text = finalText;
-    this.statusBarItem.tooltip = buildConfiguredTooltip(configDir, config, binaryInfo);
+    this.statusBarItem.tooltip = buildConfiguredTooltip(
+      configDir,
+      config,
+      binaryInfo,
+      versionWarning,
+      invalidConfigFields,
+    );
   }
 
   private showUnconfigured(): void {
@@ -95,6 +128,13 @@ export class StatusBarManager {
     const tooltipLines = ['No rules configured.', 'Run "tscanner init" to create config.'];
 
     this.statusBarItem.tooltip = tooltipLines.join('\n');
+  }
+
+  private showConfigError(error: string): void {
+    const finalText = '$(error) Config Error';
+
+    this.statusBarItem.text = finalText;
+    this.statusBarItem.tooltip = `Configuration error: ${error}\n\nFix the config to restore functionality.`;
   }
 
   clearBinaryCache(): void {

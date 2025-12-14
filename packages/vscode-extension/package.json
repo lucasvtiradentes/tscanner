@@ -3,7 +3,7 @@
   "private": true,
   "displayName": "TScanner",
   "description": "Code quality scanner for the AI-generated code era",
-  "version": "0.0.34",
+  "version": "1.0.0",
   "publisher": "lucasvtiradentes",
   "license": "MIT",
   "icon": "resources/icon.png",
@@ -248,16 +248,6 @@
     ],
     "keybindings": [],
     "menus": {
-      "commandPalette": [
-        {
-          "command": "tscanner.refreshIssuesCached",
-          "when": "false"
-        },
-        {
-          "command": "tscanner.refreshAiIssuesCached",
-          "when": "false"
-        }
-      ],
       "view/title": [
         {
           "command": "tscanner.copyAllIssues",
@@ -353,6 +343,14 @@
         }
       ],
       "commandPalette": [
+        {
+          "command": "tscanner.refreshIssuesCached",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.refreshAiIssuesCached",
+          "when": "false"
+        },
         {
           "command": "tscanner.openSettingsMenu",
           "when": "false"

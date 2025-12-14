@@ -25,12 +25,15 @@ export function createConfigWatcher(
       const isValid = await validateConfigAndNotify(configBasePath);
 
       if (!isValid) {
-        regularView.setResults([]);
-        aiView.setResults([], true);
-        logger.error('Config validation failed, cleared all issues');
+        logger.error('Config validation failed, showing error in views');
+        regularView.setError('Fix config errors to scan again');
+        aiView.setError('Fix config errors to scan again');
         return;
       }
 
+      logger.info('Config validation passed, clearing errors');
+      regularView.clearError();
+      aiView.clearError();
       await loadAndCacheConfig(workspaceFolder.uri.fsPath);
     }
 

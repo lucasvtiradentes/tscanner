@@ -3,7 +3,13 @@ import * as vscode from 'vscode';
 import { getCurrentWorkspaceFolder } from '../../common/lib/vscode-utils';
 import { type IssueResult, NodeKind } from '../../common/types';
 import { buildFolderTree } from '../components/tree-builder';
-import { FileResultItem, FolderResultItem, LineResultItem, RuleGroupItem } from '../components/tree-items';
+import {
+  ErrorMessageItem,
+  FileResultItem,
+  FolderResultItem,
+  LineResultItem,
+  RuleGroupItem,
+} from '../components/tree-items';
 
 type IssuesViewItem = RuleGroupItem | FolderResultItem | FileResultItem | LineResultItem;
 
@@ -11,6 +17,8 @@ export abstract class BaseIssuesView implements vscode.TreeDataProvider<vscode.T
   protected results: IssueResult[] = [];
   protected _viewMode: ViewMode = ViewMode.List;
   protected _groupMode: GroupMode = GroupMode.File;
+  protected _lastScanTimestamp: number | null = null;
+  protected errorMessage: string | null = null;
 
   protected _onDidChangeTreeData = new vscode.EventEmitter<vscode.TreeItem | undefined>();
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event;
@@ -33,7 +41,11 @@ export abstract class BaseIssuesView implements vscode.TreeDataProvider<vscode.T
     this._onDidChangeTreeData.fire(undefined);
   }
 
-  abstract setResults(results: IssueResult[]): void;
+  get lastScanTimestamp(): number | null {
+    return this._lastScanTimestamp;
+  }
+
+  abstract setResults(results: IssueResult[], skipTimestampUpdate?: boolean): void;
 
   getResults(): IssueResult[] {
     return this.results;
@@ -44,6 +56,17 @@ export abstract class BaseIssuesView implements vscode.TreeDataProvider<vscode.T
   }
 
   refresh() {
+    this._onDidChangeTreeData.fire(undefined);
+  }
+
+  setError(message: string): void {
+    this.errorMessage = message;
+    this.results = [];
+    this._onDidChangeTreeData.fire(undefined);
+  }
+
+  clearError(): void {
+    this.errorMessage = null;
     this._onDidChangeTreeData.fire(undefined);
   }
 
@@ -136,6 +159,9 @@ export abstract class BaseIssuesView implements vscode.TreeDataProvider<vscode.T
 
   getChildren(element?: vscode.TreeItem): Thenable<vscode.TreeItem[]> {
     if (!element) {
+      if (this.errorMessage) {
+        return Promise.resolve([new ErrorMessageItem(this.errorMessage)]);
+      }
       return Promise.resolve(this.getRootChildren());
     }
 

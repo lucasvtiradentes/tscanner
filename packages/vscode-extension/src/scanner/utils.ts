@@ -14,30 +14,39 @@ function getDocsUrl(version: string): string {
 }
 
 export function parseConfigError(errorMessage: string): ConfigError | null {
-  if (!errorMessage.includes(CONFIG_ERROR_PREFIX)) {
-    return null;
-  }
-
-  const match = errorMessage.match(/invalid_fields=\[([^\]]*)\];version=([^\s]+)/);
-  if (!match) {
-    return null;
-  }
-
-  const [, fieldsStr, version] = match;
-  const invalidFields = fieldsStr.split(',').filter(Boolean);
-
-  return { invalidFields, version };
-}
-
-export function showConfigErrorToast(configError: ConfigError) {
-  const fieldsText = configError.invalidFields.join(', ');
-  const message = `${PACKAGE_DISPLAY_NAME} config error: invalid fields [${fieldsText}]. Please check the docs for v${configError.version}`;
-
-  vscode.window.showErrorMessage(message, 'Open Docs').then((selection) => {
-    if (selection === 'Open Docs') {
-      vscode.env.openExternal(vscode.Uri.parse(getDocsUrl(configError.version)));
+  if (errorMessage.includes(CONFIG_ERROR_PREFIX)) {
+    const match = errorMessage.match(/invalid_fields=\[([^\]]*)\];version=([^\s]+)/);
+    if (match) {
+      const [, fieldsStr, version] = match;
+      const invalidFields = fieldsStr.split(',').filter(Boolean);
+      return { invalidFields, version };
     }
-  });
+  }
+
+  const invalidFieldsWarningMatch = errorMessage.match(
+    /Config contains invalid fields \[([^\]]+)\] which will be ignored/,
+  );
+  if (invalidFieldsWarningMatch) {
+    const fieldsStr = invalidFieldsWarningMatch[1];
+    const invalidFields = fieldsStr
+      .split(',')
+      .map((f) => f.trim())
+      .filter(Boolean);
+    return {
+      invalidFields,
+      version: 'unknown',
+    };
+  }
+
+  const invalidFieldMatch = errorMessage.match(/Invalid field: (\w+)/);
+  if (invalidFieldMatch) {
+    return {
+      invalidFields: [invalidFieldMatch[1]],
+      version: 'unknown',
+    };
+  }
+
+  return null;
 }
 
 export function showScanErrorToast(error: unknown) {

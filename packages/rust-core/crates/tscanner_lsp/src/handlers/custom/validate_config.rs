@@ -39,10 +39,31 @@ pub fn handle_validate_config(
 
     match tscanner_config::TscannerConfig::full_validate(&content, workspace, config_dir_name()) {
         Ok((_config, validation_result)) => {
+            let mut errors = Vec::new();
+            let mut warnings = validation_result.warnings.clone();
+            let mut invalid_fields = Vec::new();
+
+            for error in &validation_result.errors {
+                if error.starts_with("Invalid field: ") {
+                    if let Some(field) = error.strip_prefix("Invalid field: ") {
+                        invalid_fields.push(field.to_string());
+                    }
+                } else {
+                    errors.push(error.clone());
+                }
+            }
+
+            if !invalid_fields.is_empty() {
+                warnings.push(format!(
+                    "Config contains invalid fields [{}] which will be ignored",
+                    invalid_fields.join(", ")
+                ));
+            }
+
             let result = ValidateConfigResult {
-                valid: validation_result.is_valid(),
-                errors: validation_result.errors,
-                warnings: validation_result.warnings,
+                valid: errors.is_empty(),
+                errors,
+                warnings,
             };
             let response = Response::new_ok(req.id, serde_json::to_value(&result)?);
             connection.sender.send(Message::Response(response))?;

@@ -12,6 +12,10 @@ export enum StoreKey {
   CompareBranch = 'compareBranch',
   ConfigDir = 'configDir',
   CachedConfig = 'cachedConfig',
+  BinaryVersion = 'binaryVersion',
+  VersionWarning = 'versionWarning',
+  InvalidConfigFields = 'invalidConfigFields',
+  ConfigError = 'configError',
 }
 
 type ExtensionState = {
@@ -21,6 +25,10 @@ type ExtensionState = {
   [StoreKey.CompareBranch]: string;
   [StoreKey.ConfigDir]: string | null;
   [StoreKey.CachedConfig]: TscannerConfig | null;
+  [StoreKey.BinaryVersion]: string | null;
+  [StoreKey.VersionWarning]: string | null;
+  [StoreKey.InvalidConfigFields]: string[];
+  [StoreKey.ConfigError]: string | null;
 };
 
 type StateListener<K extends StoreKey> = (value: ExtensionState[K], oldValue: ExtensionState[K]) => void;
@@ -34,6 +42,10 @@ class ExtensionStore {
     [StoreKey.CompareBranch]: DEFAULT_TARGET_BRANCH,
     [StoreKey.ConfigDir]: null,
     [StoreKey.CachedConfig]: null,
+    [StoreKey.BinaryVersion]: null,
+    [StoreKey.VersionWarning]: null,
+    [StoreKey.InvalidConfigFields]: [],
+    [StoreKey.ConfigError]: null,
   };
 
   private context: vscode.ExtensionContext | null = null;

@@ -9,7 +9,7 @@ use tscanner_service::log_info;
 pub fn load_config_with_custom(
     root: &Path,
     custom_path: Option<PathBuf>,
-) -> Result<Option<(TscannerConfig, String)>> {
+) -> Result<Option<(TscannerConfig, String, Vec<String>)>> {
     if let Some(custom_config_dir) = custom_path {
         let resolved_dir = if custom_config_dir.is_absolute() {
             custom_config_dir
@@ -31,9 +31,10 @@ pub fn load_config_with_custom(
                 "config_loader: Loading custom config: {}",
                 config_path.display()
             ));
-            let config = load_config(&config_path, config_dir_name(), config_file_name())
-                .map_err(|e| anyhow::anyhow!("{}", e))?;
-            return Ok(Some((config, config_path.display().to_string())));
+            let (config, warnings) =
+                load_config(&config_path, config_dir_name(), config_file_name())
+                    .map_err(|e| anyhow::anyhow!("{}", e))?;
+            return Ok(Some((config, config_path.display().to_string(), warnings)));
         } else {
             anyhow::bail!(
                 "Config file not found: {} (expected {} in directory)",
@@ -49,9 +50,9 @@ pub fn load_config_with_custom(
             "config_loader: Loading local config: {}",
             local_path.display()
         ));
-        let config = load_config(&local_path, config_dir_name(), config_file_name())
+        let (config, warnings) = load_config(&local_path, config_dir_name(), config_file_name())
             .map_err(|e| anyhow::anyhow!("{}", e))?;
-        return Ok(Some((config, local_path.display().to_string())));
+        return Ok(Some((config, local_path.display().to_string(), warnings)));
     }
 
     log_info("config_loader: No config found");

@@ -5,6 +5,7 @@ import { getAiViewId, getViewId } from './common/constants';
 import { getConfigBaseDir } from './common/lib/config-manager';
 import { validateConfigAndNotify } from './common/lib/config-validator';
 import { initializeLogger, logger } from './common/lib/logger';
+import { checkVersionCompatibility } from './common/lib/version-checker';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from './common/lib/vscode-utils';
 import { EXTENSION_DISPLAY_NAME } from './common/scripts-constants';
 import { ExtensionConfigKey, getExtensionConfig, getFullConfigKeyPath } from './common/state/extension-config';
@@ -129,6 +130,12 @@ async function startExtension(regularView: RegularIssuesView, aiView: AiIssuesVi
     return;
   }
 
+  const lspClient = getLspClient();
+  if (lspClient) {
+    const binaryVersion = lspClient.getServerVersion();
+    checkVersionCompatibility(binaryVersion);
+  }
+
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (workspaceFolder) {
     const configDir = extensionStore.get(StoreKey.ConfigDir);
@@ -137,11 +144,15 @@ async function startExtension(regularView: RegularIssuesView, aiView: AiIssuesVi
     const isValid = await validateConfigAndNotify(configBasePath);
 
     if (!isValid) {
-      regularView.setResults([]);
-      aiView.setResults([], true);
-      logger.warn('Config invalid on startup, cleared all issues');
+      logger.warn('Config invalid on startup, showing error in views');
+      regularView.setError('Fix config errors to scan again');
+      aiView.setError('Fix config errors to scan again');
       return;
     }
+
+    logger.info('Config valid on startup, clearing errors');
+    regularView.clearError();
+    aiView.clearError();
   }
 
   logger.info('Running initial scan...');
