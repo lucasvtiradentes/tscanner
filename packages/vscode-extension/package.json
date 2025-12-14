@@ -167,6 +167,11 @@
         "icon": "$(output)"
       },
       {
+        "command": "tscanner.clearScanCaches",
+        "title": "tscanner: Clear Scan Caches",
+        "icon": "$(clear-all)"
+      },
+      {
         "command": "tscanner.openSettingsMenu",
         "title": "Open Settings"
       },

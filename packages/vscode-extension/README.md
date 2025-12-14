@@ -338,6 +338,10 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
     <td align="center">-</td>
   </tr>
   <tr>
+    <td align="left"><code>tscanner: Clear Scan Caches</code></td>
+    <td align="center">-</td>
+  </tr>
+  <tr>
     <td align="left"><code>tscanner: Refresh AI Issues (no cache)</code></td>
     <td align="center">-</td>
   </tr>
