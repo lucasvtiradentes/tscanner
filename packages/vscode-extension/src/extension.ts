@@ -1,8 +1,8 @@
-import { VSCODE_EXTENSION } from 'tscanner-common';
+import { StartupScanMode, VSCODE_EXTENSION } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { getAiViewId, getViewId } from './common/constants';
-import { getConfigBaseDir } from './common/lib/config-manager';
+import { getConfigBaseDir, getOrLoadConfig } from './common/lib/config-manager';
 import { validateConfigAndNotify } from './common/lib/config-validator';
 import { initializeLogger, logger } from './common/lib/logger';
 import { checkVersionCompatibility } from './common/lib/version-checker';
@@ -153,26 +153,54 @@ async function startExtension(regularView: RegularIssuesView, aiView: AiIssuesVi
   }
 
   const workspaceFolder = getCurrentWorkspaceFolder();
-  if (workspaceFolder) {
-    const configDir = extensionStore.get(StoreKey.ConfigDir);
-    const configBasePath = getConfigBaseDir(workspaceFolder.uri.fsPath, configDir);
-    logger.info(`Validating config at base path: ${configBasePath} (configDir store: ${configDir})`);
-    const isValid = await validateConfigAndNotify(configBasePath);
-
-    if (!isValid) {
-      logger.warn('Config invalid on startup, showing error in views');
-      regularView.setError('Fix config errors to scan again');
-      aiView.setError('Fix config errors to scan again');
-      return;
-    }
-
-    logger.info('Config valid on startup, clearing errors');
-    regularView.clearError();
-    aiView.clearError();
+  if (!workspaceFolder) {
+    logger.warn('No workspace folder, skipping startup scans');
+    return;
   }
 
-  logger.info('Running initial scan...');
-  executeCommand(Command.RefreshIssues, { silent: true, trigger: ScanTrigger.Startup });
+  const configDir = extensionStore.get(StoreKey.ConfigDir);
+  const configBasePath = getConfigBaseDir(workspaceFolder.uri.fsPath, configDir);
+  logger.info(`Validating config at base path: ${configBasePath} (configDir store: ${configDir})`);
+  const isValid = await validateConfigAndNotify(configBasePath);
+
+  if (!isValid) {
+    logger.warn('Config invalid on startup, showing error in views');
+    regularView.setError('Fix config errors to scan again');
+    aiView.setError('Fix config errors to scan again');
+    return;
+  }
+
+  logger.info('Config valid on startup, clearing errors');
+  regularView.clearError();
+  aiView.clearError();
+
+  const config = await getOrLoadConfig(workspaceFolder.uri.fsPath);
+  const startupScan = config?.codeEditor?.startupScan ?? StartupScanMode.Cached;
+  const startupAiScan = config?.codeEditor?.startupAiScan ?? StartupScanMode.Off;
+
+  if (startupScan !== StartupScanMode.Off) {
+    const useCache = startupScan === StartupScanMode.Cached;
+    logger.info(`Running initial scan (mode: ${startupScan}, cache: ${useCache})...`);
+    executeCommand(Command.RefreshIssues, {
+      silent: true,
+      trigger: ScanTrigger.Startup,
+      useCache,
+    });
+  } else {
+    logger.info('Startup scan disabled by config');
+  }
+
+  if (startupAiScan !== StartupScanMode.Off) {
+    const useCache = startupAiScan === StartupScanMode.Cached;
+    logger.info(`Running initial AI scan (mode: ${startupAiScan}, cache: ${useCache})...`);
+    executeCommand(Command.RefreshAiIssues, {
+      silent: true,
+      trigger: ScanTrigger.Startup,
+      useCache,
+    });
+  } else {
+    logger.info('Startup AI scan disabled by config');
+  }
 
   await scanIntervalWatcher.setup();
   await aiScanIntervalWatcher.setup();

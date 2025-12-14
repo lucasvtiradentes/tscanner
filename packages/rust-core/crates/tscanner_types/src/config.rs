@@ -1,4 +1,4 @@
-use crate::enums::{AiMode, AiProvider, Severity};
+use crate::enums::{AiMode, AiProvider, Severity, StartupScanMode};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -61,6 +61,18 @@ pub struct CodeEditorConfig {
     #[serde(default)]
     #[schemars(description = "Auto-scan interval for AI rules in seconds (0 = disabled)")]
     pub auto_ai_scan_interval: u32,
+
+    #[serde(default)]
+    #[schemars(
+        description = "Startup scan mode: off (disabled), cached (use cache), fresh (ignore cache)"
+    )]
+    pub startup_scan: StartupScanMode,
+
+    #[serde(default)]
+    #[schemars(
+        description = "Startup AI scan mode: off (disabled), cached (use cache), fresh (ignore cache)"
+    )]
+    pub startup_ai_scan: StartupScanMode,
 }
 
 impl Default for CodeEditorConfig {
@@ -72,6 +84,8 @@ impl Default for CodeEditorConfig {
             highlight_hints: true,
             auto_scan_interval: 0,
             auto_ai_scan_interval: 0,
+            startup_scan: StartupScanMode::Cached,
+            startup_ai_scan: StartupScanMode::Off,
         }
     }
 }

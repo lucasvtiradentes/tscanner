@@ -145,6 +145,8 @@
     "highlightWarnings": true,
     "highlightInfos": true,
     "highlightHints": true,
+    "startupScan": "cached",
+    "startupAiScan": "cached",
     "autoScanInterval": 0,
     "autoAiScanInterval": 0
   }

@@ -21,75 +21,84 @@ const aiScanLogger = createLogger('AI Scan');
 const aiProgressLogger = createLogger('AI Progress');
 
 export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIssuesView) {
-  return registerCommand(Command.RefreshAiIssues, async (options?: { trigger?: ScanTrigger }) => {
-    const workspaceFolder = getCurrentWorkspaceFolder();
-    if (!workspaceFolder) {
-      showToastMessage(ToastKind.Error, 'No workspace folder open');
-      return;
-    }
-
-    aiView.setResults([], true);
-    let progressDisposable: { dispose(): void } | null = null;
-
-    await withScanErrorHandling(
-      {
-        scanType: ScanType.Ai,
-        contextKeyOnComplete: ContextKey.HasAiScanned,
-        onError: (error) => {
-          showToastMessage(ToastKind.Error, `AI scan failed: ${error}`);
-          aiView.clearProgress();
-        },
-        onFinally: () => {
-          progressDisposable?.dispose();
-        },
-      },
-      async () => {
-        const configDir = extensionStore.get(StoreKey.ConfigDir);
-        const config = await getOrLoadConfig(workspaceFolder.uri.fsPath);
-
-        if (!hasConfiguredRules(config)) {
-          aiView.setResults([], true);
-          showToastMessage(ToastKind.Warning, 'No rules configured for this workspace');
-          return;
+  return registerCommand(
+    Command.RefreshAiIssues,
+    async (options?: { trigger?: ScanTrigger; useCache?: boolean; silent?: boolean }) => {
+      const workspaceFolder = getCurrentWorkspaceFolder();
+      if (!workspaceFolder) {
+        if (!options?.silent) {
+          showToastMessage(ToastKind.Error, 'No workspace folder open');
         }
+        return;
+      }
 
-        const configToPass = configDir ? (config ?? undefined) : undefined;
-        if (configDir) {
-          aiScanLogger.info(`Using config from ${getConfigDirLabel(configDir)}`);
-        } else {
-          aiScanLogger.info(`Using local config from ${CONFIG_DIR_NAME}`);
-        }
+      aiView.setResults([], true);
+      let progressDisposable: { dispose(): void } | null = null;
 
-        aiScanLogger.info('Starting AI-only scan (full scan)...');
+      await withScanErrorHandling(
+        {
+          scanType: ScanType.Ai,
+          contextKeyOnComplete: ContextKey.HasAiScanned,
+          onError: (error) => {
+            if (!options?.silent) {
+              showToastMessage(ToastKind.Error, `AI scan failed: ${error}`);
+            }
+            aiView.clearProgress();
+          },
+          onFinally: () => {
+            progressDisposable?.dispose();
+          },
+        },
+        async () => {
+          const configDir = extensionStore.get(StoreKey.ConfigDir);
+          const config = await getOrLoadConfig(workspaceFolder.uri.fsPath);
 
-        const client = getLspClient();
-        if (client) {
-          progressDisposable = client.onAiProgress((params) => {
-            aiProgressLogger.debug(`${params.rule_name}: ${JSON.stringify(params.status)}`);
-            aiView.updateProgress(params);
+          if (!hasConfiguredRules(config)) {
+            aiView.setResults([], true);
+            if (!options?.silent) {
+              showToastMessage(ToastKind.Warning, 'No rules configured for this workspace');
+            }
+            return;
+          }
+
+          const configToPass = configDir ? (config ?? undefined) : undefined;
+          if (configDir) {
+            aiScanLogger.info(`Using config from ${getConfigDirLabel(configDir)}`);
+          } else {
+            aiScanLogger.info(`Using local config from ${CONFIG_DIR_NAME}`);
+          }
+
+          aiScanLogger.info('Starting AI-only scan (full scan)...');
+
+          const client = getLspClient();
+          if (client) {
+            progressDisposable = client.onAiProgress((params) => {
+              aiProgressLogger.debug(`${params.rule_name}: ${JSON.stringify(params.status)}`);
+              aiView.updateProgress(params);
+            });
+          }
+
+          const startTime = Date.now();
+          const scanMode = extensionStore.get(StoreKey.ScanMode);
+          const compareBranch = extensionStore.get(StoreKey.CompareBranch);
+          const branch = scanMode === ScanMode.Branch ? compareBranch : undefined;
+          const trigger = options?.trigger ?? ScanTrigger.ManualCommand;
+          const useCache = options?.useCache ?? shouldUseCache(trigger);
+          aiScanLogger.info(`AI scan trigger: ${trigger}, useCache: ${useCache}, noCache flag: ${!useCache}`);
+          const results = await scan({
+            branch,
+            config: configToPass,
+            configDir: configDir ?? undefined,
+            aiMode: AiExecutionMode.Only,
+            noCache: !useCache,
           });
-        }
 
-        const startTime = Date.now();
-        const scanMode = extensionStore.get(StoreKey.ScanMode);
-        const compareBranch = extensionStore.get(StoreKey.CompareBranch);
-        const branch = scanMode === ScanMode.Branch ? compareBranch : undefined;
-        const trigger = options?.trigger ?? ScanTrigger.ManualCommand;
-        const useCache = shouldUseCache(trigger);
-        aiScanLogger.info(`AI scan trigger: ${trigger}, useCache: ${useCache}, noCache flag: ${!useCache}`);
-        const results = await scan({
-          branch,
-          config: configToPass,
-          configDir: configDir ?? undefined,
-          aiMode: AiExecutionMode.Only,
-          noCache: !useCache,
-        });
+          const elapsed = Date.now() - startTime;
+          aiScanLogger.info(`Completed in ${elapsed}ms, found ${results.length} AI issues`);
 
-        const elapsed = Date.now() - startTime;
-        aiScanLogger.info(`Completed in ${elapsed}ms, found ${results.length} AI issues`);
-
-        aiView.setResults(results);
-      },
-    );
-  });
+          aiView.setResults(results);
+        },
+      );
+    },
+  );
 }

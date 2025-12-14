@@ -32,7 +32,7 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
 
   return registerCommand(
     Command.RefreshIssues,
-    async (options?: { silent?: boolean; aiMode?: AiExecutionMode; trigger?: ScanTrigger }) => {
+    async (options?: { silent?: boolean; aiMode?: AiExecutionMode; trigger?: ScanTrigger; useCache?: boolean }) => {
       if (extensionStore.get(StoreKey.IsSearching)) {
         if (!options?.silent) {
           showToastMessage(ToastKind.Warning, 'Search already in progress');
@@ -104,7 +104,7 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
           const branch = scanMode === ScanMode.Branch ? compareBranch : undefined;
           const staged = scanMode === ScanMode.Uncommitted ? true : undefined;
           const trigger = options?.trigger ?? ScanTrigger.ManualCommand;
-          const useCache = shouldUseCache(trigger);
+          const useCache = options?.useCache ?? shouldUseCache(trigger);
           logger.info(`Scan trigger: ${trigger}, useCache: ${useCache}, noCache flag: ${!useCache}`);
 
           const results = await scan({

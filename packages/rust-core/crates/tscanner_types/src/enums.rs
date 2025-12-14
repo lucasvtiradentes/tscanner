@@ -112,6 +112,15 @@ pub enum AiExecutionMode {
     Only,
 }
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum StartupScanMode {
+    Off,
+    #[default]
+    Cached,
+    Fresh,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ScanMode {
     Codebase,

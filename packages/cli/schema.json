@@ -1296,6 +1296,24 @@
           "default": true,
           "description": "Highlight warning issues in the code editor",
           "type": "boolean"
+        },
+        "startupAiScan": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/StartupScanMode"
+            }
+          ],
+          "default": "cached",
+          "description": "Startup AI scan mode: off (disabled), cached (use cache), fresh (ignore cache)"
+        },
+        "startupScan": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/StartupScanMode"
+            }
+          ],
+          "default": "cached",
+          "description": "Startup scan mode: off (disabled), cached (use cache), fresh (ignore cache)"
         }
       },
       "type": "object"
@@ -1561,6 +1579,14 @@
         "warning",
         "info",
         "hint"
+      ],
+      "type": "string"
+    },
+    "StartupScanMode": {
+      "enum": [
+        "off",
+        "cached",
+        "fresh"
       ],
       "type": "string"
     }
