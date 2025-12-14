@@ -29,15 +29,19 @@ pub fn handle_scan(
 
     let no_cache = params.no_cache.unwrap_or(false);
     let config_hash = config.compute_hash();
-    let cache = Arc::new(FileCache::with_config_hash(config_hash));
-    let ai_cache = Arc::new(AiCache::with_config_hash(config_hash));
-    let script_cache = Arc::new(ScriptCache::with_config_hash(config_hash));
-
-    if no_cache {
-        cache.clear();
-        ai_cache.clear();
-        script_cache.clear();
-    }
+    let (cache, ai_cache, script_cache) = if no_cache {
+        (
+            Arc::new(FileCache::new()),
+            Arc::new(AiCache::new()),
+            Arc::new(ScriptCache::new()),
+        )
+    } else {
+        (
+            Arc::new(FileCache::with_config_hash(config_hash)),
+            Arc::new(AiCache::with_config_hash(config_hash)),
+            Arc::new(ScriptCache::with_config_hash(config_hash)),
+        )
+    };
 
     session.cache = cache.clone();
 

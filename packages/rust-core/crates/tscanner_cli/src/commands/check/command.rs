@@ -208,35 +208,31 @@ pub fn cmd_check(
         + rules_breakdown.script
         + rules_breakdown.ai;
     let (cache, ai_cache, script_cache) = if no_cache {
-        (FileCache::new(), AiCache::new(), ScriptCache::new())
+        (
+            Arc::new(FileCache::new()),
+            Arc::new(AiCache::new()),
+            Arc::new(ScriptCache::new()),
+        )
     } else {
         (
-            FileCache::with_config_hash(config_hash),
-            AiCache::with_config_hash(config_hash),
-            ScriptCache::with_config_hash(config_hash),
+            Arc::new(FileCache::with_config_hash(config_hash)),
+            Arc::new(AiCache::with_config_hash(config_hash)),
+            Arc::new(ScriptCache::with_config_hash(config_hash)),
         )
     };
 
     let config_dir = Path::new(&resolved_config_path)
         .parent()
-        .map(|p| p.to_path_buf());
-    let scanner = match config_dir {
-        Some(dir) => Scanner::with_caches_and_config_dir(
-            config,
-            Arc::new(cache),
-            Arc::new(ai_cache),
-            Arc::new(script_cache),
-            root.clone(),
-            dir,
-        ),
-        None => Scanner::with_caches(
-            config,
-            Arc::new(cache),
-            Arc::new(ai_cache),
-            Arc::new(script_cache),
-            root.clone(),
-        ),
-    }
+        .map(|p| p.to_path_buf())
+        .unwrap_or_else(|| root.clone());
+    let scanner = Scanner::with_caches_and_config_dir(
+        config,
+        cache,
+        ai_cache,
+        script_cache,
+        root.clone(),
+        config_dir,
+    )
     .map_err(|e| anyhow::anyhow!("{}", e))?;
 
     let is_json = matches!(output_format, OutputFormat::Json);
