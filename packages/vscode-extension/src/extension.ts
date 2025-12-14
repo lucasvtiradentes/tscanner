@@ -1,4 +1,4 @@
-import { StartupScanMode, VSCODE_EXTENSION } from 'tscanner-common';
+import { CODE_EDITOR_DEFAULTS, StartupScanMode, VSCODE_EXTENSION } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { getAiViewId, getViewId } from './common/constants';
@@ -175,8 +175,8 @@ async function startExtension(regularView: RegularIssuesView, aiView: AiIssuesVi
   aiView.clearError();
 
   const config = await getOrLoadConfig(workspaceFolder.uri.fsPath);
-  const startupScan = config?.codeEditor?.startupScan ?? StartupScanMode.Cached;
-  const startupAiScan = config?.codeEditor?.startupAiScan ?? StartupScanMode.Off;
+  const startupScan = config?.codeEditor?.startupScan ?? CODE_EDITOR_DEFAULTS.startupScan;
+  const startupAiScan = config?.codeEditor?.startupAiScan ?? CODE_EDITOR_DEFAULTS.startupAiScan;
 
   if (startupScan !== StartupScanMode.Off) {
     const useCache = startupScan === StartupScanMode.Cached;
@@ -200,8 +200,8 @@ async function startExtension(regularView: RegularIssuesView, aiView: AiIssuesVi
     logger.info('Startup AI scan disabled by config');
   }
 
-  await scanIntervalWatcher.setup();
-  await aiScanIntervalWatcher.setup();
+  await scanIntervalWatcher.setup(startupScan !== StartupScanMode.Off);
+  await aiScanIntervalWatcher.setup(startupAiScan !== StartupScanMode.Off);
 }
 
 export function activate(context: vscode.ExtensionContext) {
