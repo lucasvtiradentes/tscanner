@@ -69,7 +69,7 @@ impl<'a> BuiltinExecutor<'a> {
         let program = match parse_file(path, source) {
             Ok(p) => p,
             Err(e) => {
-                (self.log_debug_fn)(&format!("Failed to parse {:?}: {}", path, e));
+                (self.log_debug_fn)(&format!("[ParseError] {:?}: {}", path, e));
                 return ExecuteResult::ParseError;
             }
         };

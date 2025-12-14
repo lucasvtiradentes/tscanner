@@ -1,8 +1,9 @@
 import { type AiExecutionMode, CODE_EDITOR_DEFAULTS } from 'tscanner-common';
 import { getOrLoadConfig } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
-import { Command, executeCommand, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
+import { type Command, executeCommand, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import { StoreKey, extensionStore } from '../common/state/extension-store';
+import { ScanTrigger } from '../common/types/scan-trigger';
 
 export enum IntervalConfigKey {
   Scan = 'autoScanInterval',
@@ -12,7 +13,8 @@ export enum IntervalConfigKey {
 type IntervalConfig = {
   name: string;
   configKey: IntervalConfigKey;
-  aiMode: AiExecutionMode;
+  command: Command;
+  aiMode?: AiExecutionMode;
 };
 
 export function createIntervalWatcher(config: IntervalConfig) {
@@ -43,7 +45,7 @@ export function createIntervalWatcher(config: IntervalConfig) {
         return;
       }
       logger.debug(`Running ${config.name} auto-scan...`);
-      executeCommand(Command.RefreshIssues, { silent: true, aiMode: config.aiMode });
+      executeCommand(config.command, { aiMode: config.aiMode, trigger: ScanTrigger.Interval });
     }, intervalSeconds * 1000);
   };
 

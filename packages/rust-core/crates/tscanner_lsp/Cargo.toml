@@ -20,6 +20,7 @@ tscanner_scanner = { path = "../tscanner_scanner" }
 tscanner_cache = { path = "../tscanner_cache" }
 tscanner_git = { path = "../tscanner_git" }
 tscanner_rules = { path = "../tscanner_rules" }
+tscanner_logger = { path = "../tscanner_logger" }
 lsp-types = "0.95"
 lsp-server = "0.7"
 crossbeam-channel = "0.5"

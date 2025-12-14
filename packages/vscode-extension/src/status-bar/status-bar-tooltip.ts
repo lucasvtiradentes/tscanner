@@ -1,6 +1,8 @@
 import { CODE_EDITOR_DEFAULTS, DISPLAY_ICONS, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
+import { IS_DEV } from '../common/constants';
 import { getConfigDirLabel } from '../common/lib/config-manager';
+import { getExtensionVersion } from '../common/lib/version-checker';
 import { type BinaryInfo, LOCATOR_SOURCE_LABELS, LocatorSource } from '../locator';
 
 function getAiProviderLabel(config: TscannerConfig | null): string {
@@ -37,43 +39,44 @@ function formatAutoInterval(seconds: number): string {
 }
 
 function getScanSettingsLabel(config: TscannerConfig | null): string {
-  const useScanCache = config?.codeEditor?.useScanCache ?? CODE_EDITOR_DEFAULTS.useScanCache;
+  const startup = config?.codeEditor?.startupScan ?? CODE_EDITOR_DEFAULTS.startupScan;
   const autoScanInterval = config?.codeEditor?.autoScanInterval ?? CODE_EDITOR_DEFAULTS.autoScanInterval;
-
-  const cacheLabel = useScanCache ? 'on' : 'off';
   const autoLabel = formatAutoInterval(autoScanInterval);
-
-  return `cache ${cacheLabel}, auto ${autoLabel}`;
+  return `startup ${startup}, auto ${autoLabel}`;
 }
 
 function getAiScanSettingsLabel(config: TscannerConfig | null): string {
-  const useAiScanCache = config?.codeEditor?.useAiScanCache ?? CODE_EDITOR_DEFAULTS.useAiScanCache;
+  const startup = config?.codeEditor?.startupAiScan ?? CODE_EDITOR_DEFAULTS.startupAiScan;
   const autoAiScanInterval = config?.codeEditor?.autoAiScanInterval ?? CODE_EDITOR_DEFAULTS.autoAiScanInterval;
-
-  const cacheLabel = useAiScanCache ? 'on' : 'off';
   const autoLabel = formatAutoInterval(autoAiScanInterval);
-
-  return `cache ${cacheLabel}, auto ${autoLabel}`;
+  return `startup ${startup}, auto ${autoLabel}`;
 }
 
 export function buildConfiguredTooltip(
   configDir: string | null,
   config: TscannerConfig | null,
   binaryInfo: BinaryInfo,
+  versionWarning: string | null = null,
+  invalidConfigFields: string[] = [],
 ): vscode.MarkdownString {
   const configLabel = getConfigDirLabel(configDir);
   const configSource = LOCATOR_SOURCE_LABELS[binaryInfo.source];
+  const extensionVersion = getExtensionVersion();
+  const binaryVersion = binaryInfo.version;
+
+  const devVersion = LOCATOR_SOURCE_LABELS[LocatorSource.Dev];
+  const extensionLabel = IS_DEV ? devVersion : `v${extensionVersion}`;
   const binaryLabel =
-    binaryInfo.version && binaryInfo.source !== LocatorSource.Dev
-      ? `${configSource} (v${binaryInfo.version})`
-      : configSource;
+    binaryVersion && binaryInfo.source !== LocatorSource.Dev ? `${configSource} (v${binaryVersion})` : devVersion;
+
+  const versionLabel = `ext ${extensionLabel}, cli ${binaryLabel}`;
   const aiProviderLabel = getAiProviderLabel(config);
   const activeRulesLabel = getActiveRulesLabel(config);
   const scanSettingsLabel = getScanSettingsLabel(config);
   const aiScanSettingsLabel = getAiScanSettingsLabel(config);
 
   const rows = [
-    ['Binary', binaryLabel],
+    ['Version', versionLabel],
     ['Config', configLabel],
     ['Active Rules', activeRulesLabel],
     ['Scan', scanSettingsLabel],
@@ -81,9 +84,17 @@ export function buildConfiguredTooltip(
     config?.ai?.provider ? ['AI Provider', aiProviderLabel] : null,
   ].filter(Boolean) as string[][];
 
-  const table = ['| | |', '|---|---|', ...rows.map(([label, value]) => `| **${label}** | ${value} |`)].join('\n');
+  let content = ['| | |', '|---|---|', ...rows.map(([label, value]) => `| **${label}** | ${value} |`)].join('\n');
 
-  const md = new vscode.MarkdownString(table);
+  if (versionWarning) {
+    content += `\n\n⚠️ **Version Warning**: ${versionWarning}`;
+  }
+
+  if (invalidConfigFields.length > 0) {
+    content += `\n\n⚠️ **Invalid Config Fields**: ${invalidConfigFields.join(', ')}`;
+  }
+
+  const md = new vscode.MarkdownString(content);
   md.supportHtml = true;
   return md;
 }

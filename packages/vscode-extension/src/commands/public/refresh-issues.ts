@@ -1,6 +1,5 @@
 import {
   type AiExecutionMode,
-  CODE_EDITOR_DEFAULTS,
   CONFIG_DIR_NAME,
   GitHelper,
   ScanMode,
@@ -23,26 +22,28 @@ import type { CommandContext } from '../../common/state/extension-state';
 import { StoreKey, extensionStore } from '../../common/state/extension-store';
 import { ContextKey, WorkspaceStateKey, setWorkspaceState } from '../../common/state/workspace-state';
 import { serializeResults } from '../../common/types';
+import { ScanTrigger, shouldUseCache } from '../../common/types/scan-trigger';
 import type { RegularIssuesView } from '../../issues-panel';
 import { scan } from '../../scanner/scan';
 import { resetIssueIndex } from './issue-navigation';
 
+export interface RefreshIssuesParams {
+  aiMode?: AiExecutionMode;
+  trigger?: ScanTrigger;
+  useCache?: boolean;
+}
+
 export function createRefreshIssuesCommand(ctx: CommandContext, regularView: RegularIssuesView) {
   const { context, treeView, updateStatusBar } = ctx;
 
-  return registerCommand(Command.RefreshIssues, async (options?: { silent?: boolean; aiMode?: AiExecutionMode }) => {
+  return registerCommand(Command.RefreshIssues, async (options?: RefreshIssuesParams) => {
     if (extensionStore.get(StoreKey.IsSearching)) {
-      if (!options?.silent) {
-        showToastMessage(ToastKind.Warning, 'Search already in progress');
-      }
+      logger.error('Search already in progress');
       return;
     }
 
     const workspaceFolder = getCurrentWorkspaceFolder();
     if (!workspaceFolder) {
-      if (!options?.silent) {
-        showToastMessage(ToastKind.Error, 'No workspace folder open');
-      }
       return;
     }
 
@@ -51,9 +52,7 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
 
     if (!hasConfiguredRules(config)) {
       regularView.setResults([]);
-      if (!options?.silent) {
-        showToastMessage(ToastKind.Warning, 'No rules configured. Run "tscanner init" to create config.');
-      }
+      logger.error('No rules configured. Run "tscanner init" to create config.');
       return;
     }
 
@@ -66,7 +65,6 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
 
     const scanMode = extensionStore.get(StoreKey.ScanMode);
     const compareBranch = extensionStore.get(StoreKey.CompareBranch);
-    const useScanCache = config?.codeEditor?.useScanCache ?? CODE_EDITOR_DEFAULTS.useScanCache;
 
     if (scanMode === ScanMode.Branch) {
       const branchExistsCheck = await GitHelper.branchExists(workspaceFolder.uri.fsPath, compareBranch);
@@ -84,7 +82,7 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
         } else if (action === 'Switch to Workspace Mode') {
           extensionStore.set(StoreKey.ScanMode, ScanMode.Codebase);
           await updateStatusBar();
-          await executeCommand(Command.RefreshIssues, { silent: true });
+          await executeCommand(Command.RefreshIssues, { trigger: ScanTrigger.ScanModeChange });
         }
         return;
       }
@@ -102,13 +100,17 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
         const startTime = Date.now();
         const branch = scanMode === ScanMode.Branch ? compareBranch : undefined;
         const staged = scanMode === ScanMode.Uncommitted ? true : undefined;
+        const trigger = options?.trigger ?? ScanTrigger.ManualCommand;
+        const useCache = options?.useCache ?? shouldUseCache(trigger);
+        logger.info(`Scan trigger: ${trigger}, useCache: ${useCache}, noCache flag: ${!useCache}`);
+
         const results = await scan({
           branch,
           staged,
           config: configToPass,
           configDir: configDir ?? undefined,
           aiMode: options?.aiMode,
-          noCache: !useScanCache,
+          noCache: !useCache,
         });
 
         const elapsed = Date.now() - startTime;

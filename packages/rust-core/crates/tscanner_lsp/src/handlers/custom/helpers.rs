@@ -19,7 +19,7 @@ pub fn load_config_or_respond(
     }
 
     match load_config(root, config_dir_name(), config_file_name()) {
-        Ok(c) => Ok(Some(c)),
+        Ok((c, _warnings)) => Ok(Some(c)),
         Err(e) => {
             let response = Response::new_err(
                 req_id.clone(),

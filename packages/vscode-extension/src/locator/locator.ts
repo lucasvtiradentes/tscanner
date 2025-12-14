@@ -120,9 +120,11 @@ export class Locator {
     if (binPath.startsWith('~')) {
       return binPath.replace('~', homedir());
     }
+
     if (!isAbsolute(binPath) && this.workspaceRoot) {
       return join(this.workspaceRoot, binPath);
     }
+
     return binPath;
   }
 }

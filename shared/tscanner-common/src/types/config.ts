@@ -1,5 +1,5 @@
 import z from 'zod';
-import { AiMode, AiProvider, severitySchema } from './enums';
+import { AiMode, AiProvider, severitySchema, startupScanModeSchema } from './enums';
 
 const baseRuleConfigSchema = z.object({
   enabled: z.boolean().optional(),
@@ -54,8 +54,8 @@ const codeEditorConfigSchema = z.object({
   highlightHints: z.boolean().optional(),
   autoScanInterval: z.number().optional(),
   autoAiScanInterval: z.number().optional(),
-  useScanCache: z.boolean().optional(),
-  useAiScanCache: z.boolean().optional(),
+  startupScan: startupScanModeSchema.optional(),
+  startupAiScan: startupScanModeSchema.optional(),
 });
 
 const filesConfigSchema = z.object({

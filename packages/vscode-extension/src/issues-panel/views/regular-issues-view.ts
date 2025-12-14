@@ -6,8 +6,12 @@ import { FolderResultItem } from '../components/tree-items';
 import { BaseIssuesView } from './base-issues-view';
 
 export class RegularIssuesView extends BaseIssuesView {
-  setResults(results: IssueResult[]): void {
+  setResults(results: IssueResult[], skipTimestampUpdate?: boolean): void {
+    this.errorMessage = null;
     this.results = results.filter((r) => r.ruleType !== 'ai');
+    if (!skipTimestampUpdate) {
+      this._lastScanTimestamp = Date.now();
+    }
     this._onDidChangeTreeData.fire(undefined);
   }
 

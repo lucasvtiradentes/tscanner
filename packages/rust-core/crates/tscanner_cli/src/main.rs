@@ -7,7 +7,7 @@ mod commands;
 mod config_loader;
 mod shared;
 
-use commands::{cmd_check, cmd_init};
+use commands::{cmd_check, cmd_init, validate};
 use tscanner_cli::{Cli, Commands};
 use tscanner_service::init_logger;
 
@@ -64,6 +64,7 @@ fn main() -> Result<()> {
             )
         }
         Some(Commands::Init { full }) => cmd_init(&PathBuf::from("."), full),
+        Some(Commands::Validate { config_path }) => validate(config_path),
         Some(Commands::Lsp) => {
             tscanner_service::log_info("LSP server starting");
             let result = tscanner_lsp::run_lsp_server().map_err(|e| anyhow::anyhow!("{}", e));

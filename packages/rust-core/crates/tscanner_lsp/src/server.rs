@@ -1,26 +1,37 @@
 use crate::capabilities::server_capabilities;
 use crate::handlers::custom::{
     handle_clear_cache, handle_format_results, handle_get_rules_metadata, handle_scan,
-    handle_scan_content, handle_scan_file,
+    handle_scan_content, handle_scan_file, handle_validate_config,
 };
 use crate::handlers::{handle_code_action, handle_notification};
 use crate::scheduler::AnalysisScheduler;
 use crate::session::Session;
 use lsp_server::{Connection, Message, Request, Response};
-use lsp_types::{CodeActionParams, InitializeParams};
+use lsp_types::{CodeActionParams, InitializeParams, ServerInfo};
 use std::path::PathBuf;
 use tscanner_constants::{
     lsp_method_clear_cache, lsp_method_format_results, lsp_method_get_rules_metadata,
-    lsp_method_scan, lsp_method_scan_content, lsp_method_scan_file,
+    lsp_method_scan, lsp_method_scan_content, lsp_method_scan_file, lsp_method_validate_config,
 };
+
+const TSCANNER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 type LspError = Box<dyn std::error::Error + Send + Sync>;
 
 pub fn run_lsp_server() -> Result<(), LspError> {
     let (connection, io_threads) = Connection::stdio();
 
-    let server_capabilities = serde_json::to_value(server_capabilities())?;
-    let initialization_params = connection.initialize(server_capabilities)?;
+    let server_info = ServerInfo {
+        name: env!("CARGO_PKG_NAME").to_string(),
+        version: Some(TSCANNER_VERSION.to_string()),
+    };
+
+    let init_result = serde_json::json!({
+        "capabilities": server_capabilities(),
+        "serverInfo": server_info,
+    });
+
+    let initialization_params = connection.initialize(init_result)?;
     let params: InitializeParams = serde_json::from_value(initialization_params)?;
 
     let workspace_root = extract_workspace_root(&params);
@@ -96,6 +107,9 @@ fn handle_request(
         }
         method if method == lsp_method_format_results() => {
             handle_format_results(connection, req)?;
+        }
+        method if method == lsp_method_validate_config() => {
+            handle_validate_config(connection, req, session)?;
         }
         _ => {}
     }

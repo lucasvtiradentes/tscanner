@@ -322,7 +322,7 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
     <th width="100">Keybinding</th>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Refresh Issues</code></td>
+    <td align="left"><code>tscanner: Refresh Issues (no cache)</code></td>
     <td align="center">-</td>
   </tr>
   <tr>
@@ -338,7 +338,7 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
     <td align="center">-</td>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Refresh AI Issues</code></td>
+    <td align="left"><code>tscanner: Refresh AI Issues (no cache)</code></td>
     <td align="center">-</td>
   </tr>
 </table>
@@ -501,10 +501,10 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
     "highlightWarnings": true,
     "highlightInfos": true,
     "highlightHints": true,
-    "autoAiScanInterval": 0,
     "autoScanInterval": 0,
-    "useAiScanCache": true,
-    "useScanCache": true
+    "autoAiScanInterval": 0,
+    "startupScan": "cached",
+    "startupAiScan": "off"
   }
 }
 ```

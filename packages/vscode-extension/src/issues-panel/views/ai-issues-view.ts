@@ -37,15 +37,11 @@ function getStatusSuffix(status: AiRuleStatus): string {
 }
 
 export class AiIssuesView extends BaseIssuesView {
-  private _lastScanTimestamp: number | null = null;
   private _progressStates: Map<number, RuleProgressState> = new Map();
   private _isShowingProgress = false;
 
-  get lastScanTimestamp(): number | null {
-    return this._lastScanTimestamp;
-  }
-
   setResults(results: IssueResult[], skipTimestampUpdate?: boolean): void {
+    this.errorMessage = null;
     this.results = results.filter((r) => r.ruleType === 'ai');
     if (!skipTimestampUpdate) {
       this._lastScanTimestamp = Date.now();
@@ -73,16 +69,18 @@ export class AiIssuesView extends BaseIssuesView {
   }
 
   override getChildren(element?: vscode.TreeItem): Thenable<vscode.TreeItem[]> {
-    if (!element && this._isShowingProgress) {
-      const progressItems: AiProgressItem[] = [];
-      const sortedKeys = [...this._progressStates.keys()].sort((a, b) => a - b);
-      for (const key of sortedKeys) {
-        const state = this._progressStates.get(key);
-        if (state) {
-          progressItems.push(new AiProgressItem(state));
+    if (!element) {
+      if (this._isShowingProgress) {
+        const progressItems: AiProgressItem[] = [];
+        const sortedKeys = [...this._progressStates.keys()].sort((a, b) => a - b);
+        for (const key of sortedKeys) {
+          const state = this._progressStates.get(key);
+          if (state) {
+            progressItems.push(new AiProgressItem(state));
+          }
         }
+        return Promise.resolve(progressItems);
       }
-      return Promise.resolve(progressItems);
     }
     return super.getChildren(element);
   }

@@ -8,8 +8,9 @@ use std::sync::{Arc, Mutex};
 
 use crate::config_loader::load_config_with_custom;
 use crate::shared::{
-    format_duration, print_section_header, print_section_title, render_header, FormattedOutput,
-    RulesBreakdown, ScanConfig, ScanMode, SummaryStats,
+    fatal_error_and_exit, format_duration, print_section_header, print_section_title,
+    render_header, render_messages, FormattedOutput, RulesBreakdown, ScanConfig, ScanMode,
+    SummaryStats,
 };
 use tscanner_cache::{AiCache, FileCache, ScriptCache};
 use tscanner_cli::{CliGroupMode, CliRuleKind, CliSeverity, OutputFormat};
@@ -17,7 +18,7 @@ use tscanner_cli_output::GroupMode;
 use tscanner_config::{AiExecutionMode, AiProvider};
 use tscanner_constants::{
     app_name, config_dir_name, config_file_name, icon_error, icon_progress, icon_skipped,
-    icon_success, icon_warning,
+    icon_success, is_dev_mode,
 };
 use tscanner_scanner::{
     AiProgressCallback, AiProgressEvent, AiRuleStatus, ConfigExt, RegularRulesCompleteCallback,
@@ -83,11 +84,10 @@ pub fn cmd_check(
         .filter(|&&x| x)
         .count();
     if mode_flags > 1 {
-        eprintln!(
-            "{}",
-            "Error: --staged, --uncommitted, and --branch are mutually exclusive".red()
+        fatal_error_and_exit(
+            "--staged, --uncommitted, and --branch are mutually exclusive",
+            &[],
         );
-        std::process::exit(1);
     }
 
     let output_format = format.unwrap_or_default();
@@ -115,47 +115,52 @@ pub fn cmd_check(
         uncommitted
     ));
 
-    let (config, resolved_config_path) = match load_config_with_custom(&root, config_path)? {
-        Some((cfg, config_file_path)) => {
-            log_info(&format!(
-                "cmd_check: Config loaded successfully from: {}",
-                config_file_path
-            ));
-            (cfg, config_file_path)
-        }
-        None => {
-            log_error("cmd_check: No config found");
-            eprintln!(
-                "{}",
-                format!("Error: No {} configuration found!", app_name())
-                    .red()
-                    .bold()
-            );
-            eprintln!();
-            eprintln!("Expected config at:");
-            eprintln!(
-                "  • {}",
-                format!(
-                    "{}/{}/{}",
-                    root.display(),
-                    config_dir_name(),
-                    config_file_name()
-                )
-                .yellow()
-            );
+    let (config, resolved_config_path, mut config_warnings) =
+        match load_config_with_custom(&root, config_path) {
+            Ok(Some((cfg, config_file_path, warnings))) => {
+                log_info(&format!(
+                    "cmd_check: Config loaded successfully from: {}",
+                    config_file_path
+                ));
+                (cfg, config_file_path, warnings)
+            }
+            Ok(None) => {
+                log_error("cmd_check: No config found");
+                fatal_error_and_exit(
+                    &format!("No {} configuration found!", app_name()),
+                    &[
+                        "Expected config at:",
+                        &format!(
+                            "  • {}",
+                            format!(
+                                "{}/{}/{}",
+                                root.display(),
+                                config_dir_name(),
+                                config_file_name()
+                            )
+                            .yellow()
+                        ),
+                        "",
+                        &format!(
+                            "Run {} to create a default configuration,",
+                            format!("{} init", app_name()).cyan()
+                        ),
+                        &format!(
+                            "or use {} to specify a custom config directory.",
+                            "--config <path>".cyan()
+                        ),
+                    ],
+                );
+            }
+            Err(e) => {
+                log_error(&format!("cmd_check: Config load error: {}", e));
+                fatal_error_and_exit(&format!("{}", e), &[]);
+            }
+        };
 
-            eprintln!();
-            eprintln!(
-                "Run {} to create a default configuration,",
-                format!("{} init", app_name()).cyan()
-            );
-            eprintln!(
-                "or use {} to specify a custom config directory.",
-                "--config <path>".cyan()
-            );
-            std::process::exit(1);
-        }
-    };
+    if let Some(warning) = check_schema_version_mismatch(&resolved_config_path) {
+        config_warnings.push(warning);
+    }
 
     let cli_options = build_cli_options(group_by);
     let effective_group_mode = resolve_group_mode(&cli_options);
@@ -165,18 +170,15 @@ pub fn cmd_check(
     let ai_provider = config.ai.as_ref().and_then(|ai| ai.provider);
 
     if ai_provider.is_none() && effective_ai_mode != AiExecutionMode::Ignore {
-        eprintln!(
-            "{}",
-            "Error: AI rules enabled but no provider configured"
-                .red()
-                .bold()
+        fatal_error_and_exit(
+            "AI rules enabled but no provider configured",
+            &[
+                "Add a provider to your config file:",
+                &format!("  {}", "\"ai\": { \"provider\": \"claude\" }".yellow()),
+                "",
+                &format!("Available providers: {}", AiProvider::all_names().cyan()),
+            ],
         );
-        eprintln!();
-        eprintln!("Add a provider to your config file:");
-        eprintln!("  {}", "\"ai\": { \"provider\": \"claude\" }".yellow());
-        eprintln!();
-        eprintln!("Available providers: {}", AiProvider::all_names().cyan());
-        std::process::exit(1);
     }
 
     let (builtin_count, regex_count, script_count, ai_count) =
@@ -369,6 +371,10 @@ pub fn cmd_check(
         },
     );
 
+    for warning in config_warnings {
+        result.warnings.push(warning);
+    }
+
     if scan_skipped {
         result.notes.push(
             "Scan skipped: no files to analyze (staged/branch has no matching files)".to_string(),
@@ -497,29 +503,7 @@ fn write_json_output(json_path: &Path, output: &FormattedOutput) -> Result<()> {
 }
 
 fn render_scan_messages(result: &ScanResult) {
-    if !result.notes.is_empty() {
-        println!();
-        print_section_header("Notes:");
-        for note in &result.notes {
-            println!("  {} {}", "ℹ".blue(), note.dimmed());
-        }
-    }
-
-    if !result.warnings.is_empty() {
-        println!();
-        print_section_header("Warnings:");
-        for warning in &result.warnings {
-            println!("  {} {}", icon_warning().yellow(), warning.yellow());
-        }
-    }
-
-    if !result.errors.is_empty() {
-        println!();
-        print_section_header("Errors:");
-        for error in &result.errors {
-            println!("  {} {}", icon_error().red(), error.red());
-        }
-    }
+    render_messages(&result.notes, &result.warnings, &result.errors);
 }
 
 fn build_cli_options(group_by: Option<CliGroupMode>) -> CliOptions {
@@ -567,8 +551,7 @@ fn get_branch_changes(
             Ok((Some(files), Some(lines)))
         }
         (Err(e), _) | (_, Err(e)) => {
-            eprintln!("{}", format!("Error getting changed files: {}", e).red());
-            std::process::exit(1);
+            fatal_error_and_exit(&format!("Error getting changed files: {}", e), &[]);
         }
     }
 }
@@ -656,4 +639,37 @@ fn render_rules_status(label: &str, count: usize, status: RuleStatus) {
             );
         }
     }
+}
+
+fn check_schema_version_mismatch(config_path: &str) -> Option<String> {
+    const CLI_VERSION: &str = env!("CARGO_PKG_VERSION");
+
+    if is_dev_mode() {
+        return None;
+    }
+
+    let content = match fs::read_to_string(config_path) {
+        Ok(c) => c,
+        Err(_) => return None,
+    };
+
+    let schema_pattern = r#""?\$schema"?\s*:\s*"https://unpkg\.com/tscanner@([^/]+)/schema\.json""#;
+    let re = match regex::Regex::new(schema_pattern) {
+        Ok(r) => r,
+        Err(_) => return None,
+    };
+
+    if let Some(captures) = re.captures(&content) {
+        if let Some(schema_version) = captures.get(1) {
+            let schema_ver = schema_version.as_str();
+            if schema_ver != CLI_VERSION {
+                return Some(format!(
+                    "Schema version mismatch: CLI v{} but config uses schema v{}. Run 'tscanner init' or update $schema in config.",
+                    CLI_VERSION, schema_ver
+                ));
+            }
+        }
+    }
+
+    None
 }

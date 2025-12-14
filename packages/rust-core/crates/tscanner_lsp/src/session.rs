@@ -40,8 +40,9 @@ impl Session {
 
     pub fn set_root(&mut self, root: PathBuf) {
         self.root = Some(root.clone());
-        let config_result = load_config(&root, config_dir_name(), config_file_name());
-        let config = config_result.ok();
+        let config = load_config(&root, config_dir_name(), config_file_name())
+            .ok()
+            .map(|(config, _warnings)| config);
         let ws = self.workspace.lock().unwrap();
         let _ = ws.open_project(OpenProjectParams {
             root,
@@ -56,7 +57,9 @@ impl Session {
 
     pub fn reload_config(&mut self) -> Result<(), String> {
         if let Some(root) = &self.root {
-            let config = load_config(root, config_dir_name(), config_file_name()).ok();
+            let config = load_config(root, config_dir_name(), config_file_name())
+                .ok()
+                .map(|(config, _warnings)| config);
             let ws = self.workspace.lock().unwrap();
             let _ = ws.open_project(OpenProjectParams {
                 root: root.clone(),

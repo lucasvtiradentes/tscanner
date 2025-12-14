@@ -27,6 +27,7 @@ export const LspMethod = {
   ClearCache: constants.shared.lsp.methods.clearCache,
   GetRulesMetadata: constants.shared.lsp.methods.getRulesMetadata,
   FormatResults: constants.shared.lsp.methods.formatResults,
+  ValidateConfig: constants.shared.lsp.methods.validateConfig,
   AiProgress: constants.shared.lsp.methods.aiProgress,
 } as const;
 

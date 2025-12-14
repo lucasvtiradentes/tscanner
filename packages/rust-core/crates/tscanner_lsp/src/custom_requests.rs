@@ -52,6 +52,10 @@ pub struct ScanContentParams {
     pub config: Option<TscannerConfig>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub config_dir: Option<PathBuf>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub branch: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub uncommitted: Option<bool>,
 }
 
 pub enum ScanContentRequest {}
@@ -109,6 +113,25 @@ impl Request for FormatResultsRequest {
     type Params = FormatResultsParams;
     type Result = FormatPrettyResult;
     const METHOD: &'static str = "tscanner/formatResults";
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ValidateConfigParams {
+    pub config_path: PathBuf,
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct ValidateConfigResult {
+    pub valid: bool,
+    pub errors: Vec<String>,
+    pub warnings: Vec<String>,
+}
+
+pub enum ValidateConfigRequest {}
+impl Request for ValidateConfigRequest {
+    type Params = ValidateConfigParams;
+    type Result = ValidateConfigResult;
+    const METHOD: &'static str = "tscanner/validateConfig";
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

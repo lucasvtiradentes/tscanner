@@ -108,7 +108,41 @@ pub fn handle_scan(
     );
 
     if let Some(ref line_filter) = modified_lines {
+        use tscanner_logger::log_debug;
+        use tscanner_types::IssueRuleType;
+
+        let before_files = result.files.len();
+        let before_issues = result.total_issues;
+        let script_issues_before: usize = result
+            .files
+            .iter()
+            .flat_map(|f| &f.issues)
+            .filter(|i| i.rule_type == IssueRuleType::CustomScript)
+            .count();
+
+        log_debug(&format!(
+            "Before filtering: {} files with {} total issues ({} script issues)",
+            before_files, before_issues, script_issues_before
+        ));
+
         result.filter_by_modified_lines(line_filter);
+
+        let after_files = result.files.len();
+        let after_issues = result.total_issues;
+        let script_issues_after: usize = result
+            .files
+            .iter()
+            .flat_map(|f| &f.issues)
+            .filter(|i| i.rule_type == IssueRuleType::CustomScript)
+            .count();
+
+        log_debug(&format!(
+            "After filtering: {} files with {} issues ({} script issues) - removed {} files, {} issues ({} script)",
+            after_files, after_issues, script_issues_after,
+            before_files - after_files,
+            before_issues - after_issues,
+            script_issues_before - script_issues_after
+        ));
     }
 
     session.scanner = Some(scanner);

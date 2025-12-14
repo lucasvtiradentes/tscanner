@@ -1,3 +1,4 @@
+import { ScanMode } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { getCachedConfig } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
@@ -68,7 +69,20 @@ export function createFileChangeHandler(deps: FileChangeHandlerDeps) {
       const content = document.getText();
       const configDir = extensionStore.get(StoreKey.ConfigDir);
       const config = getCachedConfig();
-      const scanResult = await scanContent(uri.fsPath, content, config ?? undefined, configDir ?? undefined);
+      const scanMode = extensionStore.get(StoreKey.ScanMode);
+      const compareBranch = extensionStore.get(StoreKey.CompareBranch);
+
+      const branch = scanMode === ScanMode.Branch ? compareBranch : undefined;
+      const uncommitted = scanMode === ScanMode.Uncommitted;
+
+      const scanResult = await scanContent(
+        uri.fsPath,
+        content,
+        config ?? undefined,
+        configDir ?? undefined,
+        branch ?? undefined,
+        uncommitted,
+      );
 
       if (burstMode) {
         logger.debug(`Discarding stale scan results for ${relativePath} - burst mode active`);

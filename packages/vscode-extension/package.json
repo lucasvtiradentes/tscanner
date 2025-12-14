@@ -142,8 +142,13 @@
     "commands": [
       {
         "command": "tscanner.refreshIssues",
-        "title": "tscanner: Refresh Issues",
-        "shortTitle": "Refresh Issues",
+        "title": "tscanner: Refresh Issues (no cache)",
+        "shortTitle": "Refresh Issues (no cache)",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "tscanner.refreshIssuesCached",
+        "title": "Refresh Issues",
         "icon": "$(refresh)"
       },
       {
@@ -211,8 +216,13 @@
       },
       {
         "command": "tscanner.refreshAiIssues",
-        "title": "tscanner: Refresh AI Issues",
-        "shortTitle": "Refresh AI Issues",
+        "title": "tscanner: Refresh AI Issues (no cache)",
+        "shortTitle": "Refresh AI Issues (no cache)",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "tscanner.refreshAiIssuesCached",
+        "title": "Refresh AI Issues",
         "icon": "$(refresh)"
       },
       {
@@ -245,7 +255,7 @@
           "group": "navigation@5"
         },
         {
-          "command": "tscanner.refreshIssues",
+          "command": "tscanner.refreshIssuesCached",
           "when": "view == tscannerExplorer && !tscannerSearching",
           "group": "navigation@1"
         },
@@ -275,7 +285,7 @@
           "group": "navigation@5"
         },
         {
-          "command": "tscanner.refreshAiIssues",
+          "command": "tscanner.refreshAiIssuesCached",
           "when": "view == tscannerAiExplorer && !tscannerAiSearching",
           "group": "navigation@1"
         },
@@ -333,6 +343,14 @@
         }
       ],
       "commandPalette": [
+        {
+          "command": "tscanner.refreshIssuesCached",
+          "when": "false"
+        },
+        {
+          "command": "tscanner.refreshAiIssuesCached",
+          "when": "false"
+        },
         {
           "command": "tscanner.openSettingsMenu",
           "when": "false"

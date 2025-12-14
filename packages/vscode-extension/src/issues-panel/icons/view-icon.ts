@@ -1,7 +1,6 @@
 import { VSCODE_EXTENSION } from 'tscanner-common';
 import type * as vscode from 'vscode';
 import { formatIssueCount } from '../../common/lib/vscode-utils';
-import type { AiIssuesView } from '../views/ai-issues-view';
 import type { BaseIssuesView } from '../views/base-issues-view';
 
 function formatRelativeTime(timestamp: number): string {
@@ -33,22 +32,14 @@ export class IssuesViewIcon {
     this.disposable = this.view.onDidChangeTreeData(() => this.update());
     this.update();
 
-    if (this.isAiView()) {
-      this.descriptionInterval = setInterval(
-        () => this.updateDescription(),
-        VSCODE_EXTENSION.intervals.descriptionUpdateSeconds * 1000,
-      );
-    }
-  }
-
-  private isAiView(): boolean {
-    return 'lastScanTimestamp' in this.view;
+    this.descriptionInterval = setInterval(
+      () => this.updateDescription(),
+      VSCODE_EXTENSION.intervals.descriptionUpdateSeconds * 1000,
+    );
   }
 
   private updateDescription(): void {
-    if (!this.isAiView()) return;
-    const aiView = this.view as AiIssuesView;
-    const timestamp = aiView.lastScanTimestamp;
+    const timestamp = this.view.lastScanTimestamp;
     this.treeView.description = timestamp ? formatRelativeTime(timestamp) : undefined;
   }
 

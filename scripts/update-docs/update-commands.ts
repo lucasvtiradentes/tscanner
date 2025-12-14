@@ -3,7 +3,7 @@ import { DynMarkdown, MarkdownTable, type TRowContent, getJson } from 'markdown-
 
 type VscodeCommand = {
   command: string;
-  title: string;
+  title?: string;
   icon?: string;
 };
 
@@ -44,7 +44,7 @@ export function updateCommands() {
   const keybindingsMap = new Map(vscodePackageJson.contributes.keybindings.map((kb) => [kb.command, kb.key]));
 
   const visibleCommands = vscodePackageJson.contributes.commands.filter(
-    (cmd) => !hiddenCommands.has(cmd.command) && cmd.title.startsWith('tscanner:'),
+    (cmd) => !hiddenCommands.has(cmd.command) && cmd.title && cmd.title.startsWith('tscanner:'),
   );
 
   const commandsHeaderContent = [

@@ -80,3 +80,13 @@ export class LineResultItem extends vscode.TreeItem {
     this.contextValue = TreeItemContextValue.Issue;
   }
 }
+
+export class ErrorMessageItem extends vscode.TreeItem {
+  constructor(message: string) {
+    super(message, vscode.TreeItemCollapsibleState.None);
+
+    this.iconPath = new vscode.ThemeIcon('error');
+    this.contextValue = 'error';
+    this.tooltip = message;
+  }
+}

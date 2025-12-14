@@ -1506,6 +1506,7 @@ dependencies = [
  "colored",
  "glob",
  "pathdiff",
+ "regex",
  "schemars",
  "serde",
  "serde_json",
@@ -1556,7 +1557,6 @@ dependencies = [
  "lazy_static",
  "serde",
  "serde_json",
- "tscanner_types",
 ]
 
 [[package]]
@@ -1589,6 +1589,7 @@ dependencies = [
  "tscanner_config",
  "tscanner_constants",
  "tscanner_git",
+ "tscanner_logger",
  "tscanner_rules",
  "tscanner_scanner",
  "tscanner_service",
@@ -1667,6 +1668,7 @@ dependencies = [
  "schemars",
  "serde",
  "serde_json",
+ "tscanner_constants",
 ]
 
 [[package]]

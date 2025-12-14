@@ -42,6 +42,7 @@
         "clearCache": "tscanner/clearCache",
         "getRulesMetadata": "tscanner/getRulesMetadata",
         "formatResults": "tscanner/formatResults",
+        "validateConfig": "tscanner/validateConfig",
         "aiProgress": "tscanner/aiProgress"
       }
     }
@@ -55,8 +56,8 @@
         "highlightHints": true,
         "autoScanInterval": 0,
         "autoAiScanInterval": 0,
-        "useScanCache": true,
-        "useAiScanCache": true
+        "startupScan": "fresh",
+        "startupAiScan": "off"
       },
       "directories": {
         "scriptRules": "script-rules",

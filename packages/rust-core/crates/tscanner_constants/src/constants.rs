@@ -1,7 +1,6 @@
 use serde::Deserialize;
 use std::env;
 use std::path::{Path, PathBuf};
-use tscanner_types::Severity;
 
 const CONSTANTS_JSON: &str = include_str!("../../../../../assets/constants.json");
 
@@ -63,6 +62,7 @@ struct LspMethodsConfig {
     clear_cache: String,
     get_rules_metadata: String,
     format_results: String,
+    validate_config: String,
     ai_progress: String,
 }
 
@@ -90,8 +90,8 @@ struct CodeEditorDefaults {
     highlight_hints: bool,
     auto_scan_interval: u32,
     auto_ai_scan_interval: u32,
-    use_scan_cache: bool,
-    use_ai_scan_cache: bool,
+    startup_scan: String,
+    startup_ai_scan: String,
 }
 
 #[derive(Deserialize, Clone)]
@@ -240,8 +240,8 @@ pub fn default_auto_scan_interval() -> u32 {
     CONSTANTS.core_rust.defaults.code_editor.auto_scan_interval
 }
 
-pub fn default_severity() -> Severity {
-    Severity::Warning
+pub fn default_severity() -> &'static str {
+    "warning"
 }
 
 pub fn default_auto_ai_scan_interval() -> u32 {
@@ -252,12 +252,12 @@ pub fn default_auto_ai_scan_interval() -> u32 {
         .auto_ai_scan_interval
 }
 
-pub fn default_use_scan_cache() -> bool {
-    CONSTANTS.core_rust.defaults.code_editor.use_scan_cache
+pub fn default_startup_scan() -> &'static str {
+    &CONSTANTS.core_rust.defaults.code_editor.startup_scan
 }
 
-pub fn default_use_ai_scan_cache() -> bool {
-    CONSTANTS.core_rust.defaults.code_editor.use_ai_scan_cache
+pub fn default_startup_ai_scan() -> &'static str {
+    &CONSTANTS.core_rust.defaults.code_editor.startup_ai_scan
 }
 
 pub fn icon_builtin() -> &'static str {
@@ -375,6 +375,10 @@ pub fn lsp_method_get_rules_metadata() -> &'static str {
 
 pub fn lsp_method_format_results() -> &'static str {
     &CONSTANTS.shared.lsp.methods.format_results
+}
+
+pub fn lsp_method_validate_config() -> &'static str {
+    &CONSTANTS.shared.lsp.methods.validate_config
 }
 
 pub fn lsp_method_ai_progress() -> &'static str {

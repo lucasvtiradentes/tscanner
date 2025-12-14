@@ -1,17 +1,12 @@
-import { AiExecutionMode, CODE_EDITOR_DEFAULTS, CONFIG_DIR_NAME, ScanMode, hasConfiguredRules } from 'tscanner-common';
+import { AiExecutionMode, CONFIG_DIR_NAME, ScanMode, hasConfiguredRules } from 'tscanner-common';
 import { getConfigDirLabel, getOrLoadConfig } from '../../common/lib/config-manager';
-import { createLogger } from '../../common/lib/logger';
+import { createLogger, logger } from '../../common/lib/logger';
 import { ScanType, withScanErrorHandling } from '../../common/lib/scan-helpers';
-import {
-  Command,
-  ToastKind,
-  getCurrentWorkspaceFolder,
-  registerCommand,
-  showToastMessage,
-} from '../../common/lib/vscode-utils';
+import { Command, getCurrentWorkspaceFolder, registerCommand } from '../../common/lib/vscode-utils';
 import type { CommandContext } from '../../common/state/extension-state';
 import { StoreKey, extensionStore } from '../../common/state/extension-store';
 import { ContextKey } from '../../common/state/workspace-state';
+import { ScanTrigger, shouldUseCache } from '../../common/types/scan-trigger';
 import type { AiIssuesView } from '../../issues-panel';
 import { getLspClient } from '../../scanner/client';
 import { scan } from '../../scanner/scan';
@@ -19,11 +14,15 @@ import { scan } from '../../scanner/scan';
 const aiScanLogger = createLogger('AI Scan');
 const aiProgressLogger = createLogger('AI Progress');
 
+export interface RefreshAiIssuesParams {
+  trigger?: ScanTrigger;
+  useCache?: boolean;
+}
+
 export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIssuesView) {
-  return registerCommand(Command.RefreshAiIssues, async () => {
+  return registerCommand(Command.RefreshAiIssues, async (options?: RefreshAiIssuesParams) => {
     const workspaceFolder = getCurrentWorkspaceFolder();
     if (!workspaceFolder) {
-      showToastMessage(ToastKind.Error, 'No workspace folder open');
       return;
     }
 
@@ -35,7 +34,7 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
         scanType: ScanType.Ai,
         contextKeyOnComplete: ContextKey.HasAiScanned,
         onError: (error) => {
-          showToastMessage(ToastKind.Error, `AI scan failed: ${error}`);
+          logger.error(`AI scan failed: ${error}`);
           aiView.clearProgress();
         },
         onFinally: () => {
@@ -48,7 +47,7 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
 
         if (!hasConfiguredRules(config)) {
           aiView.setResults([], true);
-          showToastMessage(ToastKind.Warning, 'No rules configured for this workspace');
+          logger.error('No rules configured for this workspace');
           return;
         }
 
@@ -59,8 +58,7 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
           aiScanLogger.info(`Using local config from ${CONFIG_DIR_NAME}`);
         }
 
-        const useAiScanCache = config?.codeEditor?.useAiScanCache ?? CODE_EDITOR_DEFAULTS.useAiScanCache;
-        aiScanLogger.info(`Starting AI-only scan (cache: ${useAiScanCache ? 'enabled' : 'disabled'})...`);
+        aiScanLogger.info('Starting AI-only scan (full scan)...');
 
         const client = getLspClient();
         if (client) {
@@ -74,12 +72,15 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
         const scanMode = extensionStore.get(StoreKey.ScanMode);
         const compareBranch = extensionStore.get(StoreKey.CompareBranch);
         const branch = scanMode === ScanMode.Branch ? compareBranch : undefined;
+        const trigger = options?.trigger ?? ScanTrigger.ManualCommand;
+        const useCache = options?.useCache ?? shouldUseCache(trigger);
+        aiScanLogger.info(`AI scan trigger: ${trigger}, useCache: ${useCache}, noCache flag: ${!useCache}`);
         const results = await scan({
           branch,
           config: configToPass,
           configDir: configDir ?? undefined,
           aiMode: AiExecutionMode.Only,
-          noCache: !useAiScanCache,
+          noCache: !useCache,
         });
 
         const elapsed = Date.now() - startTime;

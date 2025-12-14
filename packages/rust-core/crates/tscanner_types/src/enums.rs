@@ -112,6 +112,26 @@ pub enum AiExecutionMode {
     Only,
 }
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Default)]
+#[serde(rename_all = "lowercase")]
+pub enum StartupScanMode {
+    Off,
+    #[default]
+    Cached,
+    Fresh,
+}
+
+impl StartupScanMode {
+    pub fn from_str_or_panic(s: &str) -> Self {
+        match s {
+            "off" => Self::Off,
+            "cached" => Self::Cached,
+            "fresh" => Self::Fresh,
+            _ => panic!("Invalid StartupScanMode in constants.json: '{}'", s),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ScanMode {
     Codebase,

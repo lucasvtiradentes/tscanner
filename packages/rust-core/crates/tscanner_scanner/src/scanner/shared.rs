@@ -73,8 +73,23 @@ impl Scanner {
             return (vec![], vec![]);
         }
 
-        self.script_executor
-            .execute_rules(&script_rules, &all_files, &self.root)
+        (self.log_debug)(&format!(
+            "Running {} script rules on {} files (requested {} files but collecting all matching files)",
+            script_rules.len(),
+            all_files.len(),
+            _files.len()
+        ));
+
+        let (issues, warnings) =
+            self.script_executor
+                .execute_rules(&script_rules, &all_files, &self.root);
+
+        (self.log_debug)(&format!(
+            "Script rules found {} total issues across all files",
+            issues.len()
+        ));
+
+        (issues, warnings)
     }
 
     pub(crate) fn collect_script_files(
@@ -374,7 +389,12 @@ impl Scanner {
                 &files,
                 &self.root,
             );
-            all_issues.extend(issues);
+
+            for issue in issues {
+                if issue.file == path {
+                    all_issues.push(issue);
+                }
+            }
         }
 
         (all_issues, all_related_files.into_iter().collect())

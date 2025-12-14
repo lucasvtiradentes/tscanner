@@ -4,7 +4,7 @@ import { logger } from '../common/lib/logger';
 import { getCurrentWorkspaceFolder, openTextDocument } from '../common/lib/vscode-utils';
 import type { IssueResult } from '../common/types';
 import { ensureLspClient } from './client';
-import { mapIssueToResult, parseConfigError, showConfigErrorToast, showScanErrorToast } from './utils';
+import { mapIssueToResult } from './utils';
 
 type ScanOptions = {
   branch?: string;
@@ -34,6 +34,9 @@ export async function scan(options: ScanOptions = {}): Promise<IssueResult[]> {
   try {
     const client = await ensureLspClient();
 
+    logger.info(
+      `Calling LSP scan: scanType=${scanType}, noCache=${noCache ?? false}, branch=${branch ?? 'none'}, staged=${staged ?? false}`,
+    );
     const scanStart = Date.now();
     const result = await client.scan(workspaceFolder.uri.fsPath, config, configDir, branch, staged, aiMode, noCache);
     const scanTime = Date.now() - scanStart;
@@ -85,16 +88,6 @@ export async function scan(options: ScanOptions = {}): Promise<IssueResult[]> {
     return results;
   } catch (error) {
     logger.error(`${scanType} scan failed: ${error}`);
-
-    const errorMessage = String(error);
-    const configError = parseConfigError(errorMessage);
-
-    if (configError) {
-      showConfigErrorToast(configError);
-    } else {
-      showScanErrorToast(error);
-    }
-
     throw error;
   }
 }

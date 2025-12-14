@@ -197,6 +197,15 @@ pub enum Commands {
         full: bool,
     },
 
+    #[command(about = "Validate configuration file")]
+    Validate {
+        #[arg(
+            value_name = "CONFIG_PATH",
+            help = "Path to config file or directory (defaults to .tscanner/config.jsonc)"
+        )]
+        config_path: Option<PathBuf>,
+    },
+
     #[command(about = "Start the LSP server (Language Server Protocol)")]
     Lsp,
 }

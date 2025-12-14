@@ -280,6 +280,13 @@ tscanner check --branch origin/main
     <td align="center">-</td>
     <td align="center">-</td>
   </tr>
+  <tr>
+    <td rowspan="1" align="left"><code>validate [config-path]</code></td>
+    <td rowspan="1" align="left">Validate configuration file</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+  </tr>
 </table>
 
 </div>
@@ -371,10 +378,10 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
     "highlightWarnings": true,
     "highlightInfos": true,
     "highlightHints": true,
-    "autoAiScanInterval": 0,
     "autoScanInterval": 0,
-    "useAiScanCache": true,
-    "useScanCache": true
+    "autoAiScanInterval": 0,
+    "startupScan": "cached",
+    "startupAiScan": "off"
   }
 }
 ```

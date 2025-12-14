@@ -32,6 +32,12 @@ export enum AiExecutionMode {
   Only = 'only',
 }
 
+export enum StartupScanMode {
+  Off = 'off',
+  Cached = 'cached',
+  Fresh = 'fresh',
+}
+
 export enum RuleType {
   Ast = 'ast',
   Regex = 'regex',
@@ -66,3 +72,4 @@ export enum ViewMode {
 
 export const severitySchema = z.enum(Severity);
 export const issueRuleTypeSchema = z.enum(IssueRuleType);
+export const startupScanModeSchema = z.enum(StartupScanMode);

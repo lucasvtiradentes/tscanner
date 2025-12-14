@@ -326,10 +326,10 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
     "highlightWarnings": true,
     "highlightInfos": true,
     "highlightHints": true,
-    "autoAiScanInterval": 0,
     "autoScanInterval": 0,
-    "useAiScanCache": true,
-    "useScanCache": true
+    "autoAiScanInterval": 0,
+    "startupScan": "cached",
+    "startupAiScan": "off"
   }
 }
 ```

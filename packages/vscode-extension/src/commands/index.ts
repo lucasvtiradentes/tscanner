@@ -1,7 +1,9 @@
 import type * as vscode from 'vscode';
 import { setCopyLspClient, setCopyScanContext } from '../common/lib/copy-utils';
+import { Command, executeCommand, registerCommand } from '../common/lib/vscode-utils';
 import type { CommandContext } from '../common/state/extension-state';
 import { StoreKey, extensionStore } from '../common/state/extension-store';
+import { ScanTrigger } from '../common/types/scan-trigger';
 import type { AiIssuesView, RegularIssuesView } from '../issues-panel';
 import { createOpenSettingsMenuCommand } from '../settings-menu';
 import { CopyMode, CopyScope, createCopyCommand } from './internal/copy-items';
@@ -36,7 +38,13 @@ export function registerAllCommands(
 
   return [
     createRefreshIssuesCommand(ctx, regularView),
+    registerCommand(Command.RefreshIssuesCached, () => {
+      return executeCommand(Command.RefreshIssues, { trigger: ScanTrigger.IssuesPanelRefresh });
+    }),
     createRefreshAiIssuesCommand(ctx, aiView),
+    registerCommand(Command.RefreshAiIssuesCached, () => {
+      return executeCommand(Command.RefreshAiIssues, { trigger: ScanTrigger.IssuesPanelRefresh });
+    }),
     createGoToNextIssueCommand(regularView),
     createGoToPreviousIssueCommand(regularView),
     createShowLogsCommand(),
