@@ -3,7 +3,7 @@
   "private": true,
   "displayName": "TScanner",
   "description": "Code quality scanner for the AI-generated code era",
-  "version": "0.0.34",
+  "version": "0.0.35",
   "publisher": "lucasvtiradentes",
   "license": "MIT",
   "icon": "resources/icon.png",

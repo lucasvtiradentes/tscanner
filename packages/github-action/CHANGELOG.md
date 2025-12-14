@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.32
+
+### Patch Changes
+
+- fb55f71: add initial scan configs
+
 ## 0.0.31
 
 ### Patch Changes
