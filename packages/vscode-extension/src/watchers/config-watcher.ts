@@ -39,7 +39,7 @@ export function createConfigWatcher(
 
     await onConfigChange();
 
-    executeCommand(Command.RefreshIssues, { silent: true, trigger: ScanTrigger.ConfigChange });
+    executeCommand(Command.RefreshIssues, { trigger: ScanTrigger.ConfigChange });
   };
 
   configWatcher.onDidChange(handleConfigChange);

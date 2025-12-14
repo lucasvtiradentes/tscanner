@@ -9,7 +9,7 @@ export function createCommitHandler() {
     const scanMode = extensionStore.get(StoreKey.ScanMode);
     if (scanMode === ScanMode.Staged || scanMode === ScanMode.Uncommitted) {
       logger.debug('Commit detected, refreshing issues...');
-      executeCommand(Command.RefreshIssues, { silent: true, trigger: ScanTrigger.GitCommit });
+      executeCommand(Command.RefreshIssues, { trigger: ScanTrigger.GitCommit });
     }
   };
 }
@@ -19,7 +19,7 @@ export function createCheckoutHandler() {
     const scanMode = extensionStore.get(StoreKey.ScanMode);
     if (scanMode === ScanMode.Branch) {
       logger.debug('Checkout detected in branch mode, refreshing issues...');
-      executeCommand(Command.RefreshIssues, { silent: true, trigger: ScanTrigger.GitCheckout });
+      executeCommand(Command.RefreshIssues, { trigger: ScanTrigger.GitCheckout });
     }
   };
 }

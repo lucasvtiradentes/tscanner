@@ -41,7 +41,8 @@
         "src/**",
         "crates/**",
         "Cargo.toml",
-        "Cargo.lock"
+        "Cargo.lock",
+        "../cli/schema.json"
       ]
     },
     "tscanner#build": {

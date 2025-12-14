@@ -77,7 +77,7 @@ export async function showConfigLocationMenu(ctx: ConfigLocationContext): Promis
 
   await ctx.updateStatusBar();
   ctx.regularView.setResults([]);
-  executeCommand(Command.RefreshIssues, { silent: true, trigger: ScanTrigger.ConfigLocationChange });
+  executeCommand(Command.RefreshIssues, { trigger: ScanTrigger.ConfigLocationChange });
 }
 
 async function askToMoveConfig(fromDir: string | null, toDir: string | null): Promise<boolean> {

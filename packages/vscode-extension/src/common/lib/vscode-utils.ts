@@ -1,4 +1,6 @@
 import * as vscode from 'vscode';
+import type { RefreshAiIssuesParams } from '../../commands/public/refresh-ai-issues';
+import type { RefreshIssuesParams } from '../../commands/public/refresh-issues';
 import { getCommandId } from '../constants';
 
 export enum Command {
@@ -32,7 +34,16 @@ export enum TreeItemContextValue {
   Issue = 'TscannerNodeIssue',
 }
 
-export function executeCommand(command: Command, ...args: any[]): Thenable<unknown> {
+export interface CommandParams {
+  [Command.RefreshIssues]: RefreshIssuesParams;
+  [Command.RefreshAiIssues]: RefreshAiIssuesParams;
+  [Command.OpenFile]: { filePath: string; line: number; column: number };
+}
+
+export function executeCommand<T extends Command>(
+  command: T,
+  ...args: T extends keyof CommandParams ? [CommandParams[T]?] : []
+): Thenable<unknown> {
   return vscode.commands.executeCommand(getCommandId(command), ...args);
 }
 

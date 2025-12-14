@@ -27,105 +27,108 @@ import type { RegularIssuesView } from '../../issues-panel';
 import { scan } from '../../scanner/scan';
 import { resetIssueIndex } from './issue-navigation';
 
+export interface RefreshIssuesParams {
+  aiMode?: AiExecutionMode;
+  trigger?: ScanTrigger;
+  useCache?: boolean;
+}
+
 export function createRefreshIssuesCommand(ctx: CommandContext, regularView: RegularIssuesView) {
   const { context, treeView, updateStatusBar } = ctx;
 
-  return registerCommand(
-    Command.RefreshIssues,
-    async (options?: { aiMode?: AiExecutionMode; trigger?: ScanTrigger; useCache?: boolean }) => {
-      if (extensionStore.get(StoreKey.IsSearching)) {
-        logger.error('Search already in progress');
-        return;
-      }
+  return registerCommand(Command.RefreshIssues, async (options?: RefreshIssuesParams) => {
+    if (extensionStore.get(StoreKey.IsSearching)) {
+      logger.error('Search already in progress');
+      return;
+    }
 
-      const workspaceFolder = getCurrentWorkspaceFolder();
-      if (!workspaceFolder) {
-        return;
-      }
+    const workspaceFolder = getCurrentWorkspaceFolder();
+    if (!workspaceFolder) {
+      return;
+    }
 
-      const configDir = extensionStore.get(StoreKey.ConfigDir);
-      const config = await loadAndCacheConfig(workspaceFolder.uri.fsPath);
+    const configDir = extensionStore.get(StoreKey.ConfigDir);
+    const config = await loadAndCacheConfig(workspaceFolder.uri.fsPath);
 
-      if (!hasConfiguredRules(config)) {
-        regularView.setResults([]);
-        logger.error('No rules configured. Run "tscanner init" to create config.');
-        return;
-      }
-
-      const configToPass = configDir ? (config ?? undefined) : undefined;
-      if (configDir) {
-        logger.info(`Using config from ${getConfigDirLabel(configDir)}`);
-      } else {
-        logger.info(`Using local config from ${CONFIG_DIR_NAME}`);
-      }
-
-      const scanMode = extensionStore.get(StoreKey.ScanMode);
-      const compareBranch = extensionStore.get(StoreKey.CompareBranch);
-
-      if (scanMode === ScanMode.Branch) {
-        const branchExistsCheck = await GitHelper.branchExists(workspaceFolder.uri.fsPath, compareBranch);
-        if (!branchExistsCheck) {
-          logger.warn(`Branch does not exist: ${compareBranch}`);
-          const action = await showToastMessage(
-            ToastKind.Error,
-            `Branch '${compareBranch}' does not exist in this repository`,
-            'Change Branch',
-            'Switch to Workspace Mode',
-          );
-
-          if (action === 'Change Branch') {
-            await executeCommand(Command.OpenSettingsMenu);
-          } else if (action === 'Switch to Workspace Mode') {
-            extensionStore.set(StoreKey.ScanMode, ScanMode.Codebase);
-            await updateStatusBar();
-            await executeCommand(Command.RefreshIssues, { silent: true, trigger: ScanTrigger.ScanModeChange });
-          }
-          return;
-        }
-      }
-
+    if (!hasConfiguredRules(config)) {
       regularView.setResults([]);
-      logger.info(`Starting scan in ${scanMode} mode`);
+      logger.error('No rules configured. Run "tscanner init" to create config.');
+      return;
+    }
 
-      await withScanErrorHandling(
-        {
-          scanType: ScanType.Regular,
-          contextKeyOnComplete: ContextKey.HasScanned,
-        },
-        async () => {
-          const startTime = Date.now();
-          const branch = scanMode === ScanMode.Branch ? compareBranch : undefined;
-          const staged = scanMode === ScanMode.Uncommitted ? true : undefined;
-          const trigger = options?.trigger ?? ScanTrigger.ManualCommand;
-          const useCache = options?.useCache ?? shouldUseCache(trigger);
-          logger.info(`Scan trigger: ${trigger}, useCache: ${useCache}, noCache flag: ${!useCache}`);
+    const configToPass = configDir ? (config ?? undefined) : undefined;
+    if (configDir) {
+      logger.info(`Using config from ${getConfigDirLabel(configDir)}`);
+    } else {
+      logger.info(`Using local config from ${CONFIG_DIR_NAME}`);
+    }
 
-          const results = await scan({
-            branch,
-            staged,
-            config: configToPass,
-            configDir: configDir ?? undefined,
-            aiMode: options?.aiMode,
-            noCache: !useCache,
-          });
+    const scanMode = extensionStore.get(StoreKey.ScanMode);
+    const compareBranch = extensionStore.get(StoreKey.CompareBranch);
 
-          const elapsed = Date.now() - startTime;
-          logger.info(`Search completed in ${elapsed}ms, found ${results.length} results`);
+    if (scanMode === ScanMode.Branch) {
+      const branchExistsCheck = await GitHelper.branchExists(workspaceFolder.uri.fsPath, compareBranch);
+      if (!branchExistsCheck) {
+        logger.warn(`Branch does not exist: ${compareBranch}`);
+        const action = await showToastMessage(
+          ToastKind.Error,
+          `Branch '${compareBranch}' does not exist in this repository`,
+          'Change Branch',
+          'Switch to Workspace Mode',
+        );
 
-          resetIssueIndex();
-          regularView.setResults(results);
-          setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializeResults(results));
+        if (action === 'Change Branch') {
+          await executeCommand(Command.OpenSettingsMenu);
+        } else if (action === 'Switch to Workspace Mode') {
+          extensionStore.set(StoreKey.ScanMode, ScanMode.Codebase);
+          await updateStatusBar();
+          await executeCommand(Command.RefreshIssues, { trigger: ScanTrigger.ScanModeChange });
+        }
+        return;
+      }
+    }
 
-          if (regularView.viewMode === ViewMode.Tree) {
-            setTimeout(() => {
-              const folders = regularView.getAllFolderItems();
-              for (const folder of folders) {
-                treeView.reveal(folder, { expand: true, select: false, focus: false });
-              }
-            }, VSCODE_EXTENSION.delays.treeRevealSeconds * 1000);
-          }
-        },
-      );
-    },
-  );
+    regularView.setResults([]);
+    logger.info(`Starting scan in ${scanMode} mode`);
+
+    await withScanErrorHandling(
+      {
+        scanType: ScanType.Regular,
+        contextKeyOnComplete: ContextKey.HasScanned,
+      },
+      async () => {
+        const startTime = Date.now();
+        const branch = scanMode === ScanMode.Branch ? compareBranch : undefined;
+        const staged = scanMode === ScanMode.Uncommitted ? true : undefined;
+        const trigger = options?.trigger ?? ScanTrigger.ManualCommand;
+        const useCache = options?.useCache ?? shouldUseCache(trigger);
+        logger.info(`Scan trigger: ${trigger}, useCache: ${useCache}, noCache flag: ${!useCache}`);
+
+        const results = await scan({
+          branch,
+          staged,
+          config: configToPass,
+          configDir: configDir ?? undefined,
+          aiMode: options?.aiMode,
+          noCache: !useCache,
+        });
+
+        const elapsed = Date.now() - startTime;
+        logger.info(`Search completed in ${elapsed}ms, found ${results.length} results`);
+
+        resetIssueIndex();
+        regularView.setResults(results);
+        setWorkspaceState(context, WorkspaceStateKey.CachedResults, serializeResults(results));
+
+        if (regularView.viewMode === ViewMode.Tree) {
+          setTimeout(() => {
+            const folders = regularView.getAllFolderItems();
+            for (const folder of folders) {
+              treeView.reveal(folder, { expand: true, select: false, focus: false });
+            }
+          }, VSCODE_EXTENSION.delays.treeRevealSeconds * 1000);
+        }
+      },
+    );
+  });
 }

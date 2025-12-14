@@ -45,7 +45,7 @@ export function createIntervalWatcher(config: IntervalConfig) {
         return;
       }
       logger.debug(`Running ${config.name} auto-scan...`);
-      executeCommand(config.command, { silent: true, aiMode: config.aiMode, trigger: ScanTrigger.Interval });
+      executeCommand(config.command, { aiMode: config.aiMode, trigger: ScanTrigger.Interval });
     }, intervalSeconds * 1000);
   };
 

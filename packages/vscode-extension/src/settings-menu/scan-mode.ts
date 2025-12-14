@@ -79,7 +79,7 @@ async function handleCodebaseScan(ctx: ScanModeContext) {
   regularView.setResults([]);
   extensionStore.set(StoreKey.ScanMode, ScanMode.Codebase);
   await updateStatusBar();
-  executeCommand(Command.RefreshIssues, { silent: true, trigger: ScanTrigger.ScanModeChange });
+  executeCommand(Command.RefreshIssues, { trigger: ScanTrigger.ScanModeChange });
 }
 
 async function handleBranchScan(ctx: ScanModeContext) {
@@ -170,7 +170,7 @@ async function handleBranchScan(ctx: ScanModeContext) {
   regularView.setResults([]);
   extensionStore.set(StoreKey.ScanMode, ScanMode.Branch);
   await updateStatusBar();
-  executeCommand(Command.RefreshIssues, { silent: true, trigger: ScanTrigger.ScanModeChange });
+  executeCommand(Command.RefreshIssues, { trigger: ScanTrigger.ScanModeChange });
 }
 
 async function handleUncommittedScan(ctx: ScanModeContext) {
@@ -189,5 +189,5 @@ async function handleUncommittedScan(ctx: ScanModeContext) {
   regularView.setResults([]);
   extensionStore.set(StoreKey.ScanMode, ScanMode.Uncommitted);
   await updateStatusBar();
-  executeCommand(Command.RefreshIssues, { silent: true, trigger: ScanTrigger.ScanModeChange });
+  executeCommand(Command.RefreshIssues, { trigger: ScanTrigger.ScanModeChange });
 }

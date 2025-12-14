@@ -132,7 +132,7 @@ function setupSettingsListener(): vscode.Disposable {
       if (restart === 'Restart') {
         disposeScanner();
         await startLspClient();
-        executeCommand(Command.RefreshIssues, { silent: true, trigger: ScanTrigger.Startup });
+        executeCommand(Command.RefreshIssues, { trigger: ScanTrigger.Startup });
       }
     }
   });
@@ -182,7 +182,6 @@ async function startExtension(regularView: RegularIssuesView, aiView: AiIssuesVi
     const useCache = startupScan === StartupScanMode.Cached;
     logger.info(`Running initial scan (mode: ${startupScan}, cache: ${useCache})...`);
     executeCommand(Command.RefreshIssues, {
-      silent: true,
       trigger: ScanTrigger.Startup,
       useCache,
     });
@@ -194,7 +193,6 @@ async function startExtension(regularView: RegularIssuesView, aiView: AiIssuesVi
     const useCache = startupAiScan === StartupScanMode.Cached;
     logger.info(`Running initial AI scan (mode: ${startupAiScan}, cache: ${useCache})...`);
     executeCommand(Command.RefreshAiIssues, {
-      silent: true,
       trigger: ScanTrigger.Startup,
       useCache,
     });

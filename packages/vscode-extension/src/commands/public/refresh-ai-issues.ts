@@ -14,8 +14,13 @@ import { scan } from '../../scanner/scan';
 const aiScanLogger = createLogger('AI Scan');
 const aiProgressLogger = createLogger('AI Progress');
 
+export interface RefreshAiIssuesParams {
+  trigger?: ScanTrigger;
+  useCache?: boolean;
+}
+
 export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIssuesView) {
-  return registerCommand(Command.RefreshAiIssues, async (options?: { trigger?: ScanTrigger; useCache?: boolean }) => {
+  return registerCommand(Command.RefreshAiIssues, async (options?: RefreshAiIssuesParams) => {
     const workspaceFolder = getCurrentWorkspaceFolder();
     if (!workspaceFolder) {
       return;
