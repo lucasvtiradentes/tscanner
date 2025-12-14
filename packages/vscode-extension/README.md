@@ -163,13 +163,11 @@ You have four scanning options, switchable via status bar click:
   <tr>
     <th>Codebase</th>
     <th>Uncommitted</th>
-    <th>Staged</th>
     <th>Branch</th>
   </tr>
   <tr>
     <td>Analyze all files</td>
     <td>Scan staged + unstaged changes</td>
-    <td>Scan only staged files</td>
     <td>Compare to target branch</td>
   </tr>
 </table>
@@ -349,75 +347,6 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 
 </div>
 <!-- </DYNFIELD:COMMANDS> -->
-
-### Other Details 
-
-<div align="center">
-
-<details>
-<summary><b>Settings Menu</b></summary>
-
-<br />
-
-<div align="left">
-
-- **Scan Settings**: Choose workspace or branch mode, select target branch
-- **Config Location**: Change where the config file is stored
-
-</div>
-
-</details>
-
-<details>
-<summary><b>Issue Navigation</b></summary>
-
-<br />
-
-<div align="left">
-
-- **Click to Jump**: Click any issue to open file at exact line/column
-- **Keyboard**: F8 (next issue), Shift+F8 (previous issue)
-- **Context Menu**: Right-click for copy path options
-- **Badge Count**: Sidebar shows total issue count
-
-</div>
-
-</details>
-
-<details>
-<summary><b>Status Bar</b></summary>
-
-<br />
-
-<div align="left">
-
-- **Scan Mode**: Shows current mode (Codebase, Uncommitted, Staged, or Branch)
-- **Click**: Opens Settings Menu
-- **Config Status**: Green checkmark if `.tscanner/config.jsonc` exists
-
-</div>
-
-</details>
-
-<details>
-<summary><b>Git-aware Modes</b></summary>
-
-<br />
-
-<div align="left">
-
-- **Uncommitted**: Scans all changes not yet committed (staged + unstaged)
-- **Staged**: Scans only files added to staging area
-- **Branch**: Compares against target branch, filters to modified lines only
-
-Perfect for PR validation - see only issues you introduced.
-
-</div>
-
-</details>
-
-</div>
-
 
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
 ## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
