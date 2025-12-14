@@ -1,15 +1,17 @@
-use super::helpers::{create_scanner_or_respond, load_config_or_respond};
+use super::helpers::load_config_or_respond;
 use crate::custom_requests::{AiProgressNotification, AiProgressParams, ScanParams};
 use crate::session::Session;
 use lsp_server::{Connection, Message, Notification as LspNotification, Request, Response};
 use lsp_types::notification::Notification;
+use std::path::PathBuf;
 use std::sync::Arc;
-use tscanner_cache::FileCache;
+use tscanner_cache::{AiCache, FileCache, ScriptCache};
 use tscanner_config::AiExecutionMode;
+use tscanner_constants::resolve_config_dir;
 use tscanner_git::{
     get_changed_files, get_modified_lines, get_uncommitted_files, get_uncommitted_modified_lines,
 };
-use tscanner_scanner::{AiProgressCallback, ConfigExt};
+use tscanner_scanner::{AiProgressCallback, ConfigExt, Scanner};
 
 type LspError = Box<dyn std::error::Error + Send + Sync>;
 
@@ -27,24 +29,41 @@ pub fn handle_scan(
 
     let no_cache = params.no_cache.unwrap_or(false);
     let config_hash = config.compute_hash();
-    let cache = Arc::new(FileCache::with_config_hash(config_hash));
-
-    if no_cache {
-        cache.clear();
-    }
+    let (cache, ai_cache, script_cache) = if no_cache {
+        (
+            Arc::new(FileCache::new()),
+            Arc::new(AiCache::new()),
+            Arc::new(ScriptCache::new()),
+        )
+    } else {
+        (
+            Arc::new(FileCache::with_config_hash(config_hash)),
+            Arc::new(AiCache::with_config_hash(config_hash)),
+            Arc::new(ScriptCache::with_config_hash(config_hash)),
+        )
+    };
 
     session.cache = cache.clone();
 
-    let Some(scanner) = create_scanner_or_respond(
-        connection,
-        &req.id,
+    let resolved_config_dir = resolve_config_dir(&PathBuf::from(&params.root), params.config_dir);
+    let scanner = match Scanner::with_caches_and_config_dir(
         config,
         cache,
+        ai_cache,
+        script_cache,
         params.root.clone(),
-        params.config_dir,
-    )?
-    else {
-        return Ok(());
+        resolved_config_dir,
+    ) {
+        Ok(s) => s,
+        Err(e) => {
+            let response = Response::new_err(
+                req.id.clone(),
+                lsp_server::ErrorCode::InternalError as i32,
+                format!("Failed to create scanner: {}", e),
+            );
+            connection.sender.send(Message::Response(response))?;
+            return Ok(());
+        }
     };
 
     let (changed_files, modified_lines) = if params.staged.unwrap_or(false) {

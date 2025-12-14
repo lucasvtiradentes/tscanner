@@ -1,6 +1,8 @@
 import { PACKAGE_DISPLAY_NAME, REPO_URL } from 'tscanner-common';
 import * as vscode from 'vscode';
 import packageJson from '../../../package.json';
+import { IS_DEV } from '../constants';
+import { DEV_SUFFIX } from '../scripts-constants';
 import { StoreKey, extensionStore } from '../state/extension-store';
 import { logger } from './logger';
 import { getVersionWarningMessage, shouldShowVersionWarning } from './version-compatibility';
@@ -9,9 +11,23 @@ export function getExtensionVersion(): string {
   return packageJson.version;
 }
 
+export function getExtensionVersionLabel(): string {
+  return IS_DEV ? DEV_SUFFIX : `v${packageJson.version}`;
+}
+
+export function getBinaryVersionLabel(): string {
+  if (IS_DEV) {
+    return DEV_SUFFIX;
+  }
+  const binaryVersion = extensionStore.get(StoreKey.BinaryVersion);
+  return binaryVersion ? `v${binaryVersion}` : DEV_SUFFIX;
+}
+
 export function checkVersionCompatibility(binaryVersion: string | null): void {
   const extensionVersion = getExtensionVersion();
-  logger.info(`Checking version compatibility: extension=${extensionVersion}, binary=${binaryVersion}`);
+  const extensionVersionLabel = getExtensionVersionLabel();
+  const binaryVersionLabel = binaryVersion ? (IS_DEV ? DEV_SUFFIX : `v${binaryVersion}`) : DEV_SUFFIX;
+  logger.info(`Checking version compatibility: extension=${extensionVersionLabel}, binary=${binaryVersionLabel}`);
 
   extensionStore.set(StoreKey.BinaryVersion, binaryVersion);
 

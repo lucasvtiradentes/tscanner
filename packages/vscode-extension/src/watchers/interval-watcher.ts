@@ -20,7 +20,7 @@ type IntervalConfig = {
 export function createIntervalWatcher(config: IntervalConfig) {
   let timer: NodeJS.Timeout | null = null;
 
-  const setup = async (): Promise<void> => {
+  const setup = async (skipFirstRun = false): Promise<void> => {
     if (timer) {
       clearInterval(timer);
       timer = null;
@@ -37,7 +37,16 @@ export function createIntervalWatcher(config: IntervalConfig) {
       return;
     }
 
-    logger.info(`Setting up ${config.name} auto-scan: ${intervalSeconds}s`);
+    logger.info(`Setting up ${config.name} auto-scan: ${intervalSeconds}s (skipFirstRun: ${skipFirstRun})`);
+
+    if (!skipFirstRun) {
+      if (extensionStore.get(StoreKey.IsSearching)) {
+        logger.debug(`${config.name} initial auto-scan skipped: search in progress`);
+      } else {
+        logger.debug(`Running ${config.name} initial auto-scan...`);
+        executeCommand(config.command, { aiMode: config.aiMode, trigger: ScanTrigger.Interval });
+      }
+    }
 
     timer = setInterval(() => {
       if (extensionStore.get(StoreKey.IsSearching)) {

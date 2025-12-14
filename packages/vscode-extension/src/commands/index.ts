@@ -14,6 +14,7 @@ import {
   createCycleViewModeRuleFlatViewCommand,
   createCycleViewModeRuleTreeViewCommand,
 } from './internal/view-mode';
+import { createClearScanCachesCommand } from './public/clear-scan-caches';
 import { createGoToNextIssueCommand, createGoToPreviousIssueCommand } from './public/issue-navigation';
 import { createRefreshAiIssuesCommand } from './public/refresh-ai-issues';
 import { createRefreshIssuesCommand } from './public/refresh-issues';
@@ -48,6 +49,7 @@ export function registerAllCommands(
     createGoToNextIssueCommand(regularView),
     createGoToPreviousIssueCommand(regularView),
     createShowLogsCommand(),
+    createClearScanCachesCommand(),
     createOpenSettingsMenuCommand(ctx, regularView),
     createCycleViewModeFileFlatViewCommand(regularView, aiView, context),
     createCycleViewModeFileTreeViewCommand(regularView, aiView, context),

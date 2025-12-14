@@ -17,6 +17,7 @@ export enum Command {
   GoToNextIssue = 'goToNextIssue',
   GoToPreviousIssue = 'goToPreviousIssue',
   ShowLogs = 'showLogs',
+  ClearScanCaches = 'clearScanCaches',
   CopyRuleIssues = 'copyRuleIssues',
   CopyFileIssues = 'copyFileIssues',
   CopyFolderIssues = 'copyFolderIssues',

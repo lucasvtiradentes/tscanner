@@ -1,9 +1,9 @@
+import { DEV_SUFFIX } from 'src/common/scripts-constants';
 import { CODE_EDITOR_DEFAULTS, DISPLAY_ICONS, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { IS_DEV } from '../common/constants';
 import { getConfigDirLabel } from '../common/lib/config-manager';
-import { getExtensionVersion } from '../common/lib/version-checker';
-import { type BinaryInfo, LOCATOR_SOURCE_LABELS, LocatorSource } from '../locator';
+import { getBinaryVersionLabel, getExtensionVersionLabel } from '../common/lib/version-checker';
+import { type BinaryInfo, LOCATOR_SOURCE_LABELS } from '../locator';
 
 function getAiProviderLabel(config: TscannerConfig | null): string {
   if (!config?.ai?.provider) {
@@ -61,15 +61,12 @@ export function buildConfiguredTooltip(
 ): vscode.MarkdownString {
   const configLabel = getConfigDirLabel(configDir);
   const configSource = LOCATOR_SOURCE_LABELS[binaryInfo.source];
-  const extensionVersion = getExtensionVersion();
-  const binaryVersion = binaryInfo.version;
 
-  const devVersion = LOCATOR_SOURCE_LABELS[LocatorSource.Dev];
-  const extensionLabel = IS_DEV ? devVersion : `v${extensionVersion}`;
-  const binaryLabel =
-    binaryVersion && binaryInfo.source !== LocatorSource.Dev ? `${configSource} (v${binaryVersion})` : devVersion;
-
+  const extensionLabel = getExtensionVersionLabel();
+  const binaryVersionLabel = getBinaryVersionLabel();
+  const binaryLabel = binaryVersionLabel === DEV_SUFFIX ? DEV_SUFFIX : `${configSource} (${binaryVersionLabel})`;
   const versionLabel = `ext ${extensionLabel}, cli ${binaryLabel}`;
+
   const aiProviderLabel = getAiProviderLabel(config);
   const activeRulesLabel = getActiveRulesLabel(config);
   const scanSettingsLabel = getScanSettingsLabel(config);
