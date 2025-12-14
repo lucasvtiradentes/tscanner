@@ -18,7 +18,7 @@ use tscanner_cli_output::GroupMode;
 use tscanner_config::{AiExecutionMode, AiProvider};
 use tscanner_constants::{
     app_name, config_dir_name, config_file_name, icon_error, icon_progress, icon_skipped,
-    icon_success,
+    icon_success, is_dev_mode,
 };
 use tscanner_scanner::{
     AiProgressCallback, AiProgressEvent, AiRuleStatus, ConfigExt, RegularRulesCompleteCallback,
@@ -115,7 +115,7 @@ pub fn cmd_check(
         uncommitted
     ));
 
-    let (config, resolved_config_path, config_warnings) =
+    let (config, resolved_config_path, mut config_warnings) =
         match load_config_with_custom(&root, config_path) {
             Ok(Some((cfg, config_file_path, warnings))) => {
                 log_info(&format!(
@@ -157,6 +157,10 @@ pub fn cmd_check(
                 fatal_error_and_exit(&format!("{}", e), &[]);
             }
         };
+
+    if let Some(warning) = check_schema_version_mismatch(&resolved_config_path) {
+        config_warnings.push(warning);
+    }
 
     let cli_options = build_cli_options(group_by);
     let effective_group_mode = resolve_group_mode(&cli_options);
@@ -635,4 +639,37 @@ fn render_rules_status(label: &str, count: usize, status: RuleStatus) {
             );
         }
     }
+}
+
+fn check_schema_version_mismatch(config_path: &str) -> Option<String> {
+    const CLI_VERSION: &str = env!("CARGO_PKG_VERSION");
+
+    if is_dev_mode() {
+        return None;
+    }
+
+    let content = match fs::read_to_string(config_path) {
+        Ok(c) => c,
+        Err(_) => return None,
+    };
+
+    let schema_pattern = r#""?\$schema"?\s*:\s*"https://unpkg\.com/tscanner@([^/]+)/schema\.json""#;
+    let re = match regex::Regex::new(schema_pattern) {
+        Ok(r) => r,
+        Err(_) => return None,
+    };
+
+    if let Some(captures) = re.captures(&content) {
+        if let Some(schema_version) = captures.get(1) {
+            let schema_ver = schema_version.as_str();
+            if schema_ver != CLI_VERSION {
+                return Some(format!(
+                    "Schema version mismatch: CLI v{} but config uses schema v{}. Run 'tscanner init' or update $schema in config.",
+                    CLI_VERSION, schema_ver
+                ));
+            }
+        }
+    }
+
+    None
 }
