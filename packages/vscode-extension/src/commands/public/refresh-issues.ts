@@ -32,19 +32,14 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
 
   return registerCommand(
     Command.RefreshIssues,
-    async (options?: { silent?: boolean; aiMode?: AiExecutionMode; trigger?: ScanTrigger; useCache?: boolean }) => {
+    async (options?: { aiMode?: AiExecutionMode; trigger?: ScanTrigger; useCache?: boolean }) => {
       if (extensionStore.get(StoreKey.IsSearching)) {
-        if (!options?.silent) {
-          showToastMessage(ToastKind.Warning, 'Search already in progress');
-        }
+        logger.error('Search already in progress');
         return;
       }
 
       const workspaceFolder = getCurrentWorkspaceFolder();
       if (!workspaceFolder) {
-        if (!options?.silent) {
-          showToastMessage(ToastKind.Error, 'No workspace folder open');
-        }
         return;
       }
 
@@ -53,9 +48,7 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
 
       if (!hasConfiguredRules(config)) {
         regularView.setResults([]);
-        if (!options?.silent) {
-          showToastMessage(ToastKind.Warning, 'No rules configured. Run "tscanner init" to create config.');
-        }
+        logger.error('No rules configured. Run "tscanner init" to create config.');
         return;
       }
 
