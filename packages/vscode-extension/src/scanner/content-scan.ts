@@ -16,6 +16,8 @@ export async function scanContent(
   content: string,
   config?: TscannerConfig,
   configDir?: string,
+  branch?: string,
+  uncommitted?: boolean,
 ): Promise<ScanContentResult> {
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (!workspaceFolder) {
@@ -24,7 +26,15 @@ export async function scanContent(
 
   try {
     const client = await ensureLspClient();
-    const result = await client.scanContent(workspaceFolder.uri.fsPath, filePath, content, config, configDir);
+    const result = await client.scanContent(
+      workspaceFolder.uri.fsPath,
+      filePath,
+      content,
+      config,
+      configDir,
+      branch,
+      uncommitted,
+    );
 
     logger.debug(`scanContent() returned ${result.issues.length} results for ${filePath}`);
 

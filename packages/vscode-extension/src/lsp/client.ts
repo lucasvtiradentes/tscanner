@@ -145,14 +145,19 @@ export class TscannerLspClient {
     content: string,
     config?: TscannerConfig,
     configDir?: string,
+    branch?: string,
+    uncommitted?: boolean,
   ): Promise<ContentScanResult> {
     const client = await this.ensureClient();
+
     return client.sendRequest(ScanContentRequestType, {
       root,
       file,
       content,
       config,
       config_dir: configDir,
+      branch,
+      uncommitted,
     });
   }
 
@@ -189,10 +194,8 @@ export class TscannerLspClient {
 
   getServerVersion(): string | null {
     if (!this.client?.initializeResult) {
-      console.log('[DEBUG] initializeResult not available');
       return null;
     }
-    console.log('[DEBUG] initializeResult:', JSON.stringify(this.client.initializeResult, null, 2));
     return this.client.initializeResult.serverInfo?.version ?? null;
   }
 }

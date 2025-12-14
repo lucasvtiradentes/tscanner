@@ -389,7 +389,12 @@ impl Scanner {
                 &files,
                 &self.root,
             );
-            all_issues.extend(issues);
+
+            for issue in issues {
+                if issue.file == path {
+                    all_issues.push(issue);
+                }
+            }
         }
 
         (all_issues, all_related_files.into_iter().collect())

@@ -52,6 +52,10 @@ pub struct ScanContentParams {
     pub config: Option<TscannerConfig>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub config_dir: Option<PathBuf>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub branch: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub uncommitted: Option<bool>,
 }
 
 pub enum ScanContentRequest {}

@@ -16,7 +16,13 @@ import { ScanTrigger } from './common/types/scan-trigger';
 import { AiIssuesView, IssuesViewIcon, RegularIssuesView } from './issues-panel';
 import { dispose as disposeScanner, getLspClient, startLspClient } from './scanner/client';
 import { StatusBarManager } from './status-bar/status-bar-manager';
-import { aiScanIntervalWatcher, createConfigWatcher, createFileWatcher, scanIntervalWatcher } from './watchers';
+import {
+  aiScanIntervalWatcher,
+  createConfigWatcher,
+  createFileWatcher,
+  createGitWatcher,
+  scanIntervalWatcher,
+} from './watchers';
 
 let activationKey: string | undefined;
 
@@ -73,12 +79,12 @@ function setupContextKeys(context: vscode.ExtensionContext): void {
   setContextKey(ContextKey.HasAiScanned, false);
 }
 
-function setupWatchers(
+async function setupWatchers(
   context: vscode.ExtensionContext,
   regularView: RegularIssuesView,
   aiView: AiIssuesView,
   updateStatusBar: () => Promise<void>,
-): vscode.Disposable {
+): Promise<vscode.Disposable> {
   let currentFileWatcher: vscode.FileSystemWatcher | null = null;
 
   const recreateFileWatcher = async () => {
@@ -99,9 +105,19 @@ function setupWatchers(
     aiView,
   );
 
+  const gitWatcher = await createGitWatcher();
+
   void recreateFileWatcher();
 
-  return configWatcher;
+  const disposables: vscode.Disposable[] = [configWatcher];
+  if (gitWatcher) {
+    disposables.push(gitWatcher);
+    logger.info('Git watcher enabled - will refresh on commits/checkouts');
+  } else {
+    logger.warn('Git extension not available - commit/checkout detection disabled');
+  }
+
+  return vscode.Disposable.from(...disposables);
 }
 
 function setupSettingsListener(): vscode.Disposable {
@@ -203,12 +219,14 @@ export function activate(context: vscode.ExtensionContext) {
   };
 
   const commands = registerAllCommands(commandContext, regularView, aiView);
-  const configWatcher = setupWatchers(context, regularView, aiView, updateStatusBar);
   const settingsWatcher = setupSettingsListener();
+
+  setupWatchers(context, regularView, aiView, updateStatusBar).then((watchers) => {
+    context.subscriptions.push(watchers);
+  });
 
   context.subscriptions.push(
     ...commands,
-    configWatcher,
     settingsWatcher,
     statusBarManager.getDisposable(),
     regularViewIcon,

@@ -22,6 +22,8 @@ const scanContentParamsSchema = z.object({
   content: z.string(),
   config: z.any().optional(),
   config_dir: z.string().optional(),
+  branch: z.string().optional(),
+  uncommitted: z.boolean().optional(),
 });
 
 const modifiedLineRangeSchema = z.object({
