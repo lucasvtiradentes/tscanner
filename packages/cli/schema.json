@@ -1652,5 +1652,6 @@
     "aiRules"
   ],
   "title": "TscannerConfig",
-  "type": "object"
+  "type": "object",
+  "version": "0.0.36"
 }

@@ -1,11 +1,77 @@
 use crate::converters::issue_to_diagnostic;
 use crate::session::Session;
 use lsp_server::{Connection, Message, Notification};
-use lsp_types::{Diagnostic, PublishDiagnosticsParams, Url};
+use lsp_types::{Diagnostic, DiagnosticSeverity, Position, PublishDiagnosticsParams, Range, Url};
 use std::path::Path;
+use tscanner_constants::config_file_name;
 use tscanner_service::{log_debug, ScanContentParams, Workspace};
 
 type LspError = Box<dyn std::error::Error + Send + Sync>;
+
+fn create_schema_version_diagnostic(content: &str, path: &Path) -> Option<Diagnostic> {
+    if path.file_name()?.to_str()? != config_file_name() {
+        return None;
+    }
+
+    let (line_index, schema_line) = content
+        .lines()
+        .enumerate()
+        .find(|(_, line)| line.trim().starts_with("\"$schema\""))?;
+
+    let schema_path_str = schema_line
+        .split(':')
+        .nth(1)?
+        .trim()
+        .trim_matches(|c| c == '"' || c == ',' || c == ' ');
+
+    if schema_path_str.starts_with("http") {
+        return None;
+    }
+
+    let config_dir = path.parent()?;
+    let schema_path = config_dir.join(schema_path_str);
+
+    if !schema_path.exists() {
+        return None;
+    }
+
+    let schema_content = std::fs::read_to_string(&schema_path).ok()?;
+    let schema_json: serde_json::Value = serde_json::from_str(&schema_content).ok()?;
+    let schema_version = schema_json.get("version")?.as_str()?;
+
+    let binary_version = env!("CARGO_PKG_VERSION");
+
+    if schema_version == binary_version {
+        return None;
+    }
+
+    let start_col = schema_line.find("\"$schema\"")?;
+    let end_col = schema_line.len();
+
+    Some(Diagnostic {
+        range: Range {
+            start: Position {
+                line: line_index as u32,
+                character: start_col as u32,
+            },
+            end: Position {
+                line: line_index as u32,
+                character: end_col as u32,
+            },
+        },
+        severity: Some(DiagnosticSeverity::WARNING),
+        code: None,
+        code_description: None,
+        source: Some("tscanner".to_string()),
+        message: format!(
+            "Schema version ({}) differs from binary version ({}). Update schema recommended.",
+            schema_version, binary_version
+        ),
+        related_information: None,
+        tags: None,
+        data: None,
+    })
+}
 
 pub fn publish_diagnostics(
     connection: &Connection,
@@ -54,7 +120,12 @@ pub fn publish_diagnostics(
         .map(|issue| (issue_to_diagnostic(issue), issue.rule.clone()))
         .collect();
 
-    let diagnostics: Vec<Diagnostic> = diags_with_rules.iter().map(|(d, _)| d.clone()).collect();
+    let mut diagnostics: Vec<Diagnostic> =
+        diags_with_rules.iter().map(|(d, _)| d.clone()).collect();
+
+    if let Some(schema_diagnostic) = create_schema_version_diagnostic(content, path) {
+        diagnostics.push(schema_diagnostic);
+    }
 
     session.diagnostics.insert(uri.clone(), diags_with_rules);
 

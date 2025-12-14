@@ -30,9 +30,11 @@ export function compareVersions(v1: string | null | undefined, v2: string | null
 
   if (!parts1 || !parts2) return VersionCompatibility.Unknown;
 
-  if (parts1.major !== parts2.major) {
-    return parts1.major > parts2.major ? VersionCompatibility.ExtensionNewer : VersionCompatibility.BinaryNewer;
-  }
+  const num1 = parts1.major * 1000000 + parts1.minor * 1000 + parts1.patch;
+  const num2 = parts2.major * 1000000 + parts2.minor * 1000 + parts2.patch;
+
+  if (num1 > num2) return VersionCompatibility.ExtensionNewer;
+  if (num1 < num2) return VersionCompatibility.BinaryNewer;
 
   return VersionCompatibility.Compatible;
 }
