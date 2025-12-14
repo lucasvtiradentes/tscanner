@@ -39,15 +39,17 @@ function formatAutoInterval(seconds: number): string {
 }
 
 function getScanSettingsLabel(config: TscannerConfig | null): string {
+  const startup = config?.codeEditor?.startupScan ?? CODE_EDITOR_DEFAULTS.startupScan;
   const autoScanInterval = config?.codeEditor?.autoScanInterval ?? CODE_EDITOR_DEFAULTS.autoScanInterval;
   const autoLabel = formatAutoInterval(autoScanInterval);
-  return `auto ${autoLabel}`;
+  return `startup ${startup}, auto ${autoLabel}`;
 }
 
 function getAiScanSettingsLabel(config: TscannerConfig | null): string {
+  const startup = config?.codeEditor?.startupAiScan ?? CODE_EDITOR_DEFAULTS.startupAiScan;
   const autoAiScanInterval = config?.codeEditor?.autoAiScanInterval ?? CODE_EDITOR_DEFAULTS.autoAiScanInterval;
   const autoLabel = formatAutoInterval(autoAiScanInterval);
-  return `auto ${autoLabel}`;
+  return `startup ${startup}, auto ${autoLabel}`;
 }
 
 export function buildConfiguredTooltip(
@@ -67,14 +69,14 @@ export function buildConfiguredTooltip(
   const binaryLabel =
     binaryVersion && binaryInfo.source !== LocatorSource.Dev ? `${configSource} (v${binaryVersion})` : devVersion;
 
+  const versionLabel = `ext ${extensionLabel}, cli ${binaryLabel}`;
   const aiProviderLabel = getAiProviderLabel(config);
   const activeRulesLabel = getActiveRulesLabel(config);
   const scanSettingsLabel = getScanSettingsLabel(config);
   const aiScanSettingsLabel = getAiScanSettingsLabel(config);
 
   const rows = [
-    ['Binary', binaryLabel],
-    ['Extension', extensionLabel],
+    ['Version', versionLabel],
     ['Config', configLabel],
     ['Active Rules', activeRulesLabel],
     ['Scan', scanSettingsLabel],
