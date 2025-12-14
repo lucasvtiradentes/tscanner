@@ -4,7 +4,12 @@ export type VersionParts = {
   patch: number;
 };
 
-export type VersionCompatibility = 'compatible' | 'extension-newer' | 'binary-newer' | 'unknown';
+export enum VersionCompatibility {
+  Compatible = 'compatible',
+  ExtensionNewer = 'extension-newer',
+  BinaryNewer = 'binary-newer',
+  Unknown = 'unknown',
+}
 
 export function parseVersion(version: string | null | undefined): VersionParts | null {
   if (!version) return null;
@@ -23,13 +28,13 @@ export function compareVersions(v1: string | null | undefined, v2: string | null
   const parts1 = parseVersion(v1);
   const parts2 = parseVersion(v2);
 
-  if (!parts1 || !parts2) return 'unknown';
+  if (!parts1 || !parts2) return VersionCompatibility.Unknown;
 
   if (parts1.major !== parts2.major) {
-    return parts1.major > parts2.major ? 'extension-newer' : 'binary-newer';
+    return parts1.major > parts2.major ? VersionCompatibility.ExtensionNewer : VersionCompatibility.BinaryNewer;
   }
 
-  return 'compatible';
+  return VersionCompatibility.Compatible;
 }
 
 export function shouldShowVersionWarning(
@@ -37,7 +42,7 @@ export function shouldShowVersionWarning(
   binaryVersion: string | null | undefined,
 ): boolean {
   const compatibility = compareVersions(extensionVersion, binaryVersion);
-  return compatibility === 'extension-newer' || compatibility === 'binary-newer';
+  return compatibility === VersionCompatibility.ExtensionNewer || compatibility === VersionCompatibility.BinaryNewer;
 }
 
 export function getVersionWarningMessage(
@@ -50,11 +55,11 @@ export function getVersionWarningMessage(
 
   const compatibility = compareVersions(extensionVersion, binaryVersion);
 
-  if (compatibility === 'extension-newer') {
+  if (compatibility === VersionCompatibility.ExtensionNewer) {
     return `Extension (v${extensionVersion}) is newer than binary (v${binaryVersion}). Update CLI recommended.`;
   }
 
-  if (compatibility === 'binary-newer') {
+  if (compatibility === VersionCompatibility.BinaryNewer) {
     return `Binary (v${binaryVersion}) is newer than extension (v${extensionVersion}). Update extension recommended.`;
   }
 
