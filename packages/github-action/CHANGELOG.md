@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.33
+
+### Patch Changes
+
+- 0d595a3: fix get binary version request
+
 ## 0.0.32
 
 ### Patch Changes
