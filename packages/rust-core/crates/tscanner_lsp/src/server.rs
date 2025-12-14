@@ -43,7 +43,13 @@ pub fn run_lsp_server() -> Result<(), LspError> {
 
     let scheduler = AnalysisScheduler::new(connection.sender.clone(), session.workspace());
 
-    main_loop(&connection, &mut session, &scheduler)?;
+    let shutdown_requested = main_loop(&connection, &mut session, &scheduler)?;
+
+    if shutdown_requested {
+        tscanner_service::log_info("Shutdown requested, exiting process...");
+        drop(connection);
+        std::process::exit(0);
+    }
 
     io_threads.join()?;
     Ok(())
@@ -60,12 +66,12 @@ fn main_loop(
     connection: &Connection,
     session: &mut Session,
     scheduler: &AnalysisScheduler,
-) -> Result<(), LspError> {
+) -> Result<bool, LspError> {
     for msg in &connection.receiver {
         match msg {
             Message::Request(req) => {
                 if connection.handle_shutdown(&req)? {
-                    return Ok(());
+                    return Ok(true);
                 }
                 handle_request(connection, req, session)?;
             }
@@ -75,7 +81,7 @@ fn main_loop(
             Message::Response(_) => {}
         }
     }
-    Ok(())
+    Ok(false)
 }
 
 fn handle_request(
