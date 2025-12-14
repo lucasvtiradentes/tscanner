@@ -1,6 +1,7 @@
 import { constants, accessSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
+import { DEV_SUFFIX } from 'src/common/scripts-constants';
 import { PACKAGE_DISPLAY_NAME, PACKAGE_NAME, VSCODE_EXTENSION } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { IS_DEV } from '../common/constants';
@@ -18,7 +19,7 @@ export enum LocatorSource {
 }
 
 export const LOCATOR_SOURCE_LABELS: Record<LocatorSource, string> = {
-  [LocatorSource.Dev]: 'dev',
+  [LocatorSource.Dev]: DEV_SUFFIX,
   [LocatorSource.Settings]: 'settings',
   [LocatorSource.NodeModules]: 'local',
   [LocatorSource.Global]: 'global',
@@ -26,7 +27,7 @@ export const LOCATOR_SOURCE_LABELS: Record<LocatorSource, string> = {
 };
 
 export const LOCATOR_SOURCE_LABELS_VERBOSE: Record<LocatorSource, string> = {
-  [LocatorSource.Dev]: 'dev (local rust build)',
+  [LocatorSource.Dev]: `${DEV_SUFFIX} (local rust build)`,
   [LocatorSource.Settings]: 'settings (user configured)',
   [LocatorSource.NodeModules]: 'node_modules (project dependency)',
   [LocatorSource.Global]: 'global (npm -g)',

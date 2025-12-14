@@ -8,7 +8,7 @@ export const CONTEXT_PREFIX = 'tscanner';
 export const CONFIG_SECTION = 'tscanner';
 export const VIEW_ID = 'tscannerExplorer';
 export const AI_VIEW_ID = 'tscannerAiExplorer';
-export const DEV_SUFFIX = 'Dev';
+export const DEV_SUFFIX = 'dev';
 
 export function addDevSuffix(str: string): string {
   return `${str}${DEV_SUFFIX}`;

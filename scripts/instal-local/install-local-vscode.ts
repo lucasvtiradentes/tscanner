@@ -196,10 +196,10 @@ function transformCommand(cmd: string): string {
 
 function transformTitle(title: string): string {
   if (title.startsWith(`${EXTENSION_DISPLAY_NAME}:`)) {
-    return title.replace(`${EXTENSION_DISPLAY_NAME}:`, `${EXTENSION_DISPLAY_NAME} (Dev):`);
+    return title.replace(`${EXTENSION_DISPLAY_NAME}:`, `${EXTENSION_DISPLAY_NAME} (${DEV_SUFFIX}):`);
   }
   if (title.startsWith(`${CONTEXT_PREFIX}:`)) {
-    return title.replace(`${CONTEXT_PREFIX}:`, `${CONTEXT_PREFIX} (Dev):`);
+    return title.replace(`${CONTEXT_PREFIX}:`, `${CONTEXT_PREFIX} (${DEV_SUFFIX}):`);
   }
   return title;
 }

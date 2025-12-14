@@ -143,12 +143,16 @@ async function startExtension(regularView: RegularIssuesView, aiView: AiIssuesVi
   try {
     await startLspClient();
   } catch (err) {
+    logger.error(`Failed to start LSP client: ${err}`);
     return;
   }
 
   const lspClient = getLspClient();
+  logger.info(`LSP client available: ${!!lspClient}`);
   if (lspClient) {
+    logger.info('Getting server version...');
     const binaryVersion = await lspClient.getServerVersion();
+    logger.info(`Server version retrieved: ${binaryVersion}`);
     checkVersionCompatibility(binaryVersion);
   }
 
