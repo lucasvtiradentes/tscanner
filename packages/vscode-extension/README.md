@@ -154,25 +154,6 @@ After that you can already install the extension:
 
 ## 📖 Usage<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-### Scan Modes
-
-You have four scanning options, switchable via status bar click:
-
-<div align="center">
-<table>
-  <tr>
-    <th>Codebase</th>
-    <th>Uncommitted</th>
-    <th>Branch</th>
-  </tr>
-  <tr>
-    <td>Analyze all files</td>
-    <td>Scan staged + unstaged changes</td>
-    <td>Compare to target branch</td>
-  </tr>
-</table>
-</div>
-
 ### View Modes
 
 Organize results with 4 combinations:
@@ -343,6 +324,35 @@ Results:
 
 </details>
 
+</div>
+
+### Scan Modes
+
+You have four scanning options, switchable via status bar click:
+
+<div align="center">
+<table>
+  <tr>
+    <th>Codebase</th>
+    <th>Uncommitted</th>
+    <th>Branch</th>
+  </tr>
+  <tr>
+    <td>Analyze all files</td>
+    <td>Scan staged + unstaged changes</td>
+    <td>Compare to target branch</td>
+  </tr>
+</table>
+</div>
+
+### Status bar 
+
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-statusbar.png" alt="VS Code">
+</div>
+
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-settings.png" alt="VS Code">
 </div>
 
 ### Commands
