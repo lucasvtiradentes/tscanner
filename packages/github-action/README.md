@@ -137,7 +137,7 @@ npm install -D tscanner
 tscanner init
 ```
 
-> **Tip:** Use `tscanner init --full` for a complete config with example regex, script, and AI rules.
+> **Tip:** Use `tscanner init --full` for a [complete config](https://github.com/lucasvtiradentes/tscanner/blob/main/assets/configs/full.json) with example regex, script, and AI rules.
 <!-- </DYNFIELD:QUICK_START_INSTALL> -->
 
 After that you can already setup the GitHub Action:
