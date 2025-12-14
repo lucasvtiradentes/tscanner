@@ -1,5 +1,11 @@
 # tscanner
 
+## 0.0.36
+
+### Patch Changes
+
+- 0d595a3: fix get binary version request
+
 ## 0.0.35
 
 ### Patch Changes
