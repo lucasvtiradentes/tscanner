@@ -26,11 +26,13 @@ pub fn run_lsp_server() -> Result<(), LspError> {
         version: Some(TSCANNER_VERSION.to_string()),
     };
 
-    let init_result = serde_json::json!({
-        "capabilities": server_capabilities(),
-        "serverInfo": server_info,
-    });
+    let mut caps_map = serde_json::to_value(server_capabilities())?;
 
+    if let serde_json::Value::Object(ref mut map) = caps_map {
+        map.insert("serverInfo".to_string(), serde_json::to_value(server_info)?);
+    }
+
+    let init_result = caps_map;
     let initialization_params = connection.initialize(init_result)?;
     let params: InitializeParams = serde_json::from_value(initialization_params)?;
 

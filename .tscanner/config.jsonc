@@ -146,8 +146,8 @@
     "highlightInfos": true,
     "highlightHints": true,
     "startupScan": "fresh",
-    "startupAiScan": "cached",
-    "autoScanInterval": 30,
+    "startupAiScan": "off",
+    "autoScanInterval": 0,
     "autoAiScanInterval": 0
   }
 }

@@ -15,7 +15,13 @@ import {
   type TscannerConfig,
 } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { LanguageClient, type LanguageClientOptions, type ServerOptions, State } from 'vscode-languageclient/node';
+import {
+  type InitializeResult,
+  LanguageClient,
+  type LanguageClientOptions,
+  type ServerOptions,
+  State,
+} from 'vscode-languageclient/node';
 import { ensureBinaryExecutable } from '../common/lib/binary-utils';
 import { ClearCacheRequestType } from './requests/clear-cache';
 import { FormatResultsRequestType } from './requests/format-results';
@@ -200,13 +206,16 @@ export class TscannerLspClient {
     const maxWaitMs = 5000;
     const startTime = Date.now();
 
-    while (!this.client.initializeResult) {
+    while (this.client.state !== State.Running || !this.client.initializeResult) {
       if (Date.now() - startTime > maxWaitMs) {
         return null;
       }
       await new Promise((resolve) => setTimeout(resolve, 50));
     }
 
-    return this.client.initializeResult.serverInfo?.version ?? null;
+    const initResult = this.client.initializeResult as InitializeResult & {
+      capabilities: { serverInfo?: { name: string; version: string } };
+    };
+    return initResult.capabilities?.serverInfo?.version ?? null;
   }
 }
