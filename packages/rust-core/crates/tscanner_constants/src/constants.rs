@@ -1,7 +1,6 @@
 use serde::Deserialize;
 use std::env;
 use std::path::{Path, PathBuf};
-use tscanner_types::Severity;
 
 const CONSTANTS_JSON: &str = include_str!("../../../../../assets/constants.json");
 
@@ -91,6 +90,8 @@ struct CodeEditorDefaults {
     highlight_hints: bool,
     auto_scan_interval: u32,
     auto_ai_scan_interval: u32,
+    startup_scan: String,
+    startup_ai_scan: String,
 }
 
 #[derive(Deserialize, Clone)]
@@ -239,8 +240,8 @@ pub fn default_auto_scan_interval() -> u32 {
     CONSTANTS.core_rust.defaults.code_editor.auto_scan_interval
 }
 
-pub fn default_severity() -> Severity {
-    Severity::Warning
+pub fn default_severity() -> &'static str {
+    "warning"
 }
 
 pub fn default_auto_ai_scan_interval() -> u32 {
@@ -249,6 +250,14 @@ pub fn default_auto_ai_scan_interval() -> u32 {
         .defaults
         .code_editor
         .auto_ai_scan_interval
+}
+
+pub fn default_startup_scan() -> &'static str {
+    &CONSTANTS.core_rust.defaults.code_editor.startup_scan
+}
+
+pub fn default_startup_ai_scan() -> &'static str {
+    &CONSTANTS.core_rust.defaults.code_editor.startup_ai_scan
 }
 
 pub fn icon_builtin() -> &'static str {

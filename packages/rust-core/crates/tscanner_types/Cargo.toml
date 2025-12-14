@@ -10,3 +10,4 @@ repository.workspace = true
 serde = { workspace = true }
 serde_json = { workspace = true }
 schemars = { workspace = true }
+tscanner_constants = { path = "../tscanner_constants" }

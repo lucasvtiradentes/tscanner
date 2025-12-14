@@ -121,6 +121,17 @@ pub enum StartupScanMode {
     Fresh,
 }
 
+impl StartupScanMode {
+    pub fn from_str_or_panic(s: &str) -> Self {
+        match s {
+            "off" => Self::Off,
+            "cached" => Self::Cached,
+            "fresh" => Self::Fresh,
+            _ => panic!("Invalid StartupScanMode in constants.json: '{}'", s),
+        }
+    }
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ScanMode {
     Codebase,

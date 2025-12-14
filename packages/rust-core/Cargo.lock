@@ -1557,7 +1557,6 @@ dependencies = [
  "lazy_static",
  "serde",
  "serde_json",
- "tscanner_types",
 ]
 
 [[package]]
@@ -1669,6 +1668,7 @@ dependencies = [
  "schemars",
  "serde",
  "serde_json",
+ "tscanner_constants",
 ]
 
 [[package]]
