@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.36
+
+### Patch Changes
+
+- ee224f7: fix permission issue
+
 ## 0.0.35
 
 ### Patch Changes
