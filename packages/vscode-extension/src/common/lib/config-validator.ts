@@ -44,7 +44,7 @@ export async function validateConfigAndNotify(configPath: string): Promise<boole
         const fieldsText = configError.invalidFields.join(', ');
         const message = `${PACKAGE_DISPLAY_NAME}: Config has incompatible fields [${fieldsText}]. Some features may be disabled.`;
 
-        vscode.window.showWarningMessage(message, 'Update CLI', 'Learn More', 'Dismiss').then((selection) => {
+        vscode.window.showWarningMessage(message, 'Learn More', 'Dismiss').then((selection) => {
           if (selection === 'Learn More') {
             vscode.env.openExternal(vscode.Uri.parse(`${REPO_URL}/tree/main/packages/vscode-extension#updating`));
           }
