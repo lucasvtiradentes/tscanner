@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.35
+
+### Patch Changes
+
+- 3fe2637: update docs
+
 ## 0.0.34
 
 ### Patch Changes

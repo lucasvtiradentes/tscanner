@@ -173,7 +173,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: lucasvtiradentes/tscanner-action@v0.0.34
+      - uses: lucasvtiradentes/tscanner-action@v0.0.35
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -347,7 +347,7 @@ jobs:
       - name: Setup Claude CLI
         run: npm install -g @anthropic-ai/claude-code
 
-      - uses: lucasvtiradentes/tscanner-action@v0.0.34
+      - uses: lucasvtiradentes/tscanner-action@v0.0.35
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         with:
@@ -400,7 +400,7 @@ jobs:
           echo '${{ secrets.GEMINI_CREDENTIALS }}' > ~/.gemini/oauth_creds.json
           echo '{"security":{"auth":{"selectedType":"oauth-personal"}}}' > ~/.gemini/settings.json
 
-      - uses: lucasvtiradentes/tscanner-action@v0.0.34
+      - uses: lucasvtiradentes/tscanner-action@v0.0.35
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           ai-mode: include
@@ -440,7 +440,7 @@ jobs:
       - name: Setup Claude CLI
         run: npm install -g @anthropic-ai/claude-code
 
-      - uses: lucasvtiradentes/tscanner-action@v0.0.34
+      - uses: lucasvtiradentes/tscanner-action@v0.0.35
         env:
           CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         with:
@@ -468,7 +468,7 @@ TScanner caches scan results between runs for faster execution. For caching to w
 - name: Restore file mtimes for cache
   uses: chetan/git-restore-mtime-action@v2
 
-- uses: lucasvtiradentes/tscanner-action@v0.0.34
+- uses: lucasvtiradentes/tscanner-action@v0.0.35
   with:
     github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
@@ -496,7 +496,7 @@ jobs:
       - name: Restore file mtimes for cache
         uses: chetan/git-restore-mtime-action@v2
 
-      - uses: lucasvtiradentes/tscanner-action@v0.0.34
+      - uses: lucasvtiradentes/tscanner-action@v0.0.35
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           target-branch: 'origin/main'        # omit to scan full codebase
