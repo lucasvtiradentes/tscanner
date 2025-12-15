@@ -112,6 +112,7 @@ Define what "good code" means for your project. TScanner enforces your patterns 
 - **Focus on What Matters** - 4 scan modes: whole codebase, branch changes, uncommitted changes or staged changes
 - **Copy for AI** - Export issues to clipboard, paste into chat for bulk fixes
 - **Catch Before Merge** - PR comments show violations with clickable links to exact lines
+- **Not a Blocker** - Issues are warnings by default; set as errors to fail CI/lint-staged
 - **Sub-second Scans** - Rust engine processes hundreds of files in <1s, with smart caching
 <!-- </DYNFIELD:FEATURES> -->
 

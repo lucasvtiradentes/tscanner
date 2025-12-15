@@ -22,10 +22,9 @@ const FeatureId = {
   Focus: 'focus',
   Pr: 'pr',
   SpeedCached: 'speed-cached',
-  Ci: 'ci',
   CopyAi: 'copy-ai',
   OneComment: 'one-comment',
-  BlockWarn: 'block-warn',
+  Severity: 'severity',
 } as const;
 
 type FeatureId = (typeof FeatureId)[keyof typeof FeatureId];
@@ -69,12 +68,6 @@ const FEATURE_BULLETS: FeatureBullet[] = [
     packages: [Package.Cli],
   },
   {
-    id: FeatureId.Ci,
-    title: 'CI-Ready',
-    description: 'JSON output for automation, exit codes for pipelines',
-    packages: [Package.Cli],
-  },
-  {
     id: FeatureId.CopyAi,
     title: 'Copy for AI',
     description: 'Export issues to clipboard, paste into chat for bulk fixes',
@@ -87,10 +80,10 @@ const FEATURE_BULLETS: FeatureBullet[] = [
     packages: [Package.Action],
   },
   {
-    id: FeatureId.BlockWarn,
-    title: 'Block or Warn',
-    description: 'Fail the check or just inform, your choice',
-    packages: [Package.Action],
+    id: FeatureId.Severity,
+    title: 'Not a Blocker',
+    description: 'Issues are warnings by default; set as errors to fail CI/lint-staged',
+    packages: [Package.Main],
   },
 ];
 
@@ -101,11 +94,19 @@ const PACKAGE_ORDER: Record<Package, FeatureId[]> = {
     FeatureId.Focus,
     FeatureId.CopyAi,
     FeatureId.Pr,
+    FeatureId.Severity,
     FeatureId.SpeedCached,
   ],
-  [Package.Cli]: [FeatureId.Rules, FeatureId.SpeedCached, FeatureId.Focus, FeatureId.Ci],
-  [Package.Vscode]: [FeatureId.Rules, FeatureId.Realtime, FeatureId.Focus, FeatureId.CopyAi, FeatureId.SpeedCached],
-  [Package.Action]: [FeatureId.Rules, FeatureId.Focus, FeatureId.Pr, FeatureId.OneComment, FeatureId.BlockWarn],
+  [Package.Cli]: [FeatureId.Rules, FeatureId.SpeedCached, FeatureId.Focus, FeatureId.Severity, FeatureId.SpeedCached],
+  [Package.Vscode]: [
+    FeatureId.Rules,
+    FeatureId.Realtime,
+    FeatureId.Focus,
+    FeatureId.CopyAi,
+    FeatureId.Severity,
+    FeatureId.SpeedCached,
+  ],
+  [Package.Action]: [FeatureId.Rules, FeatureId.Focus, FeatureId.Pr, FeatureId.Severity, FeatureId.OneComment],
 };
 
 const README_PATHS: Record<Package, string> = {

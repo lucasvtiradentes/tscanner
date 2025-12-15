@@ -74,6 +74,7 @@ See code quality issues the moment you type, not after you ship. TScanner shows 
 - **See Issues Instantly** - Real-time feedback in code editor as you type, no manual scan needed
 - **Focus on What Matters** - 4 scan modes: whole codebase, branch changes, uncommitted changes or staged changes
 - **Copy for AI** - Export issues to clipboard, paste into chat for bulk fixes
+- **Not a Blocker** - Issues are warnings by default; set as errors to fail CI/lint-staged
 - **Sub-second Scans** - Rust engine processes hundreds of files in <1s, with smart caching
 <!-- </DYNFIELD:FEATURES> -->
 

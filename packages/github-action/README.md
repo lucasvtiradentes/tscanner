@@ -90,8 +90,8 @@ Block bad code before it reaches main. TScanner posts a comment on every PR show
 - **Your Rules, Enforced** - 38 built-in checks + define your own with regex, scripts, or AI
 - **Focus on What Matters** - 4 scan modes: whole codebase, branch changes, uncommitted changes or staged changes
 - **Catch Before Merge** - PR comments show violations with clickable links to exact lines
+- **Not a Blocker** - Issues are warnings by default; set as errors to fail CI/lint-staged
 - **One Comment, Updated** - No spam, same comment updated on each push
-- **Block or Warn** - Fail the check or just inform, your choice
 <!-- </DYNFIELD:FEATURES> -->
 
 <!-- <DYNFIELD:MOTIVATION> -->
