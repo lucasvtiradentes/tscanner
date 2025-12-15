@@ -13,6 +13,7 @@ import {
   type RuleMetadata,
   type ScanResult,
   type TscannerConfig,
+  ensureBinaryExecutable,
 } from 'tscanner-common';
 import * as vscode from 'vscode';
 import {
@@ -22,7 +23,6 @@ import {
   type ServerOptions,
   State,
 } from 'vscode-languageclient/node';
-import { ensureBinaryExecutable } from '../common/lib/binary-utils';
 import { ClearCacheRequestType } from './requests/clear-cache';
 import { FormatResultsRequestType } from './requests/format-results';
 import { GetRulesMetadataRequestType } from './requests/get-rules-metadata';
