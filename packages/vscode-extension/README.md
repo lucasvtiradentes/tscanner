@@ -416,6 +416,38 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 </div>
 <!-- </DYNFIELD:COMMANDS> -->
 
+### Updating
+
+The VS Code extension and CLI binary must be compatible to work correctly. If you see a version mismatch warning:
+
+**Why update?**
+- New extension features may require updated CLI binary
+- CLI updates may include bug fixes and performance improvements
+- Version mismatches can cause unexpected behavior
+
+**How to update the CLI:**
+
+Local installations:
+
+```bash
+npm install -D tscanner@latest
+pnpm add -D tscanner@latest
+yarn add -D tscanner@latest
+```
+
+Global installations:
+
+```bash
+npm install -g tscanner@latest
+pnpm add -g tscanner@latest
+yarn global add tscanner@latest
+```
+
+**Check versions:**
+- Extension version: Check in VS Code Extensions panel
+- CLI version: Run `tscanner --version` in terminal
+- Status bar tooltip shows both versions when hovering over TScanner icon
+
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
 ## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 

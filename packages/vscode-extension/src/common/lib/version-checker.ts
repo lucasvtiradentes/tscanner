@@ -71,10 +71,8 @@ function showVersionWarningNotification(
   const message = `${PACKAGE_DISPLAY_NAME}: Extension v${extensionVersion} may not be compatible with binary v${binaryVersion}. Update recommended.`;
 
   vscode.window.showWarningMessage(message, 'Update CLI', 'Learn More', 'Dismiss').then((selection) => {
-    if (selection === 'Update CLI') {
-      vscode.env.openExternal(vscode.Uri.parse(`${REPO_URL}#-installation`));
-    } else if (selection === 'Learn More') {
-      vscode.env.openExternal(vscode.Uri.parse(`${REPO_URL}#version-compatibility`));
+    if (selection === 'Learn More') {
+      vscode.env.openExternal(vscode.Uri.parse(`${REPO_URL}/tree/main/packages/vscode-extension#updating`));
     } else if (selection === 'Dismiss' && context) {
       const versionKey = `${extensionVersion}-${binaryVersion}`;
       const dismissedWarnings = getWorkspaceState(context, WorkspaceStateKey.DismissedVersionWarnings);

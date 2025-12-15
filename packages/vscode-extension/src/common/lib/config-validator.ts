@@ -5,7 +5,6 @@ import { parseConfigError } from '../../scanner/utils';
 import { getStatusBarName } from '../constants';
 import { StoreKey, extensionStore } from '../state/extension-store';
 import { logger } from './logger';
-import { getExtensionVersion } from './version-checker';
 import { ToastKind, showToastMessage } from './vscode-utils';
 
 export async function validateConfigAndNotify(configPath: string): Promise<boolean> {
@@ -46,12 +45,8 @@ export async function validateConfigAndNotify(configPath: string): Promise<boole
         const message = `${PACKAGE_DISPLAY_NAME}: Config has incompatible fields [${fieldsText}]. Some features may be disabled.`;
 
         vscode.window.showWarningMessage(message, 'Update CLI', 'Learn More', 'Dismiss').then((selection) => {
-          if (selection === 'Update CLI') {
-            vscode.env.openExternal(vscode.Uri.parse(`${REPO_URL}#-installation`));
-          } else if (selection === 'Learn More') {
-            vscode.env.openExternal(
-              vscode.Uri.parse(`${REPO_URL}/tree/vscode-extension-v${getExtensionVersion()}#%EF%B8%8F-configuration`),
-            );
+          if (selection === 'Learn More') {
+            vscode.env.openExternal(vscode.Uri.parse(`${REPO_URL}/tree/main/packages/vscode-extension#updating`));
           }
         });
 
