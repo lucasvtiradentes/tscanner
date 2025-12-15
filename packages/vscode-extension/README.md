@@ -14,7 +14,7 @@
 
 ## 🎺 Overview<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-See code issues the moment you type, not after you commit. TScanner shows violations in a sidebar panel with one-click navigation to each problem. Scan your whole project or just the files you changed in your current branch.
+See code quality issues the moment you type, not after you ship. TScanner shows violations you customize in a sidebar panel with one-click navigation to each problem. Scan your whole project, just the files you changed in your current branch or only your current uncommited changes.
 
 <!-- <DYNFIELD:VSCODE_EXTENSION_DEMO_IMAGE> -->
 <div align="center">
@@ -72,9 +72,9 @@ See code issues the moment you type, not after you commit. TScanner shows violat
 
 - **Your Rules, Enforced** - 38 built-in checks + define your own with regex, scripts, or AI
 - **See Issues Instantly** - Real-time feedback in code editor as you type, no manual scan needed
-- **Focus on What Matters** - Scan your branch changes only, or audit the full codebase
+- **Focus on What Matters** - You can see issues from a) your whole codebase, b) your branch changes only, c) your current uncommited changes or d) your current staged changes
 - **Copy for AI** - Export issues to clipboard, paste into chat for bulk fixes
-- **Sub-second Scans** - Rust engine processes hundreds of files in <1s
+- **Sub-second Scans** - Rust engine processes hundreds of files in <1s, with smart caching
 <!-- </DYNFIELD:FEATURES> -->
 
 <!-- <DYNFIELD:MOTIVATION> -->

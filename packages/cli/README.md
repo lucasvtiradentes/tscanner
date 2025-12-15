@@ -72,7 +72,7 @@ Scan your codebase from the terminal. Run before commits, in CI pipelines, or as
 
 - **Your Rules, Enforced** - 38 built-in checks + define your own with regex, scripts, or AI
 - **Sub-second Scans** - Rust engine processes hundreds of files in <1s, with smart caching
-- **Focus on What Matters** - Scan your branch changes only, or audit the full codebase
+- **Focus on What Matters** - You can see issues from a) your whole codebase, b) your branch changes only, c) your current uncommited changes or d) your current staged changes
 - **CI-Ready** - JSON output for automation, exit codes for pipelines
 <!-- </DYNFIELD:FEATURES> -->
 

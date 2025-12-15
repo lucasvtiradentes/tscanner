@@ -109,9 +109,9 @@ Define what "good code" means for your project. TScanner enforces your patterns 
 
 - **Your Rules, Enforced** - 38 built-in checks + define your own with regex, scripts, or AI
 - **See Issues Instantly** - Real-time feedback in code editor as you type, no manual scan needed
-- **Focus on What Matters** - Scan your branch changes only, or audit the full codebase
+- **Focus on What Matters** - You can see issues from a) your whole codebase, b) your branch changes only, c) your current uncommited changes or d) your current staged changes
 - **Catch Before Merge** - PR comments show violations with clickable links to exact lines
-- **Sub-second Scans** - Rust engine processes hundreds of files in <1s
+- **Sub-second Scans** - Rust engine processes hundreds of files in <1s, with smart caching
 <!-- </DYNFIELD:FEATURES> -->
 
 <!-- <DYNFIELD:MOTIVATION> -->

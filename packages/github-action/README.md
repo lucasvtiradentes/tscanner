@@ -88,7 +88,7 @@ Block bad code before it reaches main. TScanner posts a comment on every PR show
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 - **Your Rules, Enforced** - 38 built-in checks + define your own with regex, scripts, or AI
-- **Focus on What Matters** - Scan your branch changes only, or audit the full codebase
+- **Focus on What Matters** - You can see issues from a) your whole codebase, b) your branch changes only, c) your current uncommited changes or d) your current staged changes
 - **Catch Before Merge** - PR comments show violations with clickable links to exact lines
 - **One Comment, Updated** - No spam, same comment updated on each push
 - **Block or Warn** - Fail the check or just inform, your choice

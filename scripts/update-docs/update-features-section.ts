@@ -21,7 +21,6 @@ const FeatureId = {
   Realtime: 'realtime',
   Focus: 'focus',
   Pr: 'pr',
-  Speed: 'speed',
   SpeedCached: 'speed-cached',
   Ci: 'ci',
   CopyAi: 'copy-ai',
@@ -54,7 +53,8 @@ const FEATURE_BULLETS: FeatureBullet[] = [
   {
     id: FeatureId.Focus,
     title: 'Focus on What Matters',
-    description: 'Scan your branch changes only, or audit the full codebase',
+    description:
+      'You can see issues from a) your whole codebase, b) your branch changes only, c) your current uncommited changes or d) your current staged changes',
     packages: [Package.Main, Package.Cli, Package.Vscode, Package.Action],
   },
   {
@@ -62,12 +62,6 @@ const FEATURE_BULLETS: FeatureBullet[] = [
     title: 'Catch Before Merge',
     description: 'PR comments show violations with clickable links to exact lines',
     packages: [Package.Main, Package.Action],
-  },
-  {
-    id: FeatureId.Speed,
-    title: 'Sub-second Scans',
-    description: 'Rust engine processes hundreds of files in <1s',
-    packages: [Package.Main, Package.Vscode],
   },
   {
     id: FeatureId.SpeedCached,
@@ -102,9 +96,9 @@ const FEATURE_BULLETS: FeatureBullet[] = [
 ];
 
 const PACKAGE_ORDER: Record<Package, FeatureId[]> = {
-  [Package.Main]: [FeatureId.Rules, FeatureId.Realtime, FeatureId.Focus, FeatureId.Pr, FeatureId.Speed],
+  [Package.Main]: [FeatureId.Rules, FeatureId.Realtime, FeatureId.Focus, FeatureId.Pr, FeatureId.SpeedCached],
   [Package.Cli]: [FeatureId.Rules, FeatureId.SpeedCached, FeatureId.Focus, FeatureId.Ci],
-  [Package.Vscode]: [FeatureId.Rules, FeatureId.Realtime, FeatureId.Focus, FeatureId.CopyAi, FeatureId.Speed],
+  [Package.Vscode]: [FeatureId.Rules, FeatureId.Realtime, FeatureId.Focus, FeatureId.CopyAi, FeatureId.SpeedCached],
   [Package.Action]: [FeatureId.Rules, FeatureId.Focus, FeatureId.Pr, FeatureId.OneComment, FeatureId.BlockWarn],
 };
 
