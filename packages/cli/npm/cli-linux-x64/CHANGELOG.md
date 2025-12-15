@@ -1,5 +1,11 @@
 # @tscanner/cli-linux-x64
 
+## 0.0.39
+
+### Patch Changes
+
+- ee224f7: fix permission issue
+
 ## 0.0.38
 
 ### Patch Changes
