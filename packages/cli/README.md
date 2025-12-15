@@ -861,8 +861,6 @@ Define patterns to match in your code using regular expressions:
 }
 ```
 
-> 💡 See real examples in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
-
 </div>
 </details>
 
@@ -977,8 +975,7 @@ Use AI prompts to perform semantic code analysis:
 ```
 
 **Prompt** (`.tscanner/ai-rules/find-enum-candidates.md`):
-```markdown
-# Enum Candidates Detector
+<pre><code class="language-markdown"># Enum Candidates Detector
 
 Find TypeScript type unions that could be replaced with enums for better type safety and maintainability.
 
@@ -1006,8 +1003,7 @@ Find TypeScript type unions that could be replaced with enums for better type sa
 - Look for related constants or string literals
 - Consider if the values are used at runtime
 
-{{FILES}}
-```
+{{FILES}}</code></pre>
 
 > 💡 See real examples in the [`.tscanner/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/ai-rules) folder of this project.
 

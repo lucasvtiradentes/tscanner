@@ -229,8 +229,6 @@ Define patterns to match in your code using regular expressions:
 }
 \`\`\`
 
-> 💡 See real examples in the [\`.tscanner/\`](${REPO_URL}/tree/main/.tscanner) folder of this project.
-
 </div>
 </details>
 
@@ -292,9 +290,7 @@ Use AI prompts to perform semantic code analysis:
 \`\`\`
 
 **Prompt** (\`.tscanner/ai-rules/find-enum-candidates.md\`):
-\`\`\`markdown
-${aiRuleExample}
-\`\`\`
+<pre><code class="language-markdown">${aiRuleExample}</code></pre>
 
 > 💡 See real examples in the [\`.tscanner/ai-rules/\`](${REPO_URL}/tree/main/.tscanner/ai-rules) folder of this project.
 

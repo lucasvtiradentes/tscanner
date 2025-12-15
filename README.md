@@ -46,7 +46,7 @@ Define what "good code" means for your project. TScanner enforces your patterns 
 
 <!-- <DYNFIELD:GITHUB_ACTION_DEMO_IMAGE> -->
 <div align="center">
-  <img width="80%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-issues-found.png" alt="GitHub Action PR Comment">
+  <img width="80%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-warnings-found.png" alt="GitHub Action PR Comment">
   <br>
   <em>issues detected in the latest commit pushed to a PR</em>
 </div>
@@ -809,8 +809,6 @@ Define patterns to match in your code using regular expressions:
 }
 ```
 
-> 💡 See real examples in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
-
 </div>
 </details>
 
@@ -925,8 +923,7 @@ Use AI prompts to perform semantic code analysis:
 ```
 
 **Prompt** (`.tscanner/ai-rules/find-enum-candidates.md`):
-```markdown
-# Enum Candidates Detector
+<pre><code class="language-markdown"># Enum Candidates Detector
 
 Find TypeScript type unions that could be replaced with enums for better type safety and maintainability.
 
@@ -954,8 +951,7 @@ Find TypeScript type unions that could be replaced with enums for better type sa
 - Look for related constants or string literals
 - Consider if the values are used at runtime
 
-{{FILES}}
-```
+{{FILES}}</code></pre>
 
 > 💡 See real examples in the [`.tscanner/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/ai-rules) folder of this project.
 
