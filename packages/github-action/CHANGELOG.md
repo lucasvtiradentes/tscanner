@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.37
+
+### Patch Changes
+
+- e1a43cb: update docs
+
 ## 0.0.36
 
 ### Patch Changes
