@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
-import { PACKAGE_DISPLAY_NAME, PACKAGE_NAME } from 'tscanner-common';
+import { PACKAGE_DISPLAY_NAME, PACKAGE_NAME, REPO_URL } from 'tscanner-common';
 
 enum TFields {
   QuickStartCli = 'QUICK_START_CLI',
@@ -31,7 +31,7 @@ npm install -D ${PACKAGE_NAME}
 ${PACKAGE_NAME} init
 \`\`\`
 
-> **Tip:** Use \`${PACKAGE_NAME} init --full\` for a [complete config](https://github.com/lucasvtiradentes/tscanner/blob/main/assets/configs/full.json) with example regex, script, and AI rules.`;
+> **Tip:** Use \`${PACKAGE_NAME} init --full\` for a [complete config](${REPO_URL}/blob/main/assets/configs/full.json) with example regex, script, and AI rules.`;
 }
 
 function getGithubActionSection(startStep = 1) {

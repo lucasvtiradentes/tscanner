@@ -1,7 +1,8 @@
 import { EXTENSION_DISPLAY_NAME } from 'src/common/scripts-constants';
+import { REPO_URL } from 'tscanner-common';
 import * as vscode from 'vscode';
 
-const QUICK_START_URL = 'https://github.com/lucasvtiradentes/tscanner?tab=readme-ov-file#-quick-start';
+const QUICK_START_URL = `${REPO_URL}?tab=readme-ov-file#-quick-start`;
 
 export async function promptInstall(): Promise<boolean> {
   const choice = await vscode.window.showWarningMessage(
