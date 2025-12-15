@@ -95,10 +95,9 @@ ai rules:
 soon!
 \`\`\`
 
-</div>
-
-
 Note: my rules at work are not commited to the codebase, so I basically installed tscanner globally and move the \`.tscanner\` folder into the \`.gitignore\` file
+
+</div>
 
 </details>
 
