@@ -25,6 +25,12 @@ function updateRustWorkspaceVersion(newVersion) {
         stdio: 'inherit',
       });
 
+      log('Generating schema.json with new version...');
+      execSync('cargo run -p tscanner_cli --bin generate_schema', {
+        cwd: rustCoreFolder,
+        stdio: 'inherit',
+      });
+
       execSync('git add packages/rust-core/Cargo.toml packages/rust-core/Cargo.lock packages/cli/schema.json', {
         stdio: 'inherit',
       });
