@@ -368,27 +368,27 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
     <th width="100">Keybinding</th>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Refresh Issues (no cache)</code></td>
+    <td align="left">tscanner: Clear Scan Caches</td>
     <td align="center">-</td>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Go to Next Issue</code></td>
+    <td align="left">tscanner: Go to Next Issue</td>
     <td align="center">-</td>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Go to Previous Issue</code></td>
+    <td align="left">tscanner: Go to Previous Issue</td>
     <td align="center">-</td>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Show Logs</code></td>
+    <td align="left">tscanner: Refresh AI Issues (no cache)</td>
     <td align="center">-</td>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Clear Scan Caches</code></td>
+    <td align="left">tscanner: Refresh Issues (no cache)</td>
     <td align="center">-</td>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Refresh AI Issues (no cache)</code></td>
+    <td align="left">tscanner: Show Logs</td>
     <td align="center">-</td>
   </tr>
 </table>

@@ -43,9 +43,9 @@ export function updateCommands() {
 
   const keybindingsMap = new Map(vscodePackageJson.contributes.keybindings.map((kb) => [kb.command, kb.key]));
 
-  const visibleCommands = vscodePackageJson.contributes.commands.filter(
-    (cmd) => !hiddenCommands.has(cmd.command) && cmd.title && cmd.title.startsWith('tscanner:'),
-  );
+  const visibleCommands = vscodePackageJson.contributes.commands
+    .filter((cmd) => !hiddenCommands.has(cmd.command) && cmd.title && cmd.title.startsWith('tscanner:'))
+    .sort((a, b) => (a.title || '').localeCompare(b.title || ''));
 
   const commandsHeaderContent = [
     { content: 'Command', width: 400 },
@@ -57,8 +57,8 @@ export function updateCommands() {
   for (const cmd of visibleCommands) {
     const keybinding = keybindingsMap.get(cmd.command);
     commandsTable.addBodyRow([
-      { content: `<code>${cmd.title}</code>`, align: 'left' },
-      { content: keybinding ? `<code>${keybinding}</code>` : '-', align: 'center' },
+      { content: `${cmd.title}`, align: 'left' },
+      { content: keybinding ? `${keybinding}` : '-', align: 'center' },
     ]);
   }
 
