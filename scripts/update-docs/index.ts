@@ -11,6 +11,7 @@ import { updateOverview } from './update-overview';
 import { updateQuickStart } from './update-quick-start';
 import { updateRules } from './update-rules';
 import { updateWaysToUseTscanner } from './update-ways-to-use-tscanner';
+import { updateWorkflow } from './update-workflow';
 
 type UpdateFn = {
   name: string;
@@ -38,6 +39,7 @@ function main() {
     { name: 'motivation', fn: updateMotivation },
     { name: 'features-section', fn: updateFeaturesSection },
     { name: 'footer', fn: updateFooter },
+    { name: 'workflow', fn: updateWorkflow },
     { name: 'cli-usage', fn: updateCliUsage },
   ];
 

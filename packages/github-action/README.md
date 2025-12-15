@@ -4,7 +4,7 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner - GitHub Action</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-usage">Usage</a><br />
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-workflow">Workflow</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-usage">Usage</a><br />
   <a href="#-configuration">Configuration</a> • <a href="#-rules">Rules</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
 </div>
 
@@ -101,12 +101,16 @@ AI generates code fast, but it doesn't know your project's conventions, preferre
 
 TScanner lets you define those rules once. Every AI-generated file, every PR, every save: automatically checked against your standards.
 
-Here is a diagram that shows how TScanner fits into the coding workflow:
+<!-- </DYNFIELD:MOTIVATION> -->
+
+<!-- <DYNFIELD:WORKFLOW> -->
+
+## 🔀 Workflow <a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+
+Here is a diagram that shows how TScanner fits into the average coding workflow:
 
 <div align="center">
   <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow">
-  <br>
-  <em>TScanner and the coding workflow</em>
 </div>
 
 Legend: 
@@ -117,29 +121,88 @@ Legend:
 
 So what? 
 
-- this will allow you to go fast plus knowing exactly what issues you need to fix before merging or committing.
+- this will allow you to go fast plus knowing exactly what issues you need to fix before committing or merging.
 - this will, over time, reduce to zero the rejected pr's due to **styling or poor code quality patterns**, as long as you keep the rules updated.
+  - so our job is to detect code patterns to avoid/enforce and add tscanner rules for that 
+
+<br />
 
 <div align="center">
 
 <details>
-<summary>Use cases for this project</summary>
+<summary>How am I using this to improve my code at work?</summary>
+
 <br />
 
 <div align="left">
 
-- **Project Consistency** - Enforce import styles, naming conventions, and code organization rules
-- **PR Quality Gates** - Auto-comment violations before merge so reviewers focus on logic
-- **AI Code Validation** - Real-time feedback on AI-generated code before accepting
-- **Flexible Customization** - Built-in rules + custom scripts and AI rules for complex logic 
+I basically observe code patterns to enforce/avoid and add custom rules, here are my current rules: 
+
+regex rules: 
+
+```jsonc
+"regex": {
+  "no-nestjs-logger": {
+    "pattern": "import\\s*\\{[^}]*Logger[^}]*\\}\\s*from\\s*['\"]@nestjs/common['\"]",
+    "message": "Do not use NestJS Logger. Import from custom logger instead"
+  },
+  "no-typeorm-for-feature": {
+    "pattern": "TypeOrmModule\\.forFeature\\(",
+    "message": "Use api/src/way-type-orm.module.ts instead"
+  },
+  "avoid-typeorm-raw-queries": {
+    "pattern": "await this\\.([^.]+)\\.manager\\.query\\(",
+    "message": "Avoid using RawQueryBuilder. Use the repository instead",
+    "severity": "error"
+  },
+  "no-static-zod-schema": {
+    "pattern": "static\\s+zodSchema\\s*=",
+    "message": "Remove 'static zodSchema' from class. The schema is already passed to createZodDto() and this property is redundant"
+  }
+}
+```
+
+script rules:
+
+```jsonc
+"script": {
+  "entity-registered-in-typeorm-module": {
+    "command": "npx tsx script-rules/entity-registered-in-typeorm-module.ts",
+    "message": "Entity must be registered in way-type-orm.module.ts",
+    "severity": "error",
+    "include": ["api/src/**/*.entity.ts", "api/src/way-type-orm.module.ts"]
+  },
+  "entity-registered-in-setup-nest": {
+    "command": "npx tsx script-rules/entity-registered-in-setup-nest.ts",
+    "message": "Entity must be registered in setup-nest.ts for tests",
+    "severity": "error",
+    "include": ["api/src/**/*.entity.ts", "api/test/helpers/setup-nest.ts"]
+  },
+  "no-long-files": {
+    "command": "npx tsx script-rules/no-long-files.ts",
+    "message": "File exceeds 600 lines limit",
+    "include": ["**/*.ts"]
+  }
+}
+```
+
+ai rules: 
+
+```
+soon!
+```
 
 </div>
+
+
+Note: my rules at work are not commited to the codebase, so I basically installed tscanner globally and move the `.tscanner` folder into the `.gitignore` file
 
 </details>
 
 </div>
 
-<!-- </DYNFIELD:MOTIVATION> -->
+
+<!-- </DYNFIELD:WORKFLOW> -->
 
 ## 🚀 Quick Start<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
@@ -156,7 +219,10 @@ npm install -D tscanner
 tscanner init
 ```
 
-> **Tip:** Use `tscanner init --full` for a [complete config](https://github.com/lucasvtiradentes/tscanner/blob/main/assets/configs/full.json) with example regex, script, and AI rules.
+> [!TIP]
+> Use `tscanner init --full` for a [complete config](https://github.com/lucasvtiradentes/tscanner/blob/main/assets/configs/full.json) with example regex, script, and AI rules.
+
+
 <!-- </DYNFIELD:QUICK_START_INSTALL> -->
 
 After that you can already setup the GitHub Action:
@@ -648,8 +714,6 @@ To scan your code, you need to set up the rules in the TScanner config folder.
 <br/>
 
 <div align="left">
-
-**Required fields:** The `files.include` and `files.exclude` fields are required.
 
 **Per-rule file patterns:** Each rule can have its own `include`/`exclude` patterns:
 

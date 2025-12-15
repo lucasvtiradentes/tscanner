@@ -52,8 +52,6 @@ ${minimalConfigContent}
 
 <div align="left">
 
-**Required fields:** The \`files.include\` and \`files.exclude\` fields are required.
-
 **Per-rule file patterns:** Each rule can have its own \`include\`/\`exclude\` patterns:
 
 \`\`\`json

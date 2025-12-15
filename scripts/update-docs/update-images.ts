@@ -13,7 +13,7 @@ export function updateImages() {
   const baseImageUrl = 'https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image';
 
   const vscodeExtensionDemoImageContent = `<div align="center">
-  <img width="50%" src="${baseImageUrl}/tscanner-vscode-demo.png" alt="VS Code Extension Demo">
+  <img src="${baseImageUrl}/tscanner-vscode-demo.png" alt="VS Code Extension Demo">
   <br>
   <em>issues detected in real time in the code editor</em>
 </div>`;
