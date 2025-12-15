@@ -23,9 +23,15 @@ Here is a diagram that shows how TScanner fits into the coding workflow:
 </div>
 
 Legend: 
+
 - TS1: before commit, you can see issues in the code editor; also you can add it to lintstaged so no error will be committed (unless you want)
 - TS2: before opening a PR, you can check all the issues in your branch compared to origin/main and fix them all
 - TS3: every new commit push to a PR will be checked for issues and you'll be notified about them in a single comment with clickable links to the exact lines
+
+So what? 
+
+- this will allow you to go fast plus knowing exactly what issues you need to fix before merging or committing.
+- this will reduce to zero the rejected pr's due to **styling or poor code quality patterns**.
 
 <div align="center">
 
