@@ -1072,13 +1072,6 @@ Use AI prompts to perform semantic code analysis:
       "message": "Type union could be replaced with an enum for better type safety",
       "severity": "warning",
       "include": ["**/*.ts"]
-    },
-    "no-dead-code": {
-      "prompt": "no-dead-code.md",
-      "mode": "content",
-      "message": "Dead code detected - remove unused code instead of suppressing warnings",
-      "severity": "warning",
-      "include": ["packages/rust-core/crates/tscanner_scanner/src/executors/**.rs"]
     }
   },
   "ai": {
