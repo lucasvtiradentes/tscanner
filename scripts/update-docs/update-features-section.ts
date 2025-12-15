@@ -53,8 +53,7 @@ const FEATURE_BULLETS: FeatureBullet[] = [
   {
     id: FeatureId.Focus,
     title: 'Focus on What Matters',
-    description:
-      'You can see issues from a) your whole codebase, b) your branch changes only, c) your current uncommited changes or d) your current staged changes',
+    description: '4 scan modes: whole codebase, branch changes, uncommitted changes or staged changes',
     packages: [Package.Main, Package.Cli, Package.Vscode, Package.Action],
   },
   {
@@ -96,7 +95,14 @@ const FEATURE_BULLETS: FeatureBullet[] = [
 ];
 
 const PACKAGE_ORDER: Record<Package, FeatureId[]> = {
-  [Package.Main]: [FeatureId.Rules, FeatureId.Realtime, FeatureId.Focus, FeatureId.Pr, FeatureId.SpeedCached],
+  [Package.Main]: [
+    FeatureId.Rules,
+    FeatureId.Realtime,
+    FeatureId.Focus,
+    FeatureId.CopyAi,
+    FeatureId.Pr,
+    FeatureId.SpeedCached,
+  ],
   [Package.Cli]: [FeatureId.Rules, FeatureId.SpeedCached, FeatureId.Focus, FeatureId.Ci],
   [Package.Vscode]: [FeatureId.Rules, FeatureId.Realtime, FeatureId.Focus, FeatureId.CopyAi, FeatureId.SpeedCached],
   [Package.Action]: [FeatureId.Rules, FeatureId.Focus, FeatureId.Pr, FeatureId.OneComment, FeatureId.BlockWarn],
