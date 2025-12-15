@@ -14,7 +14,7 @@
 
 ## 🎺 Overview<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-Scan your codebase from the terminal. Run before commits, in CI pipelines, or as part of your build. Get JSON output for tooling or pretty output for humans. Same rules as the VS Code extension.
+Define what "good code" means for your project. Scan your codebase from the terminal. Run before commits, in CI pipelines, or as part of your build. 38 ready-to-use rules + custom rules via regex, scripts, or AI.
 
 <!-- <DYNFIELD:CLI_DEMO_IMAGE> -->
 <div align="center">
@@ -47,7 +47,7 @@ Scan your codebase from the terminal. Run before commits, in CI pipelines, or as
         <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/badge/VS%20Code-Extension-blue.svg" alt="VS Marketplace"></a><br /><a href="https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode"><img src="https://img.shields.io/open-vsx/v/lucasvtiradentes/tscanner-vscode?label=Open%20VSX&logo=data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSI0LjYgNSA5Ni4yIDEyMi43IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwYXRoIGQ9Ik0zMCA0NC4yTDUyLjYgNUg3LjN6TTQuNiA4OC41aDQ1LjNMMjcuMiA0OS40em01MSAwbDIyLjYgMzkuMiAyMi42LTM5LjJ6IiBmaWxsPSIjYzE2MGVmIi8+CiAgPHBhdGggZD0iTTUyLjYgNUwzMCA0NC4yaDQ1LjJ6TTI3LjIgNDkuNGwyMi43IDM5LjEgMjIuNi0zOS4xem01MSAwTDU1LjYgODguNWg0NS4yeiIgZmlsbD0iI2E2MGVlNSIvPgo8L3N2Zz4=&labelColor=a60ee5&color=374151" alt="Open VSX"></a>
       </div>
     </td>
-    <td>Real-time sidebar integration with Git-aware branch scanning</td>
+    <td>Live code issues in sidebar with multiple scan modes and AI clipboard export to fix them</td>
   </tr>
   <tr>
     <td>
@@ -315,10 +315,7 @@ tscanner check --branch origin/main
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
 ## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-To scan your code, you need to set up the rules in the TScanner config folder. Here's how to get started:
-
-1. **CLI**: Run `tscanner init` in your project root (**Recommended**)
-2. **Manual**: Copy one of the configs below to `.tscanner/config.jsonc`
+To scan your code, you need to set up the rules in the TScanner config folder.
 
 <div align="center">
 <details>

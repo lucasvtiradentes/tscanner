@@ -47,7 +47,7 @@ See code quality issues the moment you type, not after you ship. TScanner shows 
         <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/v/tscanner?label=npm&logo=npm&logoColor=white&labelColor=CB3837&color=374151" alt="npm"></a>
       </div>
     </td>
-    <td>Terminal scanning, CI/CD integration, pre-commit hooks</td>
+    <td>Fast terminal scanning with pre-commit hook integration</td>
   </tr>
   <tr>
     <td>
@@ -419,10 +419,7 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
 ## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-To scan your code, you need to set up the rules in the TScanner config folder. Here's how to get started:
-
-1. **CLI**: Run `tscanner init` in your project root (**Recommended**)
-2. **Manual**: Copy one of the configs below to `.tscanner/config.jsonc`
+To scan your code, you need to set up the rules in the TScanner config folder.
 
 <div align="center">
 <details>

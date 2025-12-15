@@ -1,14 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
-import {
-  CONFIG_DIR_NAME,
-  CONFIG_FILE_NAME,
-  IGNORE_COMMENT,
-  IGNORE_NEXT_LINE_COMMENT,
-  PACKAGE_DISPLAY_NAME,
-  PACKAGE_NAME,
-} from 'tscanner-common';
+import { IGNORE_COMMENT, IGNORE_NEXT_LINE_COMMENT, PACKAGE_DISPLAY_NAME } from 'tscanner-common';
 
 type TFields = 'COMMON_SECTION_CONFIG';
 
@@ -21,10 +14,7 @@ export function updateConfigSection() {
 
     return `## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-To scan your code, you need to set up the rules in the ${PACKAGE_DISPLAY_NAME} config folder. Here's how to get started:
-
-1. **CLI**: Run \`${PACKAGE_NAME} init\` in your project root (**Recommended**)
-2. **Manual**: Copy one of the configs below to \`${CONFIG_DIR_NAME}/${CONFIG_FILE_NAME}\`
+To scan your code, you need to set up the rules in the ${PACKAGE_DISPLAY_NAME} config folder.
 
 <div align="center">
 <details>
