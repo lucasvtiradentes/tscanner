@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.37
+
+### Patch Changes
+
+- a192d84: update docs
+
 ## 0.0.36
 
 ### Patch Changes

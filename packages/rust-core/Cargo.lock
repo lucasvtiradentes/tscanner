@@ -1487,7 +1487,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_cache"
-version = "0.0.39"
+version = "0.0.40"
 dependencies = [
  "dashmap",
  "dirs",
@@ -1499,7 +1499,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_cli"
-version = "0.0.39"
+version = "0.0.40"
 dependencies = [
  "anyhow",
  "clap",
@@ -1525,7 +1525,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_cli_output"
-version = "0.0.39"
+version = "0.0.40"
 dependencies = [
  "pathdiff",
  "serde",
@@ -1536,7 +1536,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_config"
-version = "0.0.39"
+version = "0.0.40"
 dependencies = [
  "globset",
  "json_comments",
@@ -1552,7 +1552,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_constants"
-version = "0.0.39"
+version = "0.0.40"
 dependencies = [
  "lazy_static",
  "serde",
@@ -1561,7 +1561,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_git"
-version = "0.0.39"
+version = "0.0.40"
 dependencies = [
  "anyhow",
  "tracing",
@@ -1569,7 +1569,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_logger"
-version = "0.0.39"
+version = "0.0.40"
 dependencies = [
  "time",
  "tscanner_constants",
@@ -1577,7 +1577,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_lsp"
-version = "0.0.39"
+version = "0.0.40"
 dependencies = [
  "crossbeam-channel",
  "lsp-server",
@@ -1598,7 +1598,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_rules"
-version = "0.0.39"
+version = "0.0.40"
 dependencies = [
  "dashmap",
  "glob-match",
@@ -1619,7 +1619,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_scanner"
-version = "0.0.39"
+version = "0.0.40"
 dependencies = [
  "anyhow",
  "dashmap",
@@ -1645,7 +1645,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_service"
-version = "0.0.39"
+version = "0.0.40"
 dependencies = [
  "lazy_static",
  "parking_lot",
@@ -1663,7 +1663,7 @@ dependencies = [
 
 [[package]]
 name = "tscanner_types"
-version = "0.0.39"
+version = "0.0.40"
 dependencies = [
  "schemars",
  "serde",

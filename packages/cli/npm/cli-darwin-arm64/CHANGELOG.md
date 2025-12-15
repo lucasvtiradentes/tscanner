@@ -1,5 +1,11 @@
 # @tscanner/cli-darwin-arm64
 
+## 0.0.40
+
+### Patch Changes
+
+- a192d84: update docs
+
 ## 0.0.39
 
 ### Patch Changes
