@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.34
+
+### Patch Changes
+
+- dd5d1ca: update docs
+
 ## 0.0.33
 
 ### Patch Changes

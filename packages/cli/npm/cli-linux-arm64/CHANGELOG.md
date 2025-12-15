@@ -1,5 +1,11 @@
 # @tscanner/cli-linux-arm64
 
+## 0.0.37
+
+### Patch Changes
+
+- dd5d1ca: update docs
+
 ## 0.0.36
 
 ### Patch Changes
