@@ -1,5 +1,11 @@
 # @tscanner/cli-win32-x64
 
+## 0.0.38
+
+### Patch Changes
+
+- 3fe2637: update docs
+
 ## 0.0.37
 
 ### Patch Changes
