@@ -27,6 +27,14 @@ export async function validateConfigAndNotify(configPath: string): Promise<boole
       logger.error(errorMessage);
 
       const firstError = result.errors[0];
+
+      if (firstError?.startsWith('Config file not found:')) {
+        logger.info('Config file not found - treating as unconfigured');
+        extensionStore.set(StoreKey.InvalidConfigFields, []);
+        extensionStore.set(StoreKey.ConfigError, null);
+        return true;
+      }
+
       const configError = firstError ? parseConfigError(firstError) : null;
 
       if (configError) {

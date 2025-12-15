@@ -138,7 +138,11 @@ function setupSettingsListener(): vscode.Disposable {
   });
 }
 
-async function startExtension(regularView: RegularIssuesView, aiView: AiIssuesView): Promise<void> {
+async function startExtension(
+  context: vscode.ExtensionContext,
+  regularView: RegularIssuesView,
+  aiView: AiIssuesView,
+): Promise<void> {
   logger.info('Starting LSP client...');
   try {
     await startLspClient();
@@ -153,7 +157,7 @@ async function startExtension(regularView: RegularIssuesView, aiView: AiIssuesVi
     logger.info('Getting server version...');
     const binaryVersion = await lspClient.getServerVersion();
     logger.info(`Server version retrieved: ${binaryVersion}`);
-    checkVersionCompatibility(binaryVersion);
+    checkVersionCompatibility(binaryVersion, context);
   }
 
   const workspaceFolder = getCurrentWorkspaceFolder();
@@ -295,7 +299,10 @@ export function activate(context: vscode.ExtensionContext) {
     aiViewIcon,
   );
 
-  setTimeout(() => startExtension(regularView, aiView), VSCODE_EXTENSION.delays.extensionStartupSeconds * 1000);
+  setTimeout(
+    () => startExtension(context, regularView, aiView),
+    VSCODE_EXTENSION.delays.extensionStartupSeconds * 1000,
+  );
 }
 
 export function deactivate() {

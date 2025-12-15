@@ -11,6 +11,7 @@ export enum WorkspaceStateKey {
   CompareBranch = 'compareBranch',
   CachedResults = 'cachedResults',
   ConfigDir = 'customConfigDir',
+  DismissedVersionWarnings = 'dismissedVersionWarnings',
 }
 
 const workspaceStateSchema = z.object({
@@ -20,6 +21,7 @@ const workspaceStateSchema = z.object({
   [WorkspaceStateKey.CompareBranch]: z.string(),
   [WorkspaceStateKey.CachedResults]: z.array(z.any()),
   [WorkspaceStateKey.ConfigDir]: z.string().nullable(),
+  [WorkspaceStateKey.DismissedVersionWarnings]: z.array(z.string()),
 });
 
 type WorkspaceStateSchema = z.infer<typeof workspaceStateSchema>;
@@ -32,6 +34,7 @@ const defaultValues: WorkspaceStateSchema = {
   [WorkspaceStateKey.CompareBranch]: DEFAULT_TARGET_BRANCH,
   [WorkspaceStateKey.CachedResults]: [],
   [WorkspaceStateKey.ConfigDir]: null,
+  [WorkspaceStateKey.DismissedVersionWarnings]: [],
 };
 
 const keyMapping: Record<WorkspaceStateKeyType, string> = Object.fromEntries(
