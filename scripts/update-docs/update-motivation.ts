@@ -17,7 +17,7 @@ ${PACKAGE_DISPLAY_NAME} lets you define those rules once. Every AI-generated fil
 Here is a diagram that shows how TScanner fits into the coding workflow:
 
 <div align="center">
-  <img width="80%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow">
+  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow">
   <br>
   <em>TScanner and the coding workflow</em>
 </div>
@@ -31,7 +31,7 @@ Legend:
 So what? 
 
 - this will allow you to go fast plus knowing exactly what issues you need to fix before merging or committing.
-- this will reduce to zero the rejected pr's due to **styling or poor code quality patterns**.
+- this will, over time, reduce to zero the rejected pr's due to **styling or poor code quality patterns**, as long as you keep the rules updated.
 
 <div align="center">
 
