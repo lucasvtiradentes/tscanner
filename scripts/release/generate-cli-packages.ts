@@ -70,7 +70,9 @@ async function generateNativePackages(cliManifest: any) {
     const binaryPath = join(packageRoot, `tscanner${ext}`);
 
     if (existsSync(binaryPath)) {
-      chmodSync(binaryPath, 0o755);
+      if (os !== 'win32') {
+        chmodSync(binaryPath, 0o755);
+      }
       logger.log(`   ✅ Generated package for ${platform}-${arch}`);
     } else {
       logger.log(`   ⚠️  Binary not found for ${platform}-${arch} - ensure workflow copied it`);

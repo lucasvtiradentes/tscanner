@@ -47,8 +47,18 @@ runs:
           if [ -n "$binary_file" ]; then
             mkdir -p "$dest_dir"
             cp "$binary_file" "$dest_dir/$dest_name"
-            chmod +x "$dest_dir/$dest_name" 2>/dev/null || true
-            echo "✅ Copied $npm_platform binary"
+
+            if [[ "$rust_target" != *"windows"* ]]; then
+              chmod +x "$dest_dir/$dest_name"
+              if [ -x "$dest_dir/$dest_name" ]; then
+                echo "✅ Copied $npm_platform binary (executable)"
+              else
+                echo "⚠️  Copied $npm_platform binary (chmod failed)"
+              fi
+            else
+              echo "✅ Copied $npm_platform binary"
+            fi
+
             found_count=$((found_count + 1))
           else
             missing_count=$((missing_count + 1))
