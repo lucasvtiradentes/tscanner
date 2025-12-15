@@ -437,6 +437,8 @@ You have four scanning options, switchable via status bar click:
   <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-statusbar.png" alt="VS Code">
 </div>
 
+<br />
+
 <div align="center">
   <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-settings.png" alt="VS Code">
 </div>
@@ -496,17 +498,17 @@ The VS Code extension and CLI binary must be compatible to work correctly. If yo
 Local installations:
 
 ```bash
-npm install -D tscanner@latest
-pnpm add -D tscanner@latest
-yarn add -D tscanner@latest
+npm update tscanner
+pnpm update tscanner --latest
+yarn upgrade tscanner --latest
 ```
 
 Global installations:
 
 ```bash
-npm install -g tscanner@latest
-pnpm add -g tscanner@latest
-yarn global add tscanner@latest
+npm update -g tscanner
+pnpm update -g tscanner --latest
+yarn global upgrade tscanner --latest
 ```
 
 **Check versions:**
