@@ -946,15 +946,18 @@ Define patterns to match in your code using regular expressions:
 {
   "rules": {
     "regex": {
-      "no-todos": {
-        "pattern": "TODO:|FIXME:",
-        "message": "Remove TODO comments before merging",
-        "severity": "warning"
+      "no-rust-deprecated": {
+        "pattern": "allow\\(deprecated\\)",
+        "message": "No deprecated methods",
+        "include": ["packages/rust-core/**/*.rs"]
+      },
+      "no-process-env": {
+        "pattern": "process\\.env",
+        "message": "No process env"
       },
       "no-debug-logs": {
         "pattern": "console\\.(log|debug|info)",
         "message": "Remove debug statements",
-        "severity": "warning",
         "exclude": ["**/*.test.ts"]
       }
     }
@@ -962,7 +965,7 @@ Define patterns to match in your code using regular expressions:
 }
 ```
 
-> 💡 See a real example in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
+> 💡 See real examples in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
 
 </div>
 </details>
