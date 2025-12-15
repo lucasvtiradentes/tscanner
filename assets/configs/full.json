@@ -48,13 +48,22 @@
       }
     },
     "script": {
-      "example-no-debug-comments": {
-        "command": "npx tsx script-rules/example-no-debug-comments.ts",
-        "message": "Debug comments should be removed"
+      "example-no-long-files": {
+        "command": "npx tsx script-rules/example-no-long-files.ts",
+        "message": "File exceeds 300 lines limit",
+        "include": ["packages/**/*.ts", "packages/**/*.rs"]
       }
     }
   },
-  "aiRules": {},
+  "aiRules": {
+    "example-find-enum-candidates": {
+      "prompt": "example-find-enum-candidates.md",
+      "mode": "agentic",
+      "message": "Type union could be replaced with an enum for better type safety",
+      "severity": "warning",
+      "include": ["**/*.ts"]
+    }
+  },
   "ai": {
     "provider": "claude"
   },

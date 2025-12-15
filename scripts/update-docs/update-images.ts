@@ -25,7 +25,7 @@ export function updateImages() {
 </div>`;
 
   const githubActionDemoImageContent = `<div align="center">
-  <img width="80%" src="${baseImageUrl}/tscanner-pr-comment-issues-found.png" alt="GitHub Action PR Comment">
+  <img width="80%" src="${baseImageUrl}/tscanner-pr-comment-warnings-found.png" alt="GitHub Action PR Comment">
   <br>
   <em>issues detected in the latest commit pushed to a PR</em>
 </div>`;

@@ -18,7 +18,7 @@ Block bad code before it reaches main. TScanner posts a comment on every PR show
 
 <!-- <DYNFIELD:GITHUB_ACTION_DEMO_IMAGE> -->
 <div align="center">
-  <img width="80%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-issues-found.png" alt="GitHub Action PR Comment">
+  <img width="80%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-warnings-found.png" alt="GitHub Action PR Comment">
   <br>
   <em>issues detected in the latest commit pushed to a PR</em>
 </div>
@@ -64,7 +64,7 @@ Block bad code before it reaches main. TScanner posts a comment on every PR show
         <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/badge/VS%20Code-Extension-blue.svg" alt="VS Marketplace"></a><br /><a href="https://open-vsx.org/extension/lucasvtiradentes/tscanner-vscode"><img src="https://img.shields.io/open-vsx/v/lucasvtiradentes/tscanner-vscode?label=Open%20VSX&logo=data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4KPHN2ZyB2aWV3Qm94PSI0LjYgNSA5Ni4yIDEyMi43IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgogIDxwYXRoIGQ9Ik0zMCA0NC4yTDUyLjYgNUg3LjN6TTQuNiA4OC41aDQ1LjNMMjcuMiA0OS40em01MSAwbDIyLjYgMzkuMiAyMi42LTM5LjJ6IiBmaWxsPSIjYzE2MGVmIi8+CiAgPHBhdGggZD0iTTUyLjYgNUwzMCA0NC4yaDQ1LjJ6TTI3LjIgNDkuNGwyMi43IDM5LjEgMjIuNi0zOS4xem01MSAwTDU1LjYgODguNWg0NS4yeiIgZmlsbD0iI2E2MGVlNSIvPgo8L3N2Zz4=&labelColor=a60ee5&color=374151" alt="Open VSX"></a>
       </div>
     </td>
-    <td>Real-time sidebar integration with Git-aware branch scanning</td>
+    <td>Live code issues in sidebar with multiple scan modes and AI clipboard export to fix them</td>
   </tr>
   <tr>
     <td>
@@ -75,7 +75,7 @@ Block bad code before it reaches main. TScanner posts a comment on every PR show
         <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/v/tscanner?label=npm&logo=npm&logoColor=white&labelColor=CB3837&color=374151" alt="npm"></a>
       </div>
     </td>
-    <td>Terminal scanning, CI/CD integration, pre-commit hooks</td>
+    <td>Fast terminal scanning with pre-commit hook integration</td>
   </tr>
 </table>
 
@@ -88,10 +88,10 @@ Block bad code before it reaches main. TScanner posts a comment on every PR show
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 - **Your Rules, Enforced** - 38 built-in checks + define your own with regex, scripts, or AI
-- **Focus on What Matters** - Scan your branch changes only, or audit the full codebase
+- **Focus on What Matters** - 4 scan modes: whole codebase, branch changes, uncommitted changes or staged changes
 - **Catch Before Merge** - PR comments show violations with clickable links to exact lines
+- **Not a Blocker** - Issues are warnings by default; set as errors to fail CI/lint-staged
 - **One Comment, Updated** - No spam, same comment updated on each push
-- **Block or Warn** - Fail the check or just inform, your choice
 <!-- </DYNFIELD:FEATURES> -->
 
 <!-- <DYNFIELD:MOTIVATION> -->
@@ -99,7 +99,26 @@ Block bad code before it reaches main. TScanner posts a comment on every PR show
 
 AI generates code fast, but it doesn't know your project's conventions, preferred patterns, or forbidden shortcuts. You end up reviewing the same issues over and over.
 
-TScanner lets you define those rules once. Every AI-generated file, every PR, every save: automatically checked against your standards. Stop repeating yourself in code reviews.
+TScanner lets you define those rules once. Every AI-generated file, every PR, every save: automatically checked against your standards.
+
+Here is a diagram that shows how TScanner fits into the coding workflow:
+
+<div align="center">
+  <img width="80%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow">
+  <br>
+  <em>TScanner and the coding workflow</em>
+</div>
+
+Legend: 
+
+- TS1: before commit, you can see issues in the code editor; also you can add it to lintstaged so no error will be committed (unless you want)
+- TS2: before opening a PR, you can check all the issues in your branch compared to origin/main and fix them all
+- TS3: every new commit push to a PR will be checked for issues and you'll be notified about them in a single comment with clickable links to the exact lines
+
+So what? 
+
+- this will allow you to go fast plus knowing exactly what issues you need to fix before merging or committing.
+- this will reduce to zero the rejected pr's due to **styling or poor code quality patterns**.
 
 <div align="center">
 
@@ -137,7 +156,7 @@ npm install -D tscanner
 tscanner init
 ```
 
-> **Tip:** Use `tscanner init --full` for a complete config with example regex, script, and AI rules.
+> **Tip:** Use `tscanner init --full` for a [complete config](https://github.com/lucasvtiradentes/tscanner/blob/main/assets/configs/full.json) with example regex, script, and AI rules.
 <!-- </DYNFIELD:QUICK_START_INSTALL> -->
 
 After that you can already setup the GitHub Action:
@@ -495,10 +514,7 @@ jobs:
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
 ## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-To scan your code, you need to set up the rules in the TScanner config folder. Here's how to get started:
-
-1. **CLI**: Run `tscanner init` in your project root (**Recommended**)
-2. **Manual**: Copy one of the configs below to `.tscanner/config.jsonc`
+To scan your code, you need to set up the rules in the TScanner config folder.
 
 <div align="center">
 <details>
@@ -559,13 +575,22 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
       }
     },
     "script": {
-      "example-no-debug-comments": {
-        "command": "npx tsx script-rules/example-no-debug-comments.ts",
-        "message": "Debug comments should be removed"
+      "example-no-long-files": {
+        "command": "npx tsx script-rules/example-no-long-files.ts",
+        "message": "File exceeds 300 lines limit",
+        "include": ["packages/**/*.ts", "packages/**/*.rs"]
       }
     }
   },
-  "aiRules": {},
+  "aiRules": {
+    "example-find-enum-candidates": {
+      "prompt": "example-find-enum-candidates.md",
+      "mode": "agentic",
+      "message": "Type union could be replaced with an enum for better type safety",
+      "severity": "warning",
+      "include": ["**/*.ts"]
+    }
+  },
   "ai": {
     "provider": "claude"
   },
@@ -1033,23 +1058,24 @@ Define patterns to match in your code using regular expressions:
 {
   "rules": {
     "regex": {
-      "no-todos": {
-        "pattern": "TODO:|FIXME:",
-        "message": "Remove TODO comments before merging",
-        "severity": "warning"
+      "no-rust-deprecated": {
+        "pattern": "allow\\(deprecated\\)",
+        "message": "No deprecated methods",
+        "include": ["packages/rust-core/**/*.rs"]
+      },
+      "no-process-env": {
+        "pattern": "process\\.env",
+        "message": "No process env"
       },
       "no-debug-logs": {
         "pattern": "console\\.(log|debug|info)",
         "message": "Remove debug statements",
-        "severity": "warning",
         "exclude": ["**/*.test.ts"]
       }
     }
   }
 }
 ```
-
-> 💡 See a real example in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
 
 </div>
 </details>
@@ -1066,17 +1092,17 @@ Run custom scripts that receive file data via stdin and output issues as JSON:
 {
   "rules": {
     "script": {
-      "no-debug-comments": {
-        "command": "npx tsx .tscanner/script-rules/no-debug-comments.ts",
-        "message": "Debug comments should be removed",
-        "severity": "warning"
+      "no-long-files": {
+        "command": "npx tsx script-rules/no-long-files.ts",
+        "message": "File exceeds 300 lines limit",
+        "include": ["packages/**/*.ts", "packages/**/*.rs"]
       }
     }
   }
 }
 ```
 
-**Script** (`.tscanner/script-rules/no-debug-comments.ts`):
+**Script** (`.tscanner/script-rules/no-long-files.ts`):
 ```typescript
 #!/usr/bin/env npx tsx
 
@@ -1101,8 +1127,11 @@ type ScriptIssue = {
   message: string;
 };
 
+const MAX_LINES = 300;
+
 async function main() {
   let data = '';
+
   for await (const chunk of stdin) {
     data += chunk;
   }
@@ -1111,15 +1140,14 @@ async function main() {
   const issues: ScriptIssue[] = [];
 
   for (const file of input.files) {
-    for (let i = 0; i < file.lines.length; i++) {
-      const line = file.lines[i];
-      if (/\/\/\s*(DEBUG|HACK|XXX|TEMP)\b/i.test(line)) {
-        issues.push({
-          file: file.path,
-          line: i + 1,
-          message: `Debug comment found: "${line.trim().substring(0, 50)}"`,
-        });
-      }
+    const lineCount = file.lines.length;
+
+    if (lineCount > MAX_LINES) {
+      issues.push({
+        file: file.path,
+        line: MAX_LINES + 1,
+        message: `File has ${lineCount} lines, exceeds maximum of ${MAX_LINES} lines`,
+      });
     }
   }
 
@@ -1132,7 +1160,7 @@ main().catch((err) => {
 });
 ```
 
-> 💡 See a real example in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
+> 💡 See real examples in the [`.tscanner/script-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/script-rules) folder of this project.
 
 </div>
 </details>
@@ -1148,45 +1176,52 @@ Use AI prompts to perform semantic code analysis:
 ```json
 {
   "aiRules": {
-    "find-complexity": {
-      "prompt": "find-complexity.md",
-      "mode": "content",
-      "message": "Function is too complex, consider refactoring",
+    "find-enum-candidates": {
+      "prompt": "find-enum-candidates.md",
+      "mode": "agentic",
+      "message": "Type union could be replaced with an enum for better type safety",
       "severity": "warning",
-      "enabled": true
+      "include": ["**/*.ts"]
     }
   },
   "ai": {
-    "provider": "claude",
-    "timeout": 120
+    "provider": "claude"
   }
 }
 ```
 
-**Prompt** (`.tscanner/ai-rules/find-complexity.md`):
-```markdown
-# Find Complex Functions
+**Prompt** (`.tscanner/ai-rules/find-enum-candidates.md`):
+<pre><code class="language-markdown"># Enum Candidates Detector
 
-Analyze the provided code and identify functions that are overly complex.
+Find TypeScript type unions that could be replaced with enums for better type safety and maintainability.
 
 ## What to look for
 
-1. Functions with high cyclomatic complexity (many branches/loops)
-2. Deeply nested code blocks (3+ levels)
-3. Functions doing too many things (violating single responsibility)
-4. Long parameter lists that should be objects
+1. String literal unions used in multiple places:
+   ```ts
+   type Status = 'pending' | 'active' | 'completed';
+   ```
 
-## Output format
+2. Repeated string literals across the codebase that represent the same concept
 
-Report each complex function with:
-- The function name
-- Why it's complex
-- A brief suggestion for improvement
+3. Type unions used as discriminators in objects
 
-{{FILES}}
-```
+## Why enums are better
 
-> 💡 See a real example in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
+- Refactoring: rename in one place
+- Autocomplete: IDE shows all options
+- Runtime: can iterate over values
+- Validation: can check if value is valid
+
+## Exploration hints
+
+- Check how the type is used across files
+- Look for related constants or string literals
+- Consider if the values are used at runtime
+
+{{FILES}}</code></pre>
+
+> 💡 See real examples in the [`.tscanner/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/ai-rules) folder of this project.
 
 </div>
 </details>

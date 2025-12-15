@@ -221,6 +221,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     if let Some(root_obj) = schema_value.as_object_mut() {
         root_obj.insert("required".to_string(), json!(["files", "rules", "aiRules"]));
+        root_obj.insert("version".to_string(), json!(env!("CARGO_PKG_VERSION")));
     }
 
     let json = serde_json::to_string_pretty(&schema_value)?;

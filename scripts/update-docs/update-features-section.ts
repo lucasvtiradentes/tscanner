@@ -21,12 +21,10 @@ const FeatureId = {
   Realtime: 'realtime',
   Focus: 'focus',
   Pr: 'pr',
-  Speed: 'speed',
   SpeedCached: 'speed-cached',
-  Ci: 'ci',
   CopyAi: 'copy-ai',
   OneComment: 'one-comment',
-  BlockWarn: 'block-warn',
+  Severity: 'severity',
 } as const;
 
 type FeatureId = (typeof FeatureId)[keyof typeof FeatureId];
@@ -54,7 +52,7 @@ const FEATURE_BULLETS: FeatureBullet[] = [
   {
     id: FeatureId.Focus,
     title: 'Focus on What Matters',
-    description: 'Scan your branch changes only, or audit the full codebase',
+    description: '4 scan modes: whole codebase, branch changes, uncommitted changes or staged changes',
     packages: [Package.Main, Package.Cli, Package.Vscode, Package.Action],
   },
   {
@@ -64,21 +62,9 @@ const FEATURE_BULLETS: FeatureBullet[] = [
     packages: [Package.Main, Package.Action],
   },
   {
-    id: FeatureId.Speed,
-    title: 'Sub-second Scans',
-    description: 'Rust engine processes hundreds of files in <1s',
-    packages: [Package.Main, Package.Vscode],
-  },
-  {
     id: FeatureId.SpeedCached,
     title: 'Sub-second Scans',
     description: 'Rust engine processes hundreds of files in <1s, with smart caching',
-    packages: [Package.Cli],
-  },
-  {
-    id: FeatureId.Ci,
-    title: 'CI-Ready',
-    description: 'JSON output for automation, exit codes for pipelines',
     packages: [Package.Cli],
   },
   {
@@ -94,18 +80,33 @@ const FEATURE_BULLETS: FeatureBullet[] = [
     packages: [Package.Action],
   },
   {
-    id: FeatureId.BlockWarn,
-    title: 'Block or Warn',
-    description: 'Fail the check or just inform, your choice',
-    packages: [Package.Action],
+    id: FeatureId.Severity,
+    title: 'Not a Blocker',
+    description: 'Issues are warnings by default; set as errors to fail CI/lint-staged',
+    packages: [Package.Main],
   },
 ];
 
 const PACKAGE_ORDER: Record<Package, FeatureId[]> = {
-  [Package.Main]: [FeatureId.Rules, FeatureId.Realtime, FeatureId.Focus, FeatureId.Pr, FeatureId.Speed],
-  [Package.Cli]: [FeatureId.Rules, FeatureId.SpeedCached, FeatureId.Focus, FeatureId.Ci],
-  [Package.Vscode]: [FeatureId.Rules, FeatureId.Realtime, FeatureId.Focus, FeatureId.CopyAi, FeatureId.Speed],
-  [Package.Action]: [FeatureId.Rules, FeatureId.Focus, FeatureId.Pr, FeatureId.OneComment, FeatureId.BlockWarn],
+  [Package.Main]: [
+    FeatureId.Rules,
+    FeatureId.Realtime,
+    FeatureId.Focus,
+    FeatureId.CopyAi,
+    FeatureId.Pr,
+    FeatureId.Severity,
+    FeatureId.SpeedCached,
+  ],
+  [Package.Cli]: [FeatureId.Rules, FeatureId.SpeedCached, FeatureId.Focus, FeatureId.Severity, FeatureId.SpeedCached],
+  [Package.Vscode]: [
+    FeatureId.Rules,
+    FeatureId.Realtime,
+    FeatureId.Focus,
+    FeatureId.CopyAi,
+    FeatureId.Severity,
+    FeatureId.SpeedCached,
+  ],
+  [Package.Action]: [FeatureId.Rules, FeatureId.Focus, FeatureId.Pr, FeatureId.Severity, FeatureId.OneComment],
 };
 
 const README_PATHS: Record<Package, string> = {

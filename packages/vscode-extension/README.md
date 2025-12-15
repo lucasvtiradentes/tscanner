@@ -14,7 +14,7 @@
 
 ## 🎺 Overview<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-See code issues the moment you type, not after you commit. TScanner shows violations in a sidebar panel with one-click navigation to each problem. Scan your whole project or just the files you changed in your current branch.
+See code quality issues the moment you type, not after you ship. TScanner shows violations you customize in a sidebar panel with one-click navigation to each problem. Scan your whole project, just the files you changed in your current branch or only your current uncommited changes.
 
 <!-- <DYNFIELD:VSCODE_EXTENSION_DEMO_IMAGE> -->
 <div align="center">
@@ -47,7 +47,7 @@ See code issues the moment you type, not after you commit. TScanner shows violat
         <a href="https://www.npmjs.com/package/tscanner"><img src="https://img.shields.io/npm/v/tscanner?label=npm&logo=npm&logoColor=white&labelColor=CB3837&color=374151" alt="npm"></a>
       </div>
     </td>
-    <td>Terminal scanning, CI/CD integration, pre-commit hooks</td>
+    <td>Fast terminal scanning with pre-commit hook integration</td>
   </tr>
   <tr>
     <td>
@@ -72,9 +72,10 @@ See code issues the moment you type, not after you commit. TScanner shows violat
 
 - **Your Rules, Enforced** - 38 built-in checks + define your own with regex, scripts, or AI
 - **See Issues Instantly** - Real-time feedback in code editor as you type, no manual scan needed
-- **Focus on What Matters** - Scan your branch changes only, or audit the full codebase
+- **Focus on What Matters** - 4 scan modes: whole codebase, branch changes, uncommitted changes or staged changes
 - **Copy for AI** - Export issues to clipboard, paste into chat for bulk fixes
-- **Sub-second Scans** - Rust engine processes hundreds of files in <1s
+- **Not a Blocker** - Issues are warnings by default; set as errors to fail CI/lint-staged
+- **Sub-second Scans** - Rust engine processes hundreds of files in <1s, with smart caching
 <!-- </DYNFIELD:FEATURES> -->
 
 <!-- <DYNFIELD:MOTIVATION> -->
@@ -82,7 +83,26 @@ See code issues the moment you type, not after you commit. TScanner shows violat
 
 AI generates code fast, but it doesn't know your project's conventions, preferred patterns, or forbidden shortcuts. You end up reviewing the same issues over and over.
 
-TScanner lets you define those rules once. Every AI-generated file, every PR, every save: automatically checked against your standards. Stop repeating yourself in code reviews.
+TScanner lets you define those rules once. Every AI-generated file, every PR, every save: automatically checked against your standards.
+
+Here is a diagram that shows how TScanner fits into the coding workflow:
+
+<div align="center">
+  <img width="80%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow">
+  <br>
+  <em>TScanner and the coding workflow</em>
+</div>
+
+Legend: 
+
+- TS1: before commit, you can see issues in the code editor; also you can add it to lintstaged so no error will be committed (unless you want)
+- TS2: before opening a PR, you can check all the issues in your branch compared to origin/main and fix them all
+- TS3: every new commit push to a PR will be checked for issues and you'll be notified about them in a single comment with clickable links to the exact lines
+
+So what? 
+
+- this will allow you to go fast plus knowing exactly what issues you need to fix before merging or committing.
+- this will reduce to zero the rejected pr's due to **styling or poor code quality patterns**.
 
 <div align="center">
 
@@ -120,7 +140,7 @@ npm install -D tscanner
 tscanner init
 ```
 
-> **Tip:** Use `tscanner init --full` for a complete config with example regex, script, and AI rules.
+> **Tip:** Use `tscanner init --full` for a [complete config](https://github.com/lucasvtiradentes/tscanner/blob/main/assets/configs/full.json) with example regex, script, and AI rules.
 <!-- </DYNFIELD:QUICK_START_INSTALL> -->
 
 After that you can already install the extension:
@@ -153,27 +173,6 @@ After that you can already install the extension:
 <!-- </DYNFIELD:QUICK_START_VSCODE_EXTENSION> -->
 
 ## 📖 Usage<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
-
-### Scan Modes
-
-You have four scanning options, switchable via status bar click:
-
-<div align="center">
-<table>
-  <tr>
-    <th>Codebase</th>
-    <th>Uncommitted</th>
-    <th>Staged</th>
-    <th>Branch</th>
-  </tr>
-  <tr>
-    <td>Analyze all files</td>
-    <td>Scan staged + unstaged changes</td>
-    <td>Scan only staged files</td>
-    <td>Compare to target branch</td>
-  </tr>
-</table>
-</div>
 
 ### View Modes
 
@@ -233,35 +232,51 @@ Copy all issues to clipboard in a structured format, ready to paste into an AI a
 <div align="left">
 
 ```plain
-TScanner report searching for all the issues of the rule "no-non-null-assertion" in the codebase mode
+# TScanner Issue Report
 
-cli command: tscanner check --rule "no-non-null-assertion"
-found issues: 5 issues
+This is a report from TScanner, a CLI tool that detects code quality issues in TypeScript/JavaScript projects. Your task is to fix the issues listed below.
+
+## Report Details
+
+Filter: rule "no-console" | Mode: codebase mode | Issues: 3
+CLI: tscanner check --rule no-console --group-by rule
+
+Results:
 
 Rules triggered:
 
-  no-non-null-assertion: Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
+  ● no-console: Unexpected call to console.error
 
 Issues grouped by rule:
 
-no-non-null-assertion (5 issues, 4 files)
+● no-console (3 issues, 2 files)
 
-  packages/github-action/src/core/comment-updater.ts (2 issues)
-    ⚠ 36:23 → const ruleMap = fileMap.get(file.filePath)!;
-    ⚠ 44:9 → ruleMap.get(ruleName)!.push({
+  assets/configs/example-no-long-files.ts (2 issues)
+    ⚠ 46:3 → console.log(JSON.stringify({ issues }));
+    ⚠ 50:3 → console.error(err);
 
-  packages/github-action/src/core/scanner.ts (1 issues)
-    ⚠ 180:7 → fileMap.get(issue.file)!.push({
+  packages/cli/src/main.ts (1 issues)
+    ⚠ 33:5 → console.error(err.message);
 
-  packages/vscode-extension/src/commands/internal/copy.ts (1 issues)
-    ⚠ 28:5 → fileMap.get(filePath)!.push(result);
+Scope:
 
-  packages/vscode-extension/src/common/utils/git-helper.ts (1 issues)
-    ⚠ 118:12 → return changedFilesCache.get(cacheKey)!;
+  Rules: 1
+  Files: 2 (0 cached, 2 scanned)
 
-Issues: 5 (0 errors, 5 warnings)
-Files: 4
-Rules: 1
+
+Results:
+
+  Issues: 3 (⚠ 3)
+  Triggered rules: 1 (● 1)
+  Files with issues: 2
+  Duration: 0ms
+
+## Instructions
+
+- Some fixes require changes in multiple files, not just where the issue is reported
+- Consider fixing one issue at a time and verifying each fix
+- The rule description explains what's wrong - understand it before fixing
+- Line numbers are 1-indexed
 ```
 
 </div>
@@ -277,36 +292,87 @@ Rules: 1
 <div align="left">
 
 ```plain
-TScanner report searching for all the issues in file "packages/github-action/src/core/cli-executor.ts" in the codebase mode
+# TScanner Issue Report
 
-cli command: tscanner check --glob "packages/github-action/src/core/cli-executor.ts"
-found issues: 3 issues
+This is a report from TScanner, a CLI tool that detects code quality issues in TypeScript/JavaScript projects. Your task is to fix the issues listed below.
+
+## Report Details
+
+Filter: file "packages/github-action/src/core/input-validator.ts" | Mode: codebase mode | Issues: 6
+CLI: tscanner check --glob packages/github-action/src/core/input-validator.ts --group-by file
+
+Results:
 
 Rules triggered:
 
-  no-floating-promises     : Promise-returning expression used without handling. Use await, .then(), .catch(), or assign to a variable.
-  prefer-nullish-coalescing: Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
+  ● prefer-nullish-coalescing: Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
 
 Issues grouped by file:
 
-packages/github-action/src/core/cli-executor.ts - 3 issues - 2 rules
+packages/github-action/src/core/input-validator.ts - 6 issues - 1 rules
 
-  no-floating-promises (2 issues)
-    ⚠ 12:3 → githubHelper.logInfo(`Using local CLI: ${cliPath}`);
-    ⚠ 40:3 → githubHelper.logInfo(`Using published ${PACKAGE_NAME} from npm: ${packageSpec}`);
+  ● prefer-nullish-coalescing (6 issues)
+    ⚠ 44:20 → const timezone = githubHelper.getInput('timezone') || DEFAULT_INPUTS.timezone;
+    ⚠ 45:22 → const configPath = githubHelper.getInput('config-path') || DEFAULT_INPUTS.configPath;
+    ⚠ 46:27 → const tscannerVersion = githubHelper.getInput('tscanner-version') || DEFAULT_INPUTS.tscannerVersion;
+    ⚠ 48:24 → const groupByInput = githubHelper.getInput('group-by') || DEFAULT_INPUTS.groupBy;
+    ⚠ 54:23 → const aiModeInput = githubHelper.getInput('ai-mode') || AiExecutionMode.Ignore;
+    ⚠ 78:53 → ...(mode === ScanMode.Branch && { targetBranch: targetBranch || DEFAULT_INPUTS.targetBranch }),
 
-  prefer-nullish-coalescing (1 issues)
-    ⚠ 9:25 → const workspaceRoot = process.env.GITHUB_WORKSPACE || process.cwd();
+Scope:
 
-Issues: 3 (0 errors, 3 warnings)
-Files: 1
-Rules: 2
+  Rules: 1
+  Files: 1 (0 cached, 1 scanned)
+
+
+Results:
+
+  Issues: 6 (⚠ 6)
+  Triggered rules: 1 (● 1)
+  Files with issues: 1
+  Duration: 0ms
+
+## Instructions
+
+- Some fixes require changes in multiple files, not just where the issue is reported
+- Consider fixing one issue at a time and verifying each fix
+- The rule description explains what's wrong - understand it before fixing
+- Line numbers are 1-indexed
 ```
 
 </div>
 
 </details>
 
+</div>
+
+### Scan Modes
+
+You have four scanning options, switchable via status bar click:
+
+<div align="center">
+<table>
+  <tr>
+    <th>Codebase</th>
+    <th>Uncommitted</th>
+    <th>Branch</th>
+  </tr>
+  <tr>
+    <td>Analyze all files</td>
+    <td>Scan staged + unstaged changes</td>
+    <td>Compare to target branch</td>
+  </tr>
+</table>
+</div>
+
+### Status bar 
+
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-statusbar.png" alt="VS Code">
+</div>
+
+<div align="center">
+  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-settings.png" alt="VS Code">
 </div>
 
 ### Commands
@@ -322,27 +388,27 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
     <th width="100">Keybinding</th>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Refresh Issues (no cache)</code></td>
+    <td align="left">tscanner: Clear Scan Caches</td>
     <td align="center">-</td>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Go to Next Issue</code></td>
+    <td align="left">tscanner: Go to Next Issue</td>
     <td align="center">-</td>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Go to Previous Issue</code></td>
+    <td align="left">tscanner: Go to Previous Issue</td>
     <td align="center">-</td>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Show Logs</code></td>
+    <td align="left">tscanner: Refresh AI Issues (no cache)</td>
     <td align="center">-</td>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Clear Scan Caches</code></td>
+    <td align="left">tscanner: Refresh Issues (no cache)</td>
     <td align="center">-</td>
   </tr>
   <tr>
-    <td align="left"><code>tscanner: Refresh AI Issues (no cache)</code></td>
+    <td align="left">tscanner: Show Logs</td>
     <td align="center">-</td>
   </tr>
 </table>
@@ -350,82 +416,10 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 </div>
 <!-- </DYNFIELD:COMMANDS> -->
 
-### Other Details 
-
-<div align="center">
-
-<details>
-<summary><b>Settings Menu</b></summary>
-
-<br />
-
-<div align="left">
-
-- **Scan Settings**: Choose workspace or branch mode, select target branch
-- **Config Location**: Change where the config file is stored
-
-</div>
-
-</details>
-
-<details>
-<summary><b>Issue Navigation</b></summary>
-
-<br />
-
-<div align="left">
-
-- **Click to Jump**: Click any issue to open file at exact line/column
-- **Keyboard**: F8 (next issue), Shift+F8 (previous issue)
-- **Context Menu**: Right-click for copy path options
-- **Badge Count**: Sidebar shows total issue count
-
-</div>
-
-</details>
-
-<details>
-<summary><b>Status Bar</b></summary>
-
-<br />
-
-<div align="left">
-
-- **Scan Mode**: Shows current mode (Codebase, Uncommitted, Staged, or Branch)
-- **Click**: Opens Settings Menu
-- **Config Status**: Green checkmark if `.tscanner/config.jsonc` exists
-
-</div>
-
-</details>
-
-<details>
-<summary><b>Git-aware Modes</b></summary>
-
-<br />
-
-<div align="left">
-
-- **Uncommitted**: Scans all changes not yet committed (staged + unstaged)
-- **Staged**: Scans only files added to staging area
-- **Branch**: Compares against target branch, filters to modified lines only
-
-Perfect for PR validation - see only issues you introduced.
-
-</div>
-
-</details>
-
-</div>
-
-
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
 ## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-To scan your code, you need to set up the rules in the TScanner config folder. Here's how to get started:
-
-1. **CLI**: Run `tscanner init` in your project root (**Recommended**)
-2. **Manual**: Copy one of the configs below to `.tscanner/config.jsonc`
+To scan your code, you need to set up the rules in the TScanner config folder.
 
 <div align="center">
 <details>
@@ -486,13 +480,22 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
       }
     },
     "script": {
-      "example-no-debug-comments": {
-        "command": "npx tsx script-rules/example-no-debug-comments.ts",
-        "message": "Debug comments should be removed"
+      "example-no-long-files": {
+        "command": "npx tsx script-rules/example-no-long-files.ts",
+        "message": "File exceeds 300 lines limit",
+        "include": ["packages/**/*.ts", "packages/**/*.rs"]
       }
     }
   },
-  "aiRules": {},
+  "aiRules": {
+    "example-find-enum-candidates": {
+      "prompt": "example-find-enum-candidates.md",
+      "mode": "agentic",
+      "message": "Type union could be replaced with an enum for better type safety",
+      "severity": "warning",
+      "include": ["**/*.ts"]
+    }
+  },
   "ai": {
     "provider": "claude"
   },
@@ -960,23 +963,24 @@ Define patterns to match in your code using regular expressions:
 {
   "rules": {
     "regex": {
-      "no-todos": {
-        "pattern": "TODO:|FIXME:",
-        "message": "Remove TODO comments before merging",
-        "severity": "warning"
+      "no-rust-deprecated": {
+        "pattern": "allow\\(deprecated\\)",
+        "message": "No deprecated methods",
+        "include": ["packages/rust-core/**/*.rs"]
+      },
+      "no-process-env": {
+        "pattern": "process\\.env",
+        "message": "No process env"
       },
       "no-debug-logs": {
         "pattern": "console\\.(log|debug|info)",
         "message": "Remove debug statements",
-        "severity": "warning",
         "exclude": ["**/*.test.ts"]
       }
     }
   }
 }
 ```
-
-> 💡 See a real example in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
 
 </div>
 </details>
@@ -993,17 +997,17 @@ Run custom scripts that receive file data via stdin and output issues as JSON:
 {
   "rules": {
     "script": {
-      "no-debug-comments": {
-        "command": "npx tsx .tscanner/script-rules/no-debug-comments.ts",
-        "message": "Debug comments should be removed",
-        "severity": "warning"
+      "no-long-files": {
+        "command": "npx tsx script-rules/no-long-files.ts",
+        "message": "File exceeds 300 lines limit",
+        "include": ["packages/**/*.ts", "packages/**/*.rs"]
       }
     }
   }
 }
 ```
 
-**Script** (`.tscanner/script-rules/no-debug-comments.ts`):
+**Script** (`.tscanner/script-rules/no-long-files.ts`):
 ```typescript
 #!/usr/bin/env npx tsx
 
@@ -1028,8 +1032,11 @@ type ScriptIssue = {
   message: string;
 };
 
+const MAX_LINES = 300;
+
 async function main() {
   let data = '';
+
   for await (const chunk of stdin) {
     data += chunk;
   }
@@ -1038,15 +1045,14 @@ async function main() {
   const issues: ScriptIssue[] = [];
 
   for (const file of input.files) {
-    for (let i = 0; i < file.lines.length; i++) {
-      const line = file.lines[i];
-      if (/\/\/\s*(DEBUG|HACK|XXX|TEMP)\b/i.test(line)) {
-        issues.push({
-          file: file.path,
-          line: i + 1,
-          message: `Debug comment found: "${line.trim().substring(0, 50)}"`,
-        });
-      }
+    const lineCount = file.lines.length;
+
+    if (lineCount > MAX_LINES) {
+      issues.push({
+        file: file.path,
+        line: MAX_LINES + 1,
+        message: `File has ${lineCount} lines, exceeds maximum of ${MAX_LINES} lines`,
+      });
     }
   }
 
@@ -1059,7 +1065,7 @@ main().catch((err) => {
 });
 ```
 
-> 💡 See a real example in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
+> 💡 See real examples in the [`.tscanner/script-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/script-rules) folder of this project.
 
 </div>
 </details>
@@ -1075,45 +1081,52 @@ Use AI prompts to perform semantic code analysis:
 ```json
 {
   "aiRules": {
-    "find-complexity": {
-      "prompt": "find-complexity.md",
-      "mode": "content",
-      "message": "Function is too complex, consider refactoring",
+    "find-enum-candidates": {
+      "prompt": "find-enum-candidates.md",
+      "mode": "agentic",
+      "message": "Type union could be replaced with an enum for better type safety",
       "severity": "warning",
-      "enabled": true
+      "include": ["**/*.ts"]
     }
   },
   "ai": {
-    "provider": "claude",
-    "timeout": 120
+    "provider": "claude"
   }
 }
 ```
 
-**Prompt** (`.tscanner/ai-rules/find-complexity.md`):
-```markdown
-# Find Complex Functions
+**Prompt** (`.tscanner/ai-rules/find-enum-candidates.md`):
+<pre><code class="language-markdown"># Enum Candidates Detector
 
-Analyze the provided code and identify functions that are overly complex.
+Find TypeScript type unions that could be replaced with enums for better type safety and maintainability.
 
 ## What to look for
 
-1. Functions with high cyclomatic complexity (many branches/loops)
-2. Deeply nested code blocks (3+ levels)
-3. Functions doing too many things (violating single responsibility)
-4. Long parameter lists that should be objects
+1. String literal unions used in multiple places:
+   ```ts
+   type Status = 'pending' | 'active' | 'completed';
+   ```
 
-## Output format
+2. Repeated string literals across the codebase that represent the same concept
 
-Report each complex function with:
-- The function name
-- Why it's complex
-- A brief suggestion for improvement
+3. Type unions used as discriminators in objects
 
-{{FILES}}
-```
+## Why enums are better
 
-> 💡 See a real example in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
+- Refactoring: rename in one place
+- Autocomplete: IDE shows all options
+- Runtime: can iterate over values
+- Validation: can check if value is valid
+
+## Exploration hints
+
+- Check how the type is used across files
+- Look for related constants or string literals
+- Consider if the values are used at runtime
+
+{{FILES}}</code></pre>
+
+> 💡 See real examples in the [`.tscanner/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/ai-rules) folder of this project.
 
 </div>
 </details>

@@ -31,7 +31,7 @@ npm install -D ${PACKAGE_NAME}
 ${PACKAGE_NAME} init
 \`\`\`
 
-> **Tip:** Use \`${PACKAGE_NAME} init --full\` for a complete config with example regex, script, and AI rules.`;
+> **Tip:** Use \`${PACKAGE_NAME} init --full\` for a [complete config](https://github.com/lucasvtiradentes/tscanner/blob/main/assets/configs/full.json) with example regex, script, and AI rules.`;
 }
 
 function getGithubActionSection(startStep = 1) {
