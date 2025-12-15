@@ -21,8 +21,11 @@ type ScriptIssue = {
   message: string;
 };
 
+const MAX_LINES = 300;
+
 async function main() {
   let data = '';
+
   for await (const chunk of stdin) {
     data += chunk;
   }
@@ -31,15 +34,14 @@ async function main() {
   const issues: ScriptIssue[] = [];
 
   for (const file of input.files) {
-    for (let i = 0; i < file.lines.length; i++) {
-      const line = file.lines[i];
-      if (/\/\/\s*(DEBUG|HACK|XXX|TEMP)\b/i.test(line)) {
-        issues.push({
-          file: file.path,
-          line: i + 1,
-          message: `Debug comment found: "${line.trim().substring(0, 50)}"`,
-        });
-      }
+    const lineCount = file.lines.length;
+
+    if (lineCount > MAX_LINES) {
+      issues.push({
+        file: file.path,
+        line: MAX_LINES + 1,
+        message: `File has ${lineCount} lines, exceeds maximum of ${MAX_LINES} lines`,
+      });
     }
   }
 

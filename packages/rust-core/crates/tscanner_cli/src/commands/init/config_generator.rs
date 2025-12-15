@@ -10,12 +10,12 @@ const FULL_CONFIG_JSON: &str = include_str!("../../../../../../../assets/configs
 const DEV_SCHEMA: &str = "\"$schema\": \"../../packages/cli/schema.json\"";
 
 pub const SCRIPT_RULE_EXAMPLE: (&str, &str) = (
-    "example-no-debug-comments.ts",
-    include_str!("../../../../../../../assets/configs/example-no-debug-comments.ts"),
+    "example-no-long-files.ts",
+    include_str!("../../../../../../../assets/configs/example-no-long-files.ts"),
 );
 pub const AI_RULE_EXAMPLE: (&str, &str) = (
-    "example-find-complexity.md",
-    include_str!("../../../../../../../assets/configs/example-find-complexity.md"),
+    "example-find-enum-candidates.md",
+    include_str!("../../../../../../../assets/configs/example-find-enum-candidates.md"),
 );
 
 fn process_config(config_json: &str) -> String {

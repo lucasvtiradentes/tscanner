@@ -231,7 +231,7 @@ Issues grouped by rule:
 
 ● no-console (3 issues, 2 files)
 
-  assets/configs/example-no-debug-comments.ts (2 issues)
+  assets/configs/example-no-long-files.ts (2 issues)
     ⚠ 46:3 → console.log(JSON.stringify({ issues }));
     ⚠ 50:3 → console.error(err);
 
@@ -463,13 +463,22 @@ To scan your code, you need to set up the rules in the TScanner config folder. H
       }
     },
     "script": {
-      "example-no-debug-comments": {
-        "command": "npx tsx script-rules/example-no-debug-comments.ts",
-        "message": "Debug comments should be removed"
+      "example-no-long-files": {
+        "command": "npx tsx script-rules/example-no-long-files.ts",
+        "message": "File exceeds 300 lines limit",
+        "include": ["packages/**/*.ts", "packages/**/*.rs"]
       }
     }
   },
-  "aiRules": {},
+  "aiRules": {
+    "example-find-enum-candidates": {
+      "prompt": "example-find-enum-candidates.md",
+      "mode": "agentic",
+      "message": "Type union could be replaced with an enum for better type safety",
+      "severity": "warning",
+      "include": ["**/*.ts"]
+    }
+  },
   "ai": {
     "provider": "claude"
   },
@@ -970,17 +979,17 @@ Run custom scripts that receive file data via stdin and output issues as JSON:
 {
   "rules": {
     "script": {
-      "no-debug-comments": {
-        "command": "npx tsx .tscanner/script-rules/no-debug-comments.ts",
-        "message": "Debug comments should be removed",
-        "severity": "warning"
+      "no-long-files": {
+        "command": "npx tsx script-rules/no-long-files.ts",
+        "message": "File exceeds 300 lines limit",
+        "include": ["packages/**/*.ts", "packages/**/*.rs"]
       }
     }
   }
 }
 ```
 
-**Script** (`.tscanner/script-rules/no-debug-comments.ts`):
+**Script** (`.tscanner/script-rules/no-long-files.ts`):
 ```typescript
 #!/usr/bin/env npx tsx
 
@@ -1005,8 +1014,11 @@ type ScriptIssue = {
   message: string;
 };
 
+const MAX_LINES = 300;
+
 async function main() {
   let data = '';
+
   for await (const chunk of stdin) {
     data += chunk;
   }
@@ -1015,15 +1027,14 @@ async function main() {
   const issues: ScriptIssue[] = [];
 
   for (const file of input.files) {
-    for (let i = 0; i < file.lines.length; i++) {
-      const line = file.lines[i];
-      if (/\/\/\s*(DEBUG|HACK|XXX|TEMP)\b/i.test(line)) {
-        issues.push({
-          file: file.path,
-          line: i + 1,
-          message: `Debug comment found: "${line.trim().substring(0, 50)}"`,
-        });
-      }
+    const lineCount = file.lines.length;
+
+    if (lineCount > MAX_LINES) {
+      issues.push({
+        file: file.path,
+        line: MAX_LINES + 1,
+        message: `File has ${lineCount} lines, exceeds maximum of ${MAX_LINES} lines`,
+      });
     }
   }
 
@@ -1036,7 +1047,7 @@ main().catch((err) => {
 });
 ```
 
-> 💡 See a real example in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
+> 💡 See real examples in the [`.tscanner/script-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/script-rules) folder of this project.
 
 </div>
 </details>
@@ -1052,45 +1063,61 @@ Use AI prompts to perform semantic code analysis:
 ```json
 {
   "aiRules": {
-    "find-complexity": {
-      "prompt": "find-complexity.md",
-      "mode": "content",
-      "message": "Function is too complex, consider refactoring",
+    "find-enum-candidates": {
+      "prompt": "find-enum-candidates.md",
+      "mode": "agentic",
+      "message": "Type union could be replaced with an enum for better type safety",
       "severity": "warning",
-      "enabled": true
+      "include": ["**/*.ts"]
+    },
+    "no-dead-code": {
+      "prompt": "no-dead-code.md",
+      "mode": "content",
+      "message": "Dead code detected - remove unused code instead of suppressing warnings",
+      "severity": "warning",
+      "include": ["packages/rust-core/crates/tscanner_scanner/src/executors/**.rs"]
     }
   },
   "ai": {
-    "provider": "claude",
-    "timeout": 120
+    "provider": "claude"
   }
 }
 ```
 
-**Prompt** (`.tscanner/ai-rules/find-complexity.md`):
+**Prompt** (`.tscanner/ai-rules/find-enum-candidates.md`):
 ```markdown
-# Find Complex Functions
+# Enum Candidates Detector
 
-Analyze the provided code and identify functions that are overly complex.
+Find TypeScript type unions that could be replaced with enums for better type safety and maintainability.
 
 ## What to look for
 
-1. Functions with high cyclomatic complexity (many branches/loops)
-2. Deeply nested code blocks (3+ levels)
-3. Functions doing too many things (violating single responsibility)
-4. Long parameter lists that should be objects
+1. String literal unions used in multiple places:
+   ```ts
+   type Status = 'pending' | 'active' | 'completed';
+   ```
 
-## Output format
+2. Repeated string literals across the codebase that represent the same concept
 
-Report each complex function with:
-- The function name
-- Why it's complex
-- A brief suggestion for improvement
+3. Type unions used as discriminators in objects
+
+## Why enums are better
+
+- Refactoring: rename in one place
+- Autocomplete: IDE shows all options
+- Runtime: can iterate over values
+- Validation: can check if value is valid
+
+## Exploration hints
+
+- Check how the type is used across files
+- Look for related constants or string literals
+- Consider if the values are used at runtime
 
 {{FILES}}
 ```
 
-> 💡 See a real example in the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder of this project.
+> 💡 See real examples in the [`.tscanner/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/ai-rules) folder of this project.
 
 </div>
 </details>

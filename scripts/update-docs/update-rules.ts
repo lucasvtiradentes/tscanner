@@ -195,8 +195,8 @@ Customize ${PACKAGE_DISPLAY_NAME} to validate what matters to your project while
 
 `;
 
-  const scriptRuleExample = readFileSync(join(rootDir, 'assets/configs/example-no-debug-comments.ts'), 'utf-8').trim();
-  const aiRuleExample = readFileSync(join(rootDir, 'assets/configs/example-find-complexity.md'), 'utf-8').trim();
+  const scriptRuleExample = readFileSync(join(rootDir, 'assets/configs/example-no-long-files.ts'), 'utf-8').trim();
+  const aiRuleExample = readFileSync(join(rootDir, 'assets/configs/example-find-enum-candidates.md'), 'utf-8').trim();
 
   const customRulesContent = `<details>
 <summary>Regex rules examples</summary>
@@ -243,22 +243,22 @@ Run custom scripts that receive file data via stdin and output issues as JSON:
 {
   "rules": {
     "script": {
-      "no-debug-comments": {
-        "command": "npx tsx .tscanner/script-rules/no-debug-comments.ts",
-        "message": "Debug comments should be removed",
-        "severity": "warning"
+      "no-long-files": {
+        "command": "npx tsx script-rules/no-long-files.ts",
+        "message": "File exceeds 300 lines limit",
+        "include": ["packages/**/*.ts", "packages/**/*.rs"]
       }
     }
   }
 }
 \`\`\`
 
-**Script** (\`.tscanner/script-rules/no-debug-comments.ts\`):
+**Script** (\`.tscanner/script-rules/no-long-files.ts\`):
 \`\`\`typescript
 ${scriptRuleExample}
 \`\`\`
 
-> 💡 See a real example in the [\`.tscanner/\`](${REPO_URL}/tree/main/.tscanner) folder of this project.
+> 💡 See real examples in the [\`.tscanner/script-rules/\`](${REPO_URL}/tree/main/.tscanner/script-rules) folder of this project.
 
 </div>
 </details>
@@ -274,27 +274,33 @@ Use AI prompts to perform semantic code analysis:
 \`\`\`json
 {
   "aiRules": {
-    "find-complexity": {
-      "prompt": "find-complexity.md",
-      "mode": "content",
-      "message": "Function is too complex, consider refactoring",
+    "find-enum-candidates": {
+      "prompt": "find-enum-candidates.md",
+      "mode": "agentic",
+      "message": "Type union could be replaced with an enum for better type safety",
       "severity": "warning",
-      "enabled": true
+      "include": ["**/*.ts"]
+    },
+    "no-dead-code": {
+      "prompt": "no-dead-code.md",
+      "mode": "content",
+      "message": "Dead code detected - remove unused code instead of suppressing warnings",
+      "severity": "warning",
+      "include": ["packages/rust-core/crates/tscanner_scanner/src/executors/**.rs"]
     }
   },
   "ai": {
-    "provider": "claude",
-    "timeout": 120
+    "provider": "claude"
   }
 }
 \`\`\`
 
-**Prompt** (\`.tscanner/ai-rules/find-complexity.md\`):
+**Prompt** (\`.tscanner/ai-rules/find-enum-candidates.md\`):
 \`\`\`markdown
 ${aiRuleExample}
 \`\`\`
 
-> 💡 See a real example in the [\`.tscanner/\`](${REPO_URL}/tree/main/.tscanner) folder of this project.
+> 💡 See real examples in the [\`.tscanner/ai-rules/\`](${REPO_URL}/tree/main/.tscanner/ai-rules) folder of this project.
 
 </div>
 </details>`;
