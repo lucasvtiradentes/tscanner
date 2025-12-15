@@ -25,8 +25,10 @@ function updateRustWorkspaceVersion(newVersion) {
         stdio: 'inherit',
       });
 
-      execSync('git add packages/rust-core/Cargo.toml packages/rust-core/Cargo.lock', { stdio: 'inherit' });
-      log('Added Cargo.toml and Cargo.lock to git staging');
+      execSync('git add packages/rust-core/Cargo.toml packages/rust-core/Cargo.lock packages/cli/schema.json', {
+        stdio: 'inherit',
+      });
+      log('Added Cargo.toml, Cargo.lock and schema.json to git staging');
     }
   } catch (error) {
     log(`Error updating Rust workspace version: ${error.message}`);
