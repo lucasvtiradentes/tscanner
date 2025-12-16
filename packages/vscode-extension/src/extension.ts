@@ -1,11 +1,8 @@
-import { CODE_EDITOR_DEFAULTS, StartupScanMode, VSCODE_EXTENSION } from 'tscanner-common';
+import { VSCODE_EXTENSION } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
 import { getAiViewId, getViewId } from './common/constants';
-import { getConfigBaseDir, getOrLoadConfig } from './common/lib/config-manager';
-import { validateConfigAndNotify } from './common/lib/config-validator';
 import { initializeLogger, logger } from './common/lib/logger';
-import { checkVersionCompatibility } from './common/lib/version-checker';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from './common/lib/vscode-utils';
 import { EXTENSION_DISPLAY_NAME } from './common/scripts-constants';
 import { ExtensionConfigKey, getExtensionConfig, getFullConfigKeyPath } from './common/state/extension-config';
@@ -15,6 +12,7 @@ import { ContextKey, WorkspaceStateKey, getWorkspaceState, setContextKey } from 
 import { ScanTrigger } from './common/types/scan-trigger';
 import { AiIssuesView, IssuesViewIcon, RegularIssuesView } from './issues-panel';
 import { dispose as disposeScanner, getLspClient, startLspClient } from './scanner/client';
+import { disposeRunner, initializeRunner, runStartupSequence } from './startup/runner';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import {
   aiScanIntervalWatcher,
@@ -94,16 +92,12 @@ async function setupWatchers(
     currentFileWatcher = await createFileWatcher(context, regularView);
   };
 
-  const configWatcher = createConfigWatcher(
-    async () => {
-      await scanIntervalWatcher.setup();
-      await aiScanIntervalWatcher.setup();
-      await recreateFileWatcher();
-      await updateStatusBar();
-    },
-    regularView,
-    aiView,
-  );
+  const configWatcher = createConfigWatcher(async () => {
+    await scanIntervalWatcher.setup();
+    await aiScanIntervalWatcher.setup();
+    await recreateFileWatcher();
+    await updateStatusBar();
+  });
 
   const gitWatcher = await createGitWatcher();
 
@@ -136,112 +130,6 @@ function setupSettingsListener(): vscode.Disposable {
       }
     }
   });
-}
-
-async function startExtension(
-  context: vscode.ExtensionContext,
-  regularView: RegularIssuesView,
-  aiView: AiIssuesView,
-): Promise<void> {
-  logger.info('Starting LSP client...');
-  try {
-    await startLspClient();
-  } catch (err) {
-    logger.error(`Failed to start LSP client: ${err}`);
-    return;
-  }
-
-  const lspClient = getLspClient();
-  logger.info(`LSP client available: ${!!lspClient}`);
-  if (lspClient) {
-    logger.info('Getting server version...');
-    const binaryVersion = await lspClient.getServerVersion();
-    logger.info(`Server version retrieved: ${binaryVersion}`);
-    checkVersionCompatibility(binaryVersion, context);
-  }
-
-  const workspaceFolder = getCurrentWorkspaceFolder();
-  if (!workspaceFolder) {
-    logger.warn('No workspace folder, skipping startup scans');
-    return;
-  }
-
-  const configDir = extensionStore.get(StoreKey.ConfigDir);
-  const configBasePath = getConfigBaseDir(workspaceFolder.uri.fsPath, configDir);
-  logger.info(`Validating config at base path: ${configBasePath} (configDir store: ${configDir})`);
-  const isValid = await validateConfigAndNotify(configBasePath);
-
-  if (!isValid) {
-    logger.warn('Config invalid on startup, showing error in views');
-    regularView.setError('Fix config errors to scan again');
-    aiView.setError('Fix config errors to scan again');
-    return;
-  }
-
-  logger.info('Config valid on startup, clearing errors');
-  regularView.clearError();
-  aiView.clearError();
-
-  const config = await getOrLoadConfig(workspaceFolder.uri.fsPath);
-  const startupScan = config?.codeEditor?.startupScan ?? (CODE_EDITOR_DEFAULTS.startupScan as StartupScanMode);
-  const startupAiScan = config?.codeEditor?.startupAiScan ?? (CODE_EDITOR_DEFAULTS.startupAiScan as StartupScanMode);
-
-  const hasStartupScan = startupScan !== StartupScanMode.Off;
-  const hasStartupAiScan = startupAiScan !== StartupScanMode.Off;
-
-  if (hasStartupScan) {
-    const useCache = startupScan === StartupScanMode.Cached;
-    logger.info(`Running initial scan (mode: ${startupScan}, cache: ${useCache})...`);
-    executeCommand(Command.RefreshIssues, {
-      trigger: ScanTrigger.Startup,
-      useCache,
-    });
-    logger.info('Waiting for regular scan to complete...');
-    await waitForRegularScan();
-    logger.info('Regular scan completed');
-  } else {
-    logger.info('Startup scan disabled by config');
-  }
-
-  if (hasStartupAiScan) {
-    const useCache = startupAiScan === StartupScanMode.Cached;
-    logger.info(`Running initial AI scan (mode: ${startupAiScan}, cache: ${useCache})...`);
-    executeCommand(Command.RefreshAiIssues, {
-      trigger: ScanTrigger.Startup,
-      useCache,
-    });
-    logger.info('Waiting for AI scan to complete...');
-    await waitForAiScan();
-    logger.info('AI scan completed');
-  } else {
-    logger.info('Startup AI scan disabled by config');
-  }
-
-  logger.info('Setting up interval watchers');
-  await scanIntervalWatcher.setup(hasStartupScan);
-  await aiScanIntervalWatcher.setup(hasStartupAiScan);
-}
-
-function waitForScan(storeKey: StoreKey.IsSearching | StoreKey.IsAiSearching): Promise<void> {
-  return new Promise((resolve) => {
-    const check = () => {
-      const isScanning = extensionStore.get(storeKey);
-      if (!isScanning) {
-        resolve();
-      } else {
-        setTimeout(check, 100);
-      }
-    };
-    setTimeout(check, 100);
-  });
-}
-
-function waitForRegularScan(): Promise<void> {
-  return waitForScan(StoreKey.IsSearching);
-}
-
-function waitForAiScan(): Promise<void> {
-  return waitForScan(StoreKey.IsAiSearching);
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -299,14 +187,14 @@ export function activate(context: vscode.ExtensionContext) {
     aiViewIcon,
   );
 
-  setTimeout(
-    () => startExtension(context, regularView, aiView),
-    VSCODE_EXTENSION.delays.extensionStartupSeconds * 1000,
-  );
+  initializeRunner({ context, regularView, aiView, updateStatusBar });
+
+  setTimeout(() => runStartupSequence(), VSCODE_EXTENSION.delays.extensionStartupSeconds * 1000);
 }
 
 export function deactivate() {
   scanIntervalWatcher.dispose();
   aiScanIntervalWatcher.dispose();
+  disposeRunner();
   disposeScanner();
 }

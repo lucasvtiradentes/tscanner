@@ -28,12 +28,12 @@ function getConfigDir(workspacePath: string, configDir: string | null): vscode.U
   return vscode.Uri.joinPath(customDir, CONFIG_DIR_NAME);
 }
 
-function getConfigPath(workspacePath: string, configDir: string | null): vscode.Uri {
-  return vscode.Uri.joinPath(getConfigDir(workspacePath, configDir), CONFIG_FILE_NAME);
+export function getConfigPath(workspacePath: string, configDir: string | null): string {
+  return vscode.Uri.joinPath(getConfigDir(workspacePath, configDir), CONFIG_FILE_NAME).fsPath;
 }
 
 export async function hasConfig(workspacePath: string, configDir: string | null): Promise<boolean> {
-  const configPath = getConfigPath(workspacePath, configDir);
+  const configPath = vscode.Uri.file(getConfigPath(workspacePath, configDir));
   try {
     await vscode.workspace.fs.stat(configPath);
     return true;
@@ -44,22 +44,23 @@ export async function hasConfig(workspacePath: string, configDir: string | null)
 
 async function loadConfig(workspacePath: string, configDir: string | null): Promise<TscannerConfig | null> {
   const configPath = getConfigPath(workspacePath, configDir);
+  const configUri = vscode.Uri.file(configPath);
 
   try {
-    const data = await vscode.workspace.fs.readFile(configPath);
+    const data = await vscode.workspace.fs.readFile(configUri);
     const content = Buffer.from(data).toString('utf8');
     const errors: jsonc.ParseError[] = [];
     const config = jsonc.parse(content, errors);
 
     if (errors.length > 0) {
-      logger.error(`JSONC parse errors in ${configPath.fsPath}: ${JSON.stringify(errors)}`);
+      logger.error(`JSONC parse errors in ${configPath}: ${JSON.stringify(errors)}`);
       return null;
     }
 
-    logger.debug(`loadConfig: path=${configPath.fsPath}, loaded=true`);
+    logger.debug(`loadConfig: path=${configPath}, loaded=true`);
     return config as TscannerConfig;
   } catch (error) {
-    logger.debug(`loadConfig: path=${configPath.fsPath}, loaded=false, error=${error}`);
+    logger.debug(`loadConfig: path=${configPath}, loaded=false, error=${error}`);
     return null;
   }
 }
