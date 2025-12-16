@@ -165,28 +165,28 @@ Rules are the core of ${PACKAGE_DISPLAY_NAME}. They define what to check, where 
 <table>
   <tr>
     <th width="100">Type</th>
-    <th width="250">Use Case</th>
-    <th width="400">Example</th>
+    <th width="350">Use Case</th>
+    <th width="300">Example</th>
   </tr>
   <tr>
     <td><b>Built-in</b></td>
-    <td>${rulesJson.length} ready-to-use AST rules</td>
+    <td>Common typescript anti-patterns</td>
     <td><code>no-explicit-any</code>, <code>prefer-const</code>, <code>no-console</code></td>
   </tr>
   <tr>
     <td><b>Regex</b></td>
     <td>Simple text patterns for any file</td>
-    <td>Match <code>TODO</code> comments, banned imports, naming conventions</td>
+    <td>Match <code>TODO</code> comments, banned imports</td>
   </tr>
   <tr>
     <td><b>Script</b></td>
     <td>Complex logic in any language (TS, Python, Rust, Go...)</td>
-    <td>Validate file naming, check if tests exist, enforce folder structure, type parity checks</td>
+    <td>Enforce folder structure, type parity checks, enforce min/max lines per file</td>
   </tr>
   <tr>
     <td><b>AI</b></td>
-    <td>Semantic validation via prompts</td>
-    <td>Enforce React Hook Form usage, validate API integration patterns with SWR/TanStack</td>
+    <td>LLM-powered analysis for context-aware patterns (dead code, enum candidates, architectural violations)</td>
+    <td>Detect potential enum candidates, check if a complex pattern was followed across multiple files</td>
   </tr>
 </table>
 

@@ -90,10 +90,10 @@ export function updateRegistry() {
   const getRegistryContent = () => {
     return `## 📦 Registry<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-The registry is a collection of community rules ready to install with a single command. No need to write rules from scratch.
+The registry is a collection of community rules ready to install with a single command.
 
 \`\`\`bash
-npx ${PACKAGE_NAME} registry                     # List all available rules
+npx ${PACKAGE_NAME} registry                     # List all available rules (and you chose the ones you want to install)
 npx ${PACKAGE_NAME} registry no-long-files       # Install a specific rule
 npx ${PACKAGE_NAME} registry --kind script       # Filter by type (ai, script, regex)
 npx ${PACKAGE_NAME} registry --category security # Filter by category
