@@ -356,7 +356,7 @@ To scan your code, you need to set up the rules in the TScanner config folder.
 
 ```json
 {
-  "$schema": "../../packages/cli/schema.json",
+  "$schema": "https://unpkg.com/tscanner@latest/schema.json",
   "rules": {
     "builtin": {
       "consistent-return": {},
@@ -453,7 +453,7 @@ To scan your code, you need to set up the rules in the TScanner config folder.
 
 ```json
 {
-  "$schema": "../../packages/cli/schema.json",
+  "$schema": "https://unpkg.com/tscanner@latest/schema.json",
   "rules": {
     "builtin": {
       "no-explicit-any": {}
