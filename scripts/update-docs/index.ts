@@ -9,6 +9,7 @@ import { updateInspirations } from './update-inspirations';
 import { updateMotivation } from './update-motivation';
 import { updateOverview } from './update-overview';
 import { updateQuickStart } from './update-quick-start';
+import { updateRegistry } from './update-registry';
 import { updateRules } from './update-rules';
 import { updateWaysToUseTscanner } from './update-ways-to-use-tscanner';
 import { updateWorkflow } from './update-workflow';
@@ -29,6 +30,7 @@ function main() {
   const updates: UpdateFn[] = [
     { name: 'overview', fn: updateOverview },
     { name: 'rules', fn: updateRules },
+    { name: 'registry', fn: updateRegistry },
     { name: 'images', fn: updateImages },
     { name: 'commands', fn: updateCommands },
     { name: 'config-section', fn: updateConfigSection },

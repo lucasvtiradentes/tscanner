@@ -1162,6 +1162,38 @@ Detect dead code patterns.
 </div>
 <!-- </DYNFIELD:RULES> -->
 
+<!-- <DYNFIELD:REGISTRY> -->
+## 📦 Registry<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+
+The registry is a collection of community rules ready to install with a single command. No need to write rules from scratch.
+
+```bash
+tscanner registry                     # List all available rules
+tscanner registry no-long-files       # Install a specific rule
+tscanner registry --kind script       # Filter by type (ai, script, regex)
+tscanner registry --category security # Filter by category
+```
+
+<div align="center">
+
+**Available rules (5)**
+
+| Rule | Type | Language | Description |
+|------|------|----------|-------------|
+| `find-enum-candidates` | <img src="https://img.shields.io/badge/ai-8B5CF6" alt="ai"> | <img src="https://img.shields.io/badge/Markdown-083fa1?logo=markdown&logoColor=white" alt="Markdown"> | Find string literal unions that could be replaced with enums |
+| `no-long-files` | <img src="https://img.shields.io/badge/script-10B981" alt="script"> | <img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript"> | Enforce maximum lines per file limit |
+| `no-empty-files` | <img src="https://img.shields.io/badge/script-10B981" alt="script"> | <img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white" alt="Python"> | Enforce minimum lines per file |
+| `no-fixme-comments` | <img src="https://img.shields.io/badge/script-10B981" alt="script"> | <img src="https://img.shields.io/badge/Rust-DEA584?logo=rust&logoColor=white" alt="Rust"> | Disallow FIXME/XXX comments in code |
+| `no-process-env` | <img src="https://img.shields.io/badge/regex-6C757D" alt="regex"> | - | Disallow direct process.env access |
+
+</div>
+
+<br />
+
+> 💡 **Want to share your rule?** Open a PR adding your rule to the [`registry/`](https://github.com/lucasvtiradentes/tscanner/tree/main/registry) folder. Once merged, everyone can install it with `tscanner registry your-rule-name`.
+
+<!-- </DYNFIELD:REGISTRY> -->
+
 <!-- <DYNFIELD:INSPIRATIONS> -->
 ## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
