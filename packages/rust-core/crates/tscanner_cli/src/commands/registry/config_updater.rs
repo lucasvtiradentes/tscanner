@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
-use serde_json::{json, Map, Value};
+use regex::Regex;
+use serde_json::{json, Value};
 use std::fs;
 use std::path::Path;
 
@@ -25,15 +26,224 @@ pub fn update_config_with_rule(
         .context(format!("Failed to read config: {}", config_path.display()))?;
 
     let stripped = json_comments::StripComments::new(content.as_bytes());
-    let mut json: Value =
-        serde_json::from_reader(stripped).context("Failed to parse config JSON")?;
+    let json: Value = serde_json::from_reader(stripped).context("Failed to parse config JSON")?;
 
-    add_rule_to_config(&mut json, rule, config, force)?;
+    check_rule_exists(&json, rule, force)?;
 
-    let output = serde_json::to_string_pretty(&json).context("Failed to serialize config")?;
-    fs::write(&config_path, output).context("Failed to write config")?;
+    let new_content = insert_rule_text(&content, rule, config)?;
+    fs::write(&config_path, new_content).context("Failed to write config")?;
 
     Ok(())
+}
+
+fn check_rule_exists(json: &Value, rule: &RegistryRule, force: bool) -> Result<()> {
+    if force {
+        return Ok(());
+    }
+
+    let exists = match rule.kind.as_str() {
+        "ai" => json
+            .get("aiRules")
+            .and_then(|v| v.get(&rule.name))
+            .is_some(),
+        "script" => json
+            .get("rules")
+            .and_then(|v| v.get("script"))
+            .and_then(|v| v.get(&rule.name))
+            .is_some(),
+        "regex" => json
+            .get("rules")
+            .and_then(|v| v.get("regex"))
+            .and_then(|v| v.get(&rule.name))
+            .is_some(),
+        _ => false,
+    };
+
+    if exists {
+        anyhow::bail!(
+            "{} rule '{}' already exists in config. Use --force to overwrite.",
+            rule.kind,
+            rule.name
+        );
+    }
+
+    Ok(())
+}
+
+fn insert_rule_text(content: &str, rule: &RegistryRule, config: &RuleConfig) -> Result<String> {
+    let section_pattern = match rule.kind.as_str() {
+        "ai" => r#""aiRules"\s*:\s*\{"#,
+        "script" => r#""script"\s*:\s*\{"#,
+        "regex" => r#""regex"\s*:\s*\{"#,
+        _ => anyhow::bail!("Unknown rule kind: {}", rule.kind),
+    };
+
+    let re = Regex::new(section_pattern).context("Failed to compile regex")?;
+    let section_match = re.find(content).context(format!(
+        "Section for '{}' rules not found in config",
+        rule.kind
+    ))?;
+
+    let section_start = section_match.end();
+    let closing_brace_pos = find_matching_brace(content, section_start)?;
+
+    let rule_json = build_rule_json(rule, config)?;
+    let indent = detect_indent(content);
+    let formatted_rule = format_rule_entry(&rule.name, &rule_json, &indent);
+
+    let before_brace = &content[..closing_brace_pos];
+    let after_brace = &content[closing_brace_pos..];
+
+    let needs_comma = before_brace
+        .trim_end()
+        .chars()
+        .last()
+        .map(|c| c != '{' && c != ',')
+        .unwrap_or(false);
+
+    let separator = if needs_comma { ",\n" } else { "\n" };
+
+    let new_content = format!(
+        "{}{}{}{}",
+        before_brace.trim_end(),
+        separator,
+        formatted_rule,
+        after_brace
+    );
+
+    Ok(new_content)
+}
+
+fn find_matching_brace(content: &str, start: usize) -> Result<usize> {
+    let mut depth = 1;
+    let mut in_string = false;
+    let mut escape_next = false;
+
+    for (i, c) in content[start..].char_indices() {
+        if escape_next {
+            escape_next = false;
+            continue;
+        }
+
+        match c {
+            '\\' if in_string => escape_next = true,
+            '"' => in_string = !in_string,
+            '{' if !in_string => depth += 1,
+            '}' if !in_string => {
+                depth -= 1;
+                if depth == 0 {
+                    return Ok(start + i);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    anyhow::bail!("Could not find matching closing brace")
+}
+
+fn detect_indent(content: &str) -> String {
+    for line in content.lines() {
+        let trimmed = line.trim_start();
+        if trimmed.starts_with('"') {
+            let indent_len = line.len() - trimmed.len();
+            return line[..indent_len].to_string();
+        }
+    }
+    "  ".to_string()
+}
+
+fn build_rule_json(rule: &RegistryRule, config: &RuleConfig) -> Result<Value> {
+    let mut obj = serde_json::Map::new();
+
+    match rule.kind.as_str() {
+        "ai" => {
+            obj.insert("prompt".to_string(), json!(format!("{}.md", rule.name)));
+            if let Some(mode) = &config.mode {
+                obj.insert("mode".to_string(), json!(mode));
+            }
+            obj.insert("message".to_string(), json!(&config.message));
+            if let Some(severity) = &config.severity {
+                obj.insert("severity".to_string(), json!(severity));
+            }
+            if let Some(include) = &config.include {
+                obj.insert("include".to_string(), json!(include));
+            }
+            if let Some(exclude) = &config.exclude {
+                obj.insert("exclude".to_string(), json!(exclude));
+            }
+        }
+        "script" => {
+            let command = config
+                .command
+                .clone()
+                .context("Script rule config must have a 'command' field")?;
+            obj.insert("command".to_string(), json!(command));
+            obj.insert("message".to_string(), json!(&config.message));
+            if let Some(severity) = &config.severity {
+                obj.insert("severity".to_string(), json!(severity));
+            }
+            if let Some(include) = &config.include {
+                obj.insert("include".to_string(), json!(include));
+            }
+            if let Some(exclude) = &config.exclude {
+                obj.insert("exclude".to_string(), json!(exclude));
+            }
+        }
+        "regex" => {
+            if let Some(pattern) = &config.pattern {
+                obj.insert("pattern".to_string(), json!(pattern));
+            }
+            obj.insert("message".to_string(), json!(&config.message));
+            if let Some(severity) = &config.severity {
+                obj.insert("severity".to_string(), json!(severity));
+            }
+            if let Some(include) = &config.include {
+                obj.insert("include".to_string(), json!(include));
+            }
+            if let Some(exclude) = &config.exclude {
+                obj.insert("exclude".to_string(), json!(exclude));
+            }
+        }
+        _ => anyhow::bail!("Unknown rule kind: {}", rule.kind),
+    }
+
+    Ok(Value::Object(obj))
+}
+
+fn format_rule_entry(name: &str, value: &Value, base_indent: &str) -> String {
+    let inner_indent = format!("{}{}", base_indent, base_indent);
+    let array_indent = format!("{}{}", inner_indent, base_indent);
+
+    let mut lines = vec![format!("{}\"{}\": {{", inner_indent, name)];
+
+    if let Value::Object(obj) = value {
+        let entries: Vec<_> = obj.iter().collect();
+        for (i, (key, val)) in entries.iter().enumerate() {
+            let comma = if i < entries.len() - 1 { "," } else { "" };
+            let formatted = match val {
+                Value::Array(arr) => {
+                    let items: Vec<String> = arr
+                        .iter()
+                        .map(|v| format!("{}{}", array_indent, v))
+                        .collect();
+                    format!(
+                        "{}\"{}\": [\n{}\n{}]{}",
+                        array_indent,
+                        key,
+                        items.join(",\n"),
+                        array_indent,
+                        comma
+                    )
+                }
+                _ => format!("{}\"{}\": {}{}", array_indent, key, val, comma),
+            };
+            lines.push(formatted);
+        }
+    }
+
+    lines.push(format!("{}}}", inner_indent));
+    lines.join("\n")
 }
 
 fn create_minimal_config(config_path: &Path) -> Result<()> {
@@ -57,164 +267,6 @@ fn create_minimal_config(config_path: &Path) -> Result<()> {
 
     let output = serde_json::to_string_pretty(&minimal).context("Failed to serialize config")?;
     fs::write(config_path, output).context("Failed to write minimal config")?;
-
-    Ok(())
-}
-
-fn add_rule_to_config(
-    json: &mut Value,
-    rule: &RegistryRule,
-    config: &RuleConfig,
-    force: bool,
-) -> Result<()> {
-    match rule.kind.as_str() {
-        "ai" => add_ai_rule(json, rule, config, force),
-        "script" => add_script_rule(json, rule, config, force),
-        "regex" => add_regex_rule(json, rule, config, force),
-        _ => anyhow::bail!("Unknown rule kind: {}", rule.kind),
-    }
-}
-
-fn add_ai_rule(
-    json: &mut Value,
-    rule: &RegistryRule,
-    config: &RuleConfig,
-    force: bool,
-) -> Result<()> {
-    let ai_rules = json
-        .as_object_mut()
-        .context("Config is not an object")?
-        .entry("aiRules")
-        .or_insert(json!({}));
-
-    let ai_rules_obj = ai_rules
-        .as_object_mut()
-        .context("aiRules is not an object")?;
-
-    if ai_rules_obj.contains_key(&rule.name) && !force {
-        anyhow::bail!(
-            "AI rule '{}' already exists in config. Use --force to overwrite.",
-            rule.name
-        );
-    }
-
-    let mut rule_config = Map::new();
-    rule_config.insert("prompt".to_string(), json!(format!("{}.md", rule.name)));
-    if let Some(mode) = &config.mode {
-        rule_config.insert("mode".to_string(), json!(mode));
-    }
-    rule_config.insert("message".to_string(), json!(config.message));
-    if let Some(severity) = &config.severity {
-        rule_config.insert("severity".to_string(), json!(severity));
-    }
-    if let Some(include) = &config.include {
-        rule_config.insert("include".to_string(), json!(include));
-    }
-    if let Some(exclude) = &config.exclude {
-        rule_config.insert("exclude".to_string(), json!(exclude));
-    }
-
-    ai_rules_obj.insert(rule.name.clone(), Value::Object(rule_config));
-
-    Ok(())
-}
-
-fn add_script_rule(
-    json: &mut Value,
-    rule: &RegistryRule,
-    config: &RuleConfig,
-    force: bool,
-) -> Result<()> {
-    let rules = json
-        .as_object_mut()
-        .context("Config is not an object")?
-        .entry("rules")
-        .or_insert(json!({}));
-
-    let script_rules = rules
-        .as_object_mut()
-        .context("rules is not an object")?
-        .entry("script")
-        .or_insert(json!({}));
-
-    let script_rules_obj = script_rules
-        .as_object_mut()
-        .context("rules.script is not an object")?;
-
-    if script_rules_obj.contains_key(&rule.name) && !force {
-        anyhow::bail!(
-            "Script rule '{}' already exists in config. Use --force to overwrite.",
-            rule.name
-        );
-    }
-
-    let mut rule_config = Map::new();
-    let command = config
-        .command
-        .clone()
-        .context("Script rule config must have a 'command' field")?;
-    rule_config.insert("command".to_string(), json!(command));
-    rule_config.insert("message".to_string(), json!(config.message));
-    if let Some(severity) = &config.severity {
-        rule_config.insert("severity".to_string(), json!(severity));
-    }
-    if let Some(include) = &config.include {
-        rule_config.insert("include".to_string(), json!(include));
-    }
-    if let Some(exclude) = &config.exclude {
-        rule_config.insert("exclude".to_string(), json!(exclude));
-    }
-
-    script_rules_obj.insert(rule.name.clone(), Value::Object(rule_config));
-
-    Ok(())
-}
-
-fn add_regex_rule(
-    json: &mut Value,
-    rule: &RegistryRule,
-    config: &RuleConfig,
-    force: bool,
-) -> Result<()> {
-    let rules = json
-        .as_object_mut()
-        .context("Config is not an object")?
-        .entry("rules")
-        .or_insert(json!({}));
-
-    let regex_rules = rules
-        .as_object_mut()
-        .context("rules is not an object")?
-        .entry("regex")
-        .or_insert(json!({}));
-
-    let regex_rules_obj = regex_rules
-        .as_object_mut()
-        .context("rules.regex is not an object")?;
-
-    if regex_rules_obj.contains_key(&rule.name) && !force {
-        anyhow::bail!(
-            "Regex rule '{}' already exists in config. Use --force to overwrite.",
-            rule.name
-        );
-    }
-
-    let mut rule_config = Map::new();
-    if let Some(pattern) = &config.pattern {
-        rule_config.insert("pattern".to_string(), json!(pattern));
-    }
-    rule_config.insert("message".to_string(), json!(config.message));
-    if let Some(severity) = &config.severity {
-        rule_config.insert("severity".to_string(), json!(severity));
-    }
-    if let Some(include) = &config.include {
-        rule_config.insert("include".to_string(), json!(include));
-    }
-    if let Some(exclude) = &config.exclude {
-        rule_config.insert("exclude".to_string(), json!(exclude));
-    }
-
-    regex_rules_obj.insert(rule.name.clone(), Value::Object(rule_config));
 
     Ok(())
 }

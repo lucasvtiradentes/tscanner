@@ -1,7 +1,8 @@
 use anyhow::{Context, Result};
 use colored::*;
-use comfy_table::{presets::UTF8_FULL, Cell, Color, ContentArrangement, Table};
 use dialoguer::MultiSelect;
+use serde_json::Value;
+use std::fs;
 use std::path::{Path, PathBuf};
 
 use crate::shared::{fatal_error_and_exit, print_section_title};
@@ -74,6 +75,8 @@ pub fn cmd_registry(
         return Ok(());
     }
 
+    let installed_rules = get_installed_rules(&config_file);
+
     let rules_to_install = if let Some(ref rule_name) = name {
         let rule = filtered_rules
             .iter()
@@ -87,13 +90,13 @@ pub fn cmd_registry(
                     &format!("Rule '{}' not found", rule_name),
                     &[
                         "",
-                        "Use 'tscanner rule' without arguments to see available rules.",
+                        "Use 'tscanner registry' without arguments to see available rules.",
                     ],
                 );
             }
         }
     } else {
-        select_rules_interactive(&filtered_rules)?
+        select_rules_interactive(&filtered_rules, &installed_rules)?
     };
 
     if rules_to_install.is_empty() {
@@ -129,16 +132,92 @@ fn resolve_config_dir(root: &Path, config_path: Option<PathBuf>) -> PathBuf {
     }
 }
 
-fn select_rules_interactive(rules: &[RegistryRule]) -> Result<Vec<RegistryRule>> {
-    println!();
-    print_rules_table(rules);
-    println!();
+fn get_installed_rules(config_file: &Path) -> Vec<String> {
+    let content = match fs::read_to_string(config_file) {
+        Ok(c) => c,
+        Err(_) => return vec![],
+    };
+
+    let stripped = json_comments::StripComments::new(content.as_bytes());
+    let json: Value = match serde_json::from_reader(stripped) {
+        Ok(j) => j,
+        Err(_) => return vec![],
+    };
+
+    let mut installed = vec![];
+
+    if let Some(ai_rules) = json.get("aiRules").and_then(|v| v.as_object()) {
+        for key in ai_rules.keys() {
+            installed.push(key.clone());
+        }
+    }
+
+    if let Some(rules) = json.get("rules").and_then(|v| v.as_object()) {
+        if let Some(script) = rules.get("script").and_then(|v| v.as_object()) {
+            for key in script.keys() {
+                installed.push(key.clone());
+            }
+        }
+        if let Some(regex) = rules.get("regex").and_then(|v| v.as_object()) {
+            for key in regex.keys() {
+                installed.push(key.clone());
+            }
+        }
+    }
+
+    installed
+}
+
+fn get_file_extension(rule: &RegistryRule) -> String {
+    match &rule.file {
+        Some(f) => {
+            if let Some(ext) = Path::new(f).extension() {
+                format!(".{}", ext.to_string_lossy())
+            } else {
+                "-".to_string()
+            }
+        }
+        None => match rule.kind.as_str() {
+            "ai" => ".md".to_string(),
+            "script" => ".ts".to_string(),
+            "regex" => "-".to_string(),
+            _ => "-".to_string(),
+        },
+    }
+}
+
+fn select_rules_interactive(
+    rules: &[RegistryRule],
+    installed_rules: &[String],
+) -> Result<Vec<RegistryRule>> {
+    let max_kind_len = rules.iter().map(|r| r.kind.len()).max().unwrap_or(6);
+    let max_name_len = rules.iter().map(|r| r.name.len()).max().unwrap_or(20);
 
     let items: Vec<String> = rules
         .iter()
-        .map(|r| format!("[{}] {} - {}", r.kind, r.name, r.description))
+        .map(|r| {
+            let is_installed = installed_rules.contains(&r.name);
+            let ext = get_file_extension(r);
+
+            let base = format!(
+                "{:<width_kind$} | {:<4} | {:<width_name$} - {}",
+                r.kind,
+                ext,
+                r.name,
+                r.description,
+                width_kind = max_kind_len,
+                width_name = max_name_len
+            );
+
+            if is_installed {
+                format!("{}", base.dimmed())
+            } else {
+                base
+            }
+        })
         .collect();
 
+    println!();
     println!("Select rules to install (Space to select, Enter to confirm):");
     println!();
 
@@ -148,37 +227,6 @@ fn select_rules_interactive(rules: &[RegistryRule]) -> Result<Vec<RegistryRule>>
         .context("Failed to get user selection")?;
 
     Ok(selections.into_iter().map(|i| rules[i].clone()).collect())
-}
-
-fn print_rules_table(rules: &[RegistryRule]) {
-    let mut table = Table::new();
-    table
-        .load_preset(UTF8_FULL)
-        .set_content_arrangement(ContentArrangement::Dynamic)
-        .set_header(vec![
-            Cell::new("Kind").fg(Color::Cyan),
-            Cell::new("Name").fg(Color::Cyan),
-            Cell::new("Category").fg(Color::Cyan),
-            Cell::new("Description").fg(Color::Cyan),
-        ]);
-
-    for rule in rules {
-        let kind_color = match rule.kind.as_str() {
-            "ai" => Color::Magenta,
-            "script" => Color::Blue,
-            "regex" => Color::Yellow,
-            _ => Color::White,
-        };
-
-        table.add_row(vec![
-            Cell::new(&rule.kind).fg(kind_color),
-            Cell::new(&rule.name),
-            Cell::new(&rule.category),
-            Cell::new(&rule.description),
-        ]);
-    }
-
-    println!("{table}");
 }
 
 fn install_rules(workspace_root: &Path, rules: &[RegistryRule], force: bool) -> Result<()> {
