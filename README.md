@@ -19,7 +19,7 @@ Define what "good code" means for your project. TScanner enforces your patterns 
 
 <!-- <DYNFIELD:VSCODE_EXTENSION_DEMO_IMAGE> -->
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Demo">
+  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Demo"></a>
   <br>
   <em>issues detected in real time in the code editor</em>
 </div>
@@ -36,7 +36,7 @@ Define what "good code" means for your project. TScanner enforces your patterns 
 
 <!-- <DYNFIELD:CLI_DEMO_IMAGE> -->
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
+  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-cli-demo.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-cli-demo.png" alt="CLI Scan Screenshot"></a>
   <br>
   <em>scanning the codebase via CLI</em>
 </div>
@@ -46,7 +46,7 @@ Define what "good code" means for your project. TScanner enforces your patterns 
 
 <!-- <DYNFIELD:GITHUB_ACTION_DEMO_IMAGE> -->
 <div align="center">
-  <img width="80%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-warnings-found.png" alt="GitHub Action PR Comment">
+  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-warnings-found.png" target="_blank"><img width="80%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-warnings-found.png" alt="GitHub Action PR Comment"></a>
   <br>
   <em>issues detected in the latest commit pushed to a PR</em>
 </div>
@@ -149,7 +149,7 @@ TScanner lets you define those rules once. Every AI-generated file, every PR, ev
 Here is a diagram that shows how TScanner fits into the average coding workflow:
 
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow">
+  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow"></a>
 </div>
 
 Legend: 

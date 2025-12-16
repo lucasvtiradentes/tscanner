@@ -13,7 +13,7 @@ export function updateWorkflow() {
 Here is a diagram that shows how TScanner fits into the average coding workflow:
 
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow">
+  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow"></a>
 </div>
 
 Legend: 

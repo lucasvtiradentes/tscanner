@@ -18,7 +18,7 @@ Block bad code before it reaches main. TScanner posts a comment on every PR show
 
 <!-- <DYNFIELD:GITHUB_ACTION_DEMO_IMAGE> -->
 <div align="center">
-  <img width="80%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-warnings-found.png" alt="GitHub Action PR Comment">
+  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-warnings-found.png" target="_blank"><img width="80%" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-pr-comment-warnings-found.png" alt="GitHub Action PR Comment"></a>
   <br>
   <em>issues detected in the latest commit pushed to a PR</em>
 </div>
@@ -112,7 +112,7 @@ TScanner lets you define those rules once. Every AI-generated file, every PR, ev
 Here is a diagram that shows how TScanner fits into the average coding workflow:
 
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow">
+  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow"></a>
 </div>
 
 Legend: 

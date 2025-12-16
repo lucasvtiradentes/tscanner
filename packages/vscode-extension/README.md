@@ -18,7 +18,7 @@ See code quality issues the moment you type, not after you ship. TScanner shows 
 
 <!-- <DYNFIELD:VSCODE_EXTENSION_DEMO_IMAGE> -->
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Demo">
+  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Demo"></a>
   <br>
   <em>issues detected in real time in the code editor</em>
 </div>
@@ -95,7 +95,7 @@ TScanner lets you define those rules once. Every AI-generated file, every PR, ev
 Here is a diagram that shows how TScanner fits into the average coding workflow:
 
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow">
+  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow"></a>
 </div>
 
 Legend: 

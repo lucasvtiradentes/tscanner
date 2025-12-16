@@ -18,7 +18,7 @@ Define what "good code" means for your project. Scan your codebase from the term
 
 <!-- <DYNFIELD:CLI_DEMO_IMAGE> -->
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
+  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-cli-demo.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-cli-demo.png" alt="CLI Scan Screenshot"></a>
   <br>
   <em>scanning the codebase via CLI</em>
 </div>
@@ -93,7 +93,7 @@ TScanner lets you define those rules once. Every AI-generated file, every PR, ev
 Here is a diagram that shows how TScanner fits into the average coding workflow:
 
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow">
+  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow"></a>
 </div>
 
 Legend: 
