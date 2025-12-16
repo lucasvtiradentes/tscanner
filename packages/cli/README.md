@@ -1116,7 +1116,29 @@ fn main() -> io::Result<()> {
 <br />
 <div align="left">
 
-Use AI prompts to perform semantic code analysis:
+Use AI prompts (markdown files) to perform semantic code analysis. Works with any AI provider (Claude, OpenAI, Ollama, etc.).
+
+**Modes** - How files are passed to the AI:
+| Mode | Description | Best for |
+|------|-------------|----------|
+| `paths` | Only file paths (AI reads files via tools) | Large codebases, many files |
+| `content` | Full file content in prompt | Small files, quick analysis |
+| `agentic` | Paths + AI can explore freely | Cross-file analysis, complex patterns |
+
+**Placeholders** - Use in your prompt markdown:
+| Placeholder | Replaced with |
+|-------------|---------------|
+| `{{FILES}}` | List of files to analyze (required) |
+| `{{OPTIONS}}` | Custom options from config (optional) |
+
+**Output contract** - AI must return JSON:
+```json
+{
+  "issues": [
+    { "file": "src/utils.ts", "line": 10, "column": 1, "message": "Description" }
+  ]
+}
+```
 
 **Config** (`.tscanner/config.jsonc`):
 ```json
@@ -1125,9 +1147,17 @@ Use AI prompts to perform semantic code analysis:
     "find-enum-candidates": {
       "prompt": "find-enum-candidates.md",
       "mode": "agentic",
-      "message": "Type union could be replaced with an enum for better type safety",
+      "message": "Type union could be replaced with an enum",
       "severity": "warning",
-      "include": ["**/*.ts"]
+      "include": ["**/*.ts", "**/*.tsx", "**/*.rs"]
+    },
+    "no-dead-code": {
+      "prompt": "no-dead-code.md",
+      "mode": "content",
+      "message": "Dead code detected",
+      "severity": "error",
+      "include": ["**/*.rs"],
+      "options": { "allowTestFiles": true }
     }
   },
   "ai": {
@@ -1136,38 +1166,57 @@ Use AI prompts to perform semantic code analysis:
 }
 ```
 
-**Prompt** (`.tscanner/ai-rules/find-enum-candidates.md`):
-<pre><code class="language-markdown"># Enum Candidates Detector
+<details>
+<summary>Prompt example (agentic mode)</summary>
 
-Find TypeScript type unions that could be replaced with enums for better type safety and maintainability.
+```markdown
+# Enum Candidates Detector
+
+Find type unions that could be replaced with enums.
 
 ## What to look for
 
-1. String literal unions used in multiple places:
-   ```ts
-   type Status = 'pending' | 'active' | 'completed';
-   ```
-
-2. Repeated string literals across the codebase that represent the same concept
-
-3. Type unions used as discriminators in objects
-
-## Why enums are better
-
-- Refactoring: rename in one place
-- Autocomplete: IDE shows all options
-- Runtime: can iterate over values
-- Validation: can check if value is valid
+1. String literal unions: \`type Status = 'pending' | 'active'\`
+2. Repeated string literals across files
+3. Type unions used as discriminators
 
 ## Exploration hints
 
 - Check how the type is used across files
-- Look for related constants or string literals
-- Consider if the values are used at runtime
+- Look for related constants
 
-{{FILES}}</code></pre>
+---
 
-> 💡 See real examples in the [`.tscanner/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/ai-rules) folder of this project.
+## Files
+
+{{FILES}}
+```
+</details>
+
+<details>
+<summary>Prompt example (with options)</summary>
+
+```markdown
+# Dead Code Detector
+
+Detect dead code patterns.
+
+## Rules
+
+1. No \`#[allow(dead_code)]\` attributes
+2. No unreachable code after return/break
+
+## Options
+
+{{OPTIONS}}
+
+## Files
+
+{{FILES}}
+```
+</details>
+
+> 💡 See real examples in the [`.tscanner/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/ai-rules) and [`registry/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/registry/ai-rules) folders.
 
 </div>
 </details>
