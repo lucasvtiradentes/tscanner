@@ -6,6 +6,40 @@ function log(message) {
   console.log(`[changeset-commit] ${message}`);
 }
 
+function hasRustSourceChanges() {
+  try {
+    const diff = execSync('git diff --cached --name-only -- "packages/rust-core/crates/**/*.rs"', {
+      encoding: 'utf-8',
+    });
+    return diff.trim().length > 0;
+  } catch {
+    return false;
+  }
+}
+
+function touchVersionFilesIfNeeded(rustCoreFolder) {
+  if (hasRustSourceChanges()) {
+    log('Rust source files already changed, skipping touch (cargo will rebuild)');
+    return false;
+  }
+
+  const versionFiles = [
+    join(rustCoreFolder, 'crates', 'tscanner_lsp', 'src', 'server.rs'),
+    join(rustCoreFolder, 'crates', 'tscanner_cli', 'src', 'commands', 'init', 'config_generator.rs'),
+  ];
+
+  for (const filePath of versionFiles) {
+    try {
+      const content = readFileSync(filePath, 'utf-8');
+      writeFileSync(filePath, content, 'utf-8');
+      log(`Touched ${filePath} to force recompilation`);
+    } catch (error) {
+      log(`Warning: Could not touch ${filePath}: ${error.message}`);
+    }
+  }
+  return true;
+}
+
 function updateRustWorkspaceVersion(newVersion) {
   const rustCoreFolder = join(process.cwd(), 'packages', 'rust-core');
   const cargoTomlPath = join(rustCoreFolder, 'Cargo.toml');
@@ -19,6 +53,8 @@ function updateRustWorkspaceVersion(newVersion) {
       writeFileSync(cargoTomlPath, cargoToml, 'utf-8');
       log(`Updated Rust workspace version to ${newVersion}`);
 
+      const touchedFiles = touchVersionFilesIfNeeded(rustCoreFolder);
+
       log('Updating Cargo.lock...');
       execSync('cargo update --workspace', {
         cwd: rustCoreFolder,
@@ -31,10 +67,13 @@ function updateRustWorkspaceVersion(newVersion) {
         stdio: 'inherit',
       });
 
-      execSync('git add packages/rust-core/Cargo.toml packages/rust-core/Cargo.lock packages/cli/schema.json', {
-        stdio: 'inherit',
-      });
-      log('Added Cargo.toml, Cargo.lock and schema.json to git staging');
+      let gitAddCmd = 'git add packages/rust-core/Cargo.toml packages/rust-core/Cargo.lock packages/cli/schema.json';
+      if (touchedFiles) {
+        gitAddCmd +=
+          ' packages/rust-core/crates/tscanner_lsp/src/server.rs packages/rust-core/crates/tscanner_cli/src/commands/init/config_generator.rs';
+      }
+      execSync(gitAddCmd, { stdio: 'inherit' });
+      log(`Added Cargo.toml, Cargo.lock, schema.json to git staging${touchedFiles ? ' (+ version files)' : ''}`);
     }
   } catch (error) {
     log(`Error updating Rust workspace version: ${error.message}`);
