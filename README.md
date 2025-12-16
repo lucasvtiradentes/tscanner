@@ -385,7 +385,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: lucasvtiradentes/tscanner-action@v0.0.37
+      - uses: lucasvtiradentes/tscanner-action@v0.0.38
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 ```
