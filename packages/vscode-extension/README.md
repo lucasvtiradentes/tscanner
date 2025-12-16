@@ -562,7 +562,7 @@ yarn global upgrade tscanner --latest
 2. update the version in the [.tscanner/config.jsonc](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/config.jsonc) to match the new version or just use `latest` if you are going to regularly update it
 
 ```
-"$schema": "https://unpkg.com/tscanner@0.0.1/schema.json", // -> tscanner@0.1.0 OR tscanner@latest
+"$schema": "https://unpkg.com/tscanner@0.1.2/schema.json", // -> tscanner@0.1.0 OR tscanner@latest
 ```
 
 3. restart vscode
