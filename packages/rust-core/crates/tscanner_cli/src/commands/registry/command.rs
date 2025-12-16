@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 
 use crate::shared::{fatal_error_and_exit, print_section_title};
 use tscanner_cli::RegistryRuleKind;
-use tscanner_constants::{config_dir_name, config_file_name};
+use tscanner_constants::{config_dir_name, config_file_name, registry_base_url};
 use tscanner_service::log_info;
 
 use super::config_updater::update_config_with_rule;
@@ -42,7 +42,10 @@ pub fn cmd_registry(
         );
     }
 
-    println!("{}", "Fetching registry...".dimmed());
+    println!(
+        "{}",
+        format!("Fetching registry [{}]...", registry_base_url()).dimmed()
+    );
 
     let index = match fetch_registry_index() {
         Ok(idx) => idx,
@@ -136,8 +139,10 @@ fn select_rules_interactive(rules: &[RegistryRule]) -> Result<Vec<RegistryRule>>
         .map(|r| format!("[{}] {} - {}", r.kind, r.name, r.description))
         .collect();
 
+    println!("Select rules to install (Space to select, Enter to confirm):");
+    println!();
+
     let selections = MultiSelect::new()
-        .with_prompt("Select rules to install (Space to select, Enter to confirm)")
         .items(&items)
         .interact()
         .context("Failed to get user selection")?;
