@@ -17,7 +17,7 @@
       "no-empty-function": {},
       "no-empty-interface": {},
       "no-floating-promises": {},
-      "no-forwarded-exports": { "exclude": ["**/index.ts"]},
+      "no-forwarded-exports": { "exclude": ["**/index.ts", "**/types.ts"]},
       "no-implicit-any": {},
       "no-inferrable-types": {},
       "no-nested-require": {},

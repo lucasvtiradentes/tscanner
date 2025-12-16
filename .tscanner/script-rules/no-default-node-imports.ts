@@ -1,25 +1,7 @@
 #!/usr/bin/env npx tsx
 
 import { stdin } from 'node:process';
-
-type ScriptFile = {
-  path: string;
-  content: string;
-  lines: string[];
-};
-
-type ScriptInput = {
-  files: ScriptFile[];
-  options?: Record<string, unknown>;
-  workspaceRoot: string;
-};
-
-type ScriptIssue = {
-  file: string;
-  line: number;
-  column?: number;
-  message: string;
-};
+import type { ScriptInput, ScriptIssue } from '../../shared/tscanner-common/src';
 
 const NODE_MODULE_REGEX = /^import\s+(?:(\w+)|(\*\s+as\s+\w+))\s+from\s+['"]node:/;
 
