@@ -7,7 +7,7 @@ mod commands;
 mod config_loader;
 mod shared;
 
-use commands::{cmd_check, cmd_init, validate};
+use commands::{cmd_check, cmd_init, cmd_registry, validate};
 use tscanner_cli::{Cli, Commands};
 use tscanner_service::init_logger;
 
@@ -76,6 +76,14 @@ fn main() -> Result<()> {
             }
             result
         }
+        Some(Commands::Registry {
+            name,
+            kind,
+            category,
+            force,
+            latest,
+            config_path,
+        }) => cmd_registry(name, kind, category, force, latest, config_path),
         None => {
             Cli::parse_from(["tscanner", "--help"]);
             Ok(())

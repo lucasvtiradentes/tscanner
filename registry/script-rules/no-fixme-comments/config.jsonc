@@ -1,0 +1,6 @@
+{
+  "command": "rust-script script-rules/no-fixme-comments.rs",
+  "message": "FIXME/XXX comment found",
+  "severity": "warning",
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.rs"]
+}

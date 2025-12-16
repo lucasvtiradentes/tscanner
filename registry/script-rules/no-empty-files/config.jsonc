@@ -1,0 +1,6 @@
+{
+  "command": "python3 script-rules/no-empty-files.py",
+  "message": "File has too few lines",
+  "severity": "warning",
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.py"]
+}

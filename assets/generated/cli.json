@@ -243,6 +243,81 @@
       "flags": []
     },
     {
+      "name": "registry",
+      "description": "Install rules from the TScanner registry",
+      "usage": "tscanner registry [options] [name]",
+      "arguments": [
+        {
+          "name": "name",
+          "description": "Rule name to install (shows list if omitted)",
+          "required": false,
+          "defaultValue": null
+        }
+      ],
+      "flags": [
+        {
+          "name": "category",
+          "short": null,
+          "description": "Filter by category",
+          "takesValue": true,
+          "valueName": "CATEGORY",
+          "possibleValues": null,
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "config-path",
+          "short": null,
+          "description": "Path to config folder (defaults to .tscanner)",
+          "takesValue": true,
+          "valueName": "CONFIG_DIR",
+          "possibleValues": null,
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "force",
+          "short": null,
+          "description": "Overwrite existing rules",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "kind",
+          "short": null,
+          "description": "Filter by rule kind (ai, script, regex)",
+          "takesValue": true,
+          "valueName": "KIND",
+          "possibleValues": [
+            "ai",
+            "script",
+            "regex"
+          ],
+          "defaultValue": null,
+          "required": false
+        },
+        {
+          "name": "latest",
+          "short": null,
+          "description": "Use latest rules from main branch instead of version-matched",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false
+        }
+      ]
+    },
+    {
       "name": "validate",
       "description": "Validate configuration file",
       "usage": "tscanner validate [options] [config-path]",

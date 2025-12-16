@@ -1,29 +1,6 @@
 #!/usr/bin/env npx tsx
 
-import { stdin } from 'node:process';
-
-type ScriptFile = {
-  path: string;
-  content: string;
-  lines: string[];
-};
-
-type ScriptInput = {
-  files: ScriptFile[];
-  options?: Record<string, unknown>;
-  workspaceRoot: string;
-};
-
-type ScriptIssue = {
-  file: string;
-  line: number;
-  column?: number;
-  message: string;
-};
-
-function addIssue(issues: ScriptIssue[], file: string, line: number, message: string): void {
-  issues.push({ file, line, message });
-}
+import { type ScriptIssue, addIssue, runScript } from '../../packages/cli/src/types'; // from 'tscanner'
 
 function extractTocLinks(content: string): { name: string; anchor: string; line: number }[] {
   const links: { name: string; anchor: string; line: number }[] = [];
@@ -97,31 +74,19 @@ function extractMainHeadings(content: string): { text: string; anchor: string; l
   return headings;
 }
 
-async function main() {
-  let data = '';
-
-  for await (const chunk of stdin) {
-    data += chunk;
-  }
-
-  const input: ScriptInput = JSON.parse(data);
-  const issues: ScriptIssue[] = [];
-
-  const readmeFile = input.files.find((f) => f.path.endsWith('README.md') || f.path.endsWith('readme.md'));
-
-  if (!readmeFile) {
-    console.log(JSON.stringify({ issues }));
-    return;
-  }
-
-  const tocLinks = extractTocLinks(readmeFile.content);
-  const headings = extractMainHeadings(readmeFile.content);
+function analyzeReadme(file: { path: string; content: string }, issues: ScriptIssue[]) {
+  const tocLinks = extractTocLinks(file.content);
+  const headings = extractMainHeadings(file.content);
 
   for (const link of tocLinks) {
     const matchingHeading = headings.find((h) => h.anchor === link.anchor);
 
     if (!matchingHeading) {
-      addIssue(issues, readmeFile.path, link.line, `TOC link "${link.name}" (#${link.anchor}) has no matching heading`);
+      addIssue(issues, {
+        file: file.path,
+        line: link.line,
+        message: `TOC link "${link.name}" (#${link.anchor}) has no matching heading`,
+      });
     }
   }
 
@@ -129,12 +94,11 @@ async function main() {
     const matchingLink = tocLinks.find((l) => l.anchor === heading.anchor);
 
     if (!matchingLink) {
-      addIssue(
-        issues,
-        readmeFile.path,
-        heading.line,
-        `Heading "${heading.text}" is not in TOC (expected: #${heading.anchor})`,
-      );
+      addIssue(issues, {
+        file: file.path,
+        line: heading.line,
+        message: `Heading "${heading.text}" is not in TOC (expected: #${heading.anchor})`,
+      });
     }
   }
 
@@ -147,20 +111,24 @@ async function main() {
     if (commonTocAnchors[i] !== commonHeadingAnchors[i]) {
       const tocLink = tocLinks.find((l) => l.anchor === commonTocAnchors[i])!;
       const expectedHeading = headings.find((h) => h.anchor === commonHeadingAnchors[i])!;
-      addIssue(
-        issues,
-        readmeFile.path,
-        tocLink.line,
-        `TOC order mismatch: "${tocLink.name}" should come after "${expectedHeading.text}"`,
-      );
+      addIssue(issues, {
+        file: file.path,
+        line: tocLink.line,
+        message: `TOC order mismatch: "${tocLink.name}" should come after "${expectedHeading.text}"`,
+      });
       break;
     }
   }
-
-  console.log(JSON.stringify({ issues }));
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
+runScript((input) => {
+  const issues: ScriptIssue[] = [];
+
+  const readmeFiles = input.files.filter((f) => f.path.endsWith('README.md') || f.path.endsWith('readme.md'));
+
+  for (const readmeFile of readmeFiles) {
+    analyzeReadme(readmeFile, issues);
+  }
+
+  return issues;
 });

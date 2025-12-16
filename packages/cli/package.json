@@ -39,6 +39,12 @@
   "bin": {
     "tscanner": "./dist/main.js"
   },
+  "types": "./dist/types.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/types.d.ts"
+    }
+  },
   "files": [
     "dist",
     "schema.json",

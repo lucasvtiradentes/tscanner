@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use crate::ai_rules_validator::validate_ai_rules;
 use crate::types::{AiProvider, CompiledRuleConfig, TscannerConfig};
 use crate::validation::{validate_json_fields, ValidationResult};
 use tscanner_constants::{config_dir_name, config_error_prefix};
@@ -68,8 +69,8 @@ impl TscannerConfigExt for TscannerConfig {
 
     fn validate_with_workspace(
         &self,
-        _workspace: Option<&Path>,
-        _config_dir_name: &str,
+        workspace: Option<&Path>,
+        config_dir_name: &str,
     ) -> ValidationResult {
         let mut result = ValidationResult::new();
 
@@ -99,6 +100,12 @@ impl TscannerConfigExt for TscannerConfig {
                 result.add_error(format!("AI rule '{}' has empty prompt", name));
             }
         }
+
+        result.merge(validate_ai_rules(
+            &self.ai_rules,
+            workspace,
+            config_dir_name,
+        ));
 
         result
     }

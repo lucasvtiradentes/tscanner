@@ -1,29 +1,6 @@
 #!/usr/bin/env npx tsx
 
-import { stdin } from 'node:process';
-
-type ScriptFile = {
-  path: string;
-  content: string;
-  lines: string[];
-};
-
-type ScriptInput = {
-  files: ScriptFile[];
-  options?: Record<string, unknown>;
-  workspaceRoot: string;
-};
-
-type ScriptIssue = {
-  file: string;
-  line: number;
-  column?: number;
-  message: string;
-};
-
-function addIssue(issues: ScriptIssue[], file: string, line: number, message: string): void {
-  issues.push({ file, line, message });
-}
+import { type ScriptIssue, addIssue, runScript } from '../../packages/cli/src/types'; // from 'tscanner'
 
 function kebabToCamel(str: string): string {
   return str.replace(/-([a-z])/g, (_, c) => c.toUpperCase());
@@ -92,23 +69,14 @@ function parseZodSchemaFields(content: string): string[] {
   return fields;
 }
 
-async function main() {
-  let data = '';
-
-  for await (const chunk of stdin) {
-    data += chunk;
-  }
-
-  const input: ScriptInput = JSON.parse(data);
+runScript((input) => {
   const issues: ScriptIssue[] = [];
 
   const actionFile = input.files.find((f) => f.path.endsWith('action.yml') || f.path.endsWith('action.yaml'));
-
   const zodFile = input.files.find((f) => f.path.includes('input-validator') || f.path.includes('inputValidator'));
 
   if (!actionFile || !zodFile) {
-    console.log(JSON.stringify({ issues }));
-    return;
+    return issues;
   }
 
   const actionInputs = parseActionYmlInputs(actionFile.content);
@@ -118,12 +86,11 @@ async function main() {
     const camelCaseName = kebabToCamel(inputName);
 
     if (!zodFields.includes(camelCaseName)) {
-      addIssue(
-        issues,
-        actionFile.path,
+      addIssue(issues, {
+        file: actionFile.path,
         line,
-        `Input "${inputName}" is not defined in Zod schema (expected field: "${camelCaseName}")`,
-      );
+        message: `Input "${inputName}" is not defined in Zod schema (expected field: "${camelCaseName}")`,
+      });
     }
   }
 
@@ -133,19 +100,13 @@ async function main() {
 
     if (!actionInputNames.includes(zodField) && !actionInputNames.includes(kebabName)) {
       const zodLine = zodFile.lines.findIndex((l) => l.includes(`${zodField}:`)) + 1;
-      addIssue(
-        issues,
-        zodFile.path,
-        zodLine || 1,
-        `Zod field "${zodField}" has no matching action.yml input (expected: "${kebabName}")`,
-      );
+      addIssue(issues, {
+        file: zodFile.path,
+        line: zodLine || 1,
+        message: `Zod field "${zodField}" has no matching action.yml input (expected: "${kebabName}")`,
+      });
     }
   }
 
-  console.log(JSON.stringify({ issues }));
-}
-
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
+  return issues;
 });

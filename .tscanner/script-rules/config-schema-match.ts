@@ -1,25 +1,6 @@
 #!/usr/bin/env npx tsx
 
-import { stdin } from 'node:process';
-
-type ScriptFile = {
-  path: string;
-  content: string;
-  lines: string[];
-};
-
-type ScriptInput = {
-  files: ScriptFile[];
-  options?: Record<string, unknown>;
-  workspaceRoot: string;
-};
-
-type ScriptIssue = {
-  file: string;
-  line: number;
-  column?: number;
-  message: string;
-};
+import { type ScriptIssue, addIssue, runScript } from '../../packages/cli/src/types'; // from 'tscanner'
 
 type JsonSchema = {
   properties?: Record<string, unknown>;
@@ -99,7 +80,7 @@ function compareFields(
 
   for (const field of rustFields) {
     if (!tsSet.has(field)) {
-      issues.push({
+      addIssue(issues, {
         file,
         line,
         message: `${schemaName}: field "${field}" exists in Rust schema but missing in TypeScript`,
@@ -109,7 +90,7 @@ function compareFields(
 
   for (const field of tsFields) {
     if (!rustSet.has(field)) {
-      issues.push({
+      addIssue(issues, {
         file,
         line,
         message: `${schemaName}: field "${field}" exists in TypeScript but missing in Rust schema`,
@@ -118,34 +99,22 @@ function compareFields(
   }
 }
 
-async function main() {
-  let data = '';
-  for await (const chunk of stdin) {
-    data += chunk;
-  }
-
-  const input: ScriptInput = JSON.parse(data);
+runScript((input) => {
   const issues: ScriptIssue[] = [];
 
   const jsonSchemaFile = input.files.find((f) => f.path.endsWith('schema.json'));
   const schemasFile = input.files.find((f) => f.path.endsWith('schemas.ts'));
 
   if (!jsonSchemaFile || !schemasFile) {
-    console.log(JSON.stringify({ issues }));
-    return;
+    return issues;
   }
 
   let jsonSchema: JsonSchema;
   try {
     jsonSchema = JSON.parse(jsonSchemaFile.content);
   } catch {
-    issues.push({
-      file: jsonSchemaFile.path,
-      line: 1,
-      message: 'Failed to parse schema.json',
-    });
-    console.log(JSON.stringify({ issues }));
-    return;
+    addIssue(issues, { file: jsonSchemaFile.path, line: 1, message: 'Failed to parse schema.json' });
+    return issues;
   }
 
   const tsContent = schemasFile.content;
@@ -255,10 +224,5 @@ async function main() {
     issues,
   );
 
-  console.log(JSON.stringify({ issues }));
-}
-
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
+  return issues;
 });

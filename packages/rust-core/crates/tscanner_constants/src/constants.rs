@@ -43,6 +43,7 @@ struct UrlsConfig {
     #[allow(dead_code)]
     repo_blob: String,
     rules_base: String,
+    registry_base: String,
 }
 
 #[derive(Deserialize, Clone)]
@@ -351,6 +352,14 @@ pub fn gemini_args() -> &'static [String] {
 
 pub fn rules_base_url() -> &'static str {
     &CONSTANTS.shared.urls.rules_base
+}
+
+pub fn registry_base_url_template() -> &'static str {
+    &CONSTANTS.shared.urls.registry_base
+}
+
+pub fn registry_base_url_for_ref(git_ref: &str) -> String {
+    registry_base_url_template().replace("{ref}", git_ref)
 }
 
 pub fn lsp_method_scan() -> &'static str {

@@ -7,10 +7,15 @@ type TFields = 'COMMON_SECTION_CONFIG';
 
 const rootDir = resolve(__dirname, '..', '..');
 
+function getConfigContent(path: string) {
+  const content = readFileSync(join(rootDir, path), 'utf-8').trim();
+  return content.replace(`"../../packages/cli/schema.json",`, '"https://unpkg.com/tscanner@latest/schema.json",');
+}
+
 export function updateConfigSection() {
   const getConfigSectionContent = () => {
-    const fullConfigContent = readFileSync(join(rootDir, 'assets/configs/full.json'), 'utf-8').trim();
-    const minimalConfigContent = readFileSync(join(rootDir, 'assets/configs/minimal.json'), 'utf-8').trim();
+    const fullConfigContent = getConfigContent('assets/configs/full.json');
+    const minimalConfigContent = getConfigContent('assets/configs/minimal.json');
 
     return `## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 

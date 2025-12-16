@@ -18,13 +18,14 @@ type Package = (typeof Package)[keyof typeof Package];
 
 const FeatureId = {
   Rules: 'rules',
-  Realtime: 'realtime',
+  Registry: 'registry',
   Focus: 'focus',
-  Pr: 'pr',
   SpeedCached: 'speed-cached',
-  CopyAi: 'copy-ai',
-  OneComment: 'one-comment',
   Severity: 'severity',
+  Realtime: 'realtime',
+  CopyAi: 'copy-ai',
+  Pr: 'pr',
+  OneComment: 'one-comment',
 } as const;
 
 type FeatureId = (typeof FeatureId)[keyof typeof FeatureId];
@@ -33,81 +34,66 @@ type FeatureBullet = {
   id: FeatureId;
   title: string;
   description: string;
-  packages: Package[];
 };
 
-const FEATURE_BULLETS: FeatureBullet[] = [
-  {
+const FEATURES: Record<FeatureId, FeatureBullet> = {
+  [FeatureId.Rules]: {
     id: FeatureId.Rules,
     title: 'Your Rules, Enforced',
     description: `${RULES_COUNT} built-in checks + define your own with regex, scripts, or AI`,
-    packages: [Package.Main, Package.Cli, Package.Vscode, Package.Action],
   },
-  {
-    id: FeatureId.Realtime,
-    title: 'See Issues Instantly',
-    description: 'Real-time feedback in code editor as you type, no manual scan needed',
-    packages: [Package.Main, Package.Vscode],
+  [FeatureId.Registry]: {
+    id: FeatureId.Registry,
+    title: 'Community Rules',
+    description: 'Install pre-built rules from registry or share your own with the world',
   },
-  {
+  [FeatureId.Focus]: {
     id: FeatureId.Focus,
-    title: 'Focus on What Matters',
-    description: '4 scan modes: whole codebase, branch changes, uncommitted changes or staged changes',
-    packages: [Package.Main, Package.Cli, Package.Vscode, Package.Action],
+    title: 'Multiple Scan Modes',
+    description: 'Whole codebase, branch changes, uncommitted changes, or staged changes',
   },
-  {
-    id: FeatureId.Pr,
-    title: 'Catch Before Merge',
-    description: 'PR comments show violations with clickable links to exact lines',
-    packages: [Package.Main, Package.Action],
-  },
-  {
+  [FeatureId.SpeedCached]: {
     id: FeatureId.SpeedCached,
     title: 'Sub-second Scans',
     description: 'Rust engine processes hundreds of files in <1s, with smart caching',
-    packages: [Package.Cli],
   },
-  {
-    id: FeatureId.CopyAi,
-    title: 'Copy for AI',
-    description: 'Export issues to clipboard, paste into chat for bulk fixes',
-    packages: [Package.Vscode],
-  },
-  {
-    id: FeatureId.OneComment,
-    title: 'One Comment, Updated',
-    description: 'No spam, same comment updated on each push',
-    packages: [Package.Action],
-  },
-  {
+  [FeatureId.Severity]: {
     id: FeatureId.Severity,
     title: 'Not a Blocker',
     description: 'Issues are warnings by default; set as errors to fail CI/lint-staged',
-    packages: [Package.Main],
   },
-];
-
-const PACKAGE_ORDER: Record<Package, FeatureId[]> = {
-  [Package.Main]: [
-    FeatureId.Rules,
-    FeatureId.Realtime,
-    FeatureId.Focus,
-    FeatureId.CopyAi,
-    FeatureId.Pr,
-    FeatureId.Severity,
-    FeatureId.SpeedCached,
-  ],
-  [Package.Cli]: [FeatureId.Rules, FeatureId.SpeedCached, FeatureId.Focus, FeatureId.Severity, FeatureId.SpeedCached],
-  [Package.Vscode]: [
-    FeatureId.Rules,
-    FeatureId.Realtime,
-    FeatureId.Focus,
-    FeatureId.CopyAi,
-    FeatureId.Severity,
-    FeatureId.SpeedCached,
-  ],
-  [Package.Action]: [FeatureId.Rules, FeatureId.Focus, FeatureId.Pr, FeatureId.Severity, FeatureId.OneComment],
+  [FeatureId.Realtime]: {
+    id: FeatureId.Realtime,
+    title: 'See Issues Instantly',
+    description: 'Real-time feedback in code editor as you type, no manual scan needed',
+  },
+  [FeatureId.CopyAi]: {
+    id: FeatureId.CopyAi,
+    title: 'Copy for AI',
+    description: 'Export issues to clipboard, paste into chat for bulk fixes',
+  },
+  [FeatureId.Pr]: {
+    id: FeatureId.Pr,
+    title: 'Catch Before Merge',
+    description: 'PR comments show violations with clickable links to exact lines',
+  },
+  [FeatureId.OneComment]: {
+    id: FeatureId.OneComment,
+    title: 'One Comment, Updated',
+    description: 'No spam, same comment updated on each push',
+  },
 };
+
+const BASE_FEATURES_START: FeatureId[] = [FeatureId.Rules, FeatureId.Registry];
+
+const UNIQUE_FEATURES: Record<Package, FeatureId[]> = {
+  [Package.Main]: [FeatureId.Realtime, FeatureId.CopyAi, FeatureId.Pr, FeatureId.OneComment],
+  [Package.Cli]: [],
+  [Package.Vscode]: [FeatureId.Realtime, FeatureId.CopyAi],
+  [Package.Action]: [FeatureId.Pr, FeatureId.OneComment],
+};
+
+const BASE_FEATURES_END: FeatureId[] = [FeatureId.Focus, FeatureId.SpeedCached, FeatureId.Severity];
 
 const README_PATHS: Record<Package, string> = {
   [Package.Main]: 'README.md',
@@ -121,12 +107,8 @@ function formatBullet(bullet: FeatureBullet): string {
 }
 
 function getFeaturesContent(pkg: Package): string {
-  const order = PACKAGE_ORDER[pkg];
-  const bullets = order
-    .map((id) => FEATURE_BULLETS.find((b) => b.id === id))
-    .filter((b): b is FeatureBullet => b !== undefined)
-    .map(formatBullet)
-    .join('\n');
+  const allFeatures = [...BASE_FEATURES_START, ...UNIQUE_FEATURES[pkg], ...BASE_FEATURES_END];
+  const bullets = allFeatures.map((id) => formatBullet(FEATURES[id])).join('\n');
 
   return `## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 

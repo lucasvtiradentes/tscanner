@@ -13,6 +13,25 @@ function getAiProviderLabel(config: TscannerConfig | null): string {
   return provider.charAt(0).toUpperCase() + provider.slice(1);
 }
 
+function extractSchemaVersion(schemaUrl: string | undefined): string | null {
+  if (!schemaUrl) return null;
+
+  const match = schemaUrl.match(/tscanner@(\d+\.\d+\.\d+)/);
+  if (!match) return null;
+
+  return match[1];
+}
+
+export function getSchemaVersionWarning(config: TscannerConfig | null, binaryVersion: string): string | null {
+  const schemaVersion = extractSchemaVersion(config?.$schema);
+  if (!schemaVersion) return null;
+
+  const cleanBinaryVersion = binaryVersion.replace(/^v/, '');
+  if (schemaVersion === cleanBinaryVersion) return null;
+
+  return `Config schema (${schemaVersion}) differs from CLI (${cleanBinaryVersion}). Run 'tscanner init' to update.`;
+}
+
 function getActiveRulesLabel(config: TscannerConfig | null): string {
   if (!config) return 'None';
 
@@ -85,6 +104,11 @@ export function buildConfiguredTooltip(
 
   if (versionWarning) {
     content += `\n\n⚠️ **Version Warning**: ${versionWarning}`;
+  }
+
+  const schemaWarning = getSchemaVersionWarning(config, binaryVersionLabel);
+  if (schemaWarning) {
+    content += `\n\n⚠️ **Schema Warning**: ${schemaWarning}`;
   }
 
   if (invalidConfigFields.length > 0) {

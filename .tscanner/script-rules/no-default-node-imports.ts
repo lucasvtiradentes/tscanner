@@ -1,36 +1,10 @@
 #!/usr/bin/env npx tsx
 
-import { stdin } from 'node:process';
-
-type ScriptFile = {
-  path: string;
-  content: string;
-  lines: string[];
-};
-
-type ScriptInput = {
-  files: ScriptFile[];
-  options?: Record<string, unknown>;
-  workspaceRoot: string;
-};
-
-type ScriptIssue = {
-  file: string;
-  line: number;
-  column?: number;
-  message: string;
-};
+import { type ScriptIssue, addIssue, runScript } from '../../packages/cli/src/types'; // from 'tscanner'
 
 const NODE_MODULE_REGEX = /^import\s+(?:(\w+)|(\*\s+as\s+\w+))\s+from\s+['"]node:/;
 
-async function main() {
-  let data = '';
-
-  for await (const chunk of stdin) {
-    data += chunk;
-  }
-
-  const input: ScriptInput = JSON.parse(data);
+runScript((input) => {
   const issues: ScriptIssue[] = [];
 
   for (const file of input.files) {
@@ -40,7 +14,7 @@ async function main() {
 
       if (match) {
         const importType = match[1] ? 'default import' : 'namespace import';
-        issues.push({
+        addIssue(issues, {
           file: file.path,
           line: i + 1,
           message: `Avoid ${importType} from node: modules. Use named imports instead: import { ... } from "node:..."`,
@@ -49,10 +23,5 @@ async function main() {
     }
   }
 
-  console.log(JSON.stringify({ issues }));
-}
-
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
+  return issues;
 });

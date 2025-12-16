@@ -1,8 +1,10 @@
+mod ai_rules_validator;
 mod globset;
 mod loader;
 mod types;
 mod validation;
 
+pub use ai_rules_validator::validate_ai_rules;
 pub use globset::{compile_globset, compile_optional_globset};
 pub use loader::{get_config_error_prefix, TscannerConfigExt};
 pub use types::{

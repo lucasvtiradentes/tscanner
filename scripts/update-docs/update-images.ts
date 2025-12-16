@@ -13,19 +13,19 @@ export function updateImages() {
   const baseImageUrl = 'https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image';
 
   const vscodeExtensionDemoImageContent = `<div align="center">
-  <img src="${baseImageUrl}/tscanner-vscode-demo.png" alt="VS Code Extension Demo">
+  <a href="${baseImageUrl}/tscanner-vscode-demo.png" target="_blank"><img src="${baseImageUrl}/tscanner-vscode-demo.png" alt="VS Code Extension Demo"></a>
   <br>
   <em>issues detected in real time in the code editor</em>
 </div>`;
 
   const cliDemoImageContent = `<div align="center">
-  <img src="${baseImageUrl}/tscanner-cli-demo.png" alt="CLI Scan Screenshot">
+  <a href="${baseImageUrl}/tscanner-cli-demo.png" target="_blank"><img src="${baseImageUrl}/tscanner-cli-demo.png" alt="CLI Scan Screenshot"></a>
   <br>
   <em>scanning the codebase via CLI</em>
 </div>`;
 
   const githubActionDemoImageContent = `<div align="center">
-  <img width="80%" src="${baseImageUrl}/tscanner-pr-comment-warnings-found.png" alt="GitHub Action PR Comment">
+  <a href="${baseImageUrl}/tscanner-pr-comment-warnings-found.png" target="_blank"><img width="80%" src="${baseImageUrl}/tscanner-pr-comment-warnings-found.png" alt="GitHub Action PR Comment"></a>
   <br>
   <em>issues detected in the latest commit pushed to a PR</em>
 </div>`;

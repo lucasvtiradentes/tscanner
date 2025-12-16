@@ -1,25 +1,6 @@
 #!/usr/bin/env npx tsx
 
-import { stdin } from 'node:process';
-
-type ScriptFile = {
-  path: string;
-  content: string;
-  lines: string[];
-};
-
-type ScriptInput = {
-  files: ScriptFile[];
-  options?: Record<string, unknown>;
-  workspaceRoot: string;
-};
-
-type ScriptIssue = {
-  file: string;
-  line: number;
-  column?: number;
-  message: string;
-};
+import { type ScriptIssue, addIssue, runScript } from '../../packages/cli/src/types'; // from 'tscanner'
 
 type CliFlag = {
   name: string;
@@ -94,45 +75,28 @@ function findLineNumber(content: string, searchStr: string): number {
   return 1;
 }
 
-async function main() {
-  let data = '';
-  for await (const chunk of stdin) {
-    data += chunk;
-  }
-
-  const input: ScriptInput = JSON.parse(data);
+runScript((input) => {
   const issues: ScriptIssue[] = [];
 
   const cliJsonFile = input.files.find((f) => f.path.endsWith('cli.json'));
   const builderFile = input.files.find((f) => f.path.endsWith('cli-builder.ts'));
 
   if (!cliJsonFile || !builderFile) {
-    console.log(JSON.stringify({ issues }));
-    return;
+    return issues;
   }
 
   let cliJson: CliJson;
   try {
     cliJson = JSON.parse(cliJsonFile.content);
   } catch {
-    issues.push({
-      file: cliJsonFile.path,
-      line: 1,
-      message: 'Failed to parse cli.json',
-    });
-    console.log(JSON.stringify({ issues }));
-    return;
+    addIssue(issues, { file: cliJsonFile.path, line: 1, message: 'Failed to parse cli.json' });
+    return issues;
   }
 
   const checkCommand = cliJson.commands.find((c) => c.name === 'check');
   if (!checkCommand) {
-    issues.push({
-      file: cliJsonFile.path,
-      line: 1,
-      message: 'No "check" command found in cli.json',
-    });
-    console.log(JSON.stringify({ issues }));
-    return;
+    addIssue(issues, { file: cliJsonFile.path, line: 1, message: 'No "check" command found in cli.json' });
+    return issues;
   }
 
   const cliFlags = checkCommand.flags.map((f) => f.name).filter((f) => !IGNORED_FLAGS.includes(f));
@@ -159,7 +123,7 @@ async function main() {
   for (const flag of cliFlags) {
     if (!coveredFlags.has(flag)) {
       const expectedField = FLAG_MAPPINGS[flag] ?? kebabToCamel(flag);
-      issues.push({
+      addIssue(issues, {
         file: builderFile.path,
         line: findLineNumber(builderFile.content, 'CliCheckOptions'),
         message: `CLI flag "--${flag}" is not covered in CliCheckOptions (expected field: "${expectedField}")`,
@@ -167,10 +131,5 @@ async function main() {
     }
   }
 
-  console.log(JSON.stringify({ issues }));
-}
-
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
+  return issues;
 });

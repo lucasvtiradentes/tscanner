@@ -5,7 +5,7 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner - VS Code Extension</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-workflow">Workflow</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-usage">Usage</a><br /><a href="#-configuration">Configuration</a> • <a href="#-rules">Rules</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-workflow">Workflow</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-usage">Usage</a><br /><a href="#-configuration">Configuration</a> • <a href="#-rules">Rules</a> • <a href="#-registry">Registry</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
 </div>
 
 <div width="100%" align="center">
@@ -18,7 +18,7 @@ See code quality issues the moment you type, not after you ship. TScanner shows 
 
 <!-- <DYNFIELD:VSCODE_EXTENSION_DEMO_IMAGE> -->
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Demo">
+  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-demo.png" alt="VS Code Extension Demo"></a>
   <br>
   <em>issues detected in real time in the code editor</em>
 </div>
@@ -71,11 +71,12 @@ See code quality issues the moment you type, not after you ship. TScanner shows 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 - **Your Rules, Enforced** - 38 built-in checks + define your own with regex, scripts, or AI
+- **Community Rules** - Install pre-built rules from registry or share your own with the world
 - **See Issues Instantly** - Real-time feedback in code editor as you type, no manual scan needed
-- **Focus on What Matters** - 4 scan modes: whole codebase, branch changes, uncommitted changes or staged changes
 - **Copy for AI** - Export issues to clipboard, paste into chat for bulk fixes
-- **Not a Blocker** - Issues are warnings by default; set as errors to fail CI/lint-staged
+- **Multiple Scan Modes** - Whole codebase, branch changes, uncommitted changes, or staged changes
 - **Sub-second Scans** - Rust engine processes hundreds of files in <1s, with smart caching
+- **Not a Blocker** - Issues are warnings by default; set as errors to fail CI/lint-staged
 <!-- </DYNFIELD:FEATURES> -->
 
 <!-- <DYNFIELD:MOTIVATION> -->
@@ -89,29 +90,81 @@ TScanner lets you define those rules once. Every AI-generated file, every PR, ev
 
 <!-- <DYNFIELD:WORKFLOW> -->
 
-## 🔀 Workflow <a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+## 🔀 Workflow<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-Here is a diagram that shows how TScanner fits into the average coding workflow:
+> **Vision:** Go fast with AI and know exactly what to fix before shipping. Detect bad patterns while reviewing code? Ask AI to create [regex](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/config.jsonc), [script](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/script-rules), or [AI rules](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/ai-rules) to catch it forever. Use the VSCode extension's "Copy Issues" button to get a [ready-to-paste prompt](https://github.com/lucasvtiradentes/tscanner/blob/main/assets/prompts/fix-tscanner-issues.prompt.md) and let your favorite AI tool fix everything. Before merging, see all issues at a glance in a PR comment from your CI/CD: nothing blocks by default, you decide what matters.
 
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow">
+  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow"></a>
+  <br />
+  <em>How TScanner fits into the average coding workflow</em>
 </div>
-
-Legend: 
-
-- TS1: before commit, you can see issues in the code editor; also you can add it to lintstaged so no error will be committed (unless you want)
-- TS2: before opening a PR, you can check all the issues in your branch compared to origin/main and fix them all
-- TS3: every new commit push to a PR will be checked for issues and you'll be notified about them in a single comment with clickable links to the exact lines
-
-So what? 
-
-- this will allow you to go fast plus knowing exactly what issues you need to fix before committing or merging.
-- this will, over time, reduce to zero the rejected pr's due to **styling or poor code quality patterns**, as long as you keep the rules updated.
-  - so our job is to detect code patterns to avoid/enforce and add tscanner rules for that 
 
 <br />
 
 <div align="center">
+
+<details>
+<summary>How does TScanner prevent issues from reaching production?</summary>
+<br />
+<div align="left">
+
+- **Code Editor**: See issues in real-time while coding. Add to lint-staged to prevent committing errors.
+- **Before PR**: Check all issues in your branch compared to origin/main and fix them before opening a PR.
+- **CI/CD**: Every push to a PR is checked automatically. Get a single comment with clickable links to the exact lines.
+
+</div>
+</details>
+
+<details>
+<summary>Why does this matter?</summary>
+<br />
+<div align="left">
+
+- **Go fast with confidence**: Know exactly what issues to fix before committing or merging.
+- **Zero rejected PRs**: Over time, eliminate PR rejections due to styling or poor code quality patterns.
+- **AI-powered quality**: Use AI rules to detect patterns that traditional linters miss, and let AI help fix AI-generated code.
+- **Your job**: Observe code patterns to enforce/avoid and add TScanner rules for that.
+
+</div>
+</details>
+
+</div>
+
+<div align="center">
+
+<details>
+<summary>How TScanner maintains its own codebase?</summary>
+<br />
+<div align="left">
+
+We use TScanner to maintain this very codebase. Here's our setup:
+
+**Built-in rules (34 enabled)**: Standard code quality checks like `no-explicit-any`, `prefer-const`, `no-console`, etc.
+
+**Regex rules (3)**:
+- `no-rust-deprecated`: Block `#[allow(deprecated)]` in Rust code
+- `no-rust-dead-code`: Block `#[allow(dead_code)]` - remove unused code instead
+- `no-process-env`: Prevent direct `process.env` access
+
+**Script rules (8)**:
+- [`types-parity-match`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/types-parity-match.ts): Ensure TypeScript and Rust shared types are in sync
+- [`config-schema-match`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/config-schema-match.ts): Keep Rust config and TypeScript schema aligned
+- [`cli-builder-match`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/cli-builder-match.ts): CLI builder must cover all CLI check flags
+- [`action-zod-match`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/action-zod-match.ts): GitHub Action inputs must match Zod validation
+- [`readme-toc-match`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/readme-toc-match.ts): README table of contents must match all headings
+- [`rust-entry-simple`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/rust-entry-simple.ts): `lib.rs` and `mod.rs` should only contain module declarations
+- [`no-long-files`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/no-long-files.ts): Files cannot exceed 300 lines
+- [`no-default-node-imports`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/no-default-node-imports.ts): Use named imports for Node.js modules
+
+**AI rules (2)**:
+- [`no-dead-code`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/ai-rules/no-dead-code.md): Detect dead code patterns in Rust executors
+- [`find-enum-candidates`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/ai-rules/find-enum-candidates.md): Find type unions that could be enums
+
+> 💡 Check the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder to see the full config and script implementations.
+
+</div>
+</details>
 
 <details>
 <summary>How am I using this to improve my code at work?</summary>
@@ -202,8 +255,7 @@ npm install -D tscanner
 tscanner init
 ```
 
-> [!TIP]
-> Use `tscanner init --full` for a [complete config](https://github.com/lucasvtiradentes/tscanner/blob/main/assets/configs/full.json) with example regex, script, and AI rules.
+> TIP: Use `tscanner init --full` for a [complete config](https://github.com/lucasvtiradentes/tscanner/blob/main/assets/configs/full.json) with example regex, script, and AI rules.
 
 
 <!-- </DYNFIELD:QUICK_START_INSTALL> -->
@@ -221,7 +273,7 @@ After that you can already install the extension:
     <th>Install from marketplace</th>
   </tr>
   <tr>
-    <td><img width="300" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-install.png" alt="TScanner installation"></td>
+    <td><a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-install.png" target="_blank"><img width="300" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-install.png" alt="TScanner installation"></a></td>
     <td>
       <div align="center">
       <a href="https://marketplace.visualstudio.com/items?itemName=lucasvtiradentes.tscanner-vscode"><img src="https://img.shields.io/badge/VS%20Code-Marketplace-007ACC?logo=visual-studio-code&logoColor=white" alt="VS Code"></a><br/>
@@ -255,22 +307,22 @@ Organize results with 4 combinations:
   <tr>
     <td>
       <div align="center">
-        <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-view-1.png" alt="VS Code">
+        <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-view-1.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-view-1.png" alt="VS Code"></a>
       </div>
     </td>
     <td>
       <div align="center">
-        <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-view-2.png" alt="VS Code">
+        <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-view-2.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-view-2.png" alt="VS Code"></a>
       </div>
     </td>
     <td>
       <div align="center">
-        <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-view-3.png" alt="VS Code">
+        <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-view-3.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-view-3.png" alt="VS Code"></a>
       </div>
     </td>
     <td>
       <div align="center">
-        <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-view-4.png" alt="VS Code">
+        <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-view-4.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-view-4.png" alt="VS Code"></a>
       </div>
     </td>
   </tr>
@@ -282,7 +334,7 @@ Organize results with 4 combinations:
 Copy all issues to clipboard in a structured format, ready to paste into an AI agent for automatic fixes.
 
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-copy-issues.png" alt="VS Code">
+  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-copy-issues.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-copy-issues.png" alt="VS Code"></a>
 </div>
 
 <br />
@@ -433,13 +485,13 @@ You have four scanning options, switchable via status bar click:
 ### Status bar 
 
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-statusbar.png" alt="VS Code">
+  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-statusbar.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-statusbar.png" alt="VS Code"></a>
 </div>
 
 <br />
 
 <div align="center">
-  <img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-settings.png" alt="VS Code">
+  <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-settings.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-vscode-settings.png" alt="VS Code"></a>
 </div>
 
 ### Commands
@@ -530,7 +582,7 @@ To scan your code, you need to set up the rules in the TScanner config folder.
 
 ```json
 {
-  "$schema": "../../packages/cli/schema.json",
+  "$schema": "https://unpkg.com/tscanner@latest/schema.json",
   "rules": {
     "builtin": {
       "consistent-return": {},
@@ -627,7 +679,7 @@ To scan your code, you need to set up the rules in the TScanner config folder.
 
 ```json
 {
-  "$schema": "../../packages/cli/schema.json",
+  "$schema": "https://unpkg.com/tscanner@latest/schema.json",
   "rules": {
     "builtin": {
       "no-explicit-any": {}
@@ -685,7 +737,7 @@ const data: any = fetchData();
 <!-- <DYNFIELD:RULES> -->
 ## 📋 Rules<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-Customize TScanner to validate what matters to your project while maintaining consistency.
+Rules are the core of TScanner. They define what to check, where to check, and how to report issues. Mix built-in rules with custom ones to enforce your team's standards.
 
 <div align="center">
 
@@ -702,13 +754,13 @@ Customize TScanner to validate what matters to your project while maintaining co
   </tr>
   <tr>
     <td><b>Regex</b></td>
-    <td>Simple text patterns</td>
+    <td>Simple text patterns for any file</td>
     <td>Match <code>TODO</code> comments, banned imports, naming conventions</td>
   </tr>
   <tr>
     <td><b>Script</b></td>
-    <td>Complex logic via JS</td>
-    <td>Validate file naming, check if tests exist, enforce folder structure</td>
+    <td>Complex logic in any language (TS, Python, Rust, Go...)</td>
+    <td>Validate file naming, check if tests exist, enforce folder structure, type parity checks</td>
   </tr>
   <tr>
     <td><b>AI</b></td>
@@ -1087,7 +1139,31 @@ Define patterns to match in your code using regular expressions:
 <br />
 <div align="left">
 
-Run custom scripts that receive file data via stdin and output issues as JSON:
+Run custom scripts in **any language** (TypeScript, Python, Rust, Go, etc.) that reads JSON from stdin and outputs JSON to stdout.
+
+**Input contract** (received via stdin):
+```json
+{
+  "files": [
+    {
+      "path": "src/utils.ts",
+      "content": "export function add(a: number, b: number)...",
+      "lines": ["export function add(a: number, b: number)", "..."]
+    }
+  ],
+  "options": { "maxLines": 300 },
+  "workspaceRoot": "/path/to/project"
+}
+```
+
+**Output contract** (expected via stdout):
+```json
+{
+  "issues": [
+    { "file": "src/utils.ts", "line": 10, "message": "Issue description" }
+  ]
+}
+```
 
 **Config** (`.tscanner/config.jsonc`):
 ```json
@@ -1097,72 +1173,103 @@ Run custom scripts that receive file data via stdin and output issues as JSON:
       "no-long-files": {
         "command": "npx tsx script-rules/no-long-files.ts",
         "message": "File exceeds 300 lines limit",
-        "include": ["packages/**/*.ts", "packages/**/*.rs"]
+        "include": ["**/*.ts", "**/*.rs", "**/*.py", "**/*.go"]
       }
     }
   }
 }
 ```
 
-**Script** (`.tscanner/script-rules/no-long-files.ts`):
+<details>
+<summary>TypeScript example</summary>
+
 ```typescript
 #!/usr/bin/env npx tsx
-
 import { stdin } from 'node:process';
-
-type ScriptFile = {
-  path: string;
-  content: string;
-  lines: string[];
-};
-
-type ScriptInput = {
-  files: ScriptFile[];
-  options?: Record<string, unknown>;
-  workspaceRoot: string;
-};
-
-type ScriptIssue = {
-  file: string;
-  line: number;
-  column?: number;
-  message: string;
-};
-
-const MAX_LINES = 300;
 
 async function main() {
   let data = '';
+  for await (const chunk of stdin) data += chunk;
 
-  for await (const chunk of stdin) {
-    data += chunk;
-  }
-
-  const input: ScriptInput = JSON.parse(data);
-  const issues: ScriptIssue[] = [];
+  const input = JSON.parse(data);
+  const issues = [];
 
   for (const file of input.files) {
-    const lineCount = file.lines.length;
-
-    if (lineCount > MAX_LINES) {
-      issues.push({
-        file: file.path,
-        line: MAX_LINES + 1,
-        message: `File has ${lineCount} lines, exceeds maximum of ${MAX_LINES} lines`,
-      });
+    if (file.lines.length > 300) {
+      issues.push({ file: file.path, line: 301, message: `File exceeds 300 lines` });
     }
   }
 
   console.log(JSON.stringify({ issues }));
 }
-
 main().catch((err) => {
   console.error(err);
   process.exit(1);
 });
 ```
+</details>
 
-> 💡 See real examples in the [`.tscanner/script-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/script-rules) folder of this project.
+<details>
+<summary>Python example</summary>
+
+```python
+#!/usr/bin/env python3
+import json, sys
+
+def main():
+    input_data = json.loads(sys.stdin.read())
+    issues = []
+
+    for file in input_data["files"]:
+        if len(file["lines"]) > 300:
+            issues.append({"file": file["path"], "line": 301, "message": "File exceeds 300 lines"})
+
+    print(json.dumps({"issues": issues}))
+
+if __name__ == "__main__":
+    main()
+```
+</details>
+
+<details>
+<summary>Rust example</summary>
+
+```rust
+#!/usr/bin/env rust-script
+use std::io::{self, Read};
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize)]
+struct ScriptFile { path: String, lines: Vec<String> }
+
+#[derive(Deserialize)]
+struct ScriptInput { files: Vec<ScriptFile> }
+
+#[derive(Serialize)]
+struct ScriptIssue { file: String, line: usize, message: String }
+
+#[derive(Serialize)]
+struct ScriptOutput { issues: Vec<ScriptIssue> }
+
+fn main() -> io::Result<()> {
+    let mut data = String::new();
+    io::stdin().read_to_string(&mut data)?;
+    let input: ScriptInput = serde_json::from_str(&data).unwrap();
+    let mut issues = Vec::new();
+
+    for file in input.files {
+        if file.lines.len() > 300 {
+            issues.push(ScriptIssue { file: file.path, line: 301, message: "File exceeds 300 lines".into() });
+        }
+    }
+
+    println!("{}", serde_json::to_string(&ScriptOutput { issues }).unwrap());
+    Ok(())
+}
+```
+</details>
+
+> 💡 See real examples in the [`.tscanner/script-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/script-rules) and [`registry/script-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/registry/script-rules) folders.
 
 </div>
 </details>
@@ -1172,7 +1279,29 @@ main().catch((err) => {
 <br />
 <div align="left">
 
-Use AI prompts to perform semantic code analysis:
+Use AI prompts (markdown files) to perform semantic code analysis. Works with any AI provider (Claude, OpenAI, Ollama, etc.).
+
+**Modes** - How files are passed to the AI:
+| Mode | Description | Best for |
+|------|-------------|----------|
+| `paths` | Only file paths (AI reads files via tools) | Large codebases, many files |
+| `content` | Full file content in prompt | Small files, quick analysis |
+| `agentic` | Paths + AI can explore freely | Cross-file analysis, complex patterns |
+
+**Placeholders** - Use in your prompt markdown:
+| Placeholder | Replaced with |
+|-------------|---------------|
+| `{{FILES}}` | List of files to analyze (required) |
+| `{{OPTIONS}}` | Custom options from config (optional) |
+
+**Output contract** - AI must return JSON:
+```json
+{
+  "issues": [
+    { "file": "src/utils.ts", "line": 10, "column": 1, "message": "Description" }
+  ]
+}
+```
 
 **Config** (`.tscanner/config.jsonc`):
 ```json
@@ -1181,9 +1310,17 @@ Use AI prompts to perform semantic code analysis:
     "find-enum-candidates": {
       "prompt": "find-enum-candidates.md",
       "mode": "agentic",
-      "message": "Type union could be replaced with an enum for better type safety",
+      "message": "Type union could be replaced with an enum",
       "severity": "warning",
-      "include": ["**/*.ts"]
+      "include": ["**/*.ts", "**/*.tsx", "**/*.rs"]
+    },
+    "no-dead-code": {
+      "prompt": "no-dead-code.md",
+      "mode": "content",
+      "message": "Dead code detected",
+      "severity": "error",
+      "include": ["**/*.rs"],
+      "options": { "allowTestFiles": true }
     }
   },
   "ai": {
@@ -1192,44 +1329,96 @@ Use AI prompts to perform semantic code analysis:
 }
 ```
 
-**Prompt** (`.tscanner/ai-rules/find-enum-candidates.md`):
-<pre><code class="language-markdown"># Enum Candidates Detector
+<details>
+<summary>Prompt example (agentic mode)</summary>
 
-Find TypeScript type unions that could be replaced with enums for better type safety and maintainability.
+```markdown
+# Enum Candidates Detector
+
+Find type unions that could be replaced with enums.
 
 ## What to look for
 
-1. String literal unions used in multiple places:
-   ```ts
-   type Status = 'pending' | 'active' | 'completed';
-   ```
-
-2. Repeated string literals across the codebase that represent the same concept
-
-3. Type unions used as discriminators in objects
-
-## Why enums are better
-
-- Refactoring: rename in one place
-- Autocomplete: IDE shows all options
-- Runtime: can iterate over values
-- Validation: can check if value is valid
+1. String literal unions: \`type Status = 'pending' | 'active'\`
+2. Repeated string literals across files
+3. Type unions used as discriminators
 
 ## Exploration hints
 
 - Check how the type is used across files
-- Look for related constants or string literals
-- Consider if the values are used at runtime
+- Look for related constants
 
-{{FILES}}</code></pre>
+---
 
-> 💡 See real examples in the [`.tscanner/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/ai-rules) folder of this project.
+## Files
+
+{{FILES}}
+```
+</details>
+
+<details>
+<summary>Prompt example (with options)</summary>
+
+```markdown
+# Dead Code Detector
+
+Detect dead code patterns.
+
+## Rules
+
+1. No \`#[allow(dead_code)]\` attributes
+2. No unreachable code after return/break
+
+## Options
+
+{{OPTIONS}}
+
+## Files
+
+{{FILES}}
+```
+</details>
+
+> 💡 See real examples in the [`.tscanner/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/ai-rules) and [`registry/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/registry/ai-rules) folders.
 
 </div>
 </details>
 
 </div>
 <!-- </DYNFIELD:RULES> -->
+
+<!-- <DYNFIELD:REGISTRY> -->
+## 📦 Registry<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+
+The registry is a collection of community rules ready to install with a single command. No need to write rules from scratch.
+
+```bash
+tscanner registry                     # List all available rules
+tscanner registry no-long-files       # Install a specific rule
+tscanner registry --kind script       # Filter by type (ai, script, regex)
+tscanner registry --category security # Filter by category
+tscanner registry --latest            # Use rules from main branch instead of current version
+```
+
+<div align="center">
+
+**Available rules (5)**
+
+| Rule | Type | Language | Description |
+|------|------|----------|-------------|
+| [`find-enum-candidates`](https://github.com/lucasvtiradentes/tscanner/blob/main/registry/ai-rules/find-enum-candidates/prompt.md) | <img src="https://img.shields.io/badge/ai-8B5CF6" alt="ai"> | <img src="https://img.shields.io/badge/Markdown-083fa1?logo=markdown&logoColor=white" alt="Markdown"> | Find string literal unions that could be replaced with enums |
+| [`no-long-files`](https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-long-files/script.ts) | <img src="https://img.shields.io/badge/script-10B981" alt="script"> | <img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript"> | Enforce maximum lines per file limit |
+| [`no-empty-files`](https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-empty-files/script.py) | <img src="https://img.shields.io/badge/script-10B981" alt="script"> | <img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white" alt="Python"> | Enforce minimum lines per file |
+| [`no-fixme-comments`](https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-fixme-comments/script.rs) | <img src="https://img.shields.io/badge/script-10B981" alt="script"> | <img src="https://img.shields.io/badge/Rust-DEA584?logo=rust&logoColor=white" alt="Rust"> | Disallow FIXME/XXX comments in code |
+| [`no-process-env`](https://github.com/lucasvtiradentes/tscanner/blob/main/registry/regex-rules/no-process-env/config.jsonc) | <img src="https://img.shields.io/badge/regex-6C757D" alt="regex"> | - | Disallow direct process.env access |
+
+</div>
+
+<br />
+
+> 💡 **Want to share your rule?** Open a PR adding your rule to the [`registry/`](https://github.com/lucasvtiradentes/tscanner/tree/main/registry) folder. Once merged, everyone can install it with `tscanner registry your-rule-name`.
+
+<!-- </DYNFIELD:REGISTRY> -->
 
 <!-- <DYNFIELD:INSPIRATIONS> -->
 ## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>

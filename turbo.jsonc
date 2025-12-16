@@ -3,6 +3,7 @@
   "remoteCache": {
     "enabled": true
   },
+  "globalDependencies": ["assets/constants.json"],
   "tasks": {
     "typecheck": {
       "outputLogs": "new-only",
