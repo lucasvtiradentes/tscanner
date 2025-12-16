@@ -13,7 +13,7 @@ export default defineConfig([
   },
   {
     entry: ['src/types.ts'],
-    format: ['esm'],
+    format: ['cjs'],
     outDir: 'dist',
     clean: false,
     dts: { only: true },
