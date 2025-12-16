@@ -74,24 +74,16 @@ function extractMainHeadings(content: string): { text: string; anchor: string; l
   return headings;
 }
 
-runScript((input) => {
-  const issues: ScriptIssue[] = [];
-
-  const readmeFile = input.files.find((f) => f.path.endsWith('README.md') || f.path.endsWith('readme.md'));
-
-  if (!readmeFile) {
-    return issues;
-  }
-
-  const tocLinks = extractTocLinks(readmeFile.content);
-  const headings = extractMainHeadings(readmeFile.content);
+function analyzeReadme(file: { path: string; content: string }, issues: ScriptIssue[]) {
+  const tocLinks = extractTocLinks(file.content);
+  const headings = extractMainHeadings(file.content);
 
   for (const link of tocLinks) {
     const matchingHeading = headings.find((h) => h.anchor === link.anchor);
 
     if (!matchingHeading) {
       addIssue(issues, {
-        file: readmeFile.path,
+        file: file.path,
         line: link.line,
         message: `TOC link "${link.name}" (#${link.anchor}) has no matching heading`,
       });
@@ -103,7 +95,7 @@ runScript((input) => {
 
     if (!matchingLink) {
       addIssue(issues, {
-        file: readmeFile.path,
+        file: file.path,
         line: heading.line,
         message: `Heading "${heading.text}" is not in TOC (expected: #${heading.anchor})`,
       });
@@ -120,12 +112,22 @@ runScript((input) => {
       const tocLink = tocLinks.find((l) => l.anchor === commonTocAnchors[i])!;
       const expectedHeading = headings.find((h) => h.anchor === commonHeadingAnchors[i])!;
       addIssue(issues, {
-        file: readmeFile.path,
+        file: file.path,
         line: tocLink.line,
         message: `TOC order mismatch: "${tocLink.name}" should come after "${expectedHeading.text}"`,
       });
       break;
     }
+  }
+}
+
+runScript((input) => {
+  const issues: ScriptIssue[] = [];
+
+  const readmeFiles = input.files.filter((f) => f.path.endsWith('README.md') || f.path.endsWith('readme.md'));
+
+  for (const readmeFile of readmeFiles) {
+    analyzeReadme(readmeFile, issues);
   }
 
   return issues;
