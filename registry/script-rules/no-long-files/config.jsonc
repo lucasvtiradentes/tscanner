@@ -1,0 +1,6 @@
+{
+  "command": "npx tsx script-rules/no-long-files.ts",
+  "message": "File exceeds maximum lines limit",
+  "severity": "warning",
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
+}

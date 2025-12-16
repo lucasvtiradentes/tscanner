@@ -1,0 +1,6 @@
+{
+  "pattern": "process\\.env",
+  "message": "Use config service instead of direct process.env access",
+  "severity": "warning",
+  "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"]
+}

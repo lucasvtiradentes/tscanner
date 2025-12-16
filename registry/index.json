@@ -1,0 +1,24 @@
+{
+  "rules": [
+    {
+      "name": "find-enum-candidates",
+      "kind": "ai",
+      "category": "refactoring",
+      "description": "Find string literal unions that could be replaced with enums",
+      "file": "prompt.md"
+    },
+    {
+      "name": "no-long-files",
+      "kind": "script",
+      "category": "code-quality",
+      "description": "Enforce maximum lines per file limit",
+      "file": "script.ts"
+    },
+    {
+      "name": "no-process-env",
+      "kind": "regex",
+      "category": "security",
+      "description": "Disallow direct process.env access"
+    }
+  ]
+}

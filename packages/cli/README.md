@@ -366,6 +366,34 @@ tscanner check --branch origin/main
     <td align="center">-</td>
   </tr>
   <tr>
+    <td rowspan="4" align="left"><code>rule [options] [name]</code></td>
+    <td rowspan="4" align="left">Install rules from the TScanner registry</td>
+    <td align="left"><code>--category &lt;CATEGORY&gt;</code></td>
+    <td align="center">-</td>
+    <td align="left">Filter by category</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>rule [options] [name]</code></td> -->
+    <!-- <td align="left">Install rules from the TScanner registry</td> -->
+    <td align="left"><code>--config-path &lt;CONFIG_DIR&gt;</code></td>
+    <td align="center">-</td>
+    <td align="left">Path to config folder (defaults to .tscanner)</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>rule [options] [name]</code></td> -->
+    <!-- <td align="left">Install rules from the TScanner registry</td> -->
+    <td align="left"><code>--force</code></td>
+    <td align="center">-</td>
+    <td align="left">Overwrite existing rules</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>rule [options] [name]</code></td> -->
+    <!-- <td align="left">Install rules from the TScanner registry</td> -->
+    <td align="left"><code>--kind [ai/script/regex]</code></td>
+    <td align="center">-</td>
+    <td align="left">Filter by rule kind (ai, script, regex)</td>
+  </tr>
+  <tr>
     <td rowspan="1" align="left"><code>validate [config-path]</code></td>
     <td rowspan="1" align="left">Validate configuration file</td>
     <td align="center">-</td>

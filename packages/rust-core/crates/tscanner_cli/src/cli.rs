@@ -53,6 +53,23 @@ impl CliRuleKind {
     }
 }
 
+#[derive(Debug, Clone, ValueEnum)]
+pub enum RegistryRuleKind {
+    Ai,
+    Script,
+    Regex,
+}
+
+impl RegistryRuleKind {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            RegistryRuleKind::Ai => "ai",
+            RegistryRuleKind::Script => "script",
+            RegistryRuleKind::Regex => "regex",
+        }
+    }
+}
+
 #[derive(Parser)]
 #[command(name = "tscanner")]
 #[command(version, about = "Code quality scanner for the AI-generated code era", long_about = None)]
@@ -208,6 +225,36 @@ pub enum Commands {
 
     #[command(about = "Start the LSP server (Language Server Protocol)")]
     Lsp,
+
+    #[command(about = "Install rules from the TScanner registry")]
+    Rule {
+        #[arg(
+            value_name = "NAME",
+            help = "Rule name to install (shows list if omitted)"
+        )]
+        name: Option<String>,
+
+        #[arg(
+            long,
+            value_enum,
+            value_name = "KIND",
+            help = "Filter by rule kind (ai, script, regex)"
+        )]
+        kind: Option<RegistryRuleKind>,
+
+        #[arg(long, value_name = "CATEGORY", help = "Filter by category")]
+        category: Option<String>,
+
+        #[arg(long, help = "Overwrite existing rules")]
+        force: bool,
+
+        #[arg(
+            long,
+            value_name = "CONFIG_DIR",
+            help = "Path to config folder (defaults to .tscanner)"
+        )]
+        config_path: Option<PathBuf>,
+    },
 }
 
 impl Commands {

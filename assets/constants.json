@@ -31,7 +31,8 @@
     "urls": {
       "repo": "https://github.com/lucasvtiradentes/tscanner",
       "repoBlob": "https://github.com/lucasvtiradentes/tscanner/blob/main",
-      "rulesBase": "https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin"
+      "rulesBase": "https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin",
+      "registryBase": "https://raw.githubusercontent.com/lucasvtiradentes/tscanner/feature/general_improvements_v11/registry"
     },
     "lsp": {
       "clientId": "tscanner",
