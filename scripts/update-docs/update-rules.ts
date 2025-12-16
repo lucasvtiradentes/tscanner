@@ -176,13 +176,13 @@ Customize ${PACKAGE_DISPLAY_NAME} to validate what matters to your project while
   </tr>
   <tr>
     <td><b>Regex</b></td>
-    <td>Simple text patterns</td>
+    <td>Simple text patterns for any file</td>
     <td>Match <code>TODO</code> comments, banned imports, naming conventions</td>
   </tr>
   <tr>
     <td><b>Script</b></td>
-    <td>Complex logic via JS</td>
-    <td>Validate file naming, check if tests exist, enforce folder structure</td>
+    <td>Complex logic in any language (TS, Python, Rust, Go...)</td>
+    <td>Validate file naming, check if tests exist, enforce folder structure, type parity checks</td>
   </tr>
   <tr>
     <td><b>AI</b></td>
@@ -195,8 +195,96 @@ Customize ${PACKAGE_DISPLAY_NAME} to validate what matters to your project while
 
 `;
 
-  const scriptRuleExample = readFileSync(join(rootDir, 'assets/configs/example-no-long-files.ts'), 'utf-8').trim();
   const aiRuleExample = readFileSync(join(rootDir, 'assets/configs/example-find-enum-candidates.md'), 'utf-8').trim();
+
+  const scriptInputContract = `{
+  "files": [
+    {
+      "path": "src/utils.ts",
+      "content": "export function add(a: number, b: number)...",
+      "lines": ["export function add(a: number, b: number)", "..."]
+    }
+  ],
+  "options": { "maxLines": 300 },
+  "workspaceRoot": "/path/to/project"
+}`;
+
+  const scriptOutputContract = `{
+  "issues": [
+    { "file": "src/utils.ts", "line": 10, "message": "Issue description" }
+  ]
+}`;
+
+  const scriptExampleTs = `#!/usr/bin/env npx tsx
+import { stdin } from 'node:process';
+
+async function main() {
+  let data = '';
+  for await (const chunk of stdin) data += chunk;
+
+  const input = JSON.parse(data);
+  const issues = [];
+
+  for (const file of input.files) {
+    if (file.lines.length > 300) {
+      issues.push({ file: file.path, line: 301, message: \`File exceeds 300 lines\` });
+    }
+  }
+
+  console.log(JSON.stringify({ issues }));
+}
+main().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});`;
+
+  const scriptExamplePy = `#!/usr/bin/env python3
+import json, sys
+
+def main():
+    input_data = json.loads(sys.stdin.read())
+    issues = []
+
+    for file in input_data["files"]:
+        if len(file["lines"]) > 300:
+            issues.append({"file": file["path"], "line": 301, "message": "File exceeds 300 lines"})
+
+    print(json.dumps({"issues": issues}))
+
+if __name__ == "__main__":
+    main()`;
+
+  const scriptExampleRs = `#!/usr/bin/env rust-script
+use std::io::{self, Read};
+use serde::{Deserialize, Serialize};
+
+#[derive(Deserialize)]
+struct ScriptFile { path: String, lines: Vec<String> }
+
+#[derive(Deserialize)]
+struct ScriptInput { files: Vec<ScriptFile> }
+
+#[derive(Serialize)]
+struct ScriptIssue { file: String, line: usize, message: String }
+
+#[derive(Serialize)]
+struct ScriptOutput { issues: Vec<ScriptIssue> }
+
+fn main() -> io::Result<()> {
+    let mut data = String::new();
+    io::stdin().read_to_string(&mut data)?;
+    let input: ScriptInput = serde_json::from_str(&data).unwrap();
+    let mut issues = Vec::new();
+
+    for file in input.files {
+        if file.lines.len() > 300 {
+            issues.push(ScriptIssue { file: file.path, line: 301, message: "File exceeds 300 lines".into() });
+        }
+    }
+
+    println!("{}", serde_json::to_string(&ScriptOutput { issues }).unwrap());
+    Ok(())
+}`;
 
   const customRulesContent = `<details>
 <summary>Regex rules examples</summary>
@@ -237,7 +325,17 @@ Define patterns to match in your code using regular expressions:
 <br />
 <div align="left">
 
-Run custom scripts that receive file data via stdin and output issues as JSON:
+Run custom scripts in **any language** (TypeScript, Python, Rust, Go, etc.) that reads JSON from stdin and outputs JSON to stdout.
+
+**Input contract** (received via stdin):
+\`\`\`json
+${scriptInputContract}
+\`\`\`
+
+**Output contract** (expected via stdout):
+\`\`\`json
+${scriptOutputContract}
+\`\`\`
 
 **Config** (\`.tscanner/config.jsonc\`):
 \`\`\`json
@@ -247,19 +345,38 @@ Run custom scripts that receive file data via stdin and output issues as JSON:
       "no-long-files": {
         "command": "npx tsx script-rules/no-long-files.ts",
         "message": "File exceeds 300 lines limit",
-        "include": ["packages/**/*.ts", "packages/**/*.rs"]
+        "include": ["**/*.ts", "**/*.rs", "**/*.py", "**/*.go"]
       }
     }
   }
 }
 \`\`\`
 
-**Script** (\`.tscanner/script-rules/no-long-files.ts\`):
-\`\`\`typescript
-${scriptRuleExample}
-\`\`\`
+<details>
+<summary>TypeScript example</summary>
 
-> 💡 See real examples in the [\`.tscanner/script-rules/\`](${REPO_URL}/tree/main/.tscanner/script-rules) folder of this project.
+\`\`\`typescript
+${scriptExampleTs}
+\`\`\`
+</details>
+
+<details>
+<summary>Python example</summary>
+
+\`\`\`python
+${scriptExamplePy}
+\`\`\`
+</details>
+
+<details>
+<summary>Rust example</summary>
+
+\`\`\`rust
+${scriptExampleRs}
+\`\`\`
+</details>
+
+> 💡 See real examples in the [\`.tscanner/script-rules/\`](${REPO_URL}/tree/main/.tscanner/script-rules) and [\`registry/script-rules/\`](${REPO_URL}/tree/main/registry/script-rules) folders.
 
 </div>
 </details>
