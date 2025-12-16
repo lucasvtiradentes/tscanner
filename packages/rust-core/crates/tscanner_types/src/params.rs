@@ -33,6 +33,10 @@ pub struct ScanContentParams {
     pub config: Option<serde_json::Value>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub config_dir: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub branch: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub uncommitted: Option<bool>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
