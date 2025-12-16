@@ -149,10 +149,11 @@ fn add_script_rule(
     }
 
     let mut rule_config = Map::new();
-    rule_config.insert(
-        "command".to_string(),
-        json!(format!("npx tsx script-rules/{}.ts", rule.name)),
-    );
+    let command = config
+        .command
+        .clone()
+        .context("Script rule config must have a 'command' field")?;
+    rule_config.insert("command".to_string(), json!(command));
     rule_config.insert("message".to_string(), json!(config.message));
     if let Some(severity) = &config.severity {
         rule_config.insert("severity".to_string(), json!(severity));

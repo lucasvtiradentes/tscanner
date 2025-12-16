@@ -22,7 +22,6 @@ pub struct RuleConfig {
     #[serde(default)]
     pub pattern: Option<String>,
     #[serde(default)]
-    #[allow(dead_code)]
     pub command: Option<String>,
     #[serde(default)]
     pub mode: Option<String>,
