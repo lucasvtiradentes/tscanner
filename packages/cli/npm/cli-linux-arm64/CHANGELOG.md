@@ -1,5 +1,11 @@
 # @tscanner/cli-linux-arm64
 
+## 0.1.0
+
+### Minor Changes
+
+- 3451049: fix types exporting
+
 ## 0.0.41
 
 ### Patch Changes
