@@ -1,5 +1,6 @@
 import { join, resolve } from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
+import { REPO_URL } from 'tscanner-common';
 
 type TFields = 'WORKFLOW';
 
@@ -10,7 +11,7 @@ export function updateWorkflow() {
     return `
 ## 🔀 Workflow<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-> **Vision:** Go fast with AI and know exactly what to fix before shipping. Detect bad patterns while reviewing code? Ask AI to create [regex](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/config.jsonc), [script](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/script-rules), or [AI rules](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/ai-rules) to catch it forever. Use the VSCode extension's "Copy Issues" button to get a [ready-to-paste prompt](https://github.com/lucasvtiradentes/tscanner/blob/main/assets/prompts/fix-tscanner-issues.prompt.md) and let your favorite AI tool fix everything. Before merging, see all issues at a glance in a PR comment from your CI/CD: nothing blocks by default, you decide what matters.
+> **Vision:** Go fast with AI and know exactly what to fix before shipping. Detect bad patterns while reviewing code? Ask AI to create [regex](${REPO_URL}/blob/main/.tscanner/config.jsonc), [script](${REPO_URL}/tree/main/.tscanner/script-rules), or [AI rules](${REPO_URL}/tree/main/.tscanner/ai-rules) to catch it forever. Use the VSCode extension's "Copy Issues" button to get a [ready-to-paste prompt](${REPO_URL}/blob/main/assets/prompts/fix-tscanner-issues.prompt.md) and let your favorite AI tool fix everything. Before merging, see all issues at a glance in a PR comment from your CI/CD: nothing blocks by default, you decide what matters.
 
 <div align="center">
   <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow"></a>
@@ -66,20 +67,20 @@ We use TScanner to maintain this very codebase. Here's our setup:
 - \`no-process-env\`: Prevent direct \`process.env\` access
 
 **Script rules (8)**:
-- [\`types-parity-match\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/types-parity-match.ts): Ensure TypeScript and Rust shared types are in sync
-- [\`config-schema-match\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/config-schema-match.ts): Keep Rust config and TypeScript schema aligned
-- [\`cli-builder-match\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/cli-builder-match.ts): CLI builder must cover all CLI check flags
-- [\`action-zod-match\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/action-zod-match.ts): GitHub Action inputs must match Zod validation
-- [\`readme-toc-match\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/readme-toc-match.ts): README table of contents must match all headings
-- [\`rust-entry-simple\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/rust-entry-simple.ts): \`lib.rs\` and \`mod.rs\` should only contain module declarations
-- [\`no-long-files\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/no-long-files.ts): Files cannot exceed 300 lines
-- [\`no-default-node-imports\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/no-default-node-imports.ts): Use named imports for Node.js modules
+- [\`types-parity-match\`](${REPO_URL}/blob/main/.tscanner/script-rules/types-parity-match.ts): Ensure TypeScript and Rust shared types are in sync
+- [\`config-schema-match\`](${REPO_URL}/blob/main/.tscanner/script-rules/config-schema-match.ts): Keep Rust config and TypeScript schema aligned
+- [\`cli-builder-match\`](${REPO_URL}/blob/main/.tscanner/script-rules/cli-builder-match.ts): CLI builder must cover all CLI check flags
+- [\`action-zod-match\`](${REPO_URL}/blob/main/.tscanner/script-rules/action-zod-match.ts): GitHub Action inputs must match Zod validation
+- [\`readme-toc-match\`](${REPO_URL}/blob/main/.tscanner/script-rules/readme-toc-match.ts): README table of contents must match all headings
+- [\`rust-entry-simple\`](${REPO_URL}/blob/main/.tscanner/script-rules/rust-entry-simple.ts): \`lib.rs\` and \`mod.rs\` should only contain module declarations
+- [\`no-long-files\`](${REPO_URL}/blob/main/.tscanner/script-rules/no-long-files.ts): Files cannot exceed 300 lines
+- [\`no-default-node-imports\`](${REPO_URL}/blob/main/.tscanner/script-rules/no-default-node-imports.ts): Use named imports for Node.js modules
 
 **AI rules (2)**:
-- [\`no-dead-code\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/ai-rules/no-dead-code.md): Detect dead code patterns in Rust executors
-- [\`find-enum-candidates\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/ai-rules/find-enum-candidates.md): Find type unions that could be enums
+- [\`no-dead-code\`](${REPO_URL}/blob/main/.tscanner/ai-rules/no-dead-code.md): Detect dead code patterns in Rust executors
+- [\`find-enum-candidates\`](${REPO_URL}/blob/main/.tscanner/ai-rules/find-enum-candidates.md): Find type unions that could be enums
 
-> 💡 Check the [\`.tscanner/\`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder to see the full config and script implementations.
+> 💡 Check the [\`.tscanner/\`](${REPO_URL}/tree/main/.tscanner) folder to see the full config and script implementations.
 
 </div>
 </details>

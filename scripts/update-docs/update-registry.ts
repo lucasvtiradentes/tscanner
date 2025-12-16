@@ -112,7 +112,7 @@ ${rulesTableRows}
 
 <br />
 
-> 💡 **Want to share your rule?** Open a PR adding your rule to the [\`registry/\`](${REPO_URL}/tree/main/registry) folder. Once merged, everyone can install it with \`tscanner registry your-rule-name\`.
+> **Want to share your rule?** Open a PR adding your rule to the [\`registry/\`](${REPO_URL}/tree/main/registry) folder. Once merged, everyone can install it with \`tscanner registry your-rule-name\`.
 `;
   };
 

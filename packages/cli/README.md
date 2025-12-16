@@ -1312,7 +1312,7 @@ tscanner registry --latest            # Use rules from main branch instead of cu
 
 <br />
 
-> 💡 **Want to share your rule?** Open a PR adding your rule to the [`registry/`](https://github.com/lucasvtiradentes/tscanner/tree/main/registry) folder. Once merged, everyone can install it with `tscanner registry your-rule-name`.
+> **Want to share your rule?** Open a PR adding your rule to the [`registry/`](https://github.com/lucasvtiradentes/tscanner/tree/main/registry) folder. Once merged, everyone can install it with `tscanner registry your-rule-name`.
 
 <!-- </DYNFIELD:REGISTRY> -->
 
