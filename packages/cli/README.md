@@ -71,10 +71,10 @@ Define what "good code" means for your project. Scan your codebase from the term
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 - **Your Rules, Enforced** - 38 built-in checks + define your own with regex, scripts, or AI
-- **Sub-second Scans** - Rust engine processes hundreds of files in <1s, with smart caching
+- **Community Rules** - Install pre-built rules from registry or share your own with the world
 - **Focus on What Matters** - 4 scan modes: whole codebase, branch changes, uncommitted changes or staged changes
-- **Not a Blocker** - Issues are warnings by default; set as errors to fail CI/lint-staged
 - **Sub-second Scans** - Rust engine processes hundreds of files in <1s, with smart caching
+- **Not a Blocker** - Issues are warnings by default; set as errors to fail CI/lint-staged
 <!-- </DYNFIELD:FEATURES> -->
 
 <!-- <DYNFIELD:MOTIVATION> -->

@@ -123,12 +123,14 @@ Define what "good code" means for your project. TScanner enforces your patterns 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 - **Your Rules, Enforced** - 38 built-in checks + define your own with regex, scripts, or AI
-- **See Issues Instantly** - Real-time feedback in code editor as you type, no manual scan needed
+- **Community Rules** - Install pre-built rules from registry or share your own with the world
 - **Focus on What Matters** - 4 scan modes: whole codebase, branch changes, uncommitted changes or staged changes
+- **Sub-second Scans** - Rust engine processes hundreds of files in <1s, with smart caching
+- **Not a Blocker** - Issues are warnings by default; set as errors to fail CI/lint-staged
+- **See Issues Instantly** - Real-time feedback in code editor as you type, no manual scan needed
 - **Copy for AI** - Export issues to clipboard, paste into chat for bulk fixes
 - **Catch Before Merge** - PR comments show violations with clickable links to exact lines
-- **Not a Blocker** - Issues are warnings by default; set as errors to fail CI/lint-staged
-- **Sub-second Scans** - Rust engine processes hundreds of files in <1s, with smart caching
+- **One Comment, Updated** - No spam, same comment updated on each push
 <!-- </DYNFIELD:FEATURES> -->
 
 <!-- <DYNFIELD:MOTIVATION> -->
