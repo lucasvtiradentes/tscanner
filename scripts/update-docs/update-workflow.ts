@@ -10,6 +10,8 @@ export function updateWorkflow() {
     return `
 ## 🔀 Workflow<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
+> **Vision:** Go fast with AI and know exactly what to fix before shipping. Detect bad patterns while reviewing code? Ask AI to create [regex](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/config.jsonc), [script](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/script-rules), or [AI rules](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/ai-rules) to catch it forever. Use the VSCode extension's "Copy Issues" button to get a [ready-to-paste prompt](https://github.com/lucasvtiradentes/tscanner/blob/main/assets/prompts/fix-tscanner-issues.prompt.md) and let your favorite AI tool fix everything. Before merging, see all issues at a glance in a PR comment from your CI/CD: nothing blocks by default, you decide what matters.
+
 <div align="center">
   <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow"></a>
   <br />
@@ -44,6 +46,10 @@ export function updateWorkflow() {
 
 </div>
 </details>
+
+</div>
+
+<div align="center">
 
 <details>
 <summary>How TScanner maintains its own codebase?</summary>
