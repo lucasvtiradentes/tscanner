@@ -64,13 +64,13 @@ function getCliSection(startStep = 1) {
 
 \`\`\`bash
 # Scan workspace
-${PACKAGE_NAME} check
+npx ${PACKAGE_NAME} check
 
 # Scan uncommitted changes (staged + unstaged)
-${PACKAGE_NAME} check --uncommitted
+npx ${PACKAGE_NAME} check --uncommitted
 
 # Scan only changed files vs branch
-${PACKAGE_NAME} check --branch origin/main
+npx ${PACKAGE_NAME} check --branch origin/main
 \`\`\`
 
 ${startStep + 1}. Integrate with [lint-staged](https://github.com/lint-staged/lint-staged) (optional)

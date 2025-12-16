@@ -539,17 +539,14 @@ Access via Command Palette (Ctrl/Cmd + Shift + P):
 
 The VS Code extension and CLI binary must be compatible to work correctly. If you see a version mismatch warning:
 
-**Why update?**
-- New extension features may require updated CLI binary
-- CLI updates may include bug fixes and performance improvements
-- Version mismatches can cause unexpected behavior
+**How to update?:**
 
-**How to update the CLI:**
+1. update the npm package 
 
 Local installations:
 
 ```bash
-npm update tscanner
+npm install tscanner@latest
 pnpm update tscanner --latest
 yarn upgrade tscanner --latest
 ```
@@ -557,15 +554,23 @@ yarn upgrade tscanner --latest
 Global installations:
 
 ```bash
-npm update -g tscanner
+npm install -g tscanner@latest
 pnpm update -g tscanner --latest
 yarn global upgrade tscanner --latest
 ```
 
-**Check versions:**
-- Extension version: Check in VS Code Extensions panel
-- CLI version: Run `tscanner --version` in terminal
-- Status bar tooltip shows both versions when hovering over TScanner icon
+2. update the version in the [.tscanner/config.jsonc](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/config.jsonc) to match the new version or just use `latest` if you are going to regularly update it
+
+```
+"$schema": "https://unpkg.com/tscanner@0.0.1/schema.json", // -> tscanner@0.1.0 OR tscanner@latest
+```
+
+3. restart vscode
+
+**Why update?**
+- New extension features may require updated CLI binary
+- CLI updates may include bug fixes and performance improvements
+- Version mismatches can cause unexpected behavior
 
 <!-- <DYNFIELD:COMMON_SECTION_CONFIG> -->
 ## ⚙️ Configuration<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>

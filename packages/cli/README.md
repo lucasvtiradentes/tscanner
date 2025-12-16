@@ -265,13 +265,13 @@ After that you can already use the CLI:
 
 ```bash
 # Scan workspace
-tscanner check
+npx tscanner check
 
 # Scan uncommitted changes (staged + unstaged)
-tscanner check --uncommitted
+npx tscanner check --uncommitted
 
 # Scan only changed files vs branch
-tscanner check --branch origin/main
+npx tscanner check --branch origin/main
 ```
 
 4. Integrate with [lint-staged](https://github.com/lint-staged/lint-staged) (optional)

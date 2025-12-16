@@ -352,13 +352,13 @@ After that you can use it in the three modes below:
 
 ```bash
 # Scan workspace
-tscanner check
+npx tscanner check
 
 # Scan uncommitted changes (staged + unstaged)
-tscanner check --uncommitted
+npx tscanner check --uncommitted
 
 # Scan only changed files vs branch
-tscanner check --branch origin/main
+npx tscanner check --branch origin/main
 ```
 
 2. Integrate with [lint-staged](https://github.com/lint-staged/lint-staged) (optional)
