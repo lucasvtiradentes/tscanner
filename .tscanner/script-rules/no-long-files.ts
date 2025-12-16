@@ -1,6 +1,6 @@
 #!/usr/bin/env npx tsx
 
-import { type ScriptIssue, addIssue, runScript } from '../../packages/cli/src/types';
+import { type ScriptIssue, addIssue, runScript } from '../../packages/cli/src/types'; // from 'tscanner'
 
 const MAX_LINES = 300;
 

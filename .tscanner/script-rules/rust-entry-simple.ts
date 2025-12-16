@@ -1,6 +1,6 @@
 #!/usr/bin/env npx tsx
 
-import { type ScriptFile, type ScriptIssue, addIssue, runScript } from '../../packages/cli/src/types';
+import { type ScriptFile, type ScriptIssue, addIssue, runScript } from '../../packages/cli/src/types'; // from 'tscanner'
 
 function analyzeEntryFile(file: ScriptFile, issues: ScriptIssue[]): void {
   const lines = file.content.split('\n');
