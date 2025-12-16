@@ -3,6 +3,7 @@
   "remoteCache": {
     "enabled": true
   },
+  "globalDependencies": ["assets/constants.json"],
   "tasks": {
     "typecheck": {
       "outputLogs": "new-only",
@@ -42,8 +43,7 @@
         "crates/**",
         "Cargo.toml",
         "Cargo.lock",
-        "../cli/schema.json",
-        "../../assets/constants.json"
+        "../cli/schema.json"
       ]
     },
     "tscanner#build": {
