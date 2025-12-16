@@ -1,5 +1,11 @@
 # @tscanner/cli-win32-x64
 
+## 0.0.41
+
+### Patch Changes
+
+- 23aaae1: add registry
+
 ## 0.0.40
 
 ### Patch Changes

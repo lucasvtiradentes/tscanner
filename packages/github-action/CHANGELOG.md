@@ -1,5 +1,11 @@
 # tscanner-github-action
 
+## 0.0.38
+
+### Patch Changes
+
+- 23aaae1: add registry
+
 ## 0.0.37
 
 ### Patch Changes
