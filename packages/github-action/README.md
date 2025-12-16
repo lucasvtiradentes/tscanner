@@ -1466,13 +1466,44 @@ npx tscanner registry --latest            # Use rules from main branch instead o
 
 **Available rules (5)**
 
-| Rule | Type | Language | Description |
-|------|------|----------|-------------|
-| [`find-enum-candidates`](https://github.com/lucasvtiradentes/tscanner/blob/main/registry/ai-rules/find-enum-candidates/prompt.md) | <img src="https://img.shields.io/badge/ai-8B5CF6" alt="ai"> | <img src="https://img.shields.io/badge/Markdown-083fa1?logo=markdown&logoColor=white" alt="Markdown"> | Find string literal unions that could be replaced with enums |
-| [`no-long-files`](https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-long-files/script.ts) | <img src="https://img.shields.io/badge/script-10B981" alt="script"> | <img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript"> | Enforce maximum lines per file limit |
-| [`no-empty-files`](https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-empty-files/script.py) | <img src="https://img.shields.io/badge/script-10B981" alt="script"> | <img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white" alt="Python"> | Enforce minimum lines per file |
-| [`no-fixme-comments`](https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-fixme-comments/script.rs) | <img src="https://img.shields.io/badge/script-10B981" alt="script"> | <img src="https://img.shields.io/badge/Rust-DEA584?logo=rust&logoColor=white" alt="Rust"> | Disallow FIXME/XXX comments in code |
-| [`no-process-env`](https://github.com/lucasvtiradentes/tscanner/blob/main/registry/regex-rules/no-process-env/config.jsonc) | <img src="https://img.shields.io/badge/regex-6C757D" alt="regex"> | - | Disallow direct process.env access |
+<table>
+  <tr>
+    <th width="33%">Rule</th>
+    <th width="17%">Type</th>
+    <th width="17%">Language</th>
+    <th width="33%">Description</th>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/registry/ai-rules/find-enum-candidates/prompt.md"><code>find-enum-candidates</code></a></td>
+    <td><img src="https://img.shields.io/badge/ai-8B5CF6" alt="ai"></td>
+    <td><img src="https://img.shields.io/badge/Markdown-083fa1?logo=markdown&logoColor=white" alt="Markdown"></td>
+    <td>Find string literal unions that could be replaced with enums</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-long-files/script.ts"><code>no-long-files</code></a></td>
+    <td><img src="https://img.shields.io/badge/script-10B981" alt="script"></td>
+    <td><img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript"></td>
+    <td>Enforce maximum lines per file limit</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-empty-files/script.py"><code>no-empty-files</code></a></td>
+    <td><img src="https://img.shields.io/badge/script-10B981" alt="script"></td>
+    <td><img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white" alt="Python"></td>
+    <td>Enforce minimum lines per file</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-fixme-comments/script.rs"><code>no-fixme-comments</code></a></td>
+    <td><img src="https://img.shields.io/badge/script-10B981" alt="script"></td>
+    <td><img src="https://img.shields.io/badge/Rust-DEA584?logo=rust&logoColor=white" alt="Rust"></td>
+    <td>Disallow FIXME/XXX comments in code</td>
+  </tr>
+  <tr>
+    <td><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/registry/regex-rules/no-process-env/config.jsonc"><code>no-process-env</code></a></td>
+    <td><img src="https://img.shields.io/badge/regex-6C757D" alt="regex"></td>
+    <td>-</td>
+    <td>Disallow direct process.env access</td>
+  </tr>
+</table>
 
 </div>
 
