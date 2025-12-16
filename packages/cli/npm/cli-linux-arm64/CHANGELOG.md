@@ -1,5 +1,11 @@
 # @tscanner/cli-linux-arm64
 
+## 0.1.1
+
+### Patch Changes
+
+- b9002a9: fix binary resolution
+
 ## 0.1.0
 
 ### Minor Changes
