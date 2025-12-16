@@ -112,6 +112,7 @@
       "mode": "content",
       "message": "Dead code detected - remove unused code instead of suppressing warnings",
       "severity": "warning",
+      "options": { "includeSystemFiles": true },
       "include": ["packages/rust-core/crates/tscanner_scanner/src/executors/**.rs"]
     },
     "find-enum-candidates": {

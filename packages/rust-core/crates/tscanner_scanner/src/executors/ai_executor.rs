@@ -424,18 +424,18 @@ impl AiExecutor {
     ) -> Result<Vec<Issue>, AiError> {
         let files_section =
             self.format_files_section(files, workspace_root, &rule_config.mode, changed_lines);
-        let rule_prompt = prompt_content.replace(ai_placeholder_files(), &files_section);
         let options_section = if rule_config.options.is_null() {
             String::new()
         } else {
             format!(
-                "## Additional Options\n\n```json\n{}\n```\n",
+                "```json\n{}\n```",
                 serde_json::to_string_pretty(&rule_config.options).unwrap_or_default()
             )
         };
-        let full_prompt = AI_RULE_WRAPPER
-            .replace(ai_placeholder_content(), &rule_prompt)
+        let rule_prompt = prompt_content
+            .replace(ai_placeholder_files(), &files_section)
             .replace(ai_placeholder_options(), &options_section);
+        let full_prompt = AI_RULE_WRAPPER.replace(ai_placeholder_content(), &rule_prompt);
 
         self.save_prompt_to_tmp(rule_name, &full_prompt);
 
