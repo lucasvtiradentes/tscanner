@@ -15,6 +15,20 @@
       "file": "script.ts"
     },
     {
+      "name": "no-empty-files",
+      "kind": "script",
+      "category": "code-quality",
+      "description": "Enforce minimum lines per file",
+      "file": "script.py"
+    },
+    {
+      "name": "no-fixme-comments",
+      "kind": "script",
+      "category": "code-quality",
+      "description": "Disallow FIXME/XXX comments in code",
+      "file": "script.rs"
+    },
+    {
       "name": "no-process-env",
       "kind": "regex",
       "category": "security",
