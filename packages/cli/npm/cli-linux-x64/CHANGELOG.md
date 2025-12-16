@@ -1,5 +1,11 @@
 # @tscanner/cli-linux-x64
 
+## 0.1.2
+
+### Patch Changes
+
+- 4d19618: update docs
+
 ## 0.1.1
 
 ### Patch Changes
