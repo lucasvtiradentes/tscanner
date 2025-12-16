@@ -144,7 +144,7 @@ TScanner lets you define those rules once. Every AI-generated file, every PR, ev
 
 <!-- <DYNFIELD:WORKFLOW> -->
 
-## 🔀 Workflow <a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+## 🔀 Workflow<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 Here is a diagram that shows how TScanner fits into the average coding workflow:
 
