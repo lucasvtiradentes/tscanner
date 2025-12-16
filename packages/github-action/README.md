@@ -178,7 +178,7 @@ We use TScanner to maintain this very codebase. Here's our setup:
 - [`no-dead-code`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/ai-rules/no-dead-code.md): Detect dead code patterns in Rust executors
 - [`find-enum-candidates`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/ai-rules/find-enum-candidates.md): Find type unions that could be enums
 
-> 💡 Check the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder to see the full config and script implementations.
+> TIP: Check the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder to see the full config and script implementations.
 
 </div>
 </details>
