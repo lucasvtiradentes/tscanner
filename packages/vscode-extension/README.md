@@ -72,11 +72,11 @@ See code quality issues the moment you type, not after you ship. TScanner shows 
 
 - **Your Rules, Enforced** - 38 built-in checks + define your own with regex, scripts, or AI
 - **Community Rules** - Install pre-built rules from registry or share your own with the world
-- **Focus on What Matters** - 4 scan modes: whole codebase, branch changes, uncommitted changes or staged changes
-- **Sub-second Scans** - Rust engine processes hundreds of files in <1s, with smart caching
-- **Not a Blocker** - Issues are warnings by default; set as errors to fail CI/lint-staged
 - **See Issues Instantly** - Real-time feedback in code editor as you type, no manual scan needed
 - **Copy for AI** - Export issues to clipboard, paste into chat for bulk fixes
+- **Multiple Scan Modes** - Whole codebase, branch changes, uncommitted changes, or staged changes
+- **Sub-second Scans** - Rust engine processes hundreds of files in <1s, with smart caching
+- **Not a Blocker** - Issues are warnings by default; set as errors to fail CI/lint-staged
 <!-- </DYNFIELD:FEATURES> -->
 
 <!-- <DYNFIELD:MOTIVATION> -->

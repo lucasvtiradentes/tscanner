@@ -49,8 +49,8 @@ const FEATURES: Record<FeatureId, FeatureBullet> = {
   },
   [FeatureId.Focus]: {
     id: FeatureId.Focus,
-    title: 'Focus on What Matters',
-    description: '4 scan modes: whole codebase, branch changes, uncommitted changes or staged changes',
+    title: 'Multiple Scan Modes',
+    description: 'Whole codebase, branch changes, uncommitted changes, or staged changes',
   },
   [FeatureId.SpeedCached]: {
     id: FeatureId.SpeedCached,
@@ -84,13 +84,7 @@ const FEATURES: Record<FeatureId, FeatureBullet> = {
   },
 };
 
-const BASE_FEATURES: FeatureId[] = [
-  FeatureId.Rules,
-  FeatureId.Registry,
-  FeatureId.Focus,
-  FeatureId.SpeedCached,
-  FeatureId.Severity,
-];
+const BASE_FEATURES_START: FeatureId[] = [FeatureId.Rules, FeatureId.Registry];
 
 const UNIQUE_FEATURES: Record<Package, FeatureId[]> = {
   [Package.Main]: [FeatureId.Realtime, FeatureId.CopyAi, FeatureId.Pr, FeatureId.OneComment],
@@ -98,6 +92,8 @@ const UNIQUE_FEATURES: Record<Package, FeatureId[]> = {
   [Package.Vscode]: [FeatureId.Realtime, FeatureId.CopyAi],
   [Package.Action]: [FeatureId.Pr, FeatureId.OneComment],
 };
+
+const BASE_FEATURES_END: FeatureId[] = [FeatureId.Focus, FeatureId.SpeedCached, FeatureId.Severity];
 
 const README_PATHS: Record<Package, string> = {
   [Package.Main]: 'README.md',
@@ -111,7 +107,7 @@ function formatBullet(bullet: FeatureBullet): string {
 }
 
 function getFeaturesContent(pkg: Package): string {
-  const allFeatures = [...BASE_FEATURES, ...UNIQUE_FEATURES[pkg]];
+  const allFeatures = [...BASE_FEATURES_START, ...UNIQUE_FEATURES[pkg], ...BASE_FEATURES_END];
   const bullets = allFeatures.map((id) => formatBullet(FEATURES[id])).join('\n');
 
   return `## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
