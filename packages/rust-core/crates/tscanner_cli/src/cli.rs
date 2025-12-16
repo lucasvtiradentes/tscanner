@@ -250,6 +250,12 @@ pub enum Commands {
 
         #[arg(
             long,
+            help = "Use latest rules from main branch instead of version-matched"
+        )]
+        latest: bool,
+
+        #[arg(
+            long,
             value_name = "CONFIG_DIR",
             help = "Path to config folder (defaults to .tscanner)"
         )]

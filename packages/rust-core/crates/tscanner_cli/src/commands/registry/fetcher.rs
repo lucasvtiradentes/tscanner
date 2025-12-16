@@ -1,6 +1,5 @@
 use anyhow::{Context, Result};
 use serde::Deserialize;
-use tscanner_constants::registry_base_url;
 
 #[derive(Debug, Clone, Deserialize)]
 pub struct RegistryIndex {
@@ -34,8 +33,7 @@ pub struct RuleConfig {
     pub exclude: Option<Vec<String>>,
 }
 
-pub fn fetch_registry_index() -> Result<RegistryIndex> {
-    let base_url = registry_base_url();
+pub fn fetch_registry_index(base_url: &str) -> Result<RegistryIndex> {
     let url = format!("{}/index.json", base_url);
     let response = reqwest::blocking::get(&url)
         .context(format!("Failed to fetch registry index from {}", url))?;
@@ -55,8 +53,7 @@ pub fn fetch_registry_index() -> Result<RegistryIndex> {
     Ok(index)
 }
 
-pub fn fetch_rule_config(rule: &RegistryRule) -> Result<RuleConfig> {
-    let base_url = registry_base_url();
+pub fn fetch_rule_config(base_url: &str, rule: &RegistryRule) -> Result<RuleConfig> {
     let folder = get_rule_folder(&rule.kind)?;
 
     let url = format!("{}/{}/{}/config.jsonc", base_url, folder, rule.name);
@@ -80,7 +77,7 @@ pub fn fetch_rule_config(rule: &RegistryRule) -> Result<RuleConfig> {
     Ok(config)
 }
 
-pub fn fetch_rule_file(rule: &RegistryRule) -> Result<Option<(String, String)>> {
+pub fn fetch_rule_file(base_url: &str, rule: &RegistryRule) -> Result<Option<(String, String)>> {
     if rule.kind == "regex" {
         return Ok(None);
     }
@@ -90,7 +87,6 @@ pub fn fetch_rule_file(rule: &RegistryRule) -> Result<Option<(String, String)>> 
         None => get_default_filename(&rule.kind)?,
     };
 
-    let base_url = registry_base_url();
     let folder = get_rule_folder(&rule.kind)?;
 
     let url = format!("{}/{}/{}/{}", base_url, folder, rule.name, filename);

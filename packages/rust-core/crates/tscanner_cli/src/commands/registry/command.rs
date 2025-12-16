@@ -7,8 +7,10 @@ use std::path::{Path, PathBuf};
 
 use crate::shared::{fatal_error_and_exit, print_section_title};
 use tscanner_cli::RegistryRuleKind;
-use tscanner_constants::{config_dir_name, config_file_name, registry_base_url};
+use tscanner_constants::{config_dir_name, config_file_name, registry_base_url_for_ref};
 use tscanner_service::log_info;
+
+const CLI_VERSION: &str = env!("CARGO_PKG_VERSION");
 
 use super::config_updater::update_config_with_rule;
 use super::fetcher::{
@@ -21,11 +23,12 @@ pub fn cmd_registry(
     kind: Option<RegistryRuleKind>,
     category: Option<String>,
     force: bool,
+    latest: bool,
     config_path: Option<PathBuf>,
 ) -> Result<()> {
     log_info(&format!(
-        "cmd_registry: name={:?}, kind={:?}, category={:?}, force={}, config_path={:?}",
-        name, kind, category, force, config_path
+        "cmd_registry: name={:?}, kind={:?}, category={:?}, force={}, latest={}, config_path={:?}",
+        name, kind, category, force, latest, config_path
     ));
 
     let workspace_root = std::env::current_dir().context("Failed to get current directory")?;
@@ -43,12 +46,19 @@ pub fn cmd_registry(
         );
     }
 
+    let git_ref = if latest {
+        "main".to_string()
+    } else {
+        format!("v{}", CLI_VERSION)
+    };
+    let registry_base_url = registry_base_url_for_ref(&git_ref);
+
     println!(
         "{}",
-        format!("Fetching registry [{}]...", registry_base_url()).dimmed()
+        format!("Fetching registry [{}]...", registry_base_url).dimmed()
     );
 
-    let index = match fetch_registry_index() {
+    let index = match fetch_registry_index(&registry_base_url) {
         Ok(idx) => idx,
         Err(e) => {
             fatal_error_and_exit(
@@ -114,7 +124,12 @@ pub fn cmd_registry(
         })
         .unwrap_or(workspace_root);
 
-    install_rules(&effective_root, &rules_to_install, force)?;
+    install_rules(
+        &effective_root,
+        &rules_to_install,
+        force,
+        &registry_base_url,
+    )?;
 
     Ok(())
 }
@@ -229,7 +244,12 @@ fn select_rules_interactive(
     Ok(selections.into_iter().map(|i| rules[i].clone()).collect())
 }
 
-fn install_rules(workspace_root: &Path, rules: &[RegistryRule], force: bool) -> Result<()> {
+fn install_rules(
+    workspace_root: &Path,
+    rules: &[RegistryRule],
+    force: bool,
+    registry_base_url: &str,
+) -> Result<()> {
     println!();
     print_section_title("Installing rules:");
     println!();
@@ -240,7 +260,7 @@ fn install_rules(workspace_root: &Path, rules: &[RegistryRule], force: bool) -> 
     for rule in rules {
         print!("  {} {}...", "→".blue(), rule.name);
 
-        match install_single_rule(workspace_root, rule, force) {
+        match install_single_rule(workspace_root, rule, force, registry_base_url) {
             Ok(()) => {
                 println!(" {}", "✓".green());
                 installed.push(rule.clone());
@@ -290,10 +310,18 @@ fn install_rules(workspace_root: &Path, rules: &[RegistryRule], force: bool) -> 
     Ok(())
 }
 
-fn install_single_rule(workspace_root: &Path, rule: &RegistryRule, force: bool) -> Result<()> {
-    let config = fetch_rule_config(rule).context("Failed to fetch rule config")?;
+fn install_single_rule(
+    workspace_root: &Path,
+    rule: &RegistryRule,
+    force: bool,
+    registry_base_url: &str,
+) -> Result<()> {
+    let config =
+        fetch_rule_config(registry_base_url, rule).context("Failed to fetch rule config")?;
 
-    if let Some((filename, content)) = fetch_rule_file(rule).context("Failed to fetch rule file")? {
+    if let Some((filename, content)) =
+        fetch_rule_file(registry_base_url, rule).context("Failed to fetch rule file")?
+    {
         install_rule_file(workspace_root, rule, &filename, &content, force)?;
     }
 

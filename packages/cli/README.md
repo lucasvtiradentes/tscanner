@@ -417,8 +417,8 @@ tscanner check --branch origin/main
     <td align="center">-</td>
   </tr>
   <tr>
-    <td rowspan="4" align="left"><code>registry [options] [name]</code></td>
-    <td rowspan="4" align="left">Install rules from the TScanner registry</td>
+    <td rowspan="5" align="left"><code>registry [options] [name]</code></td>
+    <td rowspan="5" align="left">Install rules from the TScanner registry</td>
     <td align="left"><code>--category &lt;CATEGORY&gt;</code></td>
     <td align="center">-</td>
     <td align="left">Filter by category</td>
@@ -443,6 +443,13 @@ tscanner check --branch origin/main
     <td align="left"><code>--kind [ai/script/regex]</code></td>
     <td align="center">-</td>
     <td align="left">Filter by rule kind (ai, script, regex)</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>registry [options] [name]</code></td> -->
+    <!-- <td align="left">Install rules from the TScanner registry</td> -->
+    <td align="left"><code>--latest</code></td>
+    <td align="center">-</td>
+    <td align="left">Use latest rules from main branch instead of version-matched</td>
   </tr>
   <tr>
     <td rowspan="1" align="left"><code>validate [config-path]</code></td>

@@ -81,8 +81,9 @@ fn main() -> Result<()> {
             kind,
             category,
             force,
+            latest,
             config_path,
-        }) => cmd_registry(name, kind, category, force, config_path),
+        }) => cmd_registry(name, kind, category, force, latest, config_path),
         None => {
             Cli::parse_from(["tscanner", "--help"]);
             Ok(())

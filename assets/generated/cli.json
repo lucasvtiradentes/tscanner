@@ -301,6 +301,19 @@
           ],
           "defaultValue": null,
           "required": false
+        },
+        {
+          "name": "latest",
+          "short": null,
+          "description": "Use latest rules from main branch instead of version-matched",
+          "takesValue": false,
+          "valueName": null,
+          "possibleValues": [
+            "true",
+            "false"
+          ],
+          "defaultValue": null,
+          "required": false
         }
       ]
     },
