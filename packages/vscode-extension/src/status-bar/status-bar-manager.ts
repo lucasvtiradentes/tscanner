@@ -2,10 +2,11 @@ import { ScanMode, type TscannerConfig, VSCODE_EXTENSION, hasConfiguredRules } f
 import * as vscode from 'vscode';
 import { getCommandId } from '../common/constants';
 import { getCachedConfig, getOrLoadConfig } from '../common/lib/config-manager';
+import { getBinaryVersionLabel } from '../common/lib/version-checker';
 import { Command, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import { StoreKey, extensionStore } from '../common/state/extension-store';
 import { type BinaryInfo, loadBinaryInfo } from '../locator';
-import { buildConfiguredTooltip } from './status-bar-tooltip';
+import { buildConfiguredTooltip, getSchemaVersionWarning } from './status-bar-tooltip';
 
 export class StatusBarManager {
   private statusBarItem: vscode.StatusBarItem;
@@ -90,7 +91,8 @@ export class StatusBarManager {
     const configDir = extensionStore.get(StoreKey.ConfigDir);
     const versionWarning = extensionStore.get(StoreKey.VersionWarning);
     const invalidConfigFields = extensionStore.get(StoreKey.InvalidConfigFields);
-    const hasWarning = !!versionWarning || invalidConfigFields.length > 0;
+    const schemaWarning = getSchemaVersionWarning(config, getBinaryVersionLabel());
+    const hasWarning = !!versionWarning || !!schemaWarning || invalidConfigFields.length > 0;
 
     const getIcon = () => {
       if (this.isScanning) return VSCODE_EXTENSION.statusBar.icons.scanning;
