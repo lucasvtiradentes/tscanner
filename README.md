@@ -159,13 +159,13 @@ TScanner lets you define those rules once. Every AI-generated file, every PR, ev
 <div align="center">
 
 <details>
-<summary>How bad code never reaches production?</summary>
+<summary>How does TScanner prevent issues from reaching production?</summary>
 <br />
 <div align="left">
 
-- **TS1** (Code Editor): See issues in real-time while coding. Add to lint-staged to prevent committing errors.
-- **TS2** (Before PR): Check all issues in your branch compared to origin/main and fix them before opening a PR.
-- **TS3** (CI/CD): Every push to a PR is checked automatically. Get a single comment with clickable links to the exact lines.
+- **Code Editor**: See issues in real-time while coding. Add to lint-staged to prevent committing errors.
+- **Before PR**: Check all issues in your branch compared to origin/main and fix them before opening a PR.
+- **CI/CD**: Every push to a PR is checked automatically. Get a single comment with clickable links to the exact lines.
 
 </div>
 </details>
