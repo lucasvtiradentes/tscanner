@@ -47,10 +47,6 @@ runs:
         dependencies: false
         skipDuplicate: true
 
-    - name: Create release tag
-      shell: bash
-      run: bash scripts/release/create-release-tag.sh "vscode-extension" "${{ steps.version.outputs.current }}"
-
     - name: Summary
       shell: bash
       run: |
