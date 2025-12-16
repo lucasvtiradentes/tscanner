@@ -1,6 +1,6 @@
 mod command;
 mod config_updater;
+mod fetcher;
 mod installer;
-mod registry;
 
-pub use command::cmd_rule;
+pub use command::cmd_registry;

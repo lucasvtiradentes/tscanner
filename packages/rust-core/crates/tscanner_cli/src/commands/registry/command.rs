@@ -10,12 +10,12 @@ use tscanner_constants::{config_dir_name, config_file_name};
 use tscanner_service::log_info;
 
 use super::config_updater::update_config_with_rule;
-use super::installer::{get_rule_local_path, install_rule_file};
-use super::registry::{
+use super::fetcher::{
     fetch_registry_index, fetch_rule_config, fetch_rule_file, filter_rules, RegistryRule,
 };
+use super::installer::{get_rule_local_path, install_rule_file};
 
-pub fn cmd_rule(
+pub fn cmd_registry(
     name: Option<String>,
     kind: Option<RegistryRuleKind>,
     category: Option<String>,
@@ -23,7 +23,7 @@ pub fn cmd_rule(
     config_path: Option<PathBuf>,
 ) -> Result<()> {
     log_info(&format!(
-        "cmd_rule: name={:?}, kind={:?}, category={:?}, force={}, config_path={:?}",
+        "cmd_registry: name={:?}, kind={:?}, category={:?}, force={}, config_path={:?}",
         name, kind, category, force, config_path
     ));
 

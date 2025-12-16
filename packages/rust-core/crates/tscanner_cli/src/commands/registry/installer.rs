@@ -4,7 +4,7 @@ use std::path::Path;
 
 use tscanner_constants::{ai_rules_dir, config_dir_name, script_rules_dir};
 
-use super::registry::RegistryRule;
+use super::fetcher::RegistryRule;
 
 pub fn install_rule_file(
     workspace_root: &Path,

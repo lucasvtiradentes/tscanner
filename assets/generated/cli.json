@@ -243,9 +243,9 @@
       "flags": []
     },
     {
-      "name": "rule",
+      "name": "registry",
       "description": "Install rules from the TScanner registry",
-      "usage": "tscanner rule [options] [name]",
+      "usage": "tscanner registry [options] [name]",
       "arguments": [
         {
           "name": "name",

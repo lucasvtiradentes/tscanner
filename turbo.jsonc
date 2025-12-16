@@ -42,7 +42,8 @@
         "crates/**",
         "Cargo.toml",
         "Cargo.lock",
-        "../cli/schema.json"
+        "../cli/schema.json",
+        "../../assets/constants.json"
       ]
     },
     "tscanner#build": {

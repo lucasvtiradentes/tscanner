@@ -227,7 +227,7 @@ pub enum Commands {
     Lsp,
 
     #[command(about = "Install rules from the TScanner registry")]
-    Rule {
+    Registry {
         #[arg(
             value_name = "NAME",
             help = "Rule name to install (shows list if omitted)"

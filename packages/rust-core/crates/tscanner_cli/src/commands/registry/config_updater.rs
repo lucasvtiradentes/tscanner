@@ -5,7 +5,7 @@ use std::path::Path;
 
 use tscanner_constants::{config_dir_name, config_file_name};
 
-use super::registry::{RegistryRule, RuleConfig};
+use super::fetcher::{RegistryRule, RuleConfig};
 
 pub fn update_config_with_rule(
     workspace_root: &Path,
