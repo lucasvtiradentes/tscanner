@@ -1,7 +1,6 @@
 #!/usr/bin/env npx tsx
 
-import { stdin } from 'node:process';
-import type { ScriptFile, ScriptInput, ScriptIssue } from '../../shared/tscanner-common/src';
+import { type ScriptFile, type ScriptIssue, addIssue, runScript } from '../../packages/cli/src/types';
 
 type FieldInfo = {
   name: string;
@@ -160,7 +159,7 @@ function compareTypes(tsFile: ScriptFile, rustFile: ScriptFile, issues: ScriptIs
   for (const tsEnum of tsEnums) {
     const rustEnum = findMatchingType(tsEnum, rustEnums);
     if (!rustEnum) {
-      issues.push({
+      addIssue(issues, {
         file: tsFile.path,
         line: tsEnum.line,
         message: `Enum "${tsEnum.name}" not found in Rust (${rustFile.path})`,
@@ -173,7 +172,7 @@ function compareTypes(tsFile: ScriptFile, rustFile: ScriptFile, issues: ScriptIs
 
     for (const variant of tsVariants) {
       if (!rustVariants.has(variant)) {
-        issues.push({
+        addIssue(issues, {
           file: tsFile.path,
           line: tsEnum.line,
           message: `Enum "${tsEnum.name}": variant "${variant}" missing in Rust`,
@@ -183,7 +182,7 @@ function compareTypes(tsFile: ScriptFile, rustFile: ScriptFile, issues: ScriptIs
 
     for (const variant of rustVariants) {
       if (!tsVariants.has(variant)) {
-        issues.push({
+        addIssue(issues, {
           file: tsFile.path,
           line: tsEnum.line,
           message: `Enum "${tsEnum.name}": variant "${variant}" exists in Rust but missing in TypeScript`,
@@ -213,7 +212,7 @@ function compareTypes(tsFile: ScriptFile, rustFile: ScriptFile, issues: ScriptIs
 
     for (const [snakeName, tsField] of tsFields) {
       if (!rustFields.has(snakeName)) {
-        issues.push({
+        addIssue(issues, {
           file: tsFile.path,
           line: tsType.line,
           message: `Type "${tsType.name}": field "${tsField.name}" (${snakeName}) missing in Rust`,
@@ -224,7 +223,7 @@ function compareTypes(tsFile: ScriptFile, rustFile: ScriptFile, issues: ScriptIs
     for (const [rustName] of rustFields) {
       const camelName = toCamelCase(rustName);
       if (!tsFields.has(rustName)) {
-        issues.push({
+        addIssue(issues, {
           file: tsFile.path,
           line: tsType.line,
           message: `Type "${tsType.name}": field "${rustName}" (${camelName}) exists in Rust but missing in TypeScript`,
@@ -234,13 +233,7 @@ function compareTypes(tsFile: ScriptFile, rustFile: ScriptFile, issues: ScriptIs
   }
 }
 
-async function main() {
-  let data = '';
-  for await (const chunk of stdin) {
-    data += chunk;
-  }
-
-  const input: ScriptInput = JSON.parse(data);
+runScript((input) => {
   const issues: ScriptIssue[] = [];
 
   const tsFiles = input.files.filter((f) => f.path.includes('tscanner-common/src/types/'));
@@ -257,10 +250,5 @@ async function main() {
     compareTypes(tsFile, rustFile, issues);
   }
 
-  console.log(JSON.stringify({ issues }));
-}
-
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
+  return issues;
 });

@@ -1,11 +1,6 @@
 #!/usr/bin/env npx tsx
 
-import { stdin } from 'node:process';
-import type { ScriptFile, ScriptInput, ScriptIssue } from '../../shared/tscanner-common/src';
-
-function addIssue(issues: ScriptIssue[], file: string, line: number, message: string): void {
-  issues.push({ file, line, message });
-}
+import { type ScriptFile, type ScriptIssue, addIssue, runScript } from '../../packages/cli/src/types';
 
 function analyzeEntryFile(file: ScriptFile, issues: ScriptIssue[]): void {
   const lines = file.content.split('\n');
@@ -41,33 +36,20 @@ function analyzeEntryFile(file: ScriptFile, issues: ScriptIssue[]): void {
     }
 
     const msg = `${fileName} contains logic beyond imports/exports: "${trimmed.substring(0, 50)}${trimmed.length > 50 ? '...' : ''}"`;
-    addIssue(issues, file.path, i + 1, msg);
+    addIssue(issues, { file: file.path, line: i + 1, message: msg });
     return;
   }
 }
 
-async function main() {
-  let data = '';
-
-  for await (const chunk of stdin) {
-    data += chunk;
-  }
-
-  const input: ScriptInput = JSON.parse(data);
+runScript((input) => {
   const issues: ScriptIssue[] = [];
 
   for (const file of input.files) {
     if (!file.path.endsWith('mod.rs') && !file.path.endsWith('lib.rs')) {
       continue;
     }
-
     analyzeEntryFile(file, issues);
   }
 
-  console.log(JSON.stringify({ issues }));
-}
-
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
+  return issues;
 });
