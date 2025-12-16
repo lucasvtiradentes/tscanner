@@ -29,7 +29,7 @@ export function getSchemaVersionWarning(config: TscannerConfig | null, binaryVer
   const cleanBinaryVersion = binaryVersion.replace(/^v/, '');
   if (schemaVersion === cleanBinaryVersion) return null;
 
-  return `Config schema (${schemaVersion}) differs from CLI (${cleanBinaryVersion}). Run 'tscanner init' to update.`;
+  return `Config schema version (${schemaVersion}) does not match CLI version (${cleanBinaryVersion}). Update the $schema URL in your config file`;
 }
 
 function getActiveRulesLabel(config: TscannerConfig | null): string {
