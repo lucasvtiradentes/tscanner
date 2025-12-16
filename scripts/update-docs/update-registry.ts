@@ -1,6 +1,6 @@
 import { join, resolve } from 'node:path';
 import { DynMarkdown, getJson } from 'markdown-helper';
-import { REPO_URL } from 'tscanner-common';
+import { PACKAGE_NAME, REPO_URL } from 'tscanner-common';
 
 type TFields = 'REGISTRY';
 
@@ -93,11 +93,11 @@ export function updateRegistry() {
 The registry is a collection of community rules ready to install with a single command. No need to write rules from scratch.
 
 \`\`\`bash
-tscanner registry                     # List all available rules
-tscanner registry no-long-files       # Install a specific rule
-tscanner registry --kind script       # Filter by type (ai, script, regex)
-tscanner registry --category security # Filter by category
-tscanner registry --latest            # Use rules from main branch instead of current version
+npx ${PACKAGE_NAME} registry                     # List all available rules
+npx ${PACKAGE_NAME} registry no-long-files       # Install a specific rule
+npx ${PACKAGE_NAME} registry --kind script       # Filter by type (ai, script, regex)
+npx ${PACKAGE_NAME} registry --category security # Filter by category
+npx ${PACKAGE_NAME} registry --latest            # Use rules from main branch instead of current version
 \`\`\`
 
 <div align="center">
@@ -112,7 +112,7 @@ ${rulesTableRows}
 
 <br />
 
-> **Want to share your rule?** Open a PR adding your rule to the [\`registry/\`](${REPO_URL}/tree/main/registry) folder. Once merged, everyone can install it with \`tscanner registry your-rule-name\`.
+> **Want to share your rule?** Open a PR adding your rule to the [\`registry/\`](${REPO_URL}/tree/main/registry) folder. Once merged, everyone can install it with \`npx ${PACKAGE_NAME} registry your-rule-name\`.
 `;
   };
 

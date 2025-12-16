@@ -28,10 +28,10 @@ npm install -D ${PACKAGE_NAME}
 2. Initialize configuration
 
 \`\`\`bash
-${PACKAGE_NAME} init
+npx ${PACKAGE_NAME} init
 \`\`\`
 
-> TIP: Use \`${PACKAGE_NAME} init --full\` for a [complete config](${REPO_URL}/blob/main/assets/configs/full.json) with example regex, script, and AI rules.
+> TIP: Use \`npx ${PACKAGE_NAME} init --full\` for a [complete config](${REPO_URL}/blob/main/assets/configs/full.json) with example regex, script, and AI rules.
 
 `;
 }

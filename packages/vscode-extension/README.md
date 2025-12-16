@@ -252,10 +252,10 @@ npm install -D tscanner
 2. Initialize configuration
 
 ```bash
-tscanner init
+npx tscanner init
 ```
 
-> TIP: Use `tscanner init --full` for a [complete config](https://github.com/lucasvtiradentes/tscanner/blob/main/assets/configs/full.json) with example regex, script, and AI rules.
+> TIP: Use `npx tscanner init --full` for a [complete config](https://github.com/lucasvtiradentes/tscanner/blob/main/assets/configs/full.json) with example regex, script, and AI rules.
 
 
 <!-- </DYNFIELD:QUICK_START_INSTALL> -->
@@ -1393,11 +1393,11 @@ Detect dead code patterns.
 The registry is a collection of community rules ready to install with a single command. No need to write rules from scratch.
 
 ```bash
-tscanner registry                     # List all available rules
-tscanner registry no-long-files       # Install a specific rule
-tscanner registry --kind script       # Filter by type (ai, script, regex)
-tscanner registry --category security # Filter by category
-tscanner registry --latest            # Use rules from main branch instead of current version
+npx tscanner registry                     # List all available rules
+npx tscanner registry no-long-files       # Install a specific rule
+npx tscanner registry --kind script       # Filter by type (ai, script, regex)
+npx tscanner registry --category security # Filter by category
+npx tscanner registry --latest            # Use rules from main branch instead of current version
 ```
 
 <div align="center">
@@ -1416,7 +1416,7 @@ tscanner registry --latest            # Use rules from main branch instead of cu
 
 <br />
 
-> **Want to share your rule?** Open a PR adding your rule to the [`registry/`](https://github.com/lucasvtiradentes/tscanner/tree/main/registry) folder. Once merged, everyone can install it with `tscanner registry your-rule-name`.
+> **Want to share your rule?** Open a PR adding your rule to the [`registry/`](https://github.com/lucasvtiradentes/tscanner/tree/main/registry) folder. Once merged, everyone can install it with `npx tscanner registry your-rule-name`.
 
 <!-- </DYNFIELD:REGISTRY> -->
 
