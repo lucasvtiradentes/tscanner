@@ -17,7 +17,7 @@ export function getConfigBaseDir(workspacePath: string, configDir: string | null
   return join(workspacePath, configDir);
 }
 
-export function getConfigDir(workspacePath: string, configDir: string | null): vscode.Uri {
+function getConfigDir(workspacePath: string, configDir: string | null): vscode.Uri {
   const baseDir = vscode.Uri.file(workspacePath);
 
   if (!configDir) {
@@ -42,7 +42,7 @@ export async function hasConfig(workspacePath: string, configDir: string | null)
   }
 }
 
-export async function loadConfig(workspacePath: string, configDir: string | null): Promise<TscannerConfig | null> {
+async function loadConfig(workspacePath: string, configDir: string | null): Promise<TscannerConfig | null> {
   const configPath = getConfigPath(workspacePath, configDir);
 
   try {

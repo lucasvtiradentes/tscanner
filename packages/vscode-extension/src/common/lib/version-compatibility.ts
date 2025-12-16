@@ -1,17 +1,17 @@
-export type VersionParts = {
+type VersionParts = {
   major: number;
   minor: number;
   patch: number;
 };
 
-export enum VersionCompatibility {
+enum VersionCompatibility {
   Compatible = 'compatible',
   ExtensionNewer = 'extension-newer',
   BinaryNewer = 'binary-newer',
   Unknown = 'unknown',
 }
 
-export function parseVersion(version: string | null | undefined): VersionParts | null {
+function parseVersion(version: string | null | undefined): VersionParts | null {
   if (!version) return null;
 
   const match = version.match(/^(\d+)\.(\d+)\.(\d+)/);
@@ -24,7 +24,7 @@ export function parseVersion(version: string | null | undefined): VersionParts |
   };
 }
 
-export function compareVersions(v1: string | null | undefined, v2: string | null | undefined): VersionCompatibility {
+function compareVersions(v1: string | null | undefined, v2: string | null | undefined): VersionCompatibility {
   const parts1 = parseVersion(v1);
   const parts2 = parseVersion(v2);
 

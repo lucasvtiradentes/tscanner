@@ -11,5 +11,6 @@
       "tscanner-common": ["shared/tscanner-common/src/index.ts"]
     }
   },
-  "include": ["scripts/**/*.ts"]
+  "include": ["scripts/**/*.ts"],
+  "exclude": ["registry/**/*.ts"]
 }

@@ -35,7 +35,7 @@ export enum TreeItemContextValue {
   Issue = 'TscannerNodeIssue',
 }
 
-export interface CommandParams {
+interface CommandParams {
   [Command.RefreshIssues]: RefreshIssuesParams;
   [Command.RefreshAiIssues]: RefreshAiIssuesParams;
   [Command.OpenFile]: { filePath: string; line: number; column: number };

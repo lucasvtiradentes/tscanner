@@ -7,7 +7,7 @@ export type BinaryInfo = {
   version: string | null;
 };
 
-export function getBinaryVersion(binaryPath: string): string | null {
+function getBinaryVersion(binaryPath: string): string | null {
   try {
     const output = execSync(`"${binaryPath}" --version`, {
       encoding: 'utf8',

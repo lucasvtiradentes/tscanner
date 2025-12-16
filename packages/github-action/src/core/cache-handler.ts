@@ -30,7 +30,7 @@ function computeConfigHash(configPath: string): string {
   return hash.digest('hex').substring(0, 16);
 }
 
-export type CacheResult = {
+type CacheResult = {
   restored: boolean;
   cacheKey?: string;
 };

@@ -8,7 +8,7 @@ import { WorkspaceStateKey, getWorkspaceState, setWorkspaceState } from '../stat
 import { logger } from './logger';
 import { getVersionWarningMessage, shouldShowVersionWarning } from './version-compatibility';
 
-export function getExtensionVersion(): string {
+function getExtensionVersion(): string {
   return packageJson.version;
 }
 

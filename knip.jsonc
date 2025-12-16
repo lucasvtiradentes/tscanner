@@ -27,8 +27,7 @@
     "packages/vscode-extension": {
       "entry": ["src/extension.ts"],
       "project": ["src/**/*.ts"],
-      "ignoreBinaries": ["vsce"],
-      "ignoreDependencies": ["tscanner"]
+      "ignoreBinaries": ["vsce"]
     }
   },
   "biome": { "config": "biome.json" }
