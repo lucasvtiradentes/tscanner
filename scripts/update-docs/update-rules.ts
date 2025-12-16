@@ -158,7 +158,7 @@ ${builtInRulesTableContent.trim()}
 
   const rulesIntroTable = `## 📋 Rules<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-Customize ${PACKAGE_DISPLAY_NAME} to validate what matters to your project while maintaining consistency.
+Rules are the core of ${PACKAGE_DISPLAY_NAME}. They define what to check, where to check, and how to report issues. Mix built-in rules with custom ones to enforce your team's standards.
 
 <div align="center">
 
