@@ -65,8 +65,26 @@ export function updateRegistry() {
     return `<img src="https://img.shields.io/badge/${lang.label}-${lang.color}?logo=${lang.logo}&logoColor=white" alt="${lang.label}">`;
   };
 
+  const getRuleUrl = (rule: RegistryRule) => {
+    const folderMap: Record<string, string> = {
+      ai: 'ai-rules',
+      script: 'script-rules',
+      regex: 'regex-rules',
+    };
+    const folder = folderMap[rule.kind];
+    const defaultFile: Record<string, string> = {
+      ai: 'prompt.md',
+      script: 'script.ts',
+      regex: 'config.jsonc',
+    };
+    const file = rule.file ?? defaultFile[rule.kind];
+    return `${REPO_URL}/blob/main/registry/${folder}/${rule.name}/${file}`;
+  };
+
   const rulesTableRows = rules
-    .map((r) => `| \`${r.name}\` | ${kindBadge(r.kind)} | ${langBadge(r.file)} | ${r.description} |`)
+    .map(
+      (r) => `| [\`${r.name}\`](${getRuleUrl(r)}) | ${kindBadge(r.kind)} | ${langBadge(r.file)} | ${r.description} |`,
+    )
     .join('\n');
 
   const getRegistryContent = () => {
@@ -79,6 +97,7 @@ tscanner registry                     # List all available rules
 tscanner registry no-long-files       # Install a specific rule
 tscanner registry --kind script       # Filter by type (ai, script, regex)
 tscanner registry --category security # Filter by category
+tscanner registry --latest            # Use rules from main branch instead of current version
 \`\`\`
 
 <div align="center">

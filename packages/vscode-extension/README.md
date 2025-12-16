@@ -1397,6 +1397,7 @@ tscanner registry                     # List all available rules
 tscanner registry no-long-files       # Install a specific rule
 tscanner registry --kind script       # Filter by type (ai, script, regex)
 tscanner registry --category security # Filter by category
+tscanner registry --latest            # Use rules from main branch instead of current version
 ```
 
 <div align="center">
@@ -1405,11 +1406,11 @@ tscanner registry --category security # Filter by category
 
 | Rule | Type | Language | Description |
 |------|------|----------|-------------|
-| `find-enum-candidates` | <img src="https://img.shields.io/badge/ai-8B5CF6" alt="ai"> | <img src="https://img.shields.io/badge/Markdown-083fa1?logo=markdown&logoColor=white" alt="Markdown"> | Find string literal unions that could be replaced with enums |
-| `no-long-files` | <img src="https://img.shields.io/badge/script-10B981" alt="script"> | <img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript"> | Enforce maximum lines per file limit |
-| `no-empty-files` | <img src="https://img.shields.io/badge/script-10B981" alt="script"> | <img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white" alt="Python"> | Enforce minimum lines per file |
-| `no-fixme-comments` | <img src="https://img.shields.io/badge/script-10B981" alt="script"> | <img src="https://img.shields.io/badge/Rust-DEA584?logo=rust&logoColor=white" alt="Rust"> | Disallow FIXME/XXX comments in code |
-| `no-process-env` | <img src="https://img.shields.io/badge/regex-6C757D" alt="regex"> | - | Disallow direct process.env access |
+| [`find-enum-candidates`](https://github.com/lucasvtiradentes/tscanner/blob/main/registry/ai-rules/find-enum-candidates/prompt.md) | <img src="https://img.shields.io/badge/ai-8B5CF6" alt="ai"> | <img src="https://img.shields.io/badge/Markdown-083fa1?logo=markdown&logoColor=white" alt="Markdown"> | Find string literal unions that could be replaced with enums |
+| [`no-long-files`](https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-long-files/script.ts) | <img src="https://img.shields.io/badge/script-10B981" alt="script"> | <img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript"> | Enforce maximum lines per file limit |
+| [`no-empty-files`](https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-empty-files/script.py) | <img src="https://img.shields.io/badge/script-10B981" alt="script"> | <img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white" alt="Python"> | Enforce minimum lines per file |
+| [`no-fixme-comments`](https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-fixme-comments/script.rs) | <img src="https://img.shields.io/badge/script-10B981" alt="script"> | <img src="https://img.shields.io/badge/Rust-DEA584?logo=rust&logoColor=white" alt="Rust"> | Disallow FIXME/XXX comments in code |
+| [`no-process-env`](https://github.com/lucasvtiradentes/tscanner/blob/main/registry/regex-rules/no-process-env/config.jsonc) | <img src="https://img.shields.io/badge/regex-6C757D" alt="regex"> | - | Disallow direct process.env access |
 
 </div>
 
