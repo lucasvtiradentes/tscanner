@@ -6,31 +6,77 @@ type TFields = 'WORKFLOW';
 const rootDir = resolve(__dirname, '..', '..');
 
 export function updateWorkflow() {
-  const getMotivationContent = () => {
+  const getWorkflowContent = () => {
     return `
 ## 🔀 Workflow<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-Here is a diagram that shows how TScanner fits into the average coding workflow:
-
 <div align="center">
   <a href="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" target="_blank"><img src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-and-the-coding-workflow.png" alt="TScanner and the coding workflow"></a>
+  <br />
+  <em>How TScanner fits into the average coding workflow</em>
 </div>
-
-Legend: 
-
-- TS1: before commit, you can see issues in the code editor; also you can add it to lintstaged so no error will be committed (unless you want)
-- TS2: before opening a PR, you can check all the issues in your branch compared to origin/main and fix them all
-- TS3: every new commit push to a PR will be checked for issues and you'll be notified about them in a single comment with clickable links to the exact lines
-
-So what? 
-
-- this will allow you to go fast plus knowing exactly what issues you need to fix before committing or merging.
-- this will, over time, reduce to zero the rejected pr's due to **styling or poor code quality patterns**, as long as you keep the rules updated.
-  - so our job is to detect code patterns to avoid/enforce and add tscanner rules for that 
 
 <br />
 
 <div align="center">
+
+<details>
+<summary>How bad code never reaches production?</summary>
+<br />
+<div align="left">
+
+- **TS1** (Code Editor): See issues in real-time while coding. Add to lint-staged to prevent committing errors.
+- **TS2** (Before PR): Check all issues in your branch compared to origin/main and fix them before opening a PR.
+- **TS3** (CI/CD): Every push to a PR is checked automatically. Get a single comment with clickable links to the exact lines.
+
+</div>
+</details>
+
+<details>
+<summary>Why does this matter?</summary>
+<br />
+<div align="left">
+
+- **Go fast with confidence**: Know exactly what issues to fix before committing or merging.
+- **Zero rejected PRs**: Over time, eliminate PR rejections due to styling or poor code quality patterns.
+- **AI-powered quality**: Use AI rules to detect patterns that traditional linters miss, and let AI help fix AI-generated code.
+- **Your job**: Observe code patterns to enforce/avoid and add TScanner rules for that.
+
+</div>
+</details>
+
+<details>
+<summary>How TScanner maintains its own codebase?</summary>
+<br />
+<div align="left">
+
+We use TScanner to maintain this very codebase. Here's our setup:
+
+**Built-in rules (34 enabled)**: Standard code quality checks like \`no-explicit-any\`, \`prefer-const\`, \`no-console\`, etc.
+
+**Regex rules (3)**:
+- \`no-rust-deprecated\`: Block \`#[allow(deprecated)]\` in Rust code
+- \`no-rust-dead-code\`: Block \`#[allow(dead_code)]\` - remove unused code instead
+- \`no-process-env\`: Prevent direct \`process.env\` access
+
+**Script rules (8)**:
+- [\`types-parity-match\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/types-parity-match.ts): Ensure TypeScript and Rust shared types are in sync
+- [\`config-schema-match\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/config-schema-match.ts): Keep Rust config and TypeScript schema aligned
+- [\`cli-builder-match\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/cli-builder-match.ts): CLI builder must cover all CLI check flags
+- [\`action-zod-match\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/action-zod-match.ts): GitHub Action inputs must match Zod validation
+- [\`readme-toc-match\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/readme-toc-match.ts): README table of contents must match all headings
+- [\`rust-entry-simple\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/rust-entry-simple.ts): \`lib.rs\` and \`mod.rs\` should only contain module declarations
+- [\`no-long-files\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/no-long-files.ts): Files cannot exceed 300 lines
+- [\`no-default-node-imports\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/no-default-node-imports.ts): Use named imports for Node.js modules
+
+**AI rules (2)**:
+- [\`no-dead-code\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/ai-rules/no-dead-code.md): Detect dead code patterns in Rust executors
+- [\`find-enum-candidates\`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/ai-rules/find-enum-candidates.md): Find type unions that could be enums
+
+> 💡 Check the [\`.tscanner/\`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder to see the full config and script implementations.
+
+</div>
+</details>
 
 <details>
 <summary>How am I using this to improve my code at work?</summary>
@@ -115,9 +161,9 @@ Note: my rules at work are not commited to the codebase, so I basically installe
 
   readmeConfigs.forEach(({ path: filePath }) => {
     const readme = new DynMarkdown<TFields>(join(rootDir, filePath));
-    readme.updateField('WORKFLOW', getMotivationContent());
+    readme.updateField('WORKFLOW', getWorkflowContent());
     readme.saveFile();
   });
 
-  console.log('✓ Updated MOTIVATION section');
+  console.log('✓ Updated WORKFLOW section');
 }
