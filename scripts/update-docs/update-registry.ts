@@ -83,7 +83,13 @@ export function updateRegistry() {
 
   const rulesTableRows = rules
     .map(
-      (r) => `| [\`${r.name}\`](${getRuleUrl(r)}) | ${kindBadge(r.kind)} | ${langBadge(r.file)} | ${r.description} |`,
+      (r) =>
+        `  <tr>
+    <td><a href="${getRuleUrl(r)}"><code>${r.name}</code></a></td>
+    <td>${kindBadge(r.kind)}</td>
+    <td>${langBadge(r.file)}</td>
+    <td>${r.description}</td>
+  </tr>`,
     )
     .join('\n');
 
@@ -104,9 +110,15 @@ npx ${PACKAGE_NAME} registry --latest            # Use rules from main branch in
 
 **Available rules (${rules.length})**
 
-| Rule | Type | Language | Description |
-|------|------|----------|-------------|
+<table>
+  <tr>
+    <th width="33%">Rule</th>
+    <th width="17%">Type</th>
+    <th width="17%">Language</th>
+    <th width="33%">Description</th>
+  </tr>
 ${rulesTableRows}
+</table>
 
 </div>
 

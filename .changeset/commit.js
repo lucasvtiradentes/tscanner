@@ -80,14 +80,29 @@ function updateRustWorkspaceVersion(newVersion) {
   }
 }
 
-function updateSchemaVersionInFiles(newVersion) {
+function getOldVersionFromGit() {
+  try {
+    const oldPackageJson = execSync('git show HEAD:packages/cli/package.json', { encoding: 'utf-8' });
+    return JSON.parse(oldPackageJson).version;
+  } catch {
+    return null;
+  }
+}
+
+function updateSchemaVersionInFiles(oldVersion, newVersion) {
+  if (!oldVersion) {
+    log('Could not determine old version, skipping schema version update in READMEs');
+    return;
+  }
+
   const filePaths = [
     join(process.cwd(), 'README.md'),
     join(process.cwd(), 'packages', 'cli', 'README.md'),
     join(process.cwd(), 'packages', 'vscode-extension', 'README.md'),
     join(process.cwd(), 'packages', 'github-action', 'README.md'),
   ];
-  const schemaPattern = /(unpkg\.com\/tscanner@)[\d.]+(\/)schema\.json/g;
+  const escapedOldVersion = oldVersion.replace(/\./g, '\\.');
+  const schemaPattern = new RegExp(`(unpkg\\.com/tscanner@)${escapedOldVersion}(/)schema\\.json`, 'g');
 
   try {
     for (const filePath of filePaths) {
@@ -96,7 +111,7 @@ function updateSchemaVersionInFiles(newVersion) {
         schemaPattern.lastIndex = 0;
         content = content.replace(schemaPattern, `$1${newVersion}$2schema.json`);
         writeFileSync(filePath, content, 'utf-8');
-        log(`Updated schema version in ${filePath} to ${newVersion}`);
+        log(`Updated schema version in ${filePath} from ${oldVersion} to ${newVersion}`);
       }
     }
   } catch (error) {
@@ -111,10 +126,11 @@ function updateReadmeVersions() {
   const rootReadmePath = join(process.cwd(), 'README.md');
 
   try {
+    const oldVersion = getOldVersionFromGit();
     const cliPackageJson = JSON.parse(readFileSync(cliPackageJsonPath, 'utf-8'));
     const cliVersion = cliPackageJson.version;
     updateRustWorkspaceVersion(cliVersion);
-    updateSchemaVersionInFiles(cliVersion);
+    updateSchemaVersionInFiles(oldVersion, cliVersion);
 
     const packageJson = JSON.parse(readFileSync(githubActionPackageJsonPath, 'utf-8'));
     const newVersion = packageJson.version;
