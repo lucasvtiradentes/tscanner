@@ -16,6 +16,6 @@ export default defineConfig([
     format: ['cjs'],
     outDir: 'dist',
     clean: false,
-    dts: { only: true },
+    dts: true,
   },
 ]);
