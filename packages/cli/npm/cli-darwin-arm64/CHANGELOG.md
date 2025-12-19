@@ -1,5 +1,11 @@
 # @tscanner/cli-darwin-arm64
 
+## 0.1.3
+
+### Patch Changes
+
+- 1f0088c: fix script rule aux functions
+
 ## 0.1.2
 
 ### Patch Changes
