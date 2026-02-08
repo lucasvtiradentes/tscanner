@@ -4,7 +4,7 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-workflow">Workflow</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-configuration">Configuration</a><br /><a href="#-rules">Rules</a> • <a href="#-registry">Registry</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-workflow">Workflow</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-configuration">Configuration</a><br /><a href="#-rules">Rules</a> • <a href="#-registry">Registry</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-related">Related</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
 </div>
 
 <div width="100%" align="center">
@@ -1343,6 +1343,13 @@ I am deeply grateful to the Biome team for open-sourcing such an incredible proj
   </details>
 </div>
 <!-- </DYNFIELD:INSPIRATIONS> -->
+
+## 🔗 Related<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+
+If you want to improve and simplify the code quality of your codebase both for humans and AI agentic tools, check out these complementary tools:
+
+- [Knip](https://github.com/webpro-nl/knip) - Find unused files, dependencies, and exports in your project
+- [Biome](https://github.com/biomejs/biome) - High-performance linter and formatter for web projects
 
 <!-- <DYNFIELD:CONTRIBUTING> -->
 ## 🤝 Contributing<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
