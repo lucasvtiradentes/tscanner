@@ -4,7 +4,7 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-workflow">Workflow</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-configuration">Configuration</a><br /><a href="#-rules">Rules</a> • <a href="#-registry">Registry</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-workflow">Workflow</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-configuration">Configuration</a><br /><a href="#-rules">Rules</a> • <a href="#-registry">Registry</a> • <a href="#-related">Related</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
 </div>
 
 <div width="100%" align="center">
@@ -1277,6 +1277,16 @@ npx tscanner registry --latest            # Use rules from main branch instead o
 > **Want to share your rule?** Open a PR adding your rule to the [`registry/`](https://github.com/lucasvtiradentes/tscanner/tree/main/registry) folder. Once merged, everyone can install it with `npx tscanner registry your-rule-name`.
 
 <!-- </DYNFIELD:REGISTRY> -->
+
+<!-- <DYNFIELD:RELATED> -->
+## 🔗 Related<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+
+If you care about improving and simplifying code quality in your codebase—both for humans and AI agentic tools—check out these projects:
+
+- **[Knip](https://knip.dev/)** - Find unused files, dependencies, and exports in your JavaScript and TypeScript projects. Knip helps you declutter your codebase by detecting dead code with zero false positives. Supports 100+ plugins for popular frameworks and tools.
+
+- **[Biome](https://biomejs.dev/)** - High-performance Rust-based linter and formatter for web projects. One toolchain for your web project: format, lint, and more in a fraction of a second. An excellent alternative to ESLint + Prettier with dramatically faster performance.
+<!-- </DYNFIELD:RELATED> -->
 
 <!-- <DYNFIELD:INSPIRATIONS> -->
 ## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
