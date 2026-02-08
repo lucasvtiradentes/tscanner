@@ -4,7 +4,7 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-workflow">Workflow</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-configuration">Configuration</a><br /><a href="#-rules">Rules</a> • <a href="#-registry">Registry</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-workflow">Workflow</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-configuration">Configuration</a><br /><a href="#-rules">Rules</a> • <a href="#-registry">Registry</a> • <a href="#-related">Related</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
 </div>
 
 <div width="100%" align="center">
@@ -1277,6 +1277,46 @@ npx tscanner registry --latest            # Use rules from main branch instead o
 > **Want to share your rule?** Open a PR adding your rule to the [`registry/`](https://github.com/lucasvtiradentes/tscanner/tree/main/registry) folder. Once merged, everyone can install it with `npx tscanner registry your-rule-name`.
 
 <!-- </DYNFIELD:REGISTRY> -->
+
+<!-- <DYNFIELD:RELATED> -->
+## 🔗 Related<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
+
+If you think we need to improve and simplify the code quality of our codebases both for humans and AI agentic tools, you might also want to check out these complementary tools:
+
+<div align="center">
+
+<table>
+  <tr>
+    <th width="150">Tool</th>
+    <th width="600">Description</th>
+    <th width="150">Links</th>
+  </tr>
+  <tr>
+    <td><b>Knip</b></td>
+    <td>Find unused files, dependencies and exports in your JavaScript and TypeScript projects. Helps you remove dead code and reduce bundle size. Comes with 100+ plugins for frameworks like Next.js, React, Vue, and more.</td>
+    <td>
+      <a href="https://github.com/webpro-nl/knip"><img src="https://img.shields.io/badge/-GitHub-181717?logo=github&logoColor=white" alt="GitHub"></a><br/>
+      <a href="https://knip.dev"><img src="https://img.shields.io/badge/-Docs-blue" alt="Docs"></a>
+    </td>
+  </tr>
+  <tr>
+    <td><b>Biome</b></td>
+    <td>Fast formatter and linter for JavaScript, TypeScript, JSX, JSON, CSS and GraphQL. Replaces ESLint and Prettier with a faster, unified solution written in Rust. Features 400+ lint rules and 97% Prettier compatibility.</td>
+    <td>
+      <a href="https://github.com/biomejs/biome"><img src="https://img.shields.io/badge/-GitHub-181717?logo=github&logoColor=white" alt="GitHub"></a><br/>
+      <a href="https://biomejs.dev"><img src="https://img.shields.io/badge/-Docs-60A5FA" alt="Docs"></a>
+    </td>
+  </tr>
+</table>
+
+</div>
+
+**How they complement TScanner:**
+- **Knip** removes unused code and dependencies that TScanner won't check
+- **Biome** handles formatting and standard linting rules that TScanner delegates to specialized tools
+- **TScanner** enforces your custom patterns, conventions, and project-specific rules that generic tools can't handle
+
+<!-- </DYNFIELD:RELATED> -->
 
 <!-- <DYNFIELD:INSPIRATIONS> -->
 ## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
