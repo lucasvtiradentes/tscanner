@@ -1344,14 +1344,12 @@ I am deeply grateful to the Biome team for open-sourcing such an incredible proj
 </div>
 <!-- </DYNFIELD:INSPIRATIONS> -->
 
-<!-- <DYNFIELD:RELATED> -->
 ## 🔗 Related<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 If you like TScanner and think we need to improve and simplify code quality in our codebases (both for humans and AI agentic tools), check out these tools:
 
 - [Knip](https://github.com/webpro-nl/knip) - Find unused files, dependencies, and exports in your JavaScript and TypeScript projects
 - [Biome](https://github.com/biomejs/biome) - High-performance toolchain for web projects (formatter, linter, and more)
-<!-- </DYNFIELD:RELATED> -->
 
 <!-- <DYNFIELD:CONTRIBUTING> -->
 ## 🤝 Contributing<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
