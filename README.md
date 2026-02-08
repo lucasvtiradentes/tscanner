@@ -1282,8 +1282,19 @@ npx tscanner registry --latest            # Use rules from main branch instead o
 
 If you want to improve and simplify the code quality of your codebase for both humans and AI agentic tools, check out these complementary tools:
 
-- [Knip](https://github.com/webpro-nl/knip) - Find unused files, dependencies, and exports in your project
-- [Biome](https://github.com/biomejs/biome) - High-performance linter and formatter for JavaScript/TypeScript
+**Dead Code & Unused Exports Detection:**
+- [Knip](https://github.com/webpro-nl/knip) - Comprehensive tool to find unused files, dependencies, exports, and more (100+ plugins)
+- [ts-prune](https://github.com/nadeesha/ts-prune) - Simple CLI to find unused exports in TypeScript projects
+- [ts-unused-exports](https://www.npmjs.com/package/ts-unused-exports) - Detect unused exports in TypeScript codebases
+
+**High-Performance Linting & Formatting:**
+- [Biome](https://github.com/biomejs/biome) - Rust-based all-in-one linter and formatter (15-20x faster than ESLint)
+- [Oxlint](https://github.com/oxc-project/oxc) - Blazing fast Rust-based linter (50-100x faster than ESLint)
+- [Deno Lint](https://github.com/denoland/deno_lint) - Fast, zero-config Rust-based linter for TypeScript/JavaScript
+
+**Advanced Static Analysis:**
+- [DeepScan](https://deepscan.io/) - Deep static analysis following code execution and data flow
+- [SonarQube](https://www.sonarsource.com/products/sonarqube/) - Enterprise-grade platform for continuous code quality and security analysis
 
 These tools work great alongside TScanner to maintain a clean, consistent, and high-quality codebase.
 
