@@ -373,7 +373,7 @@ ${scriptExampleRs}
 \`\`\`
 </details>
 
-> 💡 See real examples in the [\`.tscanner/script-rules/\`](${REPO_URL}/tree/main/.tscanner/script-rules) and [\`registry/script-rules/\`](${REPO_URL}/tree/main/registry/script-rules) folders.
+> 💡 See real examples in the [\`.tscanner/script-rules/\`](${REPO_URL}/tree/main/.tscanner/script-rules) folder.
 
 </div>
 </details>
@@ -483,7 +483,7 @@ Detect dead code patterns.
 \`\`\`
 </details>
 
-> 💡 See real examples in the [\`.tscanner/ai-rules/\`](${REPO_URL}/tree/main/.tscanner/ai-rules) and [\`registry/ai-rules/\`](${REPO_URL}/tree/main/registry/ai-rules) folders.
+> 💡 See real examples in the [\`.tscanner/ai-rules/\`](${REPO_URL}/tree/main/.tscanner/ai-rules) folder.
 
 </div>
 </details>`;

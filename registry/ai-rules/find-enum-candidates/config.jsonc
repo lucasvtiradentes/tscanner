@@ -1,6 +1,0 @@
-{
-  "mode": "agentic",
-  "message": "Type union could be replaced with an enum for better type safety",
-  "severity": "warning",
-  "include": ["**/*.ts", "**/*.tsx"]
-}

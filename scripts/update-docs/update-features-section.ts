@@ -18,7 +18,6 @@ type Package = (typeof Package)[keyof typeof Package];
 
 const FeatureId = {
   Rules: 'rules',
-  Registry: 'registry',
   Focus: 'focus',
   SpeedCached: 'speed-cached',
   Severity: 'severity',
@@ -41,11 +40,6 @@ const FEATURES: Record<FeatureId, FeatureBullet> = {
     id: FeatureId.Rules,
     title: 'Your Rules, Enforced',
     description: `${RULES_COUNT} built-in checks + define your own with regex, scripts, or AI`,
-  },
-  [FeatureId.Registry]: {
-    id: FeatureId.Registry,
-    title: 'Community Rules',
-    description: 'Install pre-built rules from registry or share your own with the world',
   },
   [FeatureId.Focus]: {
     id: FeatureId.Focus,
@@ -84,7 +78,7 @@ const FEATURES: Record<FeatureId, FeatureBullet> = {
   },
 };
 
-const BASE_FEATURES_START: FeatureId[] = [FeatureId.Rules, FeatureId.Registry];
+const BASE_FEATURES_START: FeatureId[] = [FeatureId.Rules];
 
 const UNIQUE_FEATURES: Record<Package, FeatureId[]> = {
   [Package.Main]: [FeatureId.Realtime, FeatureId.CopyAi, FeatureId.Pr, FeatureId.OneComment],

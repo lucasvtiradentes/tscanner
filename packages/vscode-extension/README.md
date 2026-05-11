@@ -5,7 +5,7 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner - VS Code Extension</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-workflow">Workflow</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-usage">Usage</a><br /><a href="#-configuration">Configuration</a> • <a href="#-rules">Rules</a> • <a href="#-registry">Registry</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-workflow">Workflow</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-usage">Usage</a><br /><a href="#-configuration">Configuration</a> • <a href="#-rules">Rules</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
 </div>
 
 <div width="100%" align="center">
@@ -71,7 +71,6 @@ See code quality issues the moment you type, not after you ship. TScanner shows 
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 - **Your Rules, Enforced** - 38 built-in checks + define your own with regex, scripts, or AI
-- **Community Rules** - Install pre-built rules from registry or share your own with the world
 - **See Issues Instantly** - Real-time feedback in code editor as you type, no manual scan needed
 - **Copy for AI** - Export issues to clipboard, paste into chat for bulk fixes
 - **Multiple Scan Modes** - Whole codebase, branch changes, uncommitted changes, or staged changes
@@ -1274,7 +1273,7 @@ fn main() -> io::Result<()> {
 ```
 </details>
 
-> 💡 See real examples in the [`.tscanner/script-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/script-rules) and [`registry/script-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/registry/script-rules) folders.
+> 💡 See real examples in the [`.tscanner/script-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/script-rules) folder.
 
 </div>
 </details>
@@ -1384,77 +1383,13 @@ Detect dead code patterns.
 ```
 </details>
 
-> 💡 See real examples in the [`.tscanner/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/ai-rules) and [`registry/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/registry/ai-rules) folders.
+> 💡 See real examples in the [`.tscanner/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/ai-rules) folder.
 
 </div>
 </details>
 
 </div>
 <!-- </DYNFIELD:RULES> -->
-
-<!-- <DYNFIELD:REGISTRY> -->
-## 📦 Registry<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
-
-The registry is a collection of community rules ready to install with a single command.
-
-```bash
-npx tscanner registry                     # List all available rules (and you chose the ones you want to install)
-npx tscanner registry no-long-files       # Install a specific rule
-npx tscanner registry --kind script       # Filter by type (ai, script, regex)
-npx tscanner registry --category security # Filter by category
-npx tscanner registry --latest            # Use rules from main branch instead of current version
-```
-
-<div align="center">
-
-**Available rules (5)**
-
-<table>
-  <tr>
-    <th width="33%">Rule</th>
-    <th width="17%">Type</th>
-    <th width="17%">Language</th>
-    <th width="33%">Description</th>
-  </tr>
-  <tr>
-    <td><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/registry/ai-rules/find-enum-candidates/prompt.md"><code>find-enum-candidates</code></a></td>
-    <td><img src="https://img.shields.io/badge/ai-8B5CF6" alt="ai"></td>
-    <td><img src="https://img.shields.io/badge/Markdown-083fa1?logo=markdown&logoColor=white" alt="Markdown"></td>
-    <td>Find string literal unions that could be replaced with enums</td>
-  </tr>
-  <tr>
-    <td><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-long-files/script.ts"><code>no-long-files</code></a></td>
-    <td><img src="https://img.shields.io/badge/script-10B981" alt="script"></td>
-    <td><img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript"></td>
-    <td>Enforce maximum lines per file limit</td>
-  </tr>
-  <tr>
-    <td><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-empty-files/script.py"><code>no-empty-files</code></a></td>
-    <td><img src="https://img.shields.io/badge/script-10B981" alt="script"></td>
-    <td><img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white" alt="Python"></td>
-    <td>Enforce minimum lines per file</td>
-  </tr>
-  <tr>
-    <td><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-fixme-comments/script.rs"><code>no-fixme-comments</code></a></td>
-    <td><img src="https://img.shields.io/badge/script-10B981" alt="script"></td>
-    <td><img src="https://img.shields.io/badge/Rust-DEA584?logo=rust&logoColor=white" alt="Rust"></td>
-    <td>Disallow FIXME/XXX comments in code</td>
-  </tr>
-  <tr>
-    <td><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/registry/regex-rules/no-process-env/config.jsonc"><code>no-process-env</code></a></td>
-    <td><img src="https://img.shields.io/badge/regex-6C757D" alt="regex"></td>
-    <td>-</td>
-    <td>Disallow direct process.env access</td>
-  </tr>
-</table>
-
-</div>
-
-<br />
-
-> **Want to share your rule?** Open a PR adding your rule to the [`registry/`](https://github.com/lucasvtiradentes/tscanner/tree/main/registry) folder. Once merged, everyone can install it with `npx tscanner registry your-rule-name`.
-
-<!-- </DYNFIELD:REGISTRY> -->
 
 <!-- <DYNFIELD:INSPIRATIONS> -->
 ## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
