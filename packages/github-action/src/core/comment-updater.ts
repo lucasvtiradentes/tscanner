@@ -36,17 +36,20 @@ type CommentUpdateParams = {
   targetBranch?: string;
 };
 
-function buildCommentBody(
-  result: ActionScanResult,
-  commitSha: string,
-  commitMessage: string,
-  timezone: string,
-  owner: string,
-  repo: string,
-  prNumber: number,
-  targetBranch: string | undefined,
-  commitHistory: CommitHistoryEntry[],
-): string {
+type BuildCommentBodyParams = {
+  result: ActionScanResult;
+  commitSha: string;
+  commitMessage: string;
+  timezone: string;
+  owner: string;
+  repo: string;
+  prNumber: number;
+  targetBranch: string | undefined;
+  commitHistory: CommitHistoryEntry[];
+};
+
+function buildCommentBody(params: BuildCommentBodyParams): string {
+  const { result, commitSha, commitMessage, timezone, owner, repo, prNumber, targetBranch, commitHistory } = params;
   const timestamp = formatTimestamp(timezone);
   const historyData = serializeCommitHistory(commitHistory);
   const historySection = buildCommitHistorySection(commitHistory);
@@ -100,8 +103,8 @@ export async function updateOrCreateComment(params: CommentUpdateParams) {
     commitHistory = commitHistory.slice(0, MAX_HISTORY_ENTRIES);
   }
 
-  const comment = buildCommentBody(
-    scanResult,
+  const comment = buildCommentBody({
+    result: scanResult,
     commitSha,
     commitMessage,
     timezone,
@@ -110,7 +113,7 @@ export async function updateOrCreateComment(params: CommentUpdateParams) {
     prNumber,
     targetBranch,
     commitHistory,
-  );
+  });
 
   if (botComment) {
     await octokit.rest.issues.updateComment({

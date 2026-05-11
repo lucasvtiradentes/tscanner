@@ -1,6 +1,31 @@
-import type { GroupMode, ScanContentParams, ScanFileParams, ScanParams, ScanResult } from 'tscanner-common';
+import type {
+  AiExecutionMode,
+  GroupMode,
+  ScanContentParams,
+  ScanFileParams,
+  ScanParams,
+  ScanResult,
+  TscannerConfig,
+} from 'tscanner-common';
 
 export type { ScanContentParams, ScanFileParams, ScanParams };
+
+export type ScanRequestOptions = {
+  config?: TscannerConfig;
+  configDir?: string;
+  branch?: string;
+  staged?: boolean;
+  aiMode?: AiExecutionMode;
+  noCache?: boolean;
+};
+
+export type ScanContentRequestOptions = {
+  content: string;
+  config?: TscannerConfig;
+  configDir?: string;
+  branch?: string;
+  uncommitted?: boolean;
+};
 
 export type FormatResultsParams = {
   root: string;

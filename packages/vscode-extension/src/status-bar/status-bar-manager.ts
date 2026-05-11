@@ -113,13 +113,13 @@ export class StatusBarManager {
     const finalText = `${icon} ${statusText}`;
 
     this.statusBarItem.text = finalText;
-    this.statusBarItem.tooltip = buildConfiguredTooltip(
+    this.statusBarItem.tooltip = buildConfiguredTooltip({
       configDir,
       config,
       binaryInfo,
       versionWarning,
       invalidConfigFields,
-    );
+    });
   }
 
   private showUnconfigured(): void {

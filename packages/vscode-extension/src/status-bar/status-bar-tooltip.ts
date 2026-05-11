@@ -71,13 +71,16 @@ function getAiScanSettingsLabel(config: TscannerConfig | null): string {
   return `startup ${startup}, auto ${autoLabel}`;
 }
 
-export function buildConfiguredTooltip(
-  configDir: string | null,
-  config: TscannerConfig | null,
-  binaryInfo: BinaryInfo,
-  versionWarning: string | null = null,
-  invalidConfigFields: string[] = [],
-): vscode.MarkdownString {
+type BuildConfiguredTooltipParams = {
+  configDir: string | null;
+  config: TscannerConfig | null;
+  binaryInfo: BinaryInfo;
+  versionWarning?: string | null;
+  invalidConfigFields?: string[];
+};
+
+export function buildConfiguredTooltip(params: BuildConfiguredTooltipParams): vscode.MarkdownString {
+  const { configDir, config, binaryInfo, versionWarning = null, invalidConfigFields = [] } = params;
   const configLabel = getConfigDirLabel(configDir);
   const configSource = LOCATOR_SOURCE_LABELS[binaryInfo.source];
 

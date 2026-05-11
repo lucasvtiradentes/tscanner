@@ -1,19 +1,13 @@
-import type { AiExecutionMode, TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { logger } from '../common/lib/logger';
 import { getCurrentWorkspaceFolder, openTextDocument } from '../common/lib/vscode-utils';
 import type { IssueResult } from '../common/types';
+import type { ScanRequestOptions } from '../lsp/requests/types';
 import { ensureLspClient } from './client';
 import { mapIssueToResult } from './utils';
 
-type ScanOptions = {
-  branch?: string;
-  staged?: boolean;
+type ScanOptions = ScanRequestOptions & {
   fileFilter?: Set<string>;
-  config?: TscannerConfig;
-  configDir?: string;
-  aiMode?: AiExecutionMode;
-  noCache?: boolean;
 };
 
 export async function scan(options: ScanOptions = {}): Promise<IssueResult[]> {
@@ -38,7 +32,15 @@ export async function scan(options: ScanOptions = {}): Promise<IssueResult[]> {
       `Calling LSP scan: scanType=${scanType}, noCache=${noCache ?? false}, branch=${branch ?? 'none'}, staged=${staged ?? false}`,
     );
     const scanStart = Date.now();
-    const result = await client.scan(workspaceFolder.uri.fsPath, config, configDir, branch, staged, aiMode, noCache);
+    const result = await client.scan({
+      root: workspaceFolder.uri.fsPath,
+      config,
+      configDir,
+      branch,
+      staged,
+      aiMode,
+      noCache,
+    });
     const scanTime = Date.now() - scanStart;
 
     logger.info(

@@ -1,7 +1,6 @@
 import { existsSync } from 'node:fs';
 import { getStatusBarName } from 'src/common/constants';
 import {
-  type AiExecutionMode,
   CONFIG_DIR_NAME,
   CONFIG_FILE_NAME,
   type ContentScanResult,
@@ -12,7 +11,6 @@ import {
   LspMethod,
   type RuleMetadata,
   type ScanResult,
-  type TscannerConfig,
   ensureBinaryExecutable,
 } from 'tscanner-common';
 import * as vscode from 'vscode';
@@ -29,7 +27,13 @@ import { GetRulesMetadataRequestType } from './requests/get-rules-metadata';
 import { ScanRequestType } from './requests/scan';
 import { ScanContentRequestType } from './requests/scan-content';
 import { ScanFileRequestType } from './requests/scan-file';
-import type { AiProgressParams, FormatPrettyResult, ValidateConfigResult } from './requests/types';
+import type {
+  AiProgressParams,
+  FormatPrettyResult,
+  ScanContentRequestOptions,
+  ScanRequestOptions,
+  ValidateConfigResult,
+} from './requests/types';
 import { ValidateConfigRequestType } from './requests/validate-config';
 
 export class TscannerLspClient {
@@ -119,24 +123,16 @@ export class TscannerLspClient {
     }
   }
 
-  async scan(
-    root: string,
-    config?: TscannerConfig,
-    configDir?: string,
-    branch?: string,
-    staged?: boolean,
-    aiMode?: AiExecutionMode,
-    noCache?: boolean,
-  ): Promise<ScanResult> {
+  async scan(params: ScanRequestOptions & { root: string }): Promise<ScanResult> {
     const client = await this.ensureClient();
     return client.sendRequest(ScanRequestType, {
-      root,
-      config,
-      config_dir: configDir,
-      branch,
-      staged,
-      ai_mode: aiMode,
-      no_cache: noCache,
+      root: params.root,
+      config: params.config,
+      config_dir: params.configDir,
+      branch: params.branch,
+      staged: params.staged,
+      ai_mode: params.aiMode,
+      no_cache: params.noCache,
     });
   }
 
@@ -145,25 +141,17 @@ export class TscannerLspClient {
     return client.sendRequest(ScanFileRequestType, { root, file });
   }
 
-  async scanContent(
-    root: string,
-    file: string,
-    content: string,
-    config?: TscannerConfig,
-    configDir?: string,
-    branch?: string,
-    uncommitted?: boolean,
-  ): Promise<ContentScanResult> {
+  async scanContent(params: ScanContentRequestOptions & { root: string; file: string }): Promise<ContentScanResult> {
     const client = await this.ensureClient();
 
     return client.sendRequest(ScanContentRequestType, {
-      root,
-      file,
-      content,
-      config,
-      config_dir: configDir,
-      branch,
-      uncommitted,
+      root: params.root,
+      file: params.file,
+      content: params.content,
+      config: params.config,
+      config_dir: params.configDir,
+      branch: params.branch,
+      uncommitted: params.uncommitted,
     });
   }
 
