@@ -48,7 +48,10 @@ export function executeCommand<T extends Command>(
   return vscode.commands.executeCommand(getCommandId(command), ...args);
 }
 
-export function registerCommand(command: Command, callback: (...args: any[]) => any): vscode.Disposable {
+export function registerCommand<TArgs extends readonly unknown[], TReturn>(
+  command: Command,
+  callback: (...args: TArgs) => TReturn,
+): vscode.Disposable {
   return vscode.commands.registerCommand(getCommandId(command), callback);
 }
 
