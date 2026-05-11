@@ -5,6 +5,7 @@ use crate::shared::{
     FormattedOutput, OutputFileGroup, OutputRuleGroup, OutputSummary,
 };
 use colored::*;
+use std::cmp::Reverse;
 use std::collections::HashMap;
 use tscanner_constants::{
     icon_ai, icon_builtin, icon_error, icon_hint, icon_info, icon_regex, icon_script, icon_warning,
@@ -129,7 +130,7 @@ impl TextRenderer {
         println!();
 
         let mut sorted_rules: Vec<_> = rules_map.iter().collect();
-        sorted_rules.sort_by(|a, b| b.1 .2.cmp(&a.1 .2));
+        sorted_rules.sort_by_key(|rule| Reverse(rule.1 .2));
 
         let max_rule_len = sorted_rules
             .iter()
@@ -170,7 +171,7 @@ impl TextRenderer {
         println!();
 
         let mut sorted_rules: Vec<_> = rules.iter().collect();
-        sorted_rules.sort_by(|a, b| b.count.cmp(&a.count));
+        sorted_rules.sort_by_key(|rule| Reverse(rule.count));
 
         let max_rule_len = sorted_rules.iter().map(|r| r.rule.len()).max().unwrap_or(0);
         let max_count_len = sorted_rules
@@ -198,7 +199,7 @@ impl TextRenderer {
 
     fn render_by_file(&self, files: &[OutputFileGroup]) {
         let mut sorted_files: Vec<_> = files.iter().collect();
-        sorted_files.sort_by(|a, b| b.issues.len().cmp(&a.issues.len()));
+        sorted_files.sort_by_key(|file| Reverse(file.issues.len()));
 
         for file in sorted_files {
             let mut issues_by_rule: HashMap<&str, Vec<_>> = HashMap::new();
@@ -235,7 +236,7 @@ impl TextRenderer {
 
     fn render_by_rule(&self, rules: &[OutputRuleGroup]) {
         let mut sorted_rules: Vec<_> = rules.iter().collect();
-        sorted_rules.sort_by(|a, b| b.count.cmp(&a.count));
+        sorted_rules.sort_by_key(|rule| Reverse(rule.count));
 
         for rule in sorted_rules {
             let icon = rule_type_icon(rule.rule_type);
@@ -257,7 +258,7 @@ impl TextRenderer {
             );
 
             let mut sorted_files: Vec<_> = files_map.iter().collect();
-            sorted_files.sort_by(|a, b| b.1.len().cmp(&a.1.len()));
+            sorted_files.sort_by_key(|file| Reverse(file.1.len()));
 
             for (file, issues) in sorted_files {
                 println!();

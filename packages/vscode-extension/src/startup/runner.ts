@@ -11,7 +11,7 @@ import type { AiIssuesView, RegularIssuesView } from '../issues-panel';
 import { getLspClient, startLspClient } from '../scanner/client';
 import { aiScanIntervalWatcher, scanIntervalWatcher } from '../watchers';
 
-export type StartupRunnerContext = {
+type StartupRunnerContext = {
   context: vscode.ExtensionContext;
   regularView: RegularIssuesView;
   aiView: AiIssuesView;
