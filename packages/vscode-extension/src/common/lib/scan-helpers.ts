@@ -32,7 +32,8 @@ export async function withScanErrorHandling<T>(
   extensionStore.set(config.storeKey, true);
 
   try {
-    return await operation();
+    const result = await operation();
+    return result;
   } catch (error) {
     config.logger.error(`Error: ${error}`);
     onError?.(error);
