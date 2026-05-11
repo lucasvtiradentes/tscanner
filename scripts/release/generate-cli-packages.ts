@@ -16,7 +16,7 @@ const PLATFORMS = [
   { platform: 'linux', arch: 'arm64' },
 ];
 
-async function main() {
+function main() {
   if (!process.env.CI && !process.env.GITHUB_ACTIONS) {
     logger.log('This script should only run in CI/CD environment');
     process.exit(1);
@@ -24,14 +24,14 @@ async function main() {
 
   const cliManifest = JSON.parse(readFileSync(CLI_MANIFEST_PATH, 'utf-8'));
 
-  await generateNativePackages(cliManifest);
-  await updateCliPackageVersion(cliManifest);
-  await printSuccessMessage();
+  generateNativePackages(cliManifest);
+  updateCliPackageVersion(cliManifest);
+  printSuccessMessage();
 }
 
 main();
 
-async function generateNativePackages(cliManifest: any) {
+function generateNativePackages(cliManifest: any) {
   logger.log(`Step 1/2 - Generating native packages for ${PLATFORMS.length} platforms...`);
 
   for (const { platform, arch } of PLATFORMS) {
@@ -80,7 +80,7 @@ async function generateNativePackages(cliManifest: any) {
   }
 }
 
-async function updateCliPackageVersion(cliManifest: any) {
+function updateCliPackageVersion(cliManifest: any) {
   logger.log('Step 2/2 - Updating CLI package version...');
 
   const manifest = JSON.parse(readFileSync(CLI_MANIFEST_PATH, 'utf-8'));
@@ -98,7 +98,7 @@ async function updateCliPackageVersion(cliManifest: any) {
   logger.log('   ✅ Updated CLI package version');
 }
 
-async function printSuccessMessage() {
+function printSuccessMessage() {
   logger.log('\n✅ All packages generated successfully!');
   logger.log('   Ready for publishing\n');
 }
