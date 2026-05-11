@@ -7,12 +7,12 @@ export enum ScanType {
   Ai = 'ai',
 }
 
-interface ScanWrapperOptions {
+type ScanWrapperOptions = {
   scanType: ScanType;
   contextKeyOnComplete: ContextKey;
   onError?: (error: unknown) => void;
   onFinally?: () => void;
-}
+};
 
 const scanLogger = createLogger('Scan');
 const aiScanLogger = createLogger('AI Scan');

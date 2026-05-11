@@ -27,11 +27,11 @@ import type { RegularIssuesView } from '../../issues-panel';
 import { scan } from '../../scanner/scan';
 import { resetIssueIndex } from './issue-navigation';
 
-export interface RefreshIssuesParams {
+export type RefreshIssuesParams = {
   aiMode?: AiExecutionMode;
   trigger?: ScanTrigger;
   useCache?: boolean;
-}
+};
 
 export function createRefreshIssuesCommand(ctx: CommandContext, regularView: RegularIssuesView) {
   const { context, treeView, updateStatusBar } = ctx;

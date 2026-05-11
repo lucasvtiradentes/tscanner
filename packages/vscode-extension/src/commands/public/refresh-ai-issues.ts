@@ -14,10 +14,10 @@ import { scan } from '../../scanner/scan';
 const aiScanLogger = createLogger('AI Scan');
 const aiProgressLogger = createLogger('AI Progress');
 
-export interface RefreshAiIssuesParams {
+export type RefreshAiIssuesParams = {
   trigger?: ScanTrigger;
   useCache?: boolean;
-}
+};
 
 export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIssuesView) {
   return registerCommand(Command.RefreshAiIssues, async (options?: RefreshAiIssuesParams) => {

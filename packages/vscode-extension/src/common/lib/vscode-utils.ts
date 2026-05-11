@@ -35,11 +35,11 @@ export enum TreeItemContextValue {
   Issue = 'TscannerNodeIssue',
 }
 
-interface CommandParams {
+type CommandParams = {
   [Command.RefreshIssues]: RefreshIssuesParams;
   [Command.RefreshAiIssues]: RefreshAiIssuesParams;
   [Command.OpenFile]: { filePath: string; line: number; column: number };
-}
+};
 
 export function executeCommand<T extends Command>(
   command: T,
