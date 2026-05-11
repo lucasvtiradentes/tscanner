@@ -142,6 +142,9 @@ export function createCopyCommand(mode: CopyMode, scope: CopyScope, ctx?: AllSco
     case CopyScope.Folder:
       return registerCommand(command, createFolderCopyHandler(config));
     case CopyScope.All:
-      return registerCommand(command, createAllCopyHandler(config, ctx!));
+      if (!ctx) {
+        throw new Error('AllScopeContext is required for CopyScope.All');
+      }
+      return registerCommand(command, createAllCopyHandler(config, ctx));
   }
 }

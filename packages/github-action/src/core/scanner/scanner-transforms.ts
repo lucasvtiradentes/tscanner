@@ -12,10 +12,11 @@ export function deriveOutputByRule(byFile: CliOutputByFile): CliOutputByRule {
 
   for (const fileEntry of byFile.files) {
     for (const issue of fileEntry.issues) {
-      if (!ruleMap.has(issue.rule)) {
-        ruleMap.set(issue.rule, { count: 0, issues: [] });
+      let ruleData = ruleMap.get(issue.rule);
+      if (ruleData === undefined) {
+        ruleData = { count: 0, issues: [] };
+        ruleMap.set(issue.rule, ruleData);
       }
-      const ruleData = ruleMap.get(issue.rule)!;
       ruleData.count++;
       ruleData.issues.push({
         file: fileEntry.file,
@@ -81,10 +82,12 @@ export function transformToRuleGroupsByRule(byRule: CliOutputByRule): RuleGroup[
     const fileMap = new Map<string, DisplayIssue[]>();
 
     for (const issue of ruleData.issues) {
-      if (!fileMap.has(issue.file)) {
-        fileMap.set(issue.file, []);
+      let fileIssues = fileMap.get(issue.file);
+      if (fileIssues === undefined) {
+        fileIssues = [];
+        fileMap.set(issue.file, fileIssues);
       }
-      fileMap.get(issue.file)!.push({
+      fileIssues.push({
         line: issue.line,
         column: issue.column,
         message: issue.message,

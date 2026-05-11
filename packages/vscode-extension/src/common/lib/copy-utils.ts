@@ -65,10 +65,12 @@ function convertToScanResult(results: IssueResult[]): ScanResult {
 
   for (const result of results) {
     const filePath = result.uri.fsPath;
-    if (!fileMap.has(filePath)) {
-      fileMap.set(filePath, []);
+    let fileIssues = fileMap.get(filePath);
+    if (fileIssues === undefined) {
+      fileIssues = [];
+      fileMap.set(filePath, fileIssues);
     }
-    fileMap.get(filePath)!.push(result);
+    fileIssues.push(result);
   }
 
   const files = Array.from(fileMap.entries()).map(([filePath, issues]) => ({

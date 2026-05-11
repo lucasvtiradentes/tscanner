@@ -154,18 +154,21 @@ function buildIssuesByFileSection(params: IssuesViewParams): string {
 
   for (const group of result.ruleGroups) {
     for (const file of group.files) {
-      if (!fileMap.has(file.filePath)) {
-        fileMap.set(file.filePath, new Map());
+      let ruleMap = fileMap.get(file.filePath);
+      if (ruleMap === undefined) {
+        ruleMap = new Map();
+        fileMap.set(file.filePath, ruleMap);
       }
-      const ruleMap = fileMap.get(file.filePath)!;
 
       const ruleName = file.issues[0]?.ruleName || group.ruleName;
-      if (!ruleMap.has(ruleName)) {
-        ruleMap.set(ruleName, []);
+      let ruleIssues = ruleMap.get(ruleName);
+      if (ruleIssues === undefined) {
+        ruleIssues = [];
+        ruleMap.set(ruleName, ruleIssues);
       }
 
       for (const issue of file.issues) {
-        ruleMap.get(ruleName)!.push({
+        ruleIssues.push({
           line: issue.line,
           column: issue.column,
           lineText: issue.lineText,
