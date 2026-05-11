@@ -1,4 +1,5 @@
 import { PACKAGE_NAME } from 'tscanner-common';
+import { env } from '../env';
 import { githubHelper } from '../lib/actions-helper';
 
 export type CliExecutor = {
@@ -6,7 +7,7 @@ export type CliExecutor = {
 };
 
 export function createDevModeExecutor(): CliExecutor {
-  const workspaceRoot = process.env.GITHUB_WORKSPACE || process.cwd();
+  const workspaceRoot = env.workspaceRoot ?? process.cwd();
   const cliPath = `${workspaceRoot}/packages/cli/dist/main.js`;
 
   githubHelper.logInfo(`Using local CLI: ${cliPath}`);

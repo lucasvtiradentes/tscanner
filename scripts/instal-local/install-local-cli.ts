@@ -1,6 +1,7 @@
 import { chmodSync, copyFileSync, existsSync, mkdirSync, unlinkSync } from 'node:fs';
 import { arch, platform } from 'node:os';
 import { join } from 'node:path';
+import { scriptEnv } from '../env';
 
 const SCRIPT_DIR = __dirname;
 const ROOT_DIR = join(SCRIPT_DIR, '..', '..');
@@ -10,7 +11,7 @@ const CORE_DIR = join(ROOT_DIR, 'packages', 'rust-core');
 const logger = console;
 
 function main() {
-  if (process.env.CI || process.env.GITHUB_ACTIONS) {
+  if (scriptEnv.isCi) {
     logger.log('Skipping local CLI installation in CI environment');
     process.exit(0);
   }

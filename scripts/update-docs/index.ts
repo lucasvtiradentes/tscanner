@@ -1,3 +1,4 @@
+import { scriptEnv } from '../env';
 import { updateCliUsage } from './update-cli-usage';
 import { updateCommands } from './update-commands';
 import { updateConfigSection } from './update-config-section';
@@ -21,7 +22,7 @@ type UpdateFn = {
 const logger = console;
 
 function main() {
-  if (process.env.CI || process.env.GITHUB_ACTIONS) {
+  if (scriptEnv.isCi) {
     logger.log('Skipping docs update in CI environment');
     process.exit(0);
   }

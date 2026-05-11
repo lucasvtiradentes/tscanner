@@ -49,7 +49,12 @@
       },
       "no-process-env": {
         "pattern": "process\\.env",
-        "message": "No process env"
+        "message": "Use the typed env module (packages/<pkg>/src/env.ts or scripts/env.ts) instead of accessing process.env directly",
+        "exclude": [
+          "**/env.ts",
+          "**/postinstall.js",
+          "scripts/update-docs/update-workflow.ts"
+        ]
       }
     },
     "script": {

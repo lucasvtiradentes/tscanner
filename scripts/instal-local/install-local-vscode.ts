@@ -21,6 +21,7 @@ import {
   addDevSuffix,
   buildLogFilename,
 } from '../../packages/vscode-extension/src/common/scripts-constants';
+import { scriptEnv } from '../env';
 
 const logger = console;
 
@@ -29,7 +30,7 @@ const ROOT_DIR = join(SCRIPT_DIR, '..', '..');
 const EXTENSION_DIR = join(ROOT_DIR, 'packages', 'vscode-extension');
 
 function main() {
-  if (process.env.CI || process.env.GITHUB_ACTIONS) {
+  if (scriptEnv.isCi) {
     logger.log('Skipping local CODE EXTENSION installation in CI environment');
     process.exit(0);
   }

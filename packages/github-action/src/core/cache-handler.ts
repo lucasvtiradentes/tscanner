@@ -1,10 +1,12 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync, statSync } from 'node:fs';
+import { homedir, platform } from 'node:os';
 import { join } from 'node:path';
 import * as cache from '@actions/cache';
+import { env } from '../env';
 import { githubHelper } from '../lib/actions-helper';
 
-const CACHE_DIR = join(process.env.HOME || '~', '.cache', 'tscanner');
+const CACHE_DIR = join(homedir(), '.cache', 'tscanner');
 
 function computeConfigHash(configPath: string): string {
   const hash = createHash('sha256');
@@ -36,16 +38,16 @@ type CacheResult = {
 };
 
 function getBranchName(): string {
-  return process.env.GITHUB_HEAD_REF || process.env.GITHUB_REF_NAME || 'unknown';
+  return env.branchName;
 }
 
 function getCommitSha(): string {
-  return (process.env.GITHUB_SHA || 'unknown').substring(0, 8);
+  return env.commitSha.substring(0, 8);
 }
 
 export async function restoreCache(configPath: string): Promise<CacheResult> {
   const configHash = computeConfigHash(configPath);
-  const runnerOs = process.env.RUNNER_OS || 'Linux';
+  const runnerOs = platform();
   const branch = getBranchName().replace(/\//g, '-');
   const sha = getCommitSha();
 
@@ -72,7 +74,7 @@ export async function restoreCache(configPath: string): Promise<CacheResult> {
 
 export async function saveCache(configPath: string): Promise<void> {
   const configHash = computeConfigHash(configPath);
-  const runnerOs = process.env.RUNNER_OS || 'Linux';
+  const runnerOs = platform();
   const branch = getBranchName().replace(/\//g, '-');
   const sha = getCommitSha();
   const key = `tscanner-${runnerOs}-${configHash}-${branch}-${sha}`;

@@ -2,6 +2,7 @@ import { appendFileSync } from 'node:fs';
 import * as core from '@actions/core';
 import * as exec from '@actions/exec';
 import * as github from '@actions/github';
+import { env } from '../env';
 
 export type Octokit = ReturnType<typeof github.getOctokit>;
 type GithubContext = typeof github.context;
@@ -74,7 +75,7 @@ class ActionsHelper {
   }
 
   writeSummary(content: string): void {
-    const summaryFile = process.env.GITHUB_STEP_SUMMARY;
+    const summaryFile = env.summaryFile;
     if (summaryFile) {
       appendFileSync(summaryFile, `${content}\n`);
     }

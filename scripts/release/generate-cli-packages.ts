@@ -1,5 +1,6 @@
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { scriptEnv } from '../env';
 
 const SCRIPT_DIR = __dirname;
 const ROOT_DIR = join(SCRIPT_DIR, '..', '..');
@@ -24,7 +25,7 @@ type CliManifest = {
 };
 
 function main() {
-  if (!process.env.CI && !process.env.GITHUB_ACTIONS) {
+  if (!scriptEnv.isCi) {
     logger.log('This script should only run in CI/CD environment');
     process.exit(1);
   }
