@@ -33,7 +33,6 @@
       "no-useless-catch": {},
       "no-var": {},
       "prefer-const": {},
-      "prefer-nullish-coalescing": {},
       "prefer-optional-chain": {},
       "prefer-type-over-interface": {}
     },

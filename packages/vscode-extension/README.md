@@ -70,7 +70,7 @@ See code quality issues the moment you type, not after you ship. TScanner shows 
 <!-- <DYNFIELD:FEATURES> -->
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-- **Your Rules, Enforced** - 38 built-in checks + define your own with regex, scripts, or AI
+- **Your Rules, Enforced** - 37 built-in checks + define your own with regex, scripts, or AI
 - **See Issues Instantly** - Real-time feedback in code editor as you type, no manual scan needed
 - **Copy for AI** - Export issues to clipboard, paste into chat for bulk fixes
 - **Multiple Scan Modes** - Whole codebase, branch changes, uncommitted changes, or staged changes
@@ -414,26 +414,26 @@ This is a report from TScanner, a CLI tool that detects code quality issues in T
 
 ## Report Details
 
-Filter: file "packages/github-action/src/core/input-validator.ts" | Mode: codebase mode | Issues: 6
-CLI: tscanner check --glob packages/github-action/src/core/input-validator.ts --group-by file
+Filter: file "src/utils/result-aggregator.ts" | Mode: codebase mode | Issues: 6
+CLI: tscanner check --glob src/utils/result-aggregator.ts --group-by file
 
 Results:
 
 Rules triggered:
 
-  ● prefer-nullish-coalescing: Use nullish coalescing (??) instead of logical OR (||). The || operator treats 0, "", and false as falsy, while ?? only checks for null/undefined.
+  ● no-non-null-assertion: Avoid non-null assertion operator (!). Use proper null checks or optional chaining instead.
 
 Issues grouped by file:
 
-packages/github-action/src/core/input-validator.ts - 6 issues - 1 rules
+src/utils/result-aggregator.ts - 6 issues - 1 rules
 
-  ● prefer-nullish-coalescing (6 issues)
-    ⚠ 44:20 → const timezone = githubHelper.getInput('timezone') || DEFAULT_INPUTS.timezone;
-    ⚠ 45:22 → const configPath = githubHelper.getInput('config-path') || DEFAULT_INPUTS.configPath;
-    ⚠ 46:27 → const tscannerVersion = githubHelper.getInput('tscanner-version') || DEFAULT_INPUTS.tscannerVersion;
-    ⚠ 48:24 → const groupByInput = githubHelper.getInput('group-by') || DEFAULT_INPUTS.groupBy;
-    ⚠ 54:23 → const aiModeInput = githubHelper.getInput('ai-mode') || AiExecutionMode.Ignore;
-    ⚠ 78:53 → ...(mode === ScanMode.Branch && { targetBranch: targetBranch || DEFAULT_INPUTS.targetBranch }),
+  ● no-non-null-assertion (6 issues)
+    ⚠ 18:24 → const ruleData = ruleMap.get(issue.rule)!;
+    ⚠ 24:9 → const owner = config.owners.find((o) => o.id === id)!;
+    ⚠ 53:14 → const fileGroup = fileMap.get(file)!;
+    ⚠ 78:11 → const groupName = mappings.get(key)!.name;
+    ⚠ 87:7 → fileMap.get(issue.file)!.push(issue);
+    ⚠ 102:19 → const severity = ruleData.issues[0]!.severity;
 
 Scope:
 
@@ -624,7 +624,6 @@ To scan your code, you need to set up the rules in the TScanner config folder.
       "no-var": {},
       "prefer-const": {},
       "prefer-interface-over-type": {},
-      "prefer-nullish-coalescing": {},
       "prefer-optional-chain": {},
       "prefer-type-over-interface": {}
     },
@@ -781,7 +780,7 @@ Rules are the core of TScanner. They define what to check, where to check, and h
 <div align="center">
 
 <details>
-<summary>Built-in rules (38)</summary>
+<summary>Built-in rules (37)</summary>
 <br />
 
 <div align="left">
@@ -1065,7 +1064,7 @@ Rules are the core of TScanner. They define what to check, where to check, and h
 
 <div align="left">
 
-#### Style (4)
+#### Style (3)
 
 </div>
 
@@ -1081,12 +1080,6 @@ Rules are the core of TScanner. They define what to check, where to check, and h
     <td align="left">Suggests using 'interface' keyword instead of 'type' for consistency.</td>
     <td align="left"></td>
     <td align="left"><a href="https://typescript-eslint.io/rules/consistent-type-definitions"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
-  </tr>
-  <tr>
-    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/style/prefer_nullish_coalescing.rs"><code>prefer-nullish-coalescing</code></a></div></td>
-    <td align="left">Suggests using nullish coalescing (??) instead of logical OR (||) for default values. The || operator treats 0, "", and false as falsy, which may not be intended.</td>
-    <td align="left"></td>
-    <td align="left"><a href="https://typescript-eslint.io/rules/prefer-nullish-coalescing"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/style/prefer_optional_chain.rs"><code>prefer-optional-chain</code></a></div></td>

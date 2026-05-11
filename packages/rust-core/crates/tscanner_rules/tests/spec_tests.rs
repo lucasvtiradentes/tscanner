@@ -198,7 +198,6 @@ generate_rule_tests!(max_params);
 generate_rule_tests!(prefer_interface_over_type);
 generate_rule_tests!(max_function_length);
 generate_rule_tests!(prefer_optional_chain);
-generate_rule_tests!(prefer_nullish_coalescing);
 generate_rule_tests!(no_floating_promises);
 generate_rule_tests!(no_useless_catch);
 generate_rule_tests!(no_return_await);

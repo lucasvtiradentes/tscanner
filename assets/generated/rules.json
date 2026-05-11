@@ -492,18 +492,6 @@
     "category": "style",
     "defaultEnabled": false,
     "defaultSeverity": "warning",
-    "description": "Suggests using nullish coalescing (??) instead of logical OR (||) for default values. The || operator treats 0, \"\", and false as falsy, which may not be intended.",
-    "displayName": "Prefer Nullish Coalescing",
-    "equivalentEslintRule": "https://typescript-eslint.io/rules/prefer-nullish-coalescing",
-    "name": "prefer-nullish-coalescing",
-    "ruleType": "ast",
-    "sourcePath": "packages/rust-core/crates/tscanner_rules/src/builtin/style/prefer_nullish_coalescing.rs",
-    "typescriptOnly": false
-  },
-  {
-    "category": "style",
-    "defaultEnabled": false,
-    "defaultSeverity": "warning",
     "description": "Suggests using optional chaining (?.) instead of logical AND (&&) chains for null checks.",
     "displayName": "Prefer Optional Chain",
     "equivalentBiomeRule": "https://biomejs.dev/linter/rules/use-optional-chain",

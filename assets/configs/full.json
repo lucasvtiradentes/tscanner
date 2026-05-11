@@ -37,7 +37,6 @@
       "no-var": {},
       "prefer-const": {},
       "prefer-interface-over-type": {},
-      "prefer-nullish-coalescing": {},
       "prefer-optional-chain": {},
       "prefer-type-over-interface": {}
     },

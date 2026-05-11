@@ -1177,34 +1177,6 @@
       },
       "type": "object"
     },
-    "BuiltinRuleConfig_prefer_nullish_coalescing": {
-      "description": "Suggests using nullish coalescing (??) instead of logical OR (||) for default values. The || operator treats 0, \"\", and false as falsy, which may not be intended.",
-      "properties": {
-        "exclude": {
-          "description": "File patterns to exclude for this rule",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "include": {
-          "description": "File patterns to include for this rule",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "severity": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Severity"
-            }
-          ],
-          "description": "Severity level for this rule (default: warning)"
-        }
-      },
-      "type": "object"
-    },
     "BuiltinRuleConfig_prefer_optional_chain": {
       "description": "Suggests using optional chaining (?.) instead of logical AND (&&) chains for null checks.",
       "properties": {
@@ -1491,9 +1463,6 @@
             },
             "prefer-interface-over-type": {
               "$ref": "#/definitions/BuiltinRuleConfig_prefer_interface_over_type"
-            },
-            "prefer-nullish-coalescing": {
-              "$ref": "#/definitions/BuiltinRuleConfig_prefer_nullish_coalescing"
             },
             "prefer-optional-chain": {
               "$ref": "#/definitions/BuiltinRuleConfig_prefer_optional_chain"

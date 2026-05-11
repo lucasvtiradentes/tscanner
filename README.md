@@ -14,7 +14,7 @@
 <!-- <DYNFIELD:OVERVIEW> -->
 ## 🎺 Overview<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-Define what "good code" means for your project. TScanner enforces your patterns in real-time in the code editor, blocks violations in PRs, and runs in CI. 38 ready-to-use rules + custom rules via regex, scripts, or AI.
+Define what "good code" means for your project. TScanner enforces your patterns in real-time in the code editor, blocks violations in PRs, and runs in CI. 37 ready-to-use rules + custom rules via regex, scripts, or AI.
 <!-- </DYNFIELD:OVERVIEW> -->
 
 <!-- <DYNFIELD:VSCODE_EXTENSION_DEMO_IMAGE> -->
@@ -122,7 +122,7 @@ Define what "good code" means for your project. TScanner enforces your patterns 
 <!-- <DYNFIELD:FEATURES> -->
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-- **Your Rules, Enforced** - 38 built-in checks + define your own with regex, scripts, or AI
+- **Your Rules, Enforced** - 37 built-in checks + define your own with regex, scripts, or AI
 - **See Issues Instantly** - Real-time feedback in code editor as you type, no manual scan needed
 - **Copy for AI** - Export issues to clipboard, paste into chat for bulk fixes
 - **Catch Before Merge** - PR comments show violations with clickable links to exact lines
@@ -446,7 +446,6 @@ To scan your code, you need to set up the rules in the TScanner config folder.
       "no-var": {},
       "prefer-const": {},
       "prefer-interface-over-type": {},
-      "prefer-nullish-coalescing": {},
       "prefer-optional-chain": {},
       "prefer-type-over-interface": {}
     },
@@ -603,7 +602,7 @@ Rules are the core of TScanner. They define what to check, where to check, and h
 <div align="center">
 
 <details>
-<summary>Built-in rules (38)</summary>
+<summary>Built-in rules (37)</summary>
 <br />
 
 <div align="left">
@@ -887,7 +886,7 @@ Rules are the core of TScanner. They define what to check, where to check, and h
 
 <div align="left">
 
-#### Style (4)
+#### Style (3)
 
 </div>
 
@@ -903,12 +902,6 @@ Rules are the core of TScanner. They define what to check, where to check, and h
     <td align="left">Suggests using 'interface' keyword instead of 'type' for consistency.</td>
     <td align="left"></td>
     <td align="left"><a href="https://typescript-eslint.io/rules/consistent-type-definitions"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
-  </tr>
-  <tr>
-    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/style/prefer_nullish_coalescing.rs"><code>prefer-nullish-coalescing</code></a></div></td>
-    <td align="left">Suggests using nullish coalescing (??) instead of logical OR (||) for default values. The || operator treats 0, "", and false as falsy, which may not be intended.</td>
-    <td align="left"></td>
-    <td align="left"><a href="https://typescript-eslint.io/rules/prefer-nullish-coalescing"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/style/prefer_optional_chain.rs"><code>prefer-optional-chain</code></a></div></td>
