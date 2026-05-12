@@ -44,8 +44,6 @@ function main() {
   printSuccessMessage();
 }
 
-main();
-
 function setupLocalDistDirectory() {
   const targetDir = getLocalDistDirectory();
   if (existsSync(targetDir)) {
@@ -308,3 +306,5 @@ function applyDevTransformations(pkg: Record<string, unknown>): Record<string, u
 
   return transformed;
 }
+
+main();
