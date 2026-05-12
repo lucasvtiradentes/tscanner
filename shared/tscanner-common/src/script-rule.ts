@@ -1,4 +1,4 @@
-import { stdin } from 'node:process';
+import { stderr, stdin, stdout } from 'node:process';
 
 export type ScriptFile = {
   path: string;
@@ -36,7 +36,7 @@ export async function readScriptInput<TOptions = Record<string, unknown>>(): Pro
 }
 
 export function writeScriptOutput(issues: ScriptIssue[]): void {
-  console.log(JSON.stringify({ issues }));
+  stdout.write(`${JSON.stringify({ issues })}\n`);
 }
 
 export function runScript<TOptions = Record<string, unknown>>(
@@ -46,7 +46,8 @@ export function runScript<TOptions = Record<string, unknown>>(
     .then((input) => Promise.resolve(fn(input)))
     .then(writeScriptOutput)
     .catch((err) => {
-      console.error(err);
+      const message = err instanceof Error ? (err.stack ?? err.message) : String(err);
+      stderr.write(`${message}\n`);
       process.exit(1);
     });
 }

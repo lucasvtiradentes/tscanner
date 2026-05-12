@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 import { spawn } from 'node:child_process';
+import { stderr } from 'node:process';
 import { getBinaryPath } from './binary-resolver';
 
 function main(): void {
@@ -30,7 +31,7 @@ function main(): void {
     });
   } catch (error) {
     const err = error as Error;
-    console.error(err.message);
+    stderr.write(`${err.message}\n`);
     process.exit(1);
   }
 }
