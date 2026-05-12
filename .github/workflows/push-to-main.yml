@@ -47,7 +47,7 @@ jobs:
           - os: windows-latest
             target: x86_64-pc-windows-msvc
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: ./.github/actions/build-rust-binary
         with:
           target: ${{ matrix.target }}
@@ -68,7 +68,7 @@ jobs:
       HUSKY: 0
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
 
@@ -91,7 +91,7 @@ jobs:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
       - uses: ./.github/actions/setup-and-install
@@ -109,7 +109,7 @@ jobs:
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
       - uses: ./.github/actions/setup-and-install
@@ -124,7 +124,7 @@ jobs:
     if: needs.prepare_release.outputs.has_changesets == 'false' && needs.push_to_main_ci.outputs.should_release_github_action == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 2
       - uses: ./.github/actions/setup-and-install
