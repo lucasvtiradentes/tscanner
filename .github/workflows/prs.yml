@@ -56,24 +56,18 @@ jobs:
           PROVIDER=$(node -e "const fs=require('fs'); const c=fs.readFileSync('.tscanner/config.jsonc','utf8').replace(/\/\/.*/g,''); const j=JSON.parse(c); console.log(j.ai?.provider || 'none')")
           echo "provider=$PROVIDER" >> $GITHUB_OUTPUT
 
-      - name: Setup Gemini CLI
-        if: steps.ai-provider.outputs.provider == 'gemini'
-        run: npm install -g @google/gemini-cli
-
-      - name: Setup Gemini credentials
-        if: steps.ai-provider.outputs.provider == 'gemini'
-        run: |
-          mkdir -p ~/.gemini
-          echo '${{ secrets.GEMINI_CREDENTIALS }}' > ~/.gemini/oauth_creds.json
-          echo '{"security":{"auth":{"selectedType":"oauth-personal"}}}' > ~/.gemini/settings.json
-
-      - name: Setup Claude CLI
-        if: steps.ai-provider.outputs.provider == 'claude'
-        run: npm install -g @anthropic-ai/claude-code
+      - name: Setup AI provider
+        if: steps.ai-provider.outputs.provider != 'none'
+        uses: lucasvtiradentes/setup-ai-provider@v0
+        with:
+          provider: ${{ steps.ai-provider.outputs.provider }}
+          claude-code-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          codex-auth-json: ${{ secrets.CODEX_AUTH_JSON }}
+          gemini-auth-json: ${{ secrets.GEMINI_CREDENTIALS }}
+          artifact-name: ai-chat-logs
+          upload-session-files: 'true'
 
       - uses: ./packages/github-action
-        env:
-          CLAUDE_CODE_OAUTH_TOKEN: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           dev-mode: 'true'
@@ -91,26 +85,3 @@ jobs:
         run: |
           echo "=== TScanner Logs ==="
           cat /tmp/tscannerlogs.txt 2>/dev/null || echo "No logs found at /tmp/tscannerlogs.txt"
-
-      - name: Collect AI chat logs
-        if: always()
-        run: |
-          mkdir -p /tmp/ai-chats
-          # Claude sessions
-          for f in ~/.claude/projects/**/*.jsonl; do
-            [ -f "$f" ] && cp "$f" /tmp/ai-chats/claude-$(basename "$f") 2>/dev/null || true
-          done
-          # Gemini sessions
-          for f in ~/.gemini/tmp/**/chats/*; do
-            [ -f "$f" ] && cp "$f" /tmp/ai-chats/gemini-$(basename "$f") 2>/dev/null || true
-          done
-          ls -la /tmp/ai-chats/ 2>/dev/null || echo "No AI chat files found"
-
-      - name: Upload AI chat logs
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: ai-chat-logs
-          retention-days: 7
-          if-no-files-found: ignore
-          path: /tmp/ai-chats/
