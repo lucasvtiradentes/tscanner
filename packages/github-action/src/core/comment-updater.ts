@@ -2,12 +2,8 @@ import { COMMENT_MARKER } from '../constants';
 import { type Octokit, githubHelper } from '../lib/actions-helper';
 import { formatTimestamp } from '../utils/format-timestamp';
 import type { ActionScanResult } from './scanner/scanner';
-import {
-  type CommitHistoryEntry,
-  buildCommitHistorySection,
-  buildIssuesReport,
-  buildSuccessReport,
-} from './shared/sections';
+import { buildIssuesReport, buildSuccessReport } from './shared/sections';
+import { type CommitHistoryEntry, buildCommitHistorySection } from './shared/sections-history';
 
 function parseCommitHistory(commentBody: string): CommitHistoryEntry[] {
   const historyMatch = commentBody.match(/<!-- COMMIT_HISTORY:(.*?)-->/s);

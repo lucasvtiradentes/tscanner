@@ -1,74 +1,15 @@
+mod process;
+mod types;
+
 use rayon::prelude::*;
-use serde::{Deserialize, Serialize};
-use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
 use std::sync::Arc;
-use std::time::{Duration, Instant};
 use tscanner_cache::ScriptCache;
 use tscanner_config::ScriptRuleConfig;
 use tscanner_constants::config_dir_name;
 use tscanner_types::{Issue, IssueRuleType};
 
-#[derive(Debug, Clone, Serialize)]
-pub struct ScriptFile {
-    pub path: String,
-    pub content: String,
-    pub lines: Vec<String>,
-}
-
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ScriptInput {
-    pub files: Vec<ScriptFile>,
-    pub options: Option<serde_json::Value>,
-    pub workspace_root: String,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct ScriptIssue {
-    pub file: String,
-    pub line: usize,
-    #[serde(default)]
-    pub column: usize,
-    pub message: String,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct ScriptOutput {
-    pub issues: Vec<ScriptIssue>,
-}
-
-#[derive(Debug)]
-pub enum ScriptError {
-    IoError(std::io::Error),
-    Timeout(u64),
-    NonZeroExit { code: Option<i32>, stderr: String },
-    InvalidOutput(String),
-    RunnerNotFound(String),
-}
-
-impl std::fmt::Display for ScriptError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ScriptError::IoError(e) => write!(f, "IO error: {}", e),
-            ScriptError::Timeout(secs) => write!(f, "Command timed out after {}s", secs),
-            ScriptError::NonZeroExit { code, stderr } => {
-                write!(f, "Command exited with code {:?}: {}", code, stderr)
-            }
-            ScriptError::InvalidOutput(msg) => write!(f, "Invalid output: {}", msg),
-            ScriptError::RunnerNotFound(cmd) => {
-                write!(f, "Command '{}' not found", cmd)
-            }
-        }
-    }
-}
-
-impl From<std::io::Error> for ScriptError {
-    fn from(e: std::io::Error) -> Self {
-        ScriptError::IoError(e)
-    }
-}
+pub use types::{ScriptError, ScriptFile, ScriptInput, ScriptOutput};
 
 pub struct ScriptExecutor {
     cache: Arc<ScriptCache>,
@@ -253,88 +194,6 @@ impl ScriptExecutor {
         let output = self.spawn_command(rule_config, &input_json)?;
 
         self.parse_output(rule_name, rule_config, &output, workspace_root, files)
-    }
-
-    fn spawn_command(
-        &self,
-        rule_config: &ScriptRuleConfig,
-        input: &[u8],
-    ) -> Result<Vec<u8>, ScriptError> {
-        let parts: Vec<&str> = rule_config.command.split_whitespace().collect();
-        if parts.is_empty() {
-            return Err(ScriptError::RunnerNotFound(rule_config.command.clone()));
-        }
-
-        let program = parts[0];
-        let args = &parts[1..];
-
-        (self.log_debug)(&format!(
-            "Running command: {} {:?} (cwd: {:?})",
-            program, args, self.config_dir
-        ));
-
-        let mut child = Command::new(program)
-            .args(args)
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .current_dir(&self.config_dir)
-            .spawn()
-            .map_err(|e| {
-                if e.kind() == std::io::ErrorKind::NotFound {
-                    ScriptError::RunnerNotFound(program.to_string())
-                } else {
-                    ScriptError::IoError(e)
-                }
-            })?;
-
-        let mut stdin = child.stdin.take().unwrap();
-        let input_clone = input.to_vec();
-        let write_handle = std::thread::spawn(move || stdin.write_all(&input_clone));
-
-        let timeout = if rule_config.timeout > 0 {
-            Some(Duration::from_secs(rule_config.timeout))
-        } else {
-            None
-        };
-        let start = Instant::now();
-
-        loop {
-            match child.try_wait() {
-                Ok(Some(status)) => {
-                    let _ = write_handle.join();
-
-                    let mut stdout = Vec::new();
-                    let mut stderr = Vec::new();
-
-                    if let Some(mut stdout_handle) = child.stdout.take() {
-                        let _ = stdout_handle.read_to_end(&mut stdout);
-                    }
-                    if let Some(mut stderr_handle) = child.stderr.take() {
-                        let _ = stderr_handle.read_to_end(&mut stderr);
-                    }
-
-                    if !status.success() {
-                        return Err(ScriptError::NonZeroExit {
-                            code: status.code(),
-                            stderr: String::from_utf8_lossy(&stderr).to_string(),
-                        });
-                    }
-
-                    return Ok(stdout);
-                }
-                Ok(None) => {
-                    if let Some(t) = timeout {
-                        if start.elapsed() > t {
-                            let _ = child.kill();
-                            return Err(ScriptError::Timeout(rule_config.timeout));
-                        }
-                    }
-                    std::thread::sleep(Duration::from_millis(10));
-                }
-                Err(e) => return Err(ScriptError::IoError(e)),
-            }
-        }
     }
 
     fn parse_output(

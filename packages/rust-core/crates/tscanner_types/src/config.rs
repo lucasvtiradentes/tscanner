@@ -3,6 +3,8 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+mod defaults;
+
 fn default_true() -> bool {
     true
 }
@@ -73,25 +75,6 @@ pub struct CodeEditorConfig {
         description = "Startup AI scan mode: off (disabled), cached (use cache), fresh (ignore cache)"
     )]
     pub startup_ai_scan: StartupScanMode,
-}
-
-impl Default for CodeEditorConfig {
-    fn default() -> Self {
-        Self {
-            highlight_errors: tscanner_constants::default_highlight_errors(),
-            highlight_warnings: tscanner_constants::default_highlight_warnings(),
-            highlight_infos: tscanner_constants::default_highlight_infos(),
-            highlight_hints: tscanner_constants::default_highlight_hints(),
-            auto_scan_interval: tscanner_constants::default_auto_scan_interval(),
-            auto_ai_scan_interval: tscanner_constants::default_auto_ai_scan_interval(),
-            startup_scan: StartupScanMode::from_str_or_panic(
-                tscanner_constants::default_startup_scan(),
-            ),
-            startup_ai_scan: StartupScanMode::from_str_or_panic(
-                tscanner_constants::default_startup_ai_scan(),
-            ),
-        }
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -195,18 +178,6 @@ pub struct RegexRuleConfig {
     pub exclude: Vec<String>,
 }
 
-impl Default for RegexRuleConfig {
-    fn default() -> Self {
-        Self {
-            pattern: String::new(),
-            message: String::new(),
-            severity: Severity::Warning,
-            include: Vec::new(),
-            exclude: Vec::new(),
-        }
-    }
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct ScriptRuleConfig {
@@ -238,20 +209,6 @@ pub struct ScriptRuleConfig {
     #[serde(default, skip_serializing_if = "serde_json::Value::is_null")]
     #[schemars(description = "Additional options to pass to the script")]
     pub options: serde_json::Value,
-}
-
-impl Default for ScriptRuleConfig {
-    fn default() -> Self {
-        Self {
-            command: String::new(),
-            message: String::new(),
-            severity: Severity::Warning,
-            include: Vec::new(),
-            exclude: Vec::new(),
-            timeout: 0,
-            options: serde_json::Value::Null,
-        }
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -289,19 +246,4 @@ pub struct AiRuleConfig {
     #[serde(default, skip_serializing_if = "serde_json::Value::is_null")]
     #[schemars(description = "Additional options")]
     pub options: serde_json::Value,
-}
-
-impl Default for AiRuleConfig {
-    fn default() -> Self {
-        Self {
-            prompt: String::new(),
-            message: String::new(),
-            mode: AiMode::Paths,
-            severity: Severity::Warning,
-            include: Vec::new(),
-            exclude: Vec::new(),
-            timeout: 0,
-            options: serde_json::Value::Null,
-        }
-    }
 }
