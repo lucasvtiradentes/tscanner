@@ -426,11 +426,15 @@ Use AI prompts (markdown files) to perform semantic code analysis. Works with an
       "include": ["**/*.rs"],
       "options": { "allowTestFiles": true }
     }
-  },
-  "ai": {
-    "provider": "claude"
   }
 }
+\`\`\`
+
+Set the AI provider outside project config:
+\`\`\`bash
+tscanner ai set claude --model sonnet-4.6
+tscanner check --include-ai
+TSCANNER_AI_PROVIDER=codex TSCANNER_AI_MODEL=gpt5.1 tscanner check --include-ai
 \`\`\`
 
 <details>

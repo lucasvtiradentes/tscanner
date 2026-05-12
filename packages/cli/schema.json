@@ -2,63 +2,11 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "additionalProperties": false,
   "definitions": {
-    "AiConfig": {
-      "if": {
-        "properties": {
-          "provider": {
-            "const": "custom"
-          }
-        },
-        "required": [
-          "provider"
-        ]
-      },
-      "properties": {
-        "command": {
-          "description": "Custom command path (required when provider is 'custom')",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "provider": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/AiProvider"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "AI provider to use (claude, gemini, custom)"
-        }
-      },
-      "then": {
-        "properties": {
-          "command": {
-            "minLength": 1,
-            "type": "string"
-          }
-        },
-        "required": [
-          "command"
-        ]
-      },
-      "type": "object"
-    },
     "AiMode": {
       "enum": [
         "paths",
         "content",
         "agentic"
-      ],
-      "type": "string"
-    },
-    "AiProvider": {
-      "enum": [
-        "claude",
-        "gemini",
-        "custom"
       ],
       "type": "string"
     },
@@ -1568,17 +1516,6 @@
         "string",
         "null"
       ]
-    },
-    "ai": {
-      "anyOf": [
-        {
-          "$ref": "#/definitions/AiConfig"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "AI provider configuration for AI-powered rules"
     },
     "aiRules": {
       "additionalProperties": {

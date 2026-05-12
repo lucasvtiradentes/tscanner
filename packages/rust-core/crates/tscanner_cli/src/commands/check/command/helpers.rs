@@ -10,7 +10,7 @@ use crate::shared::{fatal_error_and_exit, render_messages, FormattedOutput, Rule
 use tscanner_cache::{AiCache, FileCache, ScriptCache};
 use tscanner_cli::{CliGroupMode, CliRuleKind, CliSeverity};
 use tscanner_cli_output::GroupMode;
-use tscanner_config::{AiExecutionMode, TscannerConfig};
+use tscanner_config::{AiConfig, AiExecutionMode, TscannerConfig};
 use tscanner_constants::{app_name, config_dir_name, config_file_name, is_dev_mode};
 use tscanner_scanner::Scanner;
 use tscanner_service::{log_error, log_info};
@@ -107,6 +107,7 @@ pub(super) fn build_scanner(
     resolved_config_path: &str,
     no_cache: bool,
     config_hash: u64,
+    ai_config: Option<AiConfig>,
 ) -> Result<Scanner> {
     let (cache, ai_cache, script_cache) = if no_cache {
         (
@@ -133,6 +134,7 @@ pub(super) fn build_scanner(
         script_cache,
         root.to_path_buf(),
         config_dir,
+        ai_config,
     )
     .map_err(|e| anyhow::anyhow!("{}", e))
 }

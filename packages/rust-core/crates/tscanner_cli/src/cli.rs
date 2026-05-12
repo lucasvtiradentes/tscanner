@@ -1,6 +1,12 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
+use std::str::FromStr;
 use tscanner_constants::config_dir_name;
+use tscanner_types::AiProvider;
+
+fn parse_ai_provider(value: &str) -> Result<AiProvider, String> {
+    AiProvider::from_str(value)
+}
 
 #[derive(Debug, Clone, Default, ValueEnum, PartialEq)]
 pub enum OutputFormat {
@@ -110,6 +116,23 @@ pub enum Commands {
 
         #[arg(
             long,
+            value_name = "PROVIDER",
+            value_parser = parse_ai_provider,
+            help = "AI provider for this scan (claude, codex, gemini)",
+            help_heading = "AI Rules"
+        )]
+        ai_provider: Option<AiProvider>,
+
+        #[arg(
+            long,
+            value_name = "MODEL",
+            help = "AI model for this scan",
+            help_heading = "AI Rules"
+        )]
+        ai_model: Option<String>,
+
+        #[arg(
+            long,
             value_name = "GLOB_PATTERN",
             help = "Filter results by glob pattern (e.g., 'src/**/*.ts')",
             help_heading = "Filtering"
@@ -206,8 +229,29 @@ pub enum Commands {
         config_path: Option<PathBuf>,
     },
 
+    #[command(subcommand, about = "Manage personal AI provider settings")]
+    Ai(AiCommands),
+
     #[command(about = "Start the LSP server (Language Server Protocol)")]
     Lsp,
+}
+
+#[derive(Subcommand)]
+pub enum AiCommands {
+    #[command(about = "Set personal AI provider settings")]
+    Set {
+        #[arg(value_name = "PROVIDER", value_parser = parse_ai_provider)]
+        provider: AiProvider,
+
+        #[arg(long, value_name = "MODEL")]
+        model: Option<String>,
+    },
+
+    #[command(about = "Show effective personal AI provider settings")]
+    Show,
+
+    #[command(about = "Clear personal AI provider settings")]
+    Unset,
 }
 
 impl Commands {

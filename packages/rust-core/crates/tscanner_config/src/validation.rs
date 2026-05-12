@@ -38,7 +38,6 @@ const SCHEMA_JSON: &str = include_str!("../../../../cli/schema.json");
 
 struct SchemaFields {
     tscanner_config: Vec<String>,
-    ai_config: Vec<String>,
     code_editor_config: Vec<String>,
     files_config: Vec<String>,
     rules_config: Vec<String>,
@@ -101,7 +100,6 @@ fn build_schema_fields(schema: &Value) -> SchemaFields {
 
     SchemaFields {
         tscanner_config,
-        ai_config: extract_definition_properties(schema, "AiConfig"),
         code_editor_config: extract_definition_properties(schema, "CodeEditorConfig"),
         files_config: extract_definition_properties(schema, "FilesConfig"),
         rules_config: extract_definition_properties(schema, "RulesConfig"),
@@ -189,10 +187,6 @@ pub fn validate_json_fields(json: &serde_json::Value) -> ValidationResult {
             &FIELDS.code_editor_config,
             "codeEditor",
         ));
-    }
-
-    if let Some(ai) = obj.get("ai").and_then(|v| v.as_object()) {
-        invalid_fields.extend(collect_invalid_fields(ai, &FIELDS.ai_config, "ai"));
     }
 
     if let Some(rules) = obj.get("rules").and_then(|v| v.as_object()) {

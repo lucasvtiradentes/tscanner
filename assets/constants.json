@@ -77,7 +77,11 @@
       "providers": {
         "claude": {
           "command": "claude",
-          "args": ["-p", "--output-format", "text", "--model", "haiku"]
+          "args": ["-p", "--output-format", "text"]
+        },
+        "codex": {
+          "command": "codex",
+          "args": ["exec"]
         },
         "gemini": {
           "command": "gemini",

@@ -4,7 +4,7 @@ use globset::GlobSet;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tscanner_cache::{AiCache, FileCache, ScriptCache};
-use tscanner_config::{compile_globset, TscannerConfig, TscannerConfigExt};
+use tscanner_config::{compile_globset, AiConfig, TscannerConfig, TscannerConfigExt};
 use tscanner_logger::{log_debug, log_error, log_info, log_warn};
 use tscanner_rules::RuleRegistry;
 
@@ -69,6 +69,7 @@ impl Scanner {
             script_cache,
             root,
             None,
+            None,
             log_info,
             log_debug,
             log_error,
@@ -83,6 +84,7 @@ impl Scanner {
         script_cache: Arc<ScriptCache>,
         root: PathBuf,
         config_dir: PathBuf,
+        ai_config: Option<AiConfig>,
     ) -> Result<Self, Box<dyn std::error::Error>> {
         Self::with_all_caches_and_logger(
             config,
@@ -91,6 +93,7 @@ impl Scanner {
             script_cache,
             root,
             Some(config_dir),
+            ai_config,
             log_info,
             log_debug,
             log_error,
@@ -152,6 +155,7 @@ impl Scanner {
             script_cache,
             root,
             config_dir,
+            None,
             log_info,
             log_debug,
             log_error,
@@ -167,6 +171,7 @@ impl Scanner {
         script_cache: Arc<ScriptCache>,
         root: PathBuf,
         config_dir: Option<PathBuf>,
+        ai_config: Option<AiConfig>,
         log_info: fn(&str),
         log_debug: fn(&str),
         log_error: fn(&str),
@@ -198,7 +203,7 @@ impl Scanner {
                 AiExecutor::with_config_dir(
                     &root,
                     dir.clone(),
-                    config.ai.clone(),
+                    ai_config.clone(),
                     ai_cache.clone(),
                     log_warn,
                     log_debug,
@@ -208,7 +213,7 @@ impl Scanner {
                 ScriptExecutor::with_logger(&root, script_cache.clone(), log_error, log_debug),
                 AiExecutor::with_config(
                     &root,
-                    config.ai.clone(),
+                    ai_config.clone(),
                     ai_cache.clone(),
                     log_warn,
                     log_debug,

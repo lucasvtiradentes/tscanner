@@ -51,7 +51,7 @@ impl AiExecutor {
             0
         };
         let (program, args) =
-            resolve_provider_command(ai_config.provider.as_ref(), ai_config.command.as_deref())
+            resolve_provider_command(Some(&ai_config.provider), ai_config.model.as_deref())
                 .map_err(AiError::InvalidOutput)?;
 
         let mode_str = match rule_config.mode {
@@ -73,7 +73,7 @@ impl AiExecutor {
             .spawn_ai_command(&program, &args, &full_prompt, timeout_ms, cancelled)
             .map_err(|e| match e {
                 AiError::NonZeroExit { code, stderr } => {
-                    let friendly = parse_provider_error(ai_config.provider.as_ref(), &stderr);
+                    let friendly = parse_provider_error(Some(&ai_config.provider), &stderr);
                     AiError::NonZeroExit {
                         code,
                         stderr: friendly,

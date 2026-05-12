@@ -10,7 +10,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
 use tscanner_cache::AiCache;
-use tscanner_config::{AiConfig, AiRuleConfig};
+use tscanner_config::{resolve_ai_config, AiConfig, AiRuleConfig};
 use tscanner_constants::{ai_rules_dir, config_dir_name};
 use tscanner_types::Issue;
 
@@ -120,18 +120,33 @@ impl AiExecutor {
             return AiExecutionResult::default();
         }
 
+        let resolved_ai_config;
         let ai_config = match &self.ai_config {
             Some(config) => config,
             None => {
-                let error = format!(
-                    "AI rules configured ({} rules) but 'ai' config section is missing. Add 'ai.provider' to your config.",
-                    rules.len()
-                );
-                (self.log_warn)(&error);
-                return AiExecutionResult {
-                    errors: vec![error],
-                    ..Default::default()
+                resolved_ai_config = match resolve_ai_config(None, None) {
+                    Ok(config) => config,
+                    Err(error) => {
+                        let error = error.to_string();
+                        (self.log_warn)(&error);
+                        return AiExecutionResult {
+                            errors: vec![error],
+                            ..Default::default()
+                        };
+                    }
                 };
+                let Some(config) = resolved_ai_config.as_ref() else {
+                    let error = format!(
+                        "AI rules configured ({} rules) but no AI provider is configured. Run 'tscanner ai set <provider>' or pass --ai-provider.",
+                        rules.len()
+                    );
+                    (self.log_warn)(&error);
+                    return AiExecutionResult {
+                        errors: vec![error],
+                        ..Default::default()
+                    };
+                };
+                config
             }
         };
 

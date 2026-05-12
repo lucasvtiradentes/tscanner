@@ -297,8 +297,15 @@ npx tscanner check --branch origin/main
     <th width="300">Flag description</th>
   </tr>
   <tr>
-    <td rowspan="15" align="left"><code>check [options] [paths]</code></td>
-    <td rowspan="15" align="left">Scan code for issues and display results</td>
+    <td rowspan="1" align="left"><code>ai</code></td>
+    <td rowspan="1" align="left">Manage personal AI provider settings</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+  </tr>
+  <tr>
+    <td rowspan="17" align="left"><code>check [options] [paths]</code></td>
+    <td rowspan="17" align="left">Scan code for issues and display results</td>
     <td align="left"><b>Scan Mode</b><br/><code>--branch &lt;BRANCH&gt;</code></td>
     <td align="center">-</td>
     <td align="left">Only show issues in files changed compared to branch (e.g., origin/main)</td>
@@ -320,7 +327,21 @@ npx tscanner check --branch origin/main
   <tr>
     <!-- <td align="left"><code>check [options] [paths]</code></td> -->
     <!-- <td align="left">Scan code for issues and display results</td> -->
-    <td align="left"><b>AI Rules</b><br/><code>--include-ai</code></td>
+    <td align="left"><b>AI Rules</b><br/><code>--ai-model &lt;MODEL&gt;</code></td>
+    <td align="center">-</td>
+    <td align="left">AI model for this scan</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--ai-provider &lt;PROVIDER&gt;</code></td>
+    <td align="center">-</td>
+    <td align="left">AI provider for this scan (claude, codex, gemini)</td>
+  </tr>
+  <tr>
+    <!-- <td align="left"><code>check [options] [paths]</code></td> -->
+    <!-- <td align="left">Scan code for issues and display results</td> -->
+    <td align="left"><code>--include-ai</code></td>
     <td align="center">-</td>
     <td align="left">Include AI rules in the scan (slower)</td>
   </tr>
@@ -505,9 +526,6 @@ To scan your code, you need to set up the rules in the TScanner config folder.
       "severity": "warning",
       "include": ["**/*.ts"]
     }
-  },
-  "ai": {
-    "provider": "claude"
   },
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
@@ -1175,11 +1193,15 @@ Use AI prompts (markdown files) to perform semantic code analysis. Works with an
       "include": ["**/*.rs"],
       "options": { "allowTestFiles": true }
     }
-  },
-  "ai": {
-    "provider": "claude"
   }
 }
+```
+
+Set the AI provider outside project config:
+```bash
+tscanner ai set claude --model sonnet-4.6
+tscanner check --include-ai
+TSCANNER_AI_PROVIDER=codex TSCANNER_AI_MODEL=gpt5.1 tscanner check --include-ai
 ```
 
 <details>

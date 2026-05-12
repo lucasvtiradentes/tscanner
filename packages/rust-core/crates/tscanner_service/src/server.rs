@@ -5,7 +5,7 @@ use parking_lot::RwLock;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tscanner_cache::FileCache;
-use tscanner_config::TscannerConfig;
+use tscanner_config::{compute_ai_runtime_hash, resolve_ai_config, TscannerConfig};
 use tscanner_constants::resolve_config_dir;
 use tscanner_logger::{log_debug, log_info};
 use tscanner_rules::{get_all_rule_metadata, RuleMetadata};
@@ -79,7 +79,8 @@ impl Workspace for WorkspaceServer {
 
         let resolved_config_dir = resolve_config_dir(&params.root, params.config_dir);
 
-        let config_hash = config.compute_hash();
+        let ai_config = resolve_ai_config(None, None).ok().flatten();
+        let config_hash = compute_ai_runtime_hash(config.compute_hash(), ai_config.as_ref());
         let ai_cache = Arc::new(tscanner_cache::AiCache::with_config_hash(config_hash));
         let script_cache = Arc::new(tscanner_cache::ScriptCache::with_config_hash(config_hash));
 
@@ -90,6 +91,7 @@ impl Workspace for WorkspaceServer {
             script_cache,
             params.root.clone(),
             resolved_config_dir,
+            ai_config,
         );
         let scanner = match scanner_result {
             Ok(s) => {

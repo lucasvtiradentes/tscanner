@@ -255,15 +255,6 @@ impl ConfigExt for TscannerConfig {
             }
         }
 
-        if let Some(ref ai_config) = self.ai {
-            if let Some(provider) = ai_config.provider {
-                format!("{:?}", provider).hash(&mut hasher);
-            }
-            if let Some(ref command) = ai_config.command {
-                command.hash(&mut hasher);
-            }
-        }
-
         hasher.finish()
     }
 }

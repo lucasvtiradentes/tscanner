@@ -1,10 +1,10 @@
 use std::path::PathBuf;
 use tscanner_config::AiProvider;
 
-use super::{ClaudeProvider, CustomProvider, GeminiProvider};
+use super::{ClaudeProvider, CodexProvider, GeminiProvider};
 
 pub trait AiProviderImpl {
-    fn get_command(&self, custom_command: Option<&str>) -> Result<(String, Vec<String>), String>;
+    fn get_command(&self, model: Option<&str>) -> Result<(String, Vec<String>), String>;
     fn get_hardcoded_paths(&self) -> Vec<PathBuf>;
     fn parse_error(&self, error_output: &str) -> String {
         truncate_error(error_output)
@@ -22,21 +22,24 @@ pub fn truncate_error(error_output: &str) -> String {
 pub fn parse_provider_error(provider: Option<&AiProvider>, error_output: &str) -> String {
     match provider {
         Some(AiProvider::Claude) => ClaudeProvider.parse_error(error_output),
+        Some(AiProvider::Codex) => CodexProvider.parse_error(error_output),
         Some(AiProvider::Gemini) => GeminiProvider.parse_error(error_output),
-        Some(AiProvider::Custom) => CustomProvider.parse_error(error_output),
         None => truncate_error(error_output),
     }
 }
 
 pub fn resolve_provider_command(
     provider: Option<&AiProvider>,
-    custom_command: Option<&str>,
+    model: Option<&str>,
 ) -> Result<(String, Vec<String>), String> {
     match provider {
-        Some(AiProvider::Claude) => ClaudeProvider.get_command(custom_command),
-        Some(AiProvider::Gemini) => GeminiProvider.get_command(custom_command),
-        Some(AiProvider::Custom) => CustomProvider.get_command(custom_command),
-        None => Err("AI provider not configured. Add 'ai.provider' to your config.".to_string()),
+        Some(AiProvider::Claude) => ClaudeProvider.get_command(model),
+        Some(AiProvider::Codex) => CodexProvider.get_command(model),
+        Some(AiProvider::Gemini) => GeminiProvider.get_command(model),
+        None => Err(
+            "AI provider not configured. Run 'tscanner ai set <provider>' or pass --ai-provider."
+                .to_string(),
+        ),
     }
 }
 
@@ -54,7 +57,7 @@ pub(crate) fn resolve_command_path(
         .map(|p| p.to_string_lossy().to_string())
         .map_err(|_| {
             format!(
-                "'{}' not found in PATH or default install locations. Install it or use 'custom' provider with full path",
+                "'{}' not found in PATH or default install locations",
                 cmd_name
             )
         })

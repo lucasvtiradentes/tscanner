@@ -19,6 +19,7 @@ pub struct ScanConfig {
     pub group_by: GroupMode,
     pub ai_mode: AiExecutionMode,
     pub ai_provider: Option<AiProvider>,
+    pub ai_model: Option<String>,
     pub cache_enabled: bool,
     pub continue_on_error: bool,
     pub config_path: String,
@@ -78,10 +79,13 @@ pub fn render_header(config: &ScanConfig) {
         if let Some(ref provider) = config.ai_provider {
             let provider_str = match provider {
                 AiProvider::Claude => "claude",
+                AiProvider::Codex => "codex",
                 AiProvider::Gemini => "gemini",
-                AiProvider::Custom => "custom",
             };
             print_setting("AI provider", provider_str);
+        }
+        if let Some(ref model) = config.ai_model {
+            print_setting("AI model", model);
         }
         print_setting("Cache", cache_str);
         print_setting_value("Continue on error", config.continue_on_error);

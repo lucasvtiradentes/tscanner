@@ -1,6 +1,13 @@
 {
   "commands": [
     {
+      "name": "ai",
+      "description": "Manage personal AI provider settings",
+      "usage": "tscanner ai [options]",
+      "arguments": [],
+      "flags": []
+    },
+    {
       "name": "check",
       "description": "Scan code for issues and display results",
       "usage": "tscanner check [options] [paths]",
@@ -51,6 +58,28 @@
           "defaultValue": null,
           "required": false,
           "group": "Scan Mode"
+        },
+        {
+          "name": "ai-model",
+          "short": null,
+          "description": "AI model for this scan",
+          "takesValue": true,
+          "valueName": "MODEL",
+          "possibleValues": null,
+          "defaultValue": null,
+          "required": false,
+          "group": "AI Rules"
+        },
+        {
+          "name": "ai-provider",
+          "short": null,
+          "description": "AI provider for this scan (claude, codex, gemini)",
+          "takesValue": true,
+          "valueName": "PROVIDER",
+          "possibleValues": null,
+          "defaultValue": null,
+          "required": false,
+          "group": "AI Rules"
         },
         {
           "name": "include-ai",

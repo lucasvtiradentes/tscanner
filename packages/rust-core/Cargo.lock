@@ -1538,6 +1538,7 @@ dependencies = [
 name = "tscanner_config"
 version = "0.1.3"
 dependencies = [
+ "anyhow",
  "globset",
  "json_comments",
  "lazy_static",

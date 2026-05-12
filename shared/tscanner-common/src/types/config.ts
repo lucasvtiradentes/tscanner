@@ -1,5 +1,5 @@
 import z from 'zod';
-import { AiMode, AiProvider, severitySchema, startupScanModeSchema } from './enums';
+import { AiMode, severitySchema, startupScanModeSchema } from './enums';
 
 const baseRuleConfigSchema = z.object({
   enabled: z.boolean().optional(),
@@ -40,13 +40,6 @@ const rulesConfigSchema = z.object({
   script: z.record(z.string(), scriptRuleConfigSchema).optional(),
 });
 
-const aiProviderSchema = z.enum(AiProvider);
-
-const aiConfigSchema = z.object({
-  provider: aiProviderSchema.optional(),
-  command: z.string().optional(),
-});
-
 const codeEditorConfigSchema = z.object({
   highlightErrors: z.boolean().optional(),
   highlightWarnings: z.boolean().optional(),
@@ -68,7 +61,6 @@ export const tscannerConfigSchema = z.object({
   rules: rulesConfigSchema,
   aiRules: z.record(z.string(), aiRuleConfigSchema),
   files: filesConfigSchema,
-  ai: aiConfigSchema.optional(),
   codeEditor: codeEditorConfigSchema.optional(),
 });
 

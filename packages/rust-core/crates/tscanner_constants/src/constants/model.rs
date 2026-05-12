@@ -133,6 +133,7 @@ pub(super) struct AiPlaceholdersConfig {
 #[serde(rename_all = "camelCase")]
 pub(super) struct AiProvidersConfig {
     pub(super) claude: AiProviderConfig,
+    pub(super) codex: AiProviderConfig,
     pub(super) gemini: AiProviderConfig,
 }
 

@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use crate::ai_rules_validator::validate_ai_rules;
-use crate::types::{AiProvider, CompiledRuleConfig, TscannerConfig};
+use crate::types::{CompiledRuleConfig, TscannerConfig};
 use crate::validation::{validate_json_fields, ValidationResult};
 use tscanner_constants::{config_dir_name, config_error_prefix};
 
@@ -73,15 +73,6 @@ impl TscannerConfigExt for TscannerConfig {
         config_dir_name: &str,
     ) -> ValidationResult {
         let mut result = ValidationResult::new();
-
-        if let Some(ref ai_config) = self.ai {
-            if ai_config.provider == Some(AiProvider::Custom)
-                && (ai_config.command.is_none()
-                    || ai_config.command.as_ref().map(|c| c.trim().is_empty()) == Some(true))
-            {
-                result.add_error("ai.command is required when ai.provider is 'custom'".to_string());
-            }
-        }
 
         for (name, regex_config) in &self.rules.regex {
             if let Err(e) = regex::Regex::new(&regex_config.pattern) {

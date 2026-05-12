@@ -28,13 +28,12 @@ fn is_zero(v: &u64) -> bool {
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct AiConfig {
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "AI provider to use (claude, gemini, custom)")]
-    pub provider: Option<AiProvider>,
+    #[schemars(description = "AI provider to use (claude, codex, gemini)")]
+    pub provider: AiProvider,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "Custom command path (required only for 'custom' provider)")]
-    pub command: Option<String>,
+    #[schemars(description = "AI model to use")]
+    pub model: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -109,10 +108,6 @@ pub struct TscannerConfig {
     #[serde(rename = "$schema", skip_serializing_if = "Option::is_none")]
     #[schemars(description = "JSON schema URL for editor support")]
     pub schema: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "AI provider configuration for AI-powered rules")]
-    pub ai: Option<AiConfig>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     #[schemars(description = "Code editor configuration (highlighting, auto-scan)")]

@@ -12,10 +12,11 @@ use std::io::{self, Write};
 use std::path::PathBuf;
 use std::sync::Arc;
 
+use crate::commands::ai;
 use crate::shared::{fatal_error_and_exit, print_section_title, FormattedOutput, SummaryStats};
 use tscanner_cli::{CliGroupMode, CliRuleKind, CliSeverity, OutputFormat};
 use tscanner_cli_output::GroupMode;
-use tscanner_config::{AiExecutionMode, AiProvider};
+use tscanner_config::{compute_ai_runtime_hash, AiExecutionMode, AiProvider};
 use tscanner_scanner::{
     AiProgressCallback, ConfigExt, RegularRulesCompleteCallback, ScanCallbacks,
 };
@@ -45,6 +46,8 @@ pub fn cmd_check(
     continue_on_error: bool,
     include_ai: bool,
     only_ai: bool,
+    ai_provider_flag: Option<AiProvider>,
+    ai_model_flag: Option<String>,
     config_path: Option<PathBuf>,
 ) -> Result<()> {
     let mode_flags = [staged, uncommitted, branch.is_some()]
@@ -85,15 +88,41 @@ pub fn cmd_check(
     let effective_group_mode = helpers::resolve_group_mode(&cli_options);
     let effective_ai_mode = helpers::resolve_ai_mode(include_ai, only_ai);
 
-    let config_hash = config.compute_hash();
-    let ai_provider = config.ai.as_ref().and_then(|ai| ai.provider);
+    let ai_config = if effective_ai_mode == AiExecutionMode::Ignore {
+        if ai_provider_flag.is_some() || ai_model_flag.is_some() {
+            match ai::resolve_ai_config(ai_provider_flag, ai_model_flag) {
+                Ok(config) => config,
+                Err(error) => fatal_error_and_exit(&error.to_string(), &[]),
+            }
+        } else {
+            None
+        }
+    } else {
+        match ai::resolve_ai_config(ai_provider_flag, ai_model_flag) {
+            Ok(config) => config,
+            Err(error) => fatal_error_and_exit(&error.to_string(), &[]),
+        }
+    };
+    let ai_provider = ai_config.as_ref().map(|ai| ai.provider);
+    let ai_model = ai_config.as_ref().and_then(|ai| ai.model.clone());
+    let config_hash = compute_ai_runtime_hash(config.compute_hash(), ai_config.as_ref());
 
     if ai_provider.is_none() && effective_ai_mode != AiExecutionMode::Ignore {
         fatal_error_and_exit(
             "AI rules enabled but no provider configured",
             &[
-                "Add a provider to your config file:",
-                &format!("  {}", "\"ai\": { \"provider\": \"claude\" }".yellow()),
+                "Set a personal provider:",
+                &format!("  {}", "tscanner ai set claude --model sonnet-4.6".yellow()),
+                &format!("  {}", "tscanner ai set codex --model gpt5.1".yellow()),
+                "",
+                "Or pass it for this scan:",
+                &format!(
+                    "  {}",
+                    "tscanner check --include-ai --ai-provider claude".yellow()
+                ),
+                "",
+                "Or use environment variables:",
+                &format!("  {}", "TSCANNER_AI_PROVIDER=claude".yellow()),
                 "",
                 &format!("Available providers: {}", AiProvider::all_names().cyan()),
             ],
@@ -109,8 +138,14 @@ pub fn cmd_check(
         script_count,
         ai_count,
     );
-    let scanner =
-        helpers::build_scanner(&root, config, &resolved_config_path, no_cache, config_hash)?;
+    let scanner = helpers::build_scanner(
+        &root,
+        config,
+        &resolved_config_path,
+        no_cache,
+        config_hash,
+        ai_config,
+    )?;
 
     let is_json = matches!(output_format, OutputFormat::Json);
 
@@ -133,6 +168,7 @@ pub fn cmd_check(
             group_mode: effective_group_mode.clone(),
             ai_mode: effective_ai_mode,
             ai_provider,
+            ai_model,
             cache_enabled: !no_cache,
             continue_on_error,
             glob_filter: glob_filter.clone(),

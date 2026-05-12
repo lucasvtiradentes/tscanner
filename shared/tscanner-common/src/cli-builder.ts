@@ -9,6 +9,8 @@ export type CliCheckOptions = {
   severity?: string;
   kind?: string;
   aiMode?: AiExecutionMode;
+  aiProvider?: string;
+  aiModel?: string;
   jsonOutput?: string;
   configPath?: string;
   continueOnError?: boolean;
@@ -46,6 +48,14 @@ export function buildCheckArgs(options: CliCheckOptions = {}): string[] {
     args.push('--include-ai');
   } else if (options.aiMode === AiExecutionMode.Only) {
     args.push('--only-ai');
+  }
+
+  if (options.aiProvider) {
+    args.push('--ai-provider', options.aiProvider);
+  }
+
+  if (options.aiModel) {
+    args.push('--ai-model', options.aiModel);
   }
 
   if (options.jsonOutput) {

@@ -5,14 +5,6 @@ import { getConfigDirLabel } from '../common/lib/config-manager';
 import { getBinaryVersionLabel, getExtensionVersionLabel } from '../common/lib/version-checker';
 import { type BinaryInfo, LOCATOR_SOURCE_LABELS } from '../locator';
 
-function getAiProviderLabel(config: TscannerConfig | null): string {
-  if (!config?.ai?.provider) {
-    return 'None';
-  }
-  const provider = config.ai.provider;
-  return provider.charAt(0).toUpperCase() + provider.slice(1);
-}
-
 function extractSchemaVersion(schemaUrl: string | undefined): string | null {
   if (!schemaUrl) return null;
 
@@ -89,7 +81,6 @@ export function buildConfiguredTooltip(params: BuildConfiguredTooltipParams): vs
   const binaryLabel = binaryVersionLabel === DEV_SUFFIX ? DEV_SUFFIX : `${configSource} (${binaryVersionLabel})`;
   const versionLabel = `ext ${extensionLabel}, cli ${binaryLabel}`;
 
-  const aiProviderLabel = getAiProviderLabel(config);
   const activeRulesLabel = getActiveRulesLabel(config);
   const scanSettingsLabel = getScanSettingsLabel(config);
   const aiScanSettingsLabel = getAiScanSettingsLabel(config);
@@ -100,7 +91,6 @@ export function buildConfiguredTooltip(params: BuildConfiguredTooltipParams): vs
     ['Active Rules', activeRulesLabel],
     ['Scan', scanSettingsLabel],
     ['AI Scan', aiScanSettingsLabel],
-    config?.ai?.provider ? ['AI Provider', aiProviderLabel] : null,
   ].filter(Boolean) as string[][];
 
   let content = ['| | |', '|---|---|', ...rows.map(([label, value]) => `| **${label}** | ${value} |`)].join('\n');

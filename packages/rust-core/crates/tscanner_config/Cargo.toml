@@ -12,6 +12,7 @@ tscanner_constants = { path = "../tscanner_constants" }
 serde = { workspace = true }
 serde_json = { workspace = true }
 schemars = { workspace = true }
+anyhow = { workspace = true }
 globset = { workspace = true }
 json_comments = { workspace = true }
 regex = { workspace = true }

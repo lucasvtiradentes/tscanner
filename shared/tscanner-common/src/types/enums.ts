@@ -16,8 +16,8 @@ export enum IssueRuleType {
 
 export enum AiProvider {
   Claude = 'claude',
+  Codex = 'codex',
   Gemini = 'gemini',
-  Custom = 'custom',
 }
 
 export enum AiMode {

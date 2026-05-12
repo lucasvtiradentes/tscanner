@@ -6,7 +6,7 @@ use lsp_types::notification::Notification;
 use std::path::PathBuf;
 use std::sync::Arc;
 use tscanner_cache::{AiCache, FileCache, ScriptCache};
-use tscanner_config::AiExecutionMode;
+use tscanner_config::{compute_ai_runtime_hash, resolve_ai_config, AiExecutionMode};
 use tscanner_constants::resolve_config_dir;
 use tscanner_git::{
     get_changed_files, get_modified_lines, get_uncommitted_files, get_uncommitted_modified_lines,
@@ -28,7 +28,24 @@ pub fn handle_scan(
     };
 
     let no_cache = params.no_cache.unwrap_or(false);
-    let config_hash = config.compute_hash();
+    let ai_mode = params.ai_mode.unwrap_or(AiExecutionMode::Ignore);
+    let ai_config = if ai_mode == AiExecutionMode::Ignore {
+        resolve_ai_config(None, None).ok().flatten()
+    } else {
+        match resolve_ai_config(None, None) {
+            Ok(config) => config,
+            Err(e) => {
+                let response = Response::new_err(
+                    req.id.clone(),
+                    lsp_server::ErrorCode::InvalidParams as i32,
+                    e.to_string(),
+                );
+                connection.sender.send(Message::Response(response))?;
+                return Ok(());
+            }
+        }
+    };
+    let config_hash = compute_ai_runtime_hash(config.compute_hash(), ai_config.as_ref());
     let (cache, ai_cache, script_cache) = if no_cache {
         (
             Arc::new(FileCache::new()),
@@ -53,6 +70,7 @@ pub fn handle_scan(
         script_cache,
         params.root.clone(),
         resolved_config_dir,
+        ai_config,
     ) {
         Ok(s) => s,
         Err(e) => {
@@ -101,8 +119,6 @@ pub fn handle_scan(
     } else {
         (None, None)
     };
-
-    let ai_mode = params.ai_mode.unwrap_or(AiExecutionMode::Ignore);
 
     let progress_callback: Option<AiProgressCallback> = if ai_mode != AiExecutionMode::Ignore {
         let sender = connection.sender.clone();

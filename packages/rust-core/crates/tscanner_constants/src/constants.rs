@@ -188,6 +188,14 @@ pub fn claude_args() -> &'static [String] {
     &CONSTANTS.core_rust.ai.providers.claude.args
 }
 
+pub fn codex_command() -> &'static str {
+    &CONSTANTS.core_rust.ai.providers.codex.command
+}
+
+pub fn codex_args() -> &'static [String] {
+    &CONSTANTS.core_rust.ai.providers.codex.args
+}
+
 pub fn gemini_command() -> &'static str {
     &CONSTANTS.core_rust.ai.providers.gemini.command
 }
