@@ -15,14 +15,8 @@ struct Constants {
 #[serde(rename_all = "camelCase")]
 struct SharedConfig {
     package_name: String,
-    #[allow(dead_code)]
-    package_display_name: String,
-    #[allow(dead_code)]
-    package_description: String,
     config_dir_name: String,
     config_file_name: String,
-    #[allow(dead_code)]
-    default_target_branch: String,
     log_basename: String,
     log_timezone_offset_hours: i8,
     log_context_width: usize,
@@ -38,18 +32,12 @@ struct SharedConfig {
 #[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 struct UrlsConfig {
-    #[allow(dead_code)]
-    repo: String,
-    #[allow(dead_code)]
-    repo_blob: String,
     rules_base: String,
 }
 
 #[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 struct LspConfig {
-    #[allow(dead_code)]
-    client_id: String,
     methods: LspMethodsConfig,
 }
 
