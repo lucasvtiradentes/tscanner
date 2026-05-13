@@ -37,6 +37,13 @@ type Views = {
   aiViewIcon: IssuesViewIcon;
 };
 
+type WatchersSetupOptions = {
+  context: vscode.ExtensionContext;
+  regularView: RegularIssuesView;
+  updateStatusBar: () => Promise<void>;
+  updateSettingsView: () => void;
+};
+
 function setupViews(context: vscode.ExtensionContext): Views {
   const viewModeKey = getWorkspaceState(context, WorkspaceStateKey.ViewMode);
   const groupModeKey = getWorkspaceState(context, WorkspaceStateKey.GroupMode);
@@ -86,13 +93,12 @@ function setupContextKeys(context: vscode.ExtensionContext): void {
   setContextKey(ContextKey.HasAiScanned, false);
 }
 
-async function setupWatchers(
-  context: vscode.ExtensionContext,
-  regularView: RegularIssuesView,
-  aiView: AiIssuesView,
-  updateStatusBar: () => Promise<void>,
-  updateSettingsView: () => void,
-): Promise<vscode.Disposable> {
+async function setupWatchers({
+  context,
+  regularView,
+  updateStatusBar,
+  updateSettingsView,
+}: WatchersSetupOptions): Promise<vscode.Disposable> {
   let currentFileWatcher: vscode.FileSystemWatcher | null = null;
 
   const recreateFileWatcher = async () => {
@@ -223,7 +229,12 @@ export function activate(context: vscode.ExtensionContext) {
   const commands = registerAllCommands(commandContext, regularView, aiView, settingsView);
   const settingsWatcher = setupSettingsListener(updateStatusBar, () => settingsView.refresh());
 
-  setupWatchers(context, regularView, aiView, updateStatusBar, () => settingsView.refresh()).then((watchers) => {
+  setupWatchers({
+    context,
+    regularView,
+    updateStatusBar,
+    updateSettingsView: () => settingsView.refresh(),
+  }).then((watchers) => {
     context.subscriptions.push(watchers);
   });
 
