@@ -1,6 +1,6 @@
-import { ScanMode, type TscannerConfig, VSCODE_EXTENSION, hasConfiguredRules } from 'tscanner-common';
+import { type TscannerConfig, VSCODE_EXTENSION, hasConfiguredRules } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { getCommandId } from '../common/constants';
+import { getCommandId, getStatusBarName } from '../common/constants';
 import { getCachedConfig, getOrLoadConfig } from '../common/lib/config-manager';
 import { getBinaryVersionLabel } from '../common/lib/version-checker';
 import { Command, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
@@ -100,15 +100,7 @@ export class StatusBarManager {
     };
 
     const icon = getIcon();
-    const scanMode = extensionStore.get(StoreKey.ScanMode);
-    const compareBranch = extensionStore.get(StoreKey.CompareBranch);
-    const getModeText = () => {
-      if (scanMode === ScanMode.Codebase) return 'Codebase';
-      if (scanMode === ScanMode.Uncommitted) return 'Uncommitted';
-      return `Branch (${compareBranch})`;
-    };
-    const modeText = getModeText();
-    const statusText = this.isScanning ? 'Scanning...' : modeText;
+    const statusText = this.isScanning ? `${getStatusBarName()} Scanning...` : getStatusBarName();
     const finalText = `${icon} ${statusText}`;
 
     this.statusBarItem.text = finalText;

@@ -214,8 +214,6 @@ export function activate(context: vscode.ExtensionContext) {
   const updateStatusBar = async () => statusBarManager.update();
   updateStatusBar().then(() => logger.info('Status bar setup complete'));
 
-  extensionStore.subscribe(StoreKey.ScanMode, () => updateStatusBar());
-  extensionStore.subscribe(StoreKey.CompareBranch, () => updateStatusBar());
   extensionStore.subscribe(StoreKey.ScanMode, () => settingsView.refresh());
   extensionStore.subscribe(StoreKey.CompareBranch, () => settingsView.refresh());
 
