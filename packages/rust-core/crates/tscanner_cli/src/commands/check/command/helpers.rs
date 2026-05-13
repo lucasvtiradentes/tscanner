@@ -20,6 +20,19 @@ use tscanner_types::ScanResult;
 use super::types::{CliGroupBy, CliOptions};
 use crate::commands::check::filters;
 
+pub(super) fn validate_scan_mode_flags(staged: bool, uncommitted: bool, branch: bool) {
+    let mode_flags = [staged, uncommitted, branch]
+        .iter()
+        .filter(|&&enabled| enabled)
+        .count();
+    if mode_flags > 1 {
+        fatal_error_and_exit(
+            "--staged, --uncommitted, and --branch are mutually exclusive",
+            &[],
+        );
+    }
+}
+
 pub(super) fn load_check_config(
     root: &Path,
     config_path: Option<PathBuf>,

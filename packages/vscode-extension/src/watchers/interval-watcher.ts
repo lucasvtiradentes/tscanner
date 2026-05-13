@@ -22,7 +22,7 @@ type IntervalConfig = {
 export function createIntervalWatcher(config: IntervalConfig) {
   let timer: NodeJS.Timeout | null = null;
 
-  const setup = async (skipFirstRun = false): Promise<void> => {
+  const setup = (skipFirstRun = false): void => {
     if (timer) {
       clearInterval(timer);
       timer = null;

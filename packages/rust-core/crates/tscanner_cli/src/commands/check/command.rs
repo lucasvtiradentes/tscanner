@@ -1,6 +1,8 @@
+mod ai_runtime;
 mod header;
 mod helpers;
 mod progress;
+mod results;
 mod targets;
 mod types;
 
@@ -12,8 +14,7 @@ use std::io::{self, Write};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
-use crate::commands::ai;
-use crate::shared::{fatal_error_and_exit, print_section_title, FormattedOutput, SummaryStats};
+use crate::shared::{fatal_error_and_exit, FormattedOutput, SummaryStats};
 use tscanner_cli::{CliGroupMode, CliRuleKind, CliSeverity, OutputFormat};
 use tscanner_cli_output::GroupMode;
 use tscanner_config::{compute_ai_runtime_hash, AiExecutionMode, AiProvider};
@@ -50,16 +51,7 @@ pub fn cmd_check(
     ai_model_flag: Option<String>,
     config_path: Option<PathBuf>,
 ) -> Result<()> {
-    let mode_flags = [staged, uncommitted, branch.is_some()]
-        .iter()
-        .filter(|&&x| x)
-        .count();
-    if mode_flags > 1 {
-        fatal_error_and_exit(
-            "--staged, --uncommitted, and --branch are mutually exclusive",
-            &[],
-        );
-    }
+    helpers::validate_scan_mode_flags(staged, uncommitted, branch.is_some());
 
     let output_format = format.unwrap_or_default();
 
@@ -92,21 +84,12 @@ pub fn cmd_check(
     let effective_group_mode = helpers::resolve_group_mode(&cli_options);
     let effective_ai_mode = helpers::resolve_ai_mode(include_ai, only_ai);
 
-    let ai_config = if effective_ai_mode == AiExecutionMode::Ignore {
-        if ai_provider_flag.is_some() || ai_model_flag.is_some() {
-            match ai::resolve_ai_config(ai_provider_flag, ai_model_flag, &config_dir) {
-                Ok(config) => config,
-                Err(error) => fatal_error_and_exit(&error.to_string(), &[]),
-            }
-        } else {
-            None
-        }
-    } else {
-        match ai::resolve_ai_config(ai_provider_flag, ai_model_flag, &config_dir) {
-            Ok(config) => config,
-            Err(error) => fatal_error_and_exit(&error.to_string(), &[]),
-        }
-    };
+    let ai_config = ai_runtime::resolve_effective_ai_config(
+        effective_ai_mode,
+        ai_provider_flag,
+        ai_model_flag,
+        &config_dir,
+    );
     let ai_provider = ai_config.as_ref().map(|ai| ai.provider);
     let ai_model = ai_config.as_ref().and_then(|ai| ai.model.clone());
     let config_hash = compute_ai_runtime_hash(config.compute_hash(), ai_config.as_ref());
@@ -271,34 +254,16 @@ pub fn cmd_check(
 
     let stats = SummaryStats::from_result(&result, total_enabled_rules, rules_breakdown);
 
-    if result.files.is_empty() && !is_json {
-        let formatted_output = match effective_group_mode {
-            GroupMode::File => FormattedOutput::build_by_file(&root, &result, &stats),
-            GroupMode::Rule => FormattedOutput::build_by_rule(&root, &result, &stats),
-        };
-
-        println!();
-        print_section_title("Results:");
-        println!();
-        println!("{}", "✓ No issues found!".green().bold());
-
-        helpers::render_scan_messages(&result);
-
-        if result.notes.is_empty() && result.warnings.is_empty() && result.errors.is_empty() {
-            println!();
-        }
-        if cli_options.show_summary {
-            output::render_summary(formatted_output.summary());
-        }
-
-        if let Some(ref json_path) = json_output {
-            helpers::write_json_output(json_path, &formatted_output)?;
-        }
-
-        if !result.errors.is_empty() && !continue_on_error {
-            std::process::exit(1);
-        }
-
+    if results::render_no_issues_if_needed(results::NoIssuesParams {
+        is_json,
+        effective_group_mode: &effective_group_mode,
+        root: &root,
+        result: &result,
+        stats: &stats,
+        cli_options: &cli_options,
+        json_output: json_output.as_ref(),
+        continue_on_error,
+    })? {
         return Ok(());
     }
 

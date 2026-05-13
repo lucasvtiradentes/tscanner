@@ -2,15 +2,12 @@ import z from 'zod';
 import { AiMode, severitySchema } from './enums';
 
 const baseRuleConfigSchema = z.object({
-  enabled: z.boolean().optional(),
   severity: severitySchema.optional(),
   include: z.array(z.string()).optional(),
   exclude: z.array(z.string()).optional(),
 });
 
-const builtinRuleConfigSchema = baseRuleConfigSchema.extend({
-  options: z.record(z.string(), z.any()).optional(),
-});
+const builtinRuleConfigSchema = baseRuleConfigSchema;
 
 const regexRuleConfigSchema = baseRuleConfigSchema.extend({
   pattern: z.string(),
