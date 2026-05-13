@@ -38,6 +38,20 @@ impl AiExecutor {
         let mut stdin = child.stdin.take().unwrap();
         let prompt_clone = prompt.to_string();
         let write_handle = std::thread::spawn(move || stdin.write_all(prompt_clone.as_bytes()));
+        let stdout_handle = child.stdout.take().map(|mut stdout| {
+            std::thread::spawn(move || {
+                let mut output = Vec::new();
+                let _ = stdout.read_to_end(&mut output);
+                output
+            })
+        });
+        let stderr_handle = child.stderr.take().map(|mut stderr| {
+            std::thread::spawn(move || {
+                let mut output = Vec::new();
+                let _ = stderr.read_to_end(&mut output);
+                output
+            })
+        });
 
         let timeout = if timeout_ms > 0 {
             Some(Duration::from_millis(timeout_ms))
@@ -56,15 +70,12 @@ impl AiExecutor {
                 Ok(Some(status)) => {
                     let _ = write_handle.join();
 
-                    let mut stdout = Vec::new();
-                    let mut stderr = Vec::new();
-
-                    if let Some(mut stdout_handle) = child.stdout.take() {
-                        let _ = stdout_handle.read_to_end(&mut stdout);
-                    }
-                    if let Some(mut stderr_handle) = child.stderr.take() {
-                        let _ = stderr_handle.read_to_end(&mut stderr);
-                    }
+                    let stdout = stdout_handle
+                        .map(|handle| handle.join().unwrap_or_default())
+                        .unwrap_or_default();
+                    let stderr = stderr_handle
+                        .map(|handle| handle.join().unwrap_or_default())
+                        .unwrap_or_default();
 
                     if !status.success() {
                         let stderr_str = String::from_utf8_lossy(&stderr).to_string();

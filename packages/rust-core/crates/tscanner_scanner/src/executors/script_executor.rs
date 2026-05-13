@@ -4,6 +4,7 @@ mod types;
 use rayon::prelude::*;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
+use std::time::Instant;
 use tscanner_cache::ScriptCache;
 use tscanner_config::ScriptRuleConfig;
 use tscanner_constants::config_dir_name;
@@ -92,8 +93,23 @@ impl ScriptExecutor {
                     return (vec![], None);
                 }
 
+                (self.log_debug)(&format!(
+                    "Script rule '{}' starting: {} matching files",
+                    rule_name,
+                    matching_files.len()
+                ));
+                let start = Instant::now();
+
                 match self.execute_rule(rule_name, rule_config, &matching_files, workspace_root) {
-                    Ok(issues) => (issues, None),
+                    Ok(issues) => {
+                        (self.log_debug)(&format!(
+                            "Script rule '{}' finished in {}ms with {} issues",
+                            rule_name,
+                            start.elapsed().as_millis(),
+                            issues.len()
+                        ));
+                        (issues, None)
+                    }
                     Err(e) => {
                         let warning = format!("Script rule '{}' failed: {}", rule_name, e);
                         (self.log_error)(&warning);
@@ -136,7 +152,6 @@ impl ScriptExecutor {
             files.iter().map(|(p, c)| (p.clone(), c.clone())).collect();
 
         if let Some(cached) = self.cache.get(rule_name, &script_path, &files_owned) {
-            (self.log_debug)(&format!("Script rule '{}' cache hit", rule_name));
             return Ok(cached);
         }
 

@@ -18,11 +18,6 @@ impl ScriptExecutor {
         let program = parts[0];
         let args = &parts[1..];
 
-        (self.log_debug)(&format!(
-            "Running command: {} {:?} (cwd: {:?})",
-            program, args, self.config_dir
-        ));
-
         let mut child = Command::new(program)
             .args(args)
             .stdin(Stdio::piped())
@@ -37,10 +32,34 @@ impl ScriptExecutor {
                     ScriptError::IoError(e)
                 }
             })?;
+        let child_id = child.id();
+
+        (self.log_debug)(&format!(
+            "Script command pid={} started: {} {:?} (stdin={} bytes, timeout={}s)",
+            child_id,
+            program,
+            args,
+            input.len(),
+            rule_config.timeout
+        ));
 
         let mut stdin = child.stdin.take().unwrap();
         let input_clone = input.to_vec();
         let write_handle = std::thread::spawn(move || stdin.write_all(&input_clone));
+        let stdout_handle = child.stdout.take().map(|mut stdout| {
+            std::thread::spawn(move || {
+                let mut output = Vec::new();
+                let _ = stdout.read_to_end(&mut output);
+                output
+            })
+        });
+        let stderr_handle = child.stderr.take().map(|mut stderr| {
+            std::thread::spawn(move || {
+                let mut output = Vec::new();
+                let _ = stderr.read_to_end(&mut output);
+                output
+            })
+        });
 
         let timeout = if rule_config.timeout > 0 {
             Some(Duration::from_secs(rule_config.timeout))
@@ -48,21 +67,26 @@ impl ScriptExecutor {
             None
         };
         let start = Instant::now();
+        let mut next_wait_log = Duration::from_secs(5);
 
         loop {
             match child.try_wait() {
                 Ok(Some(status)) => {
                     let _ = write_handle.join();
 
-                    let mut stdout = Vec::new();
-                    let mut stderr = Vec::new();
+                    let stdout = stdout_handle
+                        .map(|handle| handle.join().unwrap_or_default())
+                        .unwrap_or_default();
+                    let stderr = stderr_handle
+                        .map(|handle| handle.join().unwrap_or_default())
+                        .unwrap_or_default();
 
-                    if let Some(mut stdout_handle) = child.stdout.take() {
-                        let _ = stdout_handle.read_to_end(&mut stdout);
-                    }
-                    if let Some(mut stderr_handle) = child.stderr.take() {
-                        let _ = stderr_handle.read_to_end(&mut stderr);
-                    }
+                    (self.log_debug)(&format!(
+                        "Script command pid={} exited after {}ms: status={}",
+                        child_id,
+                        start.elapsed().as_millis(),
+                        status
+                    ));
 
                     if !status.success() {
                         return Err(ScriptError::NonZeroExit {
@@ -77,9 +101,25 @@ impl ScriptExecutor {
                     if let Some(t) = timeout {
                         if start.elapsed() > t {
                             let _ = child.kill();
+                            (self.log_debug)(&format!(
+                                "Script command pid={} killed after timeout: {}s",
+                                child_id, rule_config.timeout
+                            ));
                             return Err(ScriptError::Timeout(rule_config.timeout));
                         }
                     }
+
+                    if start.elapsed() >= next_wait_log {
+                        (self.log_debug)(&format!(
+                            "Script command pid={} still running after {}ms: program={} args={:?}",
+                            child_id,
+                            start.elapsed().as_millis(),
+                            program,
+                            args
+                        ));
+                        next_wait_log += Duration::from_secs(5);
+                    }
+
                     std::thread::sleep(Duration::from_millis(10));
                 }
                 Err(e) => return Err(ScriptError::IoError(e)),
