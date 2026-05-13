@@ -124,6 +124,14 @@
       "message": "Type union could be replaced with an enum for better type safety",
       "severity": "warning",
       "include": ["**/*.ts"]
+    },
+    "no-implicit-any": {
+      "prompt": "no-implicit-any.md",
+      "mode": "agentic",
+      "message": "Parameter appears to implicitly have an any type",
+      "severity": "warning",
+      "include": ["**/*.ts", "**/*.tsx"],
+      "exclude": ["**/*.d.ts"]
     }
   },
   "files": {
