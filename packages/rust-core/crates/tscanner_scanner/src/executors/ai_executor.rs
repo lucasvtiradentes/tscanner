@@ -14,6 +14,7 @@ use tscanner_cache::AiCache;
 use tscanner_config::{resolve_ai_config, AiConfig, AiRuleConfig};
 use tscanner_constants::{ai_rules_dir, config_dir_name};
 use tscanner_types::Issue;
+use types::AiRuleExecutionContext;
 
 pub use types::{
     AiExecutionResult, AiProgressCallback, AiProgressEvent, AiRuleStatus, ChangedLinesMap,
@@ -206,11 +207,13 @@ impl AiExecutor {
                 let (result, was_cache_hit) = self.execute_rule(
                     rule_name,
                     rule_config,
-                    &matching_files,
-                    workspace_root,
-                    ai_config,
-                    changed_lines,
-                    previous_issues,
+                    AiRuleExecutionContext {
+                        files: &matching_files,
+                        workspace_root,
+                        ai_config,
+                        changed_lines,
+                        previous_issues,
+                    },
                 );
 
                 if was_cache_hit {

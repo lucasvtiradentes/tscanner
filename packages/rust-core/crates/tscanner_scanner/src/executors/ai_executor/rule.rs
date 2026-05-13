@@ -1,11 +1,11 @@
-use super::types::{AiError, PreviousAiIssue};
-use super::{AiExecutor, ChangedLinesMap};
+use super::types::{AiError, AiRuleExecutionContext};
+use super::AiExecutor;
 use crate::executors::utils;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use std::time::Duration;
-use tscanner_config::{AiConfig, AiRuleConfig};
+use tscanner_config::AiRuleConfig;
 use tscanner_types::Issue;
 
 impl AiExecutor {
@@ -27,26 +27,28 @@ impl AiExecutor {
         &self,
         rule_name: &str,
         rule_config: &AiRuleConfig,
-        files: &[&(PathBuf, String)],
-        workspace_root: &Path,
-        ai_config: &AiConfig,
-        changed_lines: Option<&ChangedLinesMap>,
-        previous_issues: &[PreviousAiIssue],
+        context: AiRuleExecutionContext<'_>,
     ) -> (Result<Vec<Issue>, AiError>, bool) {
         let prompt_path = self.ai_rules_dir.join(&rule_config.prompt);
         if !prompt_path.exists() {
             return (Err(AiError::PromptNotFound(prompt_path)), false);
         }
 
-        let files_owned: Vec<(PathBuf, String)> =
-            files.iter().map(|(p, c)| (p.clone(), c.clone())).collect();
+        let files_owned: Vec<(PathBuf, String)> = context
+            .files
+            .iter()
+            .map(|(p, c)| (p.clone(), c.clone()))
+            .collect();
 
         if let Some(in_flight_flag) = self.in_flight.get(rule_name) {
             in_flight_flag.store(true, Ordering::SeqCst);
             std::thread::sleep(Duration::from_millis(100));
         }
 
-        let has_previous_context = previous_issues.iter().any(|issue| issue.rule == rule_name);
+        let has_previous_context = context
+            .previous_issues
+            .iter()
+            .any(|issue| issue.rule == rule_name);
         if !has_previous_context {
             if let Some(cached_issues) = self.cache.get(rule_name, &prompt_path, &files_owned) {
                 (self.log_warn)(&format!(
@@ -55,7 +57,11 @@ impl AiExecutor {
                     cached_issues.len()
                 ));
                 return (
-                    Ok(self.validate_cached_issues(&cached_issues, files, workspace_root)),
+                    Ok(self.validate_cached_issues(
+                        &cached_issues,
+                        context.files,
+                        context.workspace_root,
+                    )),
                     true,
                 );
             }
@@ -74,11 +80,11 @@ impl AiExecutor {
             rule_name,
             rule_config,
             &prompt_content,
-            files,
-            workspace_root,
-            ai_config,
-            changed_lines,
-            previous_issues,
+            context.files,
+            context.workspace_root,
+            context.ai_config,
+            context.changed_lines,
+            context.previous_issues,
             &cancelled,
         );
 

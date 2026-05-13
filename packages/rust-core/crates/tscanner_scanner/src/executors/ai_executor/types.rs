@@ -36,6 +36,14 @@ pub struct PreviousAiIssue {
     pub line_text: Option<String>,
 }
 
+pub(super) struct AiRuleExecutionContext<'a> {
+    pub files: &'a [&'a (PathBuf, String)],
+    pub workspace_root: &'a std::path::Path,
+    pub ai_config: &'a tscanner_config::AiConfig,
+    pub changed_lines: Option<&'a ChangedLinesMap>,
+    pub previous_issues: &'a [PreviousAiIssue],
+}
+
 #[derive(Debug, Deserialize)]
 pub(super) struct AiResponse {
     pub(super) issues: Vec<AiIssue>,
