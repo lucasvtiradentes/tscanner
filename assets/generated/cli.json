@@ -2,7 +2,7 @@
   "commands": [
     {
       "name": "ai",
-      "description": "Manage personal AI provider settings",
+      "description": "Manage project-local AI provider settings",
       "usage": "tscanner ai [options]",
       "arguments": [],
       "flags": []

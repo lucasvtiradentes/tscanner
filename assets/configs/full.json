@@ -66,15 +66,5 @@
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
     "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
-  },
-  "codeEditor": {
-    "highlightErrors": true,
-    "highlightWarnings": true,
-    "highlightInfos": true,
-    "highlightHints": true,
-    "autoScanInterval": 0,
-    "autoAiScanInterval": 0,
-    "startupScan": "cached",
-    "startupAiScan": "off"
   }
 }

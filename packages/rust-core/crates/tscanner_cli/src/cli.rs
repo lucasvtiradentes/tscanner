@@ -229,7 +229,7 @@ pub enum Commands {
         config_path: Option<PathBuf>,
     },
 
-    #[command(subcommand, about = "Manage personal AI provider settings")]
+    #[command(subcommand, about = "Manage project-local AI provider settings")]
     Ai(AiCommands),
 
     #[command(about = "Start the LSP server (Language Server Protocol)")]
@@ -238,7 +238,7 @@ pub enum Commands {
 
 #[derive(Subcommand)]
 pub enum AiCommands {
-    #[command(about = "Set personal AI provider settings")]
+    #[command(about = "Set project-local AI provider settings")]
     Set {
         #[arg(value_name = "PROVIDER", value_parser = parse_ai_provider)]
         provider: AiProvider,
@@ -247,10 +247,10 @@ pub enum AiCommands {
         model: Option<String>,
     },
 
-    #[command(about = "Show effective personal AI provider settings")]
+    #[command(about = "Show effective project-local AI provider settings")]
     Show,
 
-    #[command(about = "Clear personal AI provider settings")]
+    #[command(about = "Clear project-local AI provider settings")]
     Unset,
 }
 

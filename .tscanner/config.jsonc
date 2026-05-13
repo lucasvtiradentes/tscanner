@@ -74,7 +74,7 @@
         "command": "npx tsx script-rules/config-schema-match.ts",
         "message": "Rust config and TypeScript schema must be in sync",
         "severity": "error",
-        "include": ["packages/cli/schema.json", "shared/tscanner-common/src/schemas.ts"]
+        "include": ["packages/cli/schema.json", "shared/tscanner-common/src/types/config.ts"]
       },
       "types-parity-match": {
         "command": "npx tsx script-rules/types-parity-match.ts",
@@ -141,15 +141,5 @@
       "packages/rust-core/crates/tscanner_rules/tests/**",
       "examples/all-rules/**"
     ]
-  },
-  "codeEditor": {
-    "highlightErrors": true,
-    "highlightWarnings": true,
-    "highlightInfos": true,
-    "highlightHints": true,
-    "startupScan": "fresh",
-    "startupAiScan": "off",
-    "autoScanInterval": 0,
-    "autoAiScanInterval": 0
   }
 }

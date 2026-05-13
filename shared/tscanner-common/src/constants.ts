@@ -5,6 +5,7 @@ export const PACKAGE_DISPLAY_NAME = constants.shared.packageDisplayName;
 export const PACKAGE_DESCRIPTION = constants.shared.packageDescription;
 export const CONFIG_DIR_NAME = constants.shared.configDirName;
 export const CONFIG_FILE_NAME = constants.shared.configFileName;
+export const LOCAL_CONFIG_FILE_NAME = constants.shared.localConfigFileName;
 export const DEFAULT_TARGET_BRANCH = constants.shared.defaultTargetBranch;
 export const LOG_BASENAME = constants.shared.logBasename;
 export const LOG_TIMEZONE_OFFSET_HOURS = constants.shared.logTimezoneOffsetHours;
@@ -18,7 +19,7 @@ export const DISPLAY_ICONS = constants.shared.icons;
 export const LSP_CLIENT_ID = constants.shared.lsp.clientId;
 export const REPO_URL = constants.shared.urls.repo;
 export const REPO_BLOB_URL = constants.shared.urls.repoBlob;
-export const CODE_EDITOR_DEFAULTS = constants.coreRust.defaults.codeEditor;
+export const VSCODE_SETTINGS_DEFAULTS = constants.vscodeExtension.defaults;
 
 export const LspMethod = {
   Scan: constants.shared.lsp.methods.scan,

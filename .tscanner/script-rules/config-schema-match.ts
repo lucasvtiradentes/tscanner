@@ -103,7 +103,7 @@ runScript((input) => {
   const issues: ScriptIssue[] = [];
 
   const jsonSchemaFile = input.files.find((f) => f.path.endsWith('schema.json'));
-  const schemasFile = input.files.find((f) => f.path.endsWith('schemas.ts'));
+  const schemasFile = input.files.find((f) => f.path.endsWith('types/config.ts'));
 
   if (!jsonSchemaFile || !schemasFile) {
     return issues;
@@ -127,36 +127,6 @@ runScript((input) => {
     'tscannerConfigSchema',
     schemasFile.path,
     findLineNumber(tsContent, 'tscannerConfigSchema'),
-    issues,
-  );
-
-  const aiConfigFields = extractZodObjectFields(tsContent, 'aiConfigSchema');
-  compareFields(
-    extractSchemaFields(jsonSchema, 'AiConfig'),
-    aiConfigFields,
-    'aiConfigSchema',
-    schemasFile.path,
-    findLineNumber(tsContent, 'aiConfigSchema'),
-    issues,
-  );
-
-  const codeEditorFields = extractZodObjectFields(tsContent, 'codeEditorConfigSchema');
-  compareFields(
-    extractSchemaFields(jsonSchema, 'CodeEditorConfig'),
-    codeEditorFields,
-    'codeEditorConfigSchema',
-    schemasFile.path,
-    findLineNumber(tsContent, 'codeEditorConfigSchema'),
-    issues,
-  );
-
-  const cliConfigFields = extractZodObjectFields(tsContent, 'cliConfigSchema');
-  compareFields(
-    extractSchemaFields(jsonSchema, 'CliConfig'),
-    cliConfigFields,
-    'cliConfigSchema',
-    schemasFile.path,
-    findLineNumber(tsContent, 'cliConfigSchema'),
     issues,
   );
 

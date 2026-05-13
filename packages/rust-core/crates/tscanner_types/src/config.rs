@@ -1,13 +1,9 @@
-use crate::enums::{AiMode, AiProvider, Severity, StartupScanMode};
+use crate::enums::{AiMode, AiProvider, Severity};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 mod defaults;
-
-fn default_true() -> bool {
-    true
-}
 
 fn default_severity() -> Severity {
     Severity::Warning
@@ -34,46 +30,6 @@ pub struct AiConfig {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[schemars(description = "AI model to use")]
     pub model: Option<String>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(rename_all = "camelCase")]
-pub struct CodeEditorConfig {
-    #[serde(default = "default_true")]
-    #[schemars(description = "Highlight error issues in the code editor")]
-    pub highlight_errors: bool,
-
-    #[serde(default = "default_true")]
-    #[schemars(description = "Highlight warning issues in the code editor")]
-    pub highlight_warnings: bool,
-
-    #[serde(default = "default_true")]
-    #[schemars(description = "Highlight info issues in the code editor")]
-    pub highlight_infos: bool,
-
-    #[serde(default = "default_true")]
-    #[schemars(description = "Highlight hint issues in the code editor")]
-    pub highlight_hints: bool,
-
-    #[serde(default)]
-    #[schemars(description = "Auto-scan interval in seconds (0 = disabled)")]
-    pub auto_scan_interval: u32,
-
-    #[serde(default)]
-    #[schemars(description = "Auto-scan interval for AI rules in seconds (0 = disabled)")]
-    pub auto_ai_scan_interval: u32,
-
-    #[serde(default)]
-    #[schemars(
-        description = "Startup scan mode: off (disabled), cached (use cache), fresh (ignore cache)"
-    )]
-    pub startup_scan: StartupScanMode,
-
-    #[serde(default)]
-    #[schemars(
-        description = "Startup AI scan mode: off (disabled), cached (use cache), fresh (ignore cache)"
-    )]
-    pub startup_ai_scan: StartupScanMode,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -108,10 +64,6 @@ pub struct TscannerConfig {
     #[serde(rename = "$schema", skip_serializing_if = "Option::is_none")]
     #[schemars(description = "JSON schema URL for editor support")]
     pub schema: Option<String>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "Code editor configuration (highlighting, auto-scan)")]
-    pub code_editor: Option<CodeEditorConfig>,
 
     #[serde(default)]
     #[schemars(description = "Rules configuration (builtin, regex, script)")]

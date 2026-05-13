@@ -13,6 +13,7 @@ pub(super) struct SharedConfig {
     pub(super) package_name: String,
     pub(super) config_dir_name: String,
     pub(super) config_file_name: String,
+    pub(super) local_config_file_name: String,
     pub(super) log_basename: String,
     pub(super) log_timezone_offset_hours: i8,
     pub(super) log_context_width: usize,
@@ -61,21 +62,7 @@ pub(super) struct CoreRustConfig {
 #[derive(Deserialize, Clone)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Defaults {
-    pub(super) code_editor: CodeEditorDefaults,
     pub(super) directories: DirectoryDefaults,
-}
-
-#[derive(Deserialize, Clone)]
-#[serde(rename_all = "camelCase")]
-pub(super) struct CodeEditorDefaults {
-    pub(super) highlight_errors: bool,
-    pub(super) highlight_warnings: bool,
-    pub(super) highlight_infos: bool,
-    pub(super) highlight_hints: bool,
-    pub(super) auto_scan_interval: u32,
-    pub(super) auto_ai_scan_interval: u32,
-    pub(super) startup_scan: String,
-    pub(super) startup_ai_scan: String,
 }
 
 #[derive(Deserialize, Clone)]

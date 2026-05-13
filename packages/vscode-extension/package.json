@@ -427,6 +427,30 @@
           "type": "boolean",
           "default": false,
           "description": "Enable logging to an output channel for debugging purposes (restart required)."
+        },
+        "tscanner.scan.startup": {
+          "type": "string",
+          "enum": ["off", "cached", "fresh"],
+          "default": "fresh",
+          "description": "Regular scan behavior when the extension starts."
+        },
+        "tscanner.aiScan.startup": {
+          "type": "string",
+          "enum": ["off", "cached", "fresh"],
+          "default": "off",
+          "description": "AI scan behavior when the extension starts."
+        },
+        "tscanner.scan.autoInterval": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "description": "Regular auto-scan interval in seconds. Set to 0 to disable."
+        },
+        "tscanner.aiScan.autoInterval": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "description": "AI auto-scan interval in seconds. Set to 0 to disable."
         }
       }
     }

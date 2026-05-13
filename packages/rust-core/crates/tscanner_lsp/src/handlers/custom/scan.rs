@@ -29,10 +29,13 @@ pub fn handle_scan(
 
     let no_cache = params.no_cache.unwrap_or(false);
     let ai_mode = params.ai_mode.unwrap_or(AiExecutionMode::Ignore);
+    let resolved_config_dir = resolve_config_dir(&PathBuf::from(&params.root), params.config_dir);
     let ai_config = if ai_mode == AiExecutionMode::Ignore {
-        resolve_ai_config(None, None).ok().flatten()
+        resolve_ai_config(None, None, &resolved_config_dir)
+            .ok()
+            .flatten()
     } else {
-        match resolve_ai_config(None, None) {
+        match resolve_ai_config(None, None, &resolved_config_dir) {
             Ok(config) => config,
             Err(e) => {
                 let response = Response::new_err(
@@ -62,7 +65,6 @@ pub fn handle_scan(
 
     session.cache = cache.clone();
 
-    let resolved_config_dir = resolve_config_dir(&PathBuf::from(&params.root), params.config_dir);
     let scanner = match Scanner::with_caches_and_config_dir(
         config,
         cache,

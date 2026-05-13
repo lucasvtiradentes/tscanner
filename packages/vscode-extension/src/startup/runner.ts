@@ -1,10 +1,11 @@
-import { CODE_EDITOR_DEFAULTS, StartupScanMode } from 'tscanner-common';
+import { StartupScanMode } from 'tscanner-common';
 import type * as vscode from 'vscode';
-import { getConfigBaseDir, getOrLoadConfig, hasConfig } from '../common/lib/config-manager';
+import { getConfigBaseDir, hasConfig } from '../common/lib/config-manager';
 import { validateConfigAndNotify } from '../common/lib/config-validator';
 import { logger } from '../common/lib/logger';
 import { checkVersionCompatibility } from '../common/lib/version-checker';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
+import { ExtensionConfigKey, getExtensionConfig } from '../common/state/extension-config';
 import { StoreKey, extensionStore } from '../common/state/extension-store';
 import { ScanTrigger } from '../common/types/scan-trigger';
 import type { AiIssuesView, RegularIssuesView } from '../issues-panel';
@@ -95,9 +96,8 @@ export async function runScanSequence(trigger: ScanTrigger): Promise<void> {
 
   await updateStatusBar();
 
-  const config = await getOrLoadConfig(workspaceFolder.uri.fsPath);
-  const startupScan = config?.codeEditor?.startupScan ?? (CODE_EDITOR_DEFAULTS.startupScan as StartupScanMode);
-  const startupAiScan = config?.codeEditor?.startupAiScan ?? (CODE_EDITOR_DEFAULTS.startupAiScan as StartupScanMode);
+  const startupScan = getExtensionConfig(ExtensionConfigKey.StartupScan);
+  const startupAiScan = getExtensionConfig(ExtensionConfigKey.StartupAiScan);
 
   const hasStartupScan = startupScan !== StartupScanMode.Off;
   const hasStartupAiScan = startupAiScan !== StartupScanMode.Off;

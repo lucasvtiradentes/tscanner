@@ -6,11 +6,13 @@ import { Command, type QuickPickItemWithId, registerCommand, requireWorkspaceOrN
 import type { CommandContext } from '../common/state/extension-state';
 import { StoreKey, extensionStore } from '../common/state/extension-store';
 import type { RegularIssuesView } from '../issues-panel';
+import { showAiProviderMenu } from './ai-provider';
 import { getCurrentLocationLabel, showConfigLocationMenu } from './config-location';
 import { showScanModeMenu } from './scan-mode';
 
 enum SettingsMenuOption {
   ManageScanMode = 'manage-scan-mode',
+  ManageAiProvider = 'manage-ai-provider',
   ManageConfigLocation = 'manage-config-location',
 }
 
@@ -36,6 +38,11 @@ export function createOpenSettingsMenuCommand(ctx: CommandContext, regularView: 
         label: '$(gear) Manage Scan Mode',
         detail: 'Choose which files to scan',
       });
+      mainMenuItems.push({
+        id: SettingsMenuOption.ManageAiProvider,
+        label: '$(sparkle) Manage AI Provider',
+        detail: 'Project-local provider in .tscanner/local.jsonc',
+      });
     }
 
     mainMenuItems.push({
@@ -54,6 +61,9 @@ export function createOpenSettingsMenuCommand(ctx: CommandContext, regularView: 
     switch (selected.id) {
       case SettingsMenuOption.ManageScanMode:
         await showScanModeMenu({ updateStatusBar, regularView });
+        break;
+      case SettingsMenuOption.ManageAiProvider:
+        await showAiProviderMenu({ workspacePath, updateStatusBar });
         break;
       case SettingsMenuOption.ManageConfigLocation:
         await showConfigLocationMenu({ updateStatusBar, regularView });

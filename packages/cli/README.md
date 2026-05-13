@@ -298,7 +298,7 @@ npx tscanner check --branch origin/main
   </tr>
   <tr>
     <td rowspan="1" align="left"><code>ai</code></td>
-    <td rowspan="1" align="left">Manage personal AI provider settings</td>
+    <td rowspan="1" align="left">Manage project-local AI provider settings</td>
     <td align="center">-</td>
     <td align="center">-</td>
     <td align="center">-</td>
@@ -530,16 +530,6 @@ To scan your code, you need to set up the rules in the TScanner config folder.
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
     "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
-  },
-  "codeEditor": {
-    "highlightErrors": true,
-    "highlightWarnings": true,
-    "highlightInfos": true,
-    "highlightHints": true,
-    "autoScanInterval": 0,
-    "autoAiScanInterval": 0,
-    "startupScan": "cached",
-    "startupAiScan": "off"
   }
 }
 ```
@@ -1197,7 +1187,7 @@ Use AI prompts (markdown files) to perform semantic code analysis. Works with an
 }
 ```
 
-Set the AI provider outside project config:
+Set the project-local AI provider in `.tscanner/local.jsonc`:
 ```bash
 tscanner ai set claude --model sonnet-4.6
 tscanner check --include-ai

@@ -430,7 +430,7 @@ Use AI prompts (markdown files) to perform semantic code analysis. Works with an
 }
 \`\`\`
 
-Set the AI provider outside project config:
+Set the project-local AI provider in \`.tscanner/local.jsonc\`:
 \`\`\`bash
 tscanner ai set claude --model sonnet-4.6
 tscanner check --include-ai

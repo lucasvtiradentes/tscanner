@@ -28,6 +28,10 @@ function getConfigDir(workspacePath: string, configDir: string | null): vscode.U
   return vscode.Uri.joinPath(customDir, CONFIG_DIR_NAME);
 }
 
+export function getConfigDirPath(workspacePath: string, configDir: string | null): string {
+  return getConfigDir(workspacePath, configDir).fsPath;
+}
+
 export function getConfigPath(workspacePath: string, configDir: string | null): string {
   return vscode.Uri.joinPath(getConfigDir(workspacePath, configDir), CONFIG_FILE_NAME).fsPath;
 }

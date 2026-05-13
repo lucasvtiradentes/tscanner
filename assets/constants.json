@@ -5,6 +5,7 @@
     "packageDescription": "Code quality scanner for the AI-generated code era",
     "configDirName": ".tscanner",
     "configFileName": "config.jsonc",
+    "localConfigFileName": "local.jsonc",
     "defaultTargetBranch": "origin/main",
     "logBasename": "tscannerlogs",
     "logTimezoneOffsetHours": -3,
@@ -49,16 +50,6 @@
   },
   "coreRust": {
     "defaults": {
-      "codeEditor": {
-        "highlightErrors": true,
-        "highlightWarnings": true,
-        "highlightInfos": true,
-        "highlightHints": true,
-        "autoScanInterval": 0,
-        "autoAiScanInterval": 0,
-        "startupScan": "fresh",
-        "startupAiScan": "off"
-      },
       "directories": {
         "scriptRules": "script-rules",
         "aiRules": "ai-rules"
@@ -91,6 +82,12 @@
     }
   },
   "vscodeExtension": {
+    "defaults": {
+      "autoScanInterval": 0,
+      "autoAiScanInterval": 0,
+      "startupScan": "fresh",
+      "startupAiScan": "off"
+    },
     "timeouts": {
       "binaryLookupSeconds": 5,
       "versionCheckSeconds": 5

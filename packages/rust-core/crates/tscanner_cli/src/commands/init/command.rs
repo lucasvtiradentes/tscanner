@@ -12,6 +12,8 @@ use super::config_generator::{
     get_default_config, get_full_config, write_example_files, AI_RULE_EXAMPLE, SCRIPT_RULE_EXAMPLE,
 };
 
+const LOCAL_CONFIG_GITIGNORE: &str = "local.jsonc\n";
+
 pub fn cmd_init(path: &Path, full: bool) -> Result<()> {
     log_info(&format!(
         "cmd_init: Initializing config at: {} (full: {})",
@@ -44,6 +46,8 @@ pub fn cmd_init(path: &Path, full: bool) -> Result<()> {
     };
 
     fs::write(&config_path, &config_content).context("Failed to write config file")?;
+    fs::write(config_dir.join(".gitignore"), LOCAL_CONFIG_GITIGNORE)
+        .context("Failed to write local config gitignore")?;
 
     log_info(&format!(
         "cmd_init: Created config: {}",
@@ -74,6 +78,10 @@ pub fn cmd_init(path: &Path, full: bool) -> Result<()> {
     }
     println!();
     println!("Edit this file to customize rules and settings.");
+    println!(
+        "Personal project settings go in {}/local.jsonc (gitignored).",
+        config_dir_name()
+    );
 
     Ok(())
 }

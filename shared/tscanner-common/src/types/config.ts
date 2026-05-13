@@ -1,5 +1,5 @@
 import z from 'zod';
-import { AiMode, severitySchema, startupScanModeSchema } from './enums';
+import { AiMode, severitySchema } from './enums';
 
 const baseRuleConfigSchema = z.object({
   enabled: z.boolean().optional(),
@@ -40,17 +40,6 @@ const rulesConfigSchema = z.object({
   script: z.record(z.string(), scriptRuleConfigSchema).optional(),
 });
 
-const codeEditorConfigSchema = z.object({
-  highlightErrors: z.boolean().optional(),
-  highlightWarnings: z.boolean().optional(),
-  highlightInfos: z.boolean().optional(),
-  highlightHints: z.boolean().optional(),
-  autoScanInterval: z.number().optional(),
-  autoAiScanInterval: z.number().optional(),
-  startupScan: startupScanModeSchema.optional(),
-  startupAiScan: startupScanModeSchema.optional(),
-});
-
 const filesConfigSchema = z.object({
   include: z.array(z.string()),
   exclude: z.array(z.string()),
@@ -61,7 +50,6 @@ export const tscannerConfigSchema = z.object({
   rules: rulesConfigSchema,
   aiRules: z.record(z.string(), aiRuleConfigSchema),
   files: filesConfigSchema,
-  codeEditor: codeEditorConfigSchema.optional(),
 });
 
 export type TscannerConfig = z.infer<typeof tscannerConfigSchema>;

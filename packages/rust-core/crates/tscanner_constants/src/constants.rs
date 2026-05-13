@@ -23,6 +23,10 @@ pub fn config_file_name() -> &'static str {
     &CONSTANTS.shared.config_file_name
 }
 
+pub fn local_config_file_name() -> &'static str {
+    &CONSTANTS.shared.local_config_file_name
+}
+
 pub fn log_basename() -> &'static str {
     &CONSTANTS.shared.log_basename
 }
@@ -67,44 +71,8 @@ pub fn ai_rules_dir() -> &'static str {
     &CONSTANTS.core_rust.defaults.directories.ai_rules
 }
 
-pub fn default_highlight_errors() -> bool {
-    CONSTANTS.core_rust.defaults.code_editor.highlight_errors
-}
-
-pub fn default_highlight_warnings() -> bool {
-    CONSTANTS.core_rust.defaults.code_editor.highlight_warnings
-}
-
-pub fn default_highlight_infos() -> bool {
-    CONSTANTS.core_rust.defaults.code_editor.highlight_infos
-}
-
-pub fn default_highlight_hints() -> bool {
-    CONSTANTS.core_rust.defaults.code_editor.highlight_hints
-}
-
-pub fn default_auto_scan_interval() -> u32 {
-    CONSTANTS.core_rust.defaults.code_editor.auto_scan_interval
-}
-
 pub fn default_severity() -> &'static str {
     "warning"
-}
-
-pub fn default_auto_ai_scan_interval() -> u32 {
-    CONSTANTS
-        .core_rust
-        .defaults
-        .code_editor
-        .auto_ai_scan_interval
-}
-
-pub fn default_startup_scan() -> &'static str {
-    &CONSTANTS.core_rust.defaults.code_editor.startup_scan
-}
-
-pub fn default_startup_ai_scan() -> &'static str {
-    &CONSTANTS.core_rust.defaults.code_editor.startup_ai_scan
 }
 
 pub fn icon_builtin() -> &'static str {

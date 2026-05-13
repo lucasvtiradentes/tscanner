@@ -9,7 +9,7 @@ use colored::*;
 use std::collections::{HashMap, HashSet};
 use std::fs;
 use std::io::{self, Write};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use crate::commands::ai;
@@ -79,6 +79,10 @@ pub fn cmd_check(
 
     let (config, resolved_config_path, mut config_warnings) =
         helpers::load_check_config(&root, config_path);
+    let config_dir = Path::new(&resolved_config_path)
+        .parent()
+        .map(|path| path.to_path_buf())
+        .unwrap_or_else(|| root.join(tscanner_constants::config_dir_name()));
 
     if let Some(warning) = helpers::check_schema_version_mismatch(&resolved_config_path) {
         config_warnings.push(warning);
@@ -90,7 +94,7 @@ pub fn cmd_check(
 
     let ai_config = if effective_ai_mode == AiExecutionMode::Ignore {
         if ai_provider_flag.is_some() || ai_model_flag.is_some() {
-            match ai::resolve_ai_config(ai_provider_flag, ai_model_flag) {
+            match ai::resolve_ai_config(ai_provider_flag, ai_model_flag, &config_dir) {
                 Ok(config) => config,
                 Err(error) => fatal_error_and_exit(&error.to_string(), &[]),
             }
@@ -98,7 +102,7 @@ pub fn cmd_check(
             None
         }
     } else {
-        match ai::resolve_ai_config(ai_provider_flag, ai_model_flag) {
+        match ai::resolve_ai_config(ai_provider_flag, ai_model_flag, &config_dir) {
             Ok(config) => config,
             Err(error) => fatal_error_and_exit(&error.to_string(), &[]),
         }
@@ -111,7 +115,7 @@ pub fn cmd_check(
         fatal_error_and_exit(
             "AI rules enabled but no provider configured",
             &[
-                "Set a personal provider:",
+                "Set a project-local provider:",
                 &format!("  {}", "tscanner ai set claude --model sonnet-4.6".yellow()),
                 &format!("  {}", "tscanner ai set codex --model gpt5.1".yellow()),
                 "",

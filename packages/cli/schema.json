@@ -1181,64 +1181,6 @@
       },
       "type": "object"
     },
-    "CodeEditorConfig": {
-      "additionalProperties": false,
-      "properties": {
-        "autoAiScanInterval": {
-          "default": 0,
-          "description": "Auto-scan interval for AI rules in seconds (0 = disabled)",
-          "format": "uint32",
-          "minimum": 0.0,
-          "type": "integer"
-        },
-        "autoScanInterval": {
-          "default": 0,
-          "description": "Auto-scan interval in seconds (0 = disabled)",
-          "format": "uint32",
-          "minimum": 0.0,
-          "type": "integer"
-        },
-        "highlightErrors": {
-          "default": true,
-          "description": "Highlight error issues in the code editor",
-          "type": "boolean"
-        },
-        "highlightHints": {
-          "default": true,
-          "description": "Highlight hint issues in the code editor",
-          "type": "boolean"
-        },
-        "highlightInfos": {
-          "default": true,
-          "description": "Highlight info issues in the code editor",
-          "type": "boolean"
-        },
-        "highlightWarnings": {
-          "default": true,
-          "description": "Highlight warning issues in the code editor",
-          "type": "boolean"
-        },
-        "startupAiScan": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/StartupScanMode"
-            }
-          ],
-          "default": "cached",
-          "description": "Startup AI scan mode: off (disabled), cached (use cache), fresh (ignore cache)"
-        },
-        "startupScan": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/StartupScanMode"
-            }
-          ],
-          "default": "cached",
-          "description": "Startup scan mode: off (disabled), cached (use cache), fresh (ignore cache)"
-        }
-      },
-      "type": "object"
-    },
     "FilesConfig": {
       "properties": {
         "exclude": {
@@ -1499,14 +1441,6 @@
         "hint"
       ],
       "type": "string"
-    },
-    "StartupScanMode": {
-      "enum": [
-        "off",
-        "cached",
-        "fresh"
-      ],
-      "type": "string"
     }
   },
   "properties": {
@@ -1523,17 +1457,6 @@
       },
       "description": "AI-powered rules (expensive, run separately)",
       "type": "object"
-    },
-    "codeEditor": {
-      "anyOf": [
-        {
-          "$ref": "#/definitions/CodeEditorConfig"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "Code editor configuration (highlighting, auto-scan)"
     },
     "files": {
       "allOf": [

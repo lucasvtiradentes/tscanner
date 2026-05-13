@@ -2,9 +2,8 @@ use globset::GlobSet;
 use std::path::Path;
 
 pub use tscanner_types::{
-    AiConfig, AiExecutionMode, AiMode, AiProvider, AiRuleConfig, BuiltinRuleConfig,
-    CodeEditorConfig, FilesConfig, RegexRuleConfig, RulesConfig, ScriptRuleConfig, Severity,
-    TscannerConfig,
+    AiConfig, AiExecutionMode, AiMode, AiProvider, AiRuleConfig, BuiltinRuleConfig, FilesConfig,
+    RegexRuleConfig, RulesConfig, ScriptRuleConfig, Severity, TscannerConfig,
 };
 
 pub struct CompiledRuleConfig {

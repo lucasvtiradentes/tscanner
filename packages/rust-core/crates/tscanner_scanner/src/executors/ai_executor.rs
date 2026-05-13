@@ -21,6 +21,7 @@ pub use types::{
 
 pub struct AiExecutor {
     workspace_root: PathBuf,
+    config_dir: PathBuf,
     ai_rules_dir: PathBuf,
     ai_config: Option<AiConfig>,
     cache: Arc<AiCache>,
@@ -38,11 +39,11 @@ impl AiExecutor {
         log_warn: Option<fn(&str)>,
         log_debug: Option<fn(&str)>,
     ) -> Self {
-        let ai_rules_dir_path = config_dir
-            .map(|d| d.join(ai_rules_dir()))
-            .unwrap_or_else(|| workspace_root.join(config_dir_name()).join(ai_rules_dir()));
+        let config_dir_path = config_dir.unwrap_or_else(|| workspace_root.join(config_dir_name()));
+        let ai_rules_dir_path = config_dir_path.join(ai_rules_dir());
         Self {
             workspace_root: workspace_root.to_path_buf(),
+            config_dir: config_dir_path,
             ai_rules_dir: ai_rules_dir_path,
             ai_config,
             cache,
@@ -124,7 +125,7 @@ impl AiExecutor {
         let ai_config = match &self.ai_config {
             Some(config) => config,
             None => {
-                resolved_ai_config = match resolve_ai_config(None, None) {
+                resolved_ai_config = match resolve_ai_config(None, None, &self.config_dir) {
                     Ok(config) => config,
                     Err(error) => {
                         let error = error.to_string();

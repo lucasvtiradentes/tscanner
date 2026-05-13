@@ -79,7 +79,9 @@ impl Workspace for WorkspaceServer {
 
         let resolved_config_dir = resolve_config_dir(&params.root, params.config_dir);
 
-        let ai_config = resolve_ai_config(None, None).ok().flatten();
+        let ai_config = resolve_ai_config(None, None, &resolved_config_dir)
+            .ok()
+            .flatten();
         let config_hash = compute_ai_runtime_hash(config.compute_hash(), ai_config.as_ref());
         let ai_cache = Arc::new(tscanner_cache::AiCache::with_config_hash(config_hash));
         let script_cache = Arc::new(tscanner_cache::ScriptCache::with_config_hash(config_hash));

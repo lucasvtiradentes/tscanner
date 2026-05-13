@@ -1,8 +1,9 @@
 import { DEV_SUFFIX } from 'src/common/scripts-constants';
-import { CODE_EDITOR_DEFAULTS, DISPLAY_ICONS, type TscannerConfig } from 'tscanner-common';
+import { DISPLAY_ICONS, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { getConfigDirLabel } from '../common/lib/config-manager';
 import { getBinaryVersionLabel, getExtensionVersionLabel } from '../common/lib/version-checker';
+import { ExtensionConfigKey, getExtensionConfig } from '../common/state/extension-config';
 import { type BinaryInfo, LOCATOR_SOURCE_LABELS } from '../locator';
 
 function extractSchemaVersion(schemaUrl: string | undefined): string | null {
@@ -49,16 +50,16 @@ function formatAutoInterval(seconds: number): string {
   return `${minutes}m`;
 }
 
-function getScanSettingsLabel(config: TscannerConfig | null): string {
-  const startup = config?.codeEditor?.startupScan ?? CODE_EDITOR_DEFAULTS.startupScan;
-  const autoScanInterval = config?.codeEditor?.autoScanInterval ?? CODE_EDITOR_DEFAULTS.autoScanInterval;
+function getScanSettingsLabel(): string {
+  const startup = getExtensionConfig(ExtensionConfigKey.StartupScan);
+  const autoScanInterval = getExtensionConfig(ExtensionConfigKey.AutoScanInterval);
   const autoLabel = formatAutoInterval(autoScanInterval);
   return `startup ${startup}, auto ${autoLabel}`;
 }
 
-function getAiScanSettingsLabel(config: TscannerConfig | null): string {
-  const startup = config?.codeEditor?.startupAiScan ?? CODE_EDITOR_DEFAULTS.startupAiScan;
-  const autoAiScanInterval = config?.codeEditor?.autoAiScanInterval ?? CODE_EDITOR_DEFAULTS.autoAiScanInterval;
+function getAiScanSettingsLabel(): string {
+  const startup = getExtensionConfig(ExtensionConfigKey.StartupAiScan);
+  const autoAiScanInterval = getExtensionConfig(ExtensionConfigKey.AutoAiScanInterval);
   const autoLabel = formatAutoInterval(autoAiScanInterval);
   return `startup ${startup}, auto ${autoLabel}`;
 }
@@ -82,8 +83,8 @@ export function buildConfiguredTooltip(params: BuildConfiguredTooltipParams): vs
   const versionLabel = `ext ${extensionLabel}, cli ${binaryLabel}`;
 
   const activeRulesLabel = getActiveRulesLabel(config);
-  const scanSettingsLabel = getScanSettingsLabel(config);
-  const aiScanSettingsLabel = getAiScanSettingsLabel(config);
+  const scanSettingsLabel = getScanSettingsLabel();
+  const aiScanSettingsLabel = getAiScanSettingsLabel();
 
   const rows = [
     ['Version', versionLabel],

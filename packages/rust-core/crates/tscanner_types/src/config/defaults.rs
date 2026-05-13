@@ -1,24 +1,5 @@
-use super::{AiRuleConfig, CodeEditorConfig, RegexRuleConfig, ScriptRuleConfig};
-use crate::enums::{AiMode, Severity, StartupScanMode};
-
-impl Default for CodeEditorConfig {
-    fn default() -> Self {
-        Self {
-            highlight_errors: tscanner_constants::default_highlight_errors(),
-            highlight_warnings: tscanner_constants::default_highlight_warnings(),
-            highlight_infos: tscanner_constants::default_highlight_infos(),
-            highlight_hints: tscanner_constants::default_highlight_hints(),
-            auto_scan_interval: tscanner_constants::default_auto_scan_interval(),
-            auto_ai_scan_interval: tscanner_constants::default_auto_ai_scan_interval(),
-            startup_scan: StartupScanMode::from_str_or_panic(
-                tscanner_constants::default_startup_scan(),
-            ),
-            startup_ai_scan: StartupScanMode::from_str_or_panic(
-                tscanner_constants::default_startup_ai_scan(),
-            ),
-        }
-    }
-}
+use super::{AiRuleConfig, RegexRuleConfig, ScriptRuleConfig};
+use crate::enums::{AiMode, Severity};
 
 impl Default for RegexRuleConfig {
     fn default() -> Self {
