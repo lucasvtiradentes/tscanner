@@ -14,7 +14,7 @@
 <!-- <DYNFIELD:OVERVIEW> -->
 ## 🎺 Overview<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-Define what "good code" means for your project. TScanner enforces your patterns in real-time in the code editor, blocks violations in PRs, and runs in CI. 37 ready-to-use rules + custom rules via regex, scripts, or AI.
+Define what "good code" means for your project. TScanner enforces your patterns in real-time in the code editor, blocks violations in PRs, and runs in CI. 36 ready-to-use rules + custom rules via regex, scripts, or AI.
 <!-- </DYNFIELD:OVERVIEW> -->
 
 <!-- <DYNFIELD:VSCODE_EXTENSION_DEMO_IMAGE> -->
@@ -122,7 +122,7 @@ Define what "good code" means for your project. TScanner enforces your patterns 
 <!-- <DYNFIELD:FEATURES> -->
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-- **Your Rules, Enforced** - 37 built-in checks + define your own with regex, scripts, or AI
+- **Your Rules, Enforced** - 36 built-in checks + define your own with regex, scripts, or AI
 - **See Issues Instantly** - Real-time feedback in code editor as you type, no manual scan needed
 - **Copy for AI** - Export issues to clipboard, paste into chat for bulk fixes
 - **Catch Before Merge** - PR comments show violations with clickable links to exact lines
@@ -429,7 +429,6 @@ To scan your code, you need to set up the rules in the TScanner config folder.
       "no-explicit-any": {},
       "no-floating-promises": {},
       "no-forwarded-exports": {},
-      "no-implicit-any": {},
       "no-inferrable-types": {},
       "no-nested-require": {},
       "no-nested-ternary": {},
@@ -589,12 +588,12 @@ Rules are the core of TScanner. They define what to check, where to check, and h
 <div align="center">
 
 <details>
-<summary>Built-in rules (37)</summary>
+<summary>Built-in rules (36)</summary>
 <br />
 
 <div align="left">
 
-#### Type Safety (6)
+#### Type Safety (5)
 
 </div>
 
@@ -610,12 +609,6 @@ Rules are the core of TScanner. They define what to check, where to check, and h
     <td align="left">Detects usage of TypeScript 'any' type (<code>: any</code> and <code>as any</code>). Using 'any' defeats the purpose of TypeScript's type system.</td>
     <td align="left"></td>
     <td align="left"><a href="https://typescript-eslint.io/rules/no-explicit-any"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-explicit-any"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
-  </tr>
-  <tr>
-    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/type_safety/no_implicit_any.rs"><code>no-implicit-any</code></a><br/><br/><img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only"></div></td>
-    <td align="left">Detects function parameters without type annotations that implicitly have 'any' type.</td>
-    <td align="left"></td>
-    <td align="left"></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/type_safety/no_inferrable_types.rs"><code>no-inferrable-types</code></a><br/><br/><img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only"></div></td>

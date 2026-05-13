@@ -190,7 +190,6 @@ generate_rule_tests!(no_single_or_array_union);
 generate_rule_tests!(no_nested_require);
 generate_rule_tests!(no_todo_comments);
 generate_rule_tests!(no_unused_vars);
-generate_rule_tests!(no_implicit_any);
 generate_rule_tests!(no_forwarded_exports);
 generate_rule_tests!(no_unnecessary_type_assertion);
 generate_rule_tests!(prefer_type_over_interface);

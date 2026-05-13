@@ -20,7 +20,6 @@
       "no-explicit-any": {},
       "no-floating-promises": {},
       "no-forwarded-exports": {},
-      "no-implicit-any": {},
       "no-inferrable-types": {},
       "no-nested-require": {},
       "no-nested-ternary": {},
