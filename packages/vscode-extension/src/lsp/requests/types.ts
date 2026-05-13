@@ -1,6 +1,7 @@
 import type {
   AiExecutionMode,
   GroupMode,
+  PreviousAiIssue,
   ScanContentParams,
   ScanFileParams,
   ScanParams,
@@ -16,6 +17,7 @@ export type ScanRequestOptions = {
   staged?: boolean;
   aiMode?: AiExecutionMode;
   noCache?: boolean;
+  previousAiIssues?: PreviousAiIssue[];
 };
 
 export type ScanContentRequestOptions = {

@@ -132,6 +132,7 @@ export class TscannerLspClient {
       staged: params.staged,
       ai_mode: params.aiMode,
       no_cache: params.noCache,
+      previous_ai_issues: params.previousAiIssues,
     });
   }
 

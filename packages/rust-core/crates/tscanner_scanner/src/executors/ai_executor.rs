@@ -1,4 +1,5 @@
 mod parser;
+mod previous_issues;
 mod process;
 mod prompt;
 mod rule;
@@ -16,7 +17,7 @@ use tscanner_types::Issue;
 
 pub use types::{
     AiExecutionResult, AiProgressCallback, AiProgressEvent, AiRuleStatus, ChangedLinesMap,
-    RegularRulesCompleteCallback,
+    PreviousAiIssue, RegularRulesCompleteCallback,
 };
 
 pub struct AiExecutor {
@@ -106,7 +107,7 @@ impl AiExecutor {
         workspace_root: &Path,
         changed_lines: Option<&ChangedLinesMap>,
     ) -> AiExecutionResult {
-        self.execute_rules_with_progress(rules, files, workspace_root, changed_lines, None)
+        self.execute_rules_with_progress(rules, files, workspace_root, changed_lines, None, &[])
     }
 
     pub fn execute_rules_with_progress(
@@ -116,6 +117,7 @@ impl AiExecutor {
         workspace_root: &Path,
         changed_lines: Option<&ChangedLinesMap>,
         progress_callback: Option<AiProgressCallback>,
+        previous_issues: &[PreviousAiIssue],
     ) -> AiExecutionResult {
         if rules.is_empty() {
             return AiExecutionResult::default();
@@ -208,6 +210,7 @@ impl AiExecutor {
                     workspace_root,
                     ai_config,
                     changed_lines,
+                    previous_issues,
                 );
 
                 if was_cache_hit {

@@ -24,12 +24,13 @@ pub fn handle_scan(
     let request_start = Instant::now();
     let params: ScanParams = serde_json::from_value(req.params)?;
     tscanner_logger::log_info(&format!(
-        "lsp_scan: request received root={} branch={} staged={} ai_mode={:?} no_cache={}",
+        "lsp_scan: request received root={} branch={} staged={} ai_mode={:?} no_cache={} previous_ai_issues={}",
         params.root.display(),
         params.branch.as_deref().unwrap_or("none"),
         params.staged.unwrap_or(false),
         params.ai_mode.unwrap_or(AiExecutionMode::Ignore),
-        params.no_cache.unwrap_or(false)
+        params.no_cache.unwrap_or(false),
+        params.previous_ai_issues.as_ref().map_or(0, |issues| issues.len())
     ));
 
     let Some(config) = load_config_or_respond(connection, &req.id, &params.root, params.config)?
@@ -155,12 +156,19 @@ pub fn handle_scan(
 
     tscanner_logger::log_info("lsp_scan: scanner.scan_codebase_with_progress starting");
     let scan_start = Instant::now();
-    let mut result = scanner.scan_codebase_with_progress(
+    let previous_ai_issues = params
+        .previous_ai_issues
+        .unwrap_or_default()
+        .into_iter()
+        .map(Into::into)
+        .collect();
+    let mut result = scanner.scan_codebase_with_progress_and_previous_ai_issues(
         std::slice::from_ref(&params.root),
         changed_files.as_ref(),
         ai_mode,
         modified_lines.as_ref(),
         progress_callback,
+        previous_ai_issues,
     );
     tscanner_logger::log_info(&format!(
         "lsp_scan: scanner.scan_codebase_with_progress finished in {}ms (issues={}, files={})",

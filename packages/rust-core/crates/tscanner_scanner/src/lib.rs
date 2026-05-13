@@ -10,8 +10,8 @@ pub use config_ext::{load_config, ConfigExt};
 pub use disable_comments::DisableDirectives;
 pub use executors::{
     is_js_ts_file, AiExecutor, AiProgressCallback, AiProgressEvent, AiRuleStatus, BuiltinExecutor,
-    ExecuteResult, RegularRulesCompleteCallback, ScriptError, ScriptExecutor, ScriptFile,
-    ScriptInput, ScriptOutput,
+    ExecuteResult, PreviousAiIssue, RegularRulesCompleteCallback, ScriptError, ScriptExecutor,
+    ScriptFile, ScriptInput, ScriptOutput,
 };
 pub use parser::parse_file;
 pub use scanner::{BranchScanResult, ScanCallbacks, Scanner, StagedScanResult};

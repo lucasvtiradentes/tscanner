@@ -3,7 +3,7 @@ use lsp_types::request::Request;
 use serde::{Deserialize, Serialize};
 use std::path::PathBuf;
 use tscanner_config::{AiExecutionMode, TscannerConfig};
-use tscanner_scanner::{AiProgressEvent, AiRuleStatus};
+use tscanner_scanner::{AiProgressEvent, AiRuleStatus, PreviousAiIssue};
 use tscanner_types::{ContentScanResult, FileResult, ScanResult};
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -21,6 +21,32 @@ pub struct ScanParams {
     pub ai_mode: Option<AiExecutionMode>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub no_cache: Option<bool>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub previous_ai_issues: Option<Vec<PreviousAiIssueParam>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PreviousAiIssueParam {
+    pub rule: String,
+    pub file: PathBuf,
+    pub line: usize,
+    pub column: usize,
+    pub message: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub line_text: Option<String>,
+}
+
+impl From<PreviousAiIssueParam> for PreviousAiIssue {
+    fn from(issue: PreviousAiIssueParam) -> Self {
+        Self {
+            rule: issue.rule,
+            file: issue.file,
+            line: issue.line,
+            column: issue.column,
+            message: issue.message,
+            line_text: issue.line_text,
+        }
+    }
 }
 
 pub enum ScanRequest {}

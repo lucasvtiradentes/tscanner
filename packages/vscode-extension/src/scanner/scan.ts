@@ -11,7 +11,7 @@ type ScanOptions = ScanRequestOptions & {
 };
 
 export async function scan(options: ScanOptions = {}): Promise<IssueResult[]> {
-  const { branch, staged, fileFilter, config, aiMode, noCache } = options;
+  const { branch, staged, fileFilter, config, aiMode, noCache, previousAiIssues } = options;
   const workspaceFolder = getCurrentWorkspaceFolder();
 
   if (!workspaceFolder) {
@@ -39,6 +39,7 @@ export async function scan(options: ScanOptions = {}): Promise<IssueResult[]> {
       staged,
       aiMode,
       noCache,
+      previousAiIssues,
     });
     const scanTime = Date.now() - scanStart;
 

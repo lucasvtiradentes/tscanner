@@ -202,6 +202,7 @@ pub fn cmd_check(
         ScanCallbacks {
             on_regular_rules_complete: regular_rules_callback,
             on_ai_progress: ai_progress_callback,
+            previous_ai_issues: Vec::new(),
         },
     );
 

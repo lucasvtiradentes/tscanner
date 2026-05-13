@@ -1,4 +1,5 @@
 import { AiExecutionMode, CONFIG_DIR_NAME, ScanMode, hasConfiguredRules } from 'tscanner-common';
+import * as vscode from 'vscode';
 import { getOrLoadConfig } from '../../common/lib/config-manager';
 import { createLogger, logger } from '../../common/lib/logger';
 import { ScanType, withScanErrorHandling } from '../../common/lib/scan-helpers';
@@ -26,6 +27,15 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
       return;
     }
 
+    const previousResults = aiView.getResults();
+    const previousAiIssues = previousResults.map((issue) => ({
+      rule: issue.rule,
+      file: vscode.workspace.asRelativePath(issue.uri, false),
+      line: issue.line + 1,
+      column: issue.column + 1,
+      message: issue.message,
+      line_text: issue.text || undefined,
+    }));
     aiView.setResults([], true);
     let progressDisposable: { dispose(): void } | null = null;
 
@@ -36,6 +46,7 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
         onError: (error) => {
           logger.error(`AI scan failed: ${error}`);
           aiView.clearProgress();
+          aiView.setResults(previousResults, true);
         },
         onFinally: () => {
           progressDisposable?.dispose();
@@ -73,6 +84,7 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
           branch,
           aiMode: AiExecutionMode.Only,
           noCache: !useCache,
+          previousAiIssues: previousAiIssues.length > 0 ? previousAiIssues : undefined,
         });
 
         const elapsed = Date.now() - startTime;

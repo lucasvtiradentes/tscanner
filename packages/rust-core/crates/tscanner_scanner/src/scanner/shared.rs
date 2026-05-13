@@ -2,7 +2,9 @@ mod files;
 mod script_content;
 
 use super::Scanner;
-use crate::executors::{AiExecutionResult, AiProgressCallback, BuiltinExecutor, ExecuteResult};
+use crate::executors::{
+    AiExecutionResult, AiProgressCallback, BuiltinExecutor, ExecuteResult, PreviousAiIssue,
+};
 use ignore::WalkBuilder;
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
@@ -115,7 +117,7 @@ impl Scanner {
         file_filter: &[PathBuf],
         changed_lines: Option<&HashMap<PathBuf, HashSet<usize>>>,
     ) -> AiExecutionResult {
-        self.run_ai_rules_with_context_and_progress(file_filter, changed_lines, None)
+        self.run_ai_rules_with_context_and_progress(file_filter, changed_lines, None, &[])
     }
 
     pub(crate) fn run_ai_rules_with_context_and_progress(
@@ -123,6 +125,7 @@ impl Scanner {
         file_filter: &[PathBuf],
         changed_lines: Option<&HashMap<PathBuf, HashSet<usize>>>,
         progress_callback: Option<AiProgressCallback>,
+        previous_issues: &[PreviousAiIssue],
     ) -> AiExecutionResult {
         let ai_rules = self.collect_ai_rules();
         if ai_rules.is_empty() {
@@ -145,6 +148,7 @@ impl Scanner {
             &self.root,
             changed_lines,
             progress_callback,
+            previous_issues,
         )
     }
 

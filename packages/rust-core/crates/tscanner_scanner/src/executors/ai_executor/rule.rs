@@ -1,4 +1,4 @@
-use super::types::AiError;
+use super::types::{AiError, PreviousAiIssue};
 use super::{AiExecutor, ChangedLinesMap};
 use crate::executors::utils;
 use std::path::{Path, PathBuf};
@@ -31,6 +31,7 @@ impl AiExecutor {
         workspace_root: &Path,
         ai_config: &AiConfig,
         changed_lines: Option<&ChangedLinesMap>,
+        previous_issues: &[PreviousAiIssue],
     ) -> (Result<Vec<Issue>, AiError>, bool) {
         let prompt_path = self.ai_rules_dir.join(&rule_config.prompt);
         if !prompt_path.exists() {
@@ -45,16 +46,19 @@ impl AiExecutor {
             std::thread::sleep(Duration::from_millis(100));
         }
 
-        if let Some(cached_issues) = self.cache.get(rule_name, &prompt_path, &files_owned) {
-            (self.log_warn)(&format!(
-                "AI rule '{}' cache hit ({} cached issues)",
-                rule_name,
-                cached_issues.len()
-            ));
-            return (
-                Ok(self.validate_cached_issues(&cached_issues, files, workspace_root)),
-                true,
-            );
+        let has_previous_context = previous_issues.iter().any(|issue| issue.rule == rule_name);
+        if !has_previous_context {
+            if let Some(cached_issues) = self.cache.get(rule_name, &prompt_path, &files_owned) {
+                (self.log_warn)(&format!(
+                    "AI rule '{}' cache hit ({} cached issues)",
+                    rule_name,
+                    cached_issues.len()
+                ));
+                return (
+                    Ok(self.validate_cached_issues(&cached_issues, files, workspace_root)),
+                    true,
+                );
+            }
         }
 
         let prompt_content = match std::fs::read_to_string(&prompt_path) {
@@ -74,6 +78,7 @@ impl AiExecutor {
             workspace_root,
             ai_config,
             changed_lines,
+            previous_issues,
             &cancelled,
         );
 
@@ -84,9 +89,11 @@ impl AiExecutor {
             return (Ok(vec![]), false);
         }
 
-        if let Ok(ref issues) = result {
-            self.cache
-                .insert(rule_name, &prompt_path, &files_owned, issues.clone());
+        if !has_previous_context {
+            if let Ok(ref issues) = result {
+                self.cache
+                    .insert(rule_name, &prompt_path, &files_owned, issues.clone());
+            }
         }
 
         (result, false)

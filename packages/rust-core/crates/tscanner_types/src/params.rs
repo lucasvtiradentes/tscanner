@@ -16,6 +16,19 @@ pub struct ScanParams {
     pub ai_mode: Option<AiExecutionMode>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub no_cache: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub previous_ai_issues: Option<Vec<PreviousAiIssue>>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PreviousAiIssue {
+    pub rule: String,
+    pub file: String,
+    pub line: usize,
+    pub column: usize,
+    pub message: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub line_text: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

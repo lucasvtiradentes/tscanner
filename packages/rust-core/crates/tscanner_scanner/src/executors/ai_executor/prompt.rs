@@ -1,4 +1,4 @@
-use super::types::AiError;
+use super::types::{AiError, PreviousAiIssue};
 use super::{AiExecutor, ChangedLinesMap};
 use crate::ai_providers::{parse_provider_error, resolve_provider_command};
 use std::collections::HashSet;
@@ -25,6 +25,7 @@ impl AiExecutor {
         workspace_root: &Path,
         ai_config: &AiConfig,
         changed_lines: Option<&ChangedLinesMap>,
+        previous_issues: &[PreviousAiIssue],
         cancelled: &Arc<AtomicBool>,
     ) -> Result<Vec<Issue>, AiError> {
         let files_section =
@@ -40,6 +41,13 @@ impl AiExecutor {
         let rule_prompt = prompt_content
             .replace(ai_placeholder_files(), &files_section)
             .replace(ai_placeholder_options(), &options_section);
+        let previous_issues_section =
+            self.format_previous_issues_section(rule_name, files, workspace_root, previous_issues);
+        let rule_prompt = if previous_issues_section.is_empty() {
+            rule_prompt
+        } else {
+            format!("{}\n\n{}", rule_prompt, previous_issues_section)
+        };
         let full_prompt = AI_RULE_WRAPPER.replace(ai_placeholder_content(), &rule_prompt);
 
         self.save_prompt_to_tmp(rule_name, &full_prompt);

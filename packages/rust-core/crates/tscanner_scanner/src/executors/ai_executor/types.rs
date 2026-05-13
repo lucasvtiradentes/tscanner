@@ -26,6 +26,16 @@ pub struct AiProgressEvent {
 pub type AiProgressCallback = Arc<dyn Fn(AiProgressEvent) + Send + Sync>;
 pub type RegularRulesCompleteCallback = Arc<dyn Fn(u128) + Send + Sync>;
 
+#[derive(Debug, Clone)]
+pub struct PreviousAiIssue {
+    pub rule: String,
+    pub file: PathBuf,
+    pub line: usize,
+    pub column: usize,
+    pub message: String,
+    pub line_text: Option<String>,
+}
+
 #[derive(Debug, Deserialize)]
 pub(super) struct AiResponse {
     pub(super) issues: Vec<AiIssue>,
