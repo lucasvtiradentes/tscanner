@@ -60,6 +60,21 @@ export async function unsetLocalAiConfig(workspacePath: string): Promise<void> {
   await writeLocalConfig(workspacePath, rest);
 }
 
+export async function ensureLocalConfigFile(workspacePath: string): Promise<string> {
+  const path = getLocalConfigPath(workspacePath);
+  const uri = vscode.Uri.file(path);
+  await vscode.workspace.fs.createDirectory(vscode.Uri.file(dirname(path)));
+  await ensureLocalConfigIgnored(workspacePath);
+
+  try {
+    await vscode.workspace.fs.stat(uri);
+  } catch {
+    await vscode.workspace.fs.writeFile(uri, Buffer.from('{}\n'));
+  }
+
+  return path;
+}
+
 function isLocalConfigEmpty(config: LocalConfig): boolean {
   return Object.keys(config).length === 0;
 }

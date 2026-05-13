@@ -47,3 +47,12 @@ export function getExtensionConfig<K extends ExtensionConfigKey>(key: K): Extens
   configLogger.debug(`GET ${key} = ${JSON.stringify(value)}`);
   return value;
 }
+
+export async function updateExtensionConfig<K extends ExtensionConfigKey>(
+  key: K,
+  value: ExtensionConfigSchema[K],
+): Promise<void> {
+  const config = vscode.workspace.getConfiguration(getConfigSection());
+  configLogger.debug(`UPDATE ${key} = ${JSON.stringify(value)}`);
+  await config.update(key, value, vscode.ConfigurationTarget.Workspace);
+}

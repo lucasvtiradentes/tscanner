@@ -5,6 +5,7 @@ import {
   EXTENSION_DISPLAY_NAME,
   EXTENSION_NAME,
   EXTENSION_PUBLISHER,
+  SETTINGS_VIEW_ID,
   VIEW_ID,
   addDevLabel,
   buildLogFilename,
@@ -29,6 +30,10 @@ export function getViewId(): string {
 
 export function getAiViewId(): string {
   return IS_DEV ? `${AI_VIEW_ID}${DEV_SUFFIX}` : AI_VIEW_ID;
+}
+
+export function getSettingsViewId(): string {
+  return IS_DEV ? `${SETTINGS_VIEW_ID}${DEV_SUFFIX}` : SETTINGS_VIEW_ID;
 }
 
 export function getLogFilename(): string {

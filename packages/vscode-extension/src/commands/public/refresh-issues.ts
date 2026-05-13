@@ -72,7 +72,7 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
         );
 
         if (action === 'Change Branch') {
-          await executeCommand(Command.OpenSettingsMenu);
+          await executeCommand(Command.ManageScanMode);
         } else if (action === 'Switch to Workspace Mode') {
           extensionStore.set(StoreKey.ScanMode, ScanMode.Codebase);
           await updateStatusBar();

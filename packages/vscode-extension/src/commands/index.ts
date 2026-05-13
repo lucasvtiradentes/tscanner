@@ -5,7 +5,7 @@ import type { CommandContext } from '../common/state/extension-state';
 import { StoreKey, extensionStore } from '../common/state/extension-store';
 import { ScanTrigger } from '../common/types/scan-trigger';
 import type { AiIssuesView, RegularIssuesView } from '../issues-panel';
-import { createOpenSettingsMenuCommand } from '../settings-menu';
+import type { SettingsView } from '../settings-view';
 import { CopyMode, CopyScope, createCopyCommand } from './internal/copy-items';
 import { createOpenFileCommand } from './internal/navigation';
 import {
@@ -16,14 +16,26 @@ import {
 } from './internal/view-mode';
 import { createClearScanCachesCommand } from './public/clear-scan-caches';
 import { createGoToNextIssueCommand, createGoToPreviousIssueCommand } from './public/issue-navigation';
+import { createOpenLocalConfigCommand, createOpenProjectConfigCommand } from './public/open-config-files';
+import { createOpenSettingsViewCommand } from './public/open-settings-view';
 import { createRefreshAiIssuesCommand } from './public/refresh-ai-issues';
 import { createRefreshIssuesCommand } from './public/refresh-issues';
+import {
+  createManageAiModelCommand,
+  createManageAiProviderCommand,
+  createManageScanModeCommand,
+  createManageStartupAiScanCommand,
+  createManageStartupScanCommand,
+  createToggleAutoAiScanCommand,
+  createToggleAutoScanCommand,
+} from './public/settings-view-actions';
 import { createShowLogsCommand } from './public/show-logs';
 
 export function registerAllCommands(
   ctx: CommandContext,
   regularView: RegularIssuesView,
   aiView: AiIssuesView,
+  settingsView: SettingsView,
 ): vscode.Disposable[] {
   const { context, getLspClient } = ctx;
 
@@ -50,7 +62,16 @@ export function registerAllCommands(
     createGoToPreviousIssueCommand(regularView),
     createShowLogsCommand(),
     createClearScanCachesCommand(),
-    createOpenSettingsMenuCommand(ctx, regularView),
+    createOpenSettingsViewCommand(),
+    createOpenProjectConfigCommand(),
+    createOpenLocalConfigCommand(),
+    createManageAiProviderCommand({ commandContext: ctx, regularView, settingsView }),
+    createManageAiModelCommand({ commandContext: ctx, regularView, settingsView }),
+    createManageScanModeCommand({ commandContext: ctx, regularView, settingsView }),
+    createManageStartupScanCommand({ commandContext: ctx, regularView, settingsView }),
+    createManageStartupAiScanCommand({ commandContext: ctx, regularView, settingsView }),
+    createToggleAutoScanCommand({ commandContext: ctx, regularView, settingsView }),
+    createToggleAutoAiScanCommand({ commandContext: ctx, regularView, settingsView }),
     createCycleViewModeFileFlatViewCommand(regularView, aiView, context),
     createCycleViewModeFileTreeViewCommand(regularView, aiView, context),
     createCycleViewModeRuleFlatViewCommand(regularView, aiView, context),

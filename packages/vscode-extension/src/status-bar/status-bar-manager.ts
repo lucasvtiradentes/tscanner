@@ -19,7 +19,7 @@ export class StatusBarManager {
       vscode.StatusBarAlignment.Left,
       VSCODE_EXTENSION.statusBar.priority,
     );
-    this.statusBarItem.command = getCommandId(Command.OpenSettingsMenu);
+    this.statusBarItem.command = getCommandId(Command.OpenSettingsView);
 
     extensionStore.subscribe(StoreKey.IsSearching, (isSearching) => {
       this.isSearching = isSearching;
