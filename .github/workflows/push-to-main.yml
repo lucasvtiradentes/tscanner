@@ -28,10 +28,27 @@ jobs:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
+  check_version:
+    name: 'Check Version'
+    runs-on: ubuntu-latest
+    outputs:
+      should_release: ${{ steps.check.outputs.should_release }}
+      should_release_npm: ${{ steps.check.outputs.should_release_npm }}
+      should_release_vscode: ${{ steps.check.outputs.should_release_vscode }}
+      should_release_github_action: ${{ steps.check.outputs.should_release_github_action }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 2
+
+      - name: Check if version was bumped
+        id: check
+        run: bash scripts/release/check-version-bump.sh
+
   build_rust_binaries:
     name: 'Build Rust Binaries'
-    needs: [push_to_main_ci]
-    if: needs.push_to_main_ci.outputs.should_release == 'true'
+    needs: [push_to_main_ci, check_version]
+    if: needs.check_version.outputs.should_release == 'true'
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -55,7 +72,7 @@ jobs:
 
   prepare_release:
     name: 'Prepare Release'
-    needs: [push_to_main_ci, build_rust_binaries]
+    needs: [push_to_main_ci, check_version, build_rust_binaries]
     if: |
       always() &&
       needs.push_to_main_ci.result == 'success' &&
@@ -84,8 +101,8 @@ jobs:
 
   release_npm:
     name: 'Release NPM'
-    needs: [push_to_main_ci, build_rust_binaries, prepare_release]
-    if: needs.prepare_release.outputs.has_changesets == 'false' && needs.push_to_main_ci.outputs.should_release_npm == 'true'
+    needs: [push_to_main_ci, check_version, build_rust_binaries, prepare_release]
+    if: needs.prepare_release.outputs.has_changesets == 'false' && needs.check_version.outputs.should_release_npm == 'true'
     runs-on: ubuntu-latest
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -101,8 +118,8 @@ jobs:
 
   release_vscode:
     name: 'Release VSCode Extension'
-    needs: [push_to_main_ci, prepare_release]
-    if: needs.prepare_release.outputs.has_changesets == 'false' && needs.push_to_main_ci.outputs.should_release_vscode == 'true'
+    needs: [push_to_main_ci, check_version, prepare_release]
+    if: needs.prepare_release.outputs.has_changesets == 'false' && needs.check_version.outputs.should_release_vscode == 'true'
     runs-on: ubuntu-latest
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
@@ -120,8 +137,8 @@ jobs:
 
   release_github_action:
     name: 'Release GitHub Action'
-    needs: [prepare_release, push_to_main_ci]
-    if: needs.prepare_release.outputs.has_changesets == 'false' && needs.push_to_main_ci.outputs.should_release_github_action == 'true'
+    needs: [prepare_release, push_to_main_ci, check_version]
+    if: needs.prepare_release.outputs.has_changesets == 'false' && needs.check_version.outputs.should_release_github_action == 'true'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6

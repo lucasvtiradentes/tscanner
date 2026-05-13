@@ -14,19 +14,67 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  pr_ci:
-    name: 'PR CI'
-    uses: ./.github/workflows/callable-ci.yml
-    with:
-      run_lint: true
-      run_build: true
-      run_test: true
-    secrets:
+  lint:
+    name: 'Lint'
+    runs-on: ubuntu-latest
+    env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-and-install
+        with:
+          install-rust: 'true'
+
+      - name: Run lint
+        run: pnpm run lint
+
+      - name: Run format
+        run: pnpm run format
+
+      - name: Check if any changes were made
+        run: git diff --exit-code
+
+  build:
+    name: 'Build'
+    runs-on: ubuntu-latest
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-and-install
+        with:
+          install-rust: 'true'
+
+      - name: Run typecheck
+        run: pnpm run typecheck
+
+      - name: Build all packages
+        run: pnpm run build
+
+  test:
+    name: 'Test'
+    needs: [lint, build]
+    runs-on: ubuntu-latest
+    env:
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: ./.github/actions/setup-and-install
+        with:
+          install-rust: 'true'
+
+      - name: Run tests
+        run: pnpm run test
 
   tscanner_pr_check:
     name: 'TScanner PR Check'
+    needs: [lint, build]
     runs-on: ubuntu-latest
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}

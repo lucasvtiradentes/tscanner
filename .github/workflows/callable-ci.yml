@@ -15,19 +15,6 @@ on:
         description: 'Run tests'
         type: boolean
         required: true
-    outputs:
-      should_release:
-        description: 'Whether any version was bumped and should trigger release'
-        value: ${{ jobs.check_version.outputs.should_release }}
-      should_release_npm:
-        description: 'Whether CLI/NPM package version was bumped'
-        value: ${{ jobs.check_version.outputs.should_release_npm }}
-      should_release_vscode:
-        description: 'Whether VSCode extension version was bumped'
-        value: ${{ jobs.check_version.outputs.should_release_vscode }}
-      should_release_github_action:
-        description: 'Whether GitHub Action version was bumped'
-        value: ${{ jobs.check_version.outputs.should_release_github_action }}
     secrets:
       TURBO_TOKEN:
         description: Turbo token for cache
@@ -42,22 +29,6 @@ env:
   TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
 
 jobs:
-  check_version:
-    runs-on: ubuntu-latest
-    outputs:
-      should_release: ${{ steps.check.outputs.should_release }}
-      should_release_npm: ${{ steps.check.outputs.should_release_npm }}
-      should_release_vscode: ${{ steps.check.outputs.should_release_vscode }}
-      should_release_github_action: ${{ steps.check.outputs.should_release_github_action }}
-    steps:
-      - uses: actions/checkout@v6
-        with:
-          fetch-depth: 2
-
-      - name: Check if version was bumped
-        id: check
-        run: bash scripts/release/check-version-bump.sh
-
   lint:
     if: inputs.run_lint
     runs-on: ubuntu-latest
