@@ -68,10 +68,9 @@ export async function runScanSequence(trigger: ScanTrigger): Promise<void> {
     return;
   }
 
-  const configDir = extensionStore.get(StoreKey.ConfigDir);
-  const configBasePath = getConfigBaseDir(workspaceFolder.uri.fsPath, configDir);
+  const configBasePath = getConfigBaseDir(workspaceFolder.uri.fsPath);
 
-  const configExists = await hasConfig(workspaceFolder.uri.fsPath, configDir);
+  const configExists = await hasConfig(workspaceFolder.uri.fsPath);
   if (!configExists) {
     logger.info('No config found, starting config poll...');
     startConfigPoll();
@@ -138,8 +137,7 @@ function startConfigPoll(): void {
       return;
     }
 
-    const configDir = extensionStore.get(StoreKey.ConfigDir);
-    const configExists = await hasConfig(workspaceFolder.uri.fsPath, configDir);
+    const configExists = await hasConfig(workspaceFolder.uri.fsPath);
 
     if (configExists) {
       logger.info('Config detected by poll, running scan sequence...');

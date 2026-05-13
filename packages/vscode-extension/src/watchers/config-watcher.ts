@@ -3,7 +3,6 @@ import * as vscode from 'vscode';
 import { getConfigPath } from '../common/lib/config-manager';
 import { logger } from '../common/lib/logger';
 import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
-import { StoreKey, extensionStore } from '../common/state/extension-store';
 import { ScanTrigger } from '../common/types/scan-trigger';
 import { runScanSequence } from '../startup/runner';
 
@@ -14,8 +13,7 @@ export function createConfigWatcher(onConfigChange: () => Promise<void>): vscode
     const workspaceFolder = getCurrentWorkspaceFolder();
     if (!workspaceFolder) return;
 
-    const configDir = extensionStore.get(StoreKey.ConfigDir);
-    const expectedPath = getConfigPath(workspaceFolder.uri.fsPath, configDir);
+    const expectedPath = getConfigPath(workspaceFolder.uri.fsPath);
 
     if (uri.fsPath !== expectedPath) {
       logger.debug(`Ignoring config change in non-active config: ${uri.fsPath}`);

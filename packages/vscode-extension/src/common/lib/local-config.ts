@@ -2,7 +2,6 @@ import { dirname } from 'node:path';
 import * as jsonc from 'jsonc-parser';
 import { type AiProvider, LOCAL_CONFIG_FILE_NAME } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { StoreKey, extensionStore } from '../state/extension-store';
 import { getConfigDirPath } from './config-manager';
 
 type LocalAiConfig = {
@@ -16,9 +15,7 @@ type LocalConfig = {
 };
 
 export function getLocalConfigPath(workspacePath: string): string {
-  const configDir = extensionStore.get(StoreKey.ConfigDir);
-  return vscode.Uri.joinPath(vscode.Uri.file(getConfigDirPath(workspacePath, configDir)), LOCAL_CONFIG_FILE_NAME)
-    .fsPath;
+  return vscode.Uri.joinPath(vscode.Uri.file(getConfigDirPath(workspacePath)), LOCAL_CONFIG_FILE_NAME).fsPath;
 }
 
 export async function readLocalConfig(workspacePath: string): Promise<LocalConfig> {
@@ -68,8 +65,7 @@ function isLocalConfigEmpty(config: LocalConfig): boolean {
 }
 
 async function ensureLocalConfigIgnored(workspacePath: string): Promise<void> {
-  const configDir = extensionStore.get(StoreKey.ConfigDir);
-  const ignoreUri = vscode.Uri.joinPath(vscode.Uri.file(getConfigDirPath(workspacePath, configDir)), '.gitignore');
+  const ignoreUri = vscode.Uri.joinPath(vscode.Uri.file(getConfigDirPath(workspacePath)), '.gitignore');
   const entry = LOCAL_CONFIG_FILE_NAME;
 
   try {

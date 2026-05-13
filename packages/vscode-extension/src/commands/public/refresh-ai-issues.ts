@@ -1,5 +1,5 @@
 import { AiExecutionMode, CONFIG_DIR_NAME, ScanMode, hasConfiguredRules } from 'tscanner-common';
-import { getConfigDirLabel, getOrLoadConfig } from '../../common/lib/config-manager';
+import { getOrLoadConfig } from '../../common/lib/config-manager';
 import { createLogger, logger } from '../../common/lib/logger';
 import { ScanType, withScanErrorHandling } from '../../common/lib/scan-helpers';
 import { Command, getCurrentWorkspaceFolder, registerCommand } from '../../common/lib/vscode-utils';
@@ -42,7 +42,6 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
         },
       },
       async () => {
-        const configDir = extensionStore.get(StoreKey.ConfigDir);
         const config = await getOrLoadConfig(workspaceFolder.uri.fsPath);
 
         if (!hasConfiguredRules(config)) {
@@ -51,12 +50,7 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
           return;
         }
 
-        const configToPass = configDir ? (config ?? undefined) : undefined;
-        if (configDir) {
-          aiScanLogger.info(`Using config from ${getConfigDirLabel(configDir)}`);
-        } else {
-          aiScanLogger.info(`Using local config from ${CONFIG_DIR_NAME}`);
-        }
+        aiScanLogger.info(`Using local config from ${CONFIG_DIR_NAME}`);
 
         aiScanLogger.info('Starting AI-only scan (full scan)...');
 
@@ -77,8 +71,6 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
         aiScanLogger.info(`AI scan trigger: ${trigger}, useCache: ${useCache}, noCache flag: ${!useCache}`);
         const results = await scan({
           branch,
-          config: configToPass,
-          configDir: configDir ?? undefined,
           aiMode: AiExecutionMode.Only,
           noCache: !useCache,
         });

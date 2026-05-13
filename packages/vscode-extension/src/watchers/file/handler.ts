@@ -67,7 +67,6 @@ export function createFileChangeHandler(deps: FileChangeHandlerDeps) {
 
       const document = await vscode.workspace.openTextDocument(uri);
       const content = document.getText();
-      const configDir = extensionStore.get(StoreKey.ConfigDir);
       const config = getCachedConfig();
       const scanMode = extensionStore.get(StoreKey.ScanMode);
       const compareBranch = extensionStore.get(StoreKey.CompareBranch);
@@ -79,7 +78,6 @@ export function createFileChangeHandler(deps: FileChangeHandlerDeps) {
         filePath: uri.fsPath,
         content,
         config: config ?? undefined,
-        configDir: configDir ?? undefined,
         branch: branch ?? undefined,
         uncommitted,
       });

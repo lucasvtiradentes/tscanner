@@ -11,7 +11,7 @@ type ScanOptions = ScanRequestOptions & {
 };
 
 export async function scan(options: ScanOptions = {}): Promise<IssueResult[]> {
-  const { branch, staged, fileFilter, config, configDir, aiMode, noCache } = options;
+  const { branch, staged, fileFilter, config, aiMode, noCache } = options;
   const workspaceFolder = getCurrentWorkspaceFolder();
 
   if (!workspaceFolder) {
@@ -35,7 +35,6 @@ export async function scan(options: ScanOptions = {}): Promise<IssueResult[]> {
     const result = await client.scan({
       root: workspaceFolder.uri.fsPath,
       config,
-      configDir,
       branch,
       staged,
       aiMode,

@@ -163,7 +163,6 @@ export function activate(context: vscode.ExtensionContext) {
 
   extensionStore.subscribe(StoreKey.ScanMode, () => updateStatusBar());
   extensionStore.subscribe(StoreKey.CompareBranch, () => updateStatusBar());
-  extensionStore.subscribe(StoreKey.ConfigDir, () => updateStatusBar());
 
   const commandContext: CommandContext = {
     context,

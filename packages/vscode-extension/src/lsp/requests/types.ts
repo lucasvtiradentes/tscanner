@@ -12,7 +12,6 @@ export type { ScanContentParams, ScanFileParams, ScanParams };
 
 export type ScanRequestOptions = {
   config?: TscannerConfig;
-  configDir?: string;
   branch?: string;
   staged?: boolean;
   aiMode?: AiExecutionMode;
@@ -22,7 +21,6 @@ export type ScanRequestOptions = {
 export type ScanContentRequestOptions = {
   content: string;
   config?: TscannerConfig;
-  configDir?: string;
   branch?: string;
   uncommitted?: boolean;
 };

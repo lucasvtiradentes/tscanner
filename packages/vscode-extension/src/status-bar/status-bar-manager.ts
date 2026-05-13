@@ -88,7 +88,6 @@ export class StatusBarManager {
   }
 
   private showConfigured(config: TscannerConfig | null, binaryInfo: BinaryInfo): void {
-    const configDir = extensionStore.get(StoreKey.ConfigDir);
     const versionWarning = extensionStore.get(StoreKey.VersionWarning);
     const invalidConfigFields = extensionStore.get(StoreKey.InvalidConfigFields);
     const schemaWarning = getSchemaVersionWarning(config, getBinaryVersionLabel());
@@ -114,7 +113,6 @@ export class StatusBarManager {
 
     this.statusBarItem.text = finalText;
     this.statusBarItem.tooltip = buildConfiguredTooltip({
-      configDir,
       config,
       binaryInfo,
       versionWarning,

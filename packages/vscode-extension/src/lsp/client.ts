@@ -128,7 +128,6 @@ export class TscannerLspClient {
     return client.sendRequest(ScanRequestType, {
       root: params.root,
       config: params.config,
-      config_dir: params.configDir,
       branch: params.branch,
       staged: params.staged,
       ai_mode: params.aiMode,
@@ -149,7 +148,6 @@ export class TscannerLspClient {
       file: params.file,
       content: params.content,
       config: params.config,
-      config_dir: params.configDir,
       branch: params.branch,
       uncommitted: params.uncommitted,
     });

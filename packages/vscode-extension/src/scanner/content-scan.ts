@@ -16,7 +16,7 @@ type ScanContentParams = ScanContentRequestOptions & {
 };
 
 export async function scanContent(params: ScanContentParams): Promise<ScanContentResult> {
-  const { filePath, content, config, configDir, branch, uncommitted } = params;
+  const { filePath, content, config, branch, uncommitted } = params;
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (!workspaceFolder) {
     return { issues: [], relatedFiles: [] };
@@ -29,7 +29,6 @@ export async function scanContent(params: ScanContentParams): Promise<ScanConten
       file: filePath,
       content,
       config,
-      configDir,
       branch,
       uncommitted,
     });

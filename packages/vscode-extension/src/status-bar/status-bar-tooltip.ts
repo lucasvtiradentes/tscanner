@@ -1,7 +1,6 @@
 import { DEV_SUFFIX } from 'src/common/scripts-constants';
-import { DISPLAY_ICONS, type TscannerConfig } from 'tscanner-common';
+import { CONFIG_DIR_NAME, DISPLAY_ICONS, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { getConfigDirLabel } from '../common/lib/config-manager';
 import { getBinaryVersionLabel, getExtensionVersionLabel } from '../common/lib/version-checker';
 import { ExtensionConfigKey, getExtensionConfig } from '../common/state/extension-config';
 import { type BinaryInfo, LOCATOR_SOURCE_LABELS } from '../locator';
@@ -65,7 +64,6 @@ function getAiScanSettingsLabel(): string {
 }
 
 type BuildConfiguredTooltipParams = {
-  configDir: string | null;
   config: TscannerConfig | null;
   binaryInfo: BinaryInfo;
   versionWarning?: string | null;
@@ -73,8 +71,7 @@ type BuildConfiguredTooltipParams = {
 };
 
 export function buildConfiguredTooltip(params: BuildConfiguredTooltipParams): vscode.MarkdownString {
-  const { configDir, config, binaryInfo, versionWarning = null, invalidConfigFields = [] } = params;
-  const configLabel = getConfigDirLabel(configDir);
+  const { config, binaryInfo, versionWarning = null, invalidConfigFields = [] } = params;
   const configSource = LOCATOR_SOURCE_LABELS[binaryInfo.source];
 
   const extensionLabel = getExtensionVersionLabel();
@@ -88,7 +85,7 @@ export function buildConfiguredTooltip(params: BuildConfiguredTooltipParams): vs
 
   const rows = [
     ['Version', versionLabel],
-    ['Config', configLabel],
+    ['Config', CONFIG_DIR_NAME],
     ['Active Rules', activeRulesLabel],
     ['Scan', scanSettingsLabel],
     ['AI Scan', aiScanSettingsLabel],

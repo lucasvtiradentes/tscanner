@@ -7,7 +7,7 @@ import {
   ViewMode,
   hasConfiguredRules,
 } from 'tscanner-common';
-import { getConfigDirLabel, loadAndCacheConfig } from '../../common/lib/config-manager';
+import { loadAndCacheConfig } from '../../common/lib/config-manager';
 import { logger } from '../../common/lib/logger';
 import { ScanType, withScanErrorHandling } from '../../common/lib/scan-helpers';
 import {
@@ -47,7 +47,6 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
       return;
     }
 
-    const configDir = extensionStore.get(StoreKey.ConfigDir);
     const config = await loadAndCacheConfig(workspaceFolder.uri.fsPath);
 
     if (!hasConfiguredRules(config)) {
@@ -56,12 +55,7 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
       return;
     }
 
-    const configToPass = configDir ? (config ?? undefined) : undefined;
-    if (configDir) {
-      logger.info(`Using config from ${getConfigDirLabel(configDir)}`);
-    } else {
-      logger.info(`Using local config from ${CONFIG_DIR_NAME}`);
-    }
+    logger.info(`Using local config from ${CONFIG_DIR_NAME}`);
 
     const scanMode = extensionStore.get(StoreKey.ScanMode);
     const compareBranch = extensionStore.get(StoreKey.CompareBranch);
@@ -107,8 +101,6 @@ export function createRefreshIssuesCommand(ctx: CommandContext, regularView: Reg
         const results = await scan({
           branch,
           staged,
-          config: configToPass,
-          configDir: configDir ?? undefined,
           aiMode: options?.aiMode,
           noCache: !useCache,
         });
