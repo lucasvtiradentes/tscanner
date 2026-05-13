@@ -14,11 +14,11 @@ use super::config_generator::{
 
 const LOCAL_CONFIG_GITIGNORE: &str = "local.jsonc\n";
 
-pub fn cmd_init(path: &Path, full: bool) -> Result<()> {
+pub fn cmd_init(path: &Path, minimal: bool) -> Result<()> {
     log_info(&format!(
-        "cmd_init: Initializing config at: {} (full: {})",
+        "cmd_init: Initializing config at: {} (minimal: {})",
         path.display(),
-        full
+        minimal
     ));
 
     let root = fs::canonicalize(path).context("Failed to resolve path")?;
@@ -39,10 +39,10 @@ pub fn cmd_init(path: &Path, full: bool) -> Result<()> {
     fs::create_dir_all(&config_dir)
         .context(format!("Failed to create {} directory", config_dir_name()))?;
 
-    let config_content = if full {
-        get_full_config()
-    } else {
+    let config_content = if minimal {
         get_default_config()
+    } else {
+        get_full_config()
     };
 
     fs::write(&config_path, &config_content).context("Failed to write config file")?;
@@ -54,7 +54,10 @@ pub fn cmd_init(path: &Path, full: bool) -> Result<()> {
         config_path.display()
     ));
 
-    if full {
+    if minimal {
+        println!("{}", "✓ Created minimal configuration".green().bold());
+        println!("  {}", config_path.display());
+    } else {
         write_example_files(&config_dir)?;
 
         let rule_count = get_all_rule_metadata().len();
@@ -72,9 +75,6 @@ pub fn cmd_init(path: &Path, full: bool) -> Result<()> {
         print_section_title("Created example files:");
         println!("  {}/{}", script_rules_dir(), SCRIPT_RULE_EXAMPLE.0);
         println!("  {}/{}", ai_rules_dir(), AI_RULE_EXAMPLE.0);
-    } else {
-        println!("{}", "✓ Created default configuration".green().bold());
-        println!("  {}", config_path.display());
     }
     println!();
     println!("Edit this file to customize rules and settings.");

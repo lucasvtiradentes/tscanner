@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
-import { PACKAGE_DISPLAY_NAME, PACKAGE_NAME, REPO_URL } from 'tscanner-common';
+import { PACKAGE_DISPLAY_NAME, PACKAGE_NAME } from 'tscanner-common';
 
 type TFields = 'QUICK_START_CLI' | 'QUICK_START_VSCODE_EXTENSION' | 'QUICK_START_GITHUB_ACTION' | 'QUICK_START_INSTALL';
 
@@ -26,7 +26,7 @@ npm install -D ${PACKAGE_NAME}
 npx ${PACKAGE_NAME} init
 \`\`\`
 
-> TIP: Use \`npx ${PACKAGE_NAME} init --full\` for a [complete config](${REPO_URL}/blob/main/assets/configs/full.json) with example regex, script, and AI rules.
+> TIP: Use \`npx ${PACKAGE_NAME} init --minimal\` for a smaller starter config with only one built-in rule.
 
 `;
 }

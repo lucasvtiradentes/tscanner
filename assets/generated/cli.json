@@ -245,14 +245,14 @@
     },
     {
       "name": "init",
-      "description": "Create a default configuration file",
+      "description": "Create a full configuration file",
       "usage": "tscanner init [options]",
       "arguments": [],
       "flags": [
         {
-          "name": "full",
+          "name": "minimal",
           "short": null,
-          "description": "Initialize with all built-in rules, example regex/script/AI rules, and sample files",
+          "description": "Initialize with a minimal starter config instead of all built-in rules and examples",
           "takesValue": false,
           "valueName": null,
           "possibleValues": [

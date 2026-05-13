@@ -67,7 +67,7 @@ fn main() -> Result<()> {
                 config_path,
             )
         }
-        Some(Commands::Init { full }) => cmd_init(&PathBuf::from("."), full),
+        Some(Commands::Init { minimal }) => cmd_init(&PathBuf::from("."), minimal),
         Some(Commands::Validate { config_path }) => validate(config_path),
         Some(Commands::Ai(command)) => match command {
             AiCommands::Set { provider, model } => ai::set(provider, model),

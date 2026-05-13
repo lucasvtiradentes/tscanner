@@ -211,13 +211,13 @@ pub enum Commands {
         config_path: Option<PathBuf>,
     },
 
-    #[command(about = "Create a default configuration file")]
+    #[command(about = "Create a full configuration file")]
     Init {
         #[arg(
             long,
-            help = "Initialize with all built-in rules, example regex/script/AI rules, and sample files"
+            help = "Initialize with a minimal starter config instead of all built-in rules and examples"
         )]
-        full: bool,
+        minimal: bool,
     },
 
     #[command(about = "Validate configuration file")]

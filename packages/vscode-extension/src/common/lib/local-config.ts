@@ -34,7 +34,7 @@ export async function readLocalConfig(workspacePath: string): Promise<LocalConfi
   }
 }
 
-export async function writeLocalConfig(workspacePath: string, config: LocalConfig): Promise<void> {
+async function writeLocalConfig(workspacePath: string, config: LocalConfig): Promise<void> {
   const path = getLocalConfigPath(workspacePath);
   const uri = vscode.Uri.file(path);
   if (isLocalConfigEmpty(config)) {

@@ -254,7 +254,7 @@ npm install -D tscanner
 npx tscanner init
 ```
 
-> TIP: Use `npx tscanner init --full` for a [complete config](https://github.com/lucasvtiradentes/tscanner/blob/main/assets/configs/full.json) with example regex, script, and AI rules.
+> TIP: Use `npx tscanner init --minimal` for a smaller starter config with only one built-in rule.
 
 
 <!-- </DYNFIELD:QUICK_START_INSTALL> -->
