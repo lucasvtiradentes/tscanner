@@ -66,6 +66,25 @@ impl RuleCategory {
     }
 }
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum RuleOptionType {
+    Integer,
+    Boolean,
+    String,
+    Array,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum PlatformKey {
+    LinuxX64,
+    LinuxArm64,
+    DarwinX64,
+    DarwinArm64,
+    Win32X64,
+}
+
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum AiProvider {

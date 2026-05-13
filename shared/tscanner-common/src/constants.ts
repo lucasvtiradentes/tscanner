@@ -1,4 +1,5 @@
 import constants from '../../../assets/constants.json';
+import { PlatformKey } from './types';
 
 export const PACKAGE_NAME = constants.shared.packageName;
 export const PACKAGE_DISPLAY_NAME = constants.shared.packageDisplayName;
@@ -32,18 +33,18 @@ export const LspMethod = {
   AiProgress: constants.shared.lsp.methods.aiProgress,
 } as const;
 
-export const PLATFORM_TARGET_MAP: Record<string, string> = {
-  'linux-x64': 'x86_64-unknown-linux-gnu',
-  'linux-arm64': 'aarch64-unknown-linux-gnu',
-  'darwin-x64': 'x86_64-apple-darwin',
-  'darwin-arm64': 'aarch64-apple-darwin',
-  'win32-x64': 'x86_64-pc-windows-msvc',
+export const PLATFORM_TARGET_MAP: Record<PlatformKey, string> = {
+  [PlatformKey.LinuxX64]: 'x86_64-unknown-linux-gnu',
+  [PlatformKey.LinuxArm64]: 'aarch64-unknown-linux-gnu',
+  [PlatformKey.DarwinX64]: 'x86_64-apple-darwin',
+  [PlatformKey.DarwinArm64]: 'aarch64-apple-darwin',
+  [PlatformKey.Win32X64]: 'x86_64-pc-windows-msvc',
 };
 
-export const PLATFORM_PACKAGE_MAP: Record<string, string> = {
-  'linux-x64': '@tscanner/cli-linux-x64',
-  'linux-arm64': '@tscanner/cli-linux-arm64',
-  'darwin-x64': '@tscanner/cli-darwin-x64',
-  'darwin-arm64': '@tscanner/cli-darwin-arm64',
-  'win32-x64': '@tscanner/cli-win32-x64',
+export const PLATFORM_PACKAGE_MAP: Record<PlatformKey, string> = {
+  [PlatformKey.LinuxX64]: '@tscanner/cli-linux-x64',
+  [PlatformKey.LinuxArm64]: '@tscanner/cli-linux-arm64',
+  [PlatformKey.DarwinX64]: '@tscanner/cli-darwin-x64',
+  [PlatformKey.DarwinArm64]: '@tscanner/cli-darwin-arm64',
+  [PlatformKey.Win32X64]: '@tscanner/cli-win32-x64',
 };
