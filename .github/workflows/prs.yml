@@ -31,6 +31,8 @@ jobs:
     env:
       TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
       TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+      TSCANNER_AI_PROVIDER: codex
+      # TSCANNER_AI_MODEL: gpt5.1
     steps:
       - uses: actions/checkout@v6
         with:
@@ -50,17 +52,10 @@ jobs:
           cp packages/rust-core/target/release/tscanner packages/cli/npm/cli-linux-x64/tscanner
           chmod +x packages/cli/npm/cli-linux-x64/tscanner
 
-      - name: Detect AI provider
-        id: ai-provider
-        run: |
-          PROVIDER=$(node -e "const fs=require('fs'); const c=fs.readFileSync('.tscanner/config.jsonc','utf8').replace(/\/\/.*/g,''); const j=JSON.parse(c); console.log(j.ai?.provider || 'none')")
-          echo "provider=$PROVIDER" >> $GITHUB_OUTPUT
-
       - name: Setup AI provider
-        if: steps.ai-provider.outputs.provider != 'none'
         uses: lucasvtiradentes/setup-ai-provider@v0
         with:
-          provider: ${{ steps.ai-provider.outputs.provider }}
+          provider: ${{ env.TSCANNER_AI_PROVIDER }}
           claude-code-oauth-token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           codex-auth-json: ${{ secrets.CODEX_AUTH_JSON }}
           gemini-auth-json: ${{ secrets.GEMINI_CREDENTIALS }}
