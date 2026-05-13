@@ -244,6 +244,25 @@
       ]
     },
     {
+      "name": "completion",
+      "description": "Generate shell completion script",
+      "usage": "tscanner completion [options] <shell>",
+      "arguments": [
+        {
+          "name": "shell",
+          "description": "Shell to generate completions for",
+          "required": true,
+          "defaultValue": null,
+          "possibleValues": [
+            "bash",
+            "zsh",
+            "fish"
+          ]
+        }
+      ],
+      "flags": []
+    },
+    {
       "name": "init",
       "description": "Create a full configuration file",
       "usage": "tscanner init [options]",

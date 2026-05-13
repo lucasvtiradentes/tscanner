@@ -17,7 +17,8 @@ type CliArgument = {
   name: string;
   description: string;
   required: boolean;
-  defaultValue: string;
+  defaultValue: string | null;
+  possibleValues: string[] | null;
 };
 
 type CliCommand = {
@@ -55,6 +56,12 @@ function formatFlagName(flag: CliFlag): string {
   return `--${flag.name}`;
 }
 
+function formatArgumentName(argument: CliArgument): string {
+  const name =
+    argument.possibleValues && argument.possibleValues.length > 0 ? argument.possibleValues.join('/') : argument.name;
+  return argument.required ? `&lt;${name}&gt;` : `[${name}]`;
+}
+
 export function updateCliUsage() {
   const cliJson: CliJson = getJson(join(rootDir, 'assets/generated/cli.json'));
 
@@ -69,7 +76,7 @@ export function updateCliUsage() {
   const table = new MarkdownTable(headerContent);
 
   for (const cmd of cliJson.commands) {
-    const args = cmd.arguments.map((a) => `[${a.name}]`).join(' ');
+    const args = cmd.arguments.map(formatArgumentName).join(' ');
     const hasFlags = cmd.flags.length > 0;
     const cmdName = `<code>${cmd.name}${hasFlags ? ' [options]' : ''}${args ? ` ${args}` : ''}</code>`;
 

@@ -1,7 +1,7 @@
 use std::path::PathBuf;
 
 use anyhow::Result;
-use clap::Parser;
+use clap::{CommandFactory, Parser};
 
 mod commands;
 mod config_loader;
@@ -74,6 +74,16 @@ fn main() -> Result<()> {
             AiCommands::Show => ai::show(),
             AiCommands::Unset => ai::unset(),
         },
+        Some(Commands::Completion { shell }) => {
+            let mut command = Cli::command();
+            clap_complete::generate(
+                clap_complete::Shell::from(shell),
+                &mut command,
+                completion_bin_name(),
+                &mut std::io::stdout(),
+            );
+            Ok(())
+        }
         Some(Commands::Lsp) => {
             tscanner_service::log_info("LSP server starting");
             let result = tscanner_lsp::run_lsp_server().map_err(|e| anyhow::anyhow!("{}", e));
@@ -90,4 +100,19 @@ fn main() -> Result<()> {
             Ok(())
         }
     }
+}
+
+fn completion_bin_name() -> String {
+    std::env::var("TSCANNER_PROG_NAME")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+        .or_else(|| {
+            std::env::args_os().next().and_then(|path| {
+                PathBuf::from(path)
+                    .file_stem()
+                    .and_then(|stem| stem.to_str())
+                    .map(str::to_owned)
+            })
+        })
+        .unwrap_or_else(|| "tscanner".to_string())
 }

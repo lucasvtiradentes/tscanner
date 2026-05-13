@@ -59,6 +59,23 @@ impl CliRuleKind {
     }
 }
 
+#[derive(Debug, Clone, Copy, ValueEnum)]
+pub enum CompletionShell {
+    Bash,
+    Zsh,
+    Fish,
+}
+
+impl From<CompletionShell> for clap_complete::Shell {
+    fn from(shell: CompletionShell) -> Self {
+        match shell {
+            CompletionShell::Bash => clap_complete::Shell::Bash,
+            CompletionShell::Zsh => clap_complete::Shell::Zsh,
+            CompletionShell::Fish => clap_complete::Shell::Fish,
+        }
+    }
+}
+
 #[derive(Parser)]
 #[command(name = "tscanner")]
 #[command(version, about = "Code quality scanner for the AI-generated code era", long_about = None)]
@@ -231,6 +248,16 @@ pub enum Commands {
 
     #[command(subcommand, about = "Manage project-local AI provider settings")]
     Ai(AiCommands),
+
+    #[command(about = "Generate shell completion script")]
+    Completion {
+        #[arg(
+            value_enum,
+            value_name = "SHELL",
+            help = "Shell to generate completions for"
+        )]
+        shell: CompletionShell,
+    },
 
     #[command(about = "Start the LSP server (Language Server Protocol)")]
     Lsp,

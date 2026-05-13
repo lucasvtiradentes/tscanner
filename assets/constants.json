@@ -1,6 +1,7 @@
 {
   "shared": {
     "packageName": "tscanner",
+    "packageDevName": "tscannerd",
     "packageDisplayName": "TScanner",
     "packageDescription": "Code quality scanner for the AI-generated code era",
     "configDirName": ".tscanner",

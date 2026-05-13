@@ -27,6 +27,8 @@ struct ArgumentInfo {
     description: Option<String>,
     required: bool,
     default_value: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    possible_values: Option<Vec<String>>,
 }
 
 #[derive(Serialize)]
@@ -77,11 +79,22 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let kebab_name = arg_name.replace('_', "-");
 
             if is_positional {
+                let possible_values: Vec<String> = arg
+                    .get_possible_values()
+                    .iter()
+                    .map(|v| v.get_name().to_string())
+                    .collect();
+
                 arguments.push(ArgumentInfo {
                     name: kebab_name,
                     description,
                     required,
                     default_value,
+                    possible_values: if possible_values.is_empty() {
+                        None
+                    } else {
+                        Some(possible_values)
+                    },
                 });
             } else {
                 let short = arg.get_short();

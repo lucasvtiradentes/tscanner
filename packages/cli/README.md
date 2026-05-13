@@ -423,6 +423,13 @@ npx tscanner check --branch origin/main
     <td align="left">Skip cache and force full scan</td>
   </tr>
   <tr>
+    <td rowspan="1" align="left"><code>completion &lt;bash/zsh/fish&gt;</code></td>
+    <td rowspan="1" align="left">Generate shell completion script</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+    <td align="center">-</td>
+  </tr>
+  <tr>
     <td rowspan="1" align="left"><code>init [options]</code></td>
     <td rowspan="1" align="left">Create a full configuration file</td>
     <td align="left"><code>--minimal</code></td>

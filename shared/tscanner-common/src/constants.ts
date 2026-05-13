@@ -2,6 +2,7 @@ import constants from '../../../assets/constants.json';
 import { PlatformKey } from './types';
 
 export const PACKAGE_NAME = constants.shared.packageName;
+export const PACKAGE_DEV_NAME = constants.shared.packageDevName;
 export const PACKAGE_DISPLAY_NAME = constants.shared.packageDisplayName;
 export const PACKAGE_DESCRIPTION = constants.shared.packageDescription;
 export const CONFIG_DIR_NAME = constants.shared.configDirName;

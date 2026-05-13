@@ -2,7 +2,7 @@ import { constants, accessSync, existsSync } from 'node:fs';
 import { homedir } from 'node:os';
 import { isAbsolute, join } from 'node:path';
 import { DEV_SUFFIX } from 'src/common/scripts-constants';
-import { PACKAGE_DISPLAY_NAME, PACKAGE_NAME, VSCODE_EXTENSION } from 'tscanner-common';
+import { PACKAGE_DEV_NAME, PACKAGE_DISPLAY_NAME, PACKAGE_NAME, VSCODE_EXTENSION } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { IS_DEV } from '../common/constants';
 import { ExtensionConfigKey, getExtensionConfig } from '../common/state/extension-config';
@@ -27,7 +27,7 @@ export const LOCATOR_SOURCE_LABELS: Record<LocatorSource, string> = {
 };
 
 export const LOCATOR_SOURCE_LABELS_VERBOSE: Record<LocatorSource, string> = {
-  [LocatorSource.Dev]: `${DEV_SUFFIX} (local rust build)`,
+  [LocatorSource.Dev]: `${DEV_SUFFIX} (local CLI)`,
   [LocatorSource.Settings]: 'settings (user configured)',
   [LocatorSource.NodeModules]: 'node_modules (project dependency)',
   [LocatorSource.Global]: 'global (npm -g)',
@@ -44,7 +44,7 @@ export class Locator {
   constructor(private workspaceRoot: string | undefined) {}
 
   async locate(): Promise<LocatorResult> {
-    const devResult = this.findDevBinary();
+    const devResult = await this.findDevBinary();
     if (devResult) {
       return devResult;
     }
@@ -74,8 +74,17 @@ export class Locator {
     return null;
   }
 
-  private findDevBinary(): LocatorResult {
-    if (!IS_DEV || !this.workspaceRoot) {
+  private async findDevBinary(): Promise<LocatorResult> {
+    if (!IS_DEV) {
+      return null;
+    }
+
+    const devPathBinary = await findInPath(PACKAGE_DEV_NAME);
+    if (devPathBinary) {
+      return { path: devPathBinary, source: LocatorSource.Dev };
+    }
+
+    if (!this.workspaceRoot) {
       return null;
     }
 
