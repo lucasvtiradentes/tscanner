@@ -242,13 +242,7 @@ impl ConfigExt for TscannerConfig {
             }
         }
 
-        let sorted_ai_sources: BTreeMap<_, _> = self
-            .ai_rules
-            .iter()
-            .enumerate()
-            .map(|(index, config)| (index, config))
-            .collect();
-        for (index, config) in sorted_ai_sources {
+        for (index, config) in self.ai_rules.iter().enumerate() {
             index.hash(&mut hasher);
             config.path.hash(&mut hasher);
             for ignored in &config.ignore {

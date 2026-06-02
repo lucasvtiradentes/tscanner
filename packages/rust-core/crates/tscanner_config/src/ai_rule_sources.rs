@@ -114,19 +114,15 @@ impl Resolver {
             return;
         }
 
-        let Ok(entries) = fs::read_dir(&source_path) else {
+        let mut files = Vec::new();
+        if let Err(error) = Self::collect_markdown_files(&source_path, &mut files) {
             self.skip(format!(
-                "AI rule source '{}' could not be read",
-                source_path.display()
+                "AI rule source '{}' could not be read: {}",
+                source_path.display(),
+                error
             ));
             return;
-        };
-
-        let mut files: Vec<PathBuf> = entries
-            .flatten()
-            .map(|entry| entry.path())
-            .filter(|path| path.is_file() && is_supported_markdown(path))
-            .collect();
+        }
         files.sort();
 
         for file_path in files {
@@ -190,16 +186,15 @@ impl Resolver {
 
         let include = resolve_include(config, source, &frontmatter);
         let exclude = resolve_exclude(source, &frontmatter);
+        let default_classification = if !include.is_empty() {
+            AiRuleClassification::CodeCheckable
+        } else {
+            AiRuleClassification::GuidanceOnly
+        };
         let classification = source
             .classification
             .or(frontmatter.classification)
-            .unwrap_or_else(|| {
-                if !include.is_empty() {
-                    AiRuleClassification::CodeCheckable
-                } else {
-                    AiRuleClassification::GuidanceOnly
-                }
-            });
+            .unwrap_or(default_classification);
 
         match classification {
             AiRuleClassification::CodeCheckable => self.summary.code_checkable_count += 1,
@@ -254,25 +249,57 @@ impl Resolver {
         self.summary.skipped_count += 1;
         self.warnings.push(warning);
     }
+
+    fn collect_markdown_files(dir: &Path, files: &mut Vec<PathBuf>) -> std::io::Result<()> {
+        let entries = fs::read_dir(dir)?;
+        for entry in entries {
+            let entry = entry?;
+            let path = entry.path();
+            let file_type = entry.file_type()?;
+            if file_type.is_dir() {
+                Self::collect_markdown_files(&path, files)?;
+            } else if file_type.is_file() && is_supported_markdown(&path) {
+                files.push(path);
+            }
+        }
+
+        Ok(())
+    }
 }
 
 pub fn strip_frontmatter(content: &str) -> (Option<&str>, String) {
     let normalized = content.strip_prefix('\u{feff}').unwrap_or(content);
-    if !normalized.starts_with("---\n") {
-        return (None, normalized.to_string());
-    }
 
-    let rest = &normalized[4..];
-    let Some(end) = rest.find("\n---") else {
+    let Some(rest) = normalized
+        .strip_prefix("---\n")
+        .or_else(|| normalized.strip_prefix("---\r\n"))
+    else {
+        return (None, normalized.to_string());
+    };
+
+    let Some((end, body_start)) = find_frontmatter_end(rest) else {
         return (None, normalized.to_string());
     };
 
     let frontmatter = &rest[..end];
-    let body_start = end + "\n---".len();
-    let body = rest[body_start..]
-        .strip_prefix('\n')
-        .unwrap_or(&rest[body_start..]);
-    (Some(frontmatter), body.to_string())
+    (Some(frontmatter), rest[body_start..].to_string())
+}
+
+fn find_frontmatter_end(content: &str) -> Option<(usize, usize)> {
+    [
+        "---\r\n",
+        "---\n",
+        "---",
+        "\r\n---\r\n",
+        "\r\n---\n",
+        "\n---\r\n",
+        "\n---\n",
+        "\r\n---",
+        "\n---",
+    ]
+    .iter()
+    .filter_map(|marker| content.find(marker).map(|end| (end, end + marker.len())))
+    .min_by_key(|(end, _)| *end)
 }
 
 fn parse_frontmatter(frontmatter: Option<&str>) -> Frontmatter {
@@ -502,6 +529,45 @@ mod tests {
             config.resolved_ai_rules[0].classification,
             AiRuleClassification::CodeCheckable
         );
+    }
+
+    #[test]
+    fn resolves_nested_rule_directories() {
+        let workspace = temp_workspace("nested-rules");
+        let rules_dir = workspace.join(".cursor/rules/frontend");
+        fs::create_dir_all(&rules_dir).unwrap();
+        fs::write(
+            rules_dir.join("component.mdc"),
+            "---\nglobs: \"apps/web/**/*.tsx\"\n---\n# Component Rule\nReport bad UI code.",
+        )
+        .unwrap();
+
+        let mut config = base_config(vec![source(".cursor/rules")]);
+        let result = resolve_ai_rule_sources(&mut config, Some(&workspace));
+
+        assert!(result.errors.is_empty());
+        assert_eq!(config.resolved_ai_rules.len(), 1);
+        assert_eq!(
+            config.resolved_ai_rules[0].file_path,
+            ".cursor/rules/frontend/component.mdc"
+        );
+    }
+
+    #[test]
+    fn parses_crlf_frontmatter() {
+        let content = "---\r\npaths: \"**/*.ts\"\r\n---\r\nRule";
+        let (frontmatter, body) = strip_frontmatter(content);
+
+        assert_eq!(frontmatter, Some("paths: \"**/*.ts\""));
+        assert_eq!(body, "Rule");
+    }
+
+    #[test]
+    fn parses_empty_frontmatter() {
+        let (frontmatter, body) = strip_frontmatter("---\n---\nRule");
+
+        assert_eq!(frontmatter, Some(""));
+        assert_eq!(body, "Rule");
     }
 
     #[test]

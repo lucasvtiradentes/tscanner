@@ -447,7 +447,7 @@ claude setup-token
 This generates a token valid for 1 year linked to your Max subscription.
 
 3. **Add GitHub Secret** - Go to repo Settings → Secrets → Actions → New secret:
-   - Name: `CLAUDE_CODE_OAUTH_TOKEN`
+   - Name:  `CLAUDE_CODE_OAUTH_TOKEN`
    - Value: paste the token (starts with `sk-ant-oat...`)
 
 4. **Workflow**:
@@ -494,7 +494,7 @@ gemini  # Login with your Google account
 2. **Copy credentials** - Get the content of `~/.gemini/oauth_creds.json`
 
 3. **Add GitHub Secret** - Go to repo Settings → Secrets → Actions → New secret:
-   - Name: `GEMINI_CREDENTIALS`
+   - Name:  `GEMINI_CREDENTIALS`
    - Value: paste the JSON content
 
 4. **Workflow**:
@@ -525,10 +525,10 @@ jobs:
 
 **Rate limits comparison:**
 
-| Method | Requests/min | Requests/day |
-|--------|--------------|--------------|
-| OAuth credentials (recommended) | 60 RPM | 1000 |
-| API key (`GEMINI_API_KEY`) | 5-15 RPM | 100-250 |
+| Method                          | Requests/min | Requests/day |
+|---------------------------------|--------------|--------------|
+| OAuth credentials (recommended) | 60 RPM       | 1000         |
+| API key (`GEMINI_API_KEY`)      | 5-15 RPM     | 100-250      |
 
 </div>
 
@@ -697,15 +697,7 @@ To scan your code, you need to set up the rules in the TScanner config folder.
       }
     }
   },
-  "aiRules": {
-    "example-find-enum-candidates": {
-      "prompt": "example-find-enum-candidates.md",
-      "mode": "agentic",
-      "message": "Type union could be replaced with an enum for better type safety",
-      "severity": "warning",
-      "include": ["**/*.ts"]
-    }
-  },
+  "aiRules": [],
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
     "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
@@ -733,7 +725,7 @@ To scan your code, you need to set up the rules in the TScanner config folder.
     "regex": {},
     "script": {}
   },
-  "aiRules": {},
+  "aiRules": [],
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
     "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]

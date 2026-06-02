@@ -1,6 +1,6 @@
 use std::path::Path;
 
-use tscanner_config::{TscannerConfig, TscannerConfigExt};
+use tscanner_config::{resolve_ai_rule_sources, TscannerConfig, TscannerConfigExt};
 
 pub fn load_config(
     path: &Path,
@@ -67,8 +67,23 @@ pub fn load_config(
     let config = if let Some(cfg) = config {
         cfg
     } else if !invalid_fields.is_empty() {
-        serde_json::from_str::<TscannerConfig>(&content)
-            .map_err(|e| format!("Failed to parse config: {}", e))?
+        let json_value = TscannerConfig::parse_json(&content)?;
+        let mut config = serde_json::from_value::<TscannerConfig>(json_value)
+            .map_err(|e| format!("Failed to parse config: {}", e))?;
+
+        let mut fallback_result = resolve_ai_rule_sources(&mut config, workspace);
+        fallback_result.merge(config.validate_with_workspace(workspace, config_dir_name));
+        warnings.extend(fallback_result.warnings);
+
+        if !fallback_result.errors.is_empty() {
+            return Err(format!(
+                "Config validation failed:\n  - {}",
+                fallback_result.errors.join("\n  - ")
+            )
+            .into());
+        }
+
+        config
     } else {
         return Err("Config parsing failed".into());
     };

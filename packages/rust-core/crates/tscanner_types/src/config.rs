@@ -22,7 +22,7 @@ fn is_zero(v: &u64) -> bool {
     *v == 0
 }
 
-fn is_empty_string(s: &String) -> bool {
+fn is_empty_string(s: &str) -> bool {
     s.is_empty()
 }
 
