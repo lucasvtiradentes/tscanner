@@ -31,6 +31,10 @@ const FIELD_MAPPINGS: Record<string, Record<string, string>> = {
   TscannerConfig: { $schema: 'schema' },
 };
 
+const RUST_FIELD_EXCLUSIONS: Record<string, Set<string>> = {
+  TscannerConfig: new Set(['resolved_ai_rules', 'ai_rule_summary']),
+};
+
 function toSnakeCase(str: string): string {
   return str.replace(/([a-z])([A-Z])/g, '$1_$2').toLowerCase();
 }
@@ -208,7 +212,10 @@ function compareTypes(tsFile: ScriptFile, rustFile: ScriptFile, issues: ScriptIs
         return [mappedName, f];
       }),
     );
-    const rustFields = new Map(rustStruct.fields.map((f) => [f.name, f]));
+    const excludedRustFields = RUST_FIELD_EXCLUSIONS[tsType.name] || new Set<string>();
+    const rustFields = new Map(
+      rustStruct.fields.filter((f) => !excludedRustFields.has(f.name)).map((f) => [f.name, f]),
+    );
 
     for (const [snakeName, tsField] of tsFields) {
       if (!rustFields.has(snakeName)) {

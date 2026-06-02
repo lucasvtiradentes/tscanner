@@ -3,14 +3,14 @@ use super::AiExecutor;
 use crate::executors::utils;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
-use tscanner_config::AiRuleConfig;
+use tscanner_config::ResolvedAiRuleConfig;
 use tscanner_types::{Issue, IssueRuleType};
 
 impl AiExecutor {
     pub(super) fn parse_response(
         &self,
         rule_name: &str,
-        rule_config: &AiRuleConfig,
+        rule_config: &ResolvedAiRuleConfig,
         response: &str,
         workspace_root: &Path,
         files: &[&(PathBuf, String)],

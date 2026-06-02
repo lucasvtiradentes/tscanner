@@ -71,9 +71,9 @@ Define what "good code" means for your project. Scan your codebase from the term
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
 - **Your Rules, Enforced** - 36 built-in checks + define your own with regex, scripts, or AI
-- **Multiple Scan Modes** - Whole codebase, branch changes, uncommitted changes, or staged changes
-- **Sub-second Scans** - Rust engine processes hundreds of files in <1s, with smart caching
-- **Not a Blocker** - Issues are warnings by default; set as errors to fail CI/lint-staged
+- **Multiple Scan Modes**  - Whole codebase, branch changes, uncommitted changes, or staged changes
+- **Sub-second Scans**     - Rust engine processes hundreds of files in <1s, with smart caching
+- **Not a Blocker**        - Issues are warnings by default; set as errors to fail CI/lint-staged
 <!-- </DYNFIELD:FEATURES> -->
 
 <!-- <DYNFIELD:MOTIVATION> -->
@@ -107,8 +107,8 @@ TScanner lets you define those rules once. Every AI-generated file, every PR, ev
 <div align="left">
 
 - **Code Editor**: See issues in real-time while coding. Add to lint-staged to prevent committing errors.
-- **Before PR**: Check all issues in your branch compared to origin/main and fix them before opening a PR.
-- **CI/CD**: Every push to a PR is checked automatically. Get a single comment with clickable links to the exact lines.
+- **Before PR**:   Check all issues in your branch compared to origin/main and fix them before opening a PR.
+- **CI/CD**:       Every push to a PR is checked automatically. Get a single comment with clickable links to the exact lines.
 
 </div>
 </details>
@@ -119,9 +119,9 @@ TScanner lets you define those rules once. Every AI-generated file, every PR, ev
 <div align="left">
 
 - **Go fast with confidence**: Know exactly what issues to fix before committing or merging.
-- **Zero rejected PRs**: Over time, eliminate PR rejections due to styling or poor code quality patterns.
-- **AI-powered quality**: Use AI rules to detect patterns that traditional linters miss, and let AI help fix AI-generated code.
-- **Your job**: Observe code patterns to enforce/avoid and add TScanner rules for that.
+- **Zero rejected PRs**:       Over time, eliminate PR rejections due to styling or poor code quality patterns.
+- **AI-powered quality**:      Use AI rules to detect patterns that traditional linters miss, and let AI help fix AI-generated code.
+- **Your job**:                Observe code patterns to enforce/avoid and add TScanner rules for that.
 
 </div>
 </details>
@@ -141,8 +141,8 @@ We use TScanner to maintain this very codebase. Here's our setup:
 
 **Regex rules (3)**:
 - `no-rust-deprecated`: Block `#[allow(deprecated)]` in Rust code
-- `no-rust-dead-code`: Block `#[allow(dead_code)]` - remove unused code instead
-- `no-process-env`: Prevent direct `process.env` access
+- `no-rust-dead-code`:  Block `#[allow(dead_code)]` - remove unused code instead
+- `no-process-env`:     Prevent direct `process.env` access
 
 **Script rules (8)**:
 - [`types-parity-match`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/types-parity-match.ts): Ensure TypeScript and Rust shared types are in sync
@@ -154,9 +154,7 @@ We use TScanner to maintain this very codebase. Here's our setup:
 - [`no-long-files`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/no-long-files.ts): Files cannot exceed 300 lines
 - [`no-default-node-imports`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/script-rules/no-default-node-imports.ts): Use named imports for Node.js modules
 
-**AI rules (2)**:
-- [`no-dead-code`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/ai-rules/no-dead-code.md): Detect dead code patterns in Rust executors
-- [`find-enum-candidates`](https://github.com/lucasvtiradentes/tscanner/blob/main/.tscanner/ai-rules/find-enum-candidates.md): Find type unions that could be enums
+**AI rules (0 configured)**: This repo keeps deterministic checks in script rules. AI rules are best for semantic, project-specific markdown guidance.
 
 > TIP: Check the [`.tscanner/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner) folder to see the full config and script implementations.
 
@@ -524,15 +522,7 @@ To scan your code, you need to set up the rules in the TScanner config folder.
       }
     }
   },
-  "aiRules": {
-    "example-find-enum-candidates": {
-      "prompt": "example-find-enum-candidates.md",
-      "mode": "agentic",
-      "message": "Type union could be replaced with an enum for better type safety",
-      "severity": "warning",
-      "include": ["**/*.ts"]
-    }
-  },
+  "aiRules": [],
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
     "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
@@ -560,7 +550,7 @@ To scan your code, you need to set up the rules in the TScanner config folder.
     "regex": {},
     "script": {}
   },
-  "aiRules": {},
+  "aiRules": [],
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
     "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
@@ -1140,20 +1130,16 @@ fn main() -> io::Result<()> {
 <br />
 <div align="left">
 
-Use AI prompts (markdown files) to perform semantic code analysis. Works with any AI provider (Claude, OpenAI, Ollama, etc.).
+Use provider-style markdown rules to perform semantic code analysis. Works with AI providers configured for TScanner.
 
 **Modes** - How files are passed to the AI:
-| Mode | Description | Best for |
-|------|-------------|----------|
-| `paths` | Only file paths (AI reads files via tools) | Large codebases, many files |
-| `content` | Full file content in prompt | Small files, quick analysis |
-| `agentic` | Paths + AI can explore freely | Cross-file analysis, complex patterns |
+| Mode      | Description                                | Best for                              |
+|-----------|--------------------------------------------|---------------------------------------|
+| `paths`   | Only file paths (AI reads files via tools) | Large codebases, many files           |
+| `content` | Full file content in prompt                | Small files, quick analysis           |
+| `agentic` | Paths + AI can explore freely              | Cross-file analysis, complex patterns |
 
-**Placeholders** - Use in your prompt markdown:
-| Placeholder | Replaced with |
-|-------------|---------------|
-| `{{FILES}}` | List of files to analyze (required) |
-| `{{OPTIONS}}` | Custom options from config (optional) |
+TScanner appends scan context automatically. If a markdown rule contains `{{FILES}}` or `{{OPTIONS}}`, TScanner replaces them, but they are not required.
 
 **Output contract** - AI must return JSON:
 ```json
@@ -1167,23 +1153,16 @@ Use AI prompts (markdown files) to perform semantic code analysis. Works with an
 **Config** (`.tscanner/config.jsonc`):
 ```json
 {
-  "aiRules": {
-    "find-enum-candidates": {
-      "prompt": "find-enum-candidates.md",
-      "mode": "agentic",
-      "message": "Type union could be replaced with an enum",
-      "severity": "warning",
-      "include": ["**/*.ts", "**/*.tsx", "**/*.rs"]
-    },
-    "no-dead-code": {
-      "prompt": "no-dead-code.md",
-      "mode": "content",
-      "message": "Dead code detected",
-      "severity": "error",
-      "include": ["**/*.rs"],
-      "options": { "allowTestFiles": true }
+  "aiRules": [
+    { "path": ".cursor/rules" },
+    { "path": ".claude/rules", "ignore": ["testing.md"] },
+    { "path": ".tscanner/ai-rules" },
+    {
+      "path": "docs/rules/no-pii-logging.md",
+      "include": ["**/*.ts", "**/*.tsx"],
+      "severity": "warning"
     }
-  }
+  ]
 }
 ```
 
@@ -1195,56 +1174,41 @@ TSCANNER_AI_PROVIDER=codex TSCANNER_AI_MODEL=gpt5.1 tscanner check --include-ai
 ```
 
 <details>
-<summary>Prompt example (agentic mode)</summary>
+<summary>Markdown rule example</summary>
 
 ```markdown
-# Enum Candidates Detector
-
-Find type unions that could be replaced with enums.
-
-## What to look for
-
-1. String literal unions: \`type Status = 'pending' | 'active'\`
-2. Repeated string literals across files
-3. Type unions used as discriminators
-
-## Exploration hints
-
-- Check how the type is used across files
-- Look for related constants
-
+---
+paths:
+  - "apps/api/**/*.ts"
+classification: code-checkable
+severity: warning
 ---
 
-## Files
+# Durable Workflow Signals
 
-{{FILES}}
+Report workflow cancel, resume, approval, or retry behavior that mutates state directly instead of creating a durable signal.
+
+Point the finding at the non-durable state change or direct worker call.
 ```
 </details>
 
 <details>
-<summary>Prompt example (with options)</summary>
+<summary>Cursor rule example</summary>
 
 ```markdown
-# Dead Code Detector
+---
+description: API handlers should validate external input before service calls.
+globs:
+  - "apps/api/src/**/*.ts"
+---
 
-Detect dead code patterns.
+# API Input Validation
 
-## Rules
-
-1. No \`#[allow(dead_code)]\` attributes
-2. No unreachable code after return/break
-
-## Options
-
-{{OPTIONS}}
-
-## Files
-
-{{FILES}}
+Report API handlers that pass request data into services without schema validation.
 ```
 </details>
 
-> 💡 See real examples in the [`.tscanner/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/ai-rules) folder.
+Rules without explicit scope are classified as guidance-only by default. Deterministic tool-backed checks should be script rules.
 
 </div>
 </details>
@@ -1255,9 +1219,9 @@ Detect dead code patterns.
 <!-- <DYNFIELD:INSPIRATIONS> -->
 ## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-- [Biome](https://github.com/biomejs/biome) - High-performance Rust-based linter and formatter for web projects
-- [ESLint](https://github.com/eslint/eslint) - Find and fix problems in your JavaScript code
-- [Vitest](https://github.com/vitest-dev/vitest) - Next generation testing framework powered by Vite
+- [Biome](https://github.com/biomejs/biome)                           - High-performance Rust-based linter and formatter for web projects
+- [ESLint](https://github.com/eslint/eslint)                          - Find and fix problems in your JavaScript code
+- [Vitest](https://github.com/vitest-dev/vitest)                      - Next generation testing framework powered by Vite
 - [VSCode Bookmarks](https://github.com/alefragnani/vscode-bookmarks) - Bookmarks Extension for Visual Studio Code
 
 <div align="center">

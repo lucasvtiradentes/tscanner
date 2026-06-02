@@ -5,7 +5,7 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::Ordering;
 use std::sync::Arc;
 use std::time::Duration;
-use tscanner_config::AiRuleConfig;
+use tscanner_config::ResolvedAiRuleConfig;
 use tscanner_types::Issue;
 
 impl AiExecutor {
@@ -13,7 +13,7 @@ impl AiExecutor {
         &self,
         path: &Path,
         workspace_root: &Path,
-        rule_config: &AiRuleConfig,
+        rule_config: &ResolvedAiRuleConfig,
     ) -> bool {
         utils::file_matches_patterns(
             path,
@@ -26,10 +26,10 @@ impl AiExecutor {
     pub(super) fn execute_rule(
         &self,
         rule_name: &str,
-        rule_config: &AiRuleConfig,
+        rule_config: &ResolvedAiRuleConfig,
         context: AiRuleExecutionContext<'_>,
     ) -> (Result<Vec<Issue>, AiError>, bool) {
-        let prompt_path = self.ai_rules_dir.join(&rule_config.prompt);
+        let prompt_path = rule_config.prompt_path.clone();
         if !prompt_path.exists() {
             return (Err(AiError::PromptNotFound(prompt_path)), false);
         }

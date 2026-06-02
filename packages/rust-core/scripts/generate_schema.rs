@@ -151,9 +151,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         properties.insert(
             "aiRules".to_string(),
             json!({
-                "type": "object",
-                "description": "AI-powered rules (expensive, run separately)",
-                "additionalProperties": { "$ref": "#/definitions/AiRuleConfig" }
+                "type": "array",
+                "description": "AI-powered markdown rule sources (expensive, run separately)",
+                "items": { "$ref": "#/definitions/AiRuleSourceConfig" }
             }),
         );
     }

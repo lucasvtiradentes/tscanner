@@ -4,12 +4,12 @@ use std::fs;
 use std::path::Path;
 
 use crate::shared::{fatal_error_and_exit, print_section_title};
-use tscanner_constants::{ai_rules_dir, config_dir_name, config_file_name, script_rules_dir};
+use tscanner_constants::{config_dir_name, config_file_name, script_rules_dir};
 use tscanner_rules::get_all_rule_metadata;
 use tscanner_service::{log_error, log_info};
 
 use super::config_generator::{
-    get_default_config, get_full_config, write_example_files, AI_RULE_EXAMPLE, SCRIPT_RULE_EXAMPLE,
+    get_default_config, get_full_config, write_example_files, SCRIPT_RULE_EXAMPLE,
 };
 
 const LOCAL_CONFIG_GITIGNORE: &str = "local.jsonc\n";
@@ -74,7 +74,6 @@ pub fn cmd_init(path: &Path, minimal: bool) -> Result<()> {
         println!();
         print_section_title("Created example files:");
         println!("  {}/{}", script_rules_dir(), SCRIPT_RULE_EXAMPLE.0);
-        println!("  {}/{}", ai_rules_dir(), AI_RULE_EXAMPLE.0);
     }
     println!();
     println!("Edit this file to customize rules and settings.");

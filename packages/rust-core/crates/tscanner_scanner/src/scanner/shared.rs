@@ -8,7 +8,7 @@ use crate::executors::{
 use ignore::WalkBuilder;
 use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
-use tscanner_config::{AiRuleConfig, ScriptRuleConfig};
+use tscanner_config::{AiRuleClassification, ResolvedAiRuleConfig, ScriptRuleConfig};
 use tscanner_types::{FileResult, Issue};
 
 impl Scanner {
@@ -56,12 +56,13 @@ impl Scanner {
             .collect()
     }
 
-    pub(crate) fn collect_ai_rules(&self) -> Vec<(String, AiRuleConfig)> {
+    pub(crate) fn collect_ai_rules(&self) -> Vec<(String, ResolvedAiRuleConfig)> {
         let mut rules: Vec<_> = self
             .config
-            .ai_rules
+            .resolved_ai_rules
             .iter()
-            .map(|(name, ai_config)| (name.clone(), ai_config.clone()))
+            .filter(|rule| rule.classification == AiRuleClassification::CodeCheckable)
+            .map(|ai_config| (ai_config.id.clone(), ai_config.clone()))
             .collect();
         rules.sort_by(|(a, _), (b, _)| a.cmp(b));
         rules
@@ -154,7 +155,7 @@ impl Scanner {
 
     pub(crate) fn collect_ai_files(
         &self,
-        ai_rules: &[(String, AiRuleConfig)],
+        ai_rules: &[(String, ResolvedAiRuleConfig)],
     ) -> Vec<(PathBuf, String)> {
         let include_patterns: HashSet<&str> = ai_rules
             .iter()
@@ -169,7 +170,7 @@ impl Scanner {
 
     pub(crate) fn collect_ai_files_from_filter(
         &self,
-        ai_rules: &[(String, AiRuleConfig)],
+        ai_rules: &[(String, ResolvedAiRuleConfig)],
         file_filter: &[PathBuf],
     ) -> Vec<(PathBuf, String)> {
         let include_patterns: HashSet<&str> = ai_rules

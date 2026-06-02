@@ -174,7 +174,13 @@ impl ConfigExt for TscannerConfig {
         let enabled_builtin = self.rules.builtin.len();
         let enabled_regex = self.rules.regex.len();
         let enabled_script = self.rules.script.len();
-        let enabled_ai = self.ai_rules.len();
+        let enabled_ai = self
+            .resolved_ai_rules
+            .iter()
+            .filter(|rule| {
+                rule.classification == tscanner_config::AiRuleClassification::CodeCheckable
+            })
+            .count();
 
         (enabled_builtin, enabled_regex, enabled_script, enabled_ai)
     }
@@ -236,10 +242,46 @@ impl ConfigExt for TscannerConfig {
             }
         }
 
-        let sorted_ai: BTreeMap<_, _> = self.ai_rules.iter().collect();
+        let sorted_ai_sources: BTreeMap<_, _> = self
+            .ai_rules
+            .iter()
+            .enumerate()
+            .map(|(index, config)| (index, config))
+            .collect();
+        for (index, config) in sorted_ai_sources {
+            index.hash(&mut hasher);
+            config.path.hash(&mut hasher);
+            for ignored in &config.ignore {
+                ignored.hash(&mut hasher);
+            }
+            config.id.hash(&mut hasher);
+            config.message.hash(&mut hasher);
+            format!("{:?}", config.mode).hash(&mut hasher);
+            format!("{:?}", config.severity).hash(&mut hasher);
+            for pattern in &config.include {
+                pattern.hash(&mut hasher);
+            }
+            for pattern in &config.exclude {
+                pattern.hash(&mut hasher);
+            }
+            config.timeout.hash(&mut hasher);
+            if !config.options.is_null() {
+                if let Ok(json) = serde_json::to_string(&config.options) {
+                    json.hash(&mut hasher);
+                }
+            }
+            format!("{:?}", config.classification).hash(&mut hasher);
+        }
+
+        let sorted_ai: BTreeMap<_, _> = self
+            .resolved_ai_rules
+            .iter()
+            .map(|config| (config.id.clone(), config))
+            .collect();
         for (name, config) in sorted_ai {
             name.hash(&mut hasher);
-            config.prompt.hash(&mut hasher);
+            config.prompt_path.hash(&mut hasher);
+            config.prompt_hash.hash(&mut hasher);
             format!("{:?}", config.mode).hash(&mut hasher);
             format!("{:?}", config.severity).hash(&mut hasher);
             for pattern in &config.include {
@@ -253,6 +295,10 @@ impl ConfigExt for TscannerConfig {
                     json.hash(&mut hasher);
                 }
             }
+            config.source_path.hash(&mut hasher);
+            config.file_path.hash(&mut hasher);
+            format!("{:?}", config.source_type).hash(&mut hasher);
+            format!("{:?}", config.classification).hash(&mut hasher);
         }
 
         hasher.finish()

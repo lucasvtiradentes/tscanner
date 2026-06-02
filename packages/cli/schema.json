@@ -10,10 +10,43 @@
       ],
       "type": "string"
     },
-    "AiRuleConfig": {
+    "AiRuleClassification": {
+      "enum": [
+        "code-checkable",
+        "guidance-only",
+        "unsupported"
+      ],
+      "type": "string"
+    },
+    "AiRuleSourceConfig": {
       "properties": {
+        "classification": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AiRuleClassification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Whether this markdown rule should run as a code check"
+        },
         "exclude": {
           "description": "File patterns to exclude",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "id": {
+          "description": "Optional id override for a single-file source",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ignore": {
+          "description": "File names, folder names, or rule ids to ignore under this source",
           "items": {
             "type": "string"
           },
@@ -27,13 +60,19 @@
           "type": "array"
         },
         "message": {
-          "description": "Error message to display when rule is violated",
-          "type": "string"
+          "description": "Finding message override",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "mode": {
-          "allOf": [
+          "anyOf": [
             {
               "$ref": "#/definitions/AiMode"
+            },
+            {
+              "type": "null"
             }
           ],
           "description": "How files are provided to the AI"
@@ -41,28 +80,33 @@
         "options": {
           "description": "Additional options"
         },
-        "prompt": {
-          "description": "Path to AI prompt markdown file",
+        "path": {
+          "description": "Path to an AI markdown rule file or folder",
           "type": "string"
         },
         "severity": {
-          "allOf": [
+          "anyOf": [
             {
               "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
             }
           ],
           "description": "Severity level (default: warning)"
         },
         "timeout": {
-          "description": "Timeout in seconds (default: 0 = no limit)",
+          "description": "Timeout in seconds",
           "format": "uint64",
           "minimum": 0.0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         }
       },
       "required": [
-        "message",
-        "prompt"
+        "path"
       ],
       "type": "object"
     },
@@ -1421,11 +1465,11 @@
       ]
     },
     "aiRules": {
-      "additionalProperties": {
-        "$ref": "#/definitions/AiRuleConfig"
+      "description": "AI-powered markdown rule sources (expensive, run separately)",
+      "items": {
+        "$ref": "#/definitions/AiRuleSourceConfig"
       },
-      "description": "AI-powered rules (expensive, run separately)",
-      "type": "object"
+      "type": "array"
     },
     "files": {
       "allOf": [

@@ -1,4 +1,4 @@
-use super::{AiRuleConfig, RegexRuleConfig, ScriptRuleConfig};
+use super::{AiRuleSourceConfig, RegexRuleConfig, ResolvedAiRuleConfig, ScriptRuleConfig};
 use crate::enums::{AiMode, Severity};
 
 impl Default for RegexRuleConfig {
@@ -27,10 +27,30 @@ impl Default for ScriptRuleConfig {
     }
 }
 
-impl Default for AiRuleConfig {
+impl Default for AiRuleSourceConfig {
     fn default() -> Self {
         Self {
-            prompt: String::new(),
+            path: String::new(),
+            ignore: Vec::new(),
+            id: None,
+            message: None,
+            mode: None,
+            severity: None,
+            include: Vec::new(),
+            exclude: Vec::new(),
+            timeout: None,
+            options: serde_json::Value::Null,
+            classification: None,
+        }
+    }
+}
+
+impl Default for ResolvedAiRuleConfig {
+    fn default() -> Self {
+        Self {
+            id: String::new(),
+            prompt_path: std::path::PathBuf::new(),
+            prompt_hash: 0,
             message: String::new(),
             mode: AiMode::Paths,
             severity: Severity::Warning,
@@ -38,6 +58,10 @@ impl Default for AiRuleConfig {
             exclude: Vec::new(),
             timeout: 0,
             options: serde_json::Value::Null,
+            source_path: String::new(),
+            file_path: String::new(),
+            source_type: super::AiRuleSourceType::Generic,
+            classification: super::AiRuleClassification::GuidanceOnly,
         }
     }
 }

@@ -42,7 +42,7 @@ struct SchemaFields {
     rules_config: Vec<String>,
     regex_rule_config: Vec<String>,
     script_rule_config: Vec<String>,
-    ai_rule_config: Vec<String>,
+    ai_rule_source_config: Vec<String>,
     builtin_rule_base: Vec<String>,
     builtin_rule_options: HashMap<String, Vec<String>>,
 }
@@ -103,7 +103,7 @@ fn build_schema_fields(schema: &Value) -> SchemaFields {
         rules_config: extract_definition_properties(schema, "RulesConfig"),
         regex_rule_config: extract_definition_properties(schema, "RegexRuleConfig"),
         script_rule_config: extract_definition_properties(schema, "ScriptRuleConfig"),
-        ai_rule_config: extract_definition_properties(schema, "AiRuleConfig"),
+        ai_rule_source_config: extract_definition_properties(schema, "AiRuleSourceConfig"),
         builtin_rule_base,
         builtin_rule_options,
     }
@@ -166,6 +166,26 @@ fn validate_custom_rules(
     invalid
 }
 
+fn validate_ai_rule_sources(ai_rules: &serde_json::Value) -> Vec<String> {
+    let mut invalid = Vec::new();
+    let Some(sources) = ai_rules.as_array() else {
+        invalid.push("aiRules".to_string());
+        return invalid;
+    };
+
+    for (index, source) in sources.iter().enumerate() {
+        if let Some(source_obj) = source.as_object() {
+            invalid.extend(collect_invalid_fields(
+                source_obj,
+                &FIELDS.ai_rule_source_config,
+                &format!("aiRules.{}", index),
+            ));
+        }
+    }
+
+    invalid
+}
+
 pub fn validate_json_fields(json: &serde_json::Value) -> ValidationResult {
     let mut result = ValidationResult::new();
 
@@ -203,12 +223,8 @@ pub fn validate_json_fields(json: &serde_json::Value) -> ValidationResult {
         }
     }
 
-    if let Some(ai_rules) = obj.get("aiRules").and_then(|v| v.as_object()) {
-        invalid_fields.extend(validate_custom_rules(
-            ai_rules,
-            &FIELDS.ai_rule_config,
-            "aiRules",
-        ));
+    if let Some(ai_rules) = obj.get("aiRules") {
+        invalid_fields.extend(validate_ai_rule_sources(ai_rules));
     }
 
     for field in invalid_fields {

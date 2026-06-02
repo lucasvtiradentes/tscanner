@@ -11,8 +11,8 @@ use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::Arc;
 use tscanner_cache::AiCache;
-use tscanner_config::{resolve_ai_config, AiConfig, AiRuleConfig};
-use tscanner_constants::{ai_rules_dir, config_dir_name};
+use tscanner_config::{resolve_ai_config, AiConfig, ResolvedAiRuleConfig};
+use tscanner_constants::config_dir_name;
 use tscanner_types::Issue;
 use types::AiRuleExecutionContext;
 
@@ -24,7 +24,6 @@ pub use types::{
 pub struct AiExecutor {
     workspace_root: PathBuf,
     config_dir: PathBuf,
-    ai_rules_dir: PathBuf,
     ai_config: Option<AiConfig>,
     cache: Arc<AiCache>,
     in_flight: DashMap<String, Arc<AtomicBool>>,
@@ -42,11 +41,9 @@ impl AiExecutor {
         log_debug: Option<fn(&str)>,
     ) -> Self {
         let config_dir_path = config_dir.unwrap_or_else(|| workspace_root.join(config_dir_name()));
-        let ai_rules_dir_path = config_dir_path.join(ai_rules_dir());
         Self {
             workspace_root: workspace_root.to_path_buf(),
             config_dir: config_dir_path,
-            ai_rules_dir: ai_rules_dir_path,
             ai_config,
             cache,
             in_flight: DashMap::new(),
@@ -103,7 +100,7 @@ impl AiExecutor {
 
     pub fn execute_rules(
         &self,
-        rules: &[(String, AiRuleConfig)],
+        rules: &[(String, ResolvedAiRuleConfig)],
         files: &[(PathBuf, String)],
         workspace_root: &Path,
         changed_lines: Option<&ChangedLinesMap>,
@@ -113,7 +110,7 @@ impl AiExecutor {
 
     pub fn execute_rules_with_progress(
         &self,
-        rules: &[(String, AiRuleConfig)],
+        rules: &[(String, ResolvedAiRuleConfig)],
         files: &[(PathBuf, String)],
         workspace_root: &Path,
         changed_lines: Option<&ChangedLinesMap>,

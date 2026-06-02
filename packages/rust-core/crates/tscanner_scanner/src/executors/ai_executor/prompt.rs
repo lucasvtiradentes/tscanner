@@ -5,7 +5,7 @@ use std::collections::HashSet;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
-use tscanner_config::{AiConfig, AiMode, AiRuleConfig};
+use tscanner_config::{strip_frontmatter, AiConfig, AiMode, ResolvedAiRuleConfig};
 use tscanner_constants::{
     ai_placeholder_content, ai_placeholder_files, ai_placeholder_options, ai_temp_dir,
 };
@@ -19,7 +19,7 @@ impl AiExecutor {
     pub(super) fn call_ai_and_parse(
         &self,
         rule_name: &str,
-        rule_config: &AiRuleConfig,
+        rule_config: &ResolvedAiRuleConfig,
         prompt_content: &str,
         files: &[&(PathBuf, String)],
         workspace_root: &Path,
@@ -38,9 +38,8 @@ impl AiExecutor {
                 serde_json::to_string_pretty(&rule_config.options).unwrap_or_default()
             )
         };
-        let rule_prompt = prompt_content
-            .replace(ai_placeholder_files(), &files_section)
-            .replace(ai_placeholder_options(), &options_section);
+        let rule_prompt =
+            self.apply_prompt_sections(prompt_content, &files_section, &options_section);
         let previous_issues_section =
             self.format_previous_issues_section(rule_name, files, workspace_root, previous_issues);
         let rule_prompt = if previous_issues_section.is_empty() {
@@ -165,6 +164,21 @@ impl AiExecutor {
         }
     }
 
+    fn apply_prompt_sections(
+        &self,
+        prompt_content: &str,
+        files_section: &str,
+        options_section: &str,
+    ) -> String {
+        let (_, prompt_content) = strip_frontmatter(prompt_content);
+        let rule_prompt = prompt_content.replace(ai_placeholder_options(), options_section);
+        if rule_prompt.contains(ai_placeholder_files()) {
+            rule_prompt.replace(ai_placeholder_files(), files_section)
+        } else {
+            format!("{}\n\n{}", rule_prompt.trim_end(), files_section)
+        }
+    }
+
     fn format_changed_lines_info(
         &self,
         path: &Path,
@@ -246,5 +260,51 @@ impl AiExecutor {
         let filepath = tmp_dir.join(&filename);
 
         let _ = std::fs::write(&filepath, prompt);
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn replaces_files_placeholder_when_present() {
+        let executor = AiExecutor::default();
+        let prompt =
+            executor.apply_prompt_sections("Rule\n\n{{FILES}}", "## Files\n\n- src/main.ts", "");
+
+        assert_eq!(prompt, "Rule\n\n## Files\n\n- src/main.ts");
+    }
+
+    #[test]
+    fn appends_files_section_when_placeholder_is_absent() {
+        let executor = AiExecutor::default();
+        let prompt = executor.apply_prompt_sections("Rule", "## Files\n\n- src/main.ts", "");
+
+        assert_eq!(prompt, "Rule\n\n## Files\n\n- src/main.ts");
+    }
+
+    #[test]
+    fn replaces_options_when_present() {
+        let executor = AiExecutor::default();
+        let prompt = executor.apply_prompt_sections(
+            "Rule\n\n{{OPTIONS}}",
+            "## Files\n\n- src/main.ts",
+            "{}",
+        );
+
+        assert_eq!(prompt, "Rule\n\n{}\n\n## Files\n\n- src/main.ts");
+    }
+
+    #[test]
+    fn strips_frontmatter_before_prompting() {
+        let executor = AiExecutor::default();
+        let prompt = executor.apply_prompt_sections(
+            "---\npaths: \"**/*.ts\"\n---\nRule",
+            "## Files\n\n- src/main.ts",
+            "",
+        );
+
+        assert_eq!(prompt, "Rule\n\n## Files\n\n- src/main.ts");
     }
 }

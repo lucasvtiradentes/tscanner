@@ -1,5 +1,7 @@
 import type { TscannerConfig } from 'tscanner-common';
 
+type RuleWithInclude = { include?: string[] };
+
 function normalizePattern(pattern: string): string {
   if (pattern.startsWith('**/') || pattern.startsWith('{')) {
     return pattern;
@@ -8,12 +10,13 @@ function normalizePattern(pattern: string): string {
 }
 
 function collectPatternsFromRules(
-  rules: Record<string, { include?: string[] }> | undefined,
+  rules: Record<string, RuleWithInclude> | RuleWithInclude[] | undefined,
   patterns: Set<string>,
 ): void {
   if (!rules) return;
 
-  for (const rule of Object.values(rules)) {
+  const values = Array.isArray(rules) ? rules : Object.values(rules);
+  for (const rule of values) {
     if (rule.include) {
       for (const pattern of rule.include) {
         patterns.add(normalizePattern(pattern));

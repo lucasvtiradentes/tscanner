@@ -109,31 +109,7 @@
       }
     }
   },
-  "aiRules": {
-    "no-dead-code": {
-      "prompt": "no-dead-code.md",
-      "mode": "content",
-      "message": "Dead code detected - remove unused code instead of suppressing warnings",
-      "severity": "warning",
-      "options": { "includeSystemFiles": true },
-      "include": ["packages/rust-core/crates/tscanner_scanner/src/executors/**.rs"]
-    },
-    "find-enum-candidates": {
-      "prompt": "find-enum-candidates.md",
-      "mode": "agentic",
-      "message": "Type union could be replaced with an enum for better type safety",
-      "severity": "warning",
-      "include": ["**/*.ts"]
-    },
-    "no-implicit-any": {
-      "prompt": "no-implicit-any.md",
-      "mode": "agentic",
-      "message": "Parameter appears to implicitly have an any type",
-      "severity": "warning",
-      "include": ["**/*.ts", "**/*.tsx"],
-      "exclude": ["**/*.d.ts"]
-    }
-  },
+  "aiRules": [],
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs", "**/*mts", "**/*cts"],
     "exclude": [

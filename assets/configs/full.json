@@ -53,15 +53,7 @@
       }
     }
   },
-  "aiRules": {
-    "example-find-enum-candidates": {
-      "prompt": "example-find-enum-candidates.md",
-      "mode": "agentic",
-      "message": "Type union could be replaced with an enum for better type safety",
-      "severity": "warning",
-      "include": ["**/*.ts"]
-    }
-  },
+  "aiRules": [],
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
     "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]

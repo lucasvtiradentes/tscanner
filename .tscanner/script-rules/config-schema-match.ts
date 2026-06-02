@@ -183,14 +183,14 @@ runScript((input) => {
     issues,
   );
 
-  const aiRuleOwnFields = extractZodObjectFields(tsContent, 'aiRuleConfigSchema');
+  const aiRuleOwnFields = extractZodObjectFields(tsContent, 'aiRuleSourceConfigSchema');
   const allAiRuleFields = [...baseRuleFields, ...aiRuleOwnFields];
   compareFields(
-    extractSchemaFields(jsonSchema, 'AiRuleConfig'),
+    extractSchemaFields(jsonSchema, 'AiRuleSourceConfig'),
     allAiRuleFields,
-    'aiRuleConfigSchema',
+    'aiRuleSourceConfigSchema',
     schemasFile.path,
-    findLineNumber(tsContent, 'aiRuleConfigSchema'),
+    findLineNumber(tsContent, 'aiRuleSourceConfigSchema'),
     issues,
   );
 
