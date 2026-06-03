@@ -68,22 +68,26 @@ impl Scanner {
         rules
     }
 
-    pub(crate) fn run_script_rules(&self, _files: &[PathBuf]) -> (Vec<Issue>, Vec<String>) {
+    pub(crate) fn run_script_rules(&self, files: &[PathBuf]) -> (Vec<Issue>, Vec<String>) {
         let script_rules = self.collect_script_rules();
         if script_rules.is_empty() {
             return (vec![], vec![]);
         }
 
-        let all_files = self.collect_script_files(&script_rules);
+        if files.is_empty() {
+            return (vec![], vec![]);
+        }
+
+        let all_files = self.collect_script_files_from_filter(&script_rules, files);
         if all_files.is_empty() {
             return (vec![], vec![]);
         }
 
         (self.log_debug)(&format!(
-            "Running {} script rules on {} files (requested {} files but collecting all matching files)",
+            "Running {} script rules on {} files (requested {} files)",
             script_rules.len(),
             all_files.len(),
-            _files.len()
+            files.len()
         ));
 
         let (issues, warnings) =
@@ -98,9 +102,10 @@ impl Scanner {
         (issues, warnings)
     }
 
-    pub(crate) fn collect_script_files(
+    pub(crate) fn collect_script_files_from_filter(
         &self,
         script_rules: &[(String, ScriptRuleConfig)],
+        file_filter: &[PathBuf],
     ) -> Vec<(PathBuf, String)> {
         let include_patterns: HashSet<&str> = script_rules
             .iter()
@@ -110,7 +115,7 @@ impl Scanner {
             .iter()
             .flat_map(|(_, cfg)| cfg.exclude.iter().map(|s| s.as_str()))
             .collect();
-        self.collect_files_by_patterns(&include_patterns, &exclude_patterns, None)
+        self.collect_files_by_patterns(&include_patterns, &exclude_patterns, Some(file_filter))
     }
 
     pub(crate) fn run_ai_rules_with_context(

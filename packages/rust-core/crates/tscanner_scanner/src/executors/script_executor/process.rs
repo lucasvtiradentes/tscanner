@@ -1,14 +1,18 @@
 use super::{ScriptError, ScriptExecutor};
-use std::io::{Read, Write};
+use std::io::Read;
+use std::path::Path;
 use std::process::{Command, Stdio};
 use std::time::{Duration, Instant};
 use tscanner_config::ScriptRuleConfig;
+
+const MAX_FILES_ARG_BYTES: usize = 128 * 1024;
 
 impl ScriptExecutor {
     pub(super) fn spawn_command(
         &self,
         rule_config: &ScriptRuleConfig,
-        input: &[u8],
+        workspace_root: &Path,
+        files: &[String],
     ) -> Result<Vec<u8>, ScriptError> {
         let parts: Vec<&str> = rule_config.command.split_whitespace().collect();
         if parts.is_empty() {
@@ -16,14 +20,40 @@ impl ScriptExecutor {
         }
 
         let program = parts[0];
-        let args = &parts[1..];
+        let mut args: Vec<String> = parts
+            .iter()
+            .skip(1)
+            .map(|part| (*part).to_string())
+            .collect();
+        args.push(workspace_root.to_string_lossy().to_string());
+
+        let files_json = serde_json::to_string(files).map_err(|e| {
+            ScriptError::InvalidOutput(format!("Failed to serialize script file list: {}", e))
+        })?;
+        if files_json.len() <= MAX_FILES_ARG_BYTES {
+            args.push("--files".to_string());
+            args.push(files_json);
+        } else {
+            (self.log_debug)(&format!(
+                "Script command file list omitted from argv: {} bytes exceeds {}",
+                files_json.len(),
+                MAX_FILES_ARG_BYTES
+            ));
+        }
+        if !rule_config.options.is_null() {
+            let options_json = serde_json::to_string(&rule_config.options).map_err(|e| {
+                ScriptError::InvalidOutput(format!("Failed to serialize script options: {}", e))
+            })?;
+            args.push("--options".to_string());
+            args.push(options_json);
+        }
 
         let mut child = Command::new(program)
-            .args(args)
-            .stdin(Stdio::piped())
+            .args(&args)
+            .stdin(Stdio::null())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped())
-            .current_dir(&self.config_dir)
+            .current_dir(workspace_root)
             .spawn()
             .map_err(|e| {
                 if e.kind() == std::io::ErrorKind::NotFound {
@@ -35,17 +65,10 @@ impl ScriptExecutor {
         let child_id = child.id();
 
         (self.log_debug)(&format!(
-            "Script command pid={} started: {} {:?} (stdin={} bytes, timeout={}s)",
-            child_id,
-            program,
-            args,
-            input.len(),
-            rule_config.timeout
+            "Script command pid={} started: {} {:?} (timeout={}s)",
+            child_id, program, args, rule_config.timeout
         ));
 
-        let mut stdin = child.stdin.take().unwrap();
-        let input_clone = input.to_vec();
-        let write_handle = std::thread::spawn(move || stdin.write_all(&input_clone));
         let stdout_handle = child.stdout.take().map(|mut stdout| {
             std::thread::spawn(move || {
                 let mut output = Vec::new();
@@ -72,8 +95,6 @@ impl ScriptExecutor {
         loop {
             match child.try_wait() {
                 Ok(Some(status)) => {
-                    let _ = write_handle.join();
-
                     let stdout = stdout_handle
                         .map(|handle| handle.join().unwrap_or_default())
                         .unwrap_or_default();

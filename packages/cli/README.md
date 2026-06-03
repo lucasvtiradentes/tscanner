@@ -518,7 +518,7 @@ To scan your code, you need to set up the rules in the TScanner config folder.
     },
     "script": {
       "example-no-long-files": {
-        "command": "npx tsx script-rules/example-no-long-files.ts",
+        "command": "npx tsx .tscanner/script-rules/example-no-long-files.ts",
         "message": "File exceeds 300 lines limit",
         "include": ["packages/**/*.ts", "packages/**/*.rs"]
       }

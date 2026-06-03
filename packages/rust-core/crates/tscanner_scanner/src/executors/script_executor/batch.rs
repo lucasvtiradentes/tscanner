@@ -1,6 +1,6 @@
-use super::{ScriptError, ScriptExecutor, ScriptFile, ScriptInput, ScriptOutput};
+use super::{ScriptError, ScriptExecutor, ScriptOutput};
 use crate::executors::utils;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::path::{Path, PathBuf};
 use tscanner_config::ScriptRuleConfig;
 use tscanner_types::{Issue, IssueRuleType};
@@ -13,34 +13,15 @@ impl ScriptExecutor {
         files: &[&(PathBuf, String)],
         workspace_root: &Path,
     ) -> Result<Vec<Issue>, ScriptError> {
-        let script_files: Vec<ScriptFile> = files
+        let script_files: Vec<String> = files
             .iter()
-            .map(|(path, content)| {
+            .map(|(path, _)| {
                 let relative = path.strip_prefix(workspace_root).unwrap_or(path);
-                ScriptFile {
-                    path: relative.to_string_lossy().to_string(),
-                    content: content.clone(),
-                    lines: content.lines().map(String::from).collect(),
-                }
+                relative.to_string_lossy().to_string()
             })
             .collect();
 
-        let options = if rule_config.options.is_null() {
-            None
-        } else {
-            Some(rule_config.options.clone())
-        };
-
-        let input = ScriptInput {
-            files: script_files,
-            options,
-            workspace_root: workspace_root.to_string_lossy().to_string(),
-        };
-
-        let input_json = serde_json::to_vec(&input)
-            .map_err(|e| ScriptError::InvalidOutput(format!("Failed to serialize input: {}", e)))?;
-
-        let output = self.spawn_command(rule_config, &input_json)?;
+        let output = self.spawn_command(rule_config, workspace_root, &script_files)?;
 
         self.parse_output(rule_name, rule_config, &output, workspace_root, files)
     }
@@ -63,17 +44,21 @@ impl ScriptExecutor {
             ))
         })?;
         let file_lines = self.collect_file_lines(workspace_root, files);
+        let allowed_files: HashSet<PathBuf> = file_lines.keys().cloned().collect();
 
         Ok(script_output
             .issues
             .into_iter()
-            .map(|issue| {
-                let file_path = workspace_root.join(&issue.file);
-                let relative_path = PathBuf::from(&issue.file);
+            .filter_map(|issue| {
+                let relative_path = self.normalize_issue_path(&issue.file, workspace_root);
+                if !allowed_files.contains(&relative_path) {
+                    return None;
+                }
+                let file_path = workspace_root.join(&relative_path);
                 let line_text = file_lines
                     .get(&relative_path)
                     .and_then(|lines| utils::extract_line_text(lines, issue.line));
-                Issue {
+                Some(Issue {
                     rule: rule_name.to_string(),
                     file: file_path,
                     line: issue.line,
@@ -88,7 +73,7 @@ impl ScriptExecutor {
                     line_text,
                     category: None,
                     rule_type: IssueRuleType::CustomScript,
-                }
+                })
             })
             .collect())
     }
@@ -116,5 +101,16 @@ impl ScriptExecutor {
                 (relative.to_path_buf(), content.lines().collect())
             })
             .collect()
+    }
+
+    fn normalize_issue_path(&self, file: &str, workspace_root: &Path) -> PathBuf {
+        let path = PathBuf::from(file);
+        if path.is_absolute() {
+            path.strip_prefix(workspace_root)
+                .unwrap_or(&path)
+                .to_path_buf()
+        } else {
+            path
+        }
     }
 }

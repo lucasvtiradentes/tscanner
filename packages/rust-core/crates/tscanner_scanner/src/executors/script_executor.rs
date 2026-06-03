@@ -147,7 +147,7 @@ impl ScriptExecutor {
         files: &[&(PathBuf, String)],
         workspace_root: &Path,
     ) -> Result<Vec<Issue>, ScriptError> {
-        let script_path = self.extract_script_path(&rule_config.command);
+        let script_path = self.extract_script_path(&rule_config.command, workspace_root);
 
         let files_owned: Vec<(PathBuf, String)> =
             files.iter().map(|(p, c)| (p.clone(), c.clone())).collect();
@@ -164,13 +164,25 @@ impl ScriptExecutor {
         Ok(issues)
     }
 
-    fn extract_script_path(&self, command: &str) -> PathBuf {
+    fn extract_script_path(&self, command: &str, workspace_root: &Path) -> PathBuf {
         let parts: Vec<&str> = command.split_whitespace().collect();
-        if let Some(last) = parts.last() {
-            self.config_dir.join(last)
-        } else {
-            self.config_dir.join(command)
+        for part in parts.iter().skip(1) {
+            if part.starts_with('-') {
+                continue;
+            }
+
+            let workspace_path = workspace_root.join(part);
+            if workspace_path.is_file() {
+                return workspace_path;
+            }
+
+            let config_path = self.config_dir.join(part);
+            if config_path.is_file() {
+                return config_path;
+            }
         }
+
+        workspace_root.join(command)
     }
 
     pub fn clear_cache(&self) {

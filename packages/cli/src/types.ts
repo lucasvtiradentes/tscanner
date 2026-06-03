@@ -1,8 +1,7 @@
 export type {
-  ScriptFile,
-  ScriptInput,
+  ScriptArgs,
   ScriptIssue,
   ScriptOutput,
 } from 'tscanner-common';
 
-export { addIssue, readScriptInput, writeScriptOutput, runScript } from 'tscanner-common';
+export { addIssue, readScriptArgs, writeScriptOutput, runScript } from 'tscanner-common';
