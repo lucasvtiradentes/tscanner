@@ -151,9 +151,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         properties.insert(
             "aiRules".to_string(),
             json!({
-                "type": "object",
-                "description": "AI-powered rules (expensive, run separately)",
-                "additionalProperties": { "$ref": "#/definitions/AiRuleConfig" }
+                "type": "array",
+                "description": "AI-powered markdown rule sources (expensive, run separately)",
+                "items": { "$ref": "#/definitions/AiRuleSourceConfig" }
             }),
         );
     }
@@ -162,50 +162,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .get_mut("definitions")
         .and_then(|d| d.as_object_mut())
     {
-        definitions.insert(
-            "AiConfig".to_string(),
-            json!({
-                "type": "object",
-                "properties": {
-                    "provider": {
-                        "anyOf": [
-                            { "$ref": "#/definitions/AiProvider" },
-                            { "type": "null" }
-                        ],
-                        "description": "AI provider to use (claude, gemini, custom)"
-                    },
-                    "command": {
-                        "type": ["string", "null"],
-                        "description": "Custom command path (required when provider is 'custom')"
-                    }
-                },
-                "if": {
-                    "properties": {
-                        "provider": { "const": "custom" }
-                    },
-                    "required": ["provider"]
-                },
-                "then": {
-                    "required": ["command"],
-                    "properties": {
-                        "command": {
-                            "type": "string",
-                            "minLength": 1
-                        }
-                    }
-                }
-            }),
-        );
-
         if let Some(files_config) = definitions.get_mut("FilesConfig") {
             if let Some(files_config_obj) = files_config.as_object_mut() {
                 files_config_obj.insert("required".to_string(), json!(["include", "exclude"]));
-            }
-        }
-
-        if let Some(code_editor_config) = definitions.get_mut("CodeEditorConfig") {
-            if let Some(code_editor_obj) = code_editor_config.as_object_mut() {
-                code_editor_obj.insert("additionalProperties".to_string(), json!(false));
             }
         }
 

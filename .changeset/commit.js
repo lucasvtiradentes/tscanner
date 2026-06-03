@@ -166,7 +166,7 @@ function updateReadmeVersions() {
   }
 }
 
-async function getVersionMessage() {
+function getVersionMessage() {
   log('Running getVersionMessage hook');
 
   updateReadmeVersions();

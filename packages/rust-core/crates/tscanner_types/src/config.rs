@@ -1,11 +1,10 @@
-use crate::enums::{AiMode, AiProvider, Severity, StartupScanMode};
+use crate::enums::{AiMode, AiProvider, Severity};
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::path::PathBuf;
 
-fn default_true() -> bool {
-    true
-}
+mod defaults;
 
 fn default_severity() -> Severity {
     Severity::Warning
@@ -23,75 +22,19 @@ fn is_zero(v: &u64) -> bool {
     *v == 0
 }
 
+fn is_empty_string(s: &str) -> bool {
+    s.is_empty()
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct AiConfig {
-    #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "AI provider to use (claude, gemini, custom)")]
-    pub provider: Option<AiProvider>,
+    #[schemars(description = "AI provider to use (claude, codex, gemini)")]
+    pub provider: AiProvider,
 
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "Custom command path (required only for 'custom' provider)")]
-    pub command: Option<String>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
-#[serde(rename_all = "camelCase")]
-pub struct CodeEditorConfig {
-    #[serde(default = "default_true")]
-    #[schemars(description = "Highlight error issues in the code editor")]
-    pub highlight_errors: bool,
-
-    #[serde(default = "default_true")]
-    #[schemars(description = "Highlight warning issues in the code editor")]
-    pub highlight_warnings: bool,
-
-    #[serde(default = "default_true")]
-    #[schemars(description = "Highlight info issues in the code editor")]
-    pub highlight_infos: bool,
-
-    #[serde(default = "default_true")]
-    #[schemars(description = "Highlight hint issues in the code editor")]
-    pub highlight_hints: bool,
-
-    #[serde(default)]
-    #[schemars(description = "Auto-scan interval in seconds (0 = disabled)")]
-    pub auto_scan_interval: u32,
-
-    #[serde(default)]
-    #[schemars(description = "Auto-scan interval for AI rules in seconds (0 = disabled)")]
-    pub auto_ai_scan_interval: u32,
-
-    #[serde(default)]
-    #[schemars(
-        description = "Startup scan mode: off (disabled), cached (use cache), fresh (ignore cache)"
-    )]
-    pub startup_scan: StartupScanMode,
-
-    #[serde(default)]
-    #[schemars(
-        description = "Startup AI scan mode: off (disabled), cached (use cache), fresh (ignore cache)"
-    )]
-    pub startup_ai_scan: StartupScanMode,
-}
-
-impl Default for CodeEditorConfig {
-    fn default() -> Self {
-        Self {
-            highlight_errors: tscanner_constants::default_highlight_errors(),
-            highlight_warnings: tscanner_constants::default_highlight_warnings(),
-            highlight_infos: tscanner_constants::default_highlight_infos(),
-            highlight_hints: tscanner_constants::default_highlight_hints(),
-            auto_scan_interval: tscanner_constants::default_auto_scan_interval(),
-            auto_ai_scan_interval: tscanner_constants::default_auto_ai_scan_interval(),
-            startup_scan: StartupScanMode::from_str_or_panic(
-                tscanner_constants::default_startup_scan(),
-            ),
-            startup_ai_scan: StartupScanMode::from_str_or_panic(
-                tscanner_constants::default_startup_ai_scan(),
-            ),
-        }
-    }
+    #[schemars(description = "AI model to use")]
+    pub model: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
@@ -127,21 +70,21 @@ pub struct TscannerConfig {
     #[schemars(description = "JSON schema URL for editor support")]
     pub schema: Option<String>,
 
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "AI provider configuration for AI-powered rules")]
-    pub ai: Option<AiConfig>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[schemars(description = "Code editor configuration (highlighting, auto-scan)")]
-    pub code_editor: Option<CodeEditorConfig>,
-
     #[serde(default)]
     #[schemars(description = "Rules configuration (builtin, regex, script)")]
     pub rules: RulesConfig,
 
-    #[serde(default, skip_serializing_if = "HashMap::is_empty")]
-    #[schemars(description = "AI-powered rules configuration")]
-    pub ai_rules: HashMap<String, AiRuleConfig>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[schemars(description = "AI-powered markdown rule sources")]
+    pub ai_rules: Vec<AiRuleSourceConfig>,
+
+    #[serde(default, skip)]
+    #[schemars(skip)]
+    pub resolved_ai_rules: Vec<ResolvedAiRuleConfig>,
+
+    #[serde(default, skip)]
+    #[schemars(skip)]
+    pub ai_rule_summary: AiRuleSummary,
 
     #[schemars(description = "File patterns configuration (required)")]
     pub files: FilesConfig,
@@ -195,18 +138,6 @@ pub struct RegexRuleConfig {
     pub exclude: Vec<String>,
 }
 
-impl Default for RegexRuleConfig {
-    fn default() -> Self {
-        Self {
-            pattern: String::new(),
-            message: String::new(),
-            severity: Severity::Warning,
-            include: Vec::new(),
-            exclude: Vec::new(),
-        }
-    }
-}
-
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct ScriptRuleConfig {
@@ -240,39 +171,49 @@ pub struct ScriptRuleConfig {
     pub options: serde_json::Value,
 }
 
-impl Default for ScriptRuleConfig {
-    fn default() -> Self {
-        Self {
-            command: String::new(),
-            message: String::new(),
-            severity: Severity::Warning,
-            include: Vec::new(),
-            exclude: Vec::new(),
-            timeout: 0,
-            options: serde_json::Value::Null,
-        }
-    }
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Eq, Default)]
+#[serde(rename_all = "kebab-case")]
+pub enum AiRuleClassification {
+    CodeCheckable,
+    #[default]
+    GuidanceOnly,
+    Unsupported,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq, Eq, Default)]
+#[serde(rename_all = "kebab-case")]
+pub enum AiRuleSourceType {
+    Cursor,
+    Claude,
+    #[default]
+    Generic,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct AiRuleConfig {
-    #[schemars(description = "Path to AI prompt markdown file")]
-    pub prompt: String,
+pub struct AiRuleSourceConfig {
+    #[schemars(description = "Path to an AI markdown rule file or folder")]
+    pub path: String,
 
-    #[schemars(description = "Error message to display when rule is violated")]
-    pub message: String,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    #[schemars(description = "File names, folder names, or rule ids to ignore under this source")]
+    pub ignore: Vec<String>,
 
-    #[serde(default, skip_serializing_if = "is_default_mode")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schemars(description = "Optional id override for a single-file source")]
+    pub id: Option<String>,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schemars(description = "Finding message override")]
+    pub message: Option<String>,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     #[schemars(description = "How files are provided to the AI")]
-    pub mode: AiMode,
+    pub mode: Option<AiMode>,
 
-    #[serde(
-        default = "default_severity",
-        skip_serializing_if = "is_default_severity"
-    )]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     #[schemars(description = "Severity level (default: warning)")]
-    pub severity: Severity,
+    pub severity: Option<Severity>,
 
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     #[schemars(description = "File patterns to include")]
@@ -282,26 +223,69 @@ pub struct AiRuleConfig {
     #[schemars(description = "File patterns to exclude")]
     pub exclude: Vec<String>,
 
-    #[serde(default, skip_serializing_if = "is_zero")]
-    #[schemars(description = "Timeout in seconds (default: 0 = no limit)")]
-    pub timeout: u64,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schemars(description = "Timeout in seconds")]
+    pub timeout: Option<u64>,
 
     #[serde(default, skip_serializing_if = "serde_json::Value::is_null")]
     #[schemars(description = "Additional options")]
     pub options: serde_json::Value,
+
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[schemars(description = "Whether this markdown rule should run as a code check")]
+    pub classification: Option<AiRuleClassification>,
 }
 
-impl Default for AiRuleConfig {
-    fn default() -> Self {
-        Self {
-            prompt: String::new(),
-            message: String::new(),
-            mode: AiMode::Paths,
-            severity: Severity::Warning,
-            include: Vec::new(),
-            exclude: Vec::new(),
-            timeout: 0,
-            options: serde_json::Value::Null,
-        }
-    }
+#[derive(Debug, Clone, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct ResolvedAiRuleConfig {
+    #[serde(default, skip_serializing_if = "is_empty_string")]
+    pub id: String,
+
+    pub prompt_path: PathBuf,
+
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub prompt_hash: u64,
+
+    pub message: String,
+
+    #[serde(default, skip_serializing_if = "is_default_mode")]
+    pub mode: AiMode,
+
+    #[serde(
+        default = "default_severity",
+        skip_serializing_if = "is_default_severity"
+    )]
+    pub severity: Severity,
+
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub include: Vec<String>,
+
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub exclude: Vec<String>,
+
+    #[serde(default, skip_serializing_if = "is_zero")]
+    pub timeout: u64,
+
+    #[serde(default, skip_serializing_if = "serde_json::Value::is_null")]
+    pub options: serde_json::Value,
+
+    pub source_path: String,
+
+    pub file_path: String,
+
+    pub source_type: AiRuleSourceType,
+
+    pub classification: AiRuleClassification,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct AiRuleSummary {
+    pub source_count: usize,
+    pub markdown_count: usize,
+    pub code_checkable_count: usize,
+    pub guidance_only_count: usize,
+    pub unsupported_count: usize,
+    pub skipped_count: usize,
 }

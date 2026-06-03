@@ -1,16 +1,16 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "module": "CommonJS",
-    "moduleResolution": "node",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "strict": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "baseUrl": ".",
+    "resolveJsonModule": true,
+    "types": ["node"],
     "paths": {
-      "tscanner-common": ["shared/tscanner-common/src/index.ts"]
+      "tscanner-common": ["./shared/tscanner-common/src/index.ts"]
     }
   },
-  "include": ["scripts/**/*.ts"],
-  "exclude": ["registry/**/*.ts"]
+  "include": ["scripts/**/*.ts"]
 }

@@ -10,8 +10,9 @@
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "baseUrl": ".",
+    "rootDir": "../..",
     "paths": {
+      "src/*": ["./src/*"],
       "tscanner-common": ["../../shared/tscanner-common/src/index.ts"]
     }
   },

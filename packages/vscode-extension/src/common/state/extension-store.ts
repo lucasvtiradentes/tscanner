@@ -10,7 +10,6 @@ export enum StoreKey {
   IsAiSearching = 'isAiSearching',
   ScanMode = 'scanMode',
   CompareBranch = 'compareBranch',
-  ConfigDir = 'configDir',
   CachedConfig = 'cachedConfig',
   BinaryVersion = 'binaryVersion',
   VersionWarning = 'versionWarning',
@@ -23,7 +22,6 @@ type ExtensionState = {
   [StoreKey.IsAiSearching]: boolean;
   [StoreKey.ScanMode]: ScanMode;
   [StoreKey.CompareBranch]: string;
-  [StoreKey.ConfigDir]: string | null;
   [StoreKey.CachedConfig]: TscannerConfig | null;
   [StoreKey.BinaryVersion]: string | null;
   [StoreKey.VersionWarning]: string | null;
@@ -40,7 +38,6 @@ class ExtensionStore {
     [StoreKey.IsAiSearching]: false,
     [StoreKey.ScanMode]: ScanMode.Codebase,
     [StoreKey.CompareBranch]: DEFAULT_TARGET_BRANCH,
-    [StoreKey.ConfigDir]: null,
     [StoreKey.CachedConfig]: null,
     [StoreKey.BinaryVersion]: null,
     [StoreKey.VersionWarning]: null,
@@ -55,7 +52,6 @@ class ExtensionStore {
     this.context = context;
     this.state[StoreKey.ScanMode] = getWorkspaceState(context, WorkspaceStateKey.ScanMode);
     this.state[StoreKey.CompareBranch] = getWorkspaceState(context, WorkspaceStateKey.CompareBranch);
-    this.state[StoreKey.ConfigDir] = getWorkspaceState(context, WorkspaceStateKey.ConfigDir);
     storeLogger.debug('Initialized with persisted state');
   }
 
@@ -94,9 +90,6 @@ class ExtensionStore {
         break;
       case StoreKey.CompareBranch:
         setWorkspaceState(this.context, WorkspaceStateKey.CompareBranch, value as string);
-        break;
-      case StoreKey.ConfigDir:
-        setWorkspaceState(this.context, WorkspaceStateKey.ConfigDir, value as string | null);
         break;
       case StoreKey.IsSearching:
         setContextKey(ContextKey.Searching, value);

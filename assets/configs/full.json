@@ -20,7 +20,6 @@
       "no-explicit-any": {},
       "no-floating-promises": {},
       "no-forwarded-exports": {},
-      "no-implicit-any": {},
       "no-inferrable-types": {},
       "no-nested-require": {},
       "no-nested-ternary": {},
@@ -37,7 +36,6 @@
       "no-var": {},
       "prefer-const": {},
       "prefer-interface-over-type": {},
-      "prefer-nullish-coalescing": {},
       "prefer-optional-chain": {},
       "prefer-type-over-interface": {}
     },
@@ -49,36 +47,15 @@
     },
     "script": {
       "example-no-long-files": {
-        "command": "npx tsx script-rules/example-no-long-files.ts",
+        "command": "npx tsx .tscanner/script-rules/example-no-long-files.ts",
         "message": "File exceeds 300 lines limit",
         "include": ["packages/**/*.ts", "packages/**/*.rs"]
       }
     }
   },
-  "aiRules": {
-    "example-find-enum-candidates": {
-      "prompt": "example-find-enum-candidates.md",
-      "mode": "agentic",
-      "message": "Type union could be replaced with an enum for better type safety",
-      "severity": "warning",
-      "include": ["**/*.ts"]
-    }
-  },
-  "ai": {
-    "provider": "claude"
-  },
+  "aiRules": [],
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
     "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
-  },
-  "codeEditor": {
-    "highlightErrors": true,
-    "highlightWarnings": true,
-    "highlightInfos": true,
-    "highlightHints": true,
-    "autoScanInterval": 0,
-    "autoAiScanInterval": 0,
-    "startupScan": "cached",
-    "startupAiScan": "off"
   }
 }

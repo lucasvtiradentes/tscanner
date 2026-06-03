@@ -1,6 +1,6 @@
-import { ScanMode, type TscannerConfig, VSCODE_EXTENSION, hasConfiguredRules } from 'tscanner-common';
+import { type TscannerConfig, VSCODE_EXTENSION, hasConfiguredRules } from 'tscanner-common';
 import * as vscode from 'vscode';
-import { getCommandId } from '../common/constants';
+import { getCommandId, getStatusBarName } from '../common/constants';
 import { getCachedConfig, getOrLoadConfig } from '../common/lib/config-manager';
 import { getBinaryVersionLabel } from '../common/lib/version-checker';
 import { Command, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
@@ -19,7 +19,7 @@ export class StatusBarManager {
       vscode.StatusBarAlignment.Left,
       VSCODE_EXTENSION.statusBar.priority,
     );
-    this.statusBarItem.command = getCommandId(Command.OpenSettingsMenu);
+    this.statusBarItem.command = getCommandId(Command.OpenSettingsView);
 
     extensionStore.subscribe(StoreKey.IsSearching, (isSearching) => {
       this.isSearching = isSearching;
@@ -88,7 +88,6 @@ export class StatusBarManager {
   }
 
   private showConfigured(config: TscannerConfig | null, binaryInfo: BinaryInfo): void {
-    const configDir = extensionStore.get(StoreKey.ConfigDir);
     const versionWarning = extensionStore.get(StoreKey.VersionWarning);
     const invalidConfigFields = extensionStore.get(StoreKey.InvalidConfigFields);
     const schemaWarning = getSchemaVersionWarning(config, getBinaryVersionLabel());
@@ -101,25 +100,16 @@ export class StatusBarManager {
     };
 
     const icon = getIcon();
-    const scanMode = extensionStore.get(StoreKey.ScanMode);
-    const compareBranch = extensionStore.get(StoreKey.CompareBranch);
-    const getModeText = () => {
-      if (scanMode === ScanMode.Codebase) return 'Codebase';
-      if (scanMode === ScanMode.Uncommitted) return 'Uncommitted';
-      return `Branch (${compareBranch})`;
-    };
-    const modeText = getModeText();
-    const statusText = this.isScanning ? 'Scanning...' : modeText;
+    const statusText = this.isScanning ? `${getStatusBarName()} Scanning...` : getStatusBarName();
     const finalText = `${icon} ${statusText}`;
 
     this.statusBarItem.text = finalText;
-    this.statusBarItem.tooltip = buildConfiguredTooltip(
-      configDir,
+    this.statusBarItem.tooltip = buildConfiguredTooltip({
       config,
       binaryInfo,
       versionWarning,
       invalidConfigFields,
-    );
+    });
   }
 
   private showUnconfigured(): void {

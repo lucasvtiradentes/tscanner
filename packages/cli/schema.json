@@ -2,50 +2,6 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "additionalProperties": false,
   "definitions": {
-    "AiConfig": {
-      "if": {
-        "properties": {
-          "provider": {
-            "const": "custom"
-          }
-        },
-        "required": [
-          "provider"
-        ]
-      },
-      "properties": {
-        "command": {
-          "description": "Custom command path (required when provider is 'custom')",
-          "type": [
-            "string",
-            "null"
-          ]
-        },
-        "provider": {
-          "anyOf": [
-            {
-              "$ref": "#/definitions/AiProvider"
-            },
-            {
-              "type": "null"
-            }
-          ],
-          "description": "AI provider to use (claude, gemini, custom)"
-        }
-      },
-      "then": {
-        "properties": {
-          "command": {
-            "minLength": 1,
-            "type": "string"
-          }
-        },
-        "required": [
-          "command"
-        ]
-      },
-      "type": "object"
-    },
     "AiMode": {
       "enum": [
         "paths",
@@ -54,18 +10,43 @@
       ],
       "type": "string"
     },
-    "AiProvider": {
+    "AiRuleClassification": {
       "enum": [
-        "claude",
-        "gemini",
-        "custom"
+        "code-checkable",
+        "guidance-only",
+        "unsupported"
       ],
       "type": "string"
     },
-    "AiRuleConfig": {
+    "AiRuleSourceConfig": {
       "properties": {
+        "classification": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AiRuleClassification"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Whether this markdown rule should run as a code check"
+        },
         "exclude": {
           "description": "File patterns to exclude",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "id": {
+          "description": "Optional id override for a single-file source",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "ignore": {
+          "description": "File names, folder names, or rule ids to ignore under this source",
           "items": {
             "type": "string"
           },
@@ -79,13 +60,19 @@
           "type": "array"
         },
         "message": {
-          "description": "Error message to display when rule is violated",
-          "type": "string"
+          "description": "Finding message override",
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "mode": {
-          "allOf": [
+          "anyOf": [
             {
               "$ref": "#/definitions/AiMode"
+            },
+            {
+              "type": "null"
             }
           ],
           "description": "How files are provided to the AI"
@@ -93,28 +80,33 @@
         "options": {
           "description": "Additional options"
         },
-        "prompt": {
-          "description": "Path to AI prompt markdown file",
+        "path": {
+          "description": "Path to an AI markdown rule file or folder",
           "type": "string"
         },
         "severity": {
-          "allOf": [
+          "anyOf": [
             {
               "$ref": "#/definitions/Severity"
+            },
+            {
+              "type": "null"
             }
           ],
           "description": "Severity level (default: warning)"
         },
         "timeout": {
-          "description": "Timeout in seconds (default: 0 = no limit)",
+          "description": "Timeout in seconds",
           "format": "uint64",
           "minimum": 0.0,
-          "type": "integer"
+          "type": [
+            "integer",
+            "null"
+          ]
         }
       },
       "required": [
-        "message",
-        "prompt"
+        "path"
       ],
       "type": "object"
     },
@@ -691,34 +683,6 @@
       },
       "type": "object"
     },
-    "BuiltinRuleConfig_no_implicit_any": {
-      "description": "Detects function parameters without type annotations that implicitly have 'any' type.",
-      "properties": {
-        "exclude": {
-          "description": "File patterns to exclude for this rule",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "include": {
-          "description": "File patterns to include for this rule",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "severity": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Severity"
-            }
-          ],
-          "description": "Severity level for this rule (default: warning)"
-        }
-      },
-      "type": "object"
-    },
     "BuiltinRuleConfig_no_inferrable_types": {
       "description": "Disallows explicit type annotations on variables initialized with literal values. TypeScript can infer these types automatically.",
       "properties": {
@@ -1177,34 +1141,6 @@
       },
       "type": "object"
     },
-    "BuiltinRuleConfig_prefer_nullish_coalescing": {
-      "description": "Suggests using nullish coalescing (??) instead of logical OR (||) for default values. The || operator treats 0, \"\", and false as falsy, which may not be intended.",
-      "properties": {
-        "exclude": {
-          "description": "File patterns to exclude for this rule",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "include": {
-          "description": "File patterns to include for this rule",
-          "items": {
-            "type": "string"
-          },
-          "type": "array"
-        },
-        "severity": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/Severity"
-            }
-          ],
-          "description": "Severity level for this rule (default: warning)"
-        }
-      },
-      "type": "object"
-    },
     "BuiltinRuleConfig_prefer_optional_chain": {
       "description": "Suggests using optional chaining (?.) instead of logical AND (&&) chains for null checks.",
       "properties": {
@@ -1257,64 +1193,6 @@
             }
           ],
           "description": "Severity level for this rule (default: warning)"
-        }
-      },
-      "type": "object"
-    },
-    "CodeEditorConfig": {
-      "additionalProperties": false,
-      "properties": {
-        "autoAiScanInterval": {
-          "default": 0,
-          "description": "Auto-scan interval for AI rules in seconds (0 = disabled)",
-          "format": "uint32",
-          "minimum": 0.0,
-          "type": "integer"
-        },
-        "autoScanInterval": {
-          "default": 0,
-          "description": "Auto-scan interval in seconds (0 = disabled)",
-          "format": "uint32",
-          "minimum": 0.0,
-          "type": "integer"
-        },
-        "highlightErrors": {
-          "default": true,
-          "description": "Highlight error issues in the code editor",
-          "type": "boolean"
-        },
-        "highlightHints": {
-          "default": true,
-          "description": "Highlight hint issues in the code editor",
-          "type": "boolean"
-        },
-        "highlightInfos": {
-          "default": true,
-          "description": "Highlight info issues in the code editor",
-          "type": "boolean"
-        },
-        "highlightWarnings": {
-          "default": true,
-          "description": "Highlight warning issues in the code editor",
-          "type": "boolean"
-        },
-        "startupAiScan": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/StartupScanMode"
-            }
-          ],
-          "default": "cached",
-          "description": "Startup AI scan mode: off (disabled), cached (use cache), fresh (ignore cache)"
-        },
-        "startupScan": {
-          "allOf": [
-            {
-              "$ref": "#/definitions/StartupScanMode"
-            }
-          ],
-          "default": "cached",
-          "description": "Startup scan mode: off (disabled), cached (use cache), fresh (ignore cache)"
         }
       },
       "type": "object"
@@ -1441,9 +1319,6 @@
             "no-forwarded-exports": {
               "$ref": "#/definitions/BuiltinRuleConfig_no_forwarded_exports"
             },
-            "no-implicit-any": {
-              "$ref": "#/definitions/BuiltinRuleConfig_no_implicit_any"
-            },
             "no-inferrable-types": {
               "$ref": "#/definitions/BuiltinRuleConfig_no_inferrable_types"
             },
@@ -1491,9 +1366,6 @@
             },
             "prefer-interface-over-type": {
               "$ref": "#/definitions/BuiltinRuleConfig_prefer_interface_over_type"
-            },
-            "prefer-nullish-coalescing": {
-              "$ref": "#/definitions/BuiltinRuleConfig_prefer_nullish_coalescing"
             },
             "prefer-optional-chain": {
               "$ref": "#/definitions/BuiltinRuleConfig_prefer_optional_chain"
@@ -1582,14 +1454,6 @@
         "hint"
       ],
       "type": "string"
-    },
-    "StartupScanMode": {
-      "enum": [
-        "off",
-        "cached",
-        "fresh"
-      ],
-      "type": "string"
     }
   },
   "properties": {
@@ -1600,34 +1464,12 @@
         "null"
       ]
     },
-    "ai": {
-      "anyOf": [
-        {
-          "$ref": "#/definitions/AiConfig"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "AI provider configuration for AI-powered rules"
-    },
     "aiRules": {
-      "additionalProperties": {
-        "$ref": "#/definitions/AiRuleConfig"
+      "description": "AI-powered markdown rule sources (expensive, run separately)",
+      "items": {
+        "$ref": "#/definitions/AiRuleSourceConfig"
       },
-      "description": "AI-powered rules (expensive, run separately)",
-      "type": "object"
-    },
-    "codeEditor": {
-      "anyOf": [
-        {
-          "$ref": "#/definitions/CodeEditorConfig"
-        },
-        {
-          "type": "null"
-        }
-      ],
-      "description": "Code editor configuration (highlighting, auto-scan)"
+      "type": "array"
     },
     "files": {
       "allOf": [

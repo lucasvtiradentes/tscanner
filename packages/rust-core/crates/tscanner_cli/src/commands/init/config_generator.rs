@@ -1,7 +1,7 @@
 use anyhow::{Context, Result};
 use std::fs;
 use std::path::Path;
-use tscanner_constants::{ai_rules_dir, script_rules_dir};
+use tscanner_constants::script_rules_dir;
 
 const TSCANNER_VERSION: &str = env!("CARGO_PKG_VERSION");
 
@@ -13,11 +13,6 @@ pub const SCRIPT_RULE_EXAMPLE: (&str, &str) = (
     "example-no-long-files.ts",
     include_str!("../../../../../../../assets/configs/example-no-long-files.ts"),
 );
-pub const AI_RULE_EXAMPLE: (&str, &str) = (
-    "example-find-enum-candidates.md",
-    include_str!("../../../../../../../assets/configs/example-find-enum-candidates.md"),
-);
-
 fn process_config(config_json: &str) -> String {
     let prod_schema = format!(
         "\"$schema\": \"https://unpkg.com/tscanner@{}/schema.json\"",
@@ -42,11 +37,6 @@ pub fn write_example_files(config_dir: &Path) -> Result<()> {
         SCRIPT_RULE_EXAMPLE.1,
     )
     .context("Failed to write example script")?;
-
-    let ai_rules_path = config_dir.join(ai_rules_dir());
-    fs::create_dir_all(&ai_rules_path).context("Failed to create ai-rules directory")?;
-    fs::write(ai_rules_path.join(AI_RULE_EXAMPLE.0), AI_RULE_EXAMPLE.1)
-        .context("Failed to write example prompt")?;
 
     Ok(())
 }

@@ -1,14 +1,16 @@
-import { type AiExecutionMode, CODE_EDITOR_DEFAULTS } from 'tscanner-common';
-import { getOrLoadConfig } from '../common/lib/config-manager';
+import type { AiExecutionMode } from 'tscanner-common';
 import { logger } from '../common/lib/logger';
 import { type Command, executeCommand, getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
+import { ExtensionConfigKey, getExtensionConfig } from '../common/state/extension-config';
 import { StoreKey, extensionStore } from '../common/state/extension-store';
 import { ScanTrigger } from '../common/types/scan-trigger';
 
-export enum IntervalConfigKey {
-  Scan = 'autoScanInterval',
-  AiScan = 'autoAiScanInterval',
-}
+export const IntervalConfigKey = {
+  Scan: ExtensionConfigKey.AutoScanInterval,
+  AiScan: ExtensionConfigKey.AutoAiScanInterval,
+} as const;
+
+export type IntervalConfigKey = (typeof IntervalConfigKey)[keyof typeof IntervalConfigKey];
 
 type IntervalConfig = {
   name: string;
@@ -20,7 +22,7 @@ type IntervalConfig = {
 export function createIntervalWatcher(config: IntervalConfig) {
   let timer: NodeJS.Timeout | null = null;
 
-  const setup = async (skipFirstRun = false): Promise<void> => {
+  const setup = (skipFirstRun = false): void => {
     if (timer) {
       clearInterval(timer);
       timer = null;
@@ -29,8 +31,7 @@ export function createIntervalWatcher(config: IntervalConfig) {
     const workspaceFolder = getCurrentWorkspaceFolder();
     if (!workspaceFolder) return;
 
-    const tscannerConfig = await getOrLoadConfig(workspaceFolder.uri.fsPath);
-    const intervalSeconds = tscannerConfig?.codeEditor?.[config.configKey] ?? CODE_EDITOR_DEFAULTS[config.configKey];
+    const intervalSeconds = getExtensionConfig(config.configKey);
 
     if (intervalSeconds <= 0) {
       logger.info(`${config.name} auto-scan disabled (${config.configKey} = 0)`);

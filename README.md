@@ -4,7 +4,7 @@
   <img height="80" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/tscanner-logo.png" alt="tscanner logo">
   <div><strong>TScanner</strong></div>
   <br />
-  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-workflow">Workflow</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-configuration">Configuration</a><br /><a href="#-rules">Rules</a> • <a href="#-registry">Registry</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
+  <a href="#-overview">Overview</a> • <a href="#-features">Features</a> • <a href="#-motivation">Motivation</a> • <a href="#-workflow">Workflow</a> • <a href="#-quick-start">Quick Start</a> • <a href="#-configuration">Configuration</a><br /><a href="#-rules">Rules</a> • <a href="#-inspirations">Inspirations</a> • <a href="#-contributing">Contributing</a> • <a href="#-license">License</a>
 </div>
 
 <div width="100%" align="center">
@@ -14,7 +14,7 @@
 <!-- <DYNFIELD:OVERVIEW> -->
 ## 🎺 Overview<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-Define what "good code" means for your project. TScanner enforces your patterns in real-time in the code editor, blocks violations in PRs, and runs in CI. 38 ready-to-use rules + custom rules via regex, scripts, or AI.
+Define what "good code" means for your project. TScanner enforces your patterns in real-time in the code editor, blocks violations in PRs, and runs in CI. 36 ready-to-use rules + custom rules via regex, scripts, or AI.
 <!-- </DYNFIELD:OVERVIEW> -->
 
 <!-- <DYNFIELD:VSCODE_EXTENSION_DEMO_IMAGE> -->
@@ -108,9 +108,9 @@ Define what "good code" means for your project. TScanner enforces your patterns 
 
 <div align="left">
 
-- **Project Consistency** - Enforce import styles, naming conventions, and code organization rules
-- **PR Quality Gates** - Auto-comment violations before merge so reviewers focus on logic
-- **AI Code Validation** - Real-time feedback on AI-generated code before accepting
+- **Project Consistency**    - Enforce import styles, naming conventions, and code organization rules
+- **PR Quality Gates**       - Auto-comment violations before merge so reviewers focus on logic
+- **AI Code Validation**     - Real-time feedback on AI-generated code before accepting
 - **Flexible Customization** - Built-in rules + custom scripts and AI rules for complex logic 
 
 </div>
@@ -122,8 +122,7 @@ Define what "good code" means for your project. TScanner enforces your patterns 
 <!-- <DYNFIELD:FEATURES> -->
 ## ⭐ Features<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
 
-- **Your Rules, Enforced** - 38 built-in checks + define your own with regex, scripts, or AI
-- **Community Rules** - Install pre-built rules from registry or share your own with the world
+- **Your Rules, Enforced** - 36 built-in checks + define your own with regex, scripts, or AI
 - **See Issues Instantly** - Real-time feedback in code editor as you type, no manual scan needed
 - **Copy for AI** - Export issues to clipboard, paste into chat for bulk fixes
 - **Catch Before Merge** - PR comments show violations with clickable links to exact lines
@@ -309,7 +308,7 @@ npm install -D tscanner
 npx tscanner init
 ```
 
-> TIP: Use `npx tscanner init --full` for a [complete config](https://github.com/lucasvtiradentes/tscanner/blob/main/assets/configs/full.json) with example regex, script, and AI rules.
+> TIP: Use `npx tscanner init --minimal` for a smaller starter config with only one built-in rule.
 
 
 <!-- </DYNFIELD:QUICK_START_INSTALL> -->
@@ -430,7 +429,6 @@ To scan your code, you need to set up the rules in the TScanner config folder.
       "no-explicit-any": {},
       "no-floating-promises": {},
       "no-forwarded-exports": {},
-      "no-implicit-any": {},
       "no-inferrable-types": {},
       "no-nested-require": {},
       "no-nested-ternary": {},
@@ -447,7 +445,6 @@ To scan your code, you need to set up the rules in the TScanner config folder.
       "no-var": {},
       "prefer-const": {},
       "prefer-interface-over-type": {},
-      "prefer-nullish-coalescing": {},
       "prefer-optional-chain": {},
       "prefer-type-over-interface": {}
     },
@@ -459,37 +456,16 @@ To scan your code, you need to set up the rules in the TScanner config folder.
     },
     "script": {
       "example-no-long-files": {
-        "command": "npx tsx script-rules/example-no-long-files.ts",
+        "command": "npx tsx .tscanner/script-rules/example-no-long-files.ts",
         "message": "File exceeds 300 lines limit",
         "include": ["packages/**/*.ts", "packages/**/*.rs"]
       }
     }
   },
-  "aiRules": {
-    "example-find-enum-candidates": {
-      "prompt": "example-find-enum-candidates.md",
-      "mode": "agentic",
-      "message": "Type union could be replaced with an enum for better type safety",
-      "severity": "warning",
-      "include": ["**/*.ts"]
-    }
-  },
-  "ai": {
-    "provider": "claude"
-  },
+  "aiRules": [],
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
     "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
-  },
-  "codeEditor": {
-    "highlightErrors": true,
-    "highlightWarnings": true,
-    "highlightInfos": true,
-    "highlightHints": true,
-    "autoScanInterval": 0,
-    "autoAiScanInterval": 0,
-    "startupScan": "cached",
-    "startupAiScan": "off"
   }
 }
 ```
@@ -514,7 +490,7 @@ To scan your code, you need to set up the rules in the TScanner config folder.
     "regex": {},
     "script": {}
   },
-  "aiRules": {},
+  "aiRules": [],
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs"],
     "exclude": ["**/node_modules/**", "**/dist/**", "**/build/**", "**/.git/**"]
@@ -604,12 +580,12 @@ Rules are the core of TScanner. They define what to check, where to check, and h
 <div align="center">
 
 <details>
-<summary>Built-in rules (38)</summary>
+<summary>Built-in rules (36)</summary>
 <br />
 
 <div align="left">
 
-#### Type Safety (6)
+#### Type Safety (5)
 
 </div>
 
@@ -625,12 +601,6 @@ Rules are the core of TScanner. They define what to check, where to check, and h
     <td align="left">Detects usage of TypeScript 'any' type (<code>: any</code> and <code>as any</code>). Using 'any' defeats the purpose of TypeScript's type system.</td>
     <td align="left"></td>
     <td align="left"><a href="https://typescript-eslint.io/rules/no-explicit-any"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a> <a href="https://biomejs.dev/linter/rules/no-explicit-any"><img src="https://img.shields.io/badge/-Biome-60A5FA?logo=biome&logoColor=white" alt="Biome"></a></td>
-  </tr>
-  <tr>
-    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/type_safety/no_implicit_any.rs"><code>no-implicit-any</code></a><br/><br/><img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only"></div></td>
-    <td align="left">Detects function parameters without type annotations that implicitly have 'any' type.</td>
-    <td align="left"></td>
-    <td align="left"></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/type_safety/no_inferrable_types.rs"><code>no-inferrable-types</code></a><br/><br/><img src="https://img.shields.io/badge/ts--only-3178C6?logo=typescript&logoColor=white" alt="TypeScript only"></div></td>
@@ -888,7 +858,7 @@ Rules are the core of TScanner. They define what to check, where to check, and h
 
 <div align="left">
 
-#### Style (4)
+#### Style (3)
 
 </div>
 
@@ -904,12 +874,6 @@ Rules are the core of TScanner. They define what to check, where to check, and h
     <td align="left">Suggests using 'interface' keyword instead of 'type' for consistency.</td>
     <td align="left"></td>
     <td align="left"><a href="https://typescript-eslint.io/rules/consistent-type-definitions"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
-  </tr>
-  <tr>
-    <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/style/prefer_nullish_coalescing.rs"><code>prefer-nullish-coalescing</code></a></div></td>
-    <td align="left">Suggests using nullish coalescing (??) instead of logical OR (||) for default values. The || operator treats 0, "", and false as falsy, which may not be intended.</td>
-    <td align="left"></td>
-    <td align="left"><a href="https://typescript-eslint.io/rules/prefer-nullish-coalescing"><img src="https://img.shields.io/badge/-ESLint-4B32C3?logo=eslint&logoColor=white" alt="ESLint"></a></td>
   </tr>
   <tr>
     <td align="left"><div align="center"><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/packages/rust-core/crates/tscanner_rules/src/builtin/style/prefer_optional_chain.rs"><code>prefer-optional-chain</code></a></div></td>
@@ -1096,7 +1060,7 @@ fn main() -> io::Result<()> {
 ```
 </details>
 
-> 💡 See real examples in the [`.tscanner/script-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/script-rules) and [`registry/script-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/registry/script-rules) folders.
+> 💡 See real examples in the [`.tscanner/script-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/script-rules) folder.
 
 </div>
 </details>
@@ -1149,11 +1113,15 @@ Use AI prompts (markdown files) to perform semantic code analysis. Works with an
       "include": ["**/*.rs"],
       "options": { "allowTestFiles": true }
     }
-  },
-  "ai": {
-    "provider": "claude"
   }
 }
+```
+
+Set the project-local AI provider in `.tscanner/local.jsonc`:
+```bash
+tscanner ai set claude --model sonnet-4.6
+tscanner check --include-ai
+TSCANNER_AI_PROVIDER=codex TSCANNER_AI_MODEL=gpt5.1 tscanner check --include-ai
 ```
 
 <details>
@@ -1206,77 +1174,13 @@ Detect dead code patterns.
 ```
 </details>
 
-> 💡 See real examples in the [`.tscanner/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/ai-rules) and [`registry/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/registry/ai-rules) folders.
+> 💡 See real examples in the [`.tscanner/ai-rules/`](https://github.com/lucasvtiradentes/tscanner/tree/main/.tscanner/ai-rules) folder.
 
 </div>
 </details>
 
 </div>
 <!-- </DYNFIELD:RULES> -->
-
-<!-- <DYNFIELD:REGISTRY> -->
-## 📦 Registry<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>
-
-The registry is a collection of community rules ready to install with a single command.
-
-```bash
-npx tscanner registry                     # List all available rules (and you chose the ones you want to install)
-npx tscanner registry no-long-files       # Install a specific rule
-npx tscanner registry --kind script       # Filter by type (ai, script, regex)
-npx tscanner registry --category security # Filter by category
-npx tscanner registry --latest            # Use rules from main branch instead of current version
-```
-
-<div align="center">
-
-**Available rules (5)**
-
-<table>
-  <tr>
-    <th width="33%">Rule</th>
-    <th width="17%">Type</th>
-    <th width="17%">Language</th>
-    <th width="33%">Description</th>
-  </tr>
-  <tr>
-    <td><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/registry/ai-rules/find-enum-candidates/prompt.md"><code>find-enum-candidates</code></a></td>
-    <td><img src="https://img.shields.io/badge/ai-8B5CF6" alt="ai"></td>
-    <td><img src="https://img.shields.io/badge/Markdown-083fa1?logo=markdown&logoColor=white" alt="Markdown"></td>
-    <td>Find string literal unions that could be replaced with enums</td>
-  </tr>
-  <tr>
-    <td><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-long-files/script.ts"><code>no-long-files</code></a></td>
-    <td><img src="https://img.shields.io/badge/script-10B981" alt="script"></td>
-    <td><img src="https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript"></td>
-    <td>Enforce maximum lines per file limit</td>
-  </tr>
-  <tr>
-    <td><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-empty-files/script.py"><code>no-empty-files</code></a></td>
-    <td><img src="https://img.shields.io/badge/script-10B981" alt="script"></td>
-    <td><img src="https://img.shields.io/badge/Python-3776AB?logo=python&logoColor=white" alt="Python"></td>
-    <td>Enforce minimum lines per file</td>
-  </tr>
-  <tr>
-    <td><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/registry/script-rules/no-fixme-comments/script.rs"><code>no-fixme-comments</code></a></td>
-    <td><img src="https://img.shields.io/badge/script-10B981" alt="script"></td>
-    <td><img src="https://img.shields.io/badge/Rust-DEA584?logo=rust&logoColor=white" alt="Rust"></td>
-    <td>Disallow FIXME/XXX comments in code</td>
-  </tr>
-  <tr>
-    <td><a href="https://github.com/lucasvtiradentes/tscanner/blob/main/registry/regex-rules/no-process-env/config.jsonc"><code>no-process-env</code></a></td>
-    <td><img src="https://img.shields.io/badge/regex-6C757D" alt="regex"></td>
-    <td>-</td>
-    <td>Disallow direct process.env access</td>
-  </tr>
-</table>
-
-</div>
-
-<br />
-
-> **Want to share your rule?** Open a PR adding your rule to the [`registry/`](https://github.com/lucasvtiradentes/tscanner/tree/main/registry) folder. Once merged, everyone can install it with `npx tscanner registry your-rule-name`.
-
-<!-- </DYNFIELD:REGISTRY> -->
 
 <!-- <DYNFIELD:INSPIRATIONS> -->
 ## 💡 Inspirations<a href="#TOC"><img align="right" src="https://cdn.jsdelivr.net/gh/lucasvtiradentes/tscanner@main/.github/image/up_arrow.png" width="22"></a>

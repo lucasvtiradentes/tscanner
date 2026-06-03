@@ -1,7 +1,8 @@
 use std::path::Path;
 
+use crate::ai_rule_sources::resolve_ai_rule_sources;
 use crate::ai_rules_validator::validate_ai_rules;
-use crate::types::{AiProvider, CompiledRuleConfig, TscannerConfig};
+use crate::types::{CompiledRuleConfig, TscannerConfig};
 use crate::validation::{validate_json_fields, ValidationResult};
 use tscanner_constants::{config_dir_name, config_error_prefix};
 
@@ -51,13 +52,14 @@ impl TscannerConfigExt for TscannerConfig {
             return Ok((None, result));
         }
 
-        let config: TscannerConfig = match serde_json::from_value(json_value) {
+        let mut config: TscannerConfig = match serde_json::from_value(json_value) {
             Ok(c) => c,
             Err(e) => {
                 result.add_error(format!("Failed to parse config: {}", e));
                 return Ok((None, result));
             }
         };
+        result.merge(resolve_ai_rule_sources(&mut config, workspace));
         result.merge(config.validate_with_workspace(workspace, config_dir_name));
 
         Ok((Some(config), result))
@@ -74,15 +76,6 @@ impl TscannerConfigExt for TscannerConfig {
     ) -> ValidationResult {
         let mut result = ValidationResult::new();
 
-        if let Some(ref ai_config) = self.ai {
-            if ai_config.provider == Some(AiProvider::Custom)
-                && (ai_config.command.is_none()
-                    || ai_config.command.as_ref().map(|c| c.trim().is_empty()) == Some(true))
-            {
-                result.add_error("ai.command is required when ai.provider is 'custom'".to_string());
-            }
-        }
-
         for (name, regex_config) in &self.rules.regex {
             if let Err(e) = regex::Regex::new(&regex_config.pattern) {
                 result.add_error(format!("Rule '{}' has invalid regex pattern: {}", name, e));
@@ -95,9 +88,9 @@ impl TscannerConfigExt for TscannerConfig {
             }
         }
 
-        for (name, ai_config) in &self.ai_rules {
-            if ai_config.prompt.trim().is_empty() {
-                result.add_error(format!("AI rule '{}' has empty prompt", name));
+        for (index, ai_config) in self.ai_rules.iter().enumerate() {
+            if ai_config.path.trim().is_empty() {
+                result.add_error(format!("AI rule source at index {} has empty path", index));
             }
         }
 
@@ -143,7 +136,10 @@ impl TscannerConfigExt for TscannerConfig {
             .values()
             .flat_map(|rule| rule.include.clone());
 
-        let ai_patterns = self.ai_rules.values().flat_map(|rule| rule.include.clone());
+        let ai_patterns = self
+            .resolved_ai_rules
+            .iter()
+            .flat_map(|rule| rule.include.clone());
 
         builtin_patterns
             .chain(regex_patterns)

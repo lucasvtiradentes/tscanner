@@ -1,9 +1,14 @@
 import { readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
-import { PACKAGE_DISPLAY_NAME, PACKAGE_NAME, REPO_URL } from 'tscanner-common';
+import { PACKAGE_DISPLAY_NAME, PACKAGE_NAME } from 'tscanner-common';
 
-type TFields = 'QUICK_START_CLI' | 'QUICK_START_VSCODE_EXTENSION' | 'QUICK_START_GITHUB_ACTION' | 'QUICK_START_INSTALL';
+enum QuickStartField {
+  Cli = 'QUICK_START_CLI',
+  VscodeExtension = 'QUICK_START_VSCODE_EXTENSION',
+  GithubAction = 'QUICK_START_GITHUB_ACTION',
+  Install = 'QUICK_START_INSTALL',
+}
 
 const rootDir = resolve(__dirname, '..', '..');
 
@@ -26,7 +31,7 @@ npm install -D ${PACKAGE_NAME}
 npx ${PACKAGE_NAME} init
 \`\`\`
 
-> TIP: Use \`npx ${PACKAGE_NAME} init --full\` for a [complete config](${REPO_URL}/blob/main/assets/configs/full.json) with example regex, script, and AI rules.
+> TIP: Use \`npx ${PACKAGE_NAME} init --minimal\` for a smaller starter config with only one built-in rule.
 
 `;
 }
@@ -115,26 +120,26 @@ export function updateQuickStart() {
   const cliQuickStart = getCliSection();
   const vscodeQuickStart = getVscodeExtensionSection();
 
-  const mainReadme = new DynMarkdown<TFields>(join(rootDir, 'README.md'));
-  mainReadme.updateField('QUICK_START_INSTALL', installQuickStart);
-  mainReadme.updateField('QUICK_START_VSCODE_EXTENSION', vscodeQuickStart);
-  mainReadme.updateField('QUICK_START_CLI', cliQuickStart);
-  mainReadme.updateField('QUICK_START_GITHUB_ACTION', githubActionQuickStart);
+  const mainReadme = new DynMarkdown<QuickStartField>(join(rootDir, 'README.md'));
+  mainReadme.updateField(QuickStartField.Install, installQuickStart);
+  mainReadme.updateField(QuickStartField.VscodeExtension, vscodeQuickStart);
+  mainReadme.updateField(QuickStartField.Cli, cliQuickStart);
+  mainReadme.updateField(QuickStartField.GithubAction, githubActionQuickStart);
   mainReadme.saveFile();
 
-  const cliReadme = new DynMarkdown<TFields>(join(rootDir, 'packages/cli/README.md'));
-  cliReadme.updateField('QUICK_START_INSTALL', installQuickStart);
-  cliReadme.updateField('QUICK_START_CLI', getCliSection(3));
+  const cliReadme = new DynMarkdown<QuickStartField>(join(rootDir, 'packages/cli/README.md'));
+  cliReadme.updateField(QuickStartField.Install, installQuickStart);
+  cliReadme.updateField(QuickStartField.Cli, getCliSection(3));
   cliReadme.saveFile();
 
-  const vscodeReadme = new DynMarkdown<TFields>(join(rootDir, 'packages/vscode-extension/README.md'));
-  vscodeReadme.updateField('QUICK_START_INSTALL', installQuickStart);
-  vscodeReadme.updateField('QUICK_START_VSCODE_EXTENSION', getVscodeExtensionSection(3));
+  const vscodeReadme = new DynMarkdown<QuickStartField>(join(rootDir, 'packages/vscode-extension/README.md'));
+  vscodeReadme.updateField(QuickStartField.Install, installQuickStart);
+  vscodeReadme.updateField(QuickStartField.VscodeExtension, getVscodeExtensionSection(3));
   vscodeReadme.saveFile();
 
-  const githubActionReadme = new DynMarkdown<TFields>(join(rootDir, 'packages/github-action/README.md'));
-  githubActionReadme.updateField('QUICK_START_INSTALL', installQuickStart);
-  githubActionReadme.updateField('QUICK_START_GITHUB_ACTION', getGithubActionSection(3));
+  const githubActionReadme = new DynMarkdown<QuickStartField>(join(rootDir, 'packages/github-action/README.md'));
+  githubActionReadme.updateField(QuickStartField.Install, installQuickStart);
+  githubActionReadme.updateField(QuickStartField.GithubAction, getGithubActionSection(3));
   githubActionReadme.saveFile();
 
   console.log('✓ Updated QUICK_START sections');

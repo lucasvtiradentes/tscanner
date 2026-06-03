@@ -1,4 +1,5 @@
 import { constants, accessSync, chmodSync } from 'node:fs';
+import { PlatformKey } from './types';
 
 export function slugify(text: string): string {
   return text
@@ -12,14 +13,14 @@ export function pluralize(count: number, singular: string): string {
   return count === 1 ? singular : `${singular}s`;
 }
 
-export function getPlatformKey(): string {
+export function getPlatformKey(): PlatformKey {
   const platform = process.platform;
   const arch = process.arch;
 
-  const SUPPORTED_PLATFORMS: Record<string, Record<string, string>> = {
-    linux: { x64: 'linux-x64', arm64: 'linux-arm64' },
-    darwin: { x64: 'darwin-x64', arm64: 'darwin-arm64' },
-    win32: { x64: 'win32-x64' },
+  const SUPPORTED_PLATFORMS: Record<string, Partial<Record<string, PlatformKey>>> = {
+    linux: { x64: PlatformKey.LinuxX64, arm64: PlatformKey.LinuxArm64 },
+    darwin: { x64: PlatformKey.DarwinX64, arm64: PlatformKey.DarwinArm64 },
+    win32: { x64: PlatformKey.Win32X64 },
   };
   const key = SUPPORTED_PLATFORMS[platform]?.[arch];
 

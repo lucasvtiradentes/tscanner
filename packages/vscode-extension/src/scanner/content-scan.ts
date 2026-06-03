@@ -1,8 +1,8 @@
-import type { TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { logger } from '../common/lib/logger';
 import { getCurrentWorkspaceFolder } from '../common/lib/vscode-utils';
 import type { IssueResult } from '../common/types';
+import type { ScanContentRequestOptions } from '../lsp/requests/types';
 import { ensureLspClient } from './client';
 import { mapIssueToResult } from './utils';
 
@@ -11,14 +11,12 @@ type ScanContentResult = {
   relatedFiles: string[];
 };
 
-export async function scanContent(
-  filePath: string,
-  content: string,
-  config?: TscannerConfig,
-  configDir?: string,
-  branch?: string,
-  uncommitted?: boolean,
-): Promise<ScanContentResult> {
+type ScanContentParams = ScanContentRequestOptions & {
+  filePath: string;
+};
+
+export async function scanContent(params: ScanContentParams): Promise<ScanContentResult> {
+  const { filePath, content, config, branch, uncommitted } = params;
   const workspaceFolder = getCurrentWorkspaceFolder();
   if (!workspaceFolder) {
     return { issues: [], relatedFiles: [] };
@@ -26,15 +24,14 @@ export async function scanContent(
 
   try {
     const client = await ensureLspClient();
-    const result = await client.scanContent(
-      workspaceFolder.uri.fsPath,
-      filePath,
+    const result = await client.scanContent({
+      root: workspaceFolder.uri.fsPath,
+      file: filePath,
       content,
       config,
-      configDir,
       branch,
       uncommitted,
-    );
+    });
 
     logger.debug(`scanContent() returned ${result.issues.length} results for ${filePath}`);
 

@@ -8,7 +8,16 @@ export enum Command {
   RefreshIssuesCached = 'refreshIssuesCached',
   RefreshAiIssues = 'refreshAiIssues',
   RefreshAiIssuesCached = 'refreshAiIssuesCached',
-  OpenSettingsMenu = 'openSettingsMenu',
+  OpenSettingsView = 'openSettingsView',
+  OpenProjectConfig = 'openProjectConfig',
+  OpenLocalConfig = 'openLocalConfig',
+  ManageAiProvider = 'manageAiProvider',
+  ManageAiModel = 'manageAiModel',
+  ManageScanMode = 'manageScanMode',
+  ManageStartupScan = 'manageStartupScan',
+  ManageStartupAiScan = 'manageStartupAiScan',
+  ToggleAutoScan = 'toggleAutoScan',
+  ToggleAutoAiScan = 'toggleAutoAiScan',
   CycleViewModeFileFlatView = 'cycleViewModeFileFlatView',
   CycleViewModeFileTreeView = 'cycleViewModeFileTreeView',
   CycleViewModeRuleFlatView = 'cycleViewModeRuleFlatView',
@@ -35,11 +44,11 @@ export enum TreeItemContextValue {
   Issue = 'TscannerNodeIssue',
 }
 
-interface CommandParams {
+type CommandParams = {
   [Command.RefreshIssues]: RefreshIssuesParams;
   [Command.RefreshAiIssues]: RefreshAiIssuesParams;
   [Command.OpenFile]: { filePath: string; line: number; column: number };
-}
+};
 
 export function executeCommand<T extends Command>(
   command: T,
@@ -48,7 +57,10 @@ export function executeCommand<T extends Command>(
   return vscode.commands.executeCommand(getCommandId(command), ...args);
 }
 
-export function registerCommand(command: Command, callback: (...args: any[]) => any): vscode.Disposable {
+export function registerCommand<TArgs extends readonly unknown[], TReturn>(
+  command: Command,
+  callback: (...args: TArgs) => TReturn,
+): vscode.Disposable {
   return vscode.commands.registerCommand(getCommandId(command), callback);
 }
 

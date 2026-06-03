@@ -1,5 +1,6 @@
 import { AiExecutionMode, CONFIG_DIR_NAME, ScanMode, hasConfiguredRules } from 'tscanner-common';
-import { getConfigDirLabel, getOrLoadConfig } from '../../common/lib/config-manager';
+import * as vscode from 'vscode';
+import { getOrLoadConfig } from '../../common/lib/config-manager';
 import { createLogger, logger } from '../../common/lib/logger';
 import { ScanType, withScanErrorHandling } from '../../common/lib/scan-helpers';
 import { Command, getCurrentWorkspaceFolder, registerCommand } from '../../common/lib/vscode-utils';
@@ -14,10 +15,10 @@ import { scan } from '../../scanner/scan';
 const aiScanLogger = createLogger('AI Scan');
 const aiProgressLogger = createLogger('AI Progress');
 
-export interface RefreshAiIssuesParams {
+export type RefreshAiIssuesParams = {
   trigger?: ScanTrigger;
   useCache?: boolean;
-}
+};
 
 export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIssuesView) {
   return registerCommand(Command.RefreshAiIssues, async (options?: RefreshAiIssuesParams) => {
@@ -26,6 +27,15 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
       return;
     }
 
+    const previousResults = aiView.getResults();
+    const previousAiIssues = previousResults.map((issue) => ({
+      rule: issue.rule,
+      file: vscode.workspace.asRelativePath(issue.uri, false),
+      line: issue.line + 1,
+      column: issue.column + 1,
+      message: issue.message,
+      line_text: issue.text || undefined,
+    }));
     aiView.setResults([], true);
     let progressDisposable: { dispose(): void } | null = null;
 
@@ -36,13 +46,13 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
         onError: (error) => {
           logger.error(`AI scan failed: ${error}`);
           aiView.clearProgress();
+          aiView.setResults(previousResults, true);
         },
         onFinally: () => {
           progressDisposable?.dispose();
         },
       },
       async () => {
-        const configDir = extensionStore.get(StoreKey.ConfigDir);
         const config = await getOrLoadConfig(workspaceFolder.uri.fsPath);
 
         if (!hasConfiguredRules(config)) {
@@ -51,12 +61,7 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
           return;
         }
 
-        const configToPass = configDir ? (config ?? undefined) : undefined;
-        if (configDir) {
-          aiScanLogger.info(`Using config from ${getConfigDirLabel(configDir)}`);
-        } else {
-          aiScanLogger.info(`Using local config from ${CONFIG_DIR_NAME}`);
-        }
+        aiScanLogger.info(`Using local config from ${CONFIG_DIR_NAME}`);
 
         aiScanLogger.info('Starting AI-only scan (full scan)...');
 
@@ -77,10 +82,9 @@ export function createRefreshAiIssuesCommand(_ctx: CommandContext, aiView: AiIss
         aiScanLogger.info(`AI scan trigger: ${trigger}, useCache: ${useCache}, noCache flag: ${!useCache}`);
         const results = await scan({
           branch,
-          config: configToPass,
-          configDir: configDir ?? undefined,
           aiMode: AiExecutionMode.Only,
           noCache: !useCache,
+          previousAiIssues: previousAiIssues.length > 0 ? previousAiIssues : undefined,
         });
 
         const elapsed = Date.now() - startTime;

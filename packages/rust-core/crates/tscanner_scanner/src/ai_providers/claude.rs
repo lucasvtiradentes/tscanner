@@ -5,10 +5,15 @@ use tscanner_constants::{claude_args, claude_command};
 pub struct ClaudeProvider;
 
 impl AiProviderImpl for ClaudeProvider {
-    fn get_command(&self, _custom_command: Option<&str>) -> Result<(String, Vec<String>), String> {
+    fn get_command(&self, model: Option<&str>) -> Result<(String, Vec<String>), String> {
         let cmd_name = claude_command();
         let resolved_cmd = resolve_command_path(cmd_name, self.get_hardcoded_paths())?;
-        Ok((resolved_cmd, claude_args().to_vec()))
+        let mut args = claude_args().to_vec();
+        if let Some(model) = model {
+            args.push("--model".to_string());
+            args.push(model.to_string());
+        }
+        Ok((resolved_cmd, args))
     }
 
     fn get_hardcoded_paths(&self) -> Vec<PathBuf> {

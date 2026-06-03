@@ -1,5 +1,7 @@
 use super::Scanner;
-use crate::executors::{AiProgressCallback, ChangedLinesMap, RegularRulesCompleteCallback};
+use crate::executors::{
+    AiProgressCallback, ChangedLinesMap, PreviousAiIssue, RegularRulesCompleteCallback,
+};
 use rayon::prelude::*;
 use std::collections::HashSet;
 use std::path::{Path, PathBuf};
@@ -11,6 +13,7 @@ use tscanner_types::{ContentScanResult, FileResult, ScanResult};
 pub struct ScanCallbacks {
     pub on_regular_rules_complete: Option<RegularRulesCompleteCallback>,
     pub on_ai_progress: Option<AiProgressCallback>,
+    pub previous_ai_issues: Vec<PreviousAiIssue>,
 }
 
 impl Scanner {
@@ -50,6 +53,7 @@ impl Scanner {
             ScanCallbacks {
                 on_regular_rules_complete: None,
                 on_ai_progress: None,
+                previous_ai_issues: Vec::new(),
             },
         )
     }
@@ -70,6 +74,29 @@ impl Scanner {
             ScanCallbacks {
                 on_regular_rules_complete: None,
                 on_ai_progress: ai_progress_callback,
+                previous_ai_issues: Vec::new(),
+            },
+        )
+    }
+
+    pub fn scan_codebase_with_progress_and_previous_ai_issues(
+        &self,
+        roots: &[PathBuf],
+        file_filter: Option<&HashSet<PathBuf>>,
+        ai_mode: AiExecutionMode,
+        changed_lines: Option<&ChangedLinesMap>,
+        ai_progress_callback: Option<AiProgressCallback>,
+        previous_ai_issues: Vec<PreviousAiIssue>,
+    ) -> ScanResult {
+        self.scan_codebase_with_callbacks(
+            roots,
+            file_filter,
+            ai_mode,
+            changed_lines,
+            ScanCallbacks {
+                on_regular_rules_complete: None,
+                on_ai_progress: ai_progress_callback,
+                previous_ai_issues,
             },
         )
     }
@@ -171,6 +198,7 @@ impl Scanner {
                 &[],
                 changed_lines,
                 callbacks.on_ai_progress,
+                &callbacks.previous_ai_issues,
             )
         };
         let ai_duration = ai_start.elapsed();

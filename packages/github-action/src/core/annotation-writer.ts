@@ -70,7 +70,7 @@ export async function writeAnnotations(octokit: Octokit, scanResult: ActionScanR
       },
     });
 
-    for (let i = 1; i < chunks.length; i++) {
+    for (let chunkIndex = 1; chunkIndex < chunks.length; chunkIndex++) {
       await octokit.rest.checks.update({
         owner,
         repo,
@@ -78,7 +78,7 @@ export async function writeAnnotations(octokit: Octokit, scanResult: ActionScanR
         output: {
           title,
           summary: `Found ${scanResult.totalIssues} issue(s) in ${scanResult.totalFiles} file(s)`,
-          annotations: chunks[i],
+          annotations: chunks[chunkIndex],
         },
       });
     }

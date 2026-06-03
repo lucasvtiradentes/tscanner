@@ -87,13 +87,18 @@
       "tscanner": [
         {
           "id": "tscannerExplorer",
-          "name": "Issues",
+          "name": "Regular Issues",
           "icon": "resources/icon.svg"
         },
         {
           "id": "tscannerAiExplorer",
           "name": "AI Issues",
           "icon": "$(hubot)"
+        },
+        {
+          "id": "tscannerSettings",
+          "name": "Settings",
+          "icon": "$(settings-gear)"
         }
       ]
     },
@@ -172,8 +177,14 @@
         "icon": "$(clear-all)"
       },
       {
-        "command": "tscanner.openSettingsMenu",
-        "title": "Open Settings"
+        "command": "tscanner.openProjectConfig",
+        "title": "Open Project Config",
+        "icon": "$(file-code)"
+      },
+      {
+        "command": "tscanner.openLocalConfig",
+        "title": "Open Local Config",
+        "icon": "$(account)"
       },
       {
         "command": "tscanner.cycleViewModeFileFlatView",
@@ -295,6 +306,16 @@
           "group": "navigation@1"
         },
         {
+          "command": "tscanner.openProjectConfig",
+          "when": "view == tscannerSettings",
+          "group": "navigation@1"
+        },
+        {
+          "command": "tscanner.openLocalConfig",
+          "when": "view == tscannerSettings",
+          "group": "navigation@2"
+        },
+        {
           "command": "tscanner.cycleViewModeFileFlatView",
           "when": "view == tscannerAiExplorer && tscannerViewMode == list && tscannerGroupMode == file",
           "group": "navigation@20"
@@ -354,10 +375,6 @@
         },
         {
           "command": "tscanner.refreshAiIssuesCached",
-          "when": "false"
-        },
-        {
-          "command": "tscanner.openSettingsMenu",
           "when": "false"
         },
         {
@@ -427,6 +444,30 @@
           "type": "boolean",
           "default": false,
           "description": "Enable logging to an output channel for debugging purposes (restart required)."
+        },
+        "tscanner.scan.startup": {
+          "type": "string",
+          "enum": ["off", "cached", "fresh"],
+          "default": "fresh",
+          "description": "Regular scan behavior when the extension starts."
+        },
+        "tscanner.aiScan.startup": {
+          "type": "string",
+          "enum": ["off", "cached", "fresh"],
+          "default": "off",
+          "description": "AI scan behavior when the extension starts."
+        },
+        "tscanner.scan.autoInterval": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "description": "Regular auto-scan interval in seconds. Set to 0 to disable."
+        },
+        "tscanner.aiScan.autoInterval": {
+          "type": "number",
+          "default": 0,
+          "minimum": 0,
+          "description": "AI auto-scan interval in seconds. Set to 0 to disable."
         }
       }
     }

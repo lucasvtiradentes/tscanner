@@ -2,8 +2,7 @@ import { execSync } from 'node:child_process';
 import { existsSync } from 'node:fs';
 import { VSCODE_EXTENSION, getBinaryName } from 'tscanner-common';
 
-export async function findInPath(): Promise<string | null> {
-  const binaryName = getBinaryName();
+export async function findInPath(binaryName = getBinaryName()): Promise<string | null> {
   const command = process.platform === 'win32' ? 'where' : 'which';
 
   try {

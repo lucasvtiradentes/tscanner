@@ -1,39 +1,23 @@
-import { isAbsolute, join } from 'node:path';
 import * as jsonc from 'jsonc-parser';
 import { CONFIG_DIR_NAME, CONFIG_FILE_NAME, type TscannerConfig } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { StoreKey, extensionStore } from '../state/extension-store';
 import { logger } from './logger';
 
-export function getConfigBaseDir(workspacePath: string, configDir: string | null): string {
-  if (!configDir) {
-    return workspacePath;
-  }
-
-  if (isAbsolute(configDir)) {
-    return configDir;
-  }
-
-  return join(workspacePath, configDir);
+export function getConfigBaseDir(workspacePath: string): string {
+  return workspacePath;
 }
 
-function getConfigDir(workspacePath: string, configDir: string | null): vscode.Uri {
-  const baseDir = vscode.Uri.file(workspacePath);
-
-  if (!configDir) {
-    return vscode.Uri.joinPath(baseDir, CONFIG_DIR_NAME);
-  }
-
-  const customDir = isAbsolute(configDir) ? vscode.Uri.file(configDir) : vscode.Uri.joinPath(baseDir, configDir);
-  return vscode.Uri.joinPath(customDir, CONFIG_DIR_NAME);
+export function getConfigDirPath(workspacePath: string): string {
+  return vscode.Uri.joinPath(vscode.Uri.file(workspacePath), CONFIG_DIR_NAME).fsPath;
 }
 
-export function getConfigPath(workspacePath: string, configDir: string | null): string {
-  return vscode.Uri.joinPath(getConfigDir(workspacePath, configDir), CONFIG_FILE_NAME).fsPath;
+export function getConfigPath(workspacePath: string): string {
+  return vscode.Uri.joinPath(vscode.Uri.file(getConfigDirPath(workspacePath)), CONFIG_FILE_NAME).fsPath;
 }
 
-export async function hasConfig(workspacePath: string, configDir: string | null): Promise<boolean> {
-  const configPath = vscode.Uri.file(getConfigPath(workspacePath, configDir));
+export async function hasConfig(workspacePath: string): Promise<boolean> {
+  const configPath = vscode.Uri.file(getConfigPath(workspacePath));
   try {
     await vscode.workspace.fs.stat(configPath);
     return true;
@@ -42,8 +26,8 @@ export async function hasConfig(workspacePath: string, configDir: string | null)
   }
 }
 
-async function loadConfig(workspacePath: string, configDir: string | null): Promise<TscannerConfig | null> {
-  const configPath = getConfigPath(workspacePath, configDir);
+async function loadConfig(workspacePath: string): Promise<TscannerConfig | null> {
+  const configPath = getConfigPath(workspacePath);
   const configUri = vscode.Uri.file(configPath);
 
   try {
@@ -65,43 +49,8 @@ async function loadConfig(workspacePath: string, configDir: string | null): Prom
   }
 }
 
-async function copyDirectoryRecursive(source: vscode.Uri, target: vscode.Uri): Promise<void> {
-  await vscode.workspace.fs.createDirectory(target);
-
-  const entries = await vscode.workspace.fs.readDirectory(source);
-  for (const [name, type] of entries) {
-    const sourceEntry = vscode.Uri.joinPath(source, name);
-    const targetEntry = vscode.Uri.joinPath(target, name);
-
-    if (type === vscode.FileType.Directory) {
-      await copyDirectoryRecursive(sourceEntry, targetEntry);
-    } else {
-      await vscode.workspace.fs.copy(sourceEntry, targetEntry, { overwrite: true });
-    }
-  }
-}
-
-export async function moveConfig(
-  workspacePath: string,
-  fromConfigDir: string | null,
-  toConfigDir: string | null,
-): Promise<void> {
-  const sourceDir = getConfigDir(workspacePath, fromConfigDir);
-  const targetDir = getConfigDir(workspacePath, toConfigDir);
-
-  await copyDirectoryRecursive(sourceDir, targetDir);
-  await vscode.workspace.fs.delete(sourceDir, { recursive: true });
-
-  logger.info(`Moved config from ${sourceDir.fsPath} to ${targetDir.fsPath}`);
-}
-
-export function getConfigDirLabel(configDir: string | null): string {
-  return configDir ? `${configDir}/${CONFIG_DIR_NAME}` : CONFIG_DIR_NAME;
-}
-
 export async function loadAndCacheConfig(workspacePath: string): Promise<TscannerConfig | null> {
-  const configDir = extensionStore.get(StoreKey.ConfigDir);
-  const config = await loadConfig(workspacePath, configDir);
+  const config = await loadConfig(workspacePath);
   extensionStore.set(StoreKey.CachedConfig, config);
   return config;
 }

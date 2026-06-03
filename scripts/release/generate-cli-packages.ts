@@ -1,5 +1,6 @@
 import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { scriptEnv } from '../env';
 
 const SCRIPT_DIR = __dirname;
 const ROOT_DIR = join(SCRIPT_DIR, '..', '..');
@@ -16,22 +17,29 @@ const PLATFORMS = [
   { platform: 'linux', arch: 'arm64' },
 ];
 
-async function main() {
-  if (!process.env.CI && !process.env.GITHUB_ACTIONS) {
+type CliManifest = {
+  version: string;
+  license: string;
+  repository: { url: string };
+  optionalDependencies?: Record<string, string>;
+};
+
+function main() {
+  if (!scriptEnv.isCi) {
     logger.log('This script should only run in CI/CD environment');
     process.exit(1);
   }
 
-  const cliManifest = JSON.parse(readFileSync(CLI_MANIFEST_PATH, 'utf-8'));
+  const cliManifest = JSON.parse(readFileSync(CLI_MANIFEST_PATH, 'utf-8')) as CliManifest;
 
-  await generateNativePackages(cliManifest);
-  await updateCliPackageVersion(cliManifest);
-  await printSuccessMessage();
+  generateNativePackages(cliManifest);
+  updateCliPackageVersion(cliManifest);
+  printSuccessMessage();
 }
 
 main();
 
-async function generateNativePackages(cliManifest: any) {
+function generateNativePackages(cliManifest: CliManifest) {
   logger.log(`Step 1/2 - Generating native packages for ${PLATFORMS.length} platforms...`);
 
   for (const { platform, arch } of PLATFORMS) {
@@ -80,10 +88,10 @@ async function generateNativePackages(cliManifest: any) {
   }
 }
 
-async function updateCliPackageVersion(cliManifest: any) {
+function updateCliPackageVersion(cliManifest: CliManifest) {
   logger.log('Step 2/2 - Updating CLI package version...');
 
-  const manifest = JSON.parse(readFileSync(CLI_MANIFEST_PATH, 'utf-8'));
+  const manifest = JSON.parse(readFileSync(CLI_MANIFEST_PATH, 'utf-8')) as CliManifest;
   const { version } = cliManifest;
 
   if (manifest.optionalDependencies) {
@@ -98,7 +106,7 @@ async function updateCliPackageVersion(cliManifest: any) {
   logger.log('   ✅ Updated CLI package version');
 }
 
-async function printSuccessMessage() {
+function printSuccessMessage() {
   logger.log('\n✅ All packages generated successfully!');
   logger.log('   Ready for publishing\n');
 }

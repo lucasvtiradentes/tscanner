@@ -1,10 +1,10 @@
 import z from 'zod';
-import { RuleCategory, RuleType, severitySchema } from './enums';
+import { RuleCategory, RuleType, ruleOptionTypeSchema, severitySchema } from './enums';
 
 const ruleOptionSchema = z.object({
   name: z.string(),
   description: z.string(),
-  type: z.enum(['integer', 'boolean', 'string', 'array']),
+  type: ruleOptionTypeSchema,
   default: z.any(),
   minimum: z.number().optional(),
   items: z.string().optional(),

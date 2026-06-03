@@ -1,10 +1,11 @@
-import { VSCODE_EXTENSION } from 'tscanner-common';
+import { CONFIG_DIR_NAME, LOCAL_CONFIG_FILE_NAME, VSCODE_EXTENSION } from 'tscanner-common';
 import * as vscode from 'vscode';
 import { registerAllCommands } from './commands';
-import { getAiViewId, getViewId } from './common/constants';
+import { IS_DEV, getAiViewId, getSettingsViewId, getViewId } from './common/constants';
+import { getLocalConfigPath } from './common/lib/local-config';
 import { initializeLogger, logger } from './common/lib/logger';
 import { Command, executeCommand, getCurrentWorkspaceFolder } from './common/lib/vscode-utils';
-import { EXTENSION_DISPLAY_NAME } from './common/scripts-constants';
+import { EXTENSION_DISPLAY_NAME, buildConfigSection } from './common/scripts-constants';
 import { ExtensionConfigKey, getExtensionConfig, getFullConfigKeyPath } from './common/state/extension-config';
 import type { CommandContext } from './common/state/extension-state';
 import { StoreKey, extensionStore } from './common/state/extension-store';
@@ -12,6 +13,7 @@ import { ContextKey, WorkspaceStateKey, getWorkspaceState, setContextKey } from 
 import { ScanTrigger } from './common/types/scan-trigger';
 import { AiIssuesView, IssuesViewIcon, RegularIssuesView } from './issues-panel';
 import { dispose as disposeScanner, getLspClient, startLspClient } from './scanner/client';
+import { SettingsView } from './settings-view';
 import { disposeRunner, initializeRunner, runStartupSequence } from './startup/runner';
 import { StatusBarManager } from './status-bar/status-bar-manager';
 import {
@@ -27,10 +29,19 @@ let activationKey: string | undefined;
 type Views = {
   regularView: RegularIssuesView;
   aiView: AiIssuesView;
+  settingsView: SettingsView;
   treeView: vscode.TreeView<vscode.TreeItem>;
   aiTreeView: vscode.TreeView<vscode.TreeItem>;
+  settingsTreeView: vscode.TreeView<vscode.TreeItem>;
   regularViewIcon: IssuesViewIcon;
   aiViewIcon: IssuesViewIcon;
+};
+
+type WatchersSetupOptions = {
+  context: vscode.ExtensionContext;
+  regularView: RegularIssuesView;
+  updateStatusBar: () => Promise<void>;
+  updateSettingsView: () => void;
 };
 
 function setupViews(context: vscode.ExtensionContext): Views {
@@ -47,16 +58,21 @@ function setupViews(context: vscode.ExtensionContext): Views {
   aiView.groupMode = groupModeKey;
   aiView.setResults([], true);
 
+  const settingsView = new SettingsView();
+
   const treeView = vscode.window.createTreeView(getViewId(), { treeDataProvider: regularView });
   const aiTreeView = vscode.window.createTreeView(getAiViewId(), { treeDataProvider: aiView });
+  const settingsTreeView = vscode.window.createTreeView(getSettingsViewId(), { treeDataProvider: settingsView });
 
-  logger.info(`Registered tree views: ${getViewId()}, ${getAiViewId()}`);
+  logger.info(`Registered tree views: ${getViewId()}, ${getAiViewId()}, ${getSettingsViewId()}`);
 
   return {
     regularView,
     aiView,
+    settingsView,
     treeView,
     aiTreeView,
+    settingsTreeView,
     regularViewIcon: new IssuesViewIcon(treeView, regularView),
     aiViewIcon: new IssuesViewIcon(aiTreeView, aiView, 'AI'),
   };
@@ -77,12 +93,12 @@ function setupContextKeys(context: vscode.ExtensionContext): void {
   setContextKey(ContextKey.HasAiScanned, false);
 }
 
-async function setupWatchers(
-  context: vscode.ExtensionContext,
-  regularView: RegularIssuesView,
-  aiView: AiIssuesView,
-  updateStatusBar: () => Promise<void>,
-): Promise<vscode.Disposable> {
+async function setupWatchers({
+  context,
+  regularView,
+  updateStatusBar,
+  updateSettingsView,
+}: WatchersSetupOptions): Promise<vscode.Disposable> {
   let currentFileWatcher: vscode.FileSystemWatcher | null = null;
 
   const recreateFileWatcher = async () => {
@@ -97,13 +113,32 @@ async function setupWatchers(
     await aiScanIntervalWatcher.setup();
     await recreateFileWatcher();
     await updateStatusBar();
+    updateSettingsView();
   });
+
+  const localConfigWatcher = vscode.workspace.createFileSystemWatcher(
+    `**/${CONFIG_DIR_NAME}/${LOCAL_CONFIG_FILE_NAME}`,
+  );
+  const handleLocalConfigChange = async (uri: vscode.Uri) => {
+    const workspaceFolder = getCurrentWorkspaceFolder();
+    if (!workspaceFolder) return;
+
+    const expectedPath = getLocalConfigPath(workspaceFolder.uri.fsPath);
+    if (uri.fsPath !== expectedPath) return;
+
+    logger.info(`Local config file changed: ${vscode.workspace.asRelativePath(uri)}`);
+    await updateStatusBar();
+    updateSettingsView();
+  };
+  localConfigWatcher.onDidChange(handleLocalConfigChange);
+  localConfigWatcher.onDidCreate(handleLocalConfigChange);
+  localConfigWatcher.onDidDelete(handleLocalConfigChange);
 
   const gitWatcher = await createGitWatcher();
 
   void recreateFileWatcher();
 
-  const disposables: vscode.Disposable[] = [configWatcher];
+  const disposables: vscode.Disposable[] = [configWatcher, localConfigWatcher];
   if (gitWatcher) {
     disposables.push(gitWatcher);
     logger.info('Git watcher enabled - will refresh on commits/checkouts');
@@ -114,8 +149,25 @@ async function setupWatchers(
   return vscode.Disposable.from(...disposables);
 }
 
-function setupSettingsListener(): vscode.Disposable {
+function setupSettingsListener(
+  updateStatusBar: () => Promise<void>,
+  updateSettingsView: () => void,
+): vscode.Disposable {
   return vscode.workspace.onDidChangeConfiguration(async (e) => {
+    if (e.affectsConfiguration(buildConfigSection(IS_DEV))) {
+      updateSettingsView();
+    }
+
+    if (e.affectsConfiguration(getFullConfigKeyPath(ExtensionConfigKey.AutoScanInterval))) {
+      scanIntervalWatcher.setup(true);
+      await updateStatusBar();
+    }
+
+    if (e.affectsConfiguration(getFullConfigKeyPath(ExtensionConfigKey.AutoAiScanInterval))) {
+      aiScanIntervalWatcher.setup(true);
+      await updateStatusBar();
+    }
+
     if (e.affectsConfiguration(getFullConfigKeyPath(ExtensionConfigKey.LspBin))) {
       const restart = await vscode.window.showInformationMessage(
         `${EXTENSION_DISPLAY_NAME} binary path changed. Restart LSP server?`,
@@ -155,15 +207,15 @@ export function activate(context: vscode.ExtensionContext) {
   extensionStore.initialize(context);
   setupContextKeys(context);
 
-  const { regularView, aiView, treeView, regularViewIcon, aiViewIcon } = setupViews(context);
+  const { regularView, aiView, settingsView, treeView, aiTreeView, settingsTreeView, regularViewIcon, aiViewIcon } =
+    setupViews(context);
 
   const statusBarManager = new StatusBarManager();
   const updateStatusBar = async () => statusBarManager.update();
   updateStatusBar().then(() => logger.info('Status bar setup complete'));
 
-  extensionStore.subscribe(StoreKey.ScanMode, () => updateStatusBar());
-  extensionStore.subscribe(StoreKey.CompareBranch, () => updateStatusBar());
-  extensionStore.subscribe(StoreKey.ConfigDir, () => updateStatusBar());
+  extensionStore.subscribe(StoreKey.ScanMode, () => settingsView.refresh());
+  extensionStore.subscribe(StoreKey.CompareBranch, () => settingsView.refresh());
 
   const commandContext: CommandContext = {
     context,
@@ -172,10 +224,15 @@ export function activate(context: vscode.ExtensionContext) {
     getLspClient,
   };
 
-  const commands = registerAllCommands(commandContext, regularView, aiView);
-  const settingsWatcher = setupSettingsListener();
+  const commands = registerAllCommands(commandContext, regularView, aiView, settingsView);
+  const settingsWatcher = setupSettingsListener(updateStatusBar, () => settingsView.refresh());
 
-  setupWatchers(context, regularView, aiView, updateStatusBar).then((watchers) => {
+  setupWatchers({
+    context,
+    regularView,
+    updateStatusBar,
+    updateSettingsView: () => settingsView.refresh(),
+  }).then((watchers) => {
     context.subscriptions.push(watchers);
   });
 
@@ -183,6 +240,9 @@ export function activate(context: vscode.ExtensionContext) {
     ...commands,
     settingsWatcher,
     statusBarManager.getDisposable(),
+    treeView,
+    aiTreeView,
+    settingsTreeView,
     regularViewIcon,
     aiViewIcon,
   );

@@ -5,8 +5,9 @@ use lsp_server::{Connection, Message, Notification as LspNotification, Request, 
 use lsp_types::notification::Notification;
 use std::path::PathBuf;
 use std::sync::Arc;
+use std::time::Instant;
 use tscanner_cache::{AiCache, FileCache, ScriptCache};
-use tscanner_config::AiExecutionMode;
+use tscanner_config::{compute_ai_runtime_hash, resolve_ai_config, AiExecutionMode};
 use tscanner_constants::resolve_config_dir;
 use tscanner_git::{
     get_changed_files, get_modified_lines, get_uncommitted_files, get_uncommitted_modified_lines,
@@ -20,7 +21,17 @@ pub fn handle_scan(
     req: Request,
     session: &mut Session,
 ) -> Result<(), LspError> {
+    let request_start = Instant::now();
     let params: ScanParams = serde_json::from_value(req.params)?;
+    tscanner_logger::log_info(&format!(
+        "lsp_scan: request received root={} branch={} staged={} ai_mode={:?} no_cache={} previous_ai_issues={}",
+        params.root.display(),
+        params.branch.as_deref().unwrap_or("none"),
+        params.staged.unwrap_or(false),
+        params.ai_mode.unwrap_or(AiExecutionMode::Ignore),
+        params.no_cache.unwrap_or(false),
+        params.previous_ai_issues.as_ref().map_or(0, |issues| issues.len())
+    ));
 
     let Some(config) = load_config_or_respond(connection, &req.id, &params.root, params.config)?
     else {
@@ -28,7 +39,27 @@ pub fn handle_scan(
     };
 
     let no_cache = params.no_cache.unwrap_or(false);
-    let config_hash = config.compute_hash();
+    let ai_mode = params.ai_mode.unwrap_or(AiExecutionMode::Ignore);
+    let resolved_config_dir = resolve_config_dir(&PathBuf::from(&params.root), params.config_dir);
+    let ai_config = if ai_mode == AiExecutionMode::Ignore {
+        resolve_ai_config(None, None, &resolved_config_dir)
+            .ok()
+            .flatten()
+    } else {
+        match resolve_ai_config(None, None, &resolved_config_dir) {
+            Ok(config) => config,
+            Err(e) => {
+                let response = Response::new_err(
+                    req.id.clone(),
+                    lsp_server::ErrorCode::InvalidParams as i32,
+                    e.to_string(),
+                );
+                connection.sender.send(Message::Response(response))?;
+                return Ok(());
+            }
+        }
+    };
+    let config_hash = compute_ai_runtime_hash(config.compute_hash(), ai_config.as_ref());
     let (cache, ai_cache, script_cache) = if no_cache {
         (
             Arc::new(FileCache::new()),
@@ -45,7 +76,6 @@ pub fn handle_scan(
 
     session.cache = cache.clone();
 
-    let resolved_config_dir = resolve_config_dir(&PathBuf::from(&params.root), params.config_dir);
     let scanner = match Scanner::with_caches_and_config_dir(
         config,
         cache,
@@ -53,6 +83,7 @@ pub fn handle_scan(
         script_cache,
         params.root.clone(),
         resolved_config_dir,
+        ai_config,
     ) {
         Ok(s) => s,
         Err(e) => {
@@ -66,6 +97,7 @@ pub fn handle_scan(
         }
     };
 
+    let git_start = Instant::now();
     let (changed_files, modified_lines) = if params.staged.unwrap_or(false) {
         match (
             get_uncommitted_files(&params.root),
@@ -101,8 +133,12 @@ pub fn handle_scan(
     } else {
         (None, None)
     };
-
-    let ai_mode = params.ai_mode.unwrap_or(AiExecutionMode::Ignore);
+    tscanner_logger::log_debug(&format!(
+        "lsp_scan: git filters resolved in {}ms (changed_files={}, modified_line_files={})",
+        git_start.elapsed().as_millis(),
+        changed_files.as_ref().map_or(0, |files| files.len()),
+        modified_lines.as_ref().map_or(0, |lines| lines.len())
+    ));
 
     let progress_callback: Option<AiProgressCallback> = if ai_mode != AiExecutionMode::Ignore {
         let sender = connection.sender.clone();
@@ -118,13 +154,28 @@ pub fn handle_scan(
         None
     };
 
-    let mut result = scanner.scan_codebase_with_progress(
+    tscanner_logger::log_info("lsp_scan: scanner.scan_codebase_with_progress starting");
+    let scan_start = Instant::now();
+    let previous_ai_issues = params
+        .previous_ai_issues
+        .unwrap_or_default()
+        .into_iter()
+        .map(Into::into)
+        .collect();
+    let mut result = scanner.scan_codebase_with_progress_and_previous_ai_issues(
         std::slice::from_ref(&params.root),
         changed_files.as_ref(),
         ai_mode,
         modified_lines.as_ref(),
         progress_callback,
+        previous_ai_issues,
     );
+    tscanner_logger::log_info(&format!(
+        "lsp_scan: scanner.scan_codebase_with_progress finished in {}ms (issues={}, files={})",
+        scan_start.elapsed().as_millis(),
+        result.total_issues,
+        result.total_files
+    ));
 
     if let Some(ref line_filter) = modified_lines {
         use tscanner_logger::log_debug;
@@ -166,8 +217,14 @@ pub fn handle_scan(
 
     session.scanner = Some(scanner);
 
+    let response_start = Instant::now();
     let response = Response::new_ok(req.id, serde_json::to_value(&result)?);
     connection.sender.send(Message::Response(response))?;
+    tscanner_logger::log_info(&format!(
+        "lsp_scan: response sent in {}ms (total={}ms)",
+        response_start.elapsed().as_millis(),
+        request_start.elapsed().as_millis()
+    ));
 
     Ok(())
 }

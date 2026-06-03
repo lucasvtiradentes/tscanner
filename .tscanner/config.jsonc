@@ -18,7 +18,6 @@
       "no-empty-interface": {},
       "no-floating-promises": {},
       "no-forwarded-exports": { "exclude": ["**/index.ts", "**/types.ts"]},
-      "no-implicit-any": {},
       "no-inferrable-types": {},
       "no-nested-require": {},
       "no-nested-ternary": {},
@@ -33,7 +32,6 @@
       "no-useless-catch": {},
       "no-var": {},
       "prefer-const": {},
-      "prefer-nullish-coalescing": {},
       "prefer-optional-chain": {},
       "prefer-type-over-interface": {}
     },
@@ -50,7 +48,12 @@
       },
       "no-process-env": {
         "pattern": "process\\.env",
-        "message": "No process env"
+        "message": "Use the typed env module (packages/<pkg>/src/env.ts or scripts/env.ts) instead of accessing process.env directly",
+        "exclude": [
+          "**/env.ts",
+          "**/postinstall.js",
+          "scripts/update-docs/update-workflow.ts"
+        ]
       }
     },
     "script": {
@@ -70,7 +73,7 @@
         "command": "npx tsx script-rules/config-schema-match.ts",
         "message": "Rust config and TypeScript schema must be in sync",
         "severity": "error",
-        "include": ["packages/cli/schema.json", "shared/tscanner-common/src/schemas.ts"]
+        "include": ["packages/cli/schema.json", "shared/tscanner-common/src/types/config.ts"]
       },
       "types-parity-match": {
         "command": "npx tsx script-rules/types-parity-match.ts",
@@ -106,23 +109,7 @@
       }
     }
   },
-  "aiRules": {
-    "no-dead-code": {
-      "prompt": "no-dead-code.md",
-      "mode": "content",
-      "message": "Dead code detected - remove unused code instead of suppressing warnings",
-      "severity": "warning",
-      "options": { "includeSystemFiles": true },
-      "include": ["packages/rust-core/crates/tscanner_scanner/src/executors/**.rs"]
-    },
-    "find-enum-candidates": {
-      "prompt": "find-enum-candidates.md",
-      "mode": "agentic",
-      "message": "Type union could be replaced with an enum for better type safety",
-      "severity": "warning",
-      "include": ["**/*.ts"]
-    }
-  },
+  "aiRules": [],
   "files": {
     "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs", "**/*.cjs", "**/*mts", "**/*cts"],
     "exclude": [
@@ -137,18 +124,5 @@
       "packages/rust-core/crates/tscanner_rules/tests/**",
       "examples/all-rules/**"
     ]
-  },
-  "ai": {
-    "provider": "claude"
-  },
-  "codeEditor": {
-    "highlightErrors": true,
-    "highlightWarnings": true,
-    "highlightInfos": true,
-    "highlightHints": true,
-    "startupScan": "fresh",
-    "startupAiScan": "off",
-    "autoScanInterval": 0,
-    "autoAiScanInterval": 0
   }
 }

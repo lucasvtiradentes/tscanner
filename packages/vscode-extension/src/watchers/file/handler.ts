@@ -67,7 +67,6 @@ export function createFileChangeHandler(deps: FileChangeHandlerDeps) {
 
       const document = await vscode.workspace.openTextDocument(uri);
       const content = document.getText();
-      const configDir = extensionStore.get(StoreKey.ConfigDir);
       const config = getCachedConfig();
       const scanMode = extensionStore.get(StoreKey.ScanMode);
       const compareBranch = extensionStore.get(StoreKey.CompareBranch);
@@ -75,14 +74,13 @@ export function createFileChangeHandler(deps: FileChangeHandlerDeps) {
       const branch = scanMode === ScanMode.Branch ? compareBranch : undefined;
       const uncommitted = scanMode === ScanMode.Uncommitted;
 
-      const scanResult = await scanContent(
-        uri.fsPath,
+      const scanResult = await scanContent({
+        filePath: uri.fsPath,
         content,
-        config ?? undefined,
-        configDir ?? undefined,
-        branch ?? undefined,
+        config: config ?? undefined,
+        branch: branch ?? undefined,
         uncommitted,
-      );
+      });
 
       if (burstMode) {
         logger.debug(`Discarding stale scan results for ${relativePath} - burst mode active`);

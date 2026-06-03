@@ -15,16 +15,6 @@ import {
   getStatusTitle,
 } from './formatting';
 
-export type CommitHistoryEntry = {
-  sha: string;
-  message: string;
-  totalIssues: number;
-  errors: number;
-  warnings: number;
-  infos: number;
-  hints: number;
-};
-
 type ScanSummaryParams = {
   result: ActionScanResult;
   targetBranch?: string;
@@ -74,40 +64,6 @@ ${rows}
 </table>`;
 }
 
-function formatHistoryDetails(errors: number, warnings: number, infos: number, hints: number): string {
-  const parts: string[] = [];
-  if (errors > 0) parts.push(`${ICONS.ERROR_BADGE} ${errors}`);
-  if (warnings > 0) parts.push(`${ICONS.WARNING_BADGE} ${warnings}`);
-  if (infos > 0) parts.push(`${ICONS.INFO_BADGE} ${infos}`);
-  if (hints > 0) parts.push(`${ICONS.HINT_BADGE} ${hints}`);
-  return parts.length > 0 ? `(${parts.join(', ')})` : '';
-}
-
-export function buildCommitHistorySection(history: CommitHistoryEntry[]): string {
-  if (history.length === 0) return '';
-
-  let rows = '';
-  for (const entry of history) {
-    const label = formatCommitInfo(entry.sha, entry.message);
-    const details = formatHistoryDetails(entry.errors, entry.warnings, entry.infos, entry.hints);
-    rows += `<tr><td>${label}</td><td>${entry.totalIssues}</td><td>${details}</td></tr>\n`;
-  }
-
-  const table = `<table>
-<tr><th>Commit</th><th>Issues</th><th>Details</th></tr>
-${rows}</table>`;
-
-  const details = `<details>
-<summary><strong>📈 Scan history</strong></summary>
-<br />
-
-${table}
-
-</details>`;
-
-  return `\n${alignSection(Alignment.Center, details)}\n`;
-}
-
 function buildIssuesByRuleSection(params: IssuesViewParams): string {
   const { result, owner, repo, prNumber } = params;
   const { ruleGroupsByRule } = result;
@@ -154,18 +110,21 @@ function buildIssuesByFileSection(params: IssuesViewParams): string {
 
   for (const group of result.ruleGroups) {
     for (const file of group.files) {
-      if (!fileMap.has(file.filePath)) {
-        fileMap.set(file.filePath, new Map());
+      let ruleMap = fileMap.get(file.filePath);
+      if (ruleMap === undefined) {
+        ruleMap = new Map();
+        fileMap.set(file.filePath, ruleMap);
       }
-      const ruleMap = fileMap.get(file.filePath)!;
 
       const ruleName = file.issues[0]?.ruleName || group.ruleName;
-      if (!ruleMap.has(ruleName)) {
-        ruleMap.set(ruleName, []);
+      let ruleIssues = ruleMap.get(ruleName);
+      if (ruleIssues === undefined) {
+        ruleIssues = [];
+        ruleMap.set(ruleName, ruleIssues);
       }
 
       for (const issue of file.issues) {
-        ruleMap.get(ruleName)!.push({
+        ruleIssues.push({
           line: issue.line,
           column: issue.column,
           lineText: issue.lineText,

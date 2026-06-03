@@ -1,23 +1,13 @@
 import { join, resolve } from 'node:path';
 import { DynMarkdown, MarkdownTable, type TRowContent, getJson } from 'markdown-helper';
-import { PACKAGE_DISPLAY_NAME, REPO_URL } from 'tscanner-common';
-
-enum RuleOptionType {
-  Integer = 'integer',
-  Boolean = 'boolean',
-  String = 'string',
-  Array = 'array',
-}
-
-enum RuleType {
-  Ast = 'ast',
-  Regex = 'regex',
-}
-
-enum RuleSeverity {
-  Error = 'error',
-  Warning = 'warning',
-}
+import {
+  PACKAGE_DISPLAY_NAME,
+  REPO_URL,
+  RuleCategory,
+  type RuleOptionType,
+  RuleType,
+  type Severity,
+} from 'tscanner-common';
 
 type RuleOption = {
   name: string;
@@ -32,9 +22,9 @@ type RuleMetadata = {
   displayName: string;
   description: string;
   ruleType: RuleType;
-  defaultSeverity: RuleSeverity;
+  defaultSeverity: Severity;
   defaultEnabled: boolean;
-  category: string;
+  category: RuleCategory;
   sourcePath?: string;
   typescriptOnly?: boolean;
   equivalentEslintRule?: string;
@@ -49,14 +39,14 @@ const rootDir = resolve(__dirname, '..', '..');
 export function updateRules() {
   const rulesJson: RuleMetadata[] = getJson(join(rootDir, 'assets/generated/rules.json'));
 
-  const categoryMap: Record<string, string> = {
-    typesafety: 'Type Safety',
-    codequality: 'Code Quality',
-    style: 'Style',
-    performance: 'Performance',
-    bugprevention: 'Bug Prevention',
-    variables: 'Variables',
-    imports: 'Imports',
+  const categoryMap: Record<RuleCategory, string> = {
+    [RuleCategory.TypeSafety]: 'Type Safety',
+    [RuleCategory.CodeQuality]: 'Code Quality',
+    [RuleCategory.Style]: 'Style',
+    [RuleCategory.Performance]: 'Performance',
+    [RuleCategory.BugPrevention]: 'Bug Prevention',
+    [RuleCategory.Variables]: 'Variables',
+    [RuleCategory.Imports]: 'Imports',
   };
 
   const rulesByCategory = rulesJson.reduce(
@@ -66,10 +56,18 @@ export function updateRules() {
       acc[cat].push(rule);
       return acc;
     },
-    {} as Record<string, RuleMetadata[]>,
+    {} as Record<RuleCategory, RuleMetadata[]>,
   );
 
-  const categoryOrder = ['typesafety', 'codequality', 'bugprevention', 'variables', 'imports', 'style', 'performance'];
+  const categoryOrder = [
+    RuleCategory.TypeSafety,
+    RuleCategory.CodeQuality,
+    RuleCategory.BugPrevention,
+    RuleCategory.Variables,
+    RuleCategory.Imports,
+    RuleCategory.Style,
+    RuleCategory.Performance,
+  ];
 
   let builtInRulesTableContent = '';
 
@@ -373,7 +371,7 @@ ${scriptExampleRs}
 \`\`\`
 </details>
 
-> 💡 See real examples in the [\`.tscanner/script-rules/\`](${REPO_URL}/tree/main/.tscanner/script-rules) and [\`registry/script-rules/\`](${REPO_URL}/tree/main/registry/script-rules) folders.
+> 💡 See real examples in the [\`.tscanner/script-rules/\`](${REPO_URL}/tree/main/.tscanner/script-rules) folder.
 
 </div>
 </details>
@@ -426,11 +424,15 @@ Use AI prompts (markdown files) to perform semantic code analysis. Works with an
       "include": ["**/*.rs"],
       "options": { "allowTestFiles": true }
     }
-  },
-  "ai": {
-    "provider": "claude"
   }
 }
+\`\`\`
+
+Set the project-local AI provider in \`.tscanner/local.jsonc\`:
+\`\`\`bash
+tscanner ai set claude --model sonnet-4.6
+tscanner check --include-ai
+TSCANNER_AI_PROVIDER=codex TSCANNER_AI_MODEL=gpt5.1 tscanner check --include-ai
 \`\`\`
 
 <details>
@@ -483,7 +485,7 @@ Detect dead code patterns.
 \`\`\`
 </details>
 
-> 💡 See real examples in the [\`.tscanner/ai-rules/\`](${REPO_URL}/tree/main/.tscanner/ai-rules) and [\`registry/ai-rules/\`](${REPO_URL}/tree/main/registry/ai-rules) folders.
+> 💡 See real examples in the [\`.tscanner/ai-rules/\`](${REPO_URL}/tree/main/.tscanner/ai-rules) folder.
 
 </div>
 </details>`;

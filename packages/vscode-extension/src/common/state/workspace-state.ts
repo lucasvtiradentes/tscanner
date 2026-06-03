@@ -10,7 +10,6 @@ export enum WorkspaceStateKey {
   ScanMode = 'scanMode',
   CompareBranch = 'compareBranch',
   CachedResults = 'cachedResults',
-  ConfigDir = 'customConfigDir',
   DismissedVersionWarnings = 'dismissedVersionWarnings',
 }
 
@@ -20,7 +19,6 @@ const workspaceStateSchema = z.object({
   [WorkspaceStateKey.ScanMode]: z.enum(ScanMode),
   [WorkspaceStateKey.CompareBranch]: z.string(),
   [WorkspaceStateKey.CachedResults]: z.array(z.any()),
-  [WorkspaceStateKey.ConfigDir]: z.string().nullable(),
   [WorkspaceStateKey.DismissedVersionWarnings]: z.array(z.string()),
 });
 
@@ -33,7 +31,6 @@ const defaultValues: WorkspaceStateSchema = {
   [WorkspaceStateKey.ScanMode]: ScanMode.Codebase,
   [WorkspaceStateKey.CompareBranch]: DEFAULT_TARGET_BRANCH,
   [WorkspaceStateKey.CachedResults]: [],
-  [WorkspaceStateKey.ConfigDir]: null,
   [WorkspaceStateKey.DismissedVersionWarnings]: [],
 };
 

@@ -272,17 +272,6 @@
     "category": "typesafety",
     "defaultEnabled": false,
     "defaultSeverity": "warning",
-    "description": "Detects function parameters without type annotations that implicitly have 'any' type.",
-    "displayName": "No Implicit Any",
-    "name": "no-implicit-any",
-    "ruleType": "ast",
-    "sourcePath": "packages/rust-core/crates/tscanner_rules/src/builtin/type_safety/no_implicit_any.rs",
-    "typescriptOnly": true
-  },
-  {
-    "category": "typesafety",
-    "defaultEnabled": false,
-    "defaultSeverity": "warning",
     "description": "Disallows explicit type annotations on variables initialized with literal values. TypeScript can infer these types automatically.",
     "displayName": "No Inferrable Types",
     "equivalentBiomeRule": "https://biomejs.dev/linter/rules/no-inferrable-types",
@@ -487,18 +476,6 @@
     "ruleType": "ast",
     "sourcePath": "packages/rust-core/crates/tscanner_rules/src/builtin/style/prefer_interface_over_type.rs",
     "typescriptOnly": true
-  },
-  {
-    "category": "style",
-    "defaultEnabled": false,
-    "defaultSeverity": "warning",
-    "description": "Suggests using nullish coalescing (??) instead of logical OR (||) for default values. The || operator treats 0, \"\", and false as falsy, which may not be intended.",
-    "displayName": "Prefer Nullish Coalescing",
-    "equivalentEslintRule": "https://typescript-eslint.io/rules/prefer-nullish-coalescing",
-    "name": "prefer-nullish-coalescing",
-    "ruleType": "ast",
-    "sourcePath": "packages/rust-core/crates/tscanner_rules/src/builtin/style/prefer_nullish_coalescing.rs",
-    "typescriptOnly": false
   },
   {
     "category": "style",

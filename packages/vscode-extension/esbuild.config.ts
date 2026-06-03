@@ -1,8 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import esbuild, { type BuildOptions } from 'esbuild';
+import { scriptEnv } from '../../scripts/env';
 
-const isDev = !process.env.CI;
+const isDev = !scriptEnv.isCi;
 
 const logger = console;
 

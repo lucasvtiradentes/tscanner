@@ -1,6 +1,12 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use std::path::PathBuf;
+use std::str::FromStr;
 use tscanner_constants::config_dir_name;
+use tscanner_types::AiProvider;
+
+fn parse_ai_provider(value: &str) -> Result<AiProvider, String> {
+    AiProvider::from_str(value)
+}
 
 #[derive(Debug, Clone, Default, ValueEnum, PartialEq)]
 pub enum OutputFormat {
@@ -53,19 +59,19 @@ impl CliRuleKind {
     }
 }
 
-#[derive(Debug, Clone, ValueEnum)]
-pub enum RegistryRuleKind {
-    Ai,
-    Script,
-    Regex,
+#[derive(Debug, Clone, Copy, ValueEnum)]
+pub enum CompletionShell {
+    Bash,
+    Zsh,
+    Fish,
 }
 
-impl RegistryRuleKind {
-    pub fn as_str(&self) -> &'static str {
-        match self {
-            RegistryRuleKind::Ai => "ai",
-            RegistryRuleKind::Script => "script",
-            RegistryRuleKind::Regex => "regex",
+impl From<CompletionShell> for clap_complete::Shell {
+    fn from(shell: CompletionShell) -> Self {
+        match shell {
+            CompletionShell::Bash => clap_complete::Shell::Bash,
+            CompletionShell::Zsh => clap_complete::Shell::Zsh,
+            CompletionShell::Fish => clap_complete::Shell::Fish,
         }
     }
 }
@@ -124,6 +130,23 @@ pub enum Commands {
             help_heading = "AI Rules"
         )]
         only_ai: bool,
+
+        #[arg(
+            long,
+            value_name = "PROVIDER",
+            value_parser = parse_ai_provider,
+            help = "AI provider for this scan (claude, codex, gemini)",
+            help_heading = "AI Rules"
+        )]
+        ai_provider: Option<AiProvider>,
+
+        #[arg(
+            long,
+            value_name = "MODEL",
+            help = "AI model for this scan",
+            help_heading = "AI Rules"
+        )]
+        ai_model: Option<String>,
 
         #[arg(
             long,
@@ -205,13 +228,13 @@ pub enum Commands {
         config_path: Option<PathBuf>,
     },
 
-    #[command(about = "Create a default configuration file")]
+    #[command(about = "Create a full configuration file")]
     Init {
         #[arg(
             long,
-            help = "Initialize with all built-in rules, example regex/script/AI rules, and sample files"
+            help = "Initialize with a minimal starter config instead of all built-in rules and examples"
         )]
-        full: bool,
+        minimal: bool,
     },
 
     #[command(about = "Validate configuration file")]
@@ -223,44 +246,39 @@ pub enum Commands {
         config_path: Option<PathBuf>,
     },
 
+    #[command(subcommand, about = "Manage project-local AI provider settings")]
+    Ai(AiCommands),
+
+    #[command(about = "Generate shell completion script")]
+    Completion {
+        #[arg(
+            value_enum,
+            value_name = "SHELL",
+            help = "Shell to generate completions for"
+        )]
+        shell: CompletionShell,
+    },
+
     #[command(about = "Start the LSP server (Language Server Protocol)")]
     Lsp,
+}
 
-    #[command(about = "Install rules from the TScanner registry")]
-    Registry {
-        #[arg(
-            value_name = "NAME",
-            help = "Rule name to install (shows list if omitted)"
-        )]
-        name: Option<String>,
+#[derive(Subcommand)]
+pub enum AiCommands {
+    #[command(about = "Set project-local AI provider settings")]
+    Set {
+        #[arg(value_name = "PROVIDER", value_parser = parse_ai_provider)]
+        provider: AiProvider,
 
-        #[arg(
-            long,
-            value_enum,
-            value_name = "KIND",
-            help = "Filter by rule kind (ai, script, regex)"
-        )]
-        kind: Option<RegistryRuleKind>,
-
-        #[arg(long, value_name = "CATEGORY", help = "Filter by category")]
-        category: Option<String>,
-
-        #[arg(long, help = "Overwrite existing rules")]
-        force: bool,
-
-        #[arg(
-            long,
-            help = "Use latest rules from main branch instead of version-matched"
-        )]
-        latest: bool,
-
-        #[arg(
-            long,
-            value_name = "CONFIG_DIR",
-            help = "Path to config folder (defaults to .tscanner)"
-        )]
-        config_path: Option<PathBuf>,
+        #[arg(long, value_name = "MODEL")]
+        model: Option<String>,
     },
+
+    #[command(about = "Show effective project-local AI provider settings")]
+    Show,
+
+    #[command(about = "Clear project-local AI provider settings")]
+    Unset,
 }
 
 impl Commands {

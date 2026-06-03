@@ -1,14 +1,14 @@
 use std::path::PathBuf;
 
 use anyhow::Result;
-use clap::Parser;
+use clap::{CommandFactory, Parser};
 
 mod commands;
 mod config_loader;
 mod shared;
 
-use commands::{cmd_check, cmd_init, cmd_registry, validate};
-use tscanner_cli::{Cli, Commands};
+use commands::{ai, cmd_check, cmd_init, validate};
+use tscanner_cli::{AiCommands, Cli, Commands};
 use tscanner_service::init_logger;
 
 fn main() -> Result<()> {
@@ -28,6 +28,8 @@ fn main() -> Result<()> {
             uncommitted,
             include_ai,
             only_ai,
+            ai_provider,
+            ai_model,
             glob,
             rule,
             severity,
@@ -60,11 +62,28 @@ fn main() -> Result<()> {
                 continue_on_error,
                 include_ai,
                 only_ai,
+                ai_provider,
+                ai_model,
                 config_path,
             )
         }
-        Some(Commands::Init { full }) => cmd_init(&PathBuf::from("."), full),
+        Some(Commands::Init { minimal }) => cmd_init(&PathBuf::from("."), minimal),
         Some(Commands::Validate { config_path }) => validate(config_path),
+        Some(Commands::Ai(command)) => match command {
+            AiCommands::Set { provider, model } => ai::set(provider, model),
+            AiCommands::Show => ai::show(),
+            AiCommands::Unset => ai::unset(),
+        },
+        Some(Commands::Completion { shell }) => {
+            let mut command = Cli::command();
+            clap_complete::generate(
+                clap_complete::Shell::from(shell),
+                &mut command,
+                completion_bin_name(),
+                &mut std::io::stdout(),
+            );
+            Ok(())
+        }
         Some(Commands::Lsp) => {
             tscanner_service::log_info("LSP server starting");
             let result = tscanner_lsp::run_lsp_server().map_err(|e| anyhow::anyhow!("{}", e));
@@ -76,17 +95,24 @@ fn main() -> Result<()> {
             }
             result
         }
-        Some(Commands::Registry {
-            name,
-            kind,
-            category,
-            force,
-            latest,
-            config_path,
-        }) => cmd_registry(name, kind, category, force, latest, config_path),
         None => {
             Cli::parse_from(["tscanner", "--help"]);
             Ok(())
         }
     }
+}
+
+fn completion_bin_name() -> String {
+    std::env::var("TSCANNER_PROG_NAME")
+        .ok()
+        .filter(|value| !value.trim().is_empty())
+        .or_else(|| {
+            std::env::args_os().next().and_then(|path| {
+                PathBuf::from(path)
+                    .file_stem()
+                    .and_then(|stem| stem.to_str())
+                    .map(str::to_owned)
+            })
+        })
+        .unwrap_or_else(|| "tscanner".to_string())
 }

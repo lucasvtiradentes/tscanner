@@ -1,7 +1,11 @@
 import { join, resolve } from 'node:path';
 import { DynMarkdown } from 'markdown-helper';
 
-type ImageFields = 'VSCODE_EXTENSION_DEMO_IMAGE' | 'CLI_DEMO_IMAGE' | 'GITHUB_ACTION_DEMO_IMAGE';
+enum ImageField {
+  VscodeExtensionDemo = 'VSCODE_EXTENSION_DEMO_IMAGE',
+  CliDemo = 'CLI_DEMO_IMAGE',
+  GithubActionDemo = 'GITHUB_ACTION_DEMO_IMAGE',
+}
 
 const rootDir = resolve(__dirname, '..', '..');
 
@@ -26,22 +30,22 @@ export function updateImages() {
   <em>issues detected in the latest commit pushed to a PR</em>
 </div>`;
 
-  const rootReadme = new DynMarkdown<ImageFields>(join(rootDir, 'README.md'));
-  rootReadme.updateField('VSCODE_EXTENSION_DEMO_IMAGE', vscodeExtensionDemoImageContent);
-  rootReadme.updateField('CLI_DEMO_IMAGE', cliDemoImageContent);
-  rootReadme.updateField('GITHUB_ACTION_DEMO_IMAGE', githubActionDemoImageContent);
+  const rootReadme = new DynMarkdown<ImageField>(join(rootDir, 'README.md'));
+  rootReadme.updateField(ImageField.VscodeExtensionDemo, vscodeExtensionDemoImageContent);
+  rootReadme.updateField(ImageField.CliDemo, cliDemoImageContent);
+  rootReadme.updateField(ImageField.GithubActionDemo, githubActionDemoImageContent);
   rootReadme.saveFile();
 
-  const cliReadme = new DynMarkdown<ImageFields>(join(rootDir, 'packages/cli/README.md'));
-  cliReadme.updateField('CLI_DEMO_IMAGE', cliDemoImageContent);
+  const cliReadme = new DynMarkdown<ImageField>(join(rootDir, 'packages/cli/README.md'));
+  cliReadme.updateField(ImageField.CliDemo, cliDemoImageContent);
   cliReadme.saveFile();
 
-  const vscodeReadme = new DynMarkdown<ImageFields>(join(rootDir, 'packages/vscode-extension/README.md'));
-  vscodeReadme.updateField('VSCODE_EXTENSION_DEMO_IMAGE', vscodeExtensionDemoImageContent);
+  const vscodeReadme = new DynMarkdown<ImageField>(join(rootDir, 'packages/vscode-extension/README.md'));
+  vscodeReadme.updateField(ImageField.VscodeExtensionDemo, vscodeExtensionDemoImageContent);
   vscodeReadme.saveFile();
 
-  const gihubReadme = new DynMarkdown<ImageFields>(join(rootDir, 'packages/github-action/README.md'));
-  gihubReadme.updateField('GITHUB_ACTION_DEMO_IMAGE', githubActionDemoImageContent);
+  const gihubReadme = new DynMarkdown<ImageField>(join(rootDir, 'packages/github-action/README.md'));
+  gihubReadme.updateField(ImageField.GithubActionDemo, githubActionDemoImageContent);
   gihubReadme.saveFile();
 
   console.log('✓ Updated IMAGES in 3 files (root, cli, vscode)');

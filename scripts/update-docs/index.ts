@@ -1,3 +1,4 @@
+import { scriptEnv } from '../env';
 import { updateCliUsage } from './update-cli-usage';
 import { updateCommands } from './update-commands';
 import { updateConfigSection } from './update-config-section';
@@ -9,7 +10,6 @@ import { updateInspirations } from './update-inspirations';
 import { updateMotivation } from './update-motivation';
 import { updateOverview } from './update-overview';
 import { updateQuickStart } from './update-quick-start';
-import { updateRegistry } from './update-registry';
 import { updateRules } from './update-rules';
 import { updateWaysToUseTscanner } from './update-ways-to-use-tscanner';
 import { updateWorkflow } from './update-workflow';
@@ -22,7 +22,7 @@ type UpdateFn = {
 const logger = console;
 
 function main() {
-  if (process.env.CI || process.env.GITHUB_ACTIONS) {
+  if (scriptEnv.isCi) {
     logger.log('Skipping docs update in CI environment');
     process.exit(0);
   }
@@ -30,7 +30,6 @@ function main() {
   const updates: UpdateFn[] = [
     { name: 'overview', fn: updateOverview },
     { name: 'rules', fn: updateRules },
-    { name: 'registry', fn: updateRegistry },
     { name: 'images', fn: updateImages },
     { name: 'commands', fn: updateCommands },
     { name: 'config-section', fn: updateConfigSection },

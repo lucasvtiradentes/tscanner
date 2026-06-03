@@ -16,8 +16,8 @@ export enum IssueRuleType {
 
 export enum AiProvider {
   Claude = 'claude',
+  Codex = 'codex',
   Gemini = 'gemini',
-  Custom = 'custom',
 }
 
 export enum AiMode {
@@ -53,6 +53,21 @@ export enum RuleCategory {
   Imports = 'imports',
 }
 
+export enum RuleOptionType {
+  Integer = 'integer',
+  Boolean = 'boolean',
+  String = 'string',
+  Array = 'array',
+}
+
+export enum PlatformKey {
+  LinuxX64 = 'linux-x64',
+  LinuxArm64 = 'linux-arm64',
+  DarwinX64 = 'darwin-x64',
+  DarwinArm64 = 'darwin-arm64',
+  Win32X64 = 'win32-x64',
+}
+
 export enum ScanMode {
   Codebase = 'codebase',
   Branch = 'branch',
@@ -73,3 +88,4 @@ export enum ViewMode {
 export const severitySchema = z.enum(Severity);
 export const issueRuleTypeSchema = z.enum(IssueRuleType);
 export const startupScanModeSchema = z.enum(StartupScanMode);
+export const ruleOptionTypeSchema = z.enum(RuleOptionType);

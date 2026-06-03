@@ -1,74 +1,17 @@
+mod batch;
+mod process;
+mod types;
+
 use rayon::prelude::*;
-use serde::{Deserialize, Serialize};
-use std::io::{Read, Write};
 use std::path::{Path, PathBuf};
-use std::process::{Command, Stdio};
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 use tscanner_cache::ScriptCache;
 use tscanner_config::ScriptRuleConfig;
 use tscanner_constants::config_dir_name;
-use tscanner_types::{Issue, IssueRuleType};
+use tscanner_types::Issue;
 
-#[derive(Debug, Clone, Serialize)]
-pub struct ScriptFile {
-    pub path: String,
-    pub content: String,
-    pub lines: Vec<String>,
-}
-
-#[derive(Debug, Serialize)]
-#[serde(rename_all = "camelCase")]
-pub struct ScriptInput {
-    pub files: Vec<ScriptFile>,
-    pub options: Option<serde_json::Value>,
-    pub workspace_root: String,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct ScriptIssue {
-    pub file: String,
-    pub line: usize,
-    #[serde(default)]
-    pub column: usize,
-    pub message: String,
-}
-
-#[derive(Debug, Deserialize)]
-pub struct ScriptOutput {
-    pub issues: Vec<ScriptIssue>,
-}
-
-#[derive(Debug)]
-pub enum ScriptError {
-    IoError(std::io::Error),
-    Timeout(u64),
-    NonZeroExit { code: Option<i32>, stderr: String },
-    InvalidOutput(String),
-    RunnerNotFound(String),
-}
-
-impl std::fmt::Display for ScriptError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            ScriptError::IoError(e) => write!(f, "IO error: {}", e),
-            ScriptError::Timeout(secs) => write!(f, "Command timed out after {}s", secs),
-            ScriptError::NonZeroExit { code, stderr } => {
-                write!(f, "Command exited with code {:?}: {}", code, stderr)
-            }
-            ScriptError::InvalidOutput(msg) => write!(f, "Invalid output: {}", msg),
-            ScriptError::RunnerNotFound(cmd) => {
-                write!(f, "Command '{}' not found", cmd)
-            }
-        }
-    }
-}
-
-impl From<std::io::Error> for ScriptError {
-    fn from(e: std::io::Error) -> Self {
-        ScriptError::IoError(e)
-    }
-}
+pub use types::{ScriptError, ScriptFile, ScriptInput, ScriptOutput};
 
 pub struct ScriptExecutor {
     cache: Arc<ScriptCache>,
@@ -151,8 +94,23 @@ impl ScriptExecutor {
                     return (vec![], None);
                 }
 
+                (self.log_debug)(&format!(
+                    "Script rule '{}' starting: {} matching files",
+                    rule_name,
+                    matching_files.len()
+                ));
+                let start = Instant::now();
+
                 match self.execute_rule(rule_name, rule_config, &matching_files, workspace_root) {
-                    Ok(issues) => (issues, None),
+                    Ok(issues) => {
+                        (self.log_debug)(&format!(
+                            "Script rule '{}' finished in {}ms with {} issues",
+                            rule_name,
+                            start.elapsed().as_millis(),
+                            issues.len()
+                        ));
+                        (issues, None)
+                    }
                     Err(e) => {
                         let warning = format!("Script rule '{}' failed: {}", rule_name, e);
                         (self.log_error)(&warning);
@@ -189,13 +147,12 @@ impl ScriptExecutor {
         files: &[&(PathBuf, String)],
         workspace_root: &Path,
     ) -> Result<Vec<Issue>, ScriptError> {
-        let script_path = self.extract_script_path(&rule_config.command);
+        let script_path = self.extract_script_path(&rule_config.command, workspace_root);
 
         let files_owned: Vec<(PathBuf, String)> =
             files.iter().map(|(p, c)| (p.clone(), c.clone())).collect();
 
         if let Some(cached) = self.cache.get(rule_name, &script_path, &files_owned) {
-            (self.log_debug)(&format!("Script rule '{}' cache hit", rule_name));
             return Ok(cached);
         }
 
@@ -207,204 +164,25 @@ impl ScriptExecutor {
         Ok(issues)
     }
 
-    fn extract_script_path(&self, command: &str) -> PathBuf {
+    fn extract_script_path(&self, command: &str, workspace_root: &Path) -> PathBuf {
         let parts: Vec<&str> = command.split_whitespace().collect();
-        if let Some(last) = parts.last() {
-            self.config_dir.join(last)
-        } else {
-            self.config_dir.join(command)
-        }
-    }
+        for part in parts.iter().skip(1) {
+            if part.starts_with('-') {
+                continue;
+            }
 
-    fn execute_batch(
-        &self,
-        rule_name: &str,
-        rule_config: &ScriptRuleConfig,
-        files: &[&(PathBuf, String)],
-        workspace_root: &Path,
-    ) -> Result<Vec<Issue>, ScriptError> {
-        let script_files: Vec<ScriptFile> = files
-            .iter()
-            .map(|(path, content)| {
-                let relative = path.strip_prefix(workspace_root).unwrap_or(path);
-                ScriptFile {
-                    path: relative.to_string_lossy().to_string(),
-                    content: content.clone(),
-                    lines: content.lines().map(String::from).collect(),
-                }
-            })
-            .collect();
+            let workspace_path = workspace_root.join(part);
+            if workspace_path.is_file() {
+                return workspace_path;
+            }
 
-        let options = if rule_config.options.is_null() {
-            None
-        } else {
-            Some(rule_config.options.clone())
-        };
-
-        let input = ScriptInput {
-            files: script_files,
-            options,
-            workspace_root: workspace_root.to_string_lossy().to_string(),
-        };
-
-        let input_json = serde_json::to_vec(&input)
-            .map_err(|e| ScriptError::InvalidOutput(format!("Failed to serialize input: {}", e)))?;
-
-        let output = self.spawn_command(rule_config, &input_json)?;
-
-        self.parse_output(rule_name, rule_config, &output, workspace_root, files)
-    }
-
-    fn spawn_command(
-        &self,
-        rule_config: &ScriptRuleConfig,
-        input: &[u8],
-    ) -> Result<Vec<u8>, ScriptError> {
-        let parts: Vec<&str> = rule_config.command.split_whitespace().collect();
-        if parts.is_empty() {
-            return Err(ScriptError::RunnerNotFound(rule_config.command.clone()));
-        }
-
-        let program = parts[0];
-        let args = &parts[1..];
-
-        (self.log_debug)(&format!(
-            "Running command: {} {:?} (cwd: {:?})",
-            program, args, self.config_dir
-        ));
-
-        let mut child = Command::new(program)
-            .args(args)
-            .stdin(Stdio::piped())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped())
-            .current_dir(&self.config_dir)
-            .spawn()
-            .map_err(|e| {
-                if e.kind() == std::io::ErrorKind::NotFound {
-                    ScriptError::RunnerNotFound(program.to_string())
-                } else {
-                    ScriptError::IoError(e)
-                }
-            })?;
-
-        let mut stdin = child.stdin.take().unwrap();
-        let input_clone = input.to_vec();
-        let write_handle = std::thread::spawn(move || stdin.write_all(&input_clone));
-
-        let timeout = if rule_config.timeout > 0 {
-            Some(Duration::from_secs(rule_config.timeout))
-        } else {
-            None
-        };
-        let start = Instant::now();
-
-        loop {
-            match child.try_wait() {
-                Ok(Some(status)) => {
-                    let _ = write_handle.join();
-
-                    let mut stdout = Vec::new();
-                    let mut stderr = Vec::new();
-
-                    if let Some(mut stdout_handle) = child.stdout.take() {
-                        let _ = stdout_handle.read_to_end(&mut stdout);
-                    }
-                    if let Some(mut stderr_handle) = child.stderr.take() {
-                        let _ = stderr_handle.read_to_end(&mut stderr);
-                    }
-
-                    if !status.success() {
-                        return Err(ScriptError::NonZeroExit {
-                            code: status.code(),
-                            stderr: String::from_utf8_lossy(&stderr).to_string(),
-                        });
-                    }
-
-                    return Ok(stdout);
-                }
-                Ok(None) => {
-                    if let Some(t) = timeout {
-                        if start.elapsed() > t {
-                            let _ = child.kill();
-                            return Err(ScriptError::Timeout(rule_config.timeout));
-                        }
-                    }
-                    std::thread::sleep(Duration::from_millis(10));
-                }
-                Err(e) => return Err(ScriptError::IoError(e)),
+            let config_path = self.config_dir.join(part);
+            if config_path.is_file() {
+                return config_path;
             }
         }
-    }
 
-    fn parse_output(
-        &self,
-        rule_name: &str,
-        rule_config: &ScriptRuleConfig,
-        output: &[u8],
-        workspace_root: &Path,
-        files: &[&(PathBuf, String)],
-    ) -> Result<Vec<Issue>, ScriptError> {
-        let output_str = String::from_utf8_lossy(output);
-
-        let json_start = output_str.find('{');
-        let json_str = match json_start {
-            Some(start) => &output_str[start..],
-            None => {
-                if output_str.trim().is_empty() {
-                    return Ok(vec![]);
-                }
-                return Err(ScriptError::InvalidOutput(format!(
-                    "No JSON found in output: {}",
-                    output_str.chars().take(200).collect::<String>()
-                )));
-            }
-        };
-
-        let script_output: ScriptOutput = serde_json::from_str(json_str).map_err(|e| {
-            ScriptError::InvalidOutput(format!(
-                "Failed to parse JSON: {} - Output: {}",
-                e,
-                json_str.chars().take(500).collect::<String>()
-            ))
-        })?;
-
-        use std::collections::HashMap;
-        let file_lines: HashMap<PathBuf, Vec<&str>> = files
-            .iter()
-            .map(|(path, content)| {
-                let relative = path.strip_prefix(workspace_root).unwrap_or(path);
-                (relative.to_path_buf(), content.lines().collect())
-            })
-            .collect();
-
-        Ok(script_output
-            .issues
-            .into_iter()
-            .map(|issue| {
-                let file_path = workspace_root.join(&issue.file);
-                let relative_path = PathBuf::from(&issue.file);
-                let line_text = file_lines
-                    .get(&relative_path)
-                    .and_then(|lines| super::utils::extract_line_text(lines, issue.line));
-                Issue {
-                    rule: rule_name.to_string(),
-                    file: file_path,
-                    line: issue.line,
-                    column: if issue.column > 0 { issue.column } else { 1 },
-                    end_column: if issue.column > 0 {
-                        issue.column + 1
-                    } else {
-                        1
-                    },
-                    message: issue.message,
-                    severity: rule_config.severity,
-                    line_text,
-                    category: None,
-                    rule_type: IssueRuleType::CustomScript,
-                }
-            })
-            .collect())
+        workspace_root.join(command)
     }
 
     pub fn clear_cache(&self) {

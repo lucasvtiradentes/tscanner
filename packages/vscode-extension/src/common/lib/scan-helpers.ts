@@ -7,12 +7,12 @@ export enum ScanType {
   Ai = 'ai',
 }
 
-interface ScanWrapperOptions {
+type ScanWrapperOptions = {
   scanType: ScanType;
   contextKeyOnComplete: ContextKey;
   onError?: (error: unknown) => void;
   onFinally?: () => void;
-}
+};
 
 const scanLogger = createLogger('Scan');
 const aiScanLogger = createLogger('AI Scan');
@@ -32,7 +32,8 @@ export async function withScanErrorHandling<T>(
   extensionStore.set(config.storeKey, true);
 
   try {
-    return await operation();
+    const result = await operation();
+    return result;
   } catch (error) {
     config.logger.error(`Error: ${error}`);
     onError?.(error);

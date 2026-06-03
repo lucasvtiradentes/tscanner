@@ -24,3 +24,5 @@ packages/cli/npm/*/tscanner.exe
 CLAUDE.md
 *.vsix
 pnpm-lock.yaml
+_branch
+.bctx

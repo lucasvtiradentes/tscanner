@@ -1,5 +1,6 @@
 use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
+use std::str::FromStr;
 
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "lowercase")]
@@ -65,23 +66,42 @@ impl RuleCategory {
     }
 }
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "lowercase")]
+pub enum RuleOptionType {
+    Integer,
+    Boolean,
+    String,
+    Array,
+}
+
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum PlatformKey {
+    LinuxX64,
+    LinuxArm64,
+    DarwinX64,
+    DarwinArm64,
+    Win32X64,
+}
+
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, JsonSchema, PartialEq)]
 #[serde(rename_all = "lowercase")]
 pub enum AiProvider {
     Claude,
+    Codex,
     Gemini,
-    Custom,
 }
 
 impl AiProvider {
     pub const ALL: &'static [AiProvider] =
-        &[AiProvider::Claude, AiProvider::Gemini, AiProvider::Custom];
+        &[AiProvider::Claude, AiProvider::Codex, AiProvider::Gemini];
 
     pub fn as_str(&self) -> &'static str {
         match self {
             AiProvider::Claude => "claude",
+            AiProvider::Codex => "codex",
             AiProvider::Gemini => "gemini",
-            AiProvider::Custom => "custom",
         }
     }
 
@@ -91,6 +111,23 @@ impl AiProvider {
             .map(|p| p.as_str())
             .collect::<Vec<_>>()
             .join(", ")
+    }
+}
+
+impl FromStr for AiProvider {
+    type Err = String;
+
+    fn from_str(value: &str) -> Result<Self, Self::Err> {
+        match value {
+            "claude" => Ok(AiProvider::Claude),
+            "codex" => Ok(AiProvider::Codex),
+            "gemini" => Ok(AiProvider::Gemini),
+            _ => Err(format!(
+                "unsupported AI provider '{}'. Available providers: {}",
+                value,
+                AiProvider::all_names()
+            )),
+        }
     }
 }
 
